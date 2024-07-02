@@ -35,9 +35,9 @@ variables:
   - name: testProjectFolder
     value: EPR.Accreditation.Portal/EPR.Accreditation.UnitTests
   - name: sonarQubeProjectKey
-    value: epr-prn-calculator-frontend
+    value: epr-calculator-frontend
   - name: sonarQubeProjectName
-    value: epr-prn-calculator-frontend
+    value: epr-calculator-frontend
   - name: runNugetTasks
     value: true
 
