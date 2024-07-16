@@ -1,8 +1,6 @@
 {
   "devDependencies": {
+    "govuk-frontend": "^5.4.1",
     "sass": "^1.77.0"
-  },
-  "dependencies": {
-    "govuk-frontend": "^5.3.1"
   }
 }

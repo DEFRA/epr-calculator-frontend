@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EPR.Calculator.Frontend.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -6,6 +7,12 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
+            var errors = new List<ErrorViewModel>();
+            errors.Add(new ErrorViewModel { DOMElementId = "", ErrorMessage = "Invalid entry" });
+            errors.Add(new ErrorViewModel { DOMElementId = "", ErrorMessage = "Invalid entry 1" });
+
+            ViewData["errors"] = errors;
+
             return View();
         }
     }
