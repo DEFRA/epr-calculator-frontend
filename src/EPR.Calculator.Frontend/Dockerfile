@@ -11,8 +11,8 @@ WORKDIR /src
 COPY ["EPR.Calculator.Frontend/NuGet.config", "EPR.Calculator.Frontend/"]
 COPY ["EPR.Calculator.Frontend/EPR.Calculator.Frontend.csproj", "EPR.Calculator.Frontend/"]
 COPY ["EPR.Calculator.Frontend.Common/EPR.Calculator.Frontend.Common.csproj", "EPR.Calculator.Frontend.Common/"]
-RUN dotnet restore "./EPR.Calculator.Frontend.csproj"
-COPY . .
+#RUN dotnet restore "./EPR.Calculator.Frontend/EPR.Calculator.Frontend.csproj"
+#COPY . .
 WORKDIR "/src/EPR.Calculator.Frontend"
 RUN dotnet build "./EPR.Calculator.Frontend.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
