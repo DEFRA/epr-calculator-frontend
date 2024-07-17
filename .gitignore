@@ -9,3 +9,5 @@
 /src/EPR.Calculator.Frontend.Common/bin/Debug/net8.0
 /src/EPR.Calculator.Frontend.Common/obj
 /.vs
+/src/EPR.Calculator.Frontend.Common/bin/Debug/net6.0
+/src/EPR.Calculator.Frontend.UnitTests/bin/Debug/net6.0
