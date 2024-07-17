@@ -5,11 +5,11 @@ VisualStudioVersion = 17.9.34902.65
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EPR.Calculator.Frontend", "EPR.Calculator.Frontend\EPR.Calculator.Frontend.csproj", "{7E9FBB7B-BEB7-4B21-A914-56E5E708EB4A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPR.Calculator.Frontend.Common", "EPR.Calculator.Frontend.Common\EPR.Calculator.Frontend.Common.csproj", "{789A8A47-EF08-4DDF-A090-38FFE1485AD3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EPR.Calculator.Frontend.Common", "EPR.Calculator.Frontend.Common\EPR.Calculator.Frontend.Common.csproj", "{789A8A47-EF08-4DDF-A090-38FFE1485AD3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1AA74149-4A10-4D71-8EF0-D0605B232840}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPR.Calculator.Frontend.UnitTests", "EPR.Calculator.Frontend.UnitTests\EPR.Calculator.Frontend.UnitTests.csproj", "{F3BFCE34-7E09-49BD-A9DB-5ADA7510EF85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EPR.Calculator.Frontend.UnitTests", "EPR.Calculator.Frontend.UnitTests\EPR.Calculator.Frontend.UnitTests.csproj", "{F3BFCE34-7E09-49BD-A9DB-5ADA7510EF85}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
