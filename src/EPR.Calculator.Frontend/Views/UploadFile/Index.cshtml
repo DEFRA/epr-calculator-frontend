@@ -1,0 +1,38 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+
+<a href="@Url.Action("Index", "DefaultParameters")" class="govuk-back-link">Back</a>
+
+
+<h1 class="govuk-heading-l">Upload new default calculator parameters</h1>
+
+<h2 class="govuk-heading-m">Before you upload your file</h2>
+
+<div class="govuk-form-group">
+    <p class="govuk-body">Make sure you're using the latest version of the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "UploadFile")">default parameters spreadsheet template</a>.</p>
+</div>
+
+<h2 class="govuk-heading-m">Upload a file</h2>
+<p class="govuk-body">The file must be:</p>
+<ul class="govuk-list govuk-list--bullet">
+    <li>smaller than 50KB</li>
+    <li>in CSV format</li>
+</ul>
+
+<div class="govuk-form-group">
+    <p class="govuk-body">It may take a few minutes for your file to upload - do not close the window while the file is uploading.</p>
+</div>
+
+
+@using (Html.BeginForm("Upload", "UploadFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="govuk-form-group">
+        <input class="govuk-file-upload form-control" id="file-upload-1" name="fileUpload1" type="file">
+    </div>
+
+    <button id="btnUploadFile" type="submit" class="govuk-button" data-module="govuk-button">
+        Upload file
+    </button>
+}
