@@ -24,6 +24,14 @@ parameters:
   - 'SonarQube'
   - 'SonarQubeLatest'
 
+- name: dotnetVersion
+  displayName: 'Select dotnet for v6.0 or dotnetlatest for 8.0'
+  type: string
+  default: 'dotnetVersion6'
+  values:
+  - 'dotnetVersion6'
+  - 'dotnetVersion8'
+
 pool: DEFRA-COMMON-ubuntu2004-SSV3
 
 variables:
@@ -46,7 +54,7 @@ resources:
     - repository: CommonTemplates
       name: RWD-CPR-EPR4P-ADO/epr-webapps-code-deploy-templates
       type: git
-      ref: main
+      ref: upgrade-net-8
 
 extends:
   template: epr-build-pipeline.yaml@CommonTemplates
@@ -65,3 +73,4 @@ extends:
     runNugetTasks: ${{ variables.runNugetTasks }}
     serviceName: $(serviceName)
     sonarqubeInstance: ${{ parameters.sonarqubeInstance }}
+    dotnetVersion: ${{ parameters.dotnetVersion }}
