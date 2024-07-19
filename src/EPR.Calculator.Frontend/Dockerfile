@@ -6,8 +6,8 @@ ENV ASPNETCORE_URLS=http://*:${PORT}
 EXPOSE ${PORT}
 
 # Copy everything
-COPY --chown=dotnet EPR.Calculator.Frontend/EPR.Calculator.Frontend.csproj ./EPR.Calculator.Frontend/
-COPY --chown=dotnet EPR.Calculator.Frontend.Common/EPR.Calculator.Frontend.Common.csproj ./EPR.Calculator.Frontend.Common/
+COPY --chown=dotnet EPR.Calculator.Frontend/*.csproj ./EPR.Calculator.Frontend/
+COPY --chown=dotnet EPR.Calculator.Frontend.Common/*.csproj ./EPR.Calculator.Frontend.Common/
 COPY --chown=dotnet NuGet.Config ./
 
 # Use Build Argument to insert PAT into Nuget file
@@ -15,7 +15,7 @@ ARG PAT=localhost
 RUN sed -i "s|</configuration>|<packageSourceCredentials><epr-packaging-common><add key=\"Username\" value=\"PAT\" /><add key=\"ClearTextPassword\" value=\"${PAT}\" /></epr-packaging-common></packageSourceCredentials></configuration>|" NuGet.Config
 
 # Restore as distinct layers
-COPY EPR.Calculator.Frontend/Directory.Build.props ./
+COPY Directory.Build.props ./
 RUN dotnet restore "EPR.Calculator.Frontend/EPR.Calculator.Frontend.csproj" --configfile "NuGet.Config"
 
 # Install NPM
