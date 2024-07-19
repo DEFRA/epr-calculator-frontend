@@ -15,7 +15,7 @@ ARG PAT=localhost
 RUN sed -i "s|</configuration>|<packageSourceCredentials><epr-packaging-common><add key=\"Username\" value=\"PAT\" /><add key=\"ClearTextPassword\" value=\"${PAT}\" /></epr-packaging-common></packageSourceCredentials></configuration>|" NuGet.Config
 
 # Restore as distinct layers
-COPY ./Directory.Build.props ./
+COPY Directory.Build.props ./
 RUN dotnet restore "EPR.Calculator.Frontend/EPR.Calculator.Frontend.csproj" --configfile "NuGet.Config"
 
 # Install NPM
