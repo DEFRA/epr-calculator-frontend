@@ -36,10 +36,9 @@ RUN dotnet publish -c Release -o out
 FROM defradigital/dotnetcore-development:dotnet8.0
 COPY --from=build-env --chown=dotnet /home/dotnet/EPR.Calculator.Frontend/out .
 
-RUN npm install
-
 # Install tzdata
 USER root
+RUN npm install
 RUN apk add --no-cache tzdata
 USER dotnet
 
