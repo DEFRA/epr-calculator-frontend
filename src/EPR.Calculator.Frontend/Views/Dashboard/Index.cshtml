@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-three-quarters">
+        <p></p>
+    </div>
+    <div class="govuk-grid-column-one-quarter govuk-body-s account-info">
+        <span class="your-name" id="bannerUserName">Jamie Roberts</span> &ensp;
+        <a class="account-link" href="details" id="signout-link">Sign out</a>
+    </div>
+</div>
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-xl">Calculate packaging payments</h1>
+        <div class="govuk-grid-row govuk-!-margin-bottom-7">
+            <div class="govuk-grid-column-one-half">
+                <div class="dashboard-page card">
+                    <h2 class="govuk-heading-m govuk-link">
+                        <a href="default-settings" class="govuk-link--no-visited-state">
+                            Manage default calculation parameters
+                        </a>
+                    </h2>
+                    <p class="govuk-body">
+                        Upload a spreadsheet to update the default parameters for payment calculations. All calculations will automatically use these parameters, unless they are manually changed.
+                    </p>
+                </div>
+            </div>
+            <div class="govuk-grid-column-one-half">
+                <div class="dashboard-page card">
+                    <h2 class="govuk-heading-m"><a href="name" class="govuk-link--no-visited-state">Run a new calculation</a></h2>
+                    <p class="govuk-body">
+                        The calculation will use the default parameters that your account administrator set up, unless you choose to change any of them.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
