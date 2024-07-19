@@ -21,10 +21,13 @@ RUN dotnet restore "EPR.Calculator.Frontend/EPR.Calculator.Frontend.csproj" --co
 # Install NPM
 USER root
 RUN apk update && apk add --no-cache npm
+RUN apt-get update -yq && apt-get upgrade -yq && apt-get install -yq curl git nano
+RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs build-essential
+RUN npm install -g npm
+RUN npm install
+RUN dotnet build "myProject.WebUi.csproj" -c Release -o /app
 USER dotnet
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/internal-ca.crt
-# COPY EPR.Calculator.Frontend/package.json ./EPR.Calculator.Frontend/
-# WORKDIR /home/dotnet/EPR.Calculator.Frontend
 
 # Build and publish a release
 COPY --chown=dotnet EPR.Calculator.Frontend/. ./EPR.Calculator.Frontend/.
@@ -38,7 +41,6 @@ COPY --from=build-env --chown=dotnet /home/dotnet/EPR.Calculator.Frontend/out .
 
 # Install tzdata
 USER root
-RUN npm install
 RUN apk add --no-cache tzdata
 USER dotnet
 
