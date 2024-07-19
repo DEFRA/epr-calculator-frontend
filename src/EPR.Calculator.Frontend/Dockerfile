@@ -21,7 +21,6 @@ RUN dotnet restore "EPR.Calculator.Frontend/EPR.Calculator.Frontend.csproj" --co
 # Install NPM
 USER root
 RUN apk update && apk add --no-cache npm
-RUN apt-get update -yq && apt-get upgrade -yq && apt-get install -yq curl git nano
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs build-essential
 RUN npm install -g npm
 RUN npm install
