@@ -21,6 +21,7 @@ RUN dotnet restore "EPR.Calculator.Frontend/EPR.Calculator.Frontend.csproj" --co
 # Install NPM
 USER root
 RUN apk update && apk add --no-cache npm
+RUN npm install
 USER dotnet
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/internal-ca.crt
 
