@@ -23,9 +23,8 @@ USER root
 RUN apk update && apk add --no-cache npm
 USER dotnet
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/internal-ca.crt
-COPY EPR.Calculator.Frontend/package.json ./EPR.Calculator.Frontend/
-WORKDIR /home/dotnet/EPR.Calculator.Frontend
-RUN npm install
+# COPY EPR.Calculator.Frontend/package.json ./EPR.Calculator.Frontend/
+# WORKDIR /home/dotnet/EPR.Calculator.Frontend
 
 # Build and publish a release
 COPY --chown=dotnet EPR.Calculator.Frontend/. ./EPR.Calculator.Frontend/.
@@ -36,6 +35,8 @@ RUN dotnet publish -c Release -o out
 # Build runtime image
 FROM defradigital/dotnetcore-development:dotnet8.0
 COPY --from=build-env --chown=dotnet /home/dotnet/EPR.Calculator.Frontend/out .
+
+RUN npm install
 
 # Install tzdata
 USER root
