@@ -1,4 +1,4 @@
-namespace EPR.Calculator.Frontend.UnitTests
+﻿namespace EPR.Calculator.Frontend.UnitTests
 {
     [TestClass]
     public class UnitTest1
