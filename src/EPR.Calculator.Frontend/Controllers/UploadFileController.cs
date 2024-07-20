@@ -1,17 +1,14 @@
-﻿using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyModel.Resolution;
-using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     public class UploadFileController : Controller
     {
         private static bool _isTaskSuccessful = false;
-        private const long MaxFileSize = 50 * 1024 * 1024; //50 MB
+        private const long MaxFileSize = 50 * 1024; //50 KB
 
         public IActionResult Index()
         {
@@ -19,34 +16,24 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult Upload(IFormFile fileUpload1)
+        public IActionResult Upload(IFormFile fileUpload)
         {
-            var error = string.Empty;
-            if (fileUpload1 == null || fileUpload1.Length == 0)
+            if (CsvFileValidation(fileUpload) != null && CsvFileValidation(fileUpload).Count > 0)
             {
-                error = "Please select a file.";
-            }
-            if (fileUpload1 != null && !fileUpload1.FileName.EndsWith(".csv"))
-            {
-                error = "The file must be a csv.";
-            }
-            if (fileUpload1 != null && fileUpload1.Length > MaxFileSize)
-            {
-                error = "This file size must not exceed 50MB";
-            }
-            if (!string.IsNullOrEmpty(error))
-            {
-                var errorModel = new List<ErrorViewModel>
-                {
-                    new() { DOMElementId = "", ErrorMessage = error }
-                };
-
-                TempData["Errors"] = JsonSerializer.Serialize(errorModel);
-
                 return RedirectToAction("Index", "UploadCSVError");
             }
             return View("Refresh");
+        }
 
+        public IActionResult Upload()
+        {
+            if (TempData["FilePath"] != null)
+            {
+                using var stream = System.IO.File.OpenRead(TempData["FilePath"].ToString());
+                var fileUpload = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
+                CsvFileValidation(fileUpload);
+            }
+            return View("Refresh");
         }
 
         [HttpPost]
@@ -68,11 +55,38 @@ namespace EPR.Calculator.Frontend.Controllers
 
         public IActionResult DownloadCsvTemplate()
         {
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "templates", "test.csv");
-            var mimeType = "text/csv";
-            var fileName = "test.csv";
-            return PhysicalFile(filePath, mimeType, fileName);
+            try
+            {
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), StaticHelpers.Path);
+                return PhysicalFile(filePath, "text/csv", "test.csv");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occured while processing request" + ex.Message);
 
+            }
+        }
+
+        private List<ErrorViewModel> CsvFileValidation(IFormFile fileUpload)
+        {
+            var listErrorViewModel = new List<ErrorViewModel>();
+            if (fileUpload == null || fileUpload.Length == 0)
+            {
+                listErrorViewModel.Add(new ErrorViewModel() { ErrorMessage = StaticHelpers.FileNotSelected });
+            }
+            if (fileUpload != null && !fileUpload.FileName.EndsWith(".csv"))
+            {
+                listErrorViewModel.Add(new ErrorViewModel() { ErrorMessage = StaticHelpers.FileMustBeCSV });
+            }
+            if (fileUpload != null && fileUpload.Length > MaxFileSize)
+            {
+                listErrorViewModel.Add(new ErrorViewModel() { ErrorMessage = StaticHelpers.FileNotExceed50KB });
+            }
+            if (listErrorViewModel != null && listErrorViewModel.Count > 0)
+            {
+                TempData["Errors"] = JsonSerializer.Serialize(listErrorViewModel);
+            }
+            return listErrorViewModel;
         }
 
     }
