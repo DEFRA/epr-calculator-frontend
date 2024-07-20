@@ -28,9 +28,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 TempData["FilePath"] = filePath;
-                return RedirectToAction("Upload", "UploadFile");
             }
-            return View("Refresh");
+            return RedirectToAction("Upload", "UploadFile");
         }
     }
 }
