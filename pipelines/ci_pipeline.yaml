@@ -40,13 +40,15 @@ variables:
     value: epr-calculator-frontend
   - name: runNugetTasks
     value: true
+  - name: dotnetVersion
+    value: dotnetVersion8
 
 resources:
   repositories:
     - repository: CommonTemplates
       name: RWD-CPR-EPR4P-ADO/epr-webapps-code-deploy-templates
       type: git
-      ref: main
+      ref: upgrade-net-8
 
 extends:
   template: epr-build-pipeline.yaml@CommonTemplates
@@ -65,3 +67,4 @@ extends:
     runNugetTasks: ${{ variables.runNugetTasks }}
     serviceName: $(serviceName)
     sonarqubeInstance: ${{ parameters.sonarqubeInstance }}
+    dotnetVersion: ${{ variables.dotnetVersion }}
