@@ -3,7 +3,6 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace EPR.Calculator.Frontend.Controllers
 {
     public class UploadFileController : Controller
@@ -94,6 +93,5 @@ namespace EPR.Calculator.Frontend.Controllers
 
             return listErrorViewModel;
         }
-
     }
 }
