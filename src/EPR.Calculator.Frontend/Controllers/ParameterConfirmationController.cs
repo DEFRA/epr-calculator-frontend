@@ -2,7 +2,7 @@
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    public class DashboardController : Controller
+    public class ParameterConfirmationController : Controller
     {
         public IActionResult Index()
         {
