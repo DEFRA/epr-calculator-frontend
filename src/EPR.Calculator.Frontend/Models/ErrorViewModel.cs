@@ -1,4 +1,4 @@
-namespace EPR.Calculator.Frontend.Models
+﻿namespace EPR.Calculator.Frontend.Models
 {
     public class ErrorViewModel
     {
