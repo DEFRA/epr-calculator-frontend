@@ -24,8 +24,6 @@ RUN apk update && apk add --no-cache npm
 USER dotnet
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/internal-ca.crt
 
-RUN echo "-------------------------------------------"
-# WORKDIR /home/dotnet/EPR.Calculator.Frontend
 COPY EPR.Calculator.Frontend/package.json package.json
 RUN npm install
 
