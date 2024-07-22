@@ -1,6 +1,7 @@
+using System.Diagnostics;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+
 
 namespace EPR.Calculator.Frontend.Controllers
 {

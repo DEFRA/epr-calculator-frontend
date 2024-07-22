@@ -1,6 +1,6 @@
-﻿using EPR.Calculator.Frontend.Models;
+﻿using System.Text.Json;
+using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -12,6 +12,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 ViewBag.Errors = JsonSerializer.Deserialize<List<ErrorViewModel>>(TempData["Errors"].ToString());
             }
+
             return View();
         }
 
@@ -22,13 +23,14 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var fileName = Path.GetFileName(fileUpload.FileName);
                 var filePath = Path.Combine(Path.GetTempPath(), fileName);
-                using (var stream = new FileStream(filePath,FileMode.Create))
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await fileUpload.CopyToAsync(stream);
                 }
 
                 TempData["FilePath"] = filePath;
             }
+
             return RedirectToAction("Upload", "UploadFile");
         }
     }
