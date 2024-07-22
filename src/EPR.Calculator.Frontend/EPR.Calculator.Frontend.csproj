@@ -30,4 +30,8 @@
 		<ProjectReference Include="..\EPR.Calculator.Frontend.Common\EPR.Calculator.Frontend.Common.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="wwwroot\assets\SchemeParameterTemplates\" />
+	</ItemGroup>
+
 </Project>
