@@ -1,7 +1,12 @@
-﻿@{
-    ViewData["Title"] = "Run the service administrator calculator - Upload CSV Error";
-    var errorList = ViewData["errors"] as ErrorViewModel[];
+﻿@using EPR.Calculator.Frontend.Contents;
+@model EPR.Calculator.Frontend.Models.UploadCSVErrorViewModel;
+
+@{
+    ViewData["Title"] = UploadCSVError.Title;   
 }
+
+
+<a href="@Model.RouteName" class="govuk-back-link">Back</a>
 
 <div class="govuk-error-summary" data-module="govuk-error-summary">
     <div role="alert">
@@ -10,10 +15,10 @@
         </h2>
         <div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
-                @foreach (var error in errorList)
+                @foreach (var error in Model.errorViewModels)
                 {
                     <li>
-                        <a href="@error.DOMElementId">@error.ErrorMessage</a>
+                        <a href="#@error.DOMElementId">@error.ErrorMessage</a>
                     </li>
                 }
             </ul>

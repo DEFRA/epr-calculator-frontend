@@ -1060,4 +1060,19 @@
     <TypeScriptCompile Include="wwwroot\node_modules\source-map-js\source-map.d.ts" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Contents\UploadCSVError.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UploadCSVError.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Contents\UploadCSVError.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>UploadCSVError.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

@@ -8,12 +8,12 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult Index()
         {
             var errors = new List<ErrorViewModel>();
-            errors.Add(new ErrorViewModel { DOMElementId = "", ErrorMessage = "Invalid entry" });
-            errors.Add(new ErrorViewModel { DOMElementId = "", ErrorMessage = "Invalid entry 1" });
+            errors.Add(new ErrorViewModel { DOMElementId = "file-upload-1", ErrorMessage = "Invalid entry" });
+            errors.Add(new ErrorViewModel { DOMElementId = "file-upload-1", ErrorMessage = "Invalid entry 1" });
 
-            ViewData["errors"] = errors;
-
-            return View();
+            var viewModel = new UploadCSVErrorViewModel();
+            viewModel.errorViewModels = errors;
+            return View(viewModel);
         }
     }
 }
