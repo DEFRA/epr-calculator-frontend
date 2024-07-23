@@ -26,18 +26,25 @@
         </div>
     </div>
 }
-
-
-
-<h1 class="govuk-heading-l">Upload new default calculator parameters</h1>
-
-<h2 class="govuk-heading-m">Before you upload your file</h2>
+@if (errors != null)
+{
+    <h1 class="govuk-heading-l">Upload the file again</h1>
+}
+else
+{
+    <h1 class="govuk-heading-l">Upload new default calculator parameters</h1>
+    <h2 class="govuk-heading-m">Before you upload your file</h2>
+}
 
 <div class="govuk-form-group">
     <p class="govuk-body">Make sure you're using the latest version of the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "UploadFile")">default parameters spreadsheet template</a>.</p>
 </div>
 
-<h2 class="govuk-heading-m">Upload a file</h2>
+@if (errors == null)
+{
+    <h2 class="govuk-heading-m">Upload a file</h2>
+}
+
 <p class="govuk-body">The file must be:</p>
 <ul class="govuk-list govuk-list--bullet">
     <li>smaller than 50KB</li>

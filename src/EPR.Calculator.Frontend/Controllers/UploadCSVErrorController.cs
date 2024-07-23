@@ -14,9 +14,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 new() { DOMElementId = string.Empty, ErrorMessage = "Invalid Entry1" },
             };
 
-            TempData["Errors"] = listErrorViewModel;
-            ViewBag.Errors = TempData["Errors"];
-
+            ViewBag.Errors = listErrorViewModel;
             return View();
         }
 
