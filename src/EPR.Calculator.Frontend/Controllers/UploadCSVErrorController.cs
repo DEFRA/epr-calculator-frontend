@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Models;
+﻿using System.Text.Json;
+using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -10,7 +11,30 @@ namespace EPR.Calculator.Frontend.Controllers
             var errors = new List<ErrorViewModel>();
             errors.Add(new ErrorViewModel { DOMElementId = "file-upload-1", ErrorMessage = "Invalid entry" });
             errors.Add(new ErrorViewModel { DOMElementId = "file-upload-1", ErrorMessage = "Invalid entry 1" });
+            if (TempData["Errors"] != null)
+            {
+                ViewBag.Errors = JsonSerializer.Deserialize<List<ErrorViewModel>>(TempData["Errors"].ToString());
+            }
 
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Upload(IFormFile fileUpload)
+        {
+            if (fileUpload != null)
+            {
+                var fileName = Path.GetFileName(fileUpload.FileName);
+                var filePath = Path.Combine(Path.GetTempPath(), fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await fileUpload.CopyToAsync(stream);
+                }
+
+                TempData["FilePath"] = filePath;
+            }
+
+            return RedirectToAction("Upload", "UploadFile");
             var viewModel = new UploadCSVErrorViewModel();
             viewModel.errorViewModels = errors;
             return View(viewModel);

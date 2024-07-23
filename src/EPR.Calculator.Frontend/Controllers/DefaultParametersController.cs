@@ -2,11 +2,11 @@
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    public class DashboardController : Controller
+    public class DefaultParametersController : Controller
     {
         public IActionResult Index()
         {
-            return View("Index");
+            return View();
         }
     }
 }
