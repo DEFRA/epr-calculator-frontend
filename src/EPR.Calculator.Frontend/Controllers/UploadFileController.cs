@@ -20,7 +20,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (CsvFileValidation(fileUpload) != null && CsvFileValidation(fileUpload).Count > 0)
             {
-                return RedirectToAction("Index", "UploadCSVError");
+                if (TempData["Errors"] != null)
+                {
+                    ViewBag.Errors = JsonSerializer.Deserialize<List<ErrorViewModel>>(TempData["Errors"].ToString());
+                    return View("Index");
+                }
             }
 
             return View("Refresh");

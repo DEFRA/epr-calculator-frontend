@@ -8,11 +8,13 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
-            if (TempData["Errors"] != null)
+            var listErrorViewModel = new List<ErrorViewModel>
             {
-                ViewBag.Errors = JsonSerializer.Deserialize<List<ErrorViewModel>>(TempData["Errors"].ToString());
-            }
+                new() { DOMElementId = string.Empty, ErrorMessage = "Invalid Entry" },
+                new() { DOMElementId = string.Empty, ErrorMessage = "Invalid Entry1" },
+            };
 
+            ViewBag.Errors = listErrorViewModel;
             return View();
         }
 

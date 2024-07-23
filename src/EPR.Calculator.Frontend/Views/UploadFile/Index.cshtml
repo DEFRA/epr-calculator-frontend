@@ -1,20 +1,51 @@
 ﻿@{
     Layout = "_Layout";
+    var errors = ViewBag.Errors;
 }
 
 
 <a href="@Url.Action("Index", "DefaultParameters")" class="govuk-back-link">Back</a>
 
-
+@if (errors != null)
+{
+    <div class="govuk-error-summary" data-module="govuk-error-summary">
+        <div role="alert">
+            <h2 class="govuk-error-summary__title">
+                There was a problem with your upload
+            </h2>
+            <div class="govuk-error-summary__body">
+                <ul class="govuk-list govuk-error-summary__list">
+                    @foreach (var error in errors)
+                    {
+                        <li>
+                            <a href="#file-upload-1">@error.ErrorMessage</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+}
+@if (errors != null)
+{
+    <h1 class="govuk-heading-l">Upload the file again</h1>
+}
+else
+{
 <h1 class="govuk-heading-l">Upload new default calculator parameters</h1>
 
 <h2 class="govuk-heading-m">Before you upload your file</h2>
+}
 
 <div class="govuk-form-group">
     <p class="govuk-body">Make sure you're using the latest version of the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "UploadFile")">default parameters spreadsheet template</a>.</p>
 </div>
 
+@if (errors == null)
+{
 <h2 class="govuk-heading-m">Upload a file</h2>
+}
+
 <p class="govuk-body">The file must be:</p>
 <ul class="govuk-list govuk-list--bullet">
     <li>smaller than 50KB</li>
