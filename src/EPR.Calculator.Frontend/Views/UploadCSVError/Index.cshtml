@@ -1,0 +1,46 @@
+﻿@{
+    ViewData["Title"] = "Run the service administrator calculator - Upload CSV Error";
+    var errors = ViewBag.Errors;
+}
+
+<div class="govuk-error-summary" data-module="govuk-error-summary">
+    <div role="alert">
+        <h2 class="govuk-error-summary__title">
+            There was a problem with your upload
+        </h2>
+        <div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+                @if (errors != null)
+                {
+                    @foreach (var error in errors)
+                    {
+                        <li>
+                            <a href="#file-upload-1">@error.ErrorMessage</a>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+<div>
+    <h1 class="govuk-heading-l">Upload the file again</h1>
+    <p class="govuk-body">Make sure you're using the latest version of the <a href="@Url.Action("DownloadCsvTemplate", "UploadFile")">default parameter spreadsheet template</a></p>
+    <p class="govuk-body">The file must be:</p>
+    <ul class="govuk-list govuk-list--bullet">
+        <li>small than 50KB</li>
+        <li>in CSV format</li>
+    </ul>
+    <p class="govuk-body">It may take a few minutes for your file to upload - do not close the window while the file is uploading.</p>
+
+    @using (Html.BeginForm("Upload", "UploadCSVError", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="govuk-form-group">
+            <input class="govuk-file-upload form-control" id="file-upload-1" name="fileUpload" type="file">
+        </div>
+
+        <button id="btnUploadFile" type="submit" class="govuk-button" data-module="govuk-button">
+            Upload file
+        </button>
+    }
+</div>
