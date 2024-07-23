@@ -6,7 +6,7 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class UploadCSVErrorController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Index(string errors)
         {
             var listErrorViewModel = new List<ErrorViewModel>
             {
@@ -14,7 +14,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 new() { DOMElementId = string.Empty, ErrorMessage = "Invalid Entry1" },
             };
 
-            ViewBag.Errors = listErrorViewModel;
+            TempData["Errors"] = listErrorViewModel;
+            ViewBag.Errors = TempData["Errors"];
 
             return View();
         }
