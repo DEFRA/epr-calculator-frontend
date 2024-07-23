@@ -6,7 +6,7 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class UploadCSVErrorController : Controller
     {
-        public IActionResult Index(string errors)
+        public IActionResult Index()
         {
             var listErrorViewModel = new List<ErrorViewModel>
             {
