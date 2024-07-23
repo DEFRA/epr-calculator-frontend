@@ -61,7 +61,7 @@ namespace EPR.Calculator.Frontend.Contents {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Dashboard.
+        ///   Looks up a localized string similar to DefaultParameters.
         /// </summary>
         public static string BackRoute {
             get {

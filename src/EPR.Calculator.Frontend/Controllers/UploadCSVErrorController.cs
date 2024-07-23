@@ -6,17 +6,15 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class UploadCSVErrorController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Index(string errors)
         {
-            var errors = new List<ErrorViewModel>();
-            errors.Add(new ErrorViewModel { DOMElementId = "file-upload-1", ErrorMessage = "Invalid entry" });
-            errors.Add(new ErrorViewModel { DOMElementId = "file-upload-1", ErrorMessage = "Invalid entry 1" });
-            if (TempData["Errors"] != null)
+            var viewModel = new UploadCSVErrorViewModel();
+            if (errors != null)
             {
-                ViewBag.Errors = JsonSerializer.Deserialize<List<ErrorViewModel>>(TempData["Errors"].ToString());
+                viewModel.errorViewModels = JsonSerializer.Deserialize<List<ErrorViewModel>>(errors);
             }
 
-            return View();
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -35,9 +33,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return RedirectToAction("Upload", "UploadFile");
-            var viewModel = new UploadCSVErrorViewModel();
-            viewModel.errorViewModels = errors;
-            return View(viewModel);
         }
     }
 }

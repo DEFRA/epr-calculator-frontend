@@ -9,6 +9,8 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         private const long MaxFileSize = 50 * 1024; // 50 KB
         private static bool _isTaskSuccessful = false;
+        private const string DOMElementId = "file-upload-1";
+        protected List<ErrorViewModel> listErrorViewModel;
 
         public IActionResult Index()
         {
@@ -18,9 +20,10 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult Upload(IFormFile fileUpload)
         {
-            if (CsvFileValidation(fileUpload) != null && CsvFileValidation(fileUpload).Count > 0)
+            var fileValidation = CsvFileValidation(fileUpload);
+            if (fileValidation != null && fileValidation.Count > 0)
             {
-                return RedirectToAction("Index", "UploadCSVError");
+                return RedirectToAction("Index", "UploadCSVError", new {errors = JsonSerializer.Serialize(listErrorViewModel) });
             }
 
             return View("Refresh");
@@ -51,7 +54,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             else
             {
-                return Json(new { newUrl = Url.Action("Index", "UploadCSVError") });
+                return RedirectToAction("Index", "UploadCSVError", new { errors = JsonSerializer.Serialize(listErrorViewModel) });
             }
         }
 
@@ -70,25 +73,20 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private List<ErrorViewModel> CsvFileValidation(IFormFile fileUpload)
         {
-            var listErrorViewModel = new List<ErrorViewModel>();
+            listErrorViewModel = new List<ErrorViewModel>();
             if (fileUpload == null || fileUpload.Length == 0)
             {
-                listErrorViewModel.Add(new ErrorViewModel() { ErrorMessage = StaticHelpers.FileNotSelected });
+                listErrorViewModel.Add(new ErrorViewModel() { ErrorMessage = StaticHelpers.FileNotSelected,  DOMElementId= DOMElementId });
             }
 
             if (fileUpload != null && !fileUpload.FileName.EndsWith(".csv"))
             {
-                listErrorViewModel.Add(new ErrorViewModel() { ErrorMessage = StaticHelpers.FileMustBeCSV });
+                listErrorViewModel.Add(new ErrorViewModel() { ErrorMessage = StaticHelpers.FileMustBeCSV, DOMElementId = DOMElementId });
             }
 
             if (fileUpload != null && fileUpload.Length > MaxFileSize)
             {
-                listErrorViewModel.Add(new ErrorViewModel() { ErrorMessage = StaticHelpers.FileNotExceed50KB });
-            }
-
-            if (listErrorViewModel != null && listErrorViewModel.Count > 0)
-            {
-                TempData["Errors"] = JsonSerializer.Serialize(listErrorViewModel);
+                listErrorViewModel.Add(new ErrorViewModel() { ErrorMessage = StaticHelpers.FileNotExceed50KB, DOMElementId = DOMElementId });
             }
 
             return listErrorViewModel;

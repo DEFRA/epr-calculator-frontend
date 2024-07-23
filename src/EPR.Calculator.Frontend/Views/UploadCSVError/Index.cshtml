@@ -15,6 +15,8 @@
         </h2>
         <div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
+                @if(Model.errorViewModels is not null)
+                {
                 @foreach (var error in Model.errorViewModels)
                     {
                         <li>
@@ -22,6 +24,7 @@
                         </li>
                     }
                 }
+                
             </ul>
         </div>
     </div>
