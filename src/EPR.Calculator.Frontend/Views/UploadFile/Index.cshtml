@@ -2,9 +2,15 @@
     Layout = "_Layout";
     var errors = ViewBag.Errors;
 }
-
-
-<a href="@Url.Action("Index", "DefaultParameters")" class="govuk-back-link">Back</a>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-three-quarters">
+        <a href="@Url.Action("Index", "DefaultParameters")" class="govuk-back-link">Back</a>
+    </div>
+    <div class="govuk-grid-column-one-quarter govuk-body-s account-info">
+        <span class="your-name" id="bannerUserName">Jamie Roberts</span> &ensp;
+        <a class="account-link" href="details" id="signout-link">Sign out</a>
+    </div>
+</div>
 
 @if (errors != null)
 {
@@ -32,9 +38,9 @@
 }
 else
 {
-<h1 class="govuk-heading-l">Upload new default calculator parameters</h1>
+    <h1 class="govuk-heading-l">Upload new default calculator parameters</h1>
 
-<h2 class="govuk-heading-m">Before you upload your file</h2>
+    <h2 class="govuk-heading-m">Before you upload your file</h2>
 }
 
 <div class="govuk-form-group">
@@ -43,7 +49,7 @@ else
 
 @if (errors == null)
 {
-<h2 class="govuk-heading-m">Upload a file</h2>
+    <h2 class="govuk-heading-m">Upload a file</h2>
 }
 
 <p class="govuk-body">The file must be:</p>
