@@ -5,16 +5,32 @@
 
 function checkstatus() {
     $.ajax({
-        url: 'ProcessData',
-        type: 'POST',
-        success: function (response) {
-            window.location.href = response.newUrl;
+        url:'',
+        type: 'GET',
+        success: function (response,xhr) {          
+            callController(xhr.statusText, response)
         },
-        error: function () {
-            $window.location.href = response.newUrl;
+        error: function (response,xhr) {
+            callController(xhr.statusText, response)
         }
     })
 }
+function callController(type, data) {
+    var url = type === "success" ? "/ParameterConfirmation" : " /UploadCSVError";
+    $.ajax({
+            url: url,
+        type: 'POST',
+        contentType:"application/json",
+        data: JSON.stringify(data),
+        success: function () {           
+                window.location.href = url;
+            },
+            error: function (xhr, status, error) {
+                console.log(status, error);
+            }
+        })
+}
+
 $(function () {
     checkstatus();
 });

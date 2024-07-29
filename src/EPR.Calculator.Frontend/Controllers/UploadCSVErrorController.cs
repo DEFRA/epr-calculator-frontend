@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -10,12 +9,14 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var listErrorViewModel = new List<ErrorViewModel>
             {
-                new() { DOMElementId = string.Empty, ErrorMessage = "Invalid Entry" },
-                new() { DOMElementId = string.Empty, ErrorMessage = "Invalid Entry1" },
+                new() { DOMElementId = string.Empty, ErrorMessage = "Enter the scheme administrator operating costs for England" },
+                new() { DOMElementId = string.Empty, ErrorMessage = "Enter the communication costs for steel" },
+                new() { DOMElementId = string.Empty, ErrorMessage = "Communication costs for wood must be between £0 and £999,999,999.99" },
+                new() { DOMElementId = string.Empty, ErrorMessage = "Scheme setup costs can only include numbers, commas and decimal points" },
             };
 
             ViewBag.Errors = listErrorViewModel;
-            return View();
+            return View("Index");
         }
 
         [HttpPost]

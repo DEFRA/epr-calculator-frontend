@@ -42,23 +42,6 @@ namespace EPR.Calculator.Frontend.Controllers
             return View("Refresh");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ProcessData()
-        {
-            _isTaskSuccessful = false;
-
-            await Task.Delay(5000); // To DO -  API call..
-
-            if (_isTaskSuccessful)
-            {
-                return RedirectToAction("Index", "ParameterConfirmation");
-            }
-            else
-            {
-                return Json(new { newUrl = Url.Action("Index", "UploadCSVError") });
-            }
-        }
-
         public IActionResult DownloadCsvTemplate()
         {
             try
