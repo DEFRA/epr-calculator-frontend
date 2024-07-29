@@ -40,6 +40,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return View("Refresh");
+            // Test - to be deleted
         }
 
         public IActionResult DownloadCsvTemplate()
