@@ -2,6 +2,9 @@
 {
     public static class ViewNames
     {
-        public const string Index = "Index";
+        public const string UploadCSVErrorIndex = "Index";
+        public const string UploadFileIndex = "Index";
+        public const string ParameterConfirmationIndex = "Index";
+        public const string DashboardIndex = "Index";
     }
 }

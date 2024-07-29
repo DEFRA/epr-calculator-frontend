@@ -12,7 +12,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         public IActionResult Index()
         {
-            return View(ViewNames.Index);
+            return View(ViewNames.UploadFileIndex);
         }
 
         [HttpPost]
@@ -23,7 +23,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (TempData["Errors"] != null)
                 {
                     ViewBag.Errors = JsonSerializer.Deserialize<List<ErrorViewModel>>(TempData["Errors"].ToString());
-                    return View(ViewNames.Index);
+                    return View(ViewNames.UploadFileIndex);
                 }
             }
 

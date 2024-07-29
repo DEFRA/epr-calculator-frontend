@@ -13,7 +13,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new ParameterConfirmationController();
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.Index, result.ViewName);
+            Assert.AreEqual(ViewNames.ParameterConfirmationIndex, result.ViewName);
         }
     }
 }

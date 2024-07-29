@@ -6,8 +6,7 @@
 function checkstatus() {
     $.ajax({
         url:'',
-        type: 'POST',
-        data: JSON.stringify(data),
+        type: 'POST',       
         dataType: 'json',
         success: function (response, xhr) {          
             callController(xhr.statusText, response)

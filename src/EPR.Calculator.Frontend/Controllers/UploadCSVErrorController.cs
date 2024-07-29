@@ -17,7 +17,7 @@ namespace EPR.Calculator.Frontend.Controllers
             };
 
             ViewBag.Errors = listErrorViewModel;
-            return View(ViewNames.Index);
+            return View(ViewNames.UploadCSVErrorIndex);
         }
 
         [HttpPost]
