@@ -6,8 +6,10 @@
 function checkstatus() {
     $.ajax({
         url:'',
-        type: 'GET',
-        success: function (response,xhr) {          
+        type: 'POST',
+        data: JSON.stringify(data),
+        dataType: 'json',
+        success: function (response, xhr) {          
             callController(xhr.statusText, response)
         },
         error: function (response,xhr) {

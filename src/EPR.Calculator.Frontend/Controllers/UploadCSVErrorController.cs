@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
+using EPR.Calculator.Frontend.Constants;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -16,7 +17,7 @@ namespace EPR.Calculator.Frontend.Controllers
             };
 
             ViewBag.Errors = listErrorViewModel;
-            return View("Index");
+            return View(StaticHelpers.Index);
         }
 
         [HttpPost]

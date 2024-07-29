@@ -8,5 +8,6 @@
         public const string Path = @"wwwroot/assets/SchemeParameterTemplates/SchemeParameterTemplate.v0.1.xlsx";
         public const string FileName = "test.csv";
         public const string MimeType = "test/csv";
+        public const string Index = "Index";
     }
 }
