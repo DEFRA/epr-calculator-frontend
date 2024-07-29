@@ -10,28 +10,29 @@
         </h2>
         <div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
-                @if (errors != null)
-                {
-                    @foreach (var error in errors)
-                    {
-                        <li>
-                            <a href="#file-upload-1">@error.ErrorMessage</a>
-                        </li>
-                    }
-                }
+               
+                <li>
+                    The data contained errors
+                </li>              
             </ul>
         </div>
     </div>
 </div>
+
+<h2 class="govuk-heading-s">You will need to update this data before you can upload the spreadsheet successfully.</h2>
+
+<ol class="govuk-list govuk-list--number">
+    @if (errors != null)
+    {
+        @foreach (var error in errors)
+        {
+            <li> @error.ErrorMessage</li>
+        }
+    }
+</ol>
+
 <div>
-    <h1 class="govuk-heading-l">Upload the file again</h1>
-    <p class="govuk-body">Make sure you're using the latest version of the <a href="@Url.Action("DownloadCsvTemplate", "UploadFile")">default parameter spreadsheet template</a></p>
-    <p class="govuk-body">The file must be:</p>
-    <ul class="govuk-list govuk-list--bullet">
-        <li>smaller than 50KB</li>
-        <li>in CSV format</li>
-    </ul>
-    <p class="govuk-body">It may take a few minutes for your file to upload - do not close the window while the file is uploading.</p>
+    <h1 class="govuk-heading-l">Upload the file again</h1>   
 
     @using (Html.BeginForm("Upload", "UploadCSVError", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {

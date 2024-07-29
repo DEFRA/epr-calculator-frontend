@@ -5,15 +5,15 @@ using Microsoft.AspNetCore.Mvc;
 namespace EPR.Calculator.Frontend.UnitTests
 {
     [TestClass]
-    public class UploadFileControllerTest
+    public class UploadCSVErrorControllerTest
     {
         [TestMethod]
-        public void UploadFileController_View_Test()
+        public void UploadCSVErrorController_View_Test()
         {
-            var controller = new UploadFileController();
+            var controller = new UploadCSVErrorController();
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.UploadFileIndex, result.ViewName);
+            Assert.AreEqual(ViewNames.UploadCSVErrorIndex, result.ViewName);
         }
     }
 }
