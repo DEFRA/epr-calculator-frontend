@@ -1,7 +1,13 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Globalization;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using CsvHelper;
+using CsvHelper.Configuration;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -18,6 +24,8 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult Upload(IFormFile fileUpload)
         {
+            var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
+
             if (CsvFileValidation(fileUpload) != null && CsvFileValidation(fileUpload).Count > 0)
             {
                 if (TempData["Errors"] != null)
@@ -27,7 +35,48 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
             }
 
+            using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
+            fileUpload.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+            using (var reader = new StreamReader(memoryStream))
+            {
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty),
+                };
+
+                using (var csv = new CsvReader(reader, config))
+                {
+                    csv.Read();
+                    csv.ReadHeader();
+                    while (csv.Read())
+                    {
+                        var parameterRecord = csv.GetRecord<ParameterTemplateValue>();
+                        SchemeParameterTemplateValue schemeParameterValue = new SchemeParameterTemplateValue();
+                        schemeParameterValue.ParameterUniqueReferenceId = csv.GetField(0);
+                        schemeParameterValue.ParameterValue = decimal.Parse(csv.GetField(5));
+                        schemeTemplateParameterValues.Add(schemeParameterValue);
+
+                        Console.WriteLine(csv.GetField(0) + " --- " + csv.GetField(5));
+                    }
+                }
+            }
+
             return View("Refresh");
+        }
+
+        private decimal getParameterValue(string parameterValueFormatted)
+        {
+            var parameterValue = 0;
+
+
+
+            if (parameterValueFormatted.Contains("%"))
+            {
+
+            }
+
+            return parameterValue;
         }
 
         public IActionResult Upload()
