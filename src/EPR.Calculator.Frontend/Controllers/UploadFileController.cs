@@ -18,7 +18,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         public IActionResult Index()
         {
-            return View("Index");
+            return View(ViewNames.UploadFileIndex);
         }
 
         [HttpPost]
@@ -31,7 +31,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (TempData["Errors"] != null)
                 {
                     ViewBag.Errors = JsonSerializer.Deserialize<List<ErrorViewModel>>(TempData["Errors"].ToString());
-                    return View("Index");
+                    return View(ViewNames.UploadFileIndex);
                 }
             }
 
@@ -89,23 +89,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return View("Refresh");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ProcessData()
-        {
-            _isTaskSuccessful = false;
-
-            await Task.Delay(5000); // To DO -  API call..
-
-            if (_isTaskSuccessful)
-            {
-                return RedirectToAction("Index", "ParameterConfirmation");
-            }
-            else
-            {
-                return Json(new { newUrl = Url.Action("Index", "UploadCSVError") });
-            }
+            // Test - to be deleted
         }
 
         public IActionResult DownloadCsvTemplate()
