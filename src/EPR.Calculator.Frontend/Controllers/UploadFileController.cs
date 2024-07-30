@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using CsvHelper;
@@ -7,7 +6,7 @@ using CsvHelper.Configuration;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Protocol;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -24,59 +23,53 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult Upload(IFormFile fileUpload)
         {
-            var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
-
             if (CsvFileValidation(fileUpload) != null && CsvFileValidation(fileUpload).Count > 0)
             {
                 if (TempData["Errors"] != null)
                 {
-                    ViewBag.Errors = JsonSerializer.Deserialize<List<ErrorViewModel>>(TempData["Errors"].ToString());
+                    ViewBag.Errors = System.Text.Json.JsonSerializer.Deserialize<List<ErrorViewModel>>(TempData["Errors"].ToString());
                     return View(ViewNames.UploadFileIndex);
                 }
             }
 
-            using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
-            fileUpload.CopyToAsync(memoryStream);
-            memoryStream.Position = 0;
-            using (var reader = new StreamReader(memoryStream))
+            try
             {
-                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-                {
-                    PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty),
-                };
+                var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
 
-                using (var csv = new CsvReader(reader, config))
+                using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
+                fileUpload.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+                using (var reader = new StreamReader(memoryStream))
                 {
-                    csv.Read();
-                    csv.ReadHeader();
-                    while (csv.Read())
+                    var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                     {
-                        var parameterRecord = csv.GetRecord<ParameterTemplateValue>();
-                        SchemeParameterTemplateValue schemeParameterValue = new SchemeParameterTemplateValue();
-                        schemeParameterValue.ParameterUniqueReferenceId = csv.GetField(0);
-                        schemeParameterValue.ParameterValue = decimal.Parse(csv.GetField(5));
-                        schemeTemplateParameterValues.Add(schemeParameterValue);
-
-                        Console.WriteLine(csv.GetField(0) + " --- " + csv.GetField(5));
+                        PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty),
+                        ShouldSkipRecord = footer => footer.Row.GetField(0).Contains("upload version"),
+                    };
+                    using (var csv = new CsvReader(reader, config))
+                    {
+                        csv.Read();
+                        csv.ReadHeader();
+                        while (csv.Read())
+                        {
+                            var parameterRecord = csv.GetRecord<ParameterTemplateValue>();
+                            SchemeParameterTemplateValue schemeParameterValue = new SchemeParameterTemplateValue();
+                            schemeParameterValue.ParameterUniqueReferenceId = csv.GetField(0);
+                            schemeParameterValue.ParameterValue = getParameterValue(csv.GetField(5));
+                            schemeTemplateParameterValues.Add(schemeParameterValue);
+                        }
                     }
                 }
-            }
 
-            return View("Refresh");
-        }
+                // TempData["schemeTemplateParameterValues"] = schemeTemplateParameterValues;
+                return RedirectToAction("Index", "UploadFileProcessing", new { abc = JsonConvert.SerializeObject(schemeTemplateParameterValues) });
 
-        private decimal getParameterValue(string parameterValueFormatted)
-        {
-            var parameterValue = 0;
-
-
-
-            if (parameterValueFormatted.Contains("%"))
+                // return View("Refresh");
+            } catch(Exception ex)
             {
-
+                // TODO: Navigate to the standard error page once it is implemented
+                return View("Refresh");
             }
-
-            return parameterValue;
         }
 
         public IActionResult Upload()
@@ -89,7 +82,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return View("Refresh");
-            // Test - to be deleted
         }
 
         public IActionResult DownloadCsvTemplate()
@@ -103,6 +95,12 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return StatusCode(500, "An error occured while processing request" + ex.Message);
             }
+        }
+
+        private decimal getParameterValue(string parameterValue)
+        {
+            var parameterValueFormatted = parameterValue.Replace("£", "").Replace("%", "");
+            return Decimal.Parse(parameterValueFormatted);
         }
 
         private List<ErrorViewModel> CsvFileValidation(IFormFile fileUpload)
@@ -125,7 +123,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (listErrorViewModel != null && listErrorViewModel.Count > 0)
             {
-                TempData["Errors"] = JsonSerializer.Serialize(listErrorViewModel);
+                TempData["Errors"] = System.Text.Json.JsonSerializer.Serialize(listErrorViewModel);
             }
 
             return listErrorViewModel;
