@@ -62,7 +62,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 // TempData["schemeTemplateParameterValues"] = schemeTemplateParameterValues;
-                return RedirectToAction("Index", "UploadFileProcessing", new { abc = JsonConvert.SerializeObject(schemeTemplateParameterValues) });
+                return RedirectToAction("Index", "UploadFileProcessing", new { schemeParameterValues = JsonConvert.SerializeObject(schemeTemplateParameterValues) });
 
                 // return View("Refresh");
             } catch(Exception ex)
