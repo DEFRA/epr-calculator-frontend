@@ -1,12 +1,10 @@
-﻿using System.Globalization;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using CsvHelper;
+﻿using CsvHelper;
 using CsvHelper.Configuration;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -61,10 +59,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     }
                 }
 
-                // TempData["schemeTemplateParameterValues"] = schemeTemplateParameterValues;
-                return RedirectToAction("Index", "UploadFileProcessing", new { schemeParameterValues = JsonConvert.SerializeObject(schemeTemplateParameterValues) });
-
-                // return View("Refresh");
+                ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues;
+                return View("Refresh");
             } catch(Exception ex)
             {
                 // TODO: Navigate to the standard error page once it is implemented

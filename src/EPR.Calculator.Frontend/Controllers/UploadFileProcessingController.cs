@@ -1,7 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Net;
-using System.Text.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -23,12 +23,10 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (response.Result.IsSuccessStatusCode && response.Result.StatusCode == HttpStatusCode.Created)
                 {
-                    // Success, redirect to the confirmation page
-                    return RedirectToAction("Index", "ParameterConfirmation");
+                    return Ok(response.Result);
                 }
 
-                // Failed, redirect to list the error messages with an option to upload again
-                return RedirectToAction("Index", "UploadCSVError");
+                return BadRequest(response.Result);
             }
         }
 
@@ -36,11 +34,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var parameterSetting = new CreateDefaultParameterSettingDto
             {
-                ParameterYear = "2024",
-                SchemeParameterTemplateValues = JsonSerializer.Deserialize<List<SchemeParameterTemplateValue>>(schemeParameterValues),
+                ParameterYear = "2025",
+                SchemeParameterTemplateValues = JsonConvert.DeserializeObject<IEnumerable<SchemeParameterTemplateValue>>(schemeParameterValues),
             };
 
-            return System.Text.Json.JsonSerializer.Serialize(parameterSetting);
+            return JsonConvert.SerializeObject(parameterSetting);
         }
     }
 }

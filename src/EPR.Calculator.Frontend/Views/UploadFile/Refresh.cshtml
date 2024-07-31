@@ -1,5 +1,7 @@
 ﻿@{
     Layout = "_Layout";
+
+    var schemeParameterValues = (IEnumerable<SchemeParameterTemplateValue>)ViewData["schemeTemplateParameterValues"];
 }
 
 <script src="~/lib/jquery/dist/jquery.js"></script>
@@ -15,3 +17,7 @@
         <img src="../images/spinner.gif" width="50px" alt="spinning wheel to show the file is loading">
     </p>
 </div>
+
+<script>
+    checkstatus(@Json.Serialize(schemeParameterValues));
+</script>
