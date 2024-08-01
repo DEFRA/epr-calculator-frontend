@@ -7,18 +7,26 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class UploadFileProcessingController : Controller
     {
+        private readonly IConfiguration _configuration;
+
+        public UploadFileProcessingController(IConfiguration configuration) {
+            _configuration = configuration;
+        }
+
         [HttpPost]
         public IActionResult Index([FromBody]List<SchemeParameterTemplateValue> schemeParameterValues)
         {
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://devrwdwebwab422.azurewebsites.net/api/defaultParameterSetting");
+                var parameterSettingsApi = _configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
+
+                client.BaseAddress = new Uri(parameterSettingsApi);
 
                 var payload = Transform(schemeParameterValues);
 
                 var content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
 
-                var response = client.PostAsync("https://devrwdwebwab422.azurewebsites.net/api/defaultParameterSetting", content);
+                var response = client.PostAsync(parameterSettingsApi, content);
 
                 response.Wait();
 
@@ -35,7 +43,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var parameterSetting = new CreateDefaultParameterSettingDto
             {
-                ParameterYear = "2025",
+                ParameterYear = _configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value,
                 SchemeParameterTemplateValues = schemeParameterValues,
             };
 

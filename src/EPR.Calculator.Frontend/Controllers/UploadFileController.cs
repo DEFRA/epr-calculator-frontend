@@ -11,7 +11,6 @@ namespace EPR.Calculator.Frontend.Controllers
     public class UploadFileController : Controller
     {
         private const long MaxFileSize = 50 * 1024; // 50 KB
-        private static bool _isTaskSuccessful = false;
 
         public IActionResult Index()
         {
