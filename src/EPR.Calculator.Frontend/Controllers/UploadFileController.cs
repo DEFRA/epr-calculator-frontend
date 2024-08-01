@@ -60,24 +60,13 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
-                return View("Refresh");
+
+                return View(ViewNames.UploadFileRefresh);
             } catch(Exception ex)
             {
                 // TODO: Navigate to the standard error page once it is implemented
-                return View("Refresh");
+                return View(ViewNames.UploadFileRefresh);
             }
-        }
-
-        public IActionResult Upload()
-        {
-            if (TempData["FilePath"] != null)
-            {
-                using var stream = System.IO.File.OpenRead(TempData["FilePath"].ToString());
-                var fileUpload = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
-                CsvFileValidation(fileUpload);
-            }
-
-            return View("Refresh");
         }
 
         public IActionResult DownloadCsvTemplate()
