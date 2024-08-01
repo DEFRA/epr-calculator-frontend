@@ -59,7 +59,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     }
                 }
 
-                ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues;
+                ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
                 return View("Refresh");
             } catch(Exception ex)
             {

@@ -7,7 +7,8 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class UploadFileProcessingController : Controller
     {
-        public IActionResult Index(string schemeParameterValues)
+        [HttpPost]
+        public IActionResult Index([FromBody]List<SchemeParameterTemplateValue> schemeParameterValues)
         {
             using (var client = new HttpClient())
             {
@@ -30,12 +31,12 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private string Transform(string schemeParameterValues)
+        private string Transform(List<SchemeParameterTemplateValue> schemeParameterValues)
         {
             var parameterSetting = new CreateDefaultParameterSettingDto
             {
                 ParameterYear = "2025",
-                SchemeParameterTemplateValues = JsonConvert.DeserializeObject<IEnumerable<SchemeParameterTemplateValue>>(schemeParameterValues),
+                SchemeParameterTemplateValues = schemeParameterValues,
             };
 
             return JsonConvert.SerializeObject(parameterSetting);
