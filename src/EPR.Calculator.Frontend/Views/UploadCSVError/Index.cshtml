@@ -1,19 +1,11 @@
 ﻿@{
     ViewData["Title"] = "Run the service administrator calculator - Upload CSV Error";
     var errors = ViewBag.Errors;
+    var BackLink = "UploadFile";
 }
 
-<div class="govuk-grid-row">
+<partial name="_BackLinkPartial" model="BackLink" />
 
-    <div class="govuk-grid-column-three-quarters">
-        <a href="@Url.Action("Index", "DefaultParameters")" class="govuk-back-link">Back</a>
-    </div>
-    <div class="govuk-body-s account-info govuk-grid-column-one-quarter" style="margin-top:20px;">
-        <span class="your-name" id="bannerUserName">Jamie Roberts</span> &ensp;
-        <a class="account-link" href="details" id="signout-link">Sign out</a>
-    </div>
-
-</div>
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <div class="govuk-error-summary" data-module="govuk-error-summary">
