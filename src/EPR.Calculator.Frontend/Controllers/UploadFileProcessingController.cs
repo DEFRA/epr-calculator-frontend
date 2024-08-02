@@ -35,7 +35,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     return Ok(response.Result);
                 }
 
-                return BadRequest(response.Result);
+                return BadRequest(response.Result.Content.ReadAsStringAsync().Result);
             }
         }
 

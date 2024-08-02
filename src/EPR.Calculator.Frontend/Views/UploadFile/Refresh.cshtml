@@ -31,8 +31,25 @@
                 window.location.href = '/ParameterConfirmation';
             },
             error: function (xhr, status, error) {
-                window.location.href = '/UploadCSVError';
+                callController('UploadCSVError', xhr.responseText);
             }
         });
+    }
+
+    function callController(action, data) {
+        var url = "/" + action;
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: function () {
+                window.location.href = url;
+            },
+            error: function (xhr, status, error) {
+                // TODO: Navigate to the standard error page once it is ready
+                // window.location.href = '/Error';
+            }
+        })
     }
 </script>
