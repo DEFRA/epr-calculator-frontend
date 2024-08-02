@@ -10,7 +10,7 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
-            var errors = JsonConvert.DeserializeObject<List<ErrorDto>>(HttpContext.Session.GetString("ERROR"));
+            var errors = JsonConvert.DeserializeObject<List<ErrorDto>>(HttpContext.Session.GetString("Default_Parameter_Upload_Errors"));
 
             var listErrorViewModel = new List<ErrorViewModel>();
 
@@ -24,9 +24,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult Index([FromBody]string errors)
         {
-            var listErrorViewModel = new List<ErrorViewModel>();
-
-            HttpContext.Session.SetString("ERROR", errors);
+            HttpContext.Session.SetString("Default_Parameter_Upload_Errors", errors);
 
             return Ok();
         }

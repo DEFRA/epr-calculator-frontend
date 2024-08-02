@@ -25,9 +25,9 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 if (ValidateCSV(fileUpload).Count > 0)
                 {
-                    if (TempData["Errors"] != null)
+                    if (TempData["Default_Parameter_Upload_Errors"] != null)
                     {
-                        ViewBag.Errors = JsonConvert.DeserializeObject<List<ErrorViewModel>>(TempData["Errors"].ToString());
+                        ViewBag.Errors = JsonConvert.DeserializeObject<List<ErrorViewModel>>(TempData["Default_Parameter_Upload_Errors"].ToString());
                         return View(ViewNames.UploadFileIndex);
                     }
                 }
@@ -56,9 +56,9 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     if (ValidateCSV(fileUpload).Count > 0)
                     {
-                        if (TempData["Errors"] != null)
+                        if (TempData["Default_Parameter_Upload_Errors"] != null)
                         {
-                            ViewBag.Errors = JsonConvert.DeserializeObject<List<ErrorViewModel>>(TempData["Errors"].ToString());
+                            ViewBag.Errors = JsonConvert.DeserializeObject<List<ErrorViewModel>>(TempData["Default_Parameter_Upload_Errors"].ToString());
                             return View(ViewNames.UploadFileIndex);
                         }
                     }
@@ -150,7 +150,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (validationErrors.Count > 0)
             {
-                TempData["Errors"] = JsonConvert.SerializeObject(validationErrors);
+                TempData["Default_Parameter_Upload_Errors"] = JsonConvert.SerializeObject(validationErrors);
             }
 
             return validationErrors;
