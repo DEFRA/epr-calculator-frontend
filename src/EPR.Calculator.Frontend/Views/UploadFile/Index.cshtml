@@ -1,23 +1,18 @@
 ﻿@{
     Layout = "_Layout";
     var errors = ViewBag.Errors;
+    var BackLink = "DefaultParameters";
 }
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-three-quarters">
-        <a href="@Url.Action("Index", "DefaultParameters")" class="govuk-back-link">Back</a>
-    </div>
-    <div class="govuk-grid-column-one-quarter govuk-body-s account-info">
-        <span class="your-name" id="bannerUserName">Jamie Roberts</span> &ensp;
-        <a class="account-link" href="details" id="signout-link">Sign out</a>
-    </div>
-</div>
+
+    <partial name="_BackLinkPartial" model="BackLink" />
+
 
 @if (errors != null)
 {
     <div class="govuk-error-summary" data-module="govuk-error-summary">
         <div role="alert">
             <h2 class="govuk-error-summary__title">
-                There was a problem with your upload
+                There is a problem with your upload
             </h2>
             <div class="govuk-error-summary__body">
                 <ul class="govuk-list govuk-error-summary__list">
@@ -49,7 +44,7 @@ else
 
 @if (errors == null)
 {
-    <h2 class="govuk-heading-m">Upload a file</h2>
+    <h2 class="govuk-heading-m"><label for="file-upload-1">Upload a file</label></h2>
 }
 
 <p class="govuk-body">The file must be:</p>
