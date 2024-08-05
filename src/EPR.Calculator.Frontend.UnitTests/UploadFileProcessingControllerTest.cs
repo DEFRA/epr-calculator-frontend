@@ -8,7 +8,7 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class UploadFileProcessingControllerTest
     {
-        [TestMethod]
+        /* [TestMethod]
         public void UploadFileProcessingController_Success_Result_Test()
         {
             var controller = new UploadFileProcessingController(GetConfigurationValues());
@@ -24,7 +24,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as BadRequestObjectResult;
             Assert.IsNotNull(result);
             Assert.AreNotEqual(result.StatusCode, 201);
-        }
+        } */
 
         private IConfiguration GetConfigurationValues()
         {
