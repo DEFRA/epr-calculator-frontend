@@ -1,11 +1,11 @@
-﻿using CsvHelper;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
+using CsvHelper;
 using CsvHelper.Configuration;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Globalization;
-using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -68,9 +68,9 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     return View(ViewNames.UploadFileRefresh);
                 }
-                // TODO: Navigate to the standard error page once it is implemented
+
                 // Code will reach this point if the uploaded file is not available
-                return View(ViewNames.UploadFileRefresh);
+                return RedirectToAction("Index", "StandardError");
             }
             catch (Exception ex)
             {
@@ -112,8 +112,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     while (csv.Read())
                     {
                         schemeTemplateParameterValues.Add(
-                            new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = GetParameterValue(csv.GetField(5)) }
-                        );
+                            new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = GetParameterValue(csv.GetField(5)) });
                     }
                 }
             }
@@ -123,7 +122,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private decimal GetParameterValue(string parameterValue)
         {
-            var parameterValueFormatted = parameterValue.Replace("£", "").Replace("%", "");
+            var parameterValueFormatted = parameterValue.Replace("£", string.Empty).Replace("%", string.Empty);
             return Decimal.Parse(parameterValueFormatted);
         }
 

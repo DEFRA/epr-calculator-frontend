@@ -2,7 +2,6 @@
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -26,7 +25,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 return RedirectToAction("Index", "StandardError");
             }
         }
-
 
         [HttpPost]
         public IActionResult Index([FromBody]string errors)

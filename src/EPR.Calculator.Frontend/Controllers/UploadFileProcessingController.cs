@@ -1,7 +1,7 @@
-﻿using EPR.Calculator.Frontend.Models;
+﻿using System.Net;
+using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -9,7 +9,8 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         private readonly IConfiguration _configuration;
 
-        public UploadFileProcessingController(IConfiguration configuration) {
+        public UploadFileProcessingController(IConfiguration configuration)
+        {
             _configuration = configuration;
         }
 

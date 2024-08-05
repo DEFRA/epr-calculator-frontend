@@ -15,6 +15,5 @@
         public string ParameterValue { get; set; }
 
         public string Instructions { get; set; }
-
     }
 }
