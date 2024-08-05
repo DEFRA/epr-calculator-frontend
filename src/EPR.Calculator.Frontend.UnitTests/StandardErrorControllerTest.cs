@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
