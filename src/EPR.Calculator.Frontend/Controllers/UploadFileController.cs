@@ -123,7 +123,7 @@ namespace EPR.Calculator.Frontend.Controllers
         private decimal GetParameterValue(string parameterValue)
         {
             var parameterValueFormatted = parameterValue.Replace("£", string.Empty).Replace("%", string.Empty);
-            return Decimal.Parse(parameterValueFormatted);
+            return decimal.Parse(parameterValueFormatted);
         }
 
         private List<ErrorViewModel> ValidateCSV(IFormFile fileUpload)
@@ -132,17 +132,17 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (fileUpload == null || fileUpload.Length == 0)
             {
-                validationErrors.Add(new ErrorViewModel() { DOMElementId = String.Empty, ErrorMessage = StaticHelpers.FileNotSelected });
+                validationErrors.Add(new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileNotSelected });
             }
 
             if (fileUpload != null && !fileUpload.FileName.EndsWith(".csv"))
             {
-                validationErrors.Add(new ErrorViewModel() { DOMElementId = String.Empty, ErrorMessage = StaticHelpers.FileMustBeCSV });
+                validationErrors.Add(new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileMustBeCSV });
             }
 
             if (fileUpload != null && fileUpload.Length > MaxFileSize)
             {
-                validationErrors.Add(new ErrorViewModel() { DOMElementId = String.Empty, ErrorMessage = StaticHelpers.FileNotExceed50KB });
+                validationErrors.Add(new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileNotExceed50KB });
             }
 
             if (validationErrors.Count > 0)
