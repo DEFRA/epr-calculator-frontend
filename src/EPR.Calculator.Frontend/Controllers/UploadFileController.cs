@@ -40,8 +40,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch(Exception ex)
             {
-                // TODO: Navigate to the standard error page once it is implemented
-                return View(ViewNames.UploadFileRefresh);
+                return RedirectToAction("Index", "StandardError");
             }
         }
 
@@ -75,8 +74,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                // TODO: Navigate to the standard error page once it is implemented
-                return View(ViewNames.UploadFileRefresh);
+                return RedirectToAction("Index", "StandardError");
             }
         }
 

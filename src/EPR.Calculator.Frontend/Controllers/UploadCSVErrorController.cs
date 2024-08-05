@@ -10,14 +10,21 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
-            var errors = JsonConvert.DeserializeObject<List<ErrorDto>>(HttpContext.Session.GetString("Default_Parameter_Upload_Errors"));
+            if (HttpContext.Session.GetString("Default_Parameter_Upload_Errors") != null)
+            {
+                var errors = JsonConvert.DeserializeObject<List<ErrorDto>>(HttpContext.Session.GetString("Default_Parameter_Upload_Errors"));
 
-            var listErrorViewModel = new List<ErrorViewModel>();
+                var listErrorViewModel = new List<ErrorViewModel>();
 
-            errors.ForEach(error => listErrorViewModel.Add(new() { DOMElementId = string.Empty, ErrorMessage = error.Message }));
+                errors.ForEach(error => listErrorViewModel.Add(new() { DOMElementId = string.Empty, ErrorMessage = error.Message }));
 
-            ViewBag.Errors = listErrorViewModel;
-            return View(ViewNames.UploadCSVErrorIndex);
+                ViewBag.Errors = listErrorViewModel;
+                return View(ViewNames.UploadCSVErrorIndex);
+            }
+            else
+            {
+                return RedirectToAction("Index", "StandardError");
+            }
         }
 
 
