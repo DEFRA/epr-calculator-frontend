@@ -21,7 +21,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [Ignore]
-        public void UploadFileController_Upload_View_File_Valid_Test()
+        public async void UploadFileController_Upload_View_File_Valid_Test()
         {
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
@@ -33,13 +33,13 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
-            var result = controller.Upload() as ViewResult;
+            var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.UploadFileRefresh, result.ViewName);
         }
 
         [TestMethod]
-        public void UploadFileController_Upload_View_No_File_Test()
+        public async Task UploadFileController_Upload_View_No_File_Test()
         {
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
@@ -50,14 +50,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
-            var result = controller.Upload() as RedirectToActionResult;
+            var result = await controller.Upload() as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 
         [TestMethod]
-        public void UploadFileController_Upload_View_File_Process_Error_Test()
+        public async Task UploadFileController_Upload_View_File_Process_Error_Test()
         {
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
@@ -68,14 +68,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
-            var result = controller.Upload() as RedirectToActionResult;
+            var result = await controller.Upload() as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 
         [TestMethod]
-        public void UploadFileController_Upload_View_Post_Test()
+        public async Task UploadFileController_Upload_View_Post_Test()
         {
             var content = MockData.GetSchemeParametersFileContent();
             var stream = new MemoryStream();
@@ -86,7 +86,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.csv");
 
             var controller = new UploadFileController();
-            var result = controller.Upload(file) as ViewResult;
+            var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.UploadFileRefresh, result.ViewName);
         }

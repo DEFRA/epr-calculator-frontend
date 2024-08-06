@@ -20,7 +20,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult Upload(IFormFile fileUpload)
+        public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             try
             {
@@ -33,7 +33,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     }
                 }
 
-                var schemeTemplateParameterValues = PrepareDataForUpload(fileUpload);
+                var schemeTemplateParameterValues = await PrepareDataForUpload(fileUpload);
 
                 ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
@@ -45,7 +45,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        public IActionResult Upload()
+        public async Task<IActionResult> Upload()
         {
             try
             {
@@ -63,7 +63,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         }
                     }
 
-                    var schemeTemplateParameterValues = PrepareDataForUpload(fileUpload);
+                    var schemeTemplateParameterValues = await PrepareDataForUpload(fileUpload);
 
                     ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
@@ -92,16 +92,15 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private List<SchemeParameterTemplateValue> PrepareDataForUpload(IFormFile fileUpload)
+        private async Task<List<SchemeParameterTemplateValue>> PrepareDataForUpload(IFormFile fileUpload)
         {
             try
             {
                 var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
 
                 using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
-                fileUpload.CopyToAsync(memoryStream);
+                await fileUpload.CopyToAsync(memoryStream);
                 memoryStream.Position = 0;
-                memoryStream.Seek(0, SeekOrigin.Begin);
 
                 using (var reader = new StreamReader(memoryStream))
                 {
