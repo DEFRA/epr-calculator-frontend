@@ -3,10 +3,10 @@
 namespace EPR.Calculator.Frontend.Models
 {
     [ExcludeFromCodeCoverage]
-    public class ErrorDto
+    public class ValidationErrorDto
     {
-        public string Message { get; set; }
+        public string Exception { get; set; }
 
-        public string Description { get; set; }
+        public string ErrorMessage { get; set; }
     }
 }

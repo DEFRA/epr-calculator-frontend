@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -93,31 +94,39 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private List<SchemeParameterTemplateValue> PrepareDataForUpload(IFormFile fileUpload)
         {
-            var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
-
-            using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
-            fileUpload.CopyToAsync(memoryStream);
-            memoryStream.Position = 0;
-            using (var reader = new StreamReader(memoryStream))
+            try
             {
-                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
+
+                using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
+                fileUpload.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+                memoryStream.Seek(0, SeekOrigin.Begin);
+
+                using (var reader = new StreamReader(memoryStream))
                 {
-                    PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty),
-                    ShouldSkipRecord = footer => footer.Row.GetField(0).Contains("upload version"),
-                };
-                using (var csv = new CsvReader(reader, config))
-                {
-                    csv.Read();
-                    csv.ReadHeader();
-                    while (csv.Read())
+                    var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                     {
-                        schemeTemplateParameterValues.Add(
-                            new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = GetParameterValue(csv.GetField(5)) });
+                        PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty),
+                        ShouldSkipRecord = footer => footer.Row.GetField(0).Contains("upload version"),
+                    };
+                    using (var csv = new CsvReader(reader, config))
+                    {
+                        csv.Read();
+                        while (csv.Read())
+                        {
+                            schemeTemplateParameterValues.Add(
+                                new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = GetParameterValue(csv.GetField(5)) });
+                        }
                     }
                 }
-            }
 
-            return schemeTemplateParameterValues;
+                return schemeTemplateParameterValues;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         private decimal GetParameterValue(string parameterValue)

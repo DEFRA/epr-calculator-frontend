@@ -16,10 +16,10 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void UploadCSVErrorController_View_Test()
         {
-            var errors = new List<ErrorDto>();
+            var errors = new List<CreateDefaultParameterSettingErrorDto>();
             errors.AddRange([
-                new ErrorDto { Message = "Parameter Unique reference is incorrect", Description = string.Empty },
-                new ErrorDto { Message = "Parameter value is incorrect", Description = string.Empty }
+                new CreateDefaultParameterSettingErrorDto { Message = "Parameter Unique reference is incorrect", Description = string.Empty },
+                new CreateDefaultParameterSettingErrorDto { Message = "Parameter value is incorrect", Description = string.Empty }
             ]);
 
             var mockHttpSession = new MockHttpSession();
