@@ -1,8 +1,12 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Reflection;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -19,7 +23,61 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void UploadFileController_Upload_View_Test()
+        public void UploadFileController_Upload_View_File_Valid_Test()
+        {
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+
+            tempData["FilePath"] = Directory.GetCurrentDirectory() + "\\Mocks\\SchemeParameters.csv";
+
+            var controller = new UploadFileController()
+            {
+                TempData = tempData
+            };
+
+            var result = controller.Upload() as ViewResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.UploadFileRefresh, result.ViewName);
+        }
+
+        [TestMethod]
+        public void UploadFileController_Upload_View_No_File_Test()
+        {
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            tempData["FilePath"] = null;
+
+            var controller = new UploadFileController()
+            {
+                TempData = tempData
+            };
+
+            var result = controller.Upload() as RedirectToActionResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
+        [TestMethod]
+        public void UploadFileController_Upload_View_File_Process_Error_Test()
+        {
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            tempData["FilePath"] = "some random file location";
+
+            var controller = new UploadFileController()
+            {
+                TempData = tempData
+            };
+
+            var result = controller.Upload() as RedirectToActionResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
+        [TestMethod]
+        public void UploadFileController_Upload_View_Post_Test()
         {
             var content = MockData.GetSchemeParametersFileContent();
             var stream = new MemoryStream();
