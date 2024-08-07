@@ -26,7 +26,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
-            tempData["FilePath"] = Directory.GetCurrentDirectory() + "\\Mocks\\SchemeParameters.csv";
+            tempData["FilePath"] = Directory.GetCurrentDirectory() + "/Mocks/SchemeParameters.csv";
 
             var controller = new UploadFileController()
             {
