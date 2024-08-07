@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using CsvHelper;
@@ -63,8 +64,6 @@ namespace EPR.Calculator.Frontend.Controllers
                         }
                     }
 
-                    Console.WriteLine("PREPARE START");
-
                     var schemeTemplateParameterValues = await PrepareDataForUpload(fileUpload);
 
                     ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
@@ -72,15 +71,11 @@ namespace EPR.Calculator.Frontend.Controllers
                     return View(ViewNames.UploadFileRefresh);
                 }
 
-                Console.WriteLine("Not Processed");
-
                 // Code will reach this point if the uploaded file is not available
                 return RedirectToAction("Index", "StandardError");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION");
-                Console.WriteLine(ex.Message);
                 return RedirectToAction("Index", "StandardError");
             }
         }
@@ -130,9 +125,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("PREPARE DATA");
-                Console.WriteLine(ex.Message);
-
                 throw new Exception(ex.Message);
             }
         }

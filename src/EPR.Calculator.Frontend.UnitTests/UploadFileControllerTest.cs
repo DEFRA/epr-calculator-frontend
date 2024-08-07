@@ -33,9 +33,6 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
-            Console.WriteLine("TEMP DATA");
-            Console.WriteLine(tempData);
-
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.UploadFileRefresh, result.ViewName);
@@ -92,6 +89,42 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.UploadFileRefresh, result.ViewName);
+        }
+
+        [TestMethod]
+        public async Task UploadFileController_Upload_View_Post_Error_Test()
+        {
+            var content = string.Empty;
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(content);
+            writer.Flush();
+            stream.Position = 0;
+            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.csv");
+
+            var controller = new UploadFileController();
+            var result = await controller.Upload(file) as RedirectToActionResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task UploadFileController_Upload_View_Post_Incorrect_File_Extension_Error_Test()
+        {
+            var content = string.Empty;
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(content);
+            writer.Flush();
+            stream.Position = 0;
+            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.xlsx");
+
+            var controller = new UploadFileController();
+            var result = await controller.Upload(file) as RedirectToActionResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
         }
 
         [TestMethod]
