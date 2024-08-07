@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Newtonsoft.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -52,7 +53,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void UploadFileController_Upload_Test()
+        public void UploadCsvErrorController_Upload_Test()
         {
             var content = MockData.GetSchemeParametersFileContent();
             var stream = new MemoryStream();
@@ -73,6 +74,21 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = controller.Upload(file);
             Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public void UploadCsvErrorController_Post_Returns_Ok_Test()
+        {
+            var mockHttpSession = new MockHttpSession();
+
+            var controller = new UploadCSVErrorController();
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Session = mockHttpSession;
+
+            var result = controller.Index("some errors") as OkResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(200, result.StatusCode);
         }
     }
 }

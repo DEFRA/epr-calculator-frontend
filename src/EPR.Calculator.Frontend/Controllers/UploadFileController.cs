@@ -70,11 +70,14 @@ namespace EPR.Calculator.Frontend.Controllers
                     return View(ViewNames.UploadFileRefresh);
                 }
 
+                Console.WriteLine("Not Processed");
+
                 // Code will reach this point if the uploaded file is not available
                 return RedirectToAction("Index", "StandardError");
             }
             catch (Exception ex)
             {
+                Console.WriteLine("EXCEPTION", ex.Message);
                 return RedirectToAction("Index", "StandardError");
             }
         }

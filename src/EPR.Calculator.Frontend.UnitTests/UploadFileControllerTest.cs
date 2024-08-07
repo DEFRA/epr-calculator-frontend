@@ -33,12 +33,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
+            Console.WriteLine("TEMP DATA", tempData);
+
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.UploadFileRefresh, result.ViewName);
         }
 
-        /* [TestMethod]
+        [TestMethod]
         public async Task UploadFileController_Upload_View_No_File_Test()
         {
             var httpContext = new DefaultHttpContext();
@@ -89,7 +91,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.UploadFileRefresh, result.ViewName);
-        } */
+        }
 
         [TestMethod]
         public void UploadFileController_DownloadCSVTemplate_Test()
