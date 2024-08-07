@@ -128,10 +128,11 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private decimal GetParameterValue(string parameterValue)
+        private decimal? GetParameterValue(string parameterValue)
         {
             var parameterValueFormatted = parameterValue.Replace("£", string.Empty).Replace("%", string.Empty);
-            return decimal.Parse(parameterValueFormatted);
+            var result = decimal.TryParse(parameterValueFormatted, out var value);
+            return result ? value : null;
         }
 
         private List<ErrorViewModel> ValidateCSV(IFormFile fileUpload)
