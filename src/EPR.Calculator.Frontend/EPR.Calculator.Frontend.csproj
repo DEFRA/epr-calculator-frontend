@@ -35,4 +35,10 @@
 	  <Folder Include="wwwroot\assets\SchemeParameterTemplates\" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<SonarQubeSetting Include="sonar.cpd.exclusions">
+			<Value>Program.cs</Value>
+		</SonarQubeSetting>
+	</ItemGroup>
+
 </Project>
