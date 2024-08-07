@@ -20,8 +20,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ViewNames.UploadFileIndex, result.ViewName);
         }
 
-        [Ignore]
-        public async void UploadFileController_Upload_View_File_Valid_Test()
+        [TestMethod]
+        public async Task UploadFileController_Upload_View_File_Valid_Test()
         {
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
