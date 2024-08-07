@@ -1,6 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -8,16 +9,42 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
-            var listErrorViewModel = new List<ErrorViewModel>
+            try
             {
-                new() { DOMElementId = string.Empty, ErrorMessage = "Enter the scheme administrator operating costs for England" },
-                new() { DOMElementId = string.Empty, ErrorMessage = "Enter the communication costs for steel" },
-                new() { DOMElementId = string.Empty, ErrorMessage = "Communication costs for wood must be between £0 and £999,999,999.99" },
-                new() { DOMElementId = string.Empty, ErrorMessage = "Scheme setup costs can only include numbers, commas and decimal points" },
-            };
+                if (HttpContext.Session.GetString("Default_Parameter_Upload_Errors") != null)
+                {
+                    var errors = HttpContext.Session.GetString("Default_Parameter_Upload_Errors");
 
-            ViewBag.Errors = listErrorViewModel;
-            return View(ViewNames.UploadCSVErrorIndex);
+                    var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(errors);
+
+                    if (validationErrors.Any() && validationErrors.FirstOrDefault(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
+                    {
+                        ViewBag.ValidationErrors = validationErrors;
+                    }
+                    else
+                    {
+                        ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
+                    }
+
+                    return View(ViewNames.UploadCSVErrorIndex);
+                }
+                else
+                {
+                    return RedirectToAction("Index", "StandardError");
+                }
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "StandardError");
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Index([FromBody]string errors)
+        {
+            HttpContext.Session.SetString("Default_Parameter_Upload_Errors", errors);
+
+            return Ok();
         }
 
         [HttpPost]

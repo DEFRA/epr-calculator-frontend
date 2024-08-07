@@ -1,14 +1,18 @@
-﻿using System.Text.Json;
+﻿using System.Globalization;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using CsvHelper;
+using CsvHelper.Configuration;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     public class UploadFileController : Controller
     {
         private const long MaxFileSize = 50 * 1024; // 50 KB
-        private static bool _isTaskSuccessful = false;
 
         public IActionResult Index()
         {
@@ -16,31 +20,63 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult Upload(IFormFile fileUpload)
+        public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-            if (CsvFileValidation(fileUpload) != null && CsvFileValidation(fileUpload).Count > 0)
+            try
             {
-                if (TempData["Errors"] != null)
+                if (ValidateCSV(fileUpload).Count > 0)
                 {
-                    ViewBag.Errors = JsonSerializer.Deserialize<List<ErrorViewModel>>(TempData["Errors"].ToString());
-                    return View(ViewNames.UploadFileIndex);
+                    if (TempData["Default_Parameter_Upload_Errors"] != null)
+                    {
+                        ViewBag.Errors = JsonConvert.DeserializeObject<List<ErrorViewModel>>(TempData["Default_Parameter_Upload_Errors"].ToString());
+                        return View(ViewNames.UploadFileIndex);
+                    }
                 }
-            }
 
-            return View("Refresh");
+                var schemeTemplateParameterValues = await PrepareDataForUpload(fileUpload);
+
+                ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
+
+                return View(ViewNames.UploadFileRefresh);
+            }
+            catch(Exception ex)
+            {
+                return RedirectToAction("Index", "StandardError");
+            }
         }
 
-        public IActionResult Upload()
+        public async Task<IActionResult> Upload()
         {
-            if (TempData["FilePath"] != null)
+            try
             {
-                using var stream = System.IO.File.OpenRead(TempData["FilePath"].ToString());
-                var fileUpload = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
-                CsvFileValidation(fileUpload);
-            }
+                if (TempData["FilePath"] != null)
+                {
+                    using var stream = System.IO.File.OpenRead(TempData["FilePath"].ToString());
+                    var fileUpload = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
 
-            return View("Refresh");
-            // Test - to be deleted
+                    if (ValidateCSV(fileUpload).Count > 0)
+                    {
+                        if (TempData["Default_Parameter_Upload_Errors"] != null)
+                        {
+                            ViewBag.Errors = JsonConvert.DeserializeObject<List<ErrorViewModel>>(TempData["Default_Parameter_Upload_Errors"].ToString());
+                            return View(ViewNames.UploadFileIndex);
+                        }
+                    }
+
+                    var schemeTemplateParameterValues = await PrepareDataForUpload(fileUpload);
+
+                    ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
+
+                    return View(ViewNames.UploadFileRefresh);
+                }
+
+                // Code will reach this point if the uploaded file is not available
+                return RedirectToAction("Index", "StandardError");
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "StandardError");
+            }
         }
 
         public IActionResult DownloadCsvTemplate()
@@ -56,30 +92,74 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private List<ErrorViewModel> CsvFileValidation(IFormFile fileUpload)
+        private async Task<List<SchemeParameterTemplateValue>> PrepareDataForUpload(IFormFile fileUpload)
         {
-            var listErrorViewModel = new List<ErrorViewModel>();
+            try
+            {
+                var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
+
+                using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
+                await fileUpload.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+
+                using (var reader = new StreamReader(memoryStream))
+                {
+                    var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                    {
+                        PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty),
+                        ShouldSkipRecord = footer => footer.Row.GetField(0).Contains("upload version"),
+                    };
+                    using (var csv = new CsvReader(reader, config))
+                    {
+                        csv.Read();
+                        while (csv.Read())
+                        {
+                            schemeTemplateParameterValues.Add(
+                                new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = GetParameterValue(csv.GetField(5)) });
+                        }
+                    }
+                }
+
+                return schemeTemplateParameterValues;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        private decimal? GetParameterValue(string parameterValue)
+        {
+            var parameterValueFormatted = parameterValue.Replace("£", string.Empty).Replace("%", string.Empty);
+            var result = decimal.TryParse(parameterValueFormatted, out var value);
+            return result ? value : null;
+        }
+
+        private List<ErrorViewModel> ValidateCSV(IFormFile fileUpload)
+        {
+            var validationErrors = new List<ErrorViewModel>();
+
             if (fileUpload == null || fileUpload.Length == 0)
             {
-                listErrorViewModel.Add(new ErrorViewModel() { ErrorMessage = StaticHelpers.FileNotSelected });
+                validationErrors.Add(new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileNotSelected });
             }
 
             if (fileUpload != null && !fileUpload.FileName.EndsWith(".csv"))
             {
-                listErrorViewModel.Add(new ErrorViewModel() { ErrorMessage = StaticHelpers.FileMustBeCSV });
+                validationErrors.Add(new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileMustBeCSV });
             }
 
             if (fileUpload != null && fileUpload.Length > MaxFileSize)
             {
-                listErrorViewModel.Add(new ErrorViewModel() { ErrorMessage = StaticHelpers.FileNotExceed50KB });
+                validationErrors.Add(new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileNotExceed50KB });
             }
 
-            if (listErrorViewModel != null && listErrorViewModel.Count > 0)
+            if (validationErrors.Count > 0)
             {
-                TempData["Errors"] = JsonSerializer.Serialize(listErrorViewModel);
+                TempData["Default_Parameter_Upload_Errors"] = JsonConvert.SerializeObject(validationErrors);
             }
 
-            return listErrorViewModel;
+            return validationErrors;
         }
     }
 }
