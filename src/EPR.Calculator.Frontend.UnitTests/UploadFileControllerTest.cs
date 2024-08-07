@@ -33,7 +33,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
-            Console.WriteLine("TEMP DATA", tempData);
+            Console.WriteLine("TEMP DATA");
+            Console.WriteLine(tempData);
 
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);

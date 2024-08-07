@@ -63,6 +63,8 @@ namespace EPR.Calculator.Frontend.Controllers
                         }
                     }
 
+                    Console.WriteLine("PREPARE START");
+
                     var schemeTemplateParameterValues = await PrepareDataForUpload(fileUpload);
 
                     ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
@@ -77,7 +79,8 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION", ex.Message);
+                Console.WriteLine("EXCEPTION");
+                Console.WriteLine(ex.Message);
                 return RedirectToAction("Index", "StandardError");
             }
         }
@@ -127,6 +130,9 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine("PREPARE DATA");
+                Console.WriteLine(ex.Message);
+
                 throw new Exception(ex.Message);
             }
         }
