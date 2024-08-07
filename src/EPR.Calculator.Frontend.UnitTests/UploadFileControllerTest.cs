@@ -39,6 +39,24 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
+        public async Task UploadFileController_Upload_Incorrect_File_Test()
+        {
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+
+            tempData["FilePath"] = Directory.GetCurrentDirectory() + "/Mocks/SchemeParameters.txt";
+
+            var controller = new UploadFileController()
+            {
+                TempData = tempData
+            };
+
+            var result = await controller.Upload() as ViewResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.UploadFileIndex, result.ViewName);
+        }
+
+        [TestMethod]
         public async Task UploadFileController_Upload_View_No_File_Test()
         {
             var httpContext = new DefaultHttpContext();
@@ -85,7 +103,15 @@ namespace EPR.Calculator.Frontend.UnitTests
             stream.Position = 0;
             IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.csv");
 
-            var controller = new UploadFileController();
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            tempData["Default_Parameter_Upload_Errors"] = string.Empty;
+
+            var controller = new UploadFileController()
+            {
+                TempData = tempData
+            };
+
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.UploadFileRefresh, result.ViewName);
@@ -102,11 +128,43 @@ namespace EPR.Calculator.Frontend.UnitTests
             stream.Position = 0;
             IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.csv");
 
-            var controller = new UploadFileController();
-            var result = await controller.Upload(file) as RedirectToActionResult;
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            tempData["Default_Parameter_Upload_Errors"] = string.Empty;
+
+            var controller = new UploadFileController()
+            {
+                TempData = tempData
+            };
+
+            var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
+            Assert.AreEqual(ViewNames.UploadFileIndex, result.ViewName);
+        }
+
+        [TestMethod]
+        public async Task UploadFileController_Upload_View_Post_Incorrect_File_Error_Test()
+        {
+            var content = MockData.GetSchemeParametersFileContent();
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(content);
+            writer.Flush();
+            stream.Position = 0;
+            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.txt");
+
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            tempData["Default_Parameter_Upload_Errors"] = string.Empty;
+
+            var controller = new UploadFileController()
+            {
+                TempData = tempData
+            };
+
+            var result = await controller.Upload(file) as ViewResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.UploadFileIndex, result.ViewName);
         }
 
         [TestMethod]
