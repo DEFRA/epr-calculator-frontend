@@ -11,7 +11,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                if (HttpContext.Session.GetString("Default_Parameter_Upload_Errors") != null)
+                if (!string.IsNullOrEmpty(HttpContext.Session.GetString("Default_Parameter_Upload_Errors")))
                 {
                     var errors = HttpContext.Session.GetString("Default_Parameter_Upload_Errors");
 
