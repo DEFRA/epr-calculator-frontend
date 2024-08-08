@@ -9,18 +9,31 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
-            if (HttpContext.Session.GetString("Default_Parameter_Upload_Errors") != null)
+            try
             {
-                var errors = JsonConvert.DeserializeObject<List<ErrorDto>>(HttpContext.Session.GetString("Default_Parameter_Upload_Errors"));
+                if (!string.IsNullOrEmpty(HttpContext.Session.GetString("Default_Parameter_Upload_Errors")))
+                {
+                    var errors = HttpContext.Session.GetString("Default_Parameter_Upload_Errors");
 
-                var listErrorViewModel = new List<ErrorViewModel>();
+                    var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(errors);
 
-                errors.ForEach(error => listErrorViewModel.Add(new() { DOMElementId = string.Empty, ErrorMessage = error.Message }));
+                    if (validationErrors.Any() && validationErrors.FirstOrDefault(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
+                    {
+                        ViewBag.ValidationErrors = validationErrors;
+                    }
+                    else
+                    {
+                        ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
+                    }
 
-                ViewBag.Errors = listErrorViewModel;
-                return View(ViewNames.UploadCSVErrorIndex);
+                    return View(ViewNames.UploadCSVErrorIndex);
+                }
+                else
+                {
+                    return RedirectToAction("Index", "StandardError");
+                }
             }
-            else
+            catch (Exception ex)
             {
                 return RedirectToAction("Index", "StandardError");
             }

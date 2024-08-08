@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -19,7 +21,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult Upload(IFormFile fileUpload)
+        public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             try
             {
@@ -32,7 +34,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     }
                 }
 
-                var schemeTemplateParameterValues = PrepareDataForUpload(fileUpload);
+                var schemeTemplateParameterValues = await PrepareDataForUpload(fileUpload);
 
                 ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
@@ -44,7 +46,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        public IActionResult Upload()
+        public async Task<IActionResult> Upload()
         {
             try
             {
@@ -62,7 +64,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         }
                     }
 
-                    var schemeTemplateParameterValues = PrepareDataForUpload(fileUpload);
+                    var schemeTemplateParameterValues = await PrepareDataForUpload(fileUpload);
 
                     ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
@@ -91,39 +93,47 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private List<SchemeParameterTemplateValue> PrepareDataForUpload(IFormFile fileUpload)
+        private async Task<List<SchemeParameterTemplateValue>> PrepareDataForUpload(IFormFile fileUpload)
         {
-            var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
-
-            using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
-            fileUpload.CopyToAsync(memoryStream);
-            memoryStream.Position = 0;
-            using (var reader = new StreamReader(memoryStream))
+            try
             {
-                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
+
+                using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
+                await fileUpload.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+
+                using (var reader = new StreamReader(memoryStream))
                 {
-                    PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty),
-                    ShouldSkipRecord = footer => footer.Row.GetField(0).Contains("upload version"),
-                };
-                using (var csv = new CsvReader(reader, config))
-                {
-                    csv.Read();
-                    csv.ReadHeader();
-                    while (csv.Read())
+                    var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                     {
-                        schemeTemplateParameterValues.Add(
-                            new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = GetParameterValue(csv.GetField(5)) });
+                        PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)),
+                        ShouldSkipRecord = footer => footer.Row.GetField(0).Contains("upload version"),
+                    };
+                    using (var csv = new CsvReader(reader, config))
+                    {
+                        csv.Read();
+                        while (csv.Read())
+                        {
+                            schemeTemplateParameterValues.Add(
+                                new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = GetParameterValue(csv.GetField(5)) });
+                        }
                     }
                 }
-            }
 
-            return schemeTemplateParameterValues;
+                return schemeTemplateParameterValues;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
-        private decimal GetParameterValue(string parameterValue)
+        private decimal? GetParameterValue(string parameterValue)
         {
             var parameterValueFormatted = parameterValue.Replace("£", string.Empty).Replace("%", string.Empty);
-            return decimal.Parse(parameterValueFormatted);
+            var result = decimal.TryParse(parameterValueFormatted, out var value);
+            return result ? value : null;
         }
 
         private List<ErrorViewModel> ValidateCSV(IFormFile fileUpload)

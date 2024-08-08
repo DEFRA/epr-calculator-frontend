@@ -8,7 +8,7 @@ namespace EPR.Calculator.Frontend.Controllers
     public class UploadFileProcessingController : Controller
     {
         private readonly IConfiguration _configuration;
-        private HttpClient _client;
+        private readonly HttpClient _client;
 
         public UploadFileProcessingController(IConfiguration configuration, HttpClient client)
         {
