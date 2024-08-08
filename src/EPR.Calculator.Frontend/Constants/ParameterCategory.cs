@@ -12,6 +12,5 @@
         public const string BadDebtProvision = "Bad debt provision";
         public const string Levy = "Levy";
         public const string Total = "Total";
-
     }
 }

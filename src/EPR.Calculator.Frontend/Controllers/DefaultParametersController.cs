@@ -28,33 +28,33 @@ namespace EPR.Calculator.Frontend.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var data = await response.Content.ReadAsStringAsync();
-                var dataFull = JsonConvert.DeserializeObject<List<DefaultSchemeParameters>>(data);
-                ViewBag.CommunicationData = CalculateTotal(dataFull, ParameterCategory.CommunicationCosts, true);
-                ViewBag.OperatingCosts = CalculateTotal(dataFull, ParameterCategory.SchemeAdministratorOperatingCosts,true);
-                ViewBag.PreparationCosts = CalculateTotal(dataFull, ParameterCategory.LocalAuthorityDataPreparationCosts, true);
-                ViewBag.SchemeSetupCosts = CalculateTotal(dataFull, ParameterCategory.SchemeSetupCosts, true);
-                ViewBag.LateReportingTonnage = CalculateTotal(dataFull, ParameterCategory.LateReportingTonnage);
-                ViewBag.MaterialityThreshold = CalculateTotal(dataFull, ParameterCategory.MaterialityThreshold);
-                ViewBag.BadDebtProvision = CalculateTotal(dataFull, ParameterCategory.BadDebtProvision);
-                ViewBag.Levy = CalculateTotal(dataFull, ParameterCategory.Levy);
-                ViewBag.TonnageChange = CalculateTotal(dataFull, ParameterCategory.TonnageChangeThreshold);
+                var defaultSchemeParameters = JsonConvert.DeserializeObject<List<DefaultSchemeParameters>>(data);
+                ViewBag.CommunicationData = CalculateTotal(defaultSchemeParameters, ParameterCategory.CommunicationCosts, true);
+                ViewBag.OperatingCosts = CalculateTotal(defaultSchemeParameters, ParameterCategory.SchemeAdministratorOperatingCosts, true);
+                ViewBag.PreparationCosts = CalculateTotal(defaultSchemeParameters, ParameterCategory.LocalAuthorityDataPreparationCosts, true);
+                ViewBag.SchemeSetupCosts = CalculateTotal(defaultSchemeParameters, ParameterCategory.SchemeSetupCosts, true);
+                ViewBag.LateReportingTonnage = CalculateTotal(defaultSchemeParameters, ParameterCategory.LateReportingTonnage);
+                ViewBag.MaterialityThreshold = CalculateTotal(defaultSchemeParameters, ParameterCategory.MaterialityThreshold);
+                ViewBag.BadDebtProvision = CalculateTotal(defaultSchemeParameters, ParameterCategory.BadDebtProvision);
+                ViewBag.Levy = CalculateTotal(defaultSchemeParameters, ParameterCategory.Levy);
+                ViewBag.TonnageChange = CalculateTotal(defaultSchemeParameters, ParameterCategory.TonnageChangeThreshold);
 
                 return View();
             }
 
             return BadRequest(response.Content.ReadAsStringAsync().Result);
-
         }
 
 
-        private List<DefaultSchemeParameters> CalculateTotal(List<DefaultSchemeParameters> defaultSchemeParameters,string category,bool isTotalRequired = false)
+        private List<DefaultSchemeParameters> CalculateTotal(List<DefaultSchemeParameters> defaultSchemeParameters, string category, bool isTotalRequired = false)
         {
-            var schemeParametersBasedonCategory = defaultSchemeParameters.Where(t=>t.ParameterCategory == category).ToList();
-            if (isTotalRequired) schemeParametersBasedonCategory.Add(new DefaultSchemeParameters() { ParameterCategory = category, ParameterType = ParameterCategory.Total, ParameterValue = schemeParametersBasedonCategory.Sum(t => t.ParameterValue) });
+            var schemeParametersBasedonCategory = defaultSchemeParameters.Where(t => t.ParameterCategory == category).ToList();
+            if (isTotalRequired)
+            {
+                schemeParametersBasedonCategory.Add(new DefaultSchemeParameters() { ParameterCategory = category, ParameterType = ParameterCategory.Total, ParameterValue = schemeParametersBasedonCategory.Sum(t => t.ParameterValue) });
+            }
 
             return schemeParametersBasedonCategory;
         }
-
-
     }
 }
