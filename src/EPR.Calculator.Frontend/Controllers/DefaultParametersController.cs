@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Net;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -38,7 +39,16 @@ namespace EPR.Calculator.Frontend.Controllers
                 ViewBag.BadDebtProvision = CalculateTotal(defaultSchemeParameters, ParameterCategory.BadDebtProvision);
                 ViewBag.Levy = CalculateTotal(defaultSchemeParameters, ParameterCategory.Levy);
                 ViewBag.TonnageChange = CalculateTotal(defaultSchemeParameters, ParameterCategory.TonnageChangeThreshold);
+                
+                ViewBag.IsDataAvailable = true;
 
+                return View();
+            }
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                ViewBag.NoDataMessage = response.Content.ReadAsStringAsync().Result;
+                ViewBag.IsDataAvailable = false;
                 return View();
             }
 

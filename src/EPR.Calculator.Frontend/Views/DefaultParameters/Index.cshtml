@@ -24,45 +24,52 @@
 
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <span class="govuk-caption-l">Last updated by Jamie Roberts at <strong>10:01</strong> on 28 June 2025</span><br>
-                <h1 class="govuk-heading-xl">Default calculator parameters</h1>
 
-                <h2 class="govuk-heading-l">@ParameterCategory.CommunicationCosts</h2>
-                <partial name="_ItemListPartial" model="communicationData" />
+                @if(ViewBag.IsDataAvailable)
+                {
+                    <span class="govuk-caption-l">Last updated by Jamie Roberts at <strong>10:01</strong> on 28 June 2025</span><br>
+                    <h1 class="govuk-heading-xl">Default calculator parameters</h1>
 
-
-                <h2 class="govuk-heading-l">@ParameterCategory.SchemeAdministratorOperatingCosts</h2>
-                <partial name="_ItemListPartial" model="operatingCosts" />
-
-
-                <h2 class="govuk-heading-l">@ParameterCategory.LocalAuthorityDataPreparationCosts</h2>
-                <partial name="_ItemListPartial" model="preparationCosts" />
+                    <h2 class="govuk-heading-l">@ParameterCategory.CommunicationCosts</h2>
+                    <partial name="_ItemListPartial" model="communicationData" />
 
 
-                <h2 class="govuk-heading-l">@ParameterCategory.SchemeSetupCosts</h2>
-                <partial name="_ItemListPartial" model="schemeSetupCosts" />             
+                    <h2 class="govuk-heading-l">@ParameterCategory.SchemeAdministratorOperatingCosts</h2>
+                    <partial name="_ItemListPartial" model="operatingCosts" />
 
 
-                <h2 class="govuk-heading-l">@ParameterCategory.LateReportingTonnage</h2>
-                <partial name="_ItemListPartial" model="lateReportingTonnage" />
+                    <h2 class="govuk-heading-l">@ParameterCategory.LocalAuthorityDataPreparationCosts</h2>
+                    <partial name="_ItemListPartial" model="preparationCosts" />
 
 
-                <h2 class="govuk-heading-l">Bad debt provision</h2>
-                <partial name="_ItemListPartial" model="badDebtProvision" />
-
-                <h2 class="govuk-heading-l">@ParameterCategory.Levy</h2>
-                <partial name="_ItemListPartial" model="levy" />
+                    <h2 class="govuk-heading-l">@ParameterCategory.SchemeSetupCosts</h2>
+                    <partial name="_ItemListPartial" model="schemeSetupCosts" />             
 
 
-                <h2 class="govuk-heading-l">@ParameterCategory.MaterialityThreshold</h2>
-                <partial name="_ItemListPartial" model="materialityThreshold" />
+                    <h2 class="govuk-heading-l">@ParameterCategory.LateReportingTonnage</h2>
+                    <partial name="_ItemListPartial" model="lateReportingTonnage" />
+
+
+                    <h2 class="govuk-heading-l">Bad debt provision</h2>
+                    <partial name="_ItemListPartial" model="badDebtProvision" />
+
+                    <h2 class="govuk-heading-l">@ParameterCategory.Levy</h2>
+                    <partial name="_ItemListPartial" model="levy" />
+
+
+                    <h2 class="govuk-heading-l">@ParameterCategory.MaterialityThreshold</h2>
+                    <partial name="_ItemListPartial" model="materialityThreshold" />
 
                
 
-                <h2 class="govuk-heading-l">@ParameterCategory.TonnageChangeThreshold</h2>
-                <partial name="_ItemListPartial" model="tonnageChange" />
+                    <h2 class="govuk-heading-l">@ParameterCategory.TonnageChangeThreshold</h2>
+                    <partial name="_ItemListPartial" model="tonnageChange" />
+                }
+                else
+                {
+                    <p class="govuk-body">@ViewBag.NoDataMessage</p>
+                }
 
-                
 
                 <form action="/form-handler" method="post" novalidate="">
                     <input type="hidden" name="answers-checked" value="true">
