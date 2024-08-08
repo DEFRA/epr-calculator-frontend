@@ -1,0 +1,25 @@
+﻿@model List<DefaultSchemeParameters>;
+
+<dl class="govuk-summary-list govuk-!-margin-bottom-9">
+
+    @if (Model != null)
+    {
+
+        @foreach (var item in Model)
+        {
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    @item.ParameterType
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    @item.ParameterValue
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href="up-communication-costs">
+                        <span class="govuk-visually-hidden"> address</span>
+                    </a>
+                </dd>
+            </div>
+        }
+    }
+</dl>
