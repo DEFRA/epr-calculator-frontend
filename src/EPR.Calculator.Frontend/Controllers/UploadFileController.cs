@@ -107,7 +107,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                     {
-                        PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty),
+                        PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)),
                         ShouldSkipRecord = footer => footer.Row.GetField(0).Contains("upload version"),
                     };
                     using (var csv = new CsvReader(reader, config))
