@@ -39,7 +39,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 ViewBag.BadDebtProvision = CalculateTotal(defaultSchemeParameters, ParameterCategory.BadDebtProvision);
                 ViewBag.Levy = CalculateTotal(defaultSchemeParameters, ParameterCategory.Levy);
                 ViewBag.TonnageChange = CalculateTotal(defaultSchemeParameters, ParameterCategory.TonnageChangeThreshold);
-                
+
                 ViewBag.IsDataAvailable = true;
 
                 return View();
