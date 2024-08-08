@@ -67,7 +67,9 @@
                 }
                 else
                 {
-                    <p class="govuk-body">@ViewBag.NoDataMessage</p>
+                    <h1 class="govuk-heading-xl">Default calculator parameters</h1>
+                    <p class="govuk-body">Default parameters have not been set.</p>
+                    <p class="govuk-body govuk-!-margin-bottom-8">Upload a CSV file using the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "UploadFile")">default parameters template</a> to set them.</p>
                 }
 
 
