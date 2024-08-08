@@ -45,7 +45,6 @@ namespace EPR.Calculator.Frontend.Controllers
             return BadRequest(response.Content.ReadAsStringAsync().Result);
         }
 
-
         private List<DefaultSchemeParameters> CalculateTotal(List<DefaultSchemeParameters> defaultSchemeParameters, string category, bool isTotalRequired = false)
         {
             var schemeParametersBasedonCategory = defaultSchemeParameters.Where(t => t.ParameterCategory == category).ToList();

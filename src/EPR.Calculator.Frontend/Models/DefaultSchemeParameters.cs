@@ -23,6 +23,5 @@
         public string ParameterCategory { get; set; }
 
         public decimal ParameterValue { get; set; }
-
     }
 }
