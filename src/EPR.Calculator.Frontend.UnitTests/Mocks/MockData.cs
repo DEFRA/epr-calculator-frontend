@@ -1,4 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace EPR.Calculator.Frontend.UnitTests.Mocks
 {
@@ -101,6 +102,56 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
                 "LEVY - NIR,Levy,Northern Ireland,£0.00,£999,999,999.99,£19.00,,,",
                 "Parameter upload version v1.0,,,,,,,,"
             ]);
+        }
+
+        public static IEnumerable<DefaultSchemeParameters> GetDefaultParameterValues()
+        {
+            var defaultParameterValues = new List<DefaultSchemeParameters>();
+            defaultParameterValues.AddRange([
+            new DefaultSchemeParameters { ParameterUniqueRef = "COMC-AL", ParameterValue = 2210.45m, ParameterType = "Aluminium", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "COMC-FC", ParameterValue = 2210.00m, ParameterType = "Fibre composite", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "COMC-GL", ParameterValue = 2210.00m, ParameterType = "Glass", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "COMC-PC", ParameterValue = 2210.00m, ParameterType = "Paper or card", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "OMC-PL", ParameterValue = 2210.00m, ParameterType = "Plastic", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "COMC-ST", ParameterValue = 2210.00m, ParameterType = "Steel", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "COMC-WD", ParameterValue = 2210.00m, ParameterType = "Wood", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "COMC-OT", ParameterValue = 0.00m, ParameterType = "Other", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "SAOC-ENG", ParameterValue = 500.00m, ParameterType = "England", ParameterCategory = "Scheme administrator operating costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "SAOC-WLS", ParameterValue = 140.55m, ParameterType = "Wales", ParameterCategory = "Scheme administrator operating costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "SAOC-SCT", ParameterValue = 170.00m, ParameterType = "Scotland", ParameterCategory = "Scheme administrator operating costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "SAOC-NIR", ParameterValue = 90.00m, ParameterType = "Northern Ireland", ParameterCategory = "Scheme administrator operating costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LAPC-ENG", ParameterValue = 115.45m, ParameterType = "England", ParameterCategory = "Local authority data preparation costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LAPC-WLS", ParameterValue = 114.00m, ParameterType = "Wales", ParameterCategory = "Local authority data preparation costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LAPC-SCT", ParameterValue = 117.00m, ParameterType = "Scotland", ParameterCategory = "Local authority data preparation costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LAPC-NIR", ParameterValue = 19.00m, ParameterType = "Northern Ireland", ParameterCategory = "Local authority data preparation costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "SCSC-ENG", ParameterValue = 325.55m, ParameterType = "England", ParameterCategory = "Scheme setup costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "SCSC-WLS", ParameterValue = 314.00m, ParameterType = "Wales", ParameterCategory = "Scheme setup costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "SCSC-SCT", ParameterValue = 317.00m, ParameterType = "Scotland", ParameterCategory = "Scheme setup costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "SCSC-NIR", ParameterValue = 391.10m, ParameterType = "Northern Ireland", ParameterCategory = "Scheme setup costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LRET-AL", ParameterValue = 70.55m, ParameterType = "Aluminium", ParameterCategory = "Late reporting tonnage", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LRET-FC", ParameterValue = 80.00m, ParameterType = "Fibre composite", ParameterCategory = "Late reporting tonnage", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LRET-GL", ParameterValue = 60.00m, ParameterType = "Glass", ParameterCategory = "Late reporting tonnage", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LRET-PC", ParameterValue = 50.00m, ParameterType = "Paper or card", ParameterCategory = "Late reporting tonnage", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LRET-PL", ParameterValue = 40.00m, ParameterType = "Plastic", ParameterCategory = "Late reporting tonnage", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LRET-ST", ParameterValue = 30.00m, ParameterType = "Steel", ParameterCategory = "Late reporting tonnage", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LRET-WD", ParameterValue = 20.00m, ParameterType = "Wood", ParameterCategory = "Late reporting tonnage", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LRET-OT", ParameterValue = 0.00m, ParameterType = "Other", ParameterCategory = "Late reporting tonnage", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "BADEBT-P", ParameterValue = 5.25m, ParameterType = "Percentage", ParameterCategory = "Bad debt provision", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "MATT-AI", ParameterValue = 5000.00m, ParameterType = "Amount Increase", ParameterCategory = "Materiality threshold", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "MATT-AD", ParameterValue = -1000.00m, ParameterType = "Amount Decrease", ParameterCategory = "Materiality threshold", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "MATT-PI", ParameterValue = 2.00m, ParameterType = "Percent Increase", ParameterCategory = "Materiality threshold", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "MATT-PD", ParameterValue = -1.00m, ParameterType = "Percent Decrease", ParameterCategory = "Materiality threshold", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "TONT-AI", ParameterValue = 50.00m, ParameterType = "Amount Increase", ParameterCategory = "Tonnage change threshold", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "TONT-AD", ParameterValue = -10.00m, ParameterType = "Amount Decrease", ParameterCategory = "Tonnage change threshold", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "TONT-PI", ParameterValue = 2.00m, ParameterType = "Percent Increase", ParameterCategory = "Tonnage change threshold", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "TONT-PD", ParameterValue = -0.50m, ParameterType = "Percent Decrease", ParameterCategory = "Tonnage change threshold", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LEVY-ENG", ParameterValue = 115.45m, ParameterType = "England", ParameterCategory = "Levy", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LEVY-WLS", ParameterValue = 114.00m, ParameterType = "Wales", ParameterCategory = "Levy", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LEVY-SCT", ParameterValue = 117.00m, ParameterType = "Scotland", ParameterCategory = "Levy", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "LEVY-NIR", ParameterValue = 19.00m, ParameterType = "Northern Ireland", ParameterCategory = "Levy", ParameterYear = "2024-25" },
+             ]);
+
+            return defaultParameterValues;
         }
     }
 }

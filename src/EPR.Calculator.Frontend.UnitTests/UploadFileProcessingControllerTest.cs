@@ -14,6 +14,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void UploadFileProcessingController_Success_Result_Test()
         {
+            // Mock HttpMessageHandler
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler
                 .Protected()
@@ -26,9 +27,22 @@ namespace EPR.Calculator.Frontend.UnitTests
                         Content = new StringContent("response content"),
                     });
 
+            // Create HttpClient with the mocked handler
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            var controller = new UploadFileProcessingController(GetConfigurationValues(), httpClient);
+
+            // Mock IHttpClientFactory
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            // Create controller with the mocked factory
+            var controller = new UploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object);
+
+            // Act
             var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as OkObjectResult;
+
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(result.StatusCode, 200);
         }
@@ -43,13 +57,17 @@ namespace EPR.Calculator.Frontend.UnitTests
                     "SendAsync",
                     ItExpr.IsAny<HttpRequestMessage>(),
                     ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Content = new StringContent("response content"),
-                });
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Content = new StringContent("response content"),
+                    });
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            var controller = new UploadFileProcessingController(GetConfigurationValues(), httpClient);
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                    .Returns(httpClient);
+            var controller = new UploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object);
             var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as BadRequestObjectResult;
             Assert.IsNotNull(result);
             Assert.AreNotEqual(result.StatusCode, 201);
