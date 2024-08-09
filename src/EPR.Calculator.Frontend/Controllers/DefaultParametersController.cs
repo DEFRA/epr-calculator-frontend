@@ -8,36 +8,37 @@ namespace EPR.Calculator.Frontend.Controllers
     public class DefaultParametersController : Controller
     {
         private readonly IConfiguration _configuration;
-        private HttpClient _client;
+        private readonly IHttpClientFactory _clientFactory;
 
-        public DefaultParametersController(IConfiguration configuration, HttpClient client)
+        public DefaultParametersController(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
             _configuration = configuration;
-            _client = client;
+            _clientFactory = clientFactory;
         }
 
         public async Task<IActionResult> Index()
         {
             var parameterSettingsApi = _configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
 
-            _client.BaseAddress = new Uri(parameterSettingsApi);
+            var client = _clientFactory.CreateClient();
+            client.BaseAddress = new Uri(parameterSettingsApi);
             var year = _configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value;
             var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, year));
-            var response = await _client.GetAsync(uri);
+            var response = await client.GetAsync(uri);
 
             if (response.IsSuccessStatusCode)
             {
                 var data = await response.Content.ReadAsStringAsync();
                 var defaultSchemeParameters = JsonConvert.DeserializeObject<List<DefaultSchemeParameters>>(data);
-                ViewBag.CommunicationData = CalculateTotal(defaultSchemeParameters, ParameterCategory.CommunicationCosts, true);
-                ViewBag.OperatingCosts = CalculateTotal(defaultSchemeParameters, ParameterCategory.SchemeAdministratorOperatingCosts, true);
-                ViewBag.PreparationCosts = CalculateTotal(defaultSchemeParameters, ParameterCategory.LocalAuthorityDataPreparationCosts, true);
-                ViewBag.SchemeSetupCosts = CalculateTotal(defaultSchemeParameters, ParameterCategory.SchemeSetupCosts, true);
-                ViewBag.LateReportingTonnage = CalculateTotal(defaultSchemeParameters, ParameterCategory.LateReportingTonnage);
-                ViewBag.MaterialityThreshold = CalculateTotal(defaultSchemeParameters, ParameterCategory.MaterialityThreshold);
-                ViewBag.BadDebtProvision = CalculateTotal(defaultSchemeParameters, ParameterCategory.BadDebtProvision);
-                ViewBag.Levy = CalculateTotal(defaultSchemeParameters, ParameterCategory.Levy);
-                ViewBag.TonnageChange = CalculateTotal(defaultSchemeParameters, ParameterCategory.TonnageChangeThreshold);
+                ViewBag.CommunicationData = CalculateTotal(defaultSchemeParameters, ParameterType.CommunicationCosts, true);
+                ViewBag.OperatingCosts = CalculateTotal(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts, true);
+                ViewBag.PreparationCosts = CalculateTotal(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts, true);
+                ViewBag.SchemeSetupCosts = CalculateTotal(defaultSchemeParameters, ParameterType.SchemeSetupCosts, true);
+                ViewBag.LateReportingTonnage = CalculateTotal(defaultSchemeParameters, ParameterType.LateReportingTonnage);
+                ViewBag.MaterialityThreshold = CalculateTotal(defaultSchemeParameters, ParameterType.MaterialityThreshold);
+                ViewBag.BadDebtProvision = CalculateTotal(defaultSchemeParameters, ParameterType.BadDebtProvision);
+                ViewBag.Levy = CalculateTotal(defaultSchemeParameters, ParameterType.Levy);
+                ViewBag.TonnageChange = CalculateTotal(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
 
                 return View();
             }
@@ -45,12 +46,12 @@ namespace EPR.Calculator.Frontend.Controllers
             return BadRequest(response.Content.ReadAsStringAsync().Result);
         }
 
-        private List<DefaultSchemeParameters> CalculateTotal(List<DefaultSchemeParameters> defaultSchemeParameters, string category, bool isTotalRequired = false)
+        private List<DefaultSchemeParameters> CalculateTotal(List<DefaultSchemeParameters> defaultSchemeParameters, string type, bool isTotalRequired = false)
         {
-            var schemeParametersBasedonCategory = defaultSchemeParameters.Where(t => t.ParameterCategory == category).ToList();
+            var schemeParametersBasedonCategory = defaultSchemeParameters.Where(t => t.ParameterType == type).ToList();
             if (isTotalRequired)
             {
-                schemeParametersBasedonCategory.Add(new DefaultSchemeParameters() { ParameterCategory = category, ParameterType = ParameterCategory.Total, ParameterValue = schemeParametersBasedonCategory.Sum(t => t.ParameterValue) });
+                schemeParametersBasedonCategory.Add(new DefaultSchemeParameters() { ParameterType = type, ParameterCategory = ParameterType.Total, ParameterValue = schemeParametersBasedonCategory.Sum(t => t.ParameterValue) });
             }
 
             return schemeParametersBasedonCategory;

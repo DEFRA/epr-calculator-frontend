@@ -29,7 +29,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                 });
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            var controller = new DefaultParametersController(GetConfigurationValues(), httpClient);
+
+            // Mock IHttpClientFactory
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            var controller = new DefaultParametersController(GetConfigurationValues(), mockHttpClientFactory.Object);
 
             var result = await controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -63,7 +70,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                 });
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            var controller = new DefaultParametersController(GetConfigurationValues(), httpClient);
+            // Mock IHttpClientFactory
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+            var controller = new DefaultParametersController(GetConfigurationValues(), mockHttpClientFactory.Object);
 
             var result = await controller.Index() as BadRequestObjectResult;
             Assert.IsNotNull(result);

@@ -29,26 +29,26 @@
                 <span class="govuk-caption-l">Last updated by Jamie Roberts at <strong>10:01</strong> on 28 June 2025</span><br>
                 <h1 class="govuk-heading-xl">Default calculator parameters</h1>
 
-                <h2 class="govuk-heading-l">@ParameterCategory.CommunicationCosts</h2>
+                <h2 class="govuk-heading-l">@ParameterType.CommunicationCosts</h2>
                 <partial name="_ItemListPartial" model="communicationData" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
-                    <h2 class="govuk-heading-l">@ParameterCategory.CommunicationCosts</h2>
+                    <h2 class="govuk-heading-l">@ParameterType.CommunicationCosts</h2>
 
                     <partial name="_ItemListPartial" model="operatingCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }'>
 
-                        <h2 class="govuk-heading-l">@ParameterCategory.SchemeAdministratorOperatingCosts</h2>
+                        <h2 class="govuk-heading-l">@ParameterType.SchemeAdministratorOperatingCosts</h2>
                         <partial name="_ItemListPartial" model="operatingCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
-                        <h2 class="govuk-heading-l">@ParameterCategory.LocalAuthorityDataPreparationCosts</h2>
+                        <h2 class="govuk-heading-l">@ParameterType.LocalAuthorityDataPreparationCosts</h2>
                         <partial name="_ItemListPartial" model="preparationCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
-                        <h2 class="govuk-heading-l">@ParameterCategory.SchemeSetupCosts</h2>
+                        <h2 class="govuk-heading-l">@ParameterType.SchemeSetupCosts</h2>
                         <partial name="_ItemListPartial" model="schemeSetupCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
-                        <h2 class="govuk-heading-l">@ParameterCategory.LateReportingTonnage</h2>
+                        <h2 class="govuk-heading-l">@ParameterType.LateReportingTonnage</h2>
                         <partial name="_ItemListPartial" model="lateReportingTonnage" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", false } }' />
 
                     @if(@badDebtProvision.Count >0)
@@ -58,16 +58,16 @@
                     }
                      @if(@levy.Count >0)
                     {
-                        <h2 class="govuk-heading-l">@ParameterCategory.Levy</h2>
+                        <h2 class="govuk-heading-l">@ParameterType.Levy</h2>
                         <partial name="_ItemListPartial" model="levy" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", false } }' />
                     }
 
-                        <h2 class="govuk-heading-l">@ParameterCategory.MaterialityThreshold</h2>
+                        <h2 class="govuk-heading-l">@ParameterType.MaterialityThreshold</h2>
                         <partial name="_ItemListPartial" model="materialityThreshold" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
 
-                        <h2 class="govuk-heading-l">@ParameterCategory.TonnageChangeThreshold</h2>
+                        <h2 class="govuk-heading-l">@ParameterType.TonnageChangeThreshold</h2>
                         <partial name="_ItemListPartial" model="tonnageChange" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 

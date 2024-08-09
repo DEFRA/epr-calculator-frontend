@@ -1,6 +1,6 @@
 ﻿namespace EPR.Calculator.Frontend.Constants
 {
-    public static class ParameterCategory
+    public static class ParameterType
     {
         public const string CommunicationCosts = "Communication costs";
         public const string SchemeAdministratorOperatingCosts = "Scheme administrator operating costs";
