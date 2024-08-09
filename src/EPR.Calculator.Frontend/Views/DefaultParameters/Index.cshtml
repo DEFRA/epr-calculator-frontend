@@ -13,6 +13,8 @@
     var badDebtProvision = ViewBag.BadDebtProvision;
     var levy = ViewBag.Levy;
     var tonnageChange = ViewBag.TonnageChange;
+
+
 }
 
 <div class="govuk-width-container ">
@@ -28,49 +30,56 @@
                 <h1 class="govuk-heading-xl">Default calculator parameters</h1>
 
                 <h2 class="govuk-heading-l">@ParameterCategory.CommunicationCosts</h2>
-                <partial name="_ItemListPartial" model="communicationData" />
+                <partial name="_ItemListPartial" model="communicationData" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
+
+                    <h2 class="govuk-heading-l">@ParameterCategory.CommunicationCosts</h2>
+
+                    <partial name="_ItemListPartial" model="operatingCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }'>
+
+                        <h2 class="govuk-heading-l">@ParameterCategory.SchemeAdministratorOperatingCosts</h2>
+                        <partial name="_ItemListPartial" model="operatingCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
-                <h2 class="govuk-heading-l">@ParameterCategory.SchemeAdministratorOperatingCosts</h2>
-                <partial name="_ItemListPartial" model="operatingCosts" />
+                        <h2 class="govuk-heading-l">@ParameterCategory.LocalAuthorityDataPreparationCosts</h2>
+                        <partial name="_ItemListPartial" model="preparationCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
-                <h2 class="govuk-heading-l">@ParameterCategory.LocalAuthorityDataPreparationCosts</h2>
-                <partial name="_ItemListPartial" model="preparationCosts" />
+                        <h2 class="govuk-heading-l">@ParameterCategory.SchemeSetupCosts</h2>
+                        <partial name="_ItemListPartial" model="schemeSetupCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
-                <h2 class="govuk-heading-l">@ParameterCategory.SchemeSetupCosts</h2>
-                <partial name="_ItemListPartial" model="schemeSetupCosts" />             
+                        <h2 class="govuk-heading-l">@ParameterCategory.LateReportingTonnage</h2>
+                        <partial name="_ItemListPartial" model="lateReportingTonnage" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", false } }' />
+
+                    @if(@badDebtProvision.Count >0)
+                    {
+                        <h2 class="govuk-heading-l">Bad debt provision</h2>
+                        <partial name="_ItemListPartial" model="badDebtProvision" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
+                    }
+                     @if(@levy.Count >0)
+                    {
+                        <h2 class="govuk-heading-l">@ParameterCategory.Levy</h2>
+                        <partial name="_ItemListPartial" model="levy" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", false } }' />
+                    }
+
+                        <h2 class="govuk-heading-l">@ParameterCategory.MaterialityThreshold</h2>
+                        <partial name="_ItemListPartial" model="materialityThreshold" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
-                <h2 class="govuk-heading-l">@ParameterCategory.LateReportingTonnage</h2>
-                <partial name="_ItemListPartial" model="lateReportingTonnage" />
+
+                        <h2 class="govuk-heading-l">@ParameterCategory.TonnageChangeThreshold</h2>
+                        <partial name="_ItemListPartial" model="tonnageChange" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
-                <h2 class="govuk-heading-l">Bad debt provision</h2>
-                <partial name="_ItemListPartial" model="badDebtProvision" />
-
-                <h2 class="govuk-heading-l">@ParameterCategory.Levy</h2>
-                <partial name="_ItemListPartial" model="levy" />
 
 
-                <h2 class="govuk-heading-l">@ParameterCategory.MaterialityThreshold</h2>
-                <partial name="_ItemListPartial" model="materialityThreshold" />
-
-               
-
-                <h2 class="govuk-heading-l">@ParameterCategory.TonnageChangeThreshold</h2>
-                <partial name="_ItemListPartial" model="tonnageChange" />
-
-                
-
-                <form action="/form-handler" method="post" novalidate="">
-                    <input type="hidden" name="answers-checked" value="true">
-                    <div class="govuk-button-group">
-                        <a href="@Url.Action("Index", "UploadFile")" class="govuk-button" type="submit">Upload new default parameters</a>
-                        <a href="@Url.Action("Index", "Dashboard")" class="govuk-link" href="dash">Return to the dashboard</a>
-                    </div>
-                </form>
+                        <form action="/form-handler" method="post" novalidate="">
+                            <input type="hidden" name="answers-checked" value="true">
+                            <div class="govuk-button-group">
+                                <a href="@Url.Action("Index", "UploadFile")" class="govuk-button" type="submit">Upload new default parameters</a>
+                                <a href="@Url.Action("Index", "Dashboard")" class="govuk-link" href="dash">Return to the dashboard</a>
+                            </div>
+                        </form>
 
 
             </div>
