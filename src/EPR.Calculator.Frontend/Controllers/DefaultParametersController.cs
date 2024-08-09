@@ -47,7 +47,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                ViewBag.NoDataMessage = response.Content.ReadAsStringAsync().Result;
                 ViewBag.IsDataAvailable = false;
                 return View();
             }

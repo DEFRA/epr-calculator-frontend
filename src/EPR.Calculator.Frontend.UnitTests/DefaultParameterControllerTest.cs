@@ -71,7 +71,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Index() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(false, result.ViewData["IsDataAvailable"]);
-            Assert.AreEqual(content, result.ViewData["NoDataMessage"]);
         }
 
         [TestMethod]
