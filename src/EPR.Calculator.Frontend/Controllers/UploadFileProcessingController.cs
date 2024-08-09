@@ -8,20 +8,22 @@ namespace EPR.Calculator.Frontend.Controllers
     public class UploadFileProcessingController : Controller
     {
         private readonly IConfiguration _configuration;
-        private readonly HttpClient _client;
+        private readonly IHttpClientFactory _clientFactory;
 
-        public UploadFileProcessingController(IConfiguration configuration, HttpClient client)
+        public UploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
             _configuration = configuration;
-            _client = client;
+            _clientFactory = clientFactory;
         }
 
         [HttpPost]
-        public IActionResult Index([FromBody]List<SchemeParameterTemplateValue> schemeParameterValues)
+        public IActionResult Index([FromBody] List<SchemeParameterTemplateValue> schemeParameterValues)
         {
+
             var parameterSettingsApi = _configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
 
-            _client.BaseAddress = new Uri(parameterSettingsApi);
+            var client = _clientFactory.CreateClient();
+            client.BaseAddress = new Uri(parameterSettingsApi);
 
             var payload = Transform(schemeParameterValues);
 
@@ -30,7 +32,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(parameterSettingsApi));
             request.Content = content;
 
-            var response = _client.SendAsync(request);
+            var response = client.SendAsync(request);
 
             response.Wait();
 
@@ -38,7 +40,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return Ok(response.Result);
             }
-
             return BadRequest(response.Result.Content.ReadAsStringAsync().Result);
         }
 
