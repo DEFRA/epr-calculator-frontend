@@ -7,21 +7,22 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class UploadFileProcessingController : Controller
     {
-        private readonly IConfiguration _configuration;
-        private readonly HttpClient _client;
+        private readonly IConfiguration configuration;
+        private readonly IHttpClientFactory clientFactory;
 
-        public UploadFileProcessingController(IConfiguration configuration, HttpClient client)
+        public UploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
-            _configuration = configuration;
-            _client = client;
+            this.configuration = configuration;
+            this.clientFactory = clientFactory;
         }
 
         [HttpPost]
-        public IActionResult Index([FromBody]List<SchemeParameterTemplateValue> schemeParameterValues)
+        public IActionResult Index([FromBody] List<SchemeParameterTemplateValue> schemeParameterValues)
         {
-            var parameterSettingsApi = _configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
+            var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
 
-            _client.BaseAddress = new Uri(parameterSettingsApi);
+            var client = this.clientFactory.CreateClient();
+            client.BaseAddress = new Uri(parameterSettingsApi);
 
             var payload = Transform(schemeParameterValues);
 
@@ -30,7 +31,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(parameterSettingsApi));
             request.Content = content;
 
-            var response = _client.SendAsync(request);
+            var response = client.SendAsync(request);
 
             response.Wait();
 
@@ -46,7 +47,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var parameterSetting = new CreateDefaultParameterSettingDto
             {
-                ParameterYear = _configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value,
+                ParameterYear = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value,
                 SchemeParameterTemplateValues = schemeParameterValues,
             };
 
