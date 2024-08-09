@@ -19,7 +19,6 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult Index([FromBody] List<SchemeParameterTemplateValue> schemeParameterValues)
         {
-
             var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
 
             var client = this.clientFactory.CreateClient();
@@ -40,6 +39,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return Ok(response.Result);
             }
+
             return BadRequest(response.Result.Content.ReadAsStringAsync().Result);
         }
 
