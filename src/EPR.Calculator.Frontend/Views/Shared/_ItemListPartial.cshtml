@@ -19,7 +19,7 @@
                 <dd class="govuk-summary-list__value">
                     @{
 
-                        if (@item.ParameterCategory.Contains("Percent") && item.ParameterValue != 0)
+                        if ((@item.ParameterCategory.Contains("Percent") || @item.ParameterType.Contains("percent")) && item.ParameterValue != 0)
                         {
                             @string.Format("{0}{1}", @item.ParameterValue, "%");
                         }

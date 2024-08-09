@@ -9,7 +9,7 @@
         public const string LateReportingTonnage = "Late reporting tonnage";
         public const string MaterialityThreshold = "Materiality threshold";
         public const string TonnageChangeThreshold = "Tonnage change threshold";
-        public const string BadDebtProvision = "Bad debt provision";
+        public const string BadDebtProvision = "Bad debt provision percentage";
         public const string Levy = "Levy";
         public const string Total = "Total";
     }
