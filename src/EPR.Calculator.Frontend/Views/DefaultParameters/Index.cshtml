@@ -57,7 +57,7 @@
                      @if(@levy.Count >0)
                     {
                         <h2 class="govuk-heading-l">@ParameterType.Levy</h2>
-                        <partial name="_ItemListPartial" model="levy" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", false } }' />
+                        <partial name="_ItemListPartial" model="levy" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
                     }
 
                         <h2 class="govuk-heading-l">@ParameterType.MaterialityThreshold</h2>
