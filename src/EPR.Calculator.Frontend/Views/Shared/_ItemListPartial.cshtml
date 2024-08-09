@@ -1,5 +1,10 @@
 ﻿@model List<DefaultSchemeParameters>;
 
+@{
+    var IsAmount = @ViewData["IsDisplayPrefix"] as bool?;
+}
+
+
 <dl class="govuk-summary-list govuk-!-margin-bottom-9">
 
     @if (Model != null)
@@ -12,13 +17,24 @@
                     @item.ParameterType
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    @item.ParameterValue
+                    @{
+
+                        if (@item.ParameterType.Contains("Percent") && item.ParameterValue != 0)
+                        {
+                            @string.Format("{0}{1}", @item.ParameterValue, "%");
+                        }
+                        else if ((@item.ParameterType.Contains("Amount") || IsAmount == true) && item.ParameterValue != 0)
+                        {
+                            @string.Format("{0}{1}", "£", @item.ParameterValue);
+                        }
+                        else
+                        {
+                            @item.ParameterValue
+                        }
+                    }                    
+
                 </dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href="up-communication-costs">
-                        <span class="govuk-visually-hidden"> address</span>
-                    </a>
-                </dd>
+               
             </div>
         }
     }
