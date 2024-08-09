@@ -7,22 +7,22 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class UploadFileProcessingController : Controller
     {
-        private readonly IConfiguration _configuration;
-        private readonly IHttpClientFactory _clientFactory;
+        private readonly IConfiguration configuration;
+        private readonly IHttpClientFactory clientFactory;
 
         public UploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
-            _configuration = configuration;
-            _clientFactory = clientFactory;
+            this.configuration = configuration;
+            this.clientFactory = clientFactory;
         }
 
         [HttpPost]
         public IActionResult Index([FromBody] List<SchemeParameterTemplateValue> schemeParameterValues)
         {
 
-            var parameterSettingsApi = _configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
+            var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
 
-            var client = _clientFactory.CreateClient();
+            var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(parameterSettingsApi);
 
             var payload = Transform(schemeParameterValues);
@@ -47,7 +47,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var parameterSetting = new CreateDefaultParameterSettingDto
             {
-                ParameterYear = _configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value,
+                ParameterYear = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value,
                 SchemeParameterTemplateValues = schemeParameterValues,
             };
 

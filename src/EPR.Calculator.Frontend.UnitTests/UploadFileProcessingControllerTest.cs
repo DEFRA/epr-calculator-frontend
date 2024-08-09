@@ -1,10 +1,8 @@
 ﻿using System.Net;
-using System.Net.Http;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Http;
 using Moq;
 using Moq.Protected;
 
