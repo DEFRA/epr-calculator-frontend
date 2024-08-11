@@ -1,6 +1,8 @@
 ﻿@{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var calculationRuns = ViewBag.CalculationRuns;
 }
 
 
@@ -41,6 +43,26 @@
         </div>
 
         <h2 class="govuk-heading-l">Calculation list</h2>
-
+        <dl class="govuk-summary-list">
+            @foreach (var calculationRun in calculationRuns) {
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        @calculationRun.Name
+                        <div>
+                            Calculation ID: @calculationRun.Id
+                            <br />
+                            @calculationRun.CreatedAt
+                            <br />
+                            Run by: @calculationRun.CreatedBy
+                        </div>
+                    </dt>
+                    <dd class="govuk-summary-list__actions dashboard-page">
+                        <strong class="@calculationRun.tagStyle">
+                            @calculationRun.Status
+                        </strong>
+                    </dd>
+                </div>
+            }
+        </dl>
     </div>
 </div>
