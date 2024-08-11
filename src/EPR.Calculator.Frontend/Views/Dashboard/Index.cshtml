@@ -42,19 +42,19 @@
             </div>
         </div>
 
-        <h2 class="govuk-heading-l">Calculation list</h2>
+        <h2 class="govuk-heading-l">Previous calculations</h2>
         <dl class="govuk-summary-list">
             @foreach (var calculationRun in calculationRuns) {
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
-                        @calculationRun.Name
-                        <div>
+                        <h3 class="govuk-heading-m govuk-!-margin-bottom-3">@calculationRun.Name</h3>
+                        <p class="govuk-body">
                             Calculation ID: @calculationRun.Id
                             <br />
                             @calculationRun.CreatedAt
                             <br />
                             Run by: @calculationRun.CreatedBy
-                        </div>
+                        </p>
                     </dt>
                     <dd class="govuk-summary-list__actions dashboard-page">
                         <strong class="@calculationRun.tagStyle">

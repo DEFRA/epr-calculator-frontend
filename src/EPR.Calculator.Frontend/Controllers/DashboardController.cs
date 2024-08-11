@@ -19,7 +19,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var calculationRuns = new List<CalculationRun>();
 
             calculationRuns.AddRange([
-                new CalculationRun { Id = 1, Name = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.InTheQueue, tagStyle = ApplyCalculationRunStatusStyles(CalculationRunStatus.InTheQueue) },
+                new CalculationRun { Id = 1, Name = "Default settings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.InTheQueue, tagStyle = ApplyCalculationRunStatusStyles(CalculationRunStatus.InTheQueue) },
                 new CalculationRun { Id = 2, Name = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Running, tagStyle = ApplyCalculationRunStatusStyles(CalculationRunStatus.Running) },
                 new CalculationRun { Id = 3, Name = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Unclassified, tagStyle = ApplyCalculationRunStatusStyles(CalculationRunStatus.Unclassified) },
                 new CalculationRun { Id = 4, Name = "June check", CreatedAt = DateTime.Parse("11/06/2025 09:14:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play, tagStyle = ApplyCalculationRunStatusStyles(CalculationRunStatus.Play) },

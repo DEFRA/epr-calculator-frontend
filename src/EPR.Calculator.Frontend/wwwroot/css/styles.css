@@ -9,4 +9,8 @@
     &.govuk-summary-list__actions {
         vertical-align: middle;
     }
+
+    &.govuk-tag {
+        font-weight: bold;
+    }
 }
