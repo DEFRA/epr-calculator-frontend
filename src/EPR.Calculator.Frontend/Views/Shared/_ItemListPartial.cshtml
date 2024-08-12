@@ -14,18 +14,19 @@
         {
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
-                    @item.ParameterType
+                    @item.ParameterCategory
                 </dt>
                 <dd class="govuk-summary-list__value">
                     @{
 
-                        if (@item.ParameterType.Contains("Percent") && item.ParameterValue != 0)
+                        if ((@item.ParameterCategory.Contains("Percent") || @item.ParameterType.Contains("percent")) && item.ParameterValue != 0)
                         {
-                            @string.Format("{0}{1}", @item.ParameterValue, "%");
+                            @string.Format("{0:F2}{1}", @item.ParameterValue, "%")
+                            ;
                         }
-                        else if ((@item.ParameterType.Contains("Amount") || IsAmount == true) && item.ParameterValue != 0)
+                        else if ((@item.ParameterCategory.Contains("Amount") || IsAmount == true) && item.ParameterValue != 0)
                         {
-                            @string.Format("{0}{1}", "£", @item.ParameterValue);
+                            @string.Format("{0}{1:F2}", "£", @item.ParameterValue);
                         }
                         else
                         {
