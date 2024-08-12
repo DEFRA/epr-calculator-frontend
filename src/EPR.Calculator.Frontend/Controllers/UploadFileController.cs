@@ -1,13 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using CsvHelper;
+﻿using CsvHelper;
 using CsvHelper.Configuration;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -108,7 +106,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                     {
                         PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)),
-                        ShouldSkipRecord = (args => args.Row.Parser.Record.All(string.IsNullOrWhiteSpace) || args.Row.GetField(0).Contains("upload version"))
+                        ShouldSkipRecord = args => args.Row.Parser.Record.All(string.IsNullOrWhiteSpace) || args.Row.GetField(0).Contains("upload version")
                     };
                     using (var csv = new CsvReader(reader, config))
                     {
