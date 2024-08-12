@@ -41,7 +41,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Index() as ViewResult;
             Assert.IsNotNull(result);
 
-            Assert.AreEqual(result.ViewData.Count, 9);
+            Assert.AreEqual(result.ViewData.Count, 10);
             Assert.IsNotNull(result.ViewData["CommunicationData"]);
             Assert.IsNotNull(result.ViewData["OperatingCosts"]);
             Assert.IsNotNull(result.ViewData["PreparationCosts"]);
@@ -51,6 +51,40 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result.ViewData["BadDebtProvision"]);
             Assert.IsNotNull(result.ViewData["Levy"]);
             Assert.IsNotNull(result.ViewData["TonnageChange"]);
+
+            Assert.AreEqual(true, result.ViewData["IsDataAvailable"]);
+        }
+
+        [TestMethod]
+        public async Task DefaultParameterController_Success_No_Data_View_Test()
+        {
+            var content = "No data available for the specified year.Please check the year and try again.";
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Content = new StringContent(content)
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            // Mock IHttpClientFactory
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            var controller = new DefaultParametersController(GetConfigurationValues(), mockHttpClientFactory.Object);
+
+            var result = await controller.Index() as ViewResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(false, result.ViewData["IsDataAvailable"]);
         }
 
         [TestMethod]

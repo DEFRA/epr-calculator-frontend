@@ -21,72 +21,74 @@
 
     <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
 
-
         <partial name="_BackLinkPartial" model="BackLink" />
 
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <span class="govuk-caption-l">Last updated by Jamie Roberts at <strong>10:01</strong> on 28 June 2025</span><br>
-                <h1 class="govuk-heading-xl">Default calculator parameters</h1>
+                @if(ViewBag.IsDataAvailable)
+                {
+                    <span class="govuk-caption-l">Last updated by Jamie Roberts at <strong>10:01</strong> on 28 June 2025</span><br>
+                    <h1 class="govuk-heading-xl">Default calculator parameters</h1>
 
                     <h2 class="govuk-heading-l">@ParameterType.CommunicationCosts</h2>
                     <partial name="_ItemListPartial" model="communicationData" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
                    
 
-                        <h2 class="govuk-heading-l">@ParameterType.SchemeAdministratorOperatingCosts</h2>
-                        <partial name="_ItemListPartial" model="operatingCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
+                    <h2 class="govuk-heading-l">@ParameterType.SchemeAdministratorOperatingCosts</h2>
+                    <partial name="_ItemListPartial" model="operatingCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
-                        <h2 class="govuk-heading-l">@ParameterType.LocalAuthorityDataPreparationCosts</h2>
-                        <partial name="_ItemListPartial" model="preparationCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
+                    <h2 class="govuk-heading-l">@ParameterType.LocalAuthorityDataPreparationCosts</h2>
+                    <partial name="_ItemListPartial" model="preparationCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
-                        <h2 class="govuk-heading-l">@ParameterType.SchemeSetupCosts</h2>
-                        <partial name="_ItemListPartial" model="schemeSetupCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
+                    <h2 class="govuk-heading-l">@ParameterType.SchemeSetupCosts</h2>
+                    <partial name="_ItemListPartial" model="schemeSetupCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
-                        <h2 class="govuk-heading-l">@ParameterType.LateReportingTonnage</h2>
-                        <partial name="_ItemListPartial" model="lateReportingTonnage" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", false } }' />
+                    <h2 class="govuk-heading-l">@ParameterType.LateReportingTonnage</h2>
+                    <partial name="_ItemListPartial" model="lateReportingTonnage" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", false } }' />
 
                     @if(@badDebtProvision.Count >0)
                     {
-                    <h2 class="govuk-heading-l">@ParameterType.BadDebtProvision</h2>
+                        <h2 class="govuk-heading-l">@ParameterType.BadDebtProvision</h2>
                         <partial name="_ItemListPartial" model="badDebtProvision" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", false } }' />
                     }
-                     @if(@levy.Count >0)
+                        @if(@levy.Count >0)
                     {
                         <h2 class="govuk-heading-l">@ParameterType.Levy</h2>
                         <partial name="_ItemListPartial" model="levy" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
                     }
 
-                        <h2 class="govuk-heading-l">@ParameterType.MaterialityThreshold</h2>
-                        <partial name="_ItemListPartial" model="materialityThreshold" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
+                    <h2 class="govuk-heading-l">@ParameterType.MaterialityThreshold</h2>
+                    <partial name="_ItemListPartial" model="materialityThreshold" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
 
-                        <h2 class="govuk-heading-l">@ParameterType.TonnageChangeThreshold</h2>
-                        <partial name="_ItemListPartial" model="tonnageChange" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
+                    <h2 class="govuk-heading-l">@ParameterType.TonnageChangeThreshold</h2>
+                    <partial name="_ItemListPartial" model="tonnageChange" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
+                }
+                else
+                {
+                    <h1 class="govuk-heading-xl">Default calculator parameters</h1>
+                    <p class="govuk-body">Default parameters have not been set.</p>
+                    <p class="govuk-body govuk-!-margin-bottom-8">Upload a CSV file using the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "UploadFile")">default parameters template</a> to set them.</p>
+                }
 
-
-
-
-                        <form action="/form-handler" method="post" novalidate="">
-                            <input type="hidden" name="answers-checked" value="true">
-                            <div class="govuk-button-group">
-                                <a href="@Url.Action("Index", "UploadFile")" class="govuk-button" type="submit">Upload new default parameters</a>
-                                <a href="@Url.Action("Index", "Dashboard")" class="govuk-link" href="dash">Return to the dashboard</a>
-                            </div>
-                        </form>
+                <form action="/form-handler" method="post" novalidate="">
+                    <input type="hidden" name="answers-checked" value="true">
+                    <div class="govuk-button-group">
+                        <a href="@Url.Action("Index", "UploadFile")" class="govuk-button" type="submit">Upload new default parameters</a>
+                        <a href="@Url.Action("Index", "Dashboard")" class="govuk-link" href="dash">Return to the dashboard</a>
+                    </div>
+                </form>
 
 
             </div>
         </div>
 
-
-
-
-
     </main>
+
 </div>
 

@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Net;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -40,6 +41,14 @@ namespace EPR.Calculator.Frontend.Controllers
                 ViewBag.Levy = CalculateTotal(defaultSchemeParameters, ParameterType.Levy);
                 ViewBag.TonnageChange = CalculateTotal(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
 
+                ViewBag.IsDataAvailable = true;
+
+                return View();
+            }
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                ViewBag.IsDataAvailable = false;
                 return View();
             }
 
