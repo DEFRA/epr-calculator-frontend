@@ -1,8 +1,10 @@
-﻿@{
+﻿@using EPR.Calculator.Frontend.ViewModels
+
+@{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var calculationRuns = ViewBag.CalculationRuns;
+    var dashboardRunData = ViewData["DashboardRunData"] as IList<DashboardViewModel>;
 }
 
 
@@ -16,12 +18,12 @@
     </div>
 </div>
 
-<div class="govuk-grid-row">
+<div class="govuk-grid-row dashboard-page">
     <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-xl">Calculate packaging payments</h1>
         <div class="govuk-grid-row govuk-!-margin-bottom-7">
             <div class="govuk-grid-column-one-half">
-                <div class="dashboard-page card">
+                <div class="card">
                     <h2 class="govuk-heading-m govuk-link">
                         <a href="/DefaultParameters/Index" class="govuk-link--no-visited-state">
                             Manage default calculation parameters
@@ -33,7 +35,7 @@
                 </div>
             </div>
             <div class="govuk-grid-column-one-half">
-                <div class="dashboard-page card">
+                <div class="card">
                     <h2 class="govuk-heading-m"><a href="#" class="govuk-link--no-visited-state">Run a new calculation</a></h2>
                     <p class="govuk-body">
                         The calculation will use the default parameters that your account administrator set up, unless you choose to change any of them.
@@ -42,23 +44,33 @@
             </div>
         </div>
 
-        <h2 class="govuk-heading-l">Previous calculations</h2>
+        <h2 class="govuk-heading-l">Calculations made in this financial year</h2>
         <dl class="govuk-summary-list">
-            @foreach (var calculationRun in calculationRuns) {
+            @foreach (var run in dashboardRunData)
+            {
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
-                        <h3 class="govuk-heading-m govuk-!-margin-bottom-3">@calculationRun.Name</h3>
+                        <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
+                            @if (run.ShowRunDetailLink)
+                            {
+                                <a href="@Url.Action("Index", "CalculationRunDetails")" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
+                            }
+                            else
+                            {
+                                @run.Name
+                            }
+                        </h3>
                         <p class="govuk-body">
-                            Calculation ID: @calculationRun.Id
+                            Calculation ID: @run.Id
                             <br />
-                            @calculationRun.CreatedAt
+                            Date: @run.CreatedAt
                             <br />
-                            Run by: @calculationRun.CreatedBy
+                            Run by: @run.CreatedBy
                         </p>
                     </dt>
                     <dd class="govuk-summary-list__actions">
-                        <strong class="@calculationRun.tagStyle dashboard-page">
-                            @calculationRun.Status
+                        <strong class="@run.TagStyle">
+                            @run.Status
                         </strong>
                     </dd>
                 </div>
