@@ -19,18 +19,20 @@
                 <dd class="govuk-summary-list__value">
                     @{
 
-                        if ((@item.ParameterCategory.Contains("Percent") || @item.ParameterType.Contains("percent")) && item.ParameterValue != 0)
+                        if ((@item.ParameterCategory.Contains("Percent") || @item.ParameterType.Contains("percent")))
                         {
-                            @string.Format("{0:F2}{1}", @item.ParameterValue, "%")
+                            @(item.ParameterValue == 0 ? string.Format("{0:F0}{1}", @item.ParameterValue, "%") : string.Format("{0:F2}{1}", @item.ParameterValue, "%"))
                             ;
                         }
-                        else if ((@item.ParameterCategory.Contains("Amount") || IsAmount == true) && item.ParameterValue != 0)
+                        else if ((@item.ParameterCategory.Contains("Amount") || IsAmount == true))
                         {
-                            @string.Format("{0}{1:F2}", "£", @item.ParameterValue);
+
+                            @(item.ParameterValue < 0 ? string.Format("{0}{1}{2}", "-","£", @item.ParameterValue.ToString("F2").Trim('-')) : (@item.ParameterValue == 0 ? string.Format("{0}{1:F0}", "£", @item.ParameterValue) : string.Format("{0}{1:F2}", "£", @item.ParameterValue)));
+                           
                         }
                         else
                         {
-                            @item.ParameterValue
+                            @item.ParameterValue;
                         }
                     }                    
 
