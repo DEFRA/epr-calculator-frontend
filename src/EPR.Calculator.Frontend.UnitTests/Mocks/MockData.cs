@@ -1,7 +1,6 @@
-using System.Globalization;
+﻿using System.Globalization;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
-using Microsoft.AspNetCore.Http;
 
 namespace EPR.Calculator.Frontend.UnitTests.Mocks
 {
