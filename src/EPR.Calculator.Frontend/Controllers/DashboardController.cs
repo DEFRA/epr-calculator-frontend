@@ -24,6 +24,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return View(ViewNames.DashboardIndex);
         }
 
+        // TODO: This method should be deleted during GET API integration
         private List<CalculationRun> GetCalulationRunsMockData()
         {
             var calculationRuns = new List<CalculationRun>();
@@ -43,24 +44,6 @@ namespace EPR.Calculator.Frontend.Controllers
             ]);
 
             return calculationRuns;
-        }
-
-        private string ApplyCalculationRunStatusStyles(string calculationRunStatus)
-        {
-            switch (calculationRunStatus)
-            {
-                case CalculationRunStatus.InTheQueue:
-                case CalculationRunStatus.Running:
-                    return "govuk-tag govuk-tag--grey";
-                case CalculationRunStatus.Play:
-                    return "govuk-tag govuk-tag--green";
-                case CalculationRunStatus.Unclassified:
-                    return "govuk-tag";
-                case CalculationRunStatus.Error:
-                    return "govuk-tag govuk-tag--yellow";
-                default:
-                    return "govuk-tag";
-            }
         }
     }
 }
