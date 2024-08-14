@@ -116,7 +116,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         while (csv.Read())
                         {
                             schemeTemplateParameterValues.Add(
-                                new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = GetParameterValue(csv.GetField(5)) });
+                                new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = csv.GetField(5) });
                         }
                     }
                 }
@@ -127,13 +127,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 throw new Exception(ex.Message);
             }
-        }
-
-        private decimal? GetParameterValue(string parameterValue)
-        {
-            var parameterValueFormatted = parameterValue.Replace("£", string.Empty).Replace("%", string.Empty);
-            var result = decimal.TryParse(parameterValueFormatted, out var value);
-            return result ? value : null;
         }
 
         private List<ErrorViewModel> ValidateCSV(IFormFile fileUpload)
