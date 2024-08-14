@@ -58,14 +58,14 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var csvErrors = CSVHelper.ValidateCSV(fileUpload);
+                var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
                 if (csvErrors.ErrorMessage is not null)
                 {
                     ViewBag.DefaultError = csvErrors;
                     return View(ViewNames.UploadCSVErrorIndex);
                 }
 
-                var schemeTemplateParameterValues = await CSVHelper.PrepareDataForUpload(fileUpload);
+                var schemeTemplateParameterValues = await CsvFileHelper.PrepareDataForUpload(fileUpload);
 
                 ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
@@ -75,7 +75,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return RedirectToAction("Index", "StandardError");
             }
-
         }
     }
 }

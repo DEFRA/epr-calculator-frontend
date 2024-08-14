@@ -27,9 +27,9 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 if (ValidateCSV(fileUpload).ErrorMessage is not null)
-                {                   
-                        ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Default_Parameter_Upload_Errors"].ToString());
-                        return View(ViewNames.UploadFileIndex);                   
+                {
+                    ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Default_Parameter_Upload_Errors"].ToString());
+                    return View(ViewNames.UploadFileIndex);
                 }
 
                 var schemeTemplateParameterValues = await PrepareDataForUpload(fileUpload);
@@ -55,11 +55,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     if (ValidateCSV(fileUpload).ErrorMessage is not null)
                     {
-                        if (TempData["Default_Parameter_Upload_Errors"] != null)
-                        {
                             ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Default_Parameter_Upload_Errors"].ToString());
                             return View(ViewNames.UploadFileIndex);
-                        }
                     }
 
                     var schemeTemplateParameterValues = await PrepareDataForUpload(fileUpload);
@@ -129,7 +126,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private ErrorViewModel ValidateCSV(IFormFile fileUpload)
         {
-            ErrorViewModel validationErrors = CSVHelper.ValidateCSV(fileUpload);
+            ErrorViewModel validationErrors = CsvFileHelper.ValidateCSV(fileUpload);
 
             if (validationErrors.ErrorMessage != null)
             {

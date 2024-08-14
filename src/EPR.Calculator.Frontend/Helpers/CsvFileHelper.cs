@@ -2,13 +2,12 @@
 using CsvHelper.Configuration;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
-using Newtonsoft.Json;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Helpers
 {
-    public static class CSVHelper
+    public static class CsvFileHelper
     {
         public static ErrorViewModel ValidateCSV(IFormFile fileUpload)
         {
@@ -16,17 +15,17 @@ namespace EPR.Calculator.Frontend.Helpers
 
             if (fileUpload == null || fileUpload.Length == 0)
             {
-              return  errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileNotSelected };
+                return errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileNotSelected };
             }
 
             if (!fileUpload.FileName.EndsWith(".csv"))
             {
-              return  errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileMustBeCSV };
+                return errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileMustBeCSV };
             }
 
             if (fileUpload.Length > StaticHelpers.MaxFileSize)
             {
-              return  errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileNotExceed50KB };
+                return errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileNotExceed50KB };
             }
 
             return errorViewModel;
@@ -67,14 +66,5 @@ namespace EPR.Calculator.Frontend.Helpers
                 throw new Exception(ex.Message);
             }
         }
-
-        private static decimal? GetParameterValue(string parameterValue)
-        {
-            var parameterValueFormatted = parameterValue.Replace("£", string.Empty).Replace("%", string.Empty);
-            var result = decimal.TryParse(parameterValueFormatted, out var value);
-            return result ? value : null;
-        }
-
-
     }
 }
