@@ -1,10 +1,9 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels
+@model List<DashboardViewModel>
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
-    var dashboardRunData = ViewData["DashboardRunData"] as IList<DashboardViewModel>;
 }
 
 
@@ -46,7 +45,7 @@
 
         <h2 class="govuk-heading-l">Calculations made in this financial year</h2>
         <dl class="govuk-summary-list">
-            @foreach (var run in dashboardRunData)
+            @foreach (var run in Model)
             {
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">

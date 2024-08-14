@@ -19,9 +19,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 dashboardRunData.Add(new DashboardViewModel(calculationRun));
             }
 
-            ViewData["DashboardRunData"] = dashboardRunData;
-
-            return View(ViewNames.DashboardIndex);
+            return View(ViewNames.DashboardIndex, dashboardRunData);
         }
 
         // TODO: This method should be deleted during GET API integration
