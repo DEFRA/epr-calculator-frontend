@@ -13,7 +13,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new CalculationRunDetailsController();
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculatorRunDetailsIndex, result.ViewName);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsIndex, result.ViewName);
         }
     }
 }
