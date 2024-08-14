@@ -28,7 +28,9 @@ namespace EPR.Calculator.Frontend.Controllers
                     }
 
                     if (ViewBag.ValidationErrors is null && ViewBag.Errors is not null)
-                    { ViewBag.ValidationErrors = $"The file contained {ViewBag.Errors.Count} errors.";  }
+                    {
+                        ViewBag.ValidationErrors = new List<ValidationErrorDto>() { new ValidationErrorDto() { ErrorMessage = $"The file contained {ViewBag.Errors.Count} errors." } };
+                    }
 
                     return View(ViewNames.UploadCSVErrorIndex);
                 }

@@ -127,7 +127,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private List<ErrorViewModel> ValidateCSV(IFormFile fileUpload)
+        private ErrorViewModel ValidateCSV(IFormFile fileUpload)
         {
             ErrorViewModel validationErrors = CSVHelper.ValidateCSV(fileUpload);
 

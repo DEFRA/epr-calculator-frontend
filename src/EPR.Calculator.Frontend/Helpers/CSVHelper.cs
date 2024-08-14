@@ -55,7 +55,7 @@ namespace EPR.Calculator.Frontend.Helpers
                         while (csv.Read())
                         {
                             schemeTemplateParameterValues.Add(
-                                new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = GetParameterValue(csv.GetField(5)) });
+                                new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = csv.GetField(5) });
                         }
                     }
                 }
