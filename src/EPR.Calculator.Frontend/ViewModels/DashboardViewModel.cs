@@ -7,6 +7,17 @@ namespace EPR.Calculator.Frontend.ViewModels
     [ExcludeFromCodeCoverage]
     public class DashboardViewModel
     {
+        public DashboardViewModel(CalculationRun calculationRun)
+        {
+            Id = calculationRun.Id;
+            Name = calculationRun.Name;
+            CreatedAt = GetFormattedCreatedAt(calculationRun.CreatedAt);
+            CreatedBy = calculationRun.CreatedBy;
+            Status = calculationRun.Status;
+            TagStyle = GetCalculationRunStatusStyles(calculationRun.Status);
+            ShowRunDetailLink = GetShowRunDetailLink(calculationRun.Status);
+        }
+
         public int Id { get; set; }
 
         public string Name { get; set; }
@@ -20,17 +31,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         public string? TagStyle { get; set; }
 
         public bool ShowRunDetailLink { get; set; }
-
-        public DashboardViewModel(CalculationRun calculationRun)
-        {
-            Id = calculationRun.Id;
-            Name = calculationRun.Name;
-            CreatedAt = GetFormattedCreatedAt(calculationRun.CreatedAt);
-            CreatedBy = calculationRun.CreatedBy;
-            Status = calculationRun.Status;
-            TagStyle = GetCalculationRunStatusStyles(calculationRun.Status);
-            ShowRunDetailLink = GetShowRunDetailLink(calculationRun.Status);
-        }
 
         private string GetFormattedCreatedAt(DateTime createdAt)
         {
