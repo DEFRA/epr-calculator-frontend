@@ -1,4 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -26,6 +27,9 @@ namespace EPR.Calculator.Frontend.Controllers
                         ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
                     }
 
+                    if (ViewBag.ValidationErrors is null && ViewBag.Errors is not null)
+                    { ViewBag.ValidationErrors = $"The file contained {ViewBag.Errors.Count} errors.";  }
+
                     return View(ViewNames.UploadCSVErrorIndex);
                 }
                 else
@@ -50,19 +54,26 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-            if (fileUpload != null)
+            try
             {
-                var fileName = Path.GetFileName(fileUpload.FileName);
-                var filePath = Path.Combine(Path.GetTempPath(), fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                var csvErrors = CSVHelper.ValidateCSV(fileUpload);
+                if (csvErrors.ErrorMessage is not null)
                 {
-                    await fileUpload.CopyToAsync(stream);
+                    ViewBag.DefaultError = csvErrors;
+                    return View(ViewNames.UploadCSVErrorIndex);
                 }
 
-                TempData["FilePath"] = filePath;
+                var schemeTemplateParameterValues = await CSVHelper.PrepareDataForUpload(fileUpload);
+
+                ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
+
+                return View(ViewNames.UploadFileRefresh);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "StandardError");
             }
 
-            return RedirectToAction("Upload", "UploadFile");
         }
     }
 }

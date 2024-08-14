@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using CsvHelper;
 using CsvHelper.Configuration;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -25,13 +26,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                if (ValidateCSV(fileUpload).Count > 0)
-                {
-                    if (TempData["Default_Parameter_Upload_Errors"] != null)
-                    {
-                        ViewBag.Errors = JsonConvert.DeserializeObject<List<ErrorViewModel>>(TempData["Default_Parameter_Upload_Errors"].ToString());
-                        return View(ViewNames.UploadFileIndex);
-                    }
+                if (ValidateCSV(fileUpload).ErrorMessage is not null)
+                {                   
+                        ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Default_Parameter_Upload_Errors"].ToString());
+                        return View(ViewNames.UploadFileIndex);                   
                 }
 
                 var schemeTemplateParameterValues = await PrepareDataForUpload(fileUpload);
@@ -55,11 +53,11 @@ namespace EPR.Calculator.Frontend.Controllers
                     using var stream = System.IO.File.OpenRead(TempData["FilePath"].ToString());
                     var fileUpload = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
 
-                    if (ValidateCSV(fileUpload).Count > 0)
+                    if (ValidateCSV(fileUpload).ErrorMessage is not null)
                     {
                         if (TempData["Default_Parameter_Upload_Errors"] != null)
                         {
-                            ViewBag.Errors = JsonConvert.DeserializeObject<List<ErrorViewModel>>(TempData["Default_Parameter_Upload_Errors"].ToString());
+                            ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Default_Parameter_Upload_Errors"].ToString());
                             return View(ViewNames.UploadFileIndex);
                         }
                     }
@@ -136,26 +134,11 @@ namespace EPR.Calculator.Frontend.Controllers
             return result ? value : null;
         }
 
-        private List<ErrorViewModel> ValidateCSV(IFormFile fileUpload)
+        private ErrorViewModel ValidateCSV(IFormFile fileUpload)
         {
-            var validationErrors = new List<ErrorViewModel>();
+            ErrorViewModel validationErrors = CSVHelper.ValidateCSV(fileUpload);
 
-            if (fileUpload == null || fileUpload.Length == 0)
-            {
-                validationErrors.Add(new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileNotSelected });
-            }
-
-            if (fileUpload != null && !fileUpload.FileName.EndsWith(".csv"))
-            {
-                validationErrors.Add(new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileMustBeCSV });
-            }
-
-            if (fileUpload != null && fileUpload.Length > MaxFileSize)
-            {
-                validationErrors.Add(new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileNotExceed50KB });
-            }
-
-            if (validationErrors.Count > 0)
+            if (validationErrors.ErrorMessage != null)
             {
                 TempData["Default_Parameter_Upload_Errors"] = JsonConvert.SerializeObject(validationErrors);
             }
