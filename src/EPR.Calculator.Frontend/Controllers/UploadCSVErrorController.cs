@@ -10,6 +10,8 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
+            try
+            {
                 if (!string.IsNullOrEmpty(HttpContext.Session.GetString("Default_Parameter_Upload_Errors")))
                 {
                     var errors = HttpContext.Session.GetString("Default_Parameter_Upload_Errors");
@@ -36,6 +38,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     return RedirectToAction("Index", "StandardError");
                 }
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "StandardError");
+            }
         }
 
         [HttpPost]

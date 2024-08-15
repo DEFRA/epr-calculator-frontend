@@ -57,6 +57,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ViewNames.UploadCSVErrorIndex, result.ViewName);
         }
 
+        [TestMethod]
         public void UploadCSVErrorController_Standard_Error_Test()
         {
             var mockHttpSession = new MockHttpSession();
