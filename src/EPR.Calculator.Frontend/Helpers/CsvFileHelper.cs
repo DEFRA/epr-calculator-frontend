@@ -12,8 +12,7 @@ namespace EPR.Calculator.Frontend.Helpers
         public static ErrorViewModel ValidateCSV(IFormFile fileUpload)
         {
             ErrorViewModel errorViewModel = new ErrorViewModel();
-
-            if (fileUpload == null || fileUpload.Length == 0)
+            if (fileUpload == null)
             {
                 return errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileNotSelected };
             }
