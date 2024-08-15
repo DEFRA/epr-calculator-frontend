@@ -4,6 +4,7 @@
     var errors = ViewBag.Errors;
     var BackLink = "UploadFile";
     var defaultError = ViewBag.DefaultError;
+    var isDataError = errors == null;
 
 }
 
@@ -17,44 +18,44 @@
                     There is a problem with your upload
                 </h2>
                 <div class="govuk-error-summary__body">
-                     @if (validationErrors != null)
-                        {
-                    <ul class="govuk-list govuk-error-summary__list">
-                       
-                            @foreach (var error in validationErrors)
-                            {
-                                <li>@error.ErrorMessage</li>
-                            }
-                        
-                    </ul>
-                        }
-
-                    @if (defaultError!=null)
+                    @if (validationErrors != null)
                     {
                         <ul class="govuk-list govuk-error-summary__list">
-                            <li><a href="#file-upload-1">@defaultError.ErrorMessage</a></li>
 
+                            @foreach (var error in validationErrors)
+                            {                              
+
+                                    <li><a href="@(errors !=null ?"#dataErrors" : "#file-upload-1")">@error.ErrorMessage</a></li>
+                               
+                            }
+
+                        </ul>
+                    }
+
+                    @if (defaultError != null)
+                    {
+                        <ul class="govuk-list govuk-error-summary__list">
+                           
+                            <li><a href="#file-upload-1">@defaultError.ErrorMessage</a></li>
+                            
                         </ul>
                     }
 
                 </div>
             </div>
         </div>
-        
-         @if (errors != null)
-            {
-        <h2 class="govuk-heading-s">You must fix the following errors before you can upload the file:</h2>
 
-        <ol class="govuk-list govuk-list--number">
-           
-           
+        @if (errors != null)
+        {
+            <h2 class="govuk-heading-s">You must fix the following errors before you can upload the file:</h2>
+
+            <ol id="dataErrors" class="govuk-list govuk-list--number">
                 @foreach (var error in errors)
                 {
                     <li>@error.Message</li>
                 }
-            
-        </ol>
-            }
+            </ol>
+        }
 
         <div>
             <label class="govuk-label govuk-label--m govuk-!-margin-top-6" for="file-upload-1" aria-describedby="file-upload-1">
