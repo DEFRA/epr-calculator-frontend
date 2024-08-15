@@ -33,8 +33,6 @@ namespace EPR.Calculator.Frontend.Helpers
 
         public static async Task<List<SchemeParameterTemplateValue>> PrepareDataForUpload(IFormFile fileUpload)
         {
-            try
-            {
                 var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
 
                 using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
@@ -46,7 +44,7 @@ namespace EPR.Calculator.Frontend.Helpers
                     var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                     {
                         PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)),
-                        ShouldSkipRecord = args => args.Row.Parser.Record.All(string.IsNullOrWhiteSpace) || args.Row.GetField(0).Contains("upload version")
+                        ShouldSkipRecord = args => args.Row.Parser.Record.All(string.IsNullOrWhiteSpace) || args.Row.GetField(0).Contains("upload version"),
                     };
                     using (var csv = new CsvReader(reader, config))
                     {
@@ -60,11 +58,6 @@ namespace EPR.Calculator.Frontend.Helpers
                 }
 
                 return schemeTemplateParameterValues;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
         }
     }
 }
