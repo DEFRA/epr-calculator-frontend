@@ -2,7 +2,7 @@
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;  
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
