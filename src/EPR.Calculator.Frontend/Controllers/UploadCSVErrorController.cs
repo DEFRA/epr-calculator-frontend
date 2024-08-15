@@ -56,8 +56,6 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-            try
-            {
                 var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
                 if (csvErrors.ErrorMessage is not null)
                 {
@@ -70,11 +68,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
                 return View(ViewNames.UploadFileRefresh);
-            }
-            catch (Exception ex)
-            {
-                return RedirectToAction("Index", "StandardError");
-            }
         }
     }
 }
