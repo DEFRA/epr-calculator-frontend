@@ -25,7 +25,7 @@
                             @foreach (var error in validationErrors)
                             {                              
 
-                                    <li><a href="@(errors !=null ?"#dataErrors" : "#file-upload-1")">@error.ErrorMessage</a></li>
+                                    <li>@error.ErrorMessage</li>
                                
                             }
 
