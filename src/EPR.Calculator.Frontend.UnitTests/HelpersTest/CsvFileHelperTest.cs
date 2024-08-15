@@ -77,16 +77,20 @@ namespace EPR.Calculator.Frontend.UnitTests.HelpersTest
         }
 
         [TestMethod]
-        public void CsvFileHelperTest_Prepare_Upload__CSV_Test()
+        public void CsvFileHelperTest_Prepare_Upload_CSV_Test()
         {
             var content = MockData.GetSchemeParametersFileContent();
             var stream = new MemoryStream(Encoding.ASCII.GetBytes(content));
             var writer = new StreamWriter(stream);
             writer.Write(content);
             stream.Position = 0;
-            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.csv");
+            IFormFile file = new FormFile(stream, 0, stream.Length, "Data", "SchemeParameters.csv")
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "text/plain"
+            };
 
-            var result = CsvFileHelper.PrepareDataForUpload(null);
+            var result = CsvFileHelper.PrepareDataForUpload(file);
             Assert.IsNotNull(result);
         }
     }
