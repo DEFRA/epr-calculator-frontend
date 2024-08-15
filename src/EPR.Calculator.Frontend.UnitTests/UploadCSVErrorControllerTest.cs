@@ -170,5 +170,41 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.UploadFileRefresh, result.ViewName);
         }
+
+        [TestMethod]
+        public async Task UploadCSVErrorController_View_Get_Test()
+        {
+            var mockHttpSession = new MockHttpSession();
+
+            var errors = new List<ValidationErrorDto>() { new ValidationErrorDto { ErrorMessage = StaticHelpers.FileMustBeCSV } };
+            mockHttpSession.SetString("Default_Parameter_Upload_Errors", JsonConvert.SerializeObject(errors).ToString());
+
+            var controller = new UploadCSVErrorController();
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Session = mockHttpSession;
+
+            var result = controller.Index() as ViewResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.UploadCSVErrorIndex, result.ViewName);
+        }
+
+        [TestMethod]
+        public async Task UploadCSVErrorController_View_Get_Error_Test()
+        {
+            var mockHttpSession = new MockHttpSession();
+
+            var errors = new List<CreateDefaultParameterSettingErrorDto>() { new CreateDefaultParameterSettingErrorDto { Message = "Some message" } };
+            mockHttpSession.SetString("Default_Parameter_Upload_Errors", JsonConvert.SerializeObject(errors).ToString());
+
+            var controller = new UploadCSVErrorController();
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Session = mockHttpSession;
+
+            var result = controller.Index() as ViewResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.UploadCSVErrorIndex, result.ViewName);
+        }
     }
 }
