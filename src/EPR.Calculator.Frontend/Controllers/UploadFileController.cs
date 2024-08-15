@@ -90,8 +90,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<List<SchemeParameterTemplateValue>> PrepareDataForUpload(IFormFile fileUpload)
         {
-            try
-            {
                 var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
 
                 using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
@@ -117,11 +115,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 return schemeTemplateParameterValues;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
         }
 
         private ErrorViewModel ValidateCSV(IFormFile fileUpload)
