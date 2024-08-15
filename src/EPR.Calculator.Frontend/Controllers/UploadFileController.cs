@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Reflection;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -24,8 +22,6 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-            try
-            {
                 if (ValidateCSV(fileUpload).ErrorMessage is not null)
                 {
                     ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Default_Parameter_Upload_Errors"].ToString());
@@ -37,17 +33,10 @@ namespace EPR.Calculator.Frontend.Controllers
                 ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
                 return View(ViewNames.UploadFileRefresh);
-            }
-            catch(Exception ex)
-            {
-                return RedirectToAction("Index", "StandardError");
-            }
         }
 
         public async Task<IActionResult> Upload()
         {
-            try
-            {
                 if (TempData["FilePath"] != null)
                 {
                     using var stream = System.IO.File.OpenRead(TempData["FilePath"].ToString());
@@ -68,11 +57,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 // Code will reach this point if the uploaded file is not available
                 return RedirectToAction("Index", "StandardError");
-            }
-            catch (Exception ex)
-            {
-                return RedirectToAction("Index", "StandardError");
-            }
         }
 
         public IActionResult DownloadCsvTemplate()
@@ -90,8 +74,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<List<SchemeParameterTemplateValue>> PrepareDataForUpload(IFormFile fileUpload)
         {
-            try
-            {
                 var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
 
                 using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
@@ -117,11 +99,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 return schemeTemplateParameterValues;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
         }
 
         private ErrorViewModel ValidateCSV(IFormFile fileUpload)
