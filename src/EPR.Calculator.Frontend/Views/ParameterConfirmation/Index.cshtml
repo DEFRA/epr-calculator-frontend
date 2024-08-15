@@ -1,4 +1,10 @@
-﻿<div class="govuk-width-container">
+﻿@{
+    Layout = "_Layout";
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<div class="govuk-width-container">
     <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
@@ -6,8 +12,7 @@
                     <h1 class="govuk-panel__title">
                         You have successfully updated the default parameters
                     </h1>
-                    <div class="govuk-panel__body">
-                        @DateTime.Now.ToString("dd MMM yyyy - H:mm", new System.Globalization.CultureInfo("en-GB"))
+                    <div class="govuk-panel__body" id="current-date">
                     </div>
                 </div>
 
@@ -25,3 +30,10 @@
         </div>
     </main>
 </div>
+<script type="text/javascript">
+    $(document).ready(() => {
+        var dt = new Date();
+        var dateFormatted = dt.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' }) + ' - ' + dt.getHours() + ':' + dt.getMinutes();
+        $('#current-date').html(dateFormatted);
+    });
+</script>
