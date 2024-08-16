@@ -28,7 +28,7 @@
             <div class="govuk-grid-column-two-thirds">
                 @if(ViewBag.IsDataAvailable)
                 {
-                    <div class="govuk-caption-l">Last updated by Jamie Roberts at <strong><span id="effective-from"></span></strong></div>
+                    <div class="govuk-caption-l">Last updated by Jamie Roberts at <span id="effective-from"></span></div>
                     <br>
                     <h1 class="govuk-heading-xl">Default calculator parameters</h1>
 
@@ -94,6 +94,20 @@
 
 </div>
 
+@* <script type="text/javascript">
+    $(document).ready(() => {
+        const [dateString, timeString] = ('@effectiveFrom').split(' ');
+        const [day, month, year] = dateString.split('/');
+        const [hour, minute, second] = timeString.split(':');
+
+        const dt = new Date(year, month - 1, day, hour, minute, second);
+
+        const dateValueFormatted = '<b>' + dt.getHours() + ':' + String(dt.getMinutes()).padStart(2, "0") + '</b> on ' + dt.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' });
+        $('#effective-from').html(dateValueFormatted);
+    });
+</script>
+ *@
+
 <script type="text/javascript">
     $(document).ready(() => {
         const [dateString, timeString] = ('@effectiveFrom').split(' ');
@@ -102,7 +116,7 @@
 
         const localDate = convertUTCDateToLocalDate(new Date(year, month - 1, day, hour, minute, second));
 
-        const dateValueFormatted = localDate.getHours() + ':' + localDate.getMinutes() + ' on ' + localDate.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' });
+        const dateValueFormatted = '<b>' + localDate.getHours() + ':' + String(localDate.getMinutes()).padStart(2, "0") + '</b> on ' + localDate.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' });
         $('#effective-from').html(dateValueFormatted);
     });
 

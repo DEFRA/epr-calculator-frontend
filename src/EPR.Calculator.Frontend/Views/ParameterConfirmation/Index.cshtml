@@ -33,7 +33,7 @@
 <script type="text/javascript">
     $(document).ready(() => {
         const dt = new Date();
-        const dateFormatted = dt.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' }) + ' - ' + dt.getHours() + ':' + dt.getMinutes();
+        const dateFormatted = dt.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' }) + ' - ' + dt.getHours() + ':' + String(dt.getMinutes()).padStart(2, "0");
         $('#current-date').html(dateFormatted);
     });
 </script>
