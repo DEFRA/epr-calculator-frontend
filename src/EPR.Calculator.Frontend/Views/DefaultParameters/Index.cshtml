@@ -94,20 +94,6 @@
 
 </div>
 
-@* <script type="text/javascript">
-    $(document).ready(() => {
-        const [dateString, timeString] = ('@effectiveFrom').split(' ');
-        const [day, month, year] = dateString.split('/');
-        const [hour, minute, second] = timeString.split(':');
-
-        const dt = new Date(year, month - 1, day, hour, minute, second);
-
-        const dateValueFormatted = '<b>' + dt.getHours() + ':' + String(dt.getMinutes()).padStart(2, "0") + '</b> on ' + dt.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' });
-        $('#effective-from').html(dateValueFormatted);
-    });
-</script>
- *@
-
 <script type="text/javascript">
     $(document).ready(() => {
         const [dateString, timeString] = ('@effectiveFrom').split(' ');
