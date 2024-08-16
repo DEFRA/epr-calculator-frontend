@@ -23,18 +23,20 @@
 
         <partial name="_BackLinkPartial" model="BackLink" />
 
+        @if(ViewBag.IsDataAvailable)
+        {
+            <span class="govuk-caption-l">Last updated by Jamie Roberts at <strong>10:01</strong> on 28 June 2025</span><br>
+        }
+        <h1 class="govuk-heading-xl">Default calculator parameters</h1>
+
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 @if(ViewBag.IsDataAvailable)
                 {
-                    <span class="govuk-caption-l">Last updated by Jamie Roberts at <strong>10:01</strong> on 28 June 2025</span><br>
-                    <h1 class="govuk-heading-xl">Default calculator parameters</h1>
-
                     <h2 class="govuk-heading-l">@ParameterType.CommunicationCosts</h2>
                     <partial name="_ItemListPartial" model="communicationData" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
                    
-
                     <h2 class="govuk-heading-l">@ParameterType.SchemeAdministratorOperatingCosts</h2>
                     <partial name="_ItemListPartial" model="operatingCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
@@ -65,15 +67,17 @@
                     <partial name="_ItemListPartial" model="materialityThreshold" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
-
                     <h2 class="govuk-heading-l">@ParameterType.TonnageChangeThreshold</h2>
                     <partial name="_ItemListPartial" model="tonnageChange" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
                 }
                 else
                 {
-                    <h1 class="govuk-heading-xl">Default calculator parameters</h1>
-                    <p class="govuk-body">Default parameters have not been set.</p>
-                    <p class="govuk-body govuk-!-margin-bottom-8">Upload a CSV file using the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "UploadFile")">default parameters template</a> to set them.</p>
+                    <span class="govuk-caption-xl">Default parameters have not been set.</span>
+                    <br />
+                    <hr />
+                    <p class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-8">
+                        You will need to upload a CSV file using the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "UploadFile")">default parameters template</a> to set them before you can run any calculations.
+                    </p>
                 }
 
                 <form action="/form-handler" method="post" novalidate="">
