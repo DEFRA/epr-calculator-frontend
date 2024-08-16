@@ -13,9 +13,10 @@
     var badDebtProvision = ViewBag.BadDebtProvision;
     var levy = ViewBag.Levy;
     var tonnageChange = ViewBag.TonnageChange;
-
-
+    var effectiveFrom = ViewBag.EffectiveFrom;
 }
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
 
 <div class="govuk-width-container ">
 
@@ -25,7 +26,7 @@
 
         @if(ViewBag.IsDataAvailable)
         {
-            <span class="govuk-caption-l">Last updated by Jamie Roberts at <strong>10:01</strong> on 28 June 2025</span><br>
+            <div class="govuk-caption-l">Last updated by Jamie Roberts at <span id="effective-from"></span></div><br>
         }
         <h1 class="govuk-heading-xl">Default calculator parameters</h1>
 
@@ -96,3 +97,26 @@
 
 </div>
 
+<script type="text/javascript">
+    $(document).ready(() => {
+        const [dateString, timeString] = ('@effectiveFrom').split(' ');
+        const [day, month, year] = dateString.split('/');
+        const [hour, minute, second] = timeString.split(':');
+
+        const localDate = convertUTCDateToLocalDate(new Date(year, month - 1, day, hour, minute, second));
+
+        const dateValueFormatted = '<b>' + localDate.getHours() + ':' + String(localDate.getMinutes()).padStart(2, "0") + '</b> on ' + localDate.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' });
+        $('#effective-from').html(dateValueFormatted);
+    });
+
+    function convertUTCDateToLocalDate(date) {
+        var newDate = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
+
+        var offset = date.getTimezoneOffset() / 60;
+        var hours = date.getHours();
+
+        newDate.setHours(hours - offset);
+
+        return newDate;
+    }
+</script>
