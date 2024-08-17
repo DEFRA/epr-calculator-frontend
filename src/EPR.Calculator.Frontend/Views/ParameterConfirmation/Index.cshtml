@@ -12,7 +12,8 @@
                     <h1 class="govuk-panel__title">
                         You have successfully updated the default parameters
                     </h1>
-                    <div class="govuk-panel__body" id="current-date">
+                    <div class="govuk-panel__body">
+                        @DateTime.Now.ToLocalTime().ToString("dd MMM yyyy - HH:mm")
                     </div>
                 </div>
 
@@ -30,10 +31,3 @@
         </div>
     </main>
 </div>
-<script type="text/javascript">
-    $(document).ready(() => {
-        const dt = new Date();
-        const dateFormatted = dt.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' }) + ' - ' + dt.getHours() + ':' + String(dt.getMinutes()).padStart(2, "0");
-        $('#current-date').html(dateFormatted);
-    });
-</script>
