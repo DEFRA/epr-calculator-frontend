@@ -1,10 +1,24 @@
-﻿.dashboard-page {
-    &.card {
+.account-info {
+    text-align: right;
+}
+
+.dashboard-page {
+    .card {
         background-color: #f3f2f1;
         padding: 30px 30px 10px 30px;
         min-height: 265px;
         border-bottom: 5px solid #1d70B8;
     }
 
+    .govuk-summary-list {
+        border-top: 1px solid #b1b4b6;
 
+        .govuk-summary-list__actions {
+            vertical-align: middle;
+        }
+    }
+
+    .govuk-tag {
+        font-weight: bold;
+    }
 }
