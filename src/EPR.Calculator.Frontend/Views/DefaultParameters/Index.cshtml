@@ -13,9 +13,10 @@
     var badDebtProvision = ViewBag.BadDebtProvision;
     var levy = ViewBag.Levy;
     var tonnageChange = ViewBag.TonnageChange;
-
-
+    var effectiveFrom = ViewBag.EffectiveFrom;
 }
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
 
 <div class="govuk-width-container ">
 
@@ -23,18 +24,20 @@
 
         <partial name="_BackLinkPartial" model="BackLink" />
 
+        @if(ViewBag.IsDataAvailable)
+        {
+            <div class="govuk-caption-l">Last updated by Jamie Roberts at <span id="effective-from"></span></div><br>
+        }
+        <h1 class="govuk-heading-xl">Default calculator parameters</h1>
+
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 @if(ViewBag.IsDataAvailable)
                 {
-                    <span class="govuk-caption-l">Last updated by Jamie Roberts at <strong>10:01</strong> on 28 June 2025</span><br>
-                    <h1 class="govuk-heading-xl">Default calculator parameters</h1>
-
                     <h2 class="govuk-heading-l">@ParameterType.CommunicationCosts</h2>
                     <partial name="_ItemListPartial" model="communicationData" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
                    
-
                     <h2 class="govuk-heading-l">@ParameterType.SchemeAdministratorOperatingCosts</h2>
                     <partial name="_ItemListPartial" model="operatingCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
@@ -65,15 +68,17 @@
                     <partial name="_ItemListPartial" model="materialityThreshold" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
 
-
                     <h2 class="govuk-heading-l">@ParameterType.TonnageChangeThreshold</h2>
                     <partial name="_ItemListPartial" model="tonnageChange" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
                 }
                 else
                 {
-                    <h1 class="govuk-heading-xl">Default calculator parameters</h1>
-                    <p class="govuk-body">Default parameters have not been set.</p>
-                    <p class="govuk-body govuk-!-margin-bottom-8">Upload a CSV file using the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "UploadFile")">default parameters template</a> to set them.</p>
+                    <span class="govuk-caption-xl">Default parameters have not been set.</span>
+                    <br />
+                    <hr />
+                    <p class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-8">
+                        You will need to upload a CSV file using the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "UploadFile")">default parameters template</a> to set them before you can run any calculations.
+                    </p>
                 }
 
                 <form action="/form-handler" method="post" novalidate="">
@@ -92,3 +97,26 @@
 
 </div>
 
+<script type="text/javascript">
+    $(document).ready(() => {
+        const [dateString, timeString] = ('@effectiveFrom').split(' ');
+        const [day, month, year] = dateString.split('/');
+        const [hour, minute, second] = timeString.split(':');
+
+        const localDate = convertUTCDateToLocalDate(new Date(year, month - 1, day, hour, minute, second));
+
+        const dateValueFormatted = '<b>' + localDate.getHours() + ':' + String(localDate.getMinutes()).padStart(2, "0") + '</b> on ' + localDate.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' });
+        $('#effective-from').html(dateValueFormatted);
+    });
+
+    function convertUTCDateToLocalDate(date) {
+        var newDate = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
+
+        var offset = date.getTimezoneOffset() / 60;
+        var hours = date.getHours();
+
+        newDate.setHours(hours - offset);
+
+        return newDate;
+    }
+</script>
