@@ -100,7 +100,15 @@
 <script type="text/javascript">
     $(document).ready(() => {
         const [dateString, timeString] = ('@effectiveFrom').split(' ');
-        const [day, month, year] = dateString.split('/');
+
+        var day = month = year = 0;
+
+        if (isNaN(Date(dateString))) {
+            [day, month, year] = dateString.split('/');
+        } else {
+            [month, day, year] = dateString.split('/');
+        }
+        
         const [hour, minute, second] = timeString.split(':');
 
         const localDate = convertUTCDateToLocalDate(new Date(year, month - 1, day, hour, minute, second));
