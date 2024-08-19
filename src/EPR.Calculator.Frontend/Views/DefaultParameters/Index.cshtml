@@ -103,18 +103,31 @@
 
         var day = month = year = 0;
 
+        console.log('DATE STRING', dateString);
+        
+
         if (isNaN(Date(dateString))) {
             [day, month, year] = dateString.split('/');
+            console.log('IS NAN');
         } else {
             [month, day, year] = dateString.split('/');
+            console.log('NAN');
         }
+
+        console.log('DAY', day);
+        console.log('MONTH', month);
+        console.log('YEAR', year);
         
         const [hour, minute, second] = timeString.split(':');
 
         const localDate = convertUTCDateToLocalDate(new Date(year, month - 1, day, hour, minute, second));
 
+        console.log('LOCAL DATE', localDate);
+
         const dateValueFormatted = '<b>' + localDate.getHours() + ':' + String(localDate.getMinutes()).padStart(2, "0") + '</b> on ' + localDate.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' });
         $('#effective-from').html(dateValueFormatted);
+
+        console.log('DATE FORMATTED', dateValueFormatted);
     });
 
     function convertUTCDateToLocalDate(date) {
