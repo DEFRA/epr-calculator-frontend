@@ -16,15 +16,22 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     var errors = HttpContext.Session.GetString("Default_Parameter_Upload_Errors");
 
-                    var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(errors);
+                    Console.WriteLine(errors);
 
-                    if (validationErrors.Any() && validationErrors.FirstOrDefault(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
+                    var validationErrors = new List<ValidationErrorDto>();
+
+                    if (errors != null)
                     {
-                        ViewBag.ValidationErrors = validationErrors;
-                    }
-                    else
-                    {
-                        ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
+                        validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(errors);
+
+                        if (validationErrors.Any() && validationErrors.FirstOrDefault(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
+                        {
+                            ViewBag.ValidationErrors = validationErrors;
+                        }
+                        else
+                        {
+                            ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
+                        }
                     }
 
                     if (ViewBag.ValidationErrors is null && ViewBag.Errors is not null)
@@ -42,7 +49,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message, ex.InnerException);
+                throw new Exception();
                 // return RedirectToAction("Index", "StandardError");
             }
         }
