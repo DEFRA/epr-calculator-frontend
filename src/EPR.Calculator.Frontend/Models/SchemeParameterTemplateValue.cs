@@ -7,6 +7,6 @@ namespace EPR.Calculator.Frontend.Models
     {
         public string ParameterUniqueReferenceId { get; set; }
 
-        public decimal? ParameterValue { get; set; }
+        public string ParameterValue { get; set; }
     }
 }
