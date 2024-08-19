@@ -19,39 +19,55 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult Index([FromBody] List<SchemeParameterTemplateValue> schemeParameterValues)
         {
-            var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
-
-            var client = this.clientFactory.CreateClient();
-            client.BaseAddress = new Uri(parameterSettingsApi);
-
-            var payload = Transform(schemeParameterValues);
-
-            var content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
-
-            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(parameterSettingsApi));
-            request.Content = content;
-
-            var response = client.SendAsync(request);
-
-            response.Wait();
-
-            if (response.Result.IsSuccessStatusCode && response.Result.StatusCode == HttpStatusCode.Created)
+            try
             {
-                return Ok(response.Result);
-            }
+                var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
 
-            return BadRequest(response.Result.Content.ReadAsStringAsync().Result);
+                var client = this.clientFactory.CreateClient();
+                client.BaseAddress = new Uri(parameterSettingsApi);
+
+                var payload = Transform(schemeParameterValues);
+
+                var content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
+
+                var request = new HttpRequestMessage(HttpMethod.Post, new Uri(parameterSettingsApi));
+                request.Content = content;
+
+                var response = client.SendAsync(request);
+
+                response.Wait();
+
+                if (response.Result.IsSuccessStatusCode && response.Result.StatusCode == HttpStatusCode.Created)
+                {
+                    return Ok(response.Result);
+                }
+
+                return BadRequest(response.Result.Content.ReadAsStringAsync().Result);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex.InnerException);
+                // return RedirectToAction("Index", "StandardError");
+            }
         }
 
         private string Transform(List<SchemeParameterTemplateValue> schemeParameterValues)
         {
-            var parameterSetting = new CreateDefaultParameterSettingDto
+            try
             {
-                ParameterYear = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value,
-                SchemeParameterTemplateValues = schemeParameterValues,
-            };
+                var parameterSetting = new CreateDefaultParameterSettingDto
+                {
+                    ParameterYear = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value,
+                    SchemeParameterTemplateValues = schemeParameterValues,
+                };
 
-            return JsonConvert.SerializeObject(parameterSetting);
+                return JsonConvert.SerializeObject(parameterSetting);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex.InnerException);
+                // return RedirectToAction("Index", "StandardError");
+            }
         }
     }
 }
