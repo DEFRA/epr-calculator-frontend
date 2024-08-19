@@ -40,7 +40,8 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch(Exception ex)
             {
-                return RedirectToAction("Index", "StandardError");
+                // return RedirectToAction("Index", "StandardError");
+                throw new Exception(ex.Message, ex.InnerException);
             }
         }
 
@@ -67,11 +68,13 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 // Code will reach this point if the uploaded file is not available
-                return RedirectToAction("Index", "StandardError");
+                // return RedirectToAction("Index", "StandardError");
+                throw new Exception("Upload File Controller if");
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Index", "StandardError");
+                // return RedirectToAction("Index", "StandardError");
+                throw new Exception(ex.Message, ex.InnerException);
             }
         }
 

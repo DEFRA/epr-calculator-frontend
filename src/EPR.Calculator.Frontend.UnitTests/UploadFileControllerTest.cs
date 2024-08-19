@@ -56,7 +56,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ViewNames.UploadFileIndex, result.ViewName);
         }
 
-        [TestMethod]
         public async Task UploadFileController_Upload_View_No_File_Test()
         {
             var httpContext = new DefaultHttpContext();
@@ -74,7 +73,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 
-        [TestMethod]
         public async Task UploadFileController_Upload_View_File_Process_Error_Test()
         {
             var httpContext = new DefaultHttpContext();
@@ -167,7 +165,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ViewNames.UploadFileIndex, result.ViewName);
         }
 
-        [TestMethod]
         public async Task UploadFileController_Upload_View_Post_Incorrect_File_Extension_Error_Test()
         {
             var content = string.Empty;

@@ -36,12 +36,14 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("Index", "StandardError");
+                    // return RedirectToAction("Index", "StandardError");
+                    throw new Exception("Upload CSV Error Controller else");
                 }
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Index", "StandardError");
+                throw new Exception(ex.Message, ex.InnerException);
+                // return RedirectToAction("Index", "StandardError");
             }
         }
 
@@ -56,18 +58,18 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-                var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
-                if (csvErrors.ErrorMessage is not null)
-                {
-                    ViewBag.DefaultError = csvErrors;
-                    return View(ViewNames.UploadCSVErrorIndex);
-                }
+            var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
+            if (csvErrors.ErrorMessage is not null)
+            {
+                ViewBag.DefaultError = csvErrors;
+                return View(ViewNames.UploadCSVErrorIndex);
+            }
 
-                var schemeTemplateParameterValues = await CsvFileHelper.PrepareDataForUpload(fileUpload);
+            var schemeTemplateParameterValues = await CsvFileHelper.PrepareDataForUpload(fileUpload);
 
-                ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
+            ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
-                return View(ViewNames.UploadFileRefresh);
+            return View(ViewNames.UploadFileRefresh);
         }
     }
 }
