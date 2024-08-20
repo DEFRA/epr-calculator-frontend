@@ -31,7 +31,7 @@
             success: function (response) {
                 window.location.href = '/ParameterConfirmation';
             },
-            error: function (xhr, status, error) {
+            error: function (xhr, status, error) 
                 console.log('ERROR DATA', xhr.responseText);
                 callController('UploadCSVError', xhr.responseText);
             }
