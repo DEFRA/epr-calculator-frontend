@@ -128,5 +128,83 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(200, result.StatusCode);
         }
+
+        [TestMethod]
+        public async Task UploadCSVErrorController_Upload_View_Post_Incorrect_File_Extension_Error_Test()
+        {
+            var content = string.Empty;
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(content);
+            writer.Flush();
+            stream.Position = 0;
+            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.xlsx");
+
+            var controller = new UploadCSVErrorController();
+            var result = await controller.Upload(file) as ViewResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.UploadCSVErrorIndex, result.ViewName);
+        }
+
+        [TestMethod]
+        public async Task UploadCSVErrorController_Upload_View_Post_Test()
+        {
+            var content = MockData.GetSchemeParametersFileContent();
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(content);
+            writer.Flush();
+            stream.Position = 0;
+            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.csv");
+
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            tempData["Default_Parameter_Upload_Errors"] = string.Empty;
+
+            var controller = new UploadCSVErrorController()
+            {
+                TempData = tempData
+            };
+
+            var result = await controller.Upload(file) as ViewResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.UploadFileRefresh, result.ViewName);
+        }
+
+        [TestMethod]
+        public async Task UploadCSVErrorController_View_Get_Test()
+        {
+            var mockHttpSession = new MockHttpSession();
+
+            var errors = new List<ValidationErrorDto>() { new ValidationErrorDto { ErrorMessage = StaticHelpers.FileMustBeCSV } };
+            mockHttpSession.SetString("Default_Parameter_Upload_Errors", JsonConvert.SerializeObject(errors).ToString());
+
+            var controller = new UploadCSVErrorController();
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Session = mockHttpSession;
+
+            var result = controller.Index() as ViewResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.UploadCSVErrorIndex, result.ViewName);
+        }
+
+        [TestMethod]
+        public async Task UploadCSVErrorController_View_Get_Error_Test()
+        {
+            var mockHttpSession = new MockHttpSession();
+
+            var errors = new List<CreateDefaultParameterSettingErrorDto>() { new CreateDefaultParameterSettingErrorDto { Message = "Some message" } };
+            mockHttpSession.SetString("Default_Parameter_Upload_Errors", JsonConvert.SerializeObject(errors).ToString());
+
+            var controller = new UploadCSVErrorController();
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Session = mockHttpSession;
+
+            var result = controller.Index() as ViewResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.UploadCSVErrorIndex, result.ViewName);
+        }
     }
 }
