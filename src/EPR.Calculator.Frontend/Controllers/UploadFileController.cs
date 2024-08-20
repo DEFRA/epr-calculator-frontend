@@ -112,17 +112,12 @@ namespace EPR.Calculator.Frontend.Controllers
                         while (csv.Read())
                         {
                             schemeTemplateParameterValues.Add(
-                                new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = GetParameterValue(csv.GetField(5)) });
+                                new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = csv.GetField(5) });
                         }
                     }
                 }
 
                 return schemeTemplateParameterValues;
-        }
-
-        private string GetParameterValue(string parameterValue)
-        {
-            return parameterValue.Replace("£", string.Empty).Replace("%", string.Empty);
         }
 
         private ErrorViewModel ValidateCSV(IFormFile fileUpload)
