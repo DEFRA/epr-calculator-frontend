@@ -5,6 +5,7 @@
         public const string CalculationRunDetailsIndex = "~/Views/CalculationRunDetails/Index.cshtml";
         public const string CalculationRunNameIndex = "~/Views/CalculationRunName/Index.cshtml";
         public const string DashboardIndex = "~/Views/Dashboard/Index.cshtml";
+        public const string LocalAuthorityDisposalCostsIndex = "~/Views/LocalAuthorityDisposalCosts/Index.cshtml";
         public const string ParameterConfirmationIndex = "~/Views/ParameterConfirmation/Index.cshtml";
         public const string StandardErrorIndex = "~/Views/StandardError/Index.cshtml";
         public const string UploadCSVErrorIndex = "~/Views/UploadCSVError/Index.cshtml";

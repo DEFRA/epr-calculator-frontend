@@ -20,26 +20,24 @@
 <div class="govuk-grid-row dashboard-page">
     <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-xl">Calculate packaging payments</h1>
-        <div class="govuk-grid-row govuk-!-margin-bottom-7">
-            <div class="govuk-grid-column-one-half">
-                <div class="card">
-                    <h2 class="govuk-heading-m govuk-link">
-                        <a href="/DefaultParameters/Index" class="govuk-link--no-visited-state">
-                            Manage default calculation parameters
-                        </a>
-                    </h2>
-                    <p class="govuk-body">
-                        Upload a spreadsheet to update the default parameters for payment calculations. All calculations will automatically use these parameters, unless they are manually changed.
-                    </p>
-                </div>
+        <div class="govuk-grid-row tile-group">
+            <div class="govuk-grid-column-one-third tile">
+                <a href="/DefaultParameters" class="govuk-link--no-visited-state">
+                    <span class="govuk-heading-m heading">Manage default parameters</span>
+                    <span class="govuk-body more-info">View or update the parameters</span>
+                </a>
             </div>
-            <div class="govuk-grid-column-one-half">
-                <div class="card">
-                    <h2 class="govuk-heading-m"><a href="/CalculationRunName/Index" class="govuk-link--no-visited-state">Run a new calculation</a></h2>
-                    <p class="govuk-body">
-                        The calculation will use the default parameters that your account administrator set up, unless you choose to change any of them.
-                    </p>
-                </div>
+            <div class="govuk-grid-column-one-third tile">
+                <a href="/LocalAuthorityDisposalCosts" class="govuk-link--no-visited-state">
+                    <span class="govuk-heading-m heading">Manage local authority disposal costs</span>
+                    <span class="govuk-body more-info">View or update disposal costs</span>
+                </a>
+            </div>
+            <div class="govuk-grid-column-one-third tile">
+                <a href="/CalculationRunName" class="govuk-link--no-visited-state">
+                    <span class="govuk-heading-m heading">Run the calculator</span>
+                    <span class="govuk-body more-info">This will use the default parameters</span>
+                </a>
             </div>
         </div>
 
