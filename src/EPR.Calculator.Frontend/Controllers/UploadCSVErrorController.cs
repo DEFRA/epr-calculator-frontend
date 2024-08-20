@@ -49,7 +49,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message, ex.InnerException);
+                throw new Exception();
                 // return RedirectToAction("Index", "StandardError");
             }
         }

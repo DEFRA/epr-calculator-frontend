@@ -20,7 +20,6 @@
     processAndUploadDefaultParamaters(@schemeParameterValues);
 
     function processAndUploadDefaultParamaters(parameterData) {
-        console.log('PARAMETER DATA', JSON.stringify(parameterData));
         $.ajax({
             url: '/UploadFileProcessing',
             type: 'POST',
@@ -31,8 +30,7 @@
             success: function (response) {
                 window.location.href = '/ParameterConfirmation';
             },
-            error: function (xhr, status, error) 
-                console.log('ERROR DATA', xhr.responseText);
+            error: function (xhr, status, error) {
                 callController('UploadCSVError', xhr.responseText);
             }
         });
@@ -49,8 +47,7 @@
                 window.location.href = url;
             },
             error: function (xhr, status, error) {
-                console.log('HERE TO THE ERROR PAGE', JSON.stringify(error), xhr.responseText);
-                // window.location.href = '/StandardError';
+                window.location.href = '/StandardError';
             }
         })
     }
