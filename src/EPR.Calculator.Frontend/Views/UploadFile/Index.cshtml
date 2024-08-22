@@ -1,10 +1,13 @@
-﻿@{
+﻿@using EPR.Calculator.Frontend.Constants;
+
+@{
     Layout = "_Layout";
     var errors = ViewBag.Errors;
     var BackLink = "DefaultParameters";
+  
 }
 
-    <partial name="_BackLinkPartial" model="BackLink" />
+<partial name="_BackLinkPartial" model="BackLink" />
 
 
 @if (errors != null)
@@ -12,16 +15,15 @@
     <div class="govuk-error-summary" data-module="govuk-error-summary">
         <div role="alert">
             <h2 class="govuk-error-summary__title">
-                There is a problem with your upload
+                There is a problem
             </h2>
             <div class="govuk-error-summary__body">
                 <ul class="govuk-list govuk-error-summary__list">
-                    @foreach (var error in errors)
-                    {
+                   
                         <li>
-                            <a href="#file-upload-1">@error.ErrorMessage</a>
+                            <a href="#file-upload-1">@errors.ErrorMessage</a>
                         </li>
-                    }
+                  
                 </ul>
             </div>
         </div>
@@ -60,8 +62,16 @@ else
 
 @using (Html.BeginForm("Upload", "UploadFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
-    <div class="govuk-form-group">
-        <input class="govuk-file-upload form-control" id="file-upload-1" name="fileUpload" type="file">
+    <div class="@(errors != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")">
+        @if (errors != null)
+        {
+           
+            <p id="file-upload-1-error" class="govuk-error-message">
+                <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
+        </p>
+        }
+
+        <input class="govuk-file-upload form-control" id="file-upload-1" name="fileUpload" validation-class="govuk-input-error" validation-for="file-upload-1" type="file">
     </div>
 
     <button id="btnUploadFile" type="submit" class="govuk-button" data-module="govuk-button">

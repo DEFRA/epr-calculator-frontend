@@ -100,7 +100,18 @@
 <script type="text/javascript">
     $(document).ready(() => {
         const [dateString, timeString] = ('@effectiveFrom').split(' ');
-        const [day, month, year] = dateString.split('/');
+
+        var day = month = year = 0;
+        
+        // MM/DD/YYYY is the date format in Azure portal
+        // DD/MM/YYYY is the date format in local environment
+        // This condition check is required to correctly get the values of day and month based on the environment
+        if (isNaN(new Date(dateString))) {
+            [day, month, year] = dateString.split('/');
+        } else {
+            [month, day, year] = dateString.split('/');
+        }
+        
         const [hour, minute, second] = timeString.split(':');
 
         const localDate = convertUTCDateToLocalDate(new Date(year, month - 1, day, hour, minute, second));

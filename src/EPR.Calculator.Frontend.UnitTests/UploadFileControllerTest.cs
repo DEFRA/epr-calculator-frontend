@@ -139,7 +139,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.UploadFileIndex, result.ViewName);
+            Assert.AreEqual(ViewNames.UploadFileRefresh, result.ViewName);
         }
 
         [TestMethod]
