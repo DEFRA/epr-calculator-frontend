@@ -3,11 +3,35 @@
 }
 
 .dashboard-page {
-    .card {
-        background-color: #f3f2f1;
-        padding: 30px 30px 10px 30px;
-        min-height: 265px;
-        border-bottom: 5px solid #1d70B8;
+    .tile-group {
+        .tile {
+            color: white;
+            min-height: 82px;
+            position: relative;
+            margin-bottom: 26px;
+
+            .more-info {
+                color: white;
+                font-size: 16px;
+            }
+        }
+
+        a {
+            display: block;
+            background-color: #1d70b8;
+            text-decoration: none;
+            padding: 11px;
+
+            .heading {
+                color: white;
+                margin-bottom: 10px;
+                min-height: 60px;
+            }
+
+            .heading:hover {
+                color: #d9e7f3;
+            }
+        }
     }
 
     .govuk-summary-list {
