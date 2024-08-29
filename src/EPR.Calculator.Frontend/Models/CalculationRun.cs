@@ -14,5 +14,7 @@ namespace EPR.Calculator.Frontend.Models
         public string CreatedBy { get; set; }
 
         public string Status { get; set; }
+
+        public int CalculatorRunClassificationId { get; set; }
     }
 }

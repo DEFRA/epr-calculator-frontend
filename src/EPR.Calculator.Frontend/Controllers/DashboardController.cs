@@ -1,47 +1,63 @@
-﻿using System.Globalization;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Net;
+using System.Security.Cryptography;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     public class DashboardController : Controller
     {
-        public IActionResult Index()
+        private readonly IConfiguration configuration;
+        private readonly IHttpClientFactory clientFactory;
+
+        public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
-            var calculationRuns = GetCalulationRunsMockData();
-
-            var dashboardRunData = new List<DashboardViewModel>();
-
-            foreach(var calculationRun in calculationRuns)
-            {
-                dashboardRunData.Add(new DashboardViewModel(calculationRun));
-            }
-
-            return View(ViewNames.DashboardIndex, dashboardRunData);
+            this.configuration = configuration;
+            this.clientFactory = clientFactory;
         }
 
-        // TODO: This method should be deleted during GET API integration
-        private List<CalculationRun> GetCalulationRunsMockData()
+        public IActionResult Index()
         {
-            var calculationRuns = new List<CalculationRun>();
+            List<CalculationRun> dashboards = new List<CalculationRun>();
+            var dashboardRunData = new List<DashboardViewModel>();
+            var parameterSettingsApi = this.configuration.GetSection("DashboardCalculatorRun").GetSection("DashboardCalculatorRunApi").Value;
+            var year = this.configuration.GetSection("DashboardCalculatorRun").GetSection("RunParameterYear").Value;
+            var client = this.clientFactory.CreateClient();
+            client.BaseAddress = new Uri(parameterSettingsApi);
+            var runParms = new CalculatorRunParamsDto
+            {
+                FinancialYear = year,
+            };
 
-            calculationRuns.AddRange([
-                new CalculationRun { Id = 1, Name = "Default settings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.InTheQueue },
-                new CalculationRun { Id = 2, Name = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Running },
-                new CalculationRun { Id = 3, Name = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Unclassified },
-                new CalculationRun { Id = 4, Name = "June check", CreatedAt = DateTime.Parse("11/06/2025 09:14:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play },
-                new CalculationRun { Id = 5, Name = "Pre June check", CreatedAt = DateTime.Parse("13/06/2025 11:18:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play },
-                new CalculationRun { Id = 6, Name = "Local Authority data check 5", CreatedAt = DateTime.Parse("10/06/2025 08:13:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play },
-                new CalculationRun { Id = 7, Name = "Local Authority data check 4", CreatedAt = DateTime.Parse("10/06/2025 10:14:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play },
-                new CalculationRun { Id = 8, Name = "Local Authority data check 3", CreatedAt = DateTime.Parse("08/06/2025 10:00:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play },
-                new CalculationRun { Id = 9, Name = "Local Authority data check 2", CreatedAt = DateTime.Parse("06/06/2025 11:20:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play },
-                new CalculationRun { Id = 10, Name = "Local Authority data check", CreatedAt = DateTime.Parse("02/06/2025 12:02:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play },
-                new CalculationRun { Id = 11, Name = "Fee adjustment check", CreatedAt = DateTime.Parse("01/06/2025 09:12:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Error }
-            ]);
 
-            return calculationRuns;
+            var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, "application/json");
+
+            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(parameterSettingsApi));
+            request.Content = content;
+
+            var response = client.SendAsync(request);
+
+            response.Wait();
+
+            if (response.Result.IsSuccessStatusCode)
+            {
+                dashboards = JsonConvert.DeserializeObject<List<CalculationRun>>(response.Result.Content.ReadAsStringAsync().Result);
+
+                if (dashboards.Count > 0)
+                {
+                    foreach (var calculationRun in dashboards)
+                    {
+                        dashboardRunData.Add(new DashboardViewModel(calculationRun));
+                    }
+                }
+
+                return this.View(ViewNames.DashboardIndex, dashboardRunData);
+            }
+
+            return BadRequest(response.Result.Content.ReadAsStringAsync().Result);
         }
     }
 }
