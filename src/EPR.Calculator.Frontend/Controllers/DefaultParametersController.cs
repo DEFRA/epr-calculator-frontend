@@ -55,7 +55,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     return View();
                 }
 
-                return BadRequest(response.Content.ReadAsStringAsync().Result);
+                return RedirectToAction("Index", "StandardError");
             }
             catch (Exception ex)
             {
