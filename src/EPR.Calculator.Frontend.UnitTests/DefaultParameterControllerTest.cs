@@ -111,9 +111,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
             var controller = new DefaultParametersController(GetConfigurationValues(), mockHttpClientFactory.Object);
 
-            var result = await controller.Index() as BadRequestObjectResult;
+            var result = await controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(400, result.StatusCode);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
         }
 
         private IConfiguration GetConfigurationValues()
