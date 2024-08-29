@@ -3,8 +3,8 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Net;
-using System.Security.Cryptography;
+using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -13,6 +13,11 @@ namespace EPR.Calculator.Frontend.Controllers
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DashboardController"/> class.
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="clientFactory"></param>
         public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
             this.configuration = configuration;
@@ -21,43 +26,53 @@ namespace EPR.Calculator.Frontend.Controllers
 
         public IActionResult Index()
         {
-            List<CalculationRun> dashboards = new List<CalculationRun>();
-            var dashboardRunData = new List<DashboardViewModel>();
             var parameterSettingsApi = this.configuration.GetSection("DashboardCalculatorRun").GetSection("DashboardCalculatorRunApi").Value;
             var year = this.configuration.GetSection("DashboardCalculatorRun").GetSection("RunParameterYear").Value;
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(parameterSettingsApi);
+            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(parameterSettingsApi));
+
             var runParms = new CalculatorRunParamsDto
             {
                 FinancialYear = year,
             };
-
-
             var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, "application/json");
-
-            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(parameterSettingsApi));
             request.Content = content;
-
             var response = client.SendAsync(request);
-
             response.Wait();
 
             if (response.Result.IsSuccessStatusCode)
             {
-                dashboards = JsonConvert.DeserializeObject<List<CalculationRun>>(response.Result.Content.ReadAsStringAsync().Result);
-
-                if (dashboards.Count > 0)
-                {
-                    foreach (var calculationRun in dashboards)
-                    {
-                        dashboardRunData.Add(new DashboardViewModel(calculationRun));
-                    }
-                }
+                var dashboardRunData = this.GetCalulationRunsMockData(JsonConvert.DeserializeObject<List<CalculationRun>>(response.Result.Content.ReadAsStringAsync().Result));
 
                 return this.View(ViewNames.DashboardIndex, dashboardRunData);
             }
 
-            return BadRequest(response.Result.Content.ReadAsStringAsync().Result);
+            return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
+        }
+
+        private List<DashboardViewModel> GetCalulationRunsMockData(List<CalculationRun> calculationRuns)
+        {
+            var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
+            var dashboardRunData = new List<DashboardViewModel>();
+
+            if (calculationRuns.Count > 0)
+            {
+                foreach (var calculationRun in calculationRuns)
+                {
+                    var val = runClassifications.FirstOrDefault(c => (int)c == calculationRun.CalculatorRunClassificationId);
+                    if (val != null)
+                    {
+                        calculationRun.Status = typeof(RunClassification)
+                            .GetTypeInfo().DeclaredMembers
+                            .SingleOrDefault(x => x.Name == val.ToString())?.GetCustomAttribute<EnumMemberAttribute>(false)?.Value;
+                    }
+
+                    dashboardRunData.Add(new DashboardViewModel(calculationRun));
+                }
+            }
+
+            return dashboardRunData;
         }
     }
 }
