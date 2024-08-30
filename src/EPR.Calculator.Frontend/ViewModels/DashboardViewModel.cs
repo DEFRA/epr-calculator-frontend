@@ -47,7 +47,7 @@ namespace EPR.Calculator.Frontend.ViewModels
                 case CalculationRunStatus.Play:
                     return "govuk-tag govuk-tag--green";
                 case CalculationRunStatus.Unclassified:
-                    return "govuk-tag";
+                    return "govuk-tag govuk-tag--blue";
                 case CalculationRunStatus.Error:
                     return "govuk-tag govuk-tag--yellow";
                 default:
