@@ -1,5 +1,15 @@
 .account-info {
-    text-align: right;
+    display: flex;
+    float: right;
+
+    .your-name {
+        margin-right: 8px;
+    }
+
+    .account-link {
+        color: #1d70b8;
+        text-underline-offset: 0.1578em;
+    }
 }
 
 .dashboard-page {
@@ -43,6 +53,18 @@
     }
 
     .govuk-tag {
-        font-weight: bold;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .govuk-tag--grey {
+        color: #383f43;
+        background: #eeefef;
+    }
+
+    .govuk-tag--blue {
+        color: #144e81;
+        background: #d2e2f1;
     }
 }
