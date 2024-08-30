@@ -106,7 +106,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
         private IConfiguration GetConfigurationValues()
         {
-            string projectPath = "C:\\Users\\a927145\\epr-calculator-frontend\\src\\EPR.Calculator.Frontend.UnitTests\\";
+            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(new string[] { @"bin\" }, StringSplitOptions.None)[0];
             IConfiguration config = new ConfigurationBuilder()
                .SetBasePath(projectPath)
                .AddJsonFile("appsettings.Test.json")
