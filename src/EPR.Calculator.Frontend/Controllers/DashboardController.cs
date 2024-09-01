@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization;
 
@@ -26,11 +27,11 @@ namespace EPR.Calculator.Frontend.Controllers
 
         public IActionResult Index()
         {
-            var parameterSettingsApi = this.configuration.GetSection("DashboardCalculatorRun").GetSection("DashboardCalculatorRunApi").Value;
+            var dashboardcalculatorrunApi = this.configuration.GetSection("DashboardCalculatorRun").GetSection("DashboardCalculatorRunApi").Value;
             var year = this.configuration.GetSection("DashboardCalculatorRun").GetSection("RunParameterYear").Value;
             var client = this.clientFactory.CreateClient();
-            client.BaseAddress = new Uri(parameterSettingsApi);
-            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(parameterSettingsApi));
+            client.BaseAddress = new Uri(dashboardcalculatorrunApi);
+            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardcalculatorrunApi));
 
             var runParms = new CalculatorRunParamsDto
             {
@@ -48,6 +49,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(ViewNames.DashboardIndex, dashboardRunData);
             }
 
+            if (response.Result.StatusCode == HttpStatusCode.NotFound)
+            {
+                ViewBag.IsDataAvailable = false;
+                return this.View();
+            }
+
             return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
         }
 
@@ -60,13 +67,8 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 foreach (var calculationRun in calculationRuns)
                 {
-                    var val = runClassifications.FirstOrDefault(c => (int)c == calculationRun.CalculatorRunClassificationId);
-                    if (val != null)
-                    {
-                        calculationRun.Status = typeof(RunClassification)
-                            .GetTypeInfo().DeclaredMembers
-                            .SingleOrDefault(x => x.Name == val.ToString())?.GetCustomAttribute<EnumMemberAttribute>(false)?.Value;
-                    }
+                    var classification_val = runClassifications.FirstOrDefault(c => (int)c == calculationRun.CalculatorRunClassificationId);
+                    calculationRun.Status = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classification_val.ToString())?.GetCustomAttribute<EnumMemberAttribute>(false)?.Value;
 
                     dashboardRunData.Add(new DashboardViewModel(calculationRun));
                 }
