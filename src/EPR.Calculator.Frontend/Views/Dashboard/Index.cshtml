@@ -43,37 +43,44 @@
             </div>
         </div>
 
-        <h2 class="govuk-heading-l">Calculations made in this financial year</h2>
-        <dl class="govuk-summary-list">
-            @foreach (var run in Model)
-            {
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
-                            @if (run.ShowRunDetailLink)
-                            {
-                                <a href="@Url.Action("Index", "CalculationRunDetails")" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
-                            }
-                            else
-                            {
-                                @run.Name
-                            }
-                        </h3>
-                        <p class="govuk-body">
-                            Calculation ID: @run.Id
-                            <br />
-                            Date: @run.CreatedAt
-                            <br />
-                            Run by: @run.CreatedBy
-                        </p>
-                    </dt>
-                    <dd class="govuk-summary-list__actions">
-                        <strong class="@run.TagStyle">
-                            @run.Status
-                        </strong>
-                    </dd>
-                </div>
-            }
-        </dl>
+        <h2 class="govuk-heading-l govuk-!-margin-top-3">Calculations made in this financial year</h2>
+        @if (Model == null)
+        {
+            <p class="govuk-body">There are no calculations for this financial year.</p>
+        }
+        else
+        {
+            <dl class="govuk-summary-list">
+                @foreach (var run in Model)
+                {
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
+                                @if (run.ShowRunDetailLink)
+                                {
+                                    <a href="@Url.Action("Index", "CalculationRunDetails")" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
+                                }
+                                else
+                                {
+                                    @run.Name
+                                }
+                            </h3>
+                            <p class="govuk-body">
+                                Calculation ID: @run.Id
+                                <br />
+                                Date: @run.CreatedAt
+                                <br />
+                                Run by: @run.CreatedBy
+                            </p>
+                        </dt>
+                        <dd class="govuk-summary-list__actions">
+                            <strong class="@run.TagStyle">
+                                @run.Status
+                            </strong>
+                        </dd>
+                    </div>
+                }
+            </dl>
+        }
     </div>
 </div>

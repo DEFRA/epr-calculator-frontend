@@ -27,35 +27,44 @@ namespace EPR.Calculator.Frontend.Controllers
 
         public IActionResult Index()
         {
-            var dashboardcalculatorrunApi = this.configuration.GetSection("DashboardCalculatorRun").GetSection("DashboardCalculatorRunApi").Value;
-            var year = this.configuration.GetSection("DashboardCalculatorRun").GetSection("RunParameterYear").Value;
-            var client = this.clientFactory.CreateClient();
-            client.BaseAddress = new Uri(dashboardcalculatorrunApi);
-            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardcalculatorrunApi));
-
-            var runParms = new CalculatorRunParamsDto
+            try
             {
-                FinancialYear = year,
-            };
-            var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, "application/json");
-            request.Content = content;
-            var response = client.SendAsync(request);
-            response.Wait();
+                var dashboardcalculatorrunApi = this.configuration.GetSection("DashboardCalculatorRun").GetSection("DashboardCalculatorRunApi").Value;
+                var year = this.configuration.GetSection("DashboardCalculatorRun").GetSection("RunParameterYear").Value;
+                var client = this.clientFactory.CreateClient();
+                client.BaseAddress = new Uri(dashboardcalculatorrunApi);
+                var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardcalculatorrunApi));
 
-            if (response.Result.IsSuccessStatusCode)
+                var runParms = new CalculatorRunParamsDto
+                {
+                    FinancialYear = year,
+                };
+                var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, "application/json");
+                request.Content = content;
+                var response = client.SendAsync(request);
+                response.Wait();
+
+                var dashboardRunData = new List<DashboardViewModel>();
+
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    dashboardRunData = this.GetCalulationRunsMockData(JsonConvert.DeserializeObject<List<CalculationRun>>(response.Result.Content.ReadAsStringAsync().Result));
+
+                    return this.View(ViewNames.DashboardIndex, dashboardRunData);
+                }
+
+                if (response.Result.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return this.View();
+                }
+
+                return RedirectToAction("Index", "StandardError");
+            }
+            catch (Exception ex)
             {
-                var dashboardRunData = this.GetCalulationRunsMockData(JsonConvert.DeserializeObject<List<CalculationRun>>(response.Result.Content.ReadAsStringAsync().Result));
-
-                return this.View(ViewNames.DashboardIndex, dashboardRunData);
+                return RedirectToAction("Index", "StandardError");
             }
 
-            if (response.Result.StatusCode == HttpStatusCode.NotFound)
-            {
-                ViewBag.IsDataAvailable = false;
-                return this.View();
-            }
-
-            return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
         }
 
         private List<DashboardViewModel> GetCalulationRunsMockData(List<CalculationRun> calculationRuns)
