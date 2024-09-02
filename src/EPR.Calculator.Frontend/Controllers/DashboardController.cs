@@ -1,14 +1,14 @@
-﻿using System.Reflection;
-using System.Runtime.Serialization;
-using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Models;
-using EPR.Calculator.Frontend.ViewModels;
-using System.Net;
-using Newtonsoft.Json;
-using Microsoft.AspNetCore.Mvc;
-
-namespace EPR.Calculator.Frontend.Controllers
+﻿namespace EPR.Calculator.Frontend.Controllers
 {
+    using System.Net;
+    using System.Reflection;
+    using System.Runtime.Serialization;
+    using EPR.Calculator.Frontend.Constants;
+    using EPR.Calculator.Frontend.Models;
+    using EPR.Calculator.Frontend.ViewModels;
+    using Microsoft.AspNetCore.Mvc;
+    using Newtonsoft.Json;
+
     public class DashboardController : Controller
     {
         private readonly IConfiguration configuration;
