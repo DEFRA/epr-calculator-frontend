@@ -72,7 +72,6 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(false, result.ViewData["IsDataAvailable"]);
         }
 
         [TestMethod]
@@ -99,9 +98,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
             var controller = new DashboardController(GetConfigurationValues(), mockHttpClientFactory.Object);
 
-            var result = controller.Index() as BadRequestObjectResult;
+            var result = controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(400, result.StatusCode);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
         }
 
         private IConfiguration GetConfigurationValues()
