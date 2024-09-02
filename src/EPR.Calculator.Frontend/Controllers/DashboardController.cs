@@ -44,7 +44,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (response.Result.IsSuccessStatusCode)
             {
-                var dashboardRunData = this.GetCalulationRunsMockData(JsonConvert.DeserializeObject<List<CalculationRun>>(response.Result.Content.ReadAsStringAsync().Result));
+                var dashboardRunData = this.GetCalulationRunsData(JsonConvert.DeserializeObject<List<CalculationRun>>(response.Result.Content.ReadAsStringAsync().Result));
 
                 return this.View(ViewNames.DashboardIndex, dashboardRunData);
             }
@@ -58,7 +58,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
         }
 
-        private List<DashboardViewModel> GetCalulationRunsMockData(List<CalculationRun> calculationRuns)
+        private List<DashboardViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
         {
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
             var dashboardRunData = new List<DashboardViewModel>();
