@@ -14,7 +14,7 @@ namespace EPR.Calculator.Frontend.UnitTests
     public class DashboardControllerTests
     {
         [TestMethod]
-        public async Task DefaultParamerController_Success_View_Test()
+        public async Task DashboardController_Success_View_Test()
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler
