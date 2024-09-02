@@ -1,11 +1,11 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Reflection;
+using System.Runtime.Serialization;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
-using System.Reflection;
-using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
