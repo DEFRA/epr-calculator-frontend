@@ -64,7 +64,6 @@
             {
                 return RedirectToAction("Index", "StandardError");
             }
-
         }
 
         private List<DashboardViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
