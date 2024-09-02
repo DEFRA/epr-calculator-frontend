@@ -1,14 +1,14 @@
-﻿using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Models;
-using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.Net;
-using System.Reflection;
-using System.Runtime.Serialization;
-
-namespace EPR.Calculator.Frontend.Controllers
+﻿namespace EPR.Calculator.Frontend.Controllers
 {
+    using System.Net;
+    using System.Reflection;
+    using System.Runtime.Serialization;
+    using EPR.Calculator.Frontend.Constants;
+    using EPR.Calculator.Frontend.Models;
+    using EPR.Calculator.Frontend.ViewModels;
+    using Microsoft.AspNetCore.Mvc;
+    using Newtonsoft.Json;
+
     public class DashboardController : Controller
     {
         private readonly IConfiguration configuration;
@@ -48,7 +48,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (response.Result.IsSuccessStatusCode)
                 {
-                    dashboardRunData = this.GetCalulationRunsMockData(JsonConvert.DeserializeObject<List<CalculationRun>>(response.Result.Content.ReadAsStringAsync().Result));
+                    dashboardRunData = this.GetCalulationRunsData(JsonConvert.DeserializeObject<List<CalculationRun>>(response.Result.Content.ReadAsStringAsync().Result));
 
                     return this.View(ViewNames.DashboardIndex, dashboardRunData);
                 }
@@ -67,7 +67,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         }
 
-        private List<DashboardViewModel> GetCalulationRunsMockData(List<CalculationRun> calculationRuns)
+        private List<DashboardViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
         {
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
             var dashboardRunData = new List<DashboardViewModel>();
