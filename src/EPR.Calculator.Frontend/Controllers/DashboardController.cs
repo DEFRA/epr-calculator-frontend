@@ -29,8 +29,8 @@
         {
             try
             {
-                var dashboardcalculatorrunApi = this.configuration.GetSection("DashboardCalculatorRun").GetSection("DashboardCalculatorRunApi").Value;
-                var year = this.configuration.GetSection("DashboardCalculatorRun").GetSection("RunParameterYear").Value;
+                var dashboardcalculatorrunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetSection(ConfigSection.DashboardCalculatorRunApi).Value;
+                var year = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetSection(ConfigSection.RunParameterYear).Value;
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(dashboardcalculatorrunApi);
                 var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardcalculatorrunApi));
