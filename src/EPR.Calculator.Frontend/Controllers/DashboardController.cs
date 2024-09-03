@@ -1,47 +1,80 @@
-﻿using System.Globalization;
-using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Models;
-using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.AspNetCore.Mvc;
-
-namespace EPR.Calculator.Frontend.Controllers
+﻿namespace EPR.Calculator.Frontend.Controllers
 {
+    using System.Net;
+    using System.Reflection;
+    using System.Runtime.Serialization;
+    using EPR.Calculator.Frontend.Constants;
+    using EPR.Calculator.Frontend.Models;
+    using EPR.Calculator.Frontend.ViewModels;
+    using Microsoft.AspNetCore.Mvc;
+    using Newtonsoft.Json;
+
     public class DashboardController : Controller
     {
-        public IActionResult Index()
+        private readonly IConfiguration configuration;
+        private readonly IHttpClientFactory clientFactory;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DashboardController"/> class.
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="clientFactory"></param>
+        public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
-            var calculationRuns = GetCalulationRunsMockData();
-
-            var dashboardRunData = new List<DashboardViewModel>();
-
-            foreach(var calculationRun in calculationRuns)
-            {
-                dashboardRunData.Add(new DashboardViewModel(calculationRun));
-            }
-
-            return View(ViewNames.DashboardIndex, dashboardRunData);
+            this.configuration = configuration;
+            this.clientFactory = clientFactory;
         }
 
-        // TODO: This method should be deleted during GET API integration
-        private List<CalculationRun> GetCalulationRunsMockData()
+        public IActionResult Index()
         {
-            var calculationRuns = new List<CalculationRun>();
+            var dashboardcalculatorrunApi = this.configuration.GetSection("DashboardCalculatorRun").GetSection("DashboardCalculatorRunApi").Value;
+            var year = this.configuration.GetSection("DashboardCalculatorRun").GetSection("RunParameterYear").Value;
+            var client = this.clientFactory.CreateClient();
+            client.BaseAddress = new Uri(dashboardcalculatorrunApi);
+            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardcalculatorrunApi));
 
-            calculationRuns.AddRange([
-                new CalculationRun { Id = 1, Name = "Default settings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.InTheQueue },
-                new CalculationRun { Id = 2, Name = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Running },
-                new CalculationRun { Id = 3, Name = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Unclassified },
-                new CalculationRun { Id = 4, Name = "June check", CreatedAt = DateTime.Parse("11/06/2025 09:14:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play },
-                new CalculationRun { Id = 5, Name = "Pre June check", CreatedAt = DateTime.Parse("13/06/2025 11:18:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play },
-                new CalculationRun { Id = 6, Name = "Local Authority data check 5", CreatedAt = DateTime.Parse("10/06/2025 08:13:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play },
-                new CalculationRun { Id = 7, Name = "Local Authority data check 4", CreatedAt = DateTime.Parse("10/06/2025 10:14:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play },
-                new CalculationRun { Id = 8, Name = "Local Authority data check 3", CreatedAt = DateTime.Parse("08/06/2025 10:00:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play },
-                new CalculationRun { Id = 9, Name = "Local Authority data check 2", CreatedAt = DateTime.Parse("06/06/2025 11:20:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play },
-                new CalculationRun { Id = 10, Name = "Local Authority data check", CreatedAt = DateTime.Parse("02/06/2025 12:02:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play },
-                new CalculationRun { Id = 11, Name = "Fee adjustment check", CreatedAt = DateTime.Parse("01/06/2025 09:12:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Error }
-            ]);
+            var runParms = new CalculatorRunParamsDto
+            {
+                FinancialYear = year,
+            };
+            var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, "application/json");
+            request.Content = content;
+            var response = client.SendAsync(request);
+            response.Wait();
 
-            return calculationRuns;
+            if (response.Result.IsSuccessStatusCode)
+            {
+                var dashboardRunData = this.GetCalulationRunsData(JsonConvert.DeserializeObject<List<CalculationRun>>(response.Result.Content.ReadAsStringAsync().Result));
+
+                return this.View(ViewNames.DashboardIndex, dashboardRunData);
+            }
+
+            if (response.Result.StatusCode == HttpStatusCode.NotFound)
+            {
+                ViewBag.IsDataAvailable = false;
+                return this.View();
+            }
+
+            return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
+        }
+
+        private List<DashboardViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
+        {
+            var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
+            var dashboardRunData = new List<DashboardViewModel>();
+
+            if (calculationRuns.Count > 0)
+            {
+                foreach (var calculationRun in calculationRuns)
+                {
+                    var classification_val = runClassifications.FirstOrDefault(c => (int)c == calculationRun.CalculatorRunClassificationId);
+                    calculationRun.Status = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classification_val.ToString())?.GetCustomAttribute<EnumMemberAttribute>(false)?.Value;
+
+                    dashboardRunData.Add(new DashboardViewModel(calculationRun));
+                }
+            }
+
+            return dashboardRunData;
         }
     }
 }
