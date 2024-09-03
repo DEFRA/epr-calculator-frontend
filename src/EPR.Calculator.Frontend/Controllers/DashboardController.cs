@@ -58,11 +58,11 @@
                     return this.View();
                 }
 
-                return RedirectToAction(ViewNames.StandardErrorIndex, "StandardError");
+                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
             catch (Exception ex)
             {
-                return RedirectToAction(ViewNames.StandardErrorIndex, "StandardError");
+                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 

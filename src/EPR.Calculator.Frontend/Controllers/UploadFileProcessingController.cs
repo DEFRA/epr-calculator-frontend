@@ -47,7 +47,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Index", "StandardError");
+                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 
