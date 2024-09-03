@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -28,7 +29,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var payload = Transform(schemeParameterValues);
 
-                var content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
+                var content = new StringContent(payload, System.Text.Encoding.UTF8, StaticHelpers.MediaType);
 
                 var request = new HttpRequestMessage(HttpMethod.Post, new Uri(parameterSettingsApi));
                 request.Content = content;
