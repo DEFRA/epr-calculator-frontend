@@ -70,7 +70,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = await controller.Upload() as RedirectToActionResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 
@@ -88,7 +88,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = await controller.Upload() as RedirectToActionResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 
@@ -181,7 +181,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new UploadFileController();
             var result = await controller.Upload(file) as RedirectToActionResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 

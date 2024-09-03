@@ -40,7 +40,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch(Exception ex)
             {
-                return RedirectToAction("Index", "StandardError");
+                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 
@@ -67,11 +67,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 // Code will reach this point if the uploaded file is not available
-                return RedirectToAction("Index", "StandardError");
+                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Index", "StandardError");
+                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 

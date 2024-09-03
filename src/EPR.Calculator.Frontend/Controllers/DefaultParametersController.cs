@@ -55,11 +55,11 @@ namespace EPR.Calculator.Frontend.Controllers
                     return View();
                 }
 
-                return RedirectToAction("Index", "StandardError");
+                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Index", "StandardError");
+                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 

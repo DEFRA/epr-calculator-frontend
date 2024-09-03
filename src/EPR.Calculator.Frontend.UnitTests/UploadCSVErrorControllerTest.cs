@@ -69,7 +69,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 
@@ -86,7 +86,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 
