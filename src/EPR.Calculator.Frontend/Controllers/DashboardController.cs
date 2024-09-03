@@ -11,7 +11,7 @@
 
     public class DashboardController : Controller
     {
-        private const string mediaType = "application/json";
+        private const string MediaType = "application/json";
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
 
@@ -40,7 +40,7 @@
                 {
                     FinancialYear = year,
                 };
-                var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, mediaType);
+                var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, MediaType);
                 request.Content = content;
                 var response = client.SendAsync(request);
                 response.Wait();
