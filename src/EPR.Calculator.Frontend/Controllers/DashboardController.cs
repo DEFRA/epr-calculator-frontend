@@ -11,6 +11,7 @@
 
     public class DashboardController : Controller
     {
+        private const string mediaType = "application/json";
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
 
@@ -39,7 +40,7 @@
                 {
                     FinancialYear = year,
                 };
-                var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, mediaType);
                 request.Content = content;
                 var response = client.SendAsync(request);
                 response.Wait();
@@ -58,11 +59,11 @@
                     return this.View();
                 }
 
-                return RedirectToAction("Index", "StandardError");
+                return RedirectToAction(ViewNames.StandardErrorIndex, "StandardError");
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Index", "StandardError");
+                return RedirectToAction(ViewNames.StandardErrorIndex, "StandardError");
             }
         }
 
