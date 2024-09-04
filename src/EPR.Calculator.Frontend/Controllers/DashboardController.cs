@@ -32,7 +32,17 @@
                 var dashboardcalculatorrunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetSection(ConfigSection.DashboardCalculatorRunApi).Value;
                 var year = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetSection(ConfigSection.RunParameterYear).Value;
                 var client = this.clientFactory.CreateClient();
-                client.BaseAddress = new Uri(dashboardcalculatorrunApi);
+
+                if (!string.IsNullOrEmpty(dashboardcalculatorrunApi))
+                {
+                    client.BaseAddress = new Uri(dashboardcalculatorrunApi);
+                }
+                else
+                {
+                    // Handle the case where dashboardcalculatorrunApi is null or empty
+                    throw new ArgumentNullException(nameof(dashboardcalculatorrunApi), "The API base address cannot be null or empty.");
+                }
+
                 var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardcalculatorrunApi));
 
                 var runParms = new CalculatorRunParamsDto
@@ -48,8 +58,11 @@
 
                 if (response.Result.IsSuccessStatusCode)
                 {
-                    dashboardRunData = this.GetCalulationRunsData(JsonConvert.DeserializeObject<List<CalculationRun>>(response.Result.Content.ReadAsStringAsync().Result));
+                    var deserializedRuns = JsonConvert.DeserializeObject<List<CalculationRun>>(response.Result.Content.ReadAsStringAsync().Result);
 
+                    // Ensure deserializedRuns is not null
+                    var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
+                    dashboardRunData = GetCalulationRunsData(calculationRuns);
                     return this.View(ViewNames.DashboardIndex, dashboardRunData);
                 }
 
@@ -58,15 +71,15 @@
                     return this.View();
                 }
 
-                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 
-        private List<DashboardViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
+        private static List<DashboardViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
         {
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
             var dashboardRunData = new List<DashboardViewModel>();
@@ -76,7 +89,11 @@
                 foreach (var calculationRun in calculationRuns)
                 {
                     var classification_val = runClassifications.FirstOrDefault(c => (int)c == calculationRun.CalculatorRunClassificationId);
-                    calculationRun.Status = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classification_val.ToString())?.GetCustomAttribute<EnumMemberAttribute>(false)?.Value;
+                    var member = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classification_val.ToString());
+
+                    var attribute = member?.GetCustomAttribute<EnumMemberAttribute>(false);
+
+                    calculationRun.Status = attribute?.Value ?? " "; // Use a default value if attribute or value is null
 
                     dashboardRunData.Add(new DashboardViewModel(calculationRun));
                 }
