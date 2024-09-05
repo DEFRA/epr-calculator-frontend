@@ -105,28 +105,5 @@
 
             return dashboardRunData;
         }
-
-        public void YourMethod()
-        {
-            var dashboardcalculatorrunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                                                              .GetSection(ConfigSection.DashboardCalculatorRunApi)
-                                                              .Value;
-            var year = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                                          .GetSection(ConfigSection.RunParameterYear)
-                                          .Value;
-            var client = this.clientFactory.CreateClient();
-
-            if (!string.IsNullOrEmpty(dashboardcalculatorrunApi))
-            {
-                client.BaseAddress = new Uri(dashboardcalculatorrunApi);
-            }
-            else
-            {
-                // Handle the case where dashboardcalculatorrunApi is null or empty
-                throw new ArgumentNullException(nameof(dashboardcalculatorrunApi), "The API base address cannot be null or empty.");
-            }
-
-            // Your existing code logic here
-        }
     }
 }
