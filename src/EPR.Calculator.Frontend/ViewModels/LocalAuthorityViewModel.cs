@@ -1,16 +1,21 @@
-﻿using EPR.Calculator.Frontend.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using System.Runtime.Serialization;
+using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
+    [ExcludeFromCodeCoverage]
     public class LocalAuthorityViewModel
     {
         public LocalAuthorityViewModel(LocalAuthorityDisposalCost localAuthorityDisposalCost)
         {
-            Country = localAuthorityDisposalCost.Country;
+            Country = GetCountryDescription(localAuthorityDisposalCost.Country);
             Material = localAuthorityDisposalCost.Material;
             TotalCost = localAuthorityDisposalCost.TotalCost;
             CreatedBy = localAuthorityDisposalCost.CreatedBy;
             CreatedAt = GetFormattedCreatedAt(localAuthorityDisposalCost.CreatedAt);
+            EffectiveFrom = localAuthorityDisposalCost.EffectiveFrom;
         }
 
         public string Country { get; set; }
@@ -22,6 +27,13 @@ namespace EPR.Calculator.Frontend.ViewModels
         public string CreatedBy { get; set; }
 
         public string CreatedAt { get; set; }
+
+        public DateTime EffectiveFrom { get; set; }
+
+        private string GetCountryDescription(string country)
+        {
+            return typeof(Country).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == country)?.GetCustomAttribute<EnumMemberAttribute>(false)?.Value;
+        }
 
         private string GetFormattedCreatedAt(DateTime createdAt)
         {
