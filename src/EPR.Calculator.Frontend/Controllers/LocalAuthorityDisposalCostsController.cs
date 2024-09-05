@@ -15,7 +15,6 @@ namespace EPR.Calculator.Frontend.Controllers
             return View(ViewNames.LocalAuthorityDisposalCostsIndex);
         }
 
-
         private List<LocalAuthorityViewModel> GetLocalAuthorityData()
         {
             var localAuthorityDisposalCosts = GetLocalAuthorityDisposalCosts();
@@ -32,7 +31,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
             return localAuthorityData;
         }
-
 
         private List<LocalAuthorityDisposalCost> GetLocalAuthorityDisposalCosts()
         {
