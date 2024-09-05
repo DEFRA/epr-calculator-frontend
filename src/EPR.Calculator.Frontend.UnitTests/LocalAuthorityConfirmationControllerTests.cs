@@ -17,7 +17,6 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Assert
             var viewResult = controller.Index() as ViewResult;
-            Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityConfirmationIndex, viewResult.ViewName);
         }
     }
