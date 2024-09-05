@@ -32,6 +32,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return localAuthorityData;
         }
 
+        // TODO: The below function will be deleted during the integration with GET API
         private List<LocalAuthorityDisposalCost> GetLocalAuthorityDisposalCosts()
         {
             var localAuthorityDisposalCosts = new List<LocalAuthorityDisposalCost>();
