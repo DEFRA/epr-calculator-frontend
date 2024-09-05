@@ -9,10 +9,10 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
-            var laData = GetLocalAuthorityData();
-            var abc = laData.GroupBy(x => x.Country).ToList();
+            var localAuthorityData = GetLocalAuthorityData();
+            var localAuthorityDataGroupedByCountry = localAuthorityData?.GroupBy(x => x.Country).ToList();
 
-            return View(ViewNames.LocalAuthorityDisposalCostsIndex);
+            return View(ViewNames.LocalAuthorityDisposalCostsIndex, localAuthorityDataGroupedByCountry);
         }
 
         private List<LocalAuthorityViewModel> GetLocalAuthorityData()

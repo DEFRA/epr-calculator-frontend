@@ -14,17 +14,17 @@
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <div class="govuk-caption-l">
-            Last updated by Jamie Roberts at <span id="effective-from"></span>
-        </div>
-        <br>
-        <h1 class="govuk-heading-xl">Local authority disposal costs</h1>
-        @if (Model == null)
+        @if (Model == null || Model.Count == 0)
         {
             <partial name="_LapcapDataNotExistsPartial" />
         }
         else
         {
+            <div class="govuk-caption-l">
+                Last updated by Jamie Roberts at <span id="effective-from"></span>
+            </div>
+            <br>
+            <h1 class="govuk-heading-xl">Local authority disposal costs</h1>
             @foreach (var la in Model)
             {
                 <h2 class="govuk-heading-l govuk-!-margin-top-3">@la.Key</h2>
@@ -42,41 +42,51 @@
                     }
                 </dl>
             }
+
+            <form action="" method="post" novalidate="">
+                <div class="govuk-button-group">
+                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-button" type="submit">Upload disposal costs</a>
+                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link" href="dash">Return to the dashboard</a>
+                </div>
+            </form>
         }
     </div>
 </div>
 
-<script type="text/javascript">
-    $(document).ready(() => {
-        const [dateString, timeString] = ('@Model.FirstOrDefault().FirstOrDefault().EffectiveFrom').split(' ');
+@if (Model != null && Model.Count > 0)
+{
+    <script type="text/javascript">
+        $(document).ready(() => {
+            const [dateString, timeString] = ('@Model.FirstOrDefault().FirstOrDefault().EffectiveFrom').split(' ');
 
-        var day = month = year = 0;
+            var day = month = year = 0;
 
-        // MM/DD/YYYY is the date format in Azure portal
-        // DD/MM/YYYY is the date format in local environment
-        // This condition check is required to correctly get the values of day and month based on the environment
-        if (isNaN(new Date(dateString))) {
-            [day, month, year] = dateString.split('/');
-        } else {
-            [month, day, year] = dateString.split('/');
+            // MM/DD/YYYY is the date format in Azure portal
+            // DD/MM/YYYY is the date format in local environment
+            // This condition check is required to correctly get the values of day and month based on the environment
+            if (isNaN(new Date(dateString))) {
+                [day, month, year] = dateString.split('/');
+            } else {
+                [month, day, year] = dateString.split('/');
+            }
+
+            const [hour, minute, second] = timeString.split(':');
+
+            const localDate = convertUTCDateToLocalDate(new Date(year, month - 1, day, hour, minute, second));
+
+            const dateValueFormatted = '<b>' + localDate.getHours() + ':' + String(localDate.getMinutes()).padStart(2, "0") + '</b> on ' + localDate.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' });
+            $('#effective-from').html(dateValueFormatted);
+        });
+
+        function convertUTCDateToLocalDate(date) {
+            var newDate = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
+
+            var offset = date.getTimezoneOffset() / 60;
+            var hours = date.getHours();
+
+            newDate.setHours(hours - offset);
+
+            return newDate;
         }
-
-        const [hour, minute, second] = timeString.split(':');
-
-        const localDate = convertUTCDateToLocalDate(new Date(year, month - 1, day, hour, minute, second));
-
-        const dateValueFormatted = '<b>' + localDate.getHours() + ':' + String(localDate.getMinutes()).padStart(2, "0") + '</b> on ' + localDate.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' });
-        $('#effective-from').html(dateValueFormatted);
-    });
-
-    function convertUTCDateToLocalDate(date) {
-        var newDate = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
-
-        var offset = date.getTimezoneOffset() / 60;
-        var hours = date.getHours();
-
-        newDate.setHours(hours - offset);
-
-        return newDate;
-    }
-</script>
+    </script>
+}
