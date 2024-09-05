@@ -12,7 +12,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var laData = GetLocalAuthorityData();
             var abc = laData.GroupBy(x => x.Country).ToList();
 
-            return View(ViewNames.LocalAuthorityDisposalCostsIndex, abc);
+            return View(ViewNames.LocalAuthorityDisposalCostsIndex);
         }
 
         private List<LocalAuthorityViewModel> GetLocalAuthorityData()
@@ -32,6 +32,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return localAuthorityData;
         }
 
+        // TODO: The below function will be deleted during the integration with GET API
         private List<LocalAuthorityDisposalCost> GetLocalAuthorityDisposalCosts()
         {
             var localAuthorityDisposalCosts = new List<LocalAuthorityDisposalCost>();
