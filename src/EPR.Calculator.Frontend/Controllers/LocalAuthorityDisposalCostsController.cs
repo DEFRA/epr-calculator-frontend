@@ -7,33 +7,8 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class LocalAuthorityDisposalCostsController : Controller
     {
-        public IActionResult Index()
-        {
-            var localAuthorityData = this.GetLocalAuthorityData();
-            var localAuthorityDataGroupedByCountry = localAuthorityData?.GroupBy((data) => data.Country).ToList();
-
-            return this.View(ViewNames.LocalAuthorityDisposalCostsIndex, localAuthorityDataGroupedByCountry);
-        }
-
-        private List<LocalAuthorityViewModel> GetLocalAuthorityData()
-        {
-            var localAuthorityDisposalCosts = this.GetLocalAuthorityDisposalCosts();
-
-            var localAuthorityData = new List<LocalAuthorityViewModel>();
-
-            if (localAuthorityDisposalCosts.Count > 0)
-            {
-                foreach (var la in localAuthorityDisposalCosts)
-                {
-                    localAuthorityData.Add(new LocalAuthorityViewModel(la));
-                }
-            }
-
-            return localAuthorityData;
-        }
-
         // TO DO: The below function will be deleted during the integration with GET API
-        private List<LocalAuthorityDisposalCost> GetLocalAuthorityDisposalCosts()
+        private static List<LocalAuthorityDisposalCost> GetLocalAuthorityDisposalCosts()
         {
             var localAuthorityDisposalCosts = new List<LocalAuthorityDisposalCost>();
 
@@ -73,6 +48,31 @@ namespace EPR.Calculator.Frontend.Controllers
             ]);
 
             return localAuthorityDisposalCosts;
+        }
+
+        public IActionResult Index()
+        {
+            var localAuthorityData = this.GetLocalAuthorityData();
+            var localAuthorityDataGroupedByCountry = localAuthorityData?.GroupBy((data) => data.Country).ToList();
+
+            return this.View(ViewNames.LocalAuthorityDisposalCostsIndex, localAuthorityDataGroupedByCountry);
+        }
+
+        private List<LocalAuthorityViewModel> GetLocalAuthorityData()
+        {
+            var localAuthorityDisposalCosts = LocalAuthorityDisposalCostsController.GetLocalAuthorityDisposalCosts();
+
+            var localAuthorityData = new List<LocalAuthorityViewModel>();
+
+            if (localAuthorityDisposalCosts.Count > 0)
+            {
+                foreach (var la in localAuthorityDisposalCosts)
+                {
+                    localAuthorityData.Add(new LocalAuthorityViewModel(la));
+                }
+            }
+
+            return localAuthorityData;
         }
     }
 }
