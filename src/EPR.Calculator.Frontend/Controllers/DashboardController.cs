@@ -43,8 +43,6 @@
                 }
                 else
                 {
-                    // Handle the case where dashboardcalculatorrunApi is null or empty
-                    throw new ArgumentNullException(nameof(dashboardcalculatorrunApi), "The API base address cannot be null or empty.");
                 }
 
                 var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardcalculatorrunApi));
