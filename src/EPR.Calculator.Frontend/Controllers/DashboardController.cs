@@ -41,9 +41,6 @@
                 {
                     client.BaseAddress = new Uri(dashboardcalculatorrunApi);
                 }
-                else
-                {
-                }
 
                 var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardcalculatorrunApi));
 
