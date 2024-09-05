@@ -2,31 +2,22 @@
 @model List<IGrouping<string, LocalAuthorityViewModel>>
 
 @{
+    var BackLink = "Dashboard";
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-three-quarters">
-        <p></p>
-    </div>
-    <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
-        <div class="account-info">
-            <span class="your-name" id="bannerUserName">Jamie Roberts</span>
-            <a class="account-link" href="details" id="signout-link">Sign out</a>
-        </div>
-    </div>
-</div>
+<partial name="_BackLinkPartial" model="BackLink" />
 
-<div class="govuk-grid-row dashboard-page">
-    <div class="govuk-grid-column-full">
-        <h1 class="govuk-heading-xl">Local authority disposal costs</h1>
-        @if (Model == null)
-        {
-            <p class="govuk-body"></p>
-        }
-        else
-        {
+<div class="govuk-grid-row dashboard-page">    
+    @if (Model == null)
+    {
+        <partial name="_LapcapDataNotExistsPartial" />
+    }
+    else
+    {
+        <div class="govuk-grid-column-full">
+            <h1 class="govuk-heading-xl">Local authority disposal costs</h1>
             <dl class="govuk-summary-list">
                 @foreach (var la in Model)
                 {
@@ -44,6 +35,7 @@
                     }
                 }
             </dl>
-        }
-    </div>
+        </div>
+    }
 </div>
+

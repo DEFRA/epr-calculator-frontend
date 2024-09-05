@@ -12,7 +12,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var laData = GetLocalAuthorityData();
             var abc = laData.GroupBy(x => x.Country).ToList();
 
-            return View(ViewNames.LocalAuthorityDisposalCostsIndex, abc);
+            return View(ViewNames.LocalAuthorityDisposalCostsIndex);
         }
 
 
