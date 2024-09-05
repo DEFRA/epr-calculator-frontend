@@ -9,19 +9,19 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
-            var localAuthorityData = GetLocalAuthorityData();
+            var localAuthorityData = this.GetLocalAuthorityData();
             var localAuthorityDataGroupedByCountry = localAuthorityData?.GroupBy((data) => data.Country).ToList();
 
-            return View(ViewNames.LocalAuthorityDisposalCostsIndex, localAuthorityDataGroupedByCountry);
+            return this.View(ViewNames.LocalAuthorityDisposalCostsIndex, localAuthorityDataGroupedByCountry);
         }
 
         private List<LocalAuthorityViewModel> GetLocalAuthorityData()
         {
-            var localAuthorityDisposalCosts = GetLocalAuthorityDisposalCosts();
+            var localAuthorityDisposalCosts = this.GetLocalAuthorityDisposalCosts();
 
             var localAuthorityData = new List<LocalAuthorityViewModel>();
 
-            if (localAuthorityDisposalCosts.Any())
+            if (localAuthorityDisposalCosts.Count > 0)
             {
                 foreach (var la in localAuthorityDisposalCosts)
                 {
@@ -32,7 +32,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return localAuthorityData;
         }
 
-        // TODO: The below function will be deleted during the integration with GET API
+        // TO DO: The below function will be deleted during the integration with GET API
         private List<LocalAuthorityDisposalCost> GetLocalAuthorityDisposalCosts()
         {
             var localAuthorityDisposalCosts = new List<LocalAuthorityDisposalCost>();
