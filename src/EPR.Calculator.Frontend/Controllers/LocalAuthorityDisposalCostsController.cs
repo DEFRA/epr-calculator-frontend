@@ -7,6 +7,14 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class LocalAuthorityDisposalCostsController : Controller
     {
+        public IActionResult Index()
+        {
+            var localAuthorityData = this.GetLocalAuthorityData();
+            var localAuthorityDataGroupedByCountry = localAuthorityData?.GroupBy((data) => data.Country).ToList();
+
+            return this.View(ViewNames.LocalAuthorityDisposalCostsIndex, localAuthorityDataGroupedByCountry);
+        }
+
         // TO DO: The below function will be deleted during the integration with GET API
         private static List<LocalAuthorityDisposalCost> GetLocalAuthorityDisposalCosts()
         {
@@ -48,14 +56,6 @@ namespace EPR.Calculator.Frontend.Controllers
             ]);
 
             return localAuthorityDisposalCosts;
-        }
-
-        public IActionResult Index()
-        {
-            var localAuthorityData = this.GetLocalAuthorityData();
-            var localAuthorityDataGroupedByCountry = localAuthorityData?.GroupBy((data) => data.Country).ToList();
-
-            return this.View(ViewNames.LocalAuthorityDisposalCostsIndex, localAuthorityDataGroupedByCountry);
         }
 
         private List<LocalAuthorityViewModel> GetLocalAuthorityData()
