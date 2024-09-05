@@ -7,12 +7,18 @@ namespace EPR.Calculator.Frontend.UnitTests
     public class LocalAuthorityConfirmationControllerTests
     {
         [TestMethod]
-        public void LocalAuthorityConfirmationController_View_Test()
+        public void Index_ReturnsViewResult_WithCorrectViewName()
         {
+            // Arrange
             var controller = new LocalAuthorityConfirmationController();
-            var result = controller.Index() as ViewResult;
+
+            // Act
+            var result = controller.Index();
+
+            // Assert
+            var viewResult = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.LocalAuthorityConfirmationIndex, result.ViewName);
+            Assert.AreEqual(ViewNames.LocalAuthorityConfirmationIndex, viewResult.ViewName);
         }
     }
 }

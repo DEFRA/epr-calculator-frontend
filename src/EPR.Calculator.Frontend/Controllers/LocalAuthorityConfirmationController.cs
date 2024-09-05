@@ -1,13 +1,13 @@
-﻿using EPR.Calculator.Frontend.Constants;
-using Microsoft.AspNetCore.Mvc;
-
-namespace EPR.Calculator.Frontend.Controllers
+﻿namespace EPR.Calculator.Frontend.Controllers
 {
+    using EPR.Calculator.Frontend.Constants;
+    using Microsoft.AspNetCore.Mvc;
+
     public class LocalAuthorityConfirmationController : Controller
     {
         public IActionResult Index()
         {
-            return View(ViewNames.LocalAuthorityConfirmationIndex);
+            return this.View(ViewNames.LocalAuthorityConfirmationIndex);
         }
     }
 }
