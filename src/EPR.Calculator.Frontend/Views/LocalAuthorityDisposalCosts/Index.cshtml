@@ -6,6 +6,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     var BackLink = "Dashboard";
+    var EffectiveFrom = @Model?.FirstOrDefault()?.FirstOrDefault()?.EffectiveFrom;
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -25,18 +26,18 @@
             </div>
             <br>
             <h1 class="govuk-heading-xl">Local authority disposal costs</h1>
-            @foreach (var la in Model)
+            @foreach (var country in Model)
             {
-                <h2 class="govuk-heading-l govuk-!-margin-top-3">@la.Key</h2>
+                <h2 class="govuk-heading-l govuk-!-margin-top-3">@country.Key</h2>
                 <dl class="govuk-summary-list govuk-!-margin-bottom-9">
-                    @foreach (var data in la)
+                    @foreach (var localAuthorityData in country)
                     {
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key">
-                                @data.Material
+                                @localAuthorityData.Material
                             </dt>
                             <dd class="govuk-summary-list__actions">
-                                @data.TotalCost
+                                @localAuthorityData.TotalCost
                             </dd>
                         </div>
                     }
@@ -46,7 +47,7 @@
             <form action="" method="post" novalidate="">
                 <div class="govuk-button-group">
                     <a href="@Url.Action("Index", "Dashboard")" class="govuk-button" type="submit">Upload disposal costs</a>
-                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link" href="dash">Return to the dashboard</a>
+                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link" type="dash">Return to the dashboard</a>
                 </div>
             </form>
         }
@@ -57,7 +58,7 @@
 {
     <script type="text/javascript">
         $(document).ready(() => {
-            const [dateString, timeString] = ('@Model.FirstOrDefault().FirstOrDefault().EffectiveFrom').split(' ');
+            const [dateString, timeString] = ('@EffectiveFrom').split(' ');
 
             var day = month = year = 0;
 
