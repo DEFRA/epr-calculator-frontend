@@ -178,11 +178,18 @@ namespace EPR.Calculator.Frontend.UnitTests
             stream.Position = 0;
             IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.xlsx");
 
-            var controller = new UploadFileController();
-            var result = await controller.Upload(file) as RedirectToActionResult;
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            tempData["Default_Parameter_Upload_Errors"] = string.Empty;
+
+            var controller = new UploadFileController()
+            {
+                TempData = tempData
+            };
+
+            var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
+            Assert.AreEqual(ViewNames.UploadFileIndex, result.ViewName);
         }
 
         [TestMethod]
