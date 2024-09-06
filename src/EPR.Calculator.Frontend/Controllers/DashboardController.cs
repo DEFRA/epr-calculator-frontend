@@ -39,7 +39,6 @@
 
                 if (!string.IsNullOrEmpty(dashboardCalculatorRunApi))
                 {
-
                     client.BaseAddress = new Uri(dashboardCalculatorRunApi);
                 }
                 else
