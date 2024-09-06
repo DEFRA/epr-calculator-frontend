@@ -18,46 +18,29 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="DashboardController"/> class.
         /// </summary>
-        /// <param name="configuration"></param>
-        /// <param name="clientFactory"></param>
+        /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
+        /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
         public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
         }
 
+        /// <summary>
+        /// Handles the Index action for the controller.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IActionResult"/> that renders the Dashboard Index view with the calculation runs data,
+        /// or redirects to the Standard Error page if an error occurs.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the API URL is null or empty.
+        /// </exception>
         public IActionResult Index()
         {
             try
             {
-                var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                                                  .GetSection(ConfigSection.DashboardCalculatorRunApi)
-                                                  .Value;
-                var year = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                                              .GetSection(ConfigSection.RunParameterYear)
-                                              .Value;
-                var client = this.clientFactory.CreateClient();
-
-                if (!string.IsNullOrEmpty(dashboardCalculatorRunApi))
-                {
-                    client.BaseAddress = new Uri(dashboardCalculatorRunApi);
-                }
-                else
-                {
-                    // Handle the null or empty case appropriately
-                    throw new ArgumentNullException(nameof(dashboardCalculatorRunApi), "The API URL cannot be null or empty.");
-                }
-
-                var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));
-                var runParms = new CalculatorRunParamsDto
-                {
-                    FinancialYear = year,
-                };
-                var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
-                request.Content = content;
-                var response = client.SendAsync(request);
-                response.Wait();
-
+                Task<HttpResponseMessage> response = GetHttpRequest(this.configuration, this.clientFactory);
                 var dashboardRunData = new List<DashboardViewModel>();
 
                 if (response.Result.IsSuccessStatusCode)
@@ -83,6 +66,11 @@
             }
         }
 
+        /// <summary>
+        /// Processes a list of calculation runs and assigns status values based on their classifications.
+        /// </summary>
+        /// <param name="calculationRuns">The list of calculation runs to be processed.</param>
+        /// <returns>A list of <see cref="DashboardViewModel"/> objects containing the processed data.</returns>
         private static List<DashboardViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
         {
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
@@ -104,6 +92,46 @@
             }
 
             return dashboardRunData;
+        }
+
+        /// <summary>
+        /// Sends an HTTP POST request to the Dashboard Calculator Run API with the specified parameters.
+        /// </summary>
+        /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
+        /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
+        private static Task<HttpResponseMessage> GetHttpRequest(IConfiguration configuration, IHttpClientFactory clientFactory)
+        {
+            var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                                                  .GetSection(ConfigSection.DashboardCalculatorRunApi)
+                                                  .Value;
+            var year = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                                          .GetSection(ConfigSection.RunParameterYear)
+                                          .Value;
+            var client = clientFactory.CreateClient();
+
+            if (!string.IsNullOrEmpty(dashboardCalculatorRunApi))
+            {
+                client.BaseAddress = new Uri(dashboardCalculatorRunApi);
+            }
+            else
+            {
+                // Handle the null or empty case appropriately
+                throw new ArgumentNullException(nameof(dashboardCalculatorRunApi), "The API URL cannot be null or empty.");
+            }
+
+            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));
+            var runParms = new CalculatorRunParamsDto
+            {
+                FinancialYear = year,
+            };
+            var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
+            request.Content = content;
+            var response = client.SendAsync(request);
+            response.Wait();
+
+            return response;
         }
     }
 }
