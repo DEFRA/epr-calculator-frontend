@@ -15,7 +15,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         {
             this.Country = GetCountryDescription(localAuthorityDisposalCost.Country);
             this.Material = localAuthorityDisposalCost.Material;
-            this.TotalCost = localAuthorityDisposalCost.TotalCost;
+            this.TotalCost = GetTotalCost(localAuthorityDisposalCost.TotalCost);
             this.CreatedBy = localAuthorityDisposalCost.CreatedBy;
             this.CreatedAt = GetFormattedCreatedAt(localAuthorityDisposalCost.CreatedAt);
             this.EffectiveFrom = localAuthorityDisposalCost.EffectiveFrom;
@@ -25,7 +25,7 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public string Material { get; set; }
 
-        public decimal TotalCost { get; set; }
+        public string TotalCost { get; set; }
 
         public string CreatedBy { get; set; }
 
@@ -47,6 +47,11 @@ namespace EPR.Calculator.Frontend.ViewModels
         private static string GetFormattedCreatedAt(DateTime createdAt)
         {
             return createdAt.ToString("dd MMM yyyy ' at 'H:mm", new System.Globalization.CultureInfo("en-GB"));
+        }
+
+        private static string GetTotalCost(decimal totalCost)
+        {
+            return totalCost == 0 ? string.Format("{0}{1:F0}", "£", totalCost) : string.Format("{0}{1:F2}", "£", totalCost);
         }
     }
 }
