@@ -13,12 +13,12 @@ namespace EPR.Calculator.Frontend.ViewModels
     {
         public LocalAuthorityViewModel(LocalAuthorityDisposalCost localAuthorityDisposalCost)
         {
-            Country = GetCountryDescription(localAuthorityDisposalCost.Country);
-            Material = localAuthorityDisposalCost.Material;
-            TotalCost = localAuthorityDisposalCost.TotalCost;
-            CreatedBy = localAuthorityDisposalCost.CreatedBy;
-            CreatedAt = GetFormattedCreatedAt(localAuthorityDisposalCost.CreatedAt);
-            EffectiveFrom = localAuthorityDisposalCost.EffectiveFrom;
+            this.Country = GetCountryDescription(localAuthorityDisposalCost.Country);
+            this.Material = localAuthorityDisposalCost.Material;
+            this.TotalCost = localAuthorityDisposalCost.TotalCost;
+            this.CreatedBy = localAuthorityDisposalCost.CreatedBy;
+            this.CreatedAt = GetFormattedCreatedAt(localAuthorityDisposalCost.CreatedAt);
+            this.EffectiveFrom = localAuthorityDisposalCost.EffectiveFrom;
         }
 
         public string Country { get; set; }
@@ -33,12 +33,12 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public DateTime EffectiveFrom { get; set; }
 
-        private string GetCountryDescription(string country)
+        private static string GetCountryDescription(string country)
         {
             return typeof(Country).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == country)?.GetCustomAttribute<EnumMemberAttribute>(false)?.Value;
         }
 
-        private string GetFormattedCreatedAt(DateTime createdAt)
+        private static string GetFormattedCreatedAt(DateTime createdAt)
         {
             return createdAt.ToString("dd MMM yyyy ' at 'H:mm", new System.Globalization.CultureInfo("en-GB"));
         }
