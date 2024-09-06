@@ -29,7 +29,8 @@
         {
             try
             {
-                var dashboardcalculatorrunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                var request = new HttpRequestMessage();
+                var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                                                   .GetSection(ConfigSection.DashboardCalculatorRunApi)
                                                   .Value;
                 var year = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
@@ -37,12 +38,16 @@
                                               .Value;
                 var client = this.clientFactory.CreateClient();
 
-                if (!string.IsNullOrEmpty(dashboardcalculatorrunApi))
+                if (!string.IsNullOrEmpty(dashboardCalculatorRunApi))
                 {
-                    client.BaseAddress = new Uri(dashboardcalculatorrunApi);
+                    request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));
+                    client.BaseAddress = new Uri(dashboardCalculatorRunApi);
                 }
-
-                var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardcalculatorrunApi));
+                else
+                {
+                    // Handle the null or empty case appropriately
+                    throw new ArgumentNullException(nameof(dashboardCalculatorRunApi), "The API URL cannot be null or empty.");
+                }
 
                 var runParms = new CalculatorRunParamsDto
                 {
