@@ -11,8 +11,6 @@ namespace EPR.Calculator.Frontend.Helpers
         public static string GetControllerName(Type controllerType)
         {
             string contollerName = controllerType.Name;
-
-
             if (contollerName.EndsWith(Controller, StringComparison.OrdinalIgnoreCase))
             {
                 contollerName = contollerName.Remove(contollerName.Length - 10, 10);
