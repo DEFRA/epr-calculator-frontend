@@ -29,7 +29,7 @@
         {
             try
             {
-                string dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                                                   .GetSection(ConfigSection.DashboardCalculatorRunApi)
                                                   .Value;
                 var year = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
