@@ -8,7 +8,7 @@ namespace EPR.Calculator.Frontend.Helpers
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.CodeAnalysis.Elfie.Extensions;
 
-    public static class CommonUntil
+    public static class CommonUtil
     {
         public static string GetControllerName(Type controllerType)
         {

@@ -75,11 +75,11 @@
                     return this.View();
                 }
 
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUntil.GetControllerName(typeof(StandardErrorController)));
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
             catch (Exception)
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUntil.GetControllerName(typeof(StandardErrorController)));
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
 
