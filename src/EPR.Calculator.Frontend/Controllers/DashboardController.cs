@@ -92,7 +92,7 @@
 
                     var attribute = member?.GetCustomAttribute<EnumMemberAttribute>(false);
 
-                    calculationRun.Status = attribute?.Value ?? " "; // Use a default value if attribute or value is null
+                    calculationRun.Status = attribute?.Value ?? string.Empty; // Use a default value if attribute or value is null
 
                     dashboardRunData.Add(new DashboardViewModel(calculationRun));
                 }

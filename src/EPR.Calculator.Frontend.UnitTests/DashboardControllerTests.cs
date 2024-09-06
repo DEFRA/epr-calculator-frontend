@@ -152,7 +152,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 new CalculationRun { CalculatorRunClassificationId = 1 },
                 new CalculationRun { CalculatorRunClassificationId = 2 },
-                new CalculationRun { CalculatorRunClassificationId = 3 } // This will use the default value
+                new CalculationRun { CalculatorRunClassificationId = 9 } // This will use the default value
             };
 
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
@@ -168,7 +168,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
                     var attribute = member?.GetCustomAttribute<EnumMemberAttribute>(false);
 
-                    calculationRun.Status = attribute?.Value ?? "UNCLASSIFIED"; // Use a default value if attribute or value is null
+                    calculationRun.Status = attribute?.Value ?? string.Empty; // Use a default value if attribute or value is null
 
                     dashboardRunData.Add(new DashboardViewModel(calculationRun));
                 }
@@ -178,7 +178,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(3, dashboardRunData.Count);
             Assert.AreEqual("IN THE QUEUE", dashboardRunData[0].Status);
             Assert.AreEqual("RUNNING", dashboardRunData[1].Status);
-            Assert.AreEqual("UNCLASSIFIED", dashboardRunData[2].Status); // Default value
+            Assert.AreEqual(string.Empty, dashboardRunData[2].Status); // Default value
         }
 
         private IConfiguration GetConfigurationValues()
