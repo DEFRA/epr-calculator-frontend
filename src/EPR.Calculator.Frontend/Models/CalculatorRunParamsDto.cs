@@ -2,6 +2,6 @@
 {
     public class CalculatorRunParamsDto
     {
-        public string FinancialYear { get; set; }
+        public string? FinancialYear { get; set; }
     }
 }
