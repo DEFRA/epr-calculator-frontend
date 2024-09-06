@@ -35,7 +35,12 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         private static string GetCountryDescription(string country)
         {
-            return typeof(Country).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == country)?.GetCustomAttribute<EnumMemberAttribute>(false)?.Value;
+            var countryDescription = typeof(Country).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == country)?.GetCustomAttribute<EnumMemberAttribute>(false)?.Value;
+            if (countryDescription == null)
+            {
+                throw new ArgumentNullException(country, "Country is not returned by the local authority disposal costs API");
+            }
+            return countryDescription;
         }
 
         private static string GetFormattedCreatedAt(DateTime createdAt)
