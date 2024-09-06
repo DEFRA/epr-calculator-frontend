@@ -75,11 +75,11 @@
                     return this.View();
                 }
 
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, Controllers.StandardErrorController);
             }
             catch (Exception)
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, Controllers.StandardErrorController);
             }
         }
 
