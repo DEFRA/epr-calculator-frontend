@@ -40,6 +40,7 @@ namespace EPR.Calculator.Frontend.ViewModels
             {
                 throw new ArgumentNullException(country, "Country is not returned by the local authority disposal costs API");
             }
+
             return countryDescription;
         }
 
