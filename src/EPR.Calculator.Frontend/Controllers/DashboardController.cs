@@ -1,13 +1,13 @@
 ﻿namespace EPR.Calculator.Frontend.Controllers
 {
-    using System.Net;
-    using System.Reflection;
-    using System.Runtime.Serialization;
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Models;
     using EPR.Calculator.Frontend.ViewModels;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
+    using System.Net;
+    using System.Reflection;
+    using System.Runtime.Serialization;
 
     public class DashboardController : Controller
     {
@@ -29,8 +29,7 @@
         {
             try
             {
-                var request = new HttpRequestMessage();
-                var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                string dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                                                   .GetSection(ConfigSection.DashboardCalculatorRunApi)
                                                   .Value;
                 var year = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
@@ -40,7 +39,7 @@
 
                 if (!string.IsNullOrEmpty(dashboardCalculatorRunApi))
                 {
-                    request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));
+
                     client.BaseAddress = new Uri(dashboardCalculatorRunApi);
                 }
                 else
@@ -49,6 +48,7 @@
                     throw new ArgumentNullException(nameof(dashboardCalculatorRunApi), "The API URL cannot be null or empty.");
                 }
 
+                var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));
                 var runParms = new CalculatorRunParamsDto
                 {
                     FinancialYear = year,
