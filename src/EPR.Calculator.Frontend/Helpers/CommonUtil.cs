@@ -13,7 +13,7 @@ namespace EPR.Calculator.Frontend.Helpers
             string contollerName = controllerType.Name;
             if (contollerName.EndsWith(Controller, StringComparison.OrdinalIgnoreCase))
             {
-                contollerName = contollerName.Remove(contollerName.Length - 10, 10);
+                contollerName = contollerName.Remove(contollerName.Length - Controller.Length, Controller.Length);
             }
 
             return contollerName;
