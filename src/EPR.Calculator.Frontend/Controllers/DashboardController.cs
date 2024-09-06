@@ -4,6 +4,7 @@
     using System.Reflection;
     using System.Runtime.Serialization;
     using EPR.Calculator.Frontend.Constants;
+    using EPR.Calculator.Frontend.Helpers;
     using EPR.Calculator.Frontend.Models;
     using EPR.Calculator.Frontend.ViewModels;
     using Microsoft.AspNetCore.Mvc;
@@ -74,11 +75,11 @@
                     return this.View();
                 }
 
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, Controllers.StandardErrorController);
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUntil.GetControllerName(typeof(StandardErrorController)));
             }
             catch (Exception)
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, Controllers.StandardErrorController);
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUntil.GetControllerName(typeof(StandardErrorController)));
             }
         }
 
