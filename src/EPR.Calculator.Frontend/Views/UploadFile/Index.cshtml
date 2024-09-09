@@ -34,15 +34,7 @@ else
     <h2 class="govuk-heading-m"><label for="file-upload-1">Upload a file</label></h2>
 }
 
-<p class="govuk-body">The file must be:</p>
-<ul class="govuk-list govuk-list--bullet">
-    <li>smaller than 50KB</li>
-    <li>in CSV format</li>
-</ul>
-
-<div class="govuk-form-group">
-    <p class="govuk-body">It may take a few minutes for your file to upload - do not close the window while the file is uploading.</p>
-</div>
+<partial name="_UploadFileInformationPartial" />
 
 
 @using (Html.BeginForm("Upload", "UploadFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
