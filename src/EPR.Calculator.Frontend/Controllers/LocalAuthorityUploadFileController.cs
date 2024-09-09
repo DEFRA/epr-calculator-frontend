@@ -25,14 +25,14 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
                 {
                     this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Local_Authority_Upload_Errors"].ToString());
-                    return this.View(ViewNames.UploadFileIndex);
+                    return this.View(ViewNames.LocalAuthorityUploadFileIndex);
                 }
 
                 var localAuthorityDisposalCosts = await PrepareDataForUpload(fileUpload);
 
                 ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
 
-                return View(ViewNames.UploadFileRefresh);
+                return View(ViewNames.LocalAuthorityUploadFileRefresh);
             }
             catch (Exception ex)
             {
