@@ -38,7 +38,7 @@
 
 	<ItemGroup>
 		<SonarQubeSetting Include="sonar.coverage.exclusions">
-			<Value>Views/**/*.cshtml,Program.cs,js/*.js</Value>
+			<Value>Views/**/*.cshtml,Program.cs,wwwroot/js/*.js</Value>
 		</SonarQubeSetting>
 	</ItemGroup>
 
