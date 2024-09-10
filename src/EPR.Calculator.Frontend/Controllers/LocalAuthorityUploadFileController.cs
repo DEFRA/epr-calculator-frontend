@@ -26,7 +26,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(ViewNames.LocalAuthorityUploadFileIndex);
             }
 
-            var localAuthorityDisposalCosts = await this.PrepareFileDataForUpload(fileUpload);
+            var localAuthorityDisposalCosts = this.PrepareFileDataForUpload(fileUpload);
 
             this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
 
