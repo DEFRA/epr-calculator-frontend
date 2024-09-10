@@ -20,13 +20,13 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-            if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
+            if (this.ValidateUploadedCSV(fileUpload).ErrorMessage is not null)
             {
                 this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Local_Authority_Upload_Errors"].ToString());
                 return this.View(ViewNames.LocalAuthorityUploadFileIndex);
             }
 
-            var localAuthorityDisposalCosts = await PrepareDataForUpload(fileUpload);
+            var localAuthorityDisposalCosts = await PrepareFileDataForUpload(fileUpload);
 
             ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
 
@@ -42,13 +42,13 @@ namespace EPR.Calculator.Frontend.Controllers
                     using var stream = System.IO.File.OpenRead(TempData["FilePath"].ToString());
                     var fileUpload = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
 
-                    if (ValidateCSV(fileUpload).ErrorMessage is not null)
+                    if (ValidateUploadedCSV(fileUpload).ErrorMessage is not null)
                     {
                         ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Local_Authority_Upload_Errors"].ToString());
                         return View(ViewNames.UploadFileIndex);
                     }
 
-                    var localAuthorityDisposalCosts = await PrepareDataForUpload(fileUpload);
+                    var localAuthorityDisposalCosts = await PrepareFileDataForUpload(fileUpload);
 
                     ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
 
@@ -58,18 +58,18 @@ namespace EPR.Calculator.Frontend.Controllers
                 // Code will reach this point if the uploaded file is not available
                 return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 
-        private async Task<List<LocalAuthorityDisposalCostDto>> PrepareDataForUpload(IFormFile fileUpload)
+        private async Task<List<LocalAuthorityDisposalCostDto>> PrepareFileDataForUpload(IFormFile fileUpload)
         {
             return new List<LocalAuthorityDisposalCostDto>();
         }
 
-        private ErrorViewModel ValidateCSV(IFormFile fileUpload)
+        private ErrorViewModel ValidateUploadedCSV(IFormFile fileUpload)
         {
             ErrorViewModel validationErrors = CsvFileHelper.ValidateCSV(fileUpload);
 
