@@ -14,7 +14,7 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
-            return View(ViewNames.LocalAuthorityUploadFileIndex);
+            return this.View(ViewNames.LocalAuthorityUploadFileIndex);
         }
 
         [HttpPost]
@@ -22,49 +22,49 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (this.ValidateUploadedCSV(fileUpload).ErrorMessage is not null)
             {
-                this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Local_Authority_Upload_Errors"].ToString());
+                this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Local_Authority_Upload_Errors"].ToString() ?? string.Empty);
                 return this.View(ViewNames.LocalAuthorityUploadFileIndex);
             }
 
-            var localAuthorityDisposalCosts = await PrepareFileDataForUpload(fileUpload);
+            var localAuthorityDisposalCosts = await this.PrepareFileDataForUpload(fileUpload);
 
-            ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
+            this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
 
-            return View(ViewNames.LocalAuthorityUploadFileRefresh);
+            return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
         }
 
         public async Task<IActionResult> Upload()
         {
             try
             {
-                if (TempData["FilePath"] != null)
+                if (this.TempData["FilePath"] is not null)
                 {
-                    using var stream = System.IO.File.OpenRead(TempData["FilePath"].ToString());
-                    var fileUpload = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
+                    using var stream = System.IO.File.OpenRead(this.TempData["FilePath"].ToString());
+                    var fileUpload = new FormFile(stream, 0, stream.Length, "file", Path.GetFileName(stream.Name));
 
-                    if (ValidateUploadedCSV(fileUpload).ErrorMessage is not null)
+                    if (this.ValidateUploadedCSV(fileUpload).ErrorMessage is not null)
                     {
-                        ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Local_Authority_Upload_Errors"].ToString());
-                        return View(ViewNames.UploadFileIndex);
+                        this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData["Local_Authority_Upload_Errors"].ToString());
+                        return this.View(ViewNames.UploadFileIndex);
                     }
 
-                    var localAuthorityDisposalCosts = await PrepareFileDataForUpload(fileUpload);
+                    var localAuthorityDisposalCosts = this.PrepareFileDataForUpload(fileUpload);
 
-                    ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
+                    this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
 
-                    return View(ViewNames.LocalAuthorityUploadFileRefresh);
+                    return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
                 }
 
                 // Code will reach this point if the uploaded file is not available
-                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
             catch (Exception)
             {
-                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 
-        private async Task<List<LocalAuthorityDisposalCostDto>> PrepareFileDataForUpload(IFormFile fileUpload)
+        private List<LocalAuthorityDisposalCostDto> PrepareFileDataForUpload(IFormFile fileUpload)
         {
             return new List<LocalAuthorityDisposalCostDto>();
         }
@@ -75,7 +75,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (validationErrors.ErrorMessage != null)
             {
-                TempData["Local_Authority_Upload_Errors"] = JsonConvert.SerializeObject(validationErrors);
+                this.TempData["Local_Authority_Upload_Errors"] = JsonConvert.SerializeObject(validationErrors);
             }
 
             return validationErrors;
