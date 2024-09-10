@@ -56,7 +56,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var lapcapData = new CreateLapcapDataDto
             {
                 ParameterYear = this.configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value,
-                LapcapDataTemplateValues = lapcapDataTemplateValues
+                LapcapDataTemplateValues = lapcapDataTemplateValues,
             };
 
             return JsonConvert.SerializeObject(lapcapData);

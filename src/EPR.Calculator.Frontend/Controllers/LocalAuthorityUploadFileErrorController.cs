@@ -50,7 +50,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             this.HttpContext.Session.SetString("Local_Authority_Upload_Errors", errors);
 
-            return Ok();
+            return this.Ok();
         }
 
         [HttpPost]
