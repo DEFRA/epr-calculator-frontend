@@ -73,31 +73,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<List<LocalAuthorityDisposalCostDto>> PrepareDataForUpload(IFormFile fileUpload)
         {
-            var localAuthorityDisposalCosts = new List<LocalAuthorityDisposalCostDto>();
-
-            //using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
-            //await fileUpload.CopyToAsync(memoryStream);
-            //memoryStream.Position = 0;
-
-            //using (var reader = new StreamReader(memoryStream))
-            //{
-            //    var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-            //    {
-            //        PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)),
-            //        ShouldSkipRecord = args => args.Row.Parser.Record.All(string.IsNullOrWhiteSpace) || args.Row.GetField(0).Contains("upload version")
-            //    };
-            //    using (var csv = new CsvReader(reader, config))
-            //    {
-            //        csv.Read();
-            //        while (csv.Read())
-            //        {
-            //            localAuthorityDisposalCosts.Add(
-            //                new LocalAuthorityDisposalCostDto() { LapcapDataTemplateMasterUniqueRef = csv.GetField(0), TotalCost = csv.GetField(5) });
-            //        }
-            //    }
-            //}
-
-            return localAuthorityDisposalCosts;
+            return new List<LocalAuthorityDisposalCostDto>();
         }
 
         private ErrorViewModel ValidateCSV(IFormFile fileUpload)
