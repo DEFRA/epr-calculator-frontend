@@ -20,24 +20,17 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-            try
+            if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
             {
-                if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
-                {
-                    this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Local_Authority_Upload_Errors"].ToString());
-                    return this.View(ViewNames.LocalAuthorityUploadFileIndex);
-                }
-
-                var localAuthorityDisposalCosts = await PrepareDataForUpload(fileUpload);
-
-                ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
-
-                return View(ViewNames.LocalAuthorityUploadFileRefresh);
+                this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Local_Authority_Upload_Errors"].ToString());
+                return this.View(ViewNames.LocalAuthorityUploadFileIndex);
             }
-            catch (Exception ex)
-            {
-                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
-            }
+
+            var localAuthorityDisposalCosts = await PrepareDataForUpload(fileUpload);
+
+            ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
+
+            return View(ViewNames.LocalAuthorityUploadFileRefresh);
         }
 
         public async Task<IActionResult> Upload()
