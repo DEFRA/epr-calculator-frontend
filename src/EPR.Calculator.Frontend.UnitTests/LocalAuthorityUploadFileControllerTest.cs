@@ -33,7 +33,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
-            var result = await controller.Upload() as ViewResult;
+            var result = controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.UploadFileIndex, result.ViewName);
         }
@@ -50,7 +50,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
-            var result = await controller.Upload() as RedirectToActionResult;
+            var result = controller.Upload() as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
@@ -68,7 +68,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = temporaryData
             };
 
-            var result = await controller.Upload() as RedirectToActionResult;
+            var result = controller.Upload() as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
@@ -94,7 +94,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
-            var result = await controller.Upload(file) as ViewResult;
+            var result = controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileRefresh, result.ViewName);
         }
@@ -119,7 +119,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
-            var result = await controller.Upload(file) as ViewResult;
+            var result = controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileRefresh, result.ViewName);
         }
@@ -144,7 +144,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
-            var result = await controller.Upload(file) as ViewResult;
+            var result = controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileIndex, result.ViewName);
         }
@@ -169,7 +169,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
-            var result = await controller.Upload(file) as ViewResult;
+            var result = controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileIndex, result.ViewName);
         }

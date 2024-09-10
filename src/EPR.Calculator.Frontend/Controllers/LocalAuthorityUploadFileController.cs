@@ -18,11 +18,11 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Upload(IFormFile fileUpload)
+        public IActionResult Upload(IFormFile fileUpload)
         {
             if (this.ValidateUploadedCSV(fileUpload).ErrorMessage is not null)
             {
-                this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Local_Authority_Upload_Errors"].ToString() ?? string.Empty);
+                this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData["Local_Authority_Upload_Errors"].ToString() ?? string.Empty);
                 return this.View(ViewNames.LocalAuthorityUploadFileIndex);
             }
 
@@ -33,7 +33,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
         }
 
-        public async Task<IActionResult> Upload()
+        public IActionResult Upload()
         {
             try
             {
