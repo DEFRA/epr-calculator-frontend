@@ -28,7 +28,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.View(ViewNames.LocalAuthorityUploadFileIndex);
                 }
 
-                var localAuthorityDisposalCosts = await PrepareDataForUpload(fileUpload);
+                var localAuthorityDisposalCosts = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
 
                 ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
 
@@ -52,10 +52,10 @@ namespace EPR.Calculator.Frontend.Controllers
                     if (ValidateCSV(fileUpload).ErrorMessage is not null)
                     {
                         ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Local_Authority_Upload_Errors"].ToString());
-                        return View(ViewNames.UploadFileIndex);
+                        return View(ViewNames.LocalAuthorityUploadFileIndex);
                     }
 
-                    var localAuthorityDisposalCosts = await PrepareDataForUpload(fileUpload);
+                    var localAuthorityDisposalCosts = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
 
                     ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
 
@@ -69,35 +69,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
-        }
-
-        private async Task<List<LocalAuthorityDisposalCostDto>> PrepareDataForUpload(IFormFile fileUpload)
-        {
-            var localAuthorityDisposalCosts = new List<LocalAuthorityDisposalCostDto>();
-
-            using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
-            await fileUpload.CopyToAsync(memoryStream);
-            memoryStream.Position = 0;
-
-            using (var reader = new StreamReader(memoryStream))
-            {
-                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-                {
-                    PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)),
-                    ShouldSkipRecord = args => args.Row.Parser.Record.All(string.IsNullOrWhiteSpace) || args.Row.GetField(0).Contains("upload version")
-                };
-                using (var csv = new CsvReader(reader, config))
-                {
-                    csv.Read();
-                    while (csv.Read())
-                    {
-                        localAuthorityDisposalCosts.Add(
-                            new LocalAuthorityDisposalCostDto() { LapcapDataTemplateMasterUniqueRef = csv.GetField(0), TotalCost = csv.GetField(5) });
-                    }
-                }
-            }
-
-            return localAuthorityDisposalCosts;
         }
 
         private ErrorViewModel ValidateCSV(IFormFile fileUpload)

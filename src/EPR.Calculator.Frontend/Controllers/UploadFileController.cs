@@ -28,7 +28,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     return View(ViewNames.UploadFileIndex);
                 }
 
-                var schemeTemplateParameterValues = await PrepareDataForUpload(fileUpload);
+                var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
 
                 ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
@@ -55,7 +55,7 @@ namespace EPR.Calculator.Frontend.Controllers
                             return View(ViewNames.UploadFileIndex);
                     }
 
-                    var schemeTemplateParameterValues = await PrepareDataForUpload(fileUpload);
+                    var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
 
                     ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
@@ -82,35 +82,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return StatusCode(500, "An error occured while processing request" + ex.Message);
             }
-        }
-
-        private async Task<List<SchemeParameterTemplateValue>> PrepareDataForUpload(IFormFile fileUpload)
-        {
-                var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
-
-                using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
-                await fileUpload.CopyToAsync(memoryStream);
-                memoryStream.Position = 0;
-
-                using (var reader = new StreamReader(memoryStream))
-                {
-                    var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-                    {
-                        PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)),
-                        ShouldSkipRecord = args => args.Row.Parser.Record.All(string.IsNullOrWhiteSpace) || args.Row.GetField(0).Contains("upload version")
-                    };
-                    using (var csv = new CsvReader(reader, config))
-                    {
-                        csv.Read();
-                        while (csv.Read())
-                        {
-                            schemeTemplateParameterValues.Add(
-                                new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = csv.GetField(5) });
-                        }
-                    }
-                }
-
-                return schemeTemplateParameterValues;
         }
 
         private ErrorViewModel ValidateCSV(IFormFile fileUpload)

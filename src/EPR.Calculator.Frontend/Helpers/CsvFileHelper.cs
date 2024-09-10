@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using CsvHelper;
 using CsvHelper.Configuration;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.Helpers
@@ -30,7 +31,7 @@ namespace EPR.Calculator.Frontend.Helpers
             return errorViewModel;
         }
 
-        public static async Task<List<SchemeParameterTemplateValue>> PrepareDataForUpload(IFormFile fileUpload)
+        public static async Task<List<SchemeParameterTemplateValue>> PrepareSchemeParameterDataForUpload(IFormFile fileUpload)
         {
                 var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
 
@@ -40,11 +41,7 @@ namespace EPR.Calculator.Frontend.Helpers
 
                 using (var reader = new StreamReader(memoryStream))
                 {
-                    var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-                    {
-                        PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)),
-                        ShouldSkipRecord = args => args.Row.Parser.Record.All(string.IsNullOrWhiteSpace) || args.Row.GetField(0).Contains("upload version"),
-                    };
+                    var config = GetCsvConfiguration(UploadType.ParameterSettings);
                     using (var csv = new CsvReader(reader, config))
                     {
                         csv.Read();
@@ -57,6 +54,49 @@ namespace EPR.Calculator.Frontend.Helpers
                 }
 
                 return schemeTemplateParameterValues;
+        }
+
+        public static async Task<List<LapcapDataTemplateValueDto>> PrepareLapcapDataForUpload(IFormFile fileUpload)
+        {
+            var lapcapDataTemplateValues = new List<LapcapDataTemplateValueDto>();
+
+            using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
+            await fileUpload.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+
+            using (var reader = new StreamReader(memoryStream))
+            {
+                var config = GetCsvConfiguration(UploadType.LapcapData);
+                using (var csv = new CsvReader(reader, config))
+                {
+                    csv.Read();
+                    while (csv.Read())
+                    {
+                        lapcapDataTemplateValues.Add(
+                            new LapcapDataTemplateValueDto() { UniqueReference = csv.GetField(0), TotalCost = csv.GetField(5) });
+                    }
+                }
+            }
+
+            return lapcapDataTemplateValues;
+        }
+
+        private static CsvConfiguration GetCsvConfiguration(UploadType uploadType)
+        {
+            if (uploadType == UploadType.ParameterSettings)
+            {
+                return new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)),
+                    ShouldSkipRecord = args => args.Row.Parser.Record.All(string.IsNullOrWhiteSpace) || args.Row.GetField(0).Contains("upload version"),
+                };
+            }
+
+            return new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)),
+                ShouldSkipRecord = args => args.Row.Parser.Record.All(string.IsNullOrWhiteSpace),
+            };
         }
     }
 }

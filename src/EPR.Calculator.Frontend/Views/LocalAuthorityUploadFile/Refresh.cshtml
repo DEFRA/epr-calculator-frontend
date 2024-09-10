@@ -1,5 +1,14 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    Layout = "_Layout";
+
+    var schemeParameterValues = Json.Serialize(ViewData["schemeTemplateParameterValues"]);
 }
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/Refresh.js"></script>
+
+<partial name="_RefreshPartial" />
+
+<script type="text/javascript">
+    processAndUploadData(@schemeParameterValues, '/LocalAuthorityUploadFileProcessing', '/ParameterConfirmation', 'UploadCSVError');
+</script>

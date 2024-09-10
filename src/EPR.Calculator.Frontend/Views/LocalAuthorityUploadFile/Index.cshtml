@@ -30,7 +30,7 @@ else
 
 <partial name="_UploadFileInformationPartial" />
 
-@using (Html.BeginForm("Upload", "UploadFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("Upload", "LocalAuthorityUploadFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <div class="@(errors != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")">
         @if (errors != null)
