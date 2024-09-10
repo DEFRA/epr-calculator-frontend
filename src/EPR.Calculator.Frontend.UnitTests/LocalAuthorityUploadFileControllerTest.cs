@@ -21,6 +21,24 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
+        public async Task LocalAuthorityUploadFileController_Upload_View_File_Valid_Test()
+        {
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+
+            tempData["FilePath"] = Directory.GetCurrentDirectory() + "/Mocks/SchemeParameters.csv";
+
+            var controller = new LocalAuthorityUploadFileController()
+            {
+                TempData = tempData
+            };
+
+            var result = await controller.Upload() as ViewResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.LocalAuthorityUploadFileRefresh, result.ViewName);
+        }
+
+        [TestMethod]
         public async Task LocalAuthorityUploadFileController_Upload_Incorrect_File_Test()
         {
             var httpContext = new DefaultHttpContext();
