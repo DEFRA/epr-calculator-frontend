@@ -1,4 +1,5 @@
-﻿function processAndUploadData(parameterData, url, sucessUrl, errorAction) {
+﻿[ExcludeFromCodeCoverage]
+function processAndUploadData(parameterData, url, sucessUrl, errorAction) {
     $.ajax({
         url: url,
         type: 'POST',
