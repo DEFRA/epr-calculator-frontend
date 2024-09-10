@@ -59,7 +59,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
 
-                    return View(ViewNames.UploadFileRefresh);
+                    return View(ViewNames.LocalAuthorityUploadFileRefresh);
                 }
 
                 // Code will reach this point if the uploaded file is not available
