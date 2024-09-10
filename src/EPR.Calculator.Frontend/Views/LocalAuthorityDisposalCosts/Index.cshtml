@@ -5,13 +5,13 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var BackLink = "Dashboard";
-    var EffectiveFrom = @Model?.FirstOrDefault()?.FirstOrDefault()?.EffectiveFrom;
+    var BackLinkValue = "Dashboard";
+    var EffectiveFromDate = @Model?.FirstOrDefault()?.FirstOrDefault()?.EffectiveFrom;
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
-<partial name="_BackLinkPartial" model="BackLink" />
+<partial name="_BackLinkPartial" model="BackLinkValue" />
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
@@ -58,7 +58,7 @@
 {
     <script type="text/javascript">
         $(document).ready(() => {
-            const [dateString, timeString] = ('@EffectiveFrom').split(' ');
+            const [dateString, timeString] = ('@EffectiveFromDate').split(' ');
 
             var day = month = year = 0;
 
@@ -73,21 +73,21 @@
 
             const [hour, minute, second] = timeString.split(':');
 
-            const localDate = convertUTCDateToLocalDate(new Date(year, month - 1, day, hour, minute, second));
+            const localConvertedDate = convertUTCDateToLocalDate(new Date(year, month - 1, day, hour, minute, second));
 
-            const dateValueFormatted = '<b>' + localDate.getHours() + ':' + String(localDate.getMinutes()).padStart(2, "0") + '</b> on ' + localDate.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' });
+            const dateValueFormatted = '<b>' + localConvertedDate.getHours() + ':' + String(localConvertedDate.getMinutes()).padStart(2, "0") + '</b> on ' + localConvertedDate.toLocaleDateString('en-gb', { day: 'numeric', month: 'short', year: 'numeric' });
             $('#effective-from').html(dateValueFormatted);
         });
 
         function convertUTCDateToLocalDate(date) {
-            var newDate = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
+            var newCalculatedDate = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
 
             var offset = date.getTimezoneOffset() / 60;
             var hours = date.getHours();
 
-            newDate.setHours(hours - offset);
+            newCalculatedDate.setHours(hours - offset);
 
-            return newDate;
+            return newCalculatedDate;
         }
     </script>
 }
