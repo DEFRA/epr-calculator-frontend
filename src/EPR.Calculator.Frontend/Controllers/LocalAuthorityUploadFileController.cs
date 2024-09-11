@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-
     public class LocalAuthorityUploadFileController : Controller
     {
         public IActionResult Index()
