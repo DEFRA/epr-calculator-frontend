@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+
     public class LocalAuthorityUploadFileController : Controller
     {
         public IActionResult Index()
@@ -22,11 +23,16 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (this.ValidateUploadedCSV(fileUpload).ErrorMessage is not null)
             {
-                this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData["Local_Authority_Upload_Errors"].ToString() ?? string.Empty);
+                var tempdataStr = this.TempData["Local_Authority_Upload_Errors"]?.ToString();
+                if (!string.IsNullOrEmpty(tempdataStr))
+                {
+                    this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(tempdataStr);
+                }
+
                 return this.View(ViewNames.LocalAuthorityUploadFileIndex);
             }
 
-            var localAuthorityDisposalCosts = this.PrepareFileDataForUpload(fileUpload);
+            var localAuthorityDisposalCosts = PrepareFileDataForUpload(fileUpload);
 
             this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
 
@@ -39,18 +45,27 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 if (this.TempData["FilePath"] is not null)
                 {
-                    using var stream = System.IO.File.OpenRead(this.TempData["FilePath"].ToString());
-                    var fileUpload = new FormFile(stream, 0, stream.Length, "file", Path.GetFileName(stream.Name));
-
-                    if (this.ValidateUploadedCSV(fileUpload).ErrorMessage is not null)
+                    var filePath = this.TempData["Local_Authority_Upload_Errors"]?.ToString();
+                    if (filePath != null)
                     {
-                        this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData["Local_Authority_Upload_Errors"].ToString());
-                        return this.View(ViewNames.UploadFileIndex);
+                        using var stream = System.IO.File.OpenRead(filePath);
+                        var fileUpload = new FormFile(stream, 0, stream.Length, "file", Path.GetFileName(stream.Name));
+
+                        if (this.ValidateUploadedCSV(fileUpload).ErrorMessage is not null)
+                        {
+                            var errors = this.TempData["Local_Authority_Upload_Errors"]?.ToString();
+                            if (errors != null)
+                            {
+                                this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(errors);
+                            }
+
+                            return this.View(ViewNames.UploadFileIndex);
+                        }
+
+                        var localAuthorityDisposalCosts = PrepareFileDataForUpload(fileUpload);
+
+                        this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
                     }
-
-                    var localAuthorityDisposalCosts = this.PrepareFileDataForUpload(fileUpload);
-
-                    this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
 
                     return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
                 }
@@ -64,7 +79,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private List<LocalAuthorityDisposalCostDto> PrepareFileDataForUpload(IFormFile fileUpload)
+        private static List<LocalAuthorityDisposalCostDto> PrepareFileDataForUpload(IFormFile fileUpload)
         {
             return new List<LocalAuthorityDisposalCostDto>();
         }
