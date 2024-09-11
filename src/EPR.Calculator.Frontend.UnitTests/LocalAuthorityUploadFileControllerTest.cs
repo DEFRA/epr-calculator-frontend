@@ -35,7 +35,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.UploadFileIndex, result.ViewName);
+            Assert.AreEqual(ViewNames.LocalAuthorityUploadFileRefresh, result.ViewName);
         }
 
         [TestMethod]
@@ -48,24 +48,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new LocalAuthorityUploadFileController()
             {
                 TempData = tempData
-            };
-
-            var result = controller.Upload() as RedirectToActionResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
-        }
-
-        [TestMethod]
-        public async Task LocalAuthorityUploadFileController_Upload_View_File_Process_Error_Test()
-        {
-            var httpContext = new DefaultHttpContext();
-            var temporaryData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            temporaryData["FilePath"] = "some file location";
-
-            var controller = new LocalAuthorityUploadFileController()
-            {
-                TempData = temporaryData
             };
 
             var result = controller.Upload() as RedirectToActionResult;
