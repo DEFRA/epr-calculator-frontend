@@ -73,7 +73,7 @@ namespace EPR.Calculator.Frontend.Helpers
                     while (csv.Read())
                     {
                         lapcapDataTemplateValues.Add(
-                            new LapcapDataTemplateValueDto() { UniqueReference = GetUniqueReference(csv.GetField(0), csv.GetField(1)), TotalCost = csv.GetField(2) });
+                            new LapcapDataTemplateValueDto() { CountryName = csv.GetField(0), Material = csv.GetField(1), TotalCost = csv.GetField(2) });
                     }
                 }
             }
@@ -97,65 +97,6 @@ namespace EPR.Calculator.Frontend.Helpers
                 PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)),
                 ShouldSkipRecord = args => args.Row.Parser.Record.All(string.IsNullOrWhiteSpace),
             };
-        }
-
-        private static string GetUniqueReference(string country, string material)
-        {
-            return $"{GetUniqueReferenceCountry(country)}-{GetUniqueReferenceMaterial(material)}";
-        }
-
-        private static string GetUniqueReferenceCountry(string country)
-        {
-            if (string.IsNullOrWhiteSpace(country))
-            {
-                throw new ArgumentNullException(country, "Country is null or empty for local authority data upload");
-            }
-
-            switch (country)
-            {
-                case "England":
-                    return "ENG";
-                case "Wales":
-                    return "WLS";
-                case "Scotland":
-                    return "SCT";
-                case "Northern Ireland":
-                case "NI":
-                    return "NI";
-                default:
-                    throw new ArgumentException("Invalid country provided for local authority data upload");
-            }
-
-        }
-
-        private static string GetUniqueReferenceMaterial(string material)
-        {
-            if (string.IsNullOrWhiteSpace(material))
-            {
-                throw new ArgumentNullException(material, "Material is null or empty for local authority data upload");
-            }
-
-            switch (material)
-            {
-                case "Aluminium":
-                    return "AL";
-                case "Fibre composite":
-                    return "FC";
-                case "Glass":
-                    return "GL";
-                case "Paper or card":
-                    return "PC";
-                case "Plastic":
-                    return "PL";
-                case "Steel":
-                    return "ST";
-                case "Wood":
-                    return "WD";
-                case "Other":
-                    return "OT";
-                default:
-                    throw new ArgumentException("Invalid material provided for local authority data upload");
-            }
         }
     }
 }
