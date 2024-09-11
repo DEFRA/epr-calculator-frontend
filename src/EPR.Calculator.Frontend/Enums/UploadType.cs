@@ -3,6 +3,6 @@
     public enum UploadType
     {
         ParameterSettings,
-        LapcapData
+        LapcapData,
     }
 }

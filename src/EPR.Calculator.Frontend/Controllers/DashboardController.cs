@@ -118,7 +118,7 @@
             else
             {
                 // Handle the null or empty case appropriately
-                throw new ArgumentNullException(nameof(dashboardCalculatorRunApi), "The API URL cannot be null or empty.");
+                throw new ArgumentNullException(dashboardCalculatorRunApi, "The API URL cannot be null or empty.");
             }
 
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));

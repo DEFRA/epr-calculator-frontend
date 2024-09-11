@@ -12,13 +12,13 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                if (!string.IsNullOrEmpty(this.HttpContext.Session.GetString("Local_Authority_Upload_Errors")))
-                {
-                    var errors = this.HttpContext.Session.GetString("Local_Authority_Upload_Errors");
+                var errors = this.HttpContext.Session.GetString("Local_Authority_Upload_Errors");
 
+                if (!string.IsNullOrEmpty(errors))
+                {
                     var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(errors);
 
-                    if (validationErrors.Any() && validationErrors.FirstOrDefault(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
+                    if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
                     {
                         this.ViewBag.ValidationErrors = validationErrors;
                     }
@@ -27,9 +27,13 @@ namespace EPR.Calculator.Frontend.Controllers
                         this.ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
                     }
 
-                    if (this.ViewBag.ValidationErrors is null && ViewBag.Errors is not null)
+                    if (this.ViewBag.ValidationErrors is null && this.ViewBag.Errors is not null)
                     {
-                        this.ViewBag.ValidationErrors = new List<ValidationErrorDto>() { new ValidationErrorDto() { ErrorMessage = ViewBag.Errors.Count > 1 ? $"The file contained {ViewBag.Errors.Count} errors." : $"The file contained {ViewBag.Errors.Count} error." } };
+                        this.ViewBag.ValidationErrors = new List<ValidationErrorDto>() {
+                            new ValidationErrorDto() {
+                                ErrorMessage = this.ViewBag.Errors.Count > 1 ? $"The file contained {this.ViewBag.Errors.Count} errors." : $"The file contained {this.ViewBag.Errors.Count} error.",
+                            },
+                        };
                     }
 
                     return this.View(ViewNames.LocalAuthorityUploadFileErrorIndex);

@@ -53,9 +53,15 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private string Transform(List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
         {
+            var parameterYear = this.configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
+            if (parameterYear == null)
+            {
+                throw new NullReferenceException($"{parameterYear} is null. Check the configuration settings for local authority");
+            }
+
             var lapcapData = new CreateLapcapDataDto
             {
-                ParameterYear = this.configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value,
+                ParameterYear = parameterYear,
                 LapcapDataTemplateValues = lapcapDataTemplateValues,
             };
 
