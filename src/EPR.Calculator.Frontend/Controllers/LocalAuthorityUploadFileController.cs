@@ -61,9 +61,9 @@ namespace EPR.Calculator.Frontend.Controllers
                             return this.View(ViewNames.UploadFileIndex);
                         }
 
-                        var localAuthorityDisposalCosts = PrepareFileDataForUpload(fileUpload);
+                      //  var localAuthorityDisposalCosts = PrepareFileDataForUpload(fileUpload);
 
-                        this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
+                      //  this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
                     }
 
                     return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
