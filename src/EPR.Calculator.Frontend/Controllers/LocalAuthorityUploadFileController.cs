@@ -1,12 +1,8 @@
-﻿using CsvHelper;
-using CsvHelper.Configuration;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Globalization;
-using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -18,9 +14,9 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult Upload(IFormFile fileUpload)
+        public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-            if (this.ValidateUploadedCSV(fileUpload).ErrorMessage is not null)
+            try
             {
                 if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
                 {
@@ -38,15 +34,9 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
-
-            var localAuthorityDisposalCosts = this.PrepareFileDataForUpload(fileUpload);
-
-            this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
-
-            return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
         }
 
-        public IActionResult Upload()
+        public async Task<IActionResult> Upload()
         {
             try
             {
