@@ -44,7 +44,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 if (this.TempData["FilePath"] is not null)
                 {
-                    var filePath = this.TempData["Local_Authority_Upload_Errors"]?.ToString();
+                    var filePath = this.TempData["FilePath"]?.ToString();
                     if (filePath != null)
                     {
                         using var stream = System.IO.File.OpenRead(filePath);
