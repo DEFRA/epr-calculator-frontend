@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "_Layout";
 
-    var schemeParameterValues = Json.Serialize(ViewData["schemeTemplateParameterValues"]);
+    var localAuthorityDisposalCosts = Json.Serialize(ViewData["localAuthorityDisposalCosts"]);
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -10,5 +10,5 @@
 <partial name="_RefreshPartial" />
 
 <script type="text/javascript">
-    processAndUploadData(@schemeParameterValues, '/LocalAuthorityUploadFileProcessing', '/ParameterConfirmation', 'UploadCSVError');
+    processAndUploadData(@localAuthorityDisposalCosts, '/LocalAuthorityUploadFileProcessing', '/ParameterConfirmation', 'UploadCSVError');
 </script>
