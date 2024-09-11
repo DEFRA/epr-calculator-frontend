@@ -9,6 +9,7 @@
         public const string LocalAuthorityUploadFileIndex = "~/Views/LocalAuthorityUploadFile/Index.cshtml";
         public const string LocalAuthorityUploadFileRefresh = "~/Views/LocalAuthorityUploadFile/Refresh.cshtml";
         public const string LocalAuthorityUploadFileErrorIndex = "~/Views/LocalAuthorityUploadFileError/Index.cshtml";
+        public const string LocalAuthorityConfirmationIndex = "~/Views/LocalAuthorityConfirmation/Index.cshtml";
         public const string ParameterConfirmationIndex = "~/Views/ParameterConfirmation/Index.cshtml";
         public const string StandardErrorIndex = "~/Views/StandardError/Index.cshtml";
         public const string UploadCSVErrorIndex = "~/Views/UploadCSVError/Index.cshtml";

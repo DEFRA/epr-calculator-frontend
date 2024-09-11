@@ -16,7 +16,7 @@
 }
 
 function callController(action, data) {
-    var url = "/" + action;
+    let url = "/" + action;
     $.ajax({
         url: url,
         type: 'POST',

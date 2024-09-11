@@ -18,9 +18,9 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Upload(IFormFile fileUpload)
+        public IActionResult Upload(IFormFile fileUpload)
         {
-            try
+            if (this.ValidateUploadedCSV(fileUpload).ErrorMessage is not null)
             {
                 if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
                 {
@@ -38,9 +38,15 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
+
+            var localAuthorityDisposalCosts = this.PrepareFileDataForUpload(fileUpload);
+
+            this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
+
+            return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
         }
 
-        public async Task<IActionResult> Upload()
+        public IActionResult Upload()
         {
             try
             {
