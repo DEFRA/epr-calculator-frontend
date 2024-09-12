@@ -84,9 +84,9 @@ namespace EPR.Calculator.Frontend.Helpers
                         csvReader.Read();
                         while (csvReader.Read())
                         {
-                            var countryName = csv?.GetField(0);
-                            var material = csv?.GetField(1);
-                            var totalCost = csv?.GetField(2);
+                            var countryName = csvReader.GetField(0);
+                            var material = csvReader.GetField(1);
+                            var totalCost = csvReader.GetField(2);
 
                             if (countryName != null && material != null && totalCost != null)
                             {
