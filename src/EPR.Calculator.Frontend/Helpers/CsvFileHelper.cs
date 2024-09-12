@@ -42,23 +42,19 @@ namespace EPR.Calculator.Frontend.Helpers
                 using (var reader = new StreamReader(memoryStream))
                 {
                     var config = GetCsvConfiguration(UploadType.ParameterSettings);
-                    using (var csv = new CsvReader(reader, config))
+                    using (var csvReader = new CsvReader(reader, config))
                     {
-                    var csvReader = csv;
-                    if (csvReader is not null)
-                    {
-                        csvReader.Read();
-                        while (csvReader.Read())
+                        await csvReader.ReadAsync();
+                        while (await csvReader.ReadAsync())
                         {
-                            var parameterUniqueReferenceId = csv?.GetField(0);
-                            var parameterValue = csv?.GetField(5);
+                            var parameterUniqueReferenceId = csvReader.GetField(0);
+                            var parameterValue = csvReader.GetField(5);
                             if (parameterUniqueReferenceId != null && parameterValue != null)
                             {
                                 schemeTemplateParameterValues.Add(
-                                       new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = parameterUniqueReferenceId, ParameterValue = parameterValue });
+                                        new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = parameterUniqueReferenceId, ParameterValue = parameterValue });
                             }
                         }
-                    }
                     }
                 }
 
@@ -76,23 +72,19 @@ namespace EPR.Calculator.Frontend.Helpers
             using (var reader = new StreamReader(memoryStream))
             {
                 var config = GetCsvConfiguration(UploadType.LapcapData);
-                using (var csv = new CsvReader(reader, config))
+                using (var csvReader = new CsvReader(reader, config))
                 {
-                    var csvReader = csv;
-                    if (csvReader is not null)
+                    await csvReader.ReadAsync();
+                    while (await csvReader.ReadAsync())
                     {
-                        csvReader.Read();
-                        while (csvReader.Read())
-                        {
-                            var countryName = csvReader.GetField(0);
-                            var material = csvReader.GetField(1);
-                            var totalCost = csvReader.GetField(2);
+                        var countryName = csvReader.GetField(0);
+                        var material = csvReader.GetField(1);
+                        var totalCost = csvReader.GetField(2);
 
-                            if (countryName != null && material != null && totalCost != null)
-                            {
-                                lapcapDataTemplateValues.Add(
-                                    new LapcapDataTemplateValueDto() { CountryName = countryName, Material = material, TotalCost = totalCost });
-                            }
+                        if (countryName != null && material != null && totalCost != null)
+                        {
+                            lapcapDataTemplateValues.Add(
+                                new LapcapDataTemplateValueDto() { CountryName = countryName, Material = material, TotalCost = totalCost });
                         }
                     }
                 }
@@ -103,6 +95,9 @@ namespace EPR.Calculator.Frontend.Helpers
 
         private static CsvConfiguration GetCsvConfiguration(UploadType uploadType)
         {
+            // Had to disable warnings as the referred code is Csv Helper configuration related
+#pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             if (uploadType == UploadType.ParameterSettings)
             {
                 return new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -117,6 +112,8 @@ namespace EPR.Calculator.Frontend.Helpers
                 PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)),
                 ShouldSkipRecord = args => args.Row.Parser.Record.All(string.IsNullOrWhiteSpace),
             };
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning restore CS8604 // Possible null reference argument.
         }
     }
 }

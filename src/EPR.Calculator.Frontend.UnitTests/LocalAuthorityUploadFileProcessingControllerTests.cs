@@ -11,6 +11,8 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class LocalAuthorityUploadFileProcessingControllerTests
     {
+        private static readonly string[] Separator = new string[] { @"bin\" };
+
         [TestMethod]
         public void LocalAuthorityUploadFileProcessingController_Success_Result_Test()
         {
@@ -44,7 +46,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(result.StatusCode, 200);
+            Assert.AreEqual(200, result.StatusCode);
         }
 
         [TestMethod]
@@ -70,12 +72,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object);
             var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as BadRequestObjectResult;
             Assert.IsNotNull(result);
-            Assert.AreNotEqual(result.StatusCode, 201);
+            Assert.AreNotEqual(201, result.StatusCode);
         }
 
-        private IConfiguration GetConfigurationValues()
+        private static IConfiguration GetConfigurationValues()
         {
-            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(new string[] { @"bin\" }, StringSplitOptions.None)[0];
+            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(Separator, StringSplitOptions.None)[0];
             IConfiguration config = new ConfigurationBuilder()
                .SetBasePath(projectPath)
                .AddJsonFile("appsettings.Test.json")
