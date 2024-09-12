@@ -93,7 +93,6 @@ namespace EPR.Calculator.Frontend.Helpers
             return lapcapDataTemplateValues;
         }
 
-
         private static CsvConfiguration GetCsvConfiguration(UploadType uploadType)
         {
             // Had to disable warnings as the referred code is Csv Helper configuration related
