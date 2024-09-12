@@ -93,8 +93,12 @@ namespace EPR.Calculator.Frontend.Helpers
             return lapcapDataTemplateValues;
         }
 
+
         private static CsvConfiguration GetCsvConfiguration(UploadType uploadType)
         {
+            // Had to disable warnings as the referred code is Csv Helper configuration related
+#pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             if (uploadType == UploadType.ParameterSettings)
             {
                 return new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -109,6 +113,8 @@ namespace EPR.Calculator.Frontend.Helpers
                 PrepareHeaderForMatch = header => Regex.Replace(header.ToString(), @"\s", string.Empty, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100)),
                 ShouldSkipRecord = args => args.Row.Parser.Record.All(string.IsNullOrWhiteSpace),
             };
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning restore CS8604 // Possible null reference argument.
         }
     }
 }
