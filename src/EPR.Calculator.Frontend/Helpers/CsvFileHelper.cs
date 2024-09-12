@@ -44,12 +44,21 @@ namespace EPR.Calculator.Frontend.Helpers
                     var config = GetCsvConfiguration(UploadType.ParameterSettings);
                     using (var csv = new CsvReader(reader, config))
                     {
-                        csv.Read();
-                        while (csv.Read())
+                    var csvReader = csv;
+                    if (csvReader is not null)
+                    {
+                        csvReader.Read();
+                        while (csvReader.Read())
                         {
-                            schemeTemplateParameterValues.Add(
-                                new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = csv.GetField(0), ParameterValue = csv.GetField(5) });
+                            var parameterUniqueReferenceId = csv?.GetField(0);
+                            var parameterValue = csv?.GetField(5);
+                            if (parameterUniqueReferenceId != null && parameterValue != null)
+                            {
+                                schemeTemplateParameterValues.Add(
+                                       new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = parameterUniqueReferenceId, ParameterValue = parameterValue });
+                            }
                         }
+                    }
                     }
                 }
 
@@ -69,11 +78,22 @@ namespace EPR.Calculator.Frontend.Helpers
                 var config = GetCsvConfiguration(UploadType.LapcapData);
                 using (var csv = new CsvReader(reader, config))
                 {
-                    csv.Read();
-                    while (csv.Read())
+                    var csvReader = csv;
+                    if (csvReader is not null)
                     {
-                        lapcapDataTemplateValues.Add(
-                            new LapcapDataTemplateValueDto() { CountryName = csv.GetField(0), Material = csv.GetField(1), TotalCost = csv.GetField(2) });
+                        csvReader.Read();
+                        while (csvReader.Read())
+                        {
+                            var countryName = csv?.GetField(0);
+                            var material = csv?.GetField(1);
+                            var totalCost = csv?.GetField(2);
+
+                            if (countryName != null && material != null && totalCost != null)
+                            {
+                                lapcapDataTemplateValues.Add(
+                                    new LapcapDataTemplateValueDto() { CountryName = countryName, Material = material, TotalCost = totalCost });
+                            }
+                        }
                     }
                 }
             }
