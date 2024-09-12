@@ -45,7 +45,7 @@ namespace EPR.Calculator.Frontend.Helpers
                     using (var csv = new CsvReader(reader, config))
                     {
                     var csvReader = csv;
-                    if (csvReader is not null && csvReader.ColumnCount > 0)
+                    if (csvReader is not null)
                     {
                         csvReader.Read();
                         while (csvReader.Read())
@@ -80,7 +80,7 @@ namespace EPR.Calculator.Frontend.Helpers
                 {
                     var csvReader = csv;
 
-                    if (csvReader is not null && csvReader.ColumnCount > 0)
+                    if (csvReader is not null)
                     {
                         csvReader.Read();
                         while (csvReader.Read())
