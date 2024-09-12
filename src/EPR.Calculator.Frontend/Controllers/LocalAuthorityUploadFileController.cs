@@ -20,8 +20,12 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
                 {
-                    this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData["Local_Authority_Upload_Errors"].ToString());
-                    return this.View(ViewNames.LocalAuthorityUploadFileIndex);
+                    var uploadErrors = this.TempData["Local_Authority_Upload_Errors"]?.ToString();
+                    if (!string.IsNullOrEmpty(uploadErrors))
+                    {
+                        this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(uploadErrors);
+                        return this.View(ViewNames.LocalAuthorityUploadFileIndex);
+                    }
                 }
 
                 var localAuthorityDisposalCosts = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
@@ -40,15 +44,21 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                if (this.TempData["FilePath"] != null)
+                var filePath = this.TempData["FilePath"]?.ToString();
+
+                if (!string.IsNullOrEmpty(filePath))
                 {
-                    using var stream = System.IO.File.OpenRead(this.TempData["FilePath"].ToString());
+                    using var stream = System.IO.File.OpenRead(filePath);
                     var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
 
                     if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
                     {
-                        this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData["Local_Authority_Upload_Errors"].ToString());
-                        return this.View(ViewNames.LocalAuthorityUploadFileIndex);
+                        var uploadErrors = this.TempData["Local_Authority_Upload_Errors"]?.ToString();
+                        if (!string.IsNullOrEmpty(uploadErrors))
+                        {
+                            this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(uploadErrors);
+                            return this.View(ViewNames.LocalAuthorityUploadFileIndex);
+                        }
                     }
 
                     var localAuthorityDisposalCosts = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
