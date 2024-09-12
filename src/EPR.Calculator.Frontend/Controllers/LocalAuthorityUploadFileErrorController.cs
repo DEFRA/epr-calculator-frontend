@@ -29,8 +29,10 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     if (this.ViewBag.ValidationErrors is null && this.ViewBag.Errors is not null)
                     {
-                        this.ViewBag.ValidationErrors = new List<ValidationErrorDto>() {
-                            new ValidationErrorDto() {
+                        this.ViewBag.ValidationErrors = new List<ValidationErrorDto>()
+                        {
+                            new ValidationErrorDto()
+                            {
                                 ErrorMessage = this.ViewBag.Errors.Count > 1 ? $"The file contained {this.ViewBag.Errors.Count} errors." : $"The file contained {this.ViewBag.Errors.Count} error.",
                             },
                         };
