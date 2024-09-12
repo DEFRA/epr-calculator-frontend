@@ -18,9 +18,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
+                var validationResult = CsvFileHelper.ValidateCSV(fileUpload).ErrorMessage;
+                if (validationResult is not null)
                 {
-                    this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData["Local_Authority_Upload_Errors"].ToString());
+                    this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(validationResult);
                     return this.View(ViewNames.LocalAuthorityUploadFileIndex);
                 }
 
@@ -43,11 +44,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (this.TempData["FilePath"] != null)
                 {
                     using var stream = System.IO.File.OpenRead(this.TempData["FilePath"].ToString());
-                    var fileUpload = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
+                    var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
 
-                    if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
+                    var validationResult = CsvFileHelper.ValidateCSV(fileUpload).ErrorMessage;
+                    if (validationResult is not null)
                     {
-                        this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData["Local_Authority_Upload_Errors"].ToString());
+                        this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(validationResult);
                         return this.View(ViewNames.LocalAuthorityUploadFileIndex);
                     }
 
@@ -65,18 +67,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
-        }
-
-        private ErrorViewModel ValidateCSV(IFormFile fileUpload)
-        {
-            ErrorViewModel validationErrors = CsvFileHelper.ValidateCSV(fileUpload);
-
-            if (validationErrors.ErrorMessage != null)
-            {
-                this.TempData["Local_Authority_Upload_Errors"] = JsonConvert.SerializeObject(validationErrors);
-            }
-
-            return validationErrors;
         }
     }
 }
