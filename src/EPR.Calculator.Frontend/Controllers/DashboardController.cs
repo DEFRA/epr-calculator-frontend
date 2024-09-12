@@ -41,7 +41,6 @@
             try
             {
                 Task<HttpResponseMessage> response = GetHttpRequest(this.configuration, this.clientFactory);
-                var dashboardRunData = new List<DashboardViewModel>();
 
                 if (response.Result.IsSuccessStatusCode)
                 {
@@ -49,7 +48,7 @@
 
                     // Ensure deserializedRuns is not null
                     var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
-                    dashboardRunData = GetCalulationRunsData(calculationRuns);
+                    var dashboardRunData = GetCalulationRunsData(calculationRuns);
                     return this.View(ViewNames.DashboardIndex, dashboardRunData);
                 }
 

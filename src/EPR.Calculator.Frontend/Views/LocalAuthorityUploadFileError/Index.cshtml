@@ -60,22 +60,9 @@
                 Upload the file again
             </label>
 
-            @using (Html.BeginForm("Upload", "UploadCSVError", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            @using (Html.BeginForm("Upload", "LocalAuthorityUploadFileError", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
-                <div class="@(defaultError != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")">
-                    @if (defaultError != null)
-                    {
-
-                        <p id="file-upload-1-error" class="govuk-error-message">
-                            <span class="govuk-visually-hidden">Error:</span> @defaultError.ErrorMessage
-                        </p>
-                    }
-                    <input class="govuk-file-upload form-control" id="file-upload-1" name="fileUpload" type="file">
-                </div>
-
-                <button id="btnUploadFile" type="submit" class="govuk-button" data-module="govuk-button">
-                    Upload file
-                </button>
+                <partial name="_UploadFileButtonPartial" />
             }
         </div>
     </div>
