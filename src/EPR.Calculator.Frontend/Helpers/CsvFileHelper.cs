@@ -45,13 +45,13 @@ namespace EPR.Calculator.Frontend.Helpers
                     using (var csv = new CsvReader(reader, config))
                     {
                     var csvReader = csv;
-                    if (csvReader is not null)
+                    if (!(csvReader is null))
                     {
                         csvReader.Read();
                         while (csvReader.Read())
                         {
-                            var parameterUniqueReferenceId = csv?.GetField(0);
-                            var parameterValue = csv?.GetField(5);
+                            var parameterUniqueReferenceId = csvReader.GetField(0);
+                            var parameterValue = csvReader.GetField(5);
                             if (parameterUniqueReferenceId != null && parameterValue != null)
                             {
                                 schemeTemplateParameterValues.Add(
@@ -79,7 +79,9 @@ namespace EPR.Calculator.Frontend.Helpers
                 using (var csv = new CsvReader(reader, config))
                 {
                     var csvReader = csv;
-                    if (csvReader is not null)
+                    var isNotNull = csvReader is null;
+
+                    if (!(csvReader is null))
                     {
                         csvReader.Read();
                         while (csvReader.Read())
