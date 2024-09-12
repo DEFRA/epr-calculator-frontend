@@ -109,6 +109,38 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
+        public async Task DashboardController_Failure_WhenNullConfiguration_Test()
+        {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Content = new StringContent("Test content")
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            // Mock IHttpClientFactory
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+            var config = GetConfigurationValues();
+            config.GetSection(ConfigSection.DashboardCalculatorRun).Value = string.Empty;
+            var controller = new DashboardController(config, mockHttpClientFactory.Object);
+
+            var result = controller.Index() as RedirectToActionResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
+        [TestMethod]
         public void Index_RedirectsToStandardError_WhenExceptionIsThrown()
         {
             // Arrange

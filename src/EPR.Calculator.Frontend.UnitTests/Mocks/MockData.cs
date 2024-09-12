@@ -217,5 +217,47 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
 
             return localAuthorityDisposalCosts;
         }
+
+        public static IEnumerable<LapcapDataTemplateValueDto> GetLocalAuthorityDisposalCostsToUpload()
+        {
+            var localAuthorityDisposalCosts = new List<LapcapDataTemplateValueDto>();
+
+            localAuthorityDisposalCosts.AddRange([
+                new LapcapDataTemplateValueDto { CountryName = "England", Material = "Aluminium", TotalCost = "2210.45" },
+                new LapcapDataTemplateValueDto { CountryName = "England", Material = "Fibre composite", TotalCost = "2210" },
+                new LapcapDataTemplateValueDto { CountryName = "England", Material = "Glass", TotalCost = "2210.45" },
+                new LapcapDataTemplateValueDto { CountryName = "England", Material = "Paper or card", TotalCost = "2210" },
+                new LapcapDataTemplateValueDto { CountryName = "England", Material = "Plastic", TotalCost = "2210" },
+                new LapcapDataTemplateValueDto { CountryName = "England", Material = "Steel", TotalCost = "2210" },
+                new LapcapDataTemplateValueDto { CountryName = "England", Material = "Wood", TotalCost = "2210" },
+                new LapcapDataTemplateValueDto { CountryName = "England", Material = "Other", TotalCost = "2210" },
+                new LapcapDataTemplateValueDto { CountryName = "NI", Material = "Aluminium", TotalCost = "10" },
+                new LapcapDataTemplateValueDto { CountryName = "NI", Material = "Fibre composite", TotalCost = "11" },
+                new LapcapDataTemplateValueDto { CountryName = "NI", Material = "Glass", TotalCost = "12" },
+                new LapcapDataTemplateValueDto { CountryName = "NI", Material = "Paper or card", TotalCost = "13" },
+                new LapcapDataTemplateValueDto { CountryName = "NI", Material = "Plastic", TotalCost = "14" },
+                new LapcapDataTemplateValueDto { CountryName = "NI", Material = "Steel", TotalCost = "15" },
+                new LapcapDataTemplateValueDto { CountryName = "NI", Material = "Wood", TotalCost = "16" },
+                new LapcapDataTemplateValueDto { CountryName = "NI", Material = "Other", TotalCost = "17" },
+                new LapcapDataTemplateValueDto { CountryName = "Scotland", Material = "Aluminium", TotalCost = "20.1" },
+                new LapcapDataTemplateValueDto { CountryName = "Scotland", Material = "Fibre composite", TotalCost = "21.1" },
+                new LapcapDataTemplateValueDto { CountryName = "Scotland", Material = "Glass", TotalCost = "22.1" },
+                new LapcapDataTemplateValueDto { CountryName = "Scotland", Material = "Paper or card", TotalCost = "23.1" },
+                new LapcapDataTemplateValueDto { CountryName = "Scotland", Material = "Plastic", TotalCost = "24.1" },
+                new LapcapDataTemplateValueDto { CountryName = "Scotland", Material = "Steel", TotalCost = "25.1" },
+                new LapcapDataTemplateValueDto { CountryName = "Scotland", Material = "Wood", TotalCost = "26.1" },
+                new LapcapDataTemplateValueDto { CountryName = "Scotland", Material = "Other", TotalCost = "27.1" },
+                new LapcapDataTemplateValueDto { CountryName = "Wales", Material = "Aluminium", TotalCost = "30.01" },
+                new LapcapDataTemplateValueDto { CountryName = "Wales", Material = "Fibre composite", TotalCost = "30.02" },
+                new LapcapDataTemplateValueDto { CountryName = "Wales", Material = "Glass", TotalCost = "30.03" },
+                new LapcapDataTemplateValueDto { CountryName = "Wales", Material = "Paper or card", TotalCost = "30.04" },
+                new LapcapDataTemplateValueDto { CountryName = "Wales", Material = "Plastic", TotalCost = "30.05" },
+                new LapcapDataTemplateValueDto { CountryName = "Wales", Material = "Steel", TotalCost = "30.06" },
+                new LapcapDataTemplateValueDto { CountryName = "Wales", Material = "Wood", TotalCost = "30.07" },
+                new LapcapDataTemplateValueDto { CountryName = "Wales", Material = "Other", TotalCost = "30.08" },
+            ]);
+
+            return localAuthorityDisposalCosts;
+        }
     }
 }

@@ -106,20 +106,18 @@
             var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                                                   .GetSection(ConfigSection.DashboardCalculatorRunApi)
                                                   .Value;
-            var year = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                                          .GetSection(ConfigSection.RunParameterYear)
-                                          .Value;
-            var client = clientFactory.CreateClient();
 
-            if (!string.IsNullOrEmpty(dashboardCalculatorRunApi))
-            {
-                client.BaseAddress = new Uri(dashboardCalculatorRunApi);
-            }
-            else
+            if (string.IsNullOrEmpty(dashboardCalculatorRunApi))
             {
                 // Handle the null or empty case appropriately
                 throw new ArgumentNullException(dashboardCalculatorRunApi, "The API URL cannot be null or empty.");
             }
+
+            var year = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                                          .GetSection(ConfigSection.RunParameterYear)
+                                          .Value;
+            var client = clientFactory.CreateClient();
+            client.BaseAddress = new Uri(dashboardCalculatorRunApi);
 
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));
             var runParms = new CalculatorRunParamsDto
