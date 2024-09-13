@@ -14,7 +14,7 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
-            return View(ViewNames.UploadFileIndex);
+            return this.View(ViewNames.UploadFileIndex);
         }
 
         [HttpPost]
@@ -22,21 +22,21 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                if (ValidateCSV(fileUpload).ErrorMessage is not null)
+                if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
                 {
-                    ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Default_Parameter_Upload_Errors"].ToString());
-                    return View(ViewNames.UploadFileIndex);
+                    this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData["Default_Parameter_Upload_Errors"].ToString());
+                    return this.View(ViewNames.UploadFileIndex);
                 }
 
                 var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
 
-                ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
+                this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
-                return View(ViewNames.UploadFileRefresh);
+                return this.View(ViewNames.UploadFileRefresh);
             }
-            catch(Exception ex)
+            catch (Exception)
             {
-                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 
@@ -44,30 +44,30 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                if (TempData["FilePath"] != null)
+                if (this.TempData["FilePath"] != null)
                 {
-                    using var stream = System.IO.File.OpenRead(TempData["FilePath"].ToString());
-                    var fileUpload = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
+                    using var stream = System.IO.File.OpenRead(this.TempData["FilePath"].ToString());
+                    var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
 
-                    if (ValidateCSV(fileUpload).ErrorMessage is not null)
+                    if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
                     {
-                            ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(TempData["Default_Parameter_Upload_Errors"].ToString());
-                            return View(ViewNames.UploadFileIndex);
+                        this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData["Default_Parameter_Upload_Errors"].ToString());
+                        return this.View(ViewNames.UploadFileIndex);
                     }
 
                     var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
 
-                    ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
+                    this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
-                    return View(ViewNames.UploadFileRefresh);
+                    return this.View(ViewNames.UploadFileRefresh);
                 }
 
                 // Code will reach this point if the uploaded file is not available
-                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 
@@ -76,11 +76,11 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), StaticHelpers.Path);
-                return PhysicalFile(filePath, "text/csv", "SchemeParameterTemplate.v0.1.xlsx");
+                return this.PhysicalFile(filePath, "text/csv", "SchemeParameterTemplate.v0.1.xlsx");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "An error occured while processing request" + ex.Message);
+                return this.StatusCode(500, "An error occured while processing request" + ex.Message);
             }
         }
 
@@ -90,7 +90,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (validationErrors.ErrorMessage != null)
             {
-                TempData["Default_Parameter_Upload_Errors"] = JsonConvert.SerializeObject(validationErrors);
+                this.TempData["Default_Parameter_Upload_Errors"] = JsonConvert.SerializeObject(validationErrors);
             }
 
             return validationErrors;

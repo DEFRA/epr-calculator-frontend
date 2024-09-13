@@ -8,24 +8,24 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class DefaultParametersController : Controller
     {
-        private readonly IConfiguration _configuration;
-        private readonly IHttpClientFactory _clientFactory;
+        private readonly IConfiguration configuration;
+        private readonly IHttpClientFactory clientFactory;
 
         public DefaultParametersController(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
-            _configuration = configuration;
-            _clientFactory = clientFactory;
+            this.configuration = configuration;
+            this.clientFactory = clientFactory;
         }
 
         public async Task<IActionResult> Index()
         {
             try
             {
-                var parameterSettingsApi = _configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
+                var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
 
-                var client = _clientFactory.CreateClient();
+                var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
-                var year = _configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value;
+                var year = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value;
                 var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, year));
                 var response = await client.GetAsync(uri);
 
@@ -33,33 +33,33 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     var data = await response.Content.ReadAsStringAsync();
                     var defaultSchemeParameters = JsonConvert.DeserializeObject<List<DefaultSchemeParameters>>(data);
-                    ViewBag.CommunicationData = CalculateTotal(defaultSchemeParameters, ParameterType.CommunicationCosts, true);
-                    ViewBag.OperatingCosts = CalculateTotal(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts, true);
-                    ViewBag.PreparationCosts = CalculateTotal(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts, true);
-                    ViewBag.SchemeSetupCosts = CalculateTotal(defaultSchemeParameters, ParameterType.SchemeSetupCosts, true);
-                    ViewBag.LateReportingTonnage = CalculateTotal(defaultSchemeParameters, ParameterType.LateReportingTonnage);
-                    ViewBag.MaterialityThreshold = CalculateTotal(defaultSchemeParameters, ParameterType.MaterialityThreshold);
-                    ViewBag.BadDebtProvision = CalculateTotal(defaultSchemeParameters, ParameterType.BadDebtProvision);
-                    ViewBag.Levy = CalculateTotal(defaultSchemeParameters, ParameterType.Levy);
-                    ViewBag.TonnageChange = CalculateTotal(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
-                    ViewBag.EffectiveFrom = defaultSchemeParameters[0].EffectiveFrom;
+                    this.ViewBag.CommunicationData = this.CalculateTotal(defaultSchemeParameters, ParameterType.CommunicationCosts, true);
+                    this.ViewBag.OperatingCosts = this.CalculateTotal(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts, true);
+                    this.ViewBag.PreparationCosts = this.CalculateTotal(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts, true);
+                    this.ViewBag.SchemeSetupCosts = this.CalculateTotal(defaultSchemeParameters, ParameterType.SchemeSetupCosts, true);
+                    this.ViewBag.LateReportingTonnage = this.CalculateTotal(defaultSchemeParameters, ParameterType.LateReportingTonnage);
+                    this.ViewBag.MaterialityThreshold = this.CalculateTotal(defaultSchemeParameters, ParameterType.MaterialityThreshold);
+                    this.ViewBag.BadDebtProvision = this.CalculateTotal(defaultSchemeParameters, ParameterType.BadDebtProvision);
+                    this.ViewBag.Levy = this.CalculateTotal(defaultSchemeParameters, ParameterType.Levy);
+                    this.ViewBag.TonnageChange = this.CalculateTotal(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
+                    this.ViewBag.EffectiveFrom = defaultSchemeParameters[0].EffectiveFrom;
 
-                    ViewBag.IsDataAvailable = true;
+                    this.ViewBag.IsDataAvailable = true;
 
-                    return View();
+                    return this.View();
                 }
 
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    ViewBag.IsDataAvailable = false;
-                    return View();
+                    this.ViewBag.IsDataAvailable = false;
+                    return this.View();
                 }
 
-                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 

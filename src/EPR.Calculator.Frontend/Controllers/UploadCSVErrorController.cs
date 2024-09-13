@@ -12,62 +12,68 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                if (!string.IsNullOrEmpty(HttpContext.Session.GetString("Default_Parameter_Upload_Errors")))
+                if (!string.IsNullOrEmpty(this.HttpContext.Session.GetString("Default_Parameter_Upload_Errors")))
                 {
-                    var errors = HttpContext.Session.GetString("Default_Parameter_Upload_Errors");
+                    var errors = this.HttpContext.Session.GetString("Default_Parameter_Upload_Errors");
 
                     var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(errors);
 
                     if (validationErrors.Any() && validationErrors.FirstOrDefault(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
                     {
-                        ViewBag.ValidationErrors = validationErrors;
+                        this.ViewBag.ValidationErrors = validationErrors;
                     }
                     else
                     {
-                        ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
+                        this.ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
                     }
 
-                    if (ViewBag.ValidationErrors is null && ViewBag.Errors is not null)
+                    if (this.ViewBag.ValidationErrors is null && this.ViewBag.Errors is not null)
                     {
-                        ViewBag.ValidationErrors = new List<ValidationErrorDto>() { new ValidationErrorDto() { ErrorMessage = ViewBag.Errors.Count > 1 ? $"The file contained {ViewBag.Errors.Count} errors." : $"The file contained {ViewBag.Errors.Count} error." } };
+                        this.ViewBag.ValidationErrors = new List<ValidationErrorDto>()
+                        {
+                            new ValidationErrorDto()
+                            {
+                                ErrorMessage = this.ViewBag.Errors.Count > 1 ? $"The file contained {this.ViewBag.Errors.Count} errors." : $"The file contained {this.ViewBag.Errors.Count} error.",
+                            },
+                        };
                     }
 
-                    return View(ViewNames.UploadCSVErrorIndex);
+                    return this.View(ViewNames.UploadCSVErrorIndex);
                 }
                 else
                 {
-                    return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 
         [HttpPost]
         public IActionResult Index([FromBody]string errors)
         {
-            HttpContext.Session.SetString("Default_Parameter_Upload_Errors", errors);
+            this.HttpContext.Session.SetString("Default_Parameter_Upload_Errors", errors);
 
-            return Ok();
+            return this.Ok();
         }
 
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-                var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
-                if (csvErrors.ErrorMessage is not null)
-                {
-                    ViewBag.DefaultError = csvErrors;
-                    return View(ViewNames.UploadCSVErrorIndex);
-                }
+            var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
+            if (csvErrors.ErrorMessage is not null)
+            {
+                this.ViewBag.DefaultError = csvErrors;
+                return this.View(ViewNames.UploadCSVErrorIndex);
+            }
 
-                var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
+            var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
 
-                ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
+            this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
-                return View(ViewNames.UploadFileRefresh);
+            return this.View(ViewNames.UploadFileRefresh);
         }
     }
 }

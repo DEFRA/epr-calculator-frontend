@@ -27,7 +27,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
 
-                var payload = Transform(schemeParameterValues);
+                var payload = this.Transform(schemeParameterValues);
 
                 var content = new StringContent(payload, System.Text.Encoding.UTF8, StaticHelpers.MediaType);
 
@@ -40,14 +40,14 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (response.Result.IsSuccessStatusCode && response.Result.StatusCode == HttpStatusCode.Created)
                 {
-                    return Ok(response.Result);
+                    return this.Ok(response.Result);
                 }
 
-                return BadRequest(response.Result.Content.ReadAsStringAsync().Result);
+                return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
             }
             catch (Exception ex)
             {
-                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 
