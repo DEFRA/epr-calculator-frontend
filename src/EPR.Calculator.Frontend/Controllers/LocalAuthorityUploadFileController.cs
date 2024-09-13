@@ -1,4 +1,4 @@
-﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
