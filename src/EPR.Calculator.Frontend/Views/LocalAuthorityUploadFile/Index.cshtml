@@ -3,8 +3,8 @@
 @{
     Layout = "_Layout";
     var errors = ViewBag.Errors;
-    var BackLink = "DefaultParameters";
-  
+    var BackLink = "Dashboard";
+
 }
 
 <partial name="_BackLinkPartial" model="BackLink" />
@@ -20,14 +20,8 @@
 }
 else
 {
-    <h1 class="govuk-heading-l">Upload new default calculator parameters</h1>
-
-    <h2 class="govuk-heading-m">Before you upload your file</h2>
+    <h1 class="govuk-heading-l">Upload new local authority disposal costs</h1>
 }
-
-<div class="govuk-form-group">
-    <p class="govuk-body">Make sure you're using the latest version of the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "UploadFile")">default parameters spreadsheet template</a>.</p>
-</div>
 
 @if (errors == null)
 {
@@ -36,16 +30,15 @@ else
 
 <partial name="_UploadFileInformationPartial" />
 
-
-@using (Html.BeginForm("Upload", "UploadFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("Upload", "LocalAuthorityUploadFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <div class="@(errors != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")">
         @if (errors != null)
         {
-           
+
             <p id="file-upload-1-error" class="govuk-error-message">
                 <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
-        </p>
+            </p>
         }
 
         <input class="govuk-file-upload form-control" id="file-upload-1" name="fileUpload" validation-class="govuk-input-error" validation-for="file-upload-1" type="file">
