@@ -41,7 +41,6 @@
             try
             {
                 Task<HttpResponseMessage> response = GetHttpRequest(this.configuration, this.clientFactory);
-                var dashboardRunData = new List<DashboardViewModel>();
 
                 if (response.Result.IsSuccessStatusCode)
                 {
@@ -49,7 +48,7 @@
 
                     // Ensure deserializedRuns is not null
                     var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
-                    dashboardRunData = GetCalulationRunsData(calculationRuns);
+                    var dashboardRunData = GetCalulationRunsData(calculationRuns);
                     return this.View(ViewNames.DashboardIndex, dashboardRunData);
                 }
 
@@ -106,20 +105,18 @@
             var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                                                   .GetSection(ConfigSection.DashboardCalculatorRunApi)
                                                   .Value;
+
+            if (string.IsNullOrEmpty(dashboardCalculatorRunApi))
+            {
+                // Handle the null or empty case appropriately
+                throw new ArgumentNullException(dashboardCalculatorRunApi, "The API URL cannot be null or empty.");
+            }
+
             var year = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                                           .GetSection(ConfigSection.RunParameterYear)
                                           .Value;
             var client = clientFactory.CreateClient();
-
-            if (!string.IsNullOrEmpty(dashboardCalculatorRunApi))
-            {
-                client.BaseAddress = new Uri(dashboardCalculatorRunApi);
-            }
-            else
-            {
-                // Handle the null or empty case appropriately
-                throw new ArgumentNullException(nameof(dashboardCalculatorRunApi), "The API URL cannot be null or empty.");
-            }
+            client.BaseAddress = new Uri(dashboardCalculatorRunApi);
 
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));
             var runParms = new CalculatorRunParamsDto

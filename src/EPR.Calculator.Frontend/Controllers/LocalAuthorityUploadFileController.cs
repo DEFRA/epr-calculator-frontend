@@ -1,12 +1,8 @@
-﻿using CsvHelper;
-using CsvHelper.Configuration;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Globalization;
-using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -18,51 +14,32 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult Upload(IFormFile fileUpload)
-        {
-            if (this.ValidateUploadedCSV(fileUpload).ErrorMessage is not null)
-            {
-                var tempdataStr = this.TempData["Local_Authority_Upload_Errors"]?.ToString();
-                if (!string.IsNullOrEmpty(tempdataStr))
-                {
-                    this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(tempdataStr);
-                }
-
-                return this.View(ViewNames.LocalAuthorityUploadFileIndex);
-            }
-
-            var localAuthorityDisposalCosts = PrepareFileDataForUpload(fileUpload);
-
-            this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
-
-            return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
-        }
-
-        public IActionResult Upload()
+        public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             try
             {
-                if (this.TempData["FilePath"] is not null)
+                var viewName = await this.GetViewName(fileUpload);
+                return this.View(viewName);
+            }
+            catch (Exception)
+            {
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+            }
+        }
+
+        public async Task<IActionResult> Upload()
+        {
+            try
+            {
+                var filePath = this.TempData["FilePath"]?.ToString();
+
+                if (!string.IsNullOrEmpty(filePath))
                 {
-                    var filePath = this.TempData["FilePath"]?.ToString();
-                    if (filePath != null)
-                    {
-                        using var stream = System.IO.File.OpenRead(filePath);
-                        var fileUpload = new FormFile(stream, 0, stream.Length, "file", Path.GetFileName(stream.Name));
+                    using var stream = System.IO.File.OpenRead(filePath);
+                    var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
 
-                        if (this.ValidateUploadedCSV(fileUpload).ErrorMessage is not null)
-                        {
-                            var errors = this.TempData["Local_Authority_Upload_Errors"]?.ToString();
-                            if (errors != null)
-                            {
-                                this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(errors);
-                            }
-
-                            return this.View(ViewNames.UploadFileIndex);
-                        }
-                    }
-
-                    return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
+                    var viewName = await this.GetViewName(fileUpload);
+                    return this.View(viewName);
                 }
 
                 // Code will reach this point if the uploaded file is not available
@@ -74,12 +51,26 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private static List<LocalAuthorityDisposalCostDto> PrepareFileDataForUpload(IFormFile fileUpload)
+        private async Task<string> GetViewName(IFormFile fileUpload)
         {
-            return new List<LocalAuthorityDisposalCostDto>();
+            if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
+            {
+                var uploadErrors = this.TempData["Local_Authority_Upload_Errors"]?.ToString();
+                if (!string.IsNullOrEmpty(uploadErrors))
+                {
+                    this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(uploadErrors);
+                    return ViewNames.LocalAuthorityUploadFileIndex;
+                }
+            }
+
+            var localAuthorityDisposalCosts = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
+
+            this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
+
+            return ViewNames.LocalAuthorityUploadFileRefresh;
         }
 
-        private ErrorViewModel ValidateUploadedCSV(IFormFile fileUpload)
+        private ErrorViewModel ValidateCSV(IFormFile fileUpload)
         {
             ErrorViewModel validationErrors = CsvFileHelper.ValidateCSV(fileUpload);
 

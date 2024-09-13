@@ -1,0 +1,33 @@
+country,material,total_cost,year
+England,Aluminium,2210.45,2024
+England,Fibre composite,2210,2024
+England,Glass,2210,2024
+England,Paper or card,2210,2024
+England,Plastic,2210,2024
+England,Steel,2210,2024
+England,Wood,2210,2024
+England,Other,0,2024
+NI,Aluminium,10,2024
+NI,Fibre composite,11,2024
+NI,Glass,12,2024
+NI,Paper or card,13,2024
+NI,Plastic,14,2024
+NI,Steel,15,2024
+NI,Wood,16,2024
+NI,Other,17,2024
+Scotland,Aluminium,20.01,2024
+Scotland,Fibre composite,21.01,2024
+Scotland,Glass,22.01,2024
+Scotland,Paper or card,23.01,2024
+Scotland,Plastic,24.01,2024
+Scotland,Steel,25.01,2024
+Scotland,Wood,26.01,2024
+Scotland,Other,27.01,2024
+Wales,Aluminium,30.01,2024
+Wales,Fibre composite,30.02,2024
+Wales,Glass,30.03,2024
+Wales,Paper or card,30.04,2024
+Wales,Plastic,30.05,2024
+Wales,Steel,30.06,2024
+Wales,Wood,30.07,2024
+Wales,Other,30.08,2024
