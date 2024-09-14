@@ -8,8 +8,8 @@ namespace EPR.Calculator.Frontend.Models
     {
         public ParameterTemplateValueMap()
         {
-            Map(m => m.ParameterUniqueRef);
-            Map(m => m.ParameterValue);
+            this.Map(m => m.ParameterUniqueRef);
+            this.Map(m => m.ParameterValue);
         }
     }
 }

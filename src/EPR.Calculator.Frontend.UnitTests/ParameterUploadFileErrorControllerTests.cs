@@ -11,10 +11,10 @@ using Newtonsoft.Json;
 namespace EPR.Calculator.Frontend.UnitTests
 {
     [TestClass]
-    public class UploadCSVErrorControllerTest
+    public class ParameterUploadFileErrorControllerTests
     {
         [TestMethod]
-        public void UploadCSVErrorController_View_Test()
+        public void ParameterUploadCSVErrorController_View_Test()
         {
             var errors = new List<CreateDefaultParameterSettingErrorDto>();
             errors.AddRange([
@@ -25,7 +25,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpSession = new MockHttpSession();
             mockHttpSession.SetString("Default_Parameter_Upload_Errors", JsonConvert.SerializeObject(errors));
 
-            var controller = new UploadCSVErrorController();
+            var controller = new ParameterUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
@@ -36,7 +36,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void UploadCSVErrorController_View_Global_Validation_Test()
+        public void ParameterUploadCSVErrorController_View_Global_Validation_Test()
         {
             var errors = new List<ValidationErrorDto>();
             errors.AddRange([
@@ -47,7 +47,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpSession = new MockHttpSession();
             mockHttpSession.SetString("Default_Parameter_Upload_Errors", JsonConvert.SerializeObject(errors));
 
-            var controller = new UploadCSVErrorController();
+            var controller = new ParameterUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
@@ -58,11 +58,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void UploadCSVErrorController_Standard_Error_Test()
+        public void ParameterUploadCSVErrorController_Standard_Error_Test()
         {
             var mockHttpSession = new MockHttpSession();
 
-            var controller = new UploadCSVErrorController();
+            var controller = new ParameterUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
@@ -74,12 +74,12 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void UploadCSVErrorController_No_Error_Messages_Test()
+        public void ParameterUploadCSVErrorController_No_Error_Messages_Test()
         {
             var mockHttpSession = new MockHttpSession();
             mockHttpSession.SetString("Default_Parameter_Upload_Errors", string.Empty);
 
-            var controller = new UploadCSVErrorController();
+            var controller = new ParameterUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
@@ -91,7 +91,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void UploadCsvErrorController_Upload_Test()
+        public void ParameterUploadCsvErrorController_Upload_Test()
         {
             var content = MockData.GetSchemeParametersFileContent();
             var stream = new MemoryStream();
@@ -105,7 +105,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData["FilePath"] = "some random file location";
 
-            var controller = new UploadCSVErrorController()
+            var controller = new ParameterUploadFileErrorController()
             {
                 TempData = tempData
             };
@@ -115,11 +115,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void UploadCsvErrorController_Post_Returns_Ok_Test()
+        public void ParameterUploadCsvErrorController_Post_Returns_Ok_Test()
         {
             var mockHttpSession = new MockHttpSession();
 
-            var controller = new UploadCSVErrorController();
+            var controller = new ParameterUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
@@ -130,7 +130,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task UploadCSVErrorController_Upload_View_Post_Incorrect_File_Extension_Error_Test()
+        public async Task ParameterUploadCSVErrorController_Upload_View_Post_Incorrect_File_Extension_Error_Test()
         {
             var content = string.Empty;
             var stream = new MemoryStream();
@@ -140,14 +140,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             stream.Position = 0;
             IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.xlsx");
 
-            var controller = new UploadCSVErrorController();
+            var controller = new ParameterUploadFileErrorController();
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.UploadCSVErrorIndex, result.ViewName);
         }
 
         [TestMethod]
-        public async Task UploadCSVErrorController_Upload_View_Post_Test()
+        public async Task ParameterUploadCSVErrorController_Upload_View_Post_Test()
         {
             var content = MockData.GetSchemeParametersFileContent();
             var stream = new MemoryStream();
@@ -161,7 +161,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData["Default_Parameter_Upload_Errors"] = string.Empty;
 
-            var controller = new UploadCSVErrorController()
+            var controller = new ParameterUploadFileErrorController()
             {
                 TempData = tempData
             };
@@ -172,14 +172,14 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task UploadCSVErrorController_View_Get_Test()
+        public async Task ParameterUploadCSVErrorController_View_Get_Test()
         {
             var mockHttpSession = new MockHttpSession();
 
             var errors = new List<ValidationErrorDto>() { new ValidationErrorDto { ErrorMessage = StaticHelpers.FileMustBeCSV } };
             mockHttpSession.SetString("Default_Parameter_Upload_Errors", JsonConvert.SerializeObject(errors).ToString());
 
-            var controller = new UploadCSVErrorController();
+            var controller = new ParameterUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
@@ -190,14 +190,14 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task UploadCSVErrorController_View_Get_Error_Test()
+        public async Task ParameterUploadCSVErrorController_View_Get_Error_Test()
         {
             var mockHttpSession = new MockHttpSession();
 
             var errors = new List<CreateDefaultParameterSettingErrorDto>() { new CreateDefaultParameterSettingErrorDto { Message = "Some message" } };
             mockHttpSession.SetString("Default_Parameter_Upload_Errors", JsonConvert.SerializeObject(errors).ToString());
 
-            var controller = new UploadCSVErrorController();
+            var controller = new ParameterUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;

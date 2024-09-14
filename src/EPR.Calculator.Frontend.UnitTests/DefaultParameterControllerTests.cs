@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 namespace EPR.Calculator.Frontend.UnitTests
 {
     [TestClass]
-    public class DefaultParameterControllerTest
+    public class DefaultParameterControllerTests
     {
         [TestMethod]
         public async Task DefaultParamerController_Success_View_Test()

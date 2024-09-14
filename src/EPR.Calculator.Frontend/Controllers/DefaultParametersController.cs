@@ -23,6 +23,11 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
 
+                if (string.IsNullOrWhiteSpace(parameterSettingsApi))
+                {
+                    throw new ArgumentNullException(parameterSettingsApi, "ParameterSettingsApi is null. Check the configuration settings for default parameters");
+                }
+
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
                 var year = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value;
@@ -33,20 +38,23 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     var data = await response.Content.ReadAsStringAsync();
                     var defaultSchemeParameters = JsonConvert.DeserializeObject<List<DefaultSchemeParameters>>(data);
-                    this.ViewBag.CommunicationData = this.CalculateTotal(defaultSchemeParameters, ParameterType.CommunicationCosts, true);
-                    this.ViewBag.OperatingCosts = this.CalculateTotal(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts, true);
-                    this.ViewBag.PreparationCosts = this.CalculateTotal(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts, true);
-                    this.ViewBag.SchemeSetupCosts = this.CalculateTotal(defaultSchemeParameters, ParameterType.SchemeSetupCosts, true);
-                    this.ViewBag.LateReportingTonnage = this.CalculateTotal(defaultSchemeParameters, ParameterType.LateReportingTonnage);
-                    this.ViewBag.MaterialityThreshold = this.CalculateTotal(defaultSchemeParameters, ParameterType.MaterialityThreshold);
-                    this.ViewBag.BadDebtProvision = this.CalculateTotal(defaultSchemeParameters, ParameterType.BadDebtProvision);
-                    this.ViewBag.Levy = this.CalculateTotal(defaultSchemeParameters, ParameterType.Levy);
-                    this.ViewBag.TonnageChange = this.CalculateTotal(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
-                    this.ViewBag.EffectiveFrom = defaultSchemeParameters[0].EffectiveFrom;
+                    if (defaultSchemeParameters != null)
+                    {
+                        this.ViewBag.CommunicationData = this.CalculateTotal(defaultSchemeParameters, ParameterType.CommunicationCosts, true);
+                        this.ViewBag.OperatingCosts = this.CalculateTotal(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts, true);
+                        this.ViewBag.PreparationCosts = this.CalculateTotal(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts, true);
+                        this.ViewBag.SchemeSetupCosts = this.CalculateTotal(defaultSchemeParameters, ParameterType.SchemeSetupCosts, true);
+                        this.ViewBag.LateReportingTonnage = this.CalculateTotal(defaultSchemeParameters, ParameterType.LateReportingTonnage);
+                        this.ViewBag.MaterialityThreshold = this.CalculateTotal(defaultSchemeParameters, ParameterType.MaterialityThreshold);
+                        this.ViewBag.BadDebtProvision = this.CalculateTotal(defaultSchemeParameters, ParameterType.BadDebtProvision);
+                        this.ViewBag.Levy = this.CalculateTotal(defaultSchemeParameters, ParameterType.Levy);
+                        this.ViewBag.TonnageChange = this.CalculateTotal(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
+                        this.ViewBag.EffectiveFrom = defaultSchemeParameters[0].EffectiveFrom;
 
-                    this.ViewBag.IsDataAvailable = true;
+                        this.ViewBag.IsDataAvailable = true;
 
-                    return this.View();
+                        return this.View();
+                    }
                 }
 
                 if (response.StatusCode == HttpStatusCode.NotFound)

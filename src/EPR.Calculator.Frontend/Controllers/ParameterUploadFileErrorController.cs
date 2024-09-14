@@ -6,19 +6,19 @@ using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    public class UploadCSVErrorController : Controller
+    public class ParameterUploadFileErrorController : Controller
     {
         public IActionResult Index()
         {
             try
             {
-                if (!string.IsNullOrEmpty(this.HttpContext.Session.GetString("Default_Parameter_Upload_Errors")))
-                {
-                    var errors = this.HttpContext.Session.GetString("Default_Parameter_Upload_Errors");
+                var errors = this.HttpContext.Session.GetString("Default_Parameter_Upload_Errors");
 
+                if (!string.IsNullOrEmpty(errors))
+                {
                     var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(errors);
 
-                    if (validationErrors.Any() && validationErrors.FirstOrDefault(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
+                    if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
                     {
                         this.ViewBag.ValidationErrors = validationErrors;
                     }

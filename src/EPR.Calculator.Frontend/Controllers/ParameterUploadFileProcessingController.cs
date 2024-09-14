@@ -6,12 +6,12 @@ using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    public class UploadFileProcessingController : Controller
+    public class ParameterUploadFileProcessingController : Controller
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
 
-        public UploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory)
+        public ParameterUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
@@ -23,6 +23,11 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
+
+                if (string.IsNullOrWhiteSpace(parameterSettingsApi))
+                {
+                    throw new ArgumentNullException(parameterSettingsApi, "ParameterSettingsApi is null. Check the configuration settings for default parameters");
+                }
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
@@ -45,7 +50,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
@@ -53,9 +58,15 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private string Transform(List<SchemeParameterTemplateValue> schemeParameterValues)
         {
+            var parameterYear = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value;
+            if (string.IsNullOrWhiteSpace(parameterYear))
+            {
+                throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings for default parameters");
+            }
+
             var parameterSetting = new CreateDefaultParameterSettingDto
             {
-                ParameterYear = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value,
+                ParameterYear = parameterYear,
                 SchemeParameterTemplateValues = schemeParameterValues,
             };
 
