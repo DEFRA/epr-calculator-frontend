@@ -2,7 +2,7 @@
     ViewData["Title"] = "Run the service administrator calculator - Upload CSV Error";
     var validationErrorList = ViewBag.ValidationErrors;
     var errorList = ViewBag.Errors;
-    var BackLink = "UploadFile";
+    var BackLink = "LocalAuthorityDisposalCosts";
     var defaultError = ViewBag.DefaultError;
 }
 
@@ -10,55 +10,43 @@
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <div class="govuk-error-summary" data-module="govuk-error-summary">
-            <div role="alert">
-                <h2 class="govuk-error-summary__title">
-                    There is a problem with your upload
-                </h2>
-                <div class="govuk-error-summary__body">
-                    @if (validationErrorList != null)
-                    {
-                        <ul class="govuk-list govuk-error-summary__list">
 
-                            @foreach (var error in validationErrorList)
-                            {
+        @if (validationErrorList != null)
+        {
+            <partial name="_ProblemWithUploadPartial" model="validationErrorList" />
+        }
 
-                                <li>@error.ErrorMessage</li>
+       @*  @if (defaultError != null)
+        {
+            <partial name="_ErrorBannerPartial" model="defaultError" />
+        } *@
 
-                            }
 
-                        </ul>
-                    }
-
-                    @if (defaultError != null)
-                    {
-                        <ul class="govuk-list govuk-error-summary__list">
-
-                            <li><a href="#file-upload-1">@defaultError.ErrorMessage</a></li>
-
-                        </ul>
-                    }
-
-                </div>
-            </div>
-        </div>
+        <h1 class="govuk-heading-l">Upload new local authority disposal costs</h1>
 
         @if (errorList != null)
         {
-            <h2 class="govuk-heading-s">You must fix the following errors before you can upload the file:</h2>
-
-            <ol id="dataErrors" class="govuk-list govuk-list--number">
-                @foreach (var error in errorList)
-                {
-                    <li>@error.Message</li>
-                }
-            </ol>
+            <partial name="_ValidationErrorsListPartial" model="errorList" />
         }
 
         <div>
-            <label class="govuk-label govuk-label--m govuk-!-margin-top-6" for="file-upload-1" aria-describedby="file-upload-1">
-                Upload the file again
-            </label>
+
+
+            <div class="govuk-form-group">
+                <h2 class="govuk-heading-m">
+                    <label class="govuk-label govuk-label--m" for="org-details" aria-describedby="organisation-file-hint">
+                        Upload a file
+                    </label>
+                </h2>
+
+                <p class="govuk-body">The file must be:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>smaller than 2MB</li>
+                    <li>in CSV format</li>
+                </ul>
+                <p class="govuk-body">It may take a few minutes for your file to upload - do not close the window while the file is uploading.</p>
+
+            </div>
 
             @using (Html.BeginForm("Upload", "LocalAuthorityUploadFileError", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {

@@ -10,5 +10,8 @@
         public const string MimeType = "test/csv";
         public const long MaxFileSize = 50 * 1024; // 50 KB
         public const string MediaType = "application/json";
+        public const long MaxUploadFileSize = 2 * 1024 * 1024; // 2MB
+        public const string UploadFileNotExceed2MB = "The CSV must be smaller than 2MB";
+
     }
 }

@@ -10,7 +10,7 @@ namespace EPR.Calculator.Frontend.Helpers
 {
     public static class CsvFileHelper
     {
-        public static ErrorViewModel ValidateCSV(IFormFile fileUpload)
+        public static ErrorViewModel ValidateCSV(IFormFile fileUpload, bool isLapCapData = false)
         {
             ErrorViewModel errorViewModel = new ErrorViewModel();
             if (fileUpload == null)
@@ -23,9 +23,14 @@ namespace EPR.Calculator.Frontend.Helpers
                 return errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileMustBeCSV };
             }
 
-            if (fileUpload.Length > StaticHelpers.MaxFileSize)
+            if (fileUpload.Length > StaticHelpers.MaxFileSize && !isLapCapData)
             {
                 return errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileNotExceed50KB };
+            }
+
+            if (fileUpload.Length > StaticHelpers.MaxUploadFileSize && isLapCapData)
+            {
+                return errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.UploadFileNotExceed2MB };
             }
 
             return errorViewModel;
