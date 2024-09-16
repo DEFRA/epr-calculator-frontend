@@ -28,11 +28,6 @@ namespace EPR.Calculator.Frontend.Helpers
                 return errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.FileNotExceed50KB };
             }
 
-            if (fileUpload.Length > StaticHelpers.MaxUploadFileSize && isLapCapData)
-            {
-                return errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = StaticHelpers.UploadFileNotExceed2MB };
-            }
-
             return errorViewModel;
         }
 
