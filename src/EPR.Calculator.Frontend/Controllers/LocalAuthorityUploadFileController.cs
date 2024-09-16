@@ -16,15 +16,8 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-            try
-            {
                 var viewName = await this.GetViewName(fileUpload);
                 return this.View(viewName);
-            }
-            catch (Exception)
-            {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
-            }
         }
 
         public async Task<IActionResult> Upload()
