@@ -101,7 +101,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             writer.Write(content);
             writer.Flush();
             stream.Position = 0;
-            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "LocalAuthorityData.csv");
+            var file = new FormFile(stream, 0, stream.Length, string.Empty, "LocalAuthorityData.csv");
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
@@ -126,7 +126,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             writer.Write(content);
             writer.Flush();
             stream.Position = 0;
-            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.csv");
+            var file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.csv");
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
@@ -151,7 +151,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             writer.Write(content);
             writer.Flush();
             stream.Position = 0;
-            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.txt");
+            var file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.txt");
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
@@ -176,7 +176,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             writer.Write(content);
             writer.Flush();
             stream.Position = 0;
-            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.xlsx");
+            var file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.xlsx");
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
