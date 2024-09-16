@@ -12,6 +12,8 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class ParameterUploadFileProcessingControllerTests
     {
+        private static readonly string[] Separator = new string[] { @"bin\" };
+
         [TestMethod]
         public void ParameterUploadFileProcessingController_Success_Result_Test()
         {
@@ -103,9 +105,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 
-        private IConfiguration GetConfigurationValues()
+        private static IConfiguration GetConfigurationValues()
         {
-            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(new string[] { @"bin\" }, StringSplitOptions.None)[0];
+            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(Separator, StringSplitOptions.None)[0];
             IConfiguration config = new ConfigurationBuilder()
                .SetBasePath(projectPath)
                .AddJsonFile("appsettings.Test.json")

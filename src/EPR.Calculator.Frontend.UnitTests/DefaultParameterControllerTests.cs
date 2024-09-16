@@ -13,6 +13,8 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class DefaultParameterControllerTests
     {
+        private static readonly string[] Separator = new string[] { @"bin\" };
+
         [TestMethod]
         public async Task DefaultParamerController_Success_View_Test()
         {
@@ -42,7 +44,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Index() as ViewResult;
             Assert.IsNotNull(result);
 
-            Assert.AreEqual(result.ViewData.Count, 11);
+            Assert.AreEqual(11, result.ViewData.Count);
             Assert.IsNotNull(result.ViewData["CommunicationData"]);
             Assert.IsNotNull(result.ViewData["OperatingCosts"]);
             Assert.IsNotNull(result.ViewData["PreparationCosts"]);
@@ -118,9 +120,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 
-        private IConfiguration GetConfigurationValues()
+        private static IConfiguration GetConfigurationValues()
         {
-            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(new string[] { @"bin\" }, StringSplitOptions.None)[0];
+            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(Separator, StringSplitOptions.None)[0];
             IConfiguration config = new ConfigurationBuilder()
                .SetBasePath(projectPath)
                .AddJsonFile("appsettings.Test.json")

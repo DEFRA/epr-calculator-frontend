@@ -25,7 +25,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 var viewName = await this.GetViewName(fileUpload);
                 return this.View(viewName);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
