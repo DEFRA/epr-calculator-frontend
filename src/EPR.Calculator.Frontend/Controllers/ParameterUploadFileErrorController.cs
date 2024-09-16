@@ -38,7 +38,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         };
                     }
 
-                    return this.View(ViewNames.ParamererUploadFileErrorIndex);
+                    return this.View(ViewNames.ParameterUploadFileErrorIndex);
                 }
                 else
                 {
@@ -66,7 +66,7 @@ namespace EPR.Calculator.Frontend.Controllers
             if (csvErrors.ErrorMessage is not null)
             {
                 this.ViewBag.DefaultError = csvErrors;
-                return this.View(ViewNames.ParamererUploadFileErrorIndex);
+                return this.View(ViewNames.ParameterUploadFileErrorIndex);
             }
 
             var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);

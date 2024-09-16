@@ -32,7 +32,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.UploadCSVErrorIndex, result.ViewName);
+            Assert.AreEqual(ViewNames.ParameterUploadFileErrorIndex, result.ViewName);
         }
 
         [TestMethod]
@@ -54,7 +54,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.UploadCSVErrorIndex, result.ViewName);
+            Assert.AreEqual(ViewNames.ParameterUploadFileErrorIndex, result.ViewName);
         }
 
         [TestMethod]
@@ -143,7 +143,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new ParameterUploadFileErrorController();
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.UploadCSVErrorIndex, result.ViewName);
+            Assert.AreEqual(ViewNames.ParameterUploadFileErrorIndex, result.ViewName);
         }
 
         [TestMethod]
@@ -168,7 +168,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.UploadFileRefresh, result.ViewName);
+            Assert.AreEqual(ViewNames.ParameterUploadFileRefresh, result.ViewName);
         }
 
         [TestMethod]
@@ -186,7 +186,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.UploadCSVErrorIndex, result.ViewName);
+            Assert.AreEqual(ViewNames.ParameterUploadFileErrorIndex, result.ViewName);
         }
 
         [TestMethod]
@@ -204,7 +204,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.UploadCSVErrorIndex, result.ViewName);
+            Assert.AreEqual(ViewNames.ParameterUploadFileErrorIndex, result.ViewName);
         }
     }
 }
