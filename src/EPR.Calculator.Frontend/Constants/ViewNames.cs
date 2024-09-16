@@ -11,10 +11,10 @@
         public const string LocalAuthorityUploadFileErrorIndex = "~/Views/LocalAuthorityUploadFileError/Index.cshtml";
         public const string LocalAuthorityConfirmationIndex = "~/Views/LocalAuthorityConfirmation/Index.cshtml";
         public const string ParameterConfirmationIndex = "~/Views/ParameterConfirmation/Index.cshtml";
+        public const string ParamererUploadFileErrorIndex = "~/Views/ParameterUploadFileError/Index.cshtml";
+        public const string ParameterUploadFileIndex = "~/Views/ParameterUploadFile/Index.cshtml";
+        public const string ParameterUploadFileProcessingIndex = "~/Views/ParameterUploadFileProcessing/Index.cshtml";
+        public const string ParameterUploadFileRefresh = "~/Views/ParameterUploadFile/Refresh.cshtml";
         public const string StandardErrorIndex = "~/Views/StandardError/Index.cshtml";
-        public const string UploadCSVErrorIndex = "~/Views/UploadCSVError/Index.cshtml";
-        public const string UploadFileIndex = "~/Views/UploadFile/Index.cshtml";
-        public const string UploadFileProcessingIndex = "~/Views/UploadFileProcessing/Index.cshtml";
-        public const string UploadFileRefresh = "~/Views/UploadFile/Refresh.cshtml";
     }
 }

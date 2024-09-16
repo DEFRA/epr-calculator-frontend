@@ -62,7 +62,7 @@
                 Upload the file again
             </label>
 
-            @using (Html.BeginForm("Upload", "UploadCSVError", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            @using (Html.BeginForm("Upload", "ParameterUploadFileError", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
                 <partial name="_UploadFileButtonPartial" />
             }

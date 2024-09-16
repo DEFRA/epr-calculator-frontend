@@ -77,14 +77,14 @@
                     <br />
                     <hr />
                     <p class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-8">
-                        You will need to upload a CSV file using the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "UploadFile")">default parameters template</a> to set them before you can run any calculations.
+                        You will need to upload a CSV file using the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "ParameterUploadFile")">default parameters template</a> to set them before you can run any calculations.
                     </p>
                 }
 
                 <form action="/form-handler" method="post" novalidate="">
                     <input type="hidden" name="answers-checked" value="true">
                     <div class="govuk-button-group">
-                        <a href="@Url.Action("Index", "UploadFile")" class="govuk-button" type="submit">Upload new default parameters</a>
+                        <a href="@Url.Action("Index", "ParameterUploadFile")" class="govuk-button" type="submit">Upload new default parameters</a>
                         <a href="@Url.Action("Index", "Dashboard")" class="govuk-link" href="dash">Return to the dashboard</a>
                     </div>
                 </form>

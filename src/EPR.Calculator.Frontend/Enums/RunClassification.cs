@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace EPR.Calculator.Frontend.Models
+namespace EPR.Calculator.Frontend.Enums
 {
     public enum RunClassification
     {

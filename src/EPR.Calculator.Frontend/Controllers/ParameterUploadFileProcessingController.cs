@@ -50,7 +50,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }

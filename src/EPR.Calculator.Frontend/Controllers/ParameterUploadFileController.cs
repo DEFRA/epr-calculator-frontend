@@ -14,7 +14,7 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
-            return this.View(ViewNames.UploadFileIndex);
+            return this.View(ViewNames.ParameterUploadFileIndex);
         }
 
         [HttpPost]
@@ -25,7 +25,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 var viewName = await this.GetViewName(fileUpload);
                 return this.View(viewName);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
@@ -76,7 +76,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (!string.IsNullOrEmpty(uploadErrors))
                 {
                     this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(uploadErrors);
-                    return ViewNames.UploadFileIndex;
+                    return ViewNames.ParameterUploadFileIndex;
                 }
             }
 
@@ -84,7 +84,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
-            return ViewNames.UploadFileRefresh;
+            return ViewNames.ParameterUploadFileRefresh;
         }
 
         private ErrorViewModel ValidateCSV(IFormFile fileUpload)
