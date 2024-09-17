@@ -70,17 +70,27 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>A list of LocalAuthorityViewModel objects.</returns>
         private static List<LocalAuthorityViewModel> GetLocalAuthorityData(List<LocalAuthorityDisposalCost> localAuthorityDisposalCosts)
         {
-            var localAuthorityData = new List<LocalAuthorityViewModel>();
+            var localAuthorityData = localAuthorityDisposalCosts
+                .Select(la => new LocalAuthorityViewModel(la))
+                .ToList();
 
-            if (localAuthorityDisposalCosts.Count > 0)
-            {
-                foreach (var la in localAuthorityDisposalCosts)
+            var formattedLocalAuthorityData = localAuthorityData
+                .GroupBy(la => la.Country)
+                .SelectMany(group =>
                 {
-                    localAuthorityData.Add(new LocalAuthorityViewModel(la));
-                }
-            }
+                    var items = group.ToList();
+                    var otherItem = items.FirstOrDefault(item => item.Material == "Other");
+                    if (otherItem != null)
+                    {
+                        items.Remove(otherItem);
+                        items.Add(otherItem);
+                    }
 
-            return localAuthorityData;
+                    return items;
+                })
+                .ToList();
+
+            return formattedLocalAuthorityData;
         }
 
         /// <summary>
