@@ -45,6 +45,67 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
         }
 
+        [TestMethod]
+        public async Task LocalAuthorityDisposalCostsController_Success_No_Data_View_Test()
+        {
+            var content = "No data available for the specified year.Please check the year and try again.";
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Content = new StringContent(content)
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            // Mock IHttpClientFactory
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            var controller = new LocalAuthorityDisposalCostsController(GetConfigurationValues(), mockHttpClientFactory.Object);
+
+            var result = controller.Index() as ViewResult;
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task LocalAuthorityDisposalCostsController_Failure_View_Test()
+        {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Content = new StringContent("Test content")
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            // Mock IHttpClientFactory
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+            var controller = new LocalAuthorityDisposalCostsController(GetConfigurationValues(), mockHttpClientFactory.Object);
+
+            var result = controller.Index() as RedirectToActionResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
         private static IConfiguration GetConfigurationValues()
         {
             string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(BinSeparator, StringSplitOptions.None)[0];
