@@ -28,6 +28,34 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
+        /// Sends an HTTP POST request to the Local Authority Disposal Costs API with the specified parameters.
+        /// </summary>
+        /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
+        /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
+        public static async Task<HttpResponseMessage> GetHttpRequest(IConfiguration configuration, IHttpClientFactory clientFactory)
+        {
+            var lapcapRunApi = configuration.GetSection(ConfigSection.LapcapSettings)
+                                                  .GetSection(ConfigSection.LapcapSettingsApi)
+                                                  .Value;
+
+            if (string.IsNullOrEmpty(lapcapRunApi))
+            {
+                // Handle the null or empty case appropriately
+                throw new ArgumentNullException(lapcapRunApi, ApiUrl.Url);
+            }
+
+            var client = clientFactory.CreateClient();
+            client.BaseAddress = new Uri(lapcapRunApi);
+            var year = configuration.GetSection(ConfigSection.LapcapSettings).GetSection(ConfigSection.ParameterYear).Value;
+            var uri = new Uri(string.Format("{0}/{1}", lapcapRunApi, year));
+            var response = await client.GetAsync(uri);
+
+            return response;
+        }
+
+        /// <summary>
         /// Handles the Index action asynchronously. Sends an HTTP request and processes the response to display local authority disposal costs.
         /// </summary>
         /// <returns>
@@ -64,34 +92,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-        }
-
-        /// <summary>
-        /// Sends an HTTP POST request to the Local Authority Disposal Costs API with the specified parameters.
-        /// </summary>
-        /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
-        /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
-        private static async Task<HttpResponseMessage> GetHttpRequest(IConfiguration configuration, IHttpClientFactory clientFactory)
-        {
-            var lapcapRunApi = configuration.GetSection(ConfigSection.LapcapSettings)
-                                                  .GetSection(ConfigSection.LapcapSettingsApi)
-                                                  .Value;
-
-            if (string.IsNullOrEmpty(lapcapRunApi))
-            {
-                // Handle the null or empty case appropriately
-                throw new ArgumentNullException(lapcapRunApi, ApiUrl.Url);
-            }
-
-            var client = clientFactory.CreateClient();
-            client.BaseAddress = new Uri(lapcapRunApi);
-            var year = configuration.GetSection(ConfigSection.LapcapSettings).GetSection(ConfigSection.ParameterYear).Value;
-            var uri = new Uri(string.Format("{0}/{1}", lapcapRunApi, year));
-            var response = await client.GetAsync(uri);
-
-            return response;
         }
     }
 }

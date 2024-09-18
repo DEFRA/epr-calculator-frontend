@@ -105,6 +105,28 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(UriFormatException))]
+        public async Task GetHttpRequest_NullOrEmptyLapcapRunApi_ThrowsArgumentNullException()
+        {
+            // Arrange
+            var inMemorySettings = new Dictionary<string, string>
+            {
+                { $"{ConfigSection.LapcapSettings}:{ConfigSection.LapcapSettingsApi}", " " }
+            };
+
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
+
+            var clientFactory = new HttpClientFactoryStub();
+
+            // Act
+            var result = await LocalAuthorityDisposalCostsController.GetHttpRequest(configuration, clientFactory);
+
+            // Assert is handled by ExpectedException
+        }
+
+        [TestMethod]
         public void Index_WhenExceptionThrown_RedirectsToErrorPage()
         {
             // Arrange
@@ -127,6 +149,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                .Build();
 
             return config;
+        }
+
+        private class HttpClientFactoryStub : IHttpClientFactory
+        {
+            public HttpClient CreateClient(string name)
+            {
+                return new HttpClient();
+            }
         }
     }
 }
