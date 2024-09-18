@@ -25,41 +25,6 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
-        /// Converts a list of LocalAuthorityDisposalCost objects into a list of LocalAuthorityViewModel objects.
-        /// </summary>
-        /// <param name="localAuthorityDisposalCosts">A list of LocalAuthorityDisposalCost objects to be converted.</param>
-        /// <returns>A list of LocalAuthorityViewModel objects.</returns>
-        public static List<LocalAuthorityViewModel>? GetLocalAuthorityData(List<LocalAuthorityDisposalCost> localAuthorityDisposalCosts)
-        {
-            if (localAuthorityDisposalCosts == null)
-            {
-                return null;
-            }
-
-            var localAuthorityData = localAuthorityDisposalCosts
-                .Select(la => new LocalAuthorityViewModel(la))
-                .ToList();
-
-            var formattedLocalAuthorityData = localAuthorityData
-                .GroupBy(la => la.Country)
-                .SelectMany(group =>
-                {
-                    var items = group.ToList();
-                    var otherItem = items.FirstOrDefault(item => item.Material == MaterialTypes.Material);
-                    if (otherItem != null)
-                    {
-                        items.Remove(otherItem);
-                        items.Add(otherItem);
-                    }
-
-                    return items;
-                })
-                .ToList();
-
-            return formattedLocalAuthorityData;
-        }
-
-        /// <summary>
         /// Handles the Index action asynchronously. Sends an HTTP request and processes the response to display local authority disposal costs.
         /// </summary>
         /// <returns>
@@ -78,7 +43,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     // Ensure deserializedRuns is not null
                     var localAuthorityDisposalCosts = deserializedlapcapdata ?? new List<LocalAuthorityDisposalCost>();
-                    var localAuthorityData = GetLocalAuthorityData(localAuthorityDisposalCosts);
+                    var localAuthorityData = LocalAuthorityDataUtil.GetLocalAuthorityData(localAuthorityDisposalCosts);
 
                     var localAuthorityDataGroupedByCountry = localAuthorityData?.GroupBy((data) => data.Country).ToList();
 
