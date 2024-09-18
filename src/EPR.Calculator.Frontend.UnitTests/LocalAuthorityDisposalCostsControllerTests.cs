@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -127,6 +128,77 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
+        public async Task Index_SuccessfulResponse_ReturnsViewWithGroupedData()
+        {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(JsonConvert.SerializeObject(MockData.GetLocalAuthorityDisposalCosts()))
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            // Mock IHttpClientFactory
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            // Arrange
+            var controller = new LocalAuthorityDisposalCostsController(GetConfigurationValues(), mockHttpClientFactory.Object);
+
+            // Act
+
+            var result = controller.Index() as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.LocalAuthorityDisposalCostsIndex, result.ViewName);
+            Assert.IsInstanceOfType(result.Model, typeof(List<IGrouping<string, LocalAuthorityViewModel>>));
+        }
+
+        [TestMethod]
+        public async Task Index_NotFoundResponse_ReturnsView()
+        {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(JsonConvert.SerializeObject(MockData.GetLocalAuthorityDisposalCosts()))
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            // Mock IHttpClientFactory
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+            // Arrange
+            var controller = new LocalAuthorityDisposalCostsController(GetConfigurationValues(), new HttpClientFactoryStub(HttpStatusCode.NotFound));
+
+            // Act
+            var result = controller.Index() as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(string.Empty, result.ViewName);
+        }
+
+        [TestMethod]
         public void Index_WhenExceptionThrown_RedirectsToErrorPage()
         {
             // Arrange
@@ -153,6 +225,17 @@ namespace EPR.Calculator.Frontend.UnitTests
 
         private class HttpClientFactoryStub : IHttpClientFactory
         {
+            private HttpStatusCode notFound;
+
+            public HttpClientFactoryStub()
+            {
+            }
+
+            public HttpClientFactoryStub(HttpStatusCode notFound)
+            {
+                this.notFound = notFound;
+            }
+
             public HttpClient CreateClient(string name)
             {
                 return new HttpClient();
