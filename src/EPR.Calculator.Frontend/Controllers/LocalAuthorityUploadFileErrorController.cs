@@ -12,11 +12,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var errors = this.HttpContext.Session.GetString(UploadFileErrorIds.LocalAuthorityUploadErrors);
+                var lapcapErrors = this.HttpContext.Session.GetString(UploadFileErrorIds.LocalAuthorityUploadErrors);
 
-                if (!string.IsNullOrEmpty(errors))
+                if (!string.IsNullOrEmpty(lapcapErrors))
                 {
-                    var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(errors);
+                    var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors);
 
                     if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
                     {
@@ -24,7 +24,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     }
                     else
                     {
-                        this.ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
+                        this.ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateLapcapDataErrorDto>>(lapcapErrors);
                     }
 
                     if (this.ViewBag.ValidationErrors is null && this.ViewBag.Errors is not null)
@@ -62,10 +62,10 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-            var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
-            if (csvErrors.ErrorMessage is not null)
+            var lapcapFileErrors = CsvFileHelper.ValidateCSV(fileUpload);
+            if (lapcapFileErrors.ErrorMessage is not null)
             {
-                this.ViewBag.DefaultError = csvErrors;
+                this.ViewBag.DefaultError = lapcapFileErrors;
                 return this.View(ViewNames.LocalAuthorityUploadFileErrorIndex);
             }
 
