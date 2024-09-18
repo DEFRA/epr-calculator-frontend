@@ -180,11 +180,12 @@ namespace EPR.Calculator.Frontend.UnitTests
 
         private static IConfiguration GetConfigurationValues()
         {
-            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(new string[] { @"bin\" }, StringSplitOptions.None)[0];
-            IConfiguration config = new ConfigurationBuilder()
-               .SetBasePath(projectPath)
-               .AddJsonFile("appsettings.Test.json")
-               .Build();
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.Test.json", optional: false, reloadOnChange: true)
+                .AddEnvironmentVariables();
+
+            IConfiguration config = builder.Build();
 
             return config;
         }
