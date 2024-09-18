@@ -12,7 +12,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var errors = this.HttpContext.Session.GetString("Default_Parameter_Upload_Errors");
+                var errors = this.HttpContext.Session.GetString(UploadFileErrorIds.DefaultParameterUploadErrors);
 
                 if (!string.IsNullOrEmpty(errors))
                 {
@@ -54,7 +54,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult Index([FromBody]string errors)
         {
-            this.HttpContext.Session.SetString("Default_Parameter_Upload_Errors", errors);
+            this.HttpContext.Session.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, errors);
 
             return this.Ok();
         }

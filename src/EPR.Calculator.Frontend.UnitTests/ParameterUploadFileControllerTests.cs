@@ -105,7 +105,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["Default_Parameter_Upload_Errors"] = string.Empty;
+            tempData[UploadFileErrorIds.DefaultParameterUploadErrors] = string.Empty;
 
             var controller = new ParameterUploadFileController()
             {
@@ -130,7 +130,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["Default_Parameter_Upload_Errors"] = string.Empty;
+            tempData[UploadFileErrorIds.DefaultParameterUploadErrors] = string.Empty;
 
             var controller = new ParameterUploadFileController()
             {
@@ -155,7 +155,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["Default_Parameter_Upload_Errors"] = string.Empty;
+            tempData[UploadFileErrorIds.DefaultParameterUploadErrors] = string.Empty;
 
             var controller = new ParameterUploadFileController()
             {
@@ -180,7 +180,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["Default_Parameter_Upload_Errors"] = string.Empty;
+            tempData[UploadFileErrorIds.DefaultParameterUploadErrors] = string.Empty;
 
             var controller = new ParameterUploadFileController()
             {

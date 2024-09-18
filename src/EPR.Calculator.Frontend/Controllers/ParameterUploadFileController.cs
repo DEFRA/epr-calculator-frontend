@@ -72,7 +72,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
             {
-                var uploadErrors = this.TempData["Default_Parameter_Upload_Errors"]?.ToString();
+                var uploadErrors = this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors]?.ToString();
                 if (!string.IsNullOrEmpty(uploadErrors))
                 {
                     this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(uploadErrors);
@@ -93,7 +93,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (validationErrors.ErrorMessage != null)
             {
-                this.TempData["Default_Parameter_Upload_Errors"] = JsonConvert.SerializeObject(validationErrors);
+                this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors] = JsonConvert.SerializeObject(validationErrors);
             }
 
             return validationErrors;

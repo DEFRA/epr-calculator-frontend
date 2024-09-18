@@ -105,7 +105,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["Local_Authority_Upload_Errors"] = string.Empty;
+            tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
 
             var controller = new LocalAuthorityUploadFileController()
             {
@@ -130,7 +130,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["Local_Authority_Upload_Errors"] = string.Empty;
+            tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
 
             var controller = new LocalAuthorityUploadFileController()
             {
@@ -155,7 +155,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["Local_Authority_Upload_Errors"] = string.Empty;
+            tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
 
             var controller = new LocalAuthorityUploadFileController()
             {
@@ -180,7 +180,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["Local_Authority_Upload_Errors"] = string.Empty;
+            tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
 
             var controller = new LocalAuthorityUploadFileController()
             {

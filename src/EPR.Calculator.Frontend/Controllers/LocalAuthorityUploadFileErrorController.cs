@@ -12,7 +12,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var errors = this.HttpContext.Session.GetString("Local_Authority_Upload_Errors");
+                var errors = this.HttpContext.Session.GetString(UploadFileErrorIds.LocalAuthorityUploadErrors);
 
                 if (!string.IsNullOrEmpty(errors))
                 {
@@ -54,7 +54,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult Index([FromBody] string errors)
         {
-            this.HttpContext.Session.SetString("Local_Authority_Upload_Errors", errors);
+            this.HttpContext.Session.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, errors);
 
             return this.Ok();
         }
