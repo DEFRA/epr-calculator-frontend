@@ -8,6 +8,9 @@ using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LocalAuthorityDisposalCostsController"/> class.
+    /// </summary>
     public class LocalAuthorityDisposalCostsController : Controller
     {
         private readonly IConfiguration configuration;
@@ -84,7 +87,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var client = clientFactory.CreateClient();
             client.BaseAddress = new Uri(lapcapRunApi);
-            var year = configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
+            var year = configuration.GetSection(ConfigSection.LapcapSettings).GetSection(ConfigSection.ParameterYear).Value;
             var uri = new Uri(string.Format("{0}/{1}", lapcapRunApi, year));
             var response = await client.GetAsync(uri);
 

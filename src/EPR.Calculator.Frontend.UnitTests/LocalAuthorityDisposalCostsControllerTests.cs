@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
-using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -14,8 +13,6 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class LocalAuthorityDisposalCostsControllerTests
     {
-        private static readonly string[] BinSeparator = new string[] { @"bin\" };
-
         [TestMethod]
         public async Task LocalAuthorityDisposalCostsController_Success_View_Test()
         {
@@ -123,7 +120,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
         private static IConfiguration GetConfigurationValues()
         {
-            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(BinSeparator, StringSplitOptions.None)[0];
+            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(new string[] { @"bin\" }, StringSplitOptions.None)[0];
             IConfiguration config = new ConfigurationBuilder()
                .SetBasePath(projectPath)
                .AddJsonFile("appsettings.Test.json")
