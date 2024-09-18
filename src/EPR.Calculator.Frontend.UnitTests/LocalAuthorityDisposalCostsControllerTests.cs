@@ -194,7 +194,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = controller.Index() as ViewResult;
 
             // Assert
-            Assert.IsNotNull(result);
             Assert.AreEqual(string.Empty, result.ViewName);
         }
 
