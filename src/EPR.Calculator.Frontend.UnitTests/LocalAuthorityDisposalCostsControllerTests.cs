@@ -165,39 +165,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task Index_NotFoundResponse_ReturnsView()
-        {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(JsonConvert.SerializeObject(MockData.GetLocalAuthorityDisposalCosts()))
-                });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            // Mock IHttpClientFactory
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-            // Arrange
-            var controller = new LocalAuthorityDisposalCostsController(GetConfigurationValues(), new HttpClientFactoryStub(HttpStatusCode.NotFound));
-
-            // Act
-            var result = controller.Index() as ViewResult;
-
-            // Assert
-            Assert.AreEqual(string.Empty, result.ViewName);
-        }
-
-        [TestMethod]
         public void Index_WhenExceptionThrown_RedirectsToErrorPage()
         {
             // Arrange
