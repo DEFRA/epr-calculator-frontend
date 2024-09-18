@@ -10,49 +10,19 @@
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <div class="govuk-error-summary" data-module="govuk-error-summary">
-            <div role="alert">
-                <h2 class="govuk-error-summary__title">
-                    There is a problem with your upload
-                </h2>
-                <div class="govuk-error-summary__body">
-                    @if (validationErrors != null)
-                    {
-                        <ul class="govuk-list govuk-error-summary__list">
+        @if (validationErrors != null)
+        {
+            <partial name="_ProblemWithUploadPartial" model="validationErrors" />
+        }
 
-                            @foreach (var error in validationErrors)
-                            {                              
-
-                                    <li>@error.ErrorMessage</li>
-                               
-                            }
-
-                        </ul>
-                    }
-
-                    @if (defaultError != null)
-                    {
-                        <ul class="govuk-list govuk-error-summary__list">
-                           
-                            <li><a href="#file-upload-1">@defaultError.ErrorMessage</a></li>
-                            
-                        </ul>
-                    }
-
-                </div>
-            </div>
-        </div>
+        @if (defaultError != null)
+        {
+            <partial name="_ErrorBannerPartial" model="defaultError" />
+        }
 
         @if (errors != null)
         {
-            <h2 class="govuk-heading-s">You must fix the following errors before you can upload the file:</h2>
-
-            <ol id="dataErrors" class="govuk-list govuk-list--number">
-                @foreach (var error in errors)
-                {
-                    <li>@error.Message</li>
-                }
-            </ol>
+            <partial name="_ValidationErrorsListPartial" model="errors" />
         }
 
         <div>
