@@ -25,6 +25,41 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
+        /// Converts a list of LocalAuthorityDisposalCost objects into a list of LocalAuthorityViewModel objects.
+        /// </summary>
+        /// <param name="localAuthorityDisposalCosts">A list of LocalAuthorityDisposalCost objects to be converted.</param>
+        /// <returns>A list of LocalAuthorityViewModel objects.</returns>
+        public static List<LocalAuthorityViewModel>? GetLocalAuthorityData(List<LocalAuthorityDisposalCost> localAuthorityDisposalCosts)
+        {
+            if (localAuthorityDisposalCosts == null)
+            {
+                return null;
+            }
+
+            var localAuthorityData = localAuthorityDisposalCosts
+                .Select(la => new LocalAuthorityViewModel(la))
+                .ToList();
+
+            var formattedLocalAuthorityData = localAuthorityData
+                .GroupBy(la => la.Country)
+                .SelectMany(group =>
+                {
+                    var items = group.ToList();
+                    var otherItem = items.FirstOrDefault(item => item.Material == MaterialTypes.Material);
+                    if (otherItem != null)
+                    {
+                        items.Remove(otherItem);
+                        items.Add(otherItem);
+                    }
+
+                    return items;
+                })
+                .ToList();
+
+            return formattedLocalAuthorityData;
+        }
+
+        /// <summary>
         /// Handles the Index action asynchronously. Sends an HTTP request and processes the response to display local authority disposal costs.
         /// </summary>
         /// <returns>
@@ -64,36 +99,6 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
-        /// Converts a list of LocalAuthorityDisposalCost objects into a list of LocalAuthorityViewModel objects.
-        /// </summary>
-        /// <param name="localAuthorityDisposalCosts">A list of LocalAuthorityDisposalCost objects to be converted.</param>
-        /// <returns>A list of LocalAuthorityViewModel objects.</returns>
-        private static List<LocalAuthorityViewModel> GetLocalAuthorityData(List<LocalAuthorityDisposalCost> localAuthorityDisposalCosts)
-        {
-            var localAuthorityData = localAuthorityDisposalCosts
-                .Select(la => new LocalAuthorityViewModel(la))
-                .ToList();
-
-            var formattedLocalAuthorityData = localAuthorityData
-                .GroupBy(la => la.Country)
-                .SelectMany(group =>
-                {
-                    var items = group.ToList();
-                    var otherItem = items.FirstOrDefault(item => item.Material == "Other");
-                    if (otherItem != null)
-                    {
-                        items.Remove(otherItem);
-                        items.Add(otherItem);
-                    }
-
-                    return items;
-                })
-                .ToList();
-
-            return formattedLocalAuthorityData;
-        }
-
-        /// <summary>
         /// Sends an HTTP POST request to the Local Authority Disposal Costs API with the specified parameters.
         /// </summary>
         /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
@@ -109,7 +114,7 @@ namespace EPR.Calculator.Frontend.Controllers
             if (string.IsNullOrEmpty(lapcapRunApi))
             {
                 // Handle the null or empty case appropriately
-                throw new ArgumentNullException(lapcapRunApi, "The API URL cannot be null or empty.");
+                throw new ArgumentNullException(lapcapRunApi, ApiUrl.Url);
             }
 
             var client = clientFactory.CreateClient();
