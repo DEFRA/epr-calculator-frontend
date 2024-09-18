@@ -16,5 +16,6 @@
         public const string UploadFileIndex = "~/Views/UploadFile/Index.cshtml";
         public const string UploadFileProcessingIndex = "~/Views/UploadFileProcessing/Index.cshtml";
         public const string UploadFileRefresh = "~/Views/UploadFile/Refresh.cshtml";
+        public const string Empty = "";
     }
 }
