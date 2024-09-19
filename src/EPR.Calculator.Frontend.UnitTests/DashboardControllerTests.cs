@@ -6,6 +6,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -43,7 +44,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var controller = new DashboardController(GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DashboardController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -74,7 +75,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var controller = new DashboardController(GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DashboardController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -102,7 +103,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var controller = new DashboardController(GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DashboardController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
 
             var result = controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
@@ -132,7 +133,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var config = GetConfigurationValues();
+            var config = ConfigurationItems.GetConfigurationValues();
             config.GetSection(ConfigSection.DashboardCalculatorRun).Value = string.Empty;
             var controller = new DashboardController(config, mockHttpClientFactory.Object);
 
@@ -167,7 +168,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
 
-            var controller = new DashboardController(GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DashboardController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
 
             // Act
             var result = controller.Index() as RedirectToActionResult;
@@ -213,17 +214,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(CalculationRunStatus.InTheQueue, dashboardRunData[0].Status);
             Assert.AreEqual(CalculationRunStatus.Running, dashboardRunData[1].Status);
             Assert.AreEqual(CalculationRunStatus.Unclassified, dashboardRunData[2].Status); // Default value
-        }
-
-        private IConfiguration GetConfigurationValues()
-        {
-            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(new string[] { @"bin\" }, StringSplitOptions.None)[0];
-            IConfiguration config = new ConfigurationBuilder()
-               .SetBasePath(projectPath)
-               .AddJsonFile("appsettings.Test.json")
-               .Build();
-
-            return config;
         }
     }
 }
