@@ -57,15 +57,15 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     if (defaultSchemeParameters != null)
                     {
-                        this.ViewBag.CommunicationData = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCosts);
-                        this.ViewBag.OperatingCosts = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts);
-                        this.ViewBag.PreparationCosts = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts);
-                        this.ViewBag.SchemeSetupCosts = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeSetupCosts);
-                        this.ViewBag.LateReportingTonnage = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LateReportingTonnage);
-                        this.ViewBag.MaterialityThreshold = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.MaterialityThreshold);
-                        this.ViewBag.BadDebtProvision = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.BadDebtProvision);
-                        this.ViewBag.Levy = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.Levy);
-                        this.ViewBag.TonnageChange = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
+                        this.ViewBag.CommunicationData = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCosts);
+                        this.ViewBag.OperatingCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts);
+                        this.ViewBag.PreparationCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts);
+                        this.ViewBag.SchemeSetupCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeSetupCosts);
+                        this.ViewBag.LateReportingTonnage = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LateReportingTonnage);
+                        this.ViewBag.MaterialityThreshold = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.MaterialityThreshold);
+                        this.ViewBag.BadDebtProvision = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.BadDebtProvision);
+                        this.ViewBag.Levy = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.Levy);
+                        this.ViewBag.TonnageChange = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
                         this.ViewBag.EffectiveFrom = defaultSchemeParameters[0].EffectiveFrom;
 
                         this.ViewBag.IsDataAvailable = true;
@@ -88,7 +88,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private List<DefaultSchemeParameters> GetSchemeParametersBasedonCategory(List<DefaultSchemeParameters> defaultSchemeParameters, string type)
+        private static List<DefaultSchemeParameters> GetSchemeParametersBasedonCategory(List<DefaultSchemeParameters> defaultSchemeParameters, string type)
         {
             var schemeParametersBasedonCategory = defaultSchemeParameters.Where(t => t.ParameterType == type).ToList();
             return schemeParametersBasedonCategory;
