@@ -147,6 +147,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(2, result.Count);
+            Assert.AreEqual("England", result[1].Country);
+            Assert.AreEqual("Test User", result[1].CreatedBy);
+            Assert.AreEqual("28 Aug 2024  at 10:12", result[1].CreatedAt);
+            Assert.AreEqual(new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc), result[1].EffectiveFrom);
+            Assert.AreEqual("£2210.00", result[1].TotalCost);
             Assert.AreEqual(MaterialTypes.Other, result[1].Material);
         }
     }
