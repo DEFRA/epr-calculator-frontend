@@ -14,6 +14,7 @@ namespace EPR.Calculator.Frontend.UnitTests
     public class DefaultParameterControllerTests
     {
         private static readonly string[] Separator = new string[] { @"bin\" };
+        private static readonly int TotalRecords = 11;
 
         [TestMethod]
         public async Task DefaultParamerController_Success_View_Test()
@@ -44,7 +45,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Index() as ViewResult;
             Assert.IsNotNull(result);
 
-            Assert.AreEqual(11, result.ViewData.Count);
+            Assert.AreEqual(TotalRecords, result.ViewData.Count);
             Assert.IsNotNull(result.ViewData["CommunicationData"]);
             Assert.IsNotNull(result.ViewData["OperatingCosts"]);
             Assert.IsNotNull(result.ViewData["PreparationCosts"]);
