@@ -6,26 +6,47 @@ using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    /// <summary>
+    /// Controller for handling default parameter settings.
+    /// </summary>
     public class DefaultParametersController : Controller
     {
-        private readonly IConfiguration _configuration;
-        private readonly IHttpClientFactory _clientFactory;
+        /// <summary>
+        /// The configuration settings for the application.
+        /// </summary>
+        private readonly IConfiguration configuration;
 
+        /// <summary>
+        /// The factory for creating HTTP clients.
+        /// </summary>
+        private readonly IHttpClientFactory clientFactory;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultParametersController"/> class.
+        /// </summary>
+        /// <param name="configuration">The configuration settings for the application.</param>
+        /// <param name="clientFactory">The factory for creating HTTP clients.</param>
         public DefaultParametersController(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
-            _configuration = configuration;
-            _clientFactory = clientFactory;
+            this.configuration = configuration;
+            this.clientFactory = clientFactory;
         }
 
+        /// <summary>
+        /// Handles the Index action for retrieving and displaying default scheme parameters.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IActionResult"/> that renders the view with the retrieved data or redirects to an error page.
+        /// </returns>
         public async Task<IActionResult> Index()
         {
             try
             {
-                var parameterSettingsApi = _configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
+                var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
 
-                var client = _clientFactory.CreateClient();
+                var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
-                var year = _configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value;
+                var year = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value;
                 var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, year));
                 var response = await client.GetAsync(uri);
 
@@ -33,44 +54,43 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     var data = await response.Content.ReadAsStringAsync();
                     var defaultSchemeParameters = JsonConvert.DeserializeObject<List<DefaultSchemeParameters>>(data);
-                    ViewBag.CommunicationData = CalculateTotal(defaultSchemeParameters, ParameterType.CommunicationCosts, true);
-                    ViewBag.OperatingCosts = CalculateTotal(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts, true);
-                    ViewBag.PreparationCosts = CalculateTotal(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts, true);
-                    ViewBag.SchemeSetupCosts = CalculateTotal(defaultSchemeParameters, ParameterType.SchemeSetupCosts, true);
-                    ViewBag.LateReportingTonnage = CalculateTotal(defaultSchemeParameters, ParameterType.LateReportingTonnage);
-                    ViewBag.MaterialityThreshold = CalculateTotal(defaultSchemeParameters, ParameterType.MaterialityThreshold);
-                    ViewBag.BadDebtProvision = CalculateTotal(defaultSchemeParameters, ParameterType.BadDebtProvision);
-                    ViewBag.Levy = CalculateTotal(defaultSchemeParameters, ParameterType.Levy);
-                    ViewBag.TonnageChange = CalculateTotal(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
-                    ViewBag.EffectiveFrom = defaultSchemeParameters[0].EffectiveFrom;
 
-                    ViewBag.IsDataAvailable = true;
+                    if (defaultSchemeParameters != null)
+                    {
+                        this.ViewBag.CommunicationData = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCosts);
+                        this.ViewBag.OperatingCosts = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts);
+                        this.ViewBag.PreparationCosts = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts);
+                        this.ViewBag.SchemeSetupCosts = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeSetupCosts);
+                        this.ViewBag.LateReportingTonnage = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LateReportingTonnage);
+                        this.ViewBag.MaterialityThreshold = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.MaterialityThreshold);
+                        this.ViewBag.BadDebtProvision = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.BadDebtProvision);
+                        this.ViewBag.Levy = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.Levy);
+                        this.ViewBag.TonnageChange = this.GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
+                        this.ViewBag.EffectiveFrom = defaultSchemeParameters[0].EffectiveFrom;
 
-                    return View();
+                        this.ViewBag.IsDataAvailable = true;
+
+                        return this.View();
+                    }
                 }
 
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    ViewBag.IsDataAvailable = false;
-                    return View();
+                    this.ViewBag.IsDataAvailable = false;
+                    return this.View();
                 }
 
-                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 
-        private List<DefaultSchemeParameters> CalculateTotal(List<DefaultSchemeParameters> defaultSchemeParameters, string type, bool isTotalRequired = false)
+        private List<DefaultSchemeParameters> GetSchemeParametersBasedonCategory(List<DefaultSchemeParameters> defaultSchemeParameters, string type)
         {
             var schemeParametersBasedonCategory = defaultSchemeParameters.Where(t => t.ParameterType == type).ToList();
-            if (isTotalRequired)
-            {
-                schemeParametersBasedonCategory.Add(new DefaultSchemeParameters() { ParameterType = type, ParameterCategory = ParameterType.Total, ParameterValue = schemeParametersBasedonCategory.Sum(t => t.ParameterValue) });
-            }
-
             return schemeParametersBasedonCategory;
         }
     }
