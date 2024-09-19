@@ -24,8 +24,10 @@
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Localization" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.6" />
+		<PackageReference Include="Microsoft.Identity.Web" Version="3.1.0" />
+		<PackageReference Include="Microsoft.Identity.Web.UI" Version="3.1.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.3" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.5" />
 	</ItemGroup>
 
 	<ItemGroup>
