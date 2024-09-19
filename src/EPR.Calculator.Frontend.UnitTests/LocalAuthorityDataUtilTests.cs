@@ -11,7 +11,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void GetLocalAuthorityData_NullInput_ReturnsNull()
         {
             // Act
-            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(null);
+            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(null, string.Empty);
 
             // Assert
             Assert.IsNull(result);
@@ -24,7 +24,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var emptyList = new List<LocalAuthorityDisposalCost>();
 
             // Act
-            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(emptyList);
+            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(emptyList, string.Empty);
 
             // Assert
             Assert.IsNotNull(result);
@@ -46,7 +46,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         };
 
             // Act
-            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(singleItemList);
+            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(singleItemList, MaterialTypes.Other);
 
             // Assert
             Assert.IsNotNull(result);
@@ -81,7 +81,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         };
 
             // Act
-            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(multipleItems);
+            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(multipleItems, MaterialTypes.Other);
 
             // Assert
             Assert.IsNotNull(result);
@@ -112,7 +112,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         };
 
             // Act
-            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(multipleItems);
+            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(multipleItems, MaterialTypes.Other);
 
             // Assert
             Assert.IsNotNull(result);
@@ -142,11 +142,16 @@ namespace EPR.Calculator.Frontend.UnitTests
         };
 
             // Act
-            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(items);
+            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(items, MaterialTypes.Other);
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(2, result.Count);
+            Assert.AreEqual("England", result[1].Country);
+            Assert.AreEqual("Test User", result[1].CreatedBy);
+            Assert.AreEqual("28 Aug 2024  at 10:12", result[1].CreatedAt);
+            Assert.AreEqual(new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc), result[1].EffectiveFrom);
+            Assert.AreEqual("£2210.00", result[1].TotalCost);
             Assert.AreEqual(MaterialTypes.Other, result[1].Material);
         }
     }
