@@ -11,7 +11,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void GetLocalAuthorityData_NullInput_ReturnsNull()
         {
             // Act
-            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(null);
+            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(null, string.Empty);
 
             // Assert
             Assert.IsNull(result);
@@ -24,7 +24,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var emptyList = new List<LocalAuthorityDisposalCost>();
 
             // Act
-            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(emptyList);
+            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(emptyList, string.Empty);
 
             // Assert
             Assert.IsNotNull(result);
@@ -46,7 +46,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         };
 
             // Act
-            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(singleItemList);
+            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(singleItemList, MaterialTypes.Other);
 
             // Assert
             Assert.IsNotNull(result);
@@ -81,7 +81,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         };
 
             // Act
-            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(multipleItems);
+            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(multipleItems, MaterialTypes.Other);
 
             // Assert
             Assert.IsNotNull(result);
@@ -112,7 +112,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         };
 
             // Act
-            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(multipleItems);
+            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(multipleItems, MaterialTypes.Other);
 
             // Assert
             Assert.IsNotNull(result);
@@ -142,7 +142,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         };
 
             // Act
-            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(items);
+            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(items, MaterialTypes.Other);
 
             // Assert
             Assert.IsNotNull(result);

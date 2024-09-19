@@ -10,11 +10,15 @@ namespace EPR.Calculator.Frontend.Helpers
     public static class LocalAuthorityDataUtil
     {
         /// <summary>
-        /// Converts a list of LocalAuthorityDisposalCost objects into a list of LocalAuthorityViewModel objects.
+        /// Retrieves and formats local authority data based on disposal costs and material type.
         /// </summary>
-        /// <param name="localAuthorityDisposalCosts">A list of LocalAuthorityDisposalCost objects to be converted.</param>
-        /// <returns>A list of LocalAuthorityViewModel objects.</returns>
-        public static List<LocalAuthorityViewModel>? GetLocalAuthorityData(List<LocalAuthorityDisposalCost> localAuthorityDisposalCosts)
+        /// <param name="localAuthorityDisposalCosts">A list of disposal costs for local authorities.</param>
+        /// <param name="matertialType">The material type to be prioritized in the formatted data.</param>
+        /// <returns>
+        /// A list of <see cref="LocalAuthorityViewModel"/> objects, grouped by country and with the specified material type prioritized.
+        /// Returns null if the input list is null.
+        /// </returns>
+        public static List<LocalAuthorityViewModel>? GetLocalAuthorityData(List<LocalAuthorityDisposalCost> localAuthorityDisposalCosts, string matertialType)
         {
             if (localAuthorityDisposalCosts == null)
             {
@@ -30,7 +34,7 @@ namespace EPR.Calculator.Frontend.Helpers
                 .SelectMany(group =>
                 {
                     var items = group.ToList();
-                    var otherItem = items.Find(item => item.Material == MaterialTypes.Other);
+                    var otherItem = items.Find(item => item.Material == matertialType);
                     if (otherItem != null)
                     {
                         items.Remove(otherItem);
