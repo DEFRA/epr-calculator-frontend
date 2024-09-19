@@ -24,7 +24,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     }
                     else
                     {
-                        this.ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
+                        this.ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateLapcapDataErrorDto>>(errors);
                     }
 
                     if (this.ViewBag.ValidationErrors is null && this.ViewBag.Errors is not null)
