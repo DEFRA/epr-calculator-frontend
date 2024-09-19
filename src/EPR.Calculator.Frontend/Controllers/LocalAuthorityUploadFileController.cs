@@ -18,8 +18,8 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var viewName = await this.GetViewName(fileUpload);
-                return this.View(viewName);
+                var lapcapViewName = await this.GetViewName(fileUpload);
+                return this.View(lapcapViewName);
             }
             catch (Exception)
             {
@@ -31,11 +31,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var filePath = this.TempData["FilePath"]?.ToString();
+                var lapcapFilePath = this.TempData["FilePath"]?.ToString();
 
-                if (!string.IsNullOrEmpty(filePath))
+                if (!string.IsNullOrEmpty(lapcapFilePath))
                 {
-                    using var stream = System.IO.File.OpenRead(filePath);
+                    using var stream = System.IO.File.OpenRead(lapcapFilePath);
                     var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
 
                     var viewName = await this.GetViewName(fileUpload);
