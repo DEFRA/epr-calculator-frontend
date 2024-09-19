@@ -42,11 +42,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
+                var parameterSettingsApi = this.configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.DefaultParameterSettingsApi).Value;
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
-                var year = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value;
+                var year = this.configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
                 var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, year));
                 var response = await client.GetAsync(uri);
 
@@ -66,7 +66,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         this.ViewBag.BadDebtProvision = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.BadDebtProvision);
                         this.ViewBag.Levy = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.Levy);
                         this.ViewBag.TonnageChange = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
-                        this.ViewBag.EffectiveFrom = defaultSchemeParameters[0].EffectiveFrom;
+                        this.ViewBag.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
 
                         this.ViewBag.IsDataAvailable = true;
 
