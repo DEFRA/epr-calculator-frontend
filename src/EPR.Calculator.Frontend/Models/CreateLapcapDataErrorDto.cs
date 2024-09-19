@@ -3,7 +3,7 @@
 namespace EPR.Calculator.Frontend.Models
 {
     [ExcludeFromCodeCoverage]
-    public class CreateLapcapDataErrorDto: ErrorDto
+    public class CreateLapcapDataErrorDto : ErrorDto
     {
         public string UniqueReference { get; set; }
 
