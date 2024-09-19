@@ -147,7 +147,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(MaterialTypes.Material, result[1].Material);
+            Assert.AreEqual(MaterialTypes.Other, result[1].Material);
         }
     }
 }

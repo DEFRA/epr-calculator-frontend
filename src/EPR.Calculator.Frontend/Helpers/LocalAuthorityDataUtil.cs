@@ -30,7 +30,7 @@ namespace EPR.Calculator.Frontend.Helpers
                 .SelectMany(group =>
                 {
                     var items = group.ToList();
-                    var otherItem = items.Find(item => item.Material == MaterialTypes.Material);
+                    var otherItem = items.Find(item => item.Material == MaterialTypes.Other);
                     if (otherItem != null)
                     {
                         items.Remove(otherItem);

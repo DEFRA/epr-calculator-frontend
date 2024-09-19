@@ -2,6 +2,6 @@
 {
     public static class MaterialTypes
     {
-        public const string Material = "Other";
+        public const string Other = "Other";
     }
 }

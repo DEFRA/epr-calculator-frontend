@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Http;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
@@ -120,10 +121,28 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
 
-            var clientFactory = new HttpClientFactoryStub();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(JsonConvert.SerializeObject(MockData.GetLocalAuthorityDisposalCosts()))
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            // Mock IHttpClientFactory
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(string.Empty)).Returns(httpClient).Verifiable();
 
             // Act
-            var result = await LocalAuthorityDisposalCostsController.GetHttpRequest(configuration, clientFactory);
+            var result = await LocalAuthorityDisposalCostsController.GetHttpRequest(configuration, mockHttpClientFactory.Object);
 
             // Assert is handled by ExpectedException
         }
@@ -177,25 +196,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
-        }
-
-        private class HttpClientFactoryStub : IHttpClientFactory
-        {
-            private HttpStatusCode notFound;
-
-            public HttpClientFactoryStub()
-            {
-            }
-
-            public HttpClientFactoryStub(HttpStatusCode notFound)
-            {
-                this.notFound = notFound;
-            }
-
-            public HttpClient CreateClient(string name)
-            {
-                return new HttpClient();
-            }
         }
     }
 }
