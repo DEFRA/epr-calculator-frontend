@@ -1,0 +1,14 @@
+﻿@{
+    Layout = "_Layout";
+
+    var localAuthorityDisposalCosts = Json.Serialize(ViewData["localAuthorityDisposalCosts"]);
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/Refresh.js"></script>
+
+<partial name="_RefreshPartial" />
+
+<script type="text/javascript">
+    processAndUploadData(@localAuthorityDisposalCosts, '/LocalAuthorityUploadFileProcessing', '/LocalAuthorityConfirmation', 'LocalAuthorityUploadFileError');
+</script>

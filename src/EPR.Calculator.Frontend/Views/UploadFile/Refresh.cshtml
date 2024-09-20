@@ -5,50 +5,10 @@
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/Refresh.js"></script>
 
-<h1 class="govuk-heading-l">Uploading file and validating data</h1>
-<div class="govuk-form-group">
-    <p class="govuk-body">This may take a few minutes. We'll refresh the page automatically until it is done.</p>
-    <br />
-    <p class="govuk-body">Do not close the page and do not refresh it yourself.</p>
-    <p>
-        <img src="../images/spinner.gif" width="50px" alt="spinning wheel to show the file is loading">
-    </p>
-</div>
+<partial name="_RefreshPartial"  />
 
 <script type="text/javascript">
-    processAndUploadDefaultParamaters(@schemeParameterValues);
-
-    function processAndUploadDefaultParamaters(parameterData) {
-        $.ajax({
-            url: '/UploadFileProcessing',
-            type: 'POST',
-            data: JSON.stringify(parameterData),
-            processData: false,
-            dataType: 'json',
-            contentType: 'application/json; charset=utf-8',
-            success: function (response) {
-                window.location.href = '/ParameterConfirmation';
-            },
-            error: function (xhr, status, error) {
-                callController('UploadCSVError', xhr.responseText);
-            }
-        });
-    }
-
-    function callController(action, data) {
-        var url = "/" + action;
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: JSON.stringify(data),
-            contentType: "application/json",
-            success: function () {
-                window.location.href = url;
-            },
-            error: function (xhr, status, error) {
-                window.location.href = '/StandardError';
-            }
-        })
-    }
+    processAndUploadData(@schemeParameterValues, '/UploadFileProcessing', '/ParameterConfirmation', 'UploadCSVError');
 </script>

@@ -90,7 +90,7 @@ namespace EPR.Calculator.Frontend.UnitTests.HelpersTest
                 ContentType = "text/plain"
             };
 
-            var result = CsvFileHelper.PrepareDataForUpload(file);
+            var result = CsvFileHelper.PrepareSchemeParameterDataForUpload(file);
             Assert.IsNotNull(result);
         }
     }

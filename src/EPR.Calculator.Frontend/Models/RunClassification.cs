@@ -4,7 +4,8 @@ namespace EPR.Calculator.Frontend.Models
 {
     public enum RunClassification
     {
-        None,
+        None = 0,
+
         [EnumMember(Value = "IN THE QUEUE")]
         QUEUE = 1,
 

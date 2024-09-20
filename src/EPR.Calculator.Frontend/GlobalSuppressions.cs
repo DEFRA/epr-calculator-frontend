@@ -9,3 +9,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1208:System using directives should be placed before other using directives", Justification = "Using the .Net environment default settings")]
 [assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1633:File should have header", Justification = "Using the .Net environment default settings")]
 [assembly: SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1206:Declaration keywords should follow order", Justification = "Using the .Net environment default settings")]
+[assembly: SuppressMessage("Minor Code Smell", "S6603:The collection-specific \"TrueForAll\" method should be used instead of the \"All\" extension", Justification = "<Not valid for CsvHelper library>", Scope = "member", Target = "~M:EPR.Calculator.Frontend.Helpers.CsvFileHelper.GetCsvConfiguration(EPR.Calculator.Frontend.Enums.UploadType)~CsvHelper.Configuration.CsvConfiguration")]
