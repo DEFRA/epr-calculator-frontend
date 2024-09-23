@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -37,7 +37,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var controller = new DefaultParametersController(GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
 
             var result = await controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -81,7 +81,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var controller = new DefaultParametersController(GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
 
             var result = await controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -110,23 +110,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var controller = new DefaultParametersController(GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
 
             var result = await controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
-        }
-
-        private IConfiguration GetConfigurationValues()
-        {
-            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(new string[] { @"bin\" }, StringSplitOptions.None)[0];
-            IConfiguration config = new ConfigurationBuilder()
-               .SetBasePath(projectPath)
-               .AddJsonFile("appsettings.Test.json")
-               .Build();
-
-            return config;
         }
     }
 }
