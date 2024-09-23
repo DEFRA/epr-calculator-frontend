@@ -83,7 +83,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (response.Result.StatusCode == HttpStatusCode.NotFound)
                 {
-                    return this.View(string.Empty);
+                    return this.View(ViewNames.LocalAuthorityDisposalCostsIndex);
                 }
 
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
