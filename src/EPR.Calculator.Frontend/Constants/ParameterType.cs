@@ -10,7 +10,7 @@
         public const string MaterialityThreshold = "Materiality threshold";
         public const string TonnageChangeThreshold = "Tonnage change threshold";
         public const string BadDebtProvision = "Bad debt provision";
-        public const string Levy = "Levy";
+        public const string CommunicationCostsByNation = "Communication costs by nation";
         public const string Total = "Total";
     }
 }

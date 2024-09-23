@@ -58,13 +58,13 @@ namespace EPR.Calculator.Frontend.Controllers
                     if (defaultSchemeParameters != null)
                     {
                         this.ViewBag.CommunicationData = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCosts);
+                        this.ViewBag.ComunnicationCostsByNation = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCostsByNation);
                         this.ViewBag.OperatingCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts);
                         this.ViewBag.PreparationCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts);
                         this.ViewBag.SchemeSetupCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeSetupCosts);
                         this.ViewBag.LateReportingTonnage = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LateReportingTonnage);
                         this.ViewBag.MaterialityThreshold = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.MaterialityThreshold);
-                        this.ViewBag.BadDebtProvision = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.BadDebtProvision);
-                        this.ViewBag.Levy = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.Levy);
+                        this.ViewBag.BadDebtProvision = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.BadDebtProvision);                        
                         this.ViewBag.TonnageChange = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
                         this.ViewBag.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
 
