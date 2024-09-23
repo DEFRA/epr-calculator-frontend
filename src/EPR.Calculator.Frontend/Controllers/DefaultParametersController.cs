@@ -57,7 +57,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     if (defaultSchemeParameters != null)
                     {
-                        this.ViewBag.CommunicationData = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCosts);
+                        this.ViewBag.CommunicationData = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCostsByMaterial);
                         this.ViewBag.ComunnicationCostsByNation = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCostsByNation);
                         this.ViewBag.OperatingCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts);
                         this.ViewBag.PreparationCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts);

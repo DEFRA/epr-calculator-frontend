@@ -11,7 +11,7 @@
     var lateReportingTonnage = ViewBag.LateReportingTonnage;
     var materialityThreshold = ViewBag.MaterialityThreshold;
     var badDebtProvision = ViewBag.BadDebtProvision;
-    var levy = ViewBag.Levy;
+    var comunnicationCostsByNation = ViewBag.ComunnicationCostsByNation;
     var tonnageChange = ViewBag.TonnageChange;
     var effectiveFrom = ViewBag.EffectiveFrom;
 }
@@ -34,10 +34,12 @@
             <div class="govuk-grid-column-two-thirds">
                 @if(ViewBag.IsDataAvailable)
                 {
-                    <h2 class="govuk-heading-l">@ParameterType.CommunicationCosts</h2>
+                    <h2 class="govuk-heading-l">@ParameterType.CommunicationCostsByMaterial</h2>
                     <partial name="_ItemListPartial" model="communicationData" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
-                   
+                    <h2 class="govuk-heading-l">@ParameterType.CommunicationCostsByNation</h2>
+                    <partial name="_ItemListPartial" model="comunnicationCostsByNation" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
+
                     <h2 class="govuk-heading-l">@ParameterType.SchemeAdministratorOperatingCosts</h2>
                     <partial name="_ItemListPartial" model="operatingCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
@@ -58,11 +60,8 @@
                         <h2 class="govuk-heading-l">@ParameterType.BadDebtProvision</h2>
                         <partial name="_ItemListPartial" model="badDebtProvision" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", false } }' />
                     }
-                        @if(@levy.Count >0)
-                    {
-                        <h2 class="govuk-heading-l">@ParameterType.Levy</h2>
-                        <partial name="_ItemListPartial" model="levy" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
-                    }
+                       
+                       
 
                     <h2 class="govuk-heading-l">@ParameterType.MaterialityThreshold</h2>
                     <partial name="_ItemListPartial" model="materialityThreshold" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
