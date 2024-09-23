@@ -19,6 +19,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
                 new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "COMC-ST", ParameterValue = "2210.00" },
                 new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "COMC-WD", ParameterValue = "2210.00" },
                 new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "COMC-OT", ParameterValue = "0.00" },
+                new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "COMC-UK", ParameterValue = "250.00" },
+                new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "COMC-ENG", ParameterValue = "250.00" },
+                new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "COMC-COMC-WLS", ParameterValue = "250.00" },
+                new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "COMC-SCT", ParameterValue = "250.00" },
+                new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "COMC-NIR", ParameterValue = "250.00" },
                 new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "SAOC-ENG", ParameterValue = "500.00" },
                 new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "SAOC-WLS", ParameterValue = "140.55" },
                 new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "SAOC-SCT", ParameterValue = "170.00" },
@@ -48,10 +53,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
                 new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "TONT-AD", ParameterValue = "-10.00" },
                 new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "TONT-PI", ParameterValue = "2.00" },
                 new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "TONT-PD", ParameterValue = "-0.50" },
-                new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "LEVY-ENG", ParameterValue = "115.45" },
-                new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "LEVY-WLS", ParameterValue = "114.00" },
-                new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "LEVY-SCT", ParameterValue = "117.00" },
-                new SchemeParameterTemplateValue { ParameterUniqueReferenceId = "LEVY-NIR", ParameterValue = "19.00" },
             ]);
             return schemeParameterTemplateValues;
         }
@@ -67,7 +68,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
                 "COMC - PL,Communication costs, Plastic,£0.00,£999,999,999.99,£2,210.00,,,",
                 "COMC - ST,Communication costs, Steel,£0.00,£999,999,999.99,£2,210.00,,,",
                 "COMC - WD,Communication costs, Wood,£0.00,£999,999,999.99,£2,210.00,,,",
-                "COMC - OT,Communication costs, Other,£0.00,£999,999,999.99,£0.00,,,",
+                "COMC - OT,Communication costs, other,£0.00,£999,999,999.99,£0.00,,,",
+                "COMC - UK,Communication costs, United Kingdom,£0.00,£999,999,999.99,£0.00,,,",
+                "COMC - ENG,Communication costs, England,£0.00,£999,999,999.99,£0.00,,,",
+                "COMC - WLS,Communication costs, Wales,£0.00,£999,999,999.99,£0.00,,,",
+                "COMC - SCT,Communication costs, Scotland,£0.00,£999,999,999.99,£0.00,,,",
+                "COMC - NIR,Communication costs, Northern Ireland,£0.00,£999,999,999.99,£0.00,,,",
                 "SAOC - ENG,Scheme administrator operating costs, England,£0.00,£999,999,999.99,£500.00,,https://www.gov.uk/government/publications/packaging-data-how-to-create-your-file-for-extended-producer-responsibility/packaging-data-file-specification-for-extended-producer-responsibility#packaging-material-codes,",
                 "SAOC - WLS,Scheme administrator operating costs, Wales,£0.00,£999,999,999.99,£140.55,,Code,Name",
                 "SAOC - SCT,Scheme administrator operating costs, Scotland,£0.00,£999,999,999.99,£170.00,,AL,Aluminium",
@@ -97,10 +103,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
                 "TONT - DI,Tonnage change threshold,Amount Decrease,£0.00,-£999,999,999.99,-£10.00,,,",
                 "TONT - PI,Tonnage change threshold,Percent Increase,0.00 %,1000.00 %,2.00 %,,,",
                 "TONT - PD,Tonnage change threshold,Percent Decrease,0.00 %,-1000.00 %,-0.50 %,,,",
-                "LEVY - ENG,Levy,England,£0.00,£999,999,999.99,£115.45,,,",
-                "LEVY - WLS,Levy,Wales,£0.00,£999,999,999.99,£114.00,,,",
-                "LEVY - SCT,Levy,Scotland,£0.00,£999,999,999.99,£117.00,,,",
-                "LEVY - NIR,Levy,Northern Ireland,£0.00,£999,999,999.99,£19.00,,,",
                 "Parameter upload version v1.0,,,,,,,,"
             ]);
         }
@@ -117,6 +119,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
              new DefaultSchemeParameters { ParameterUniqueRef = "COMC-ST", ParameterValue = 2210.00m, ParameterType = "Steel", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
              new DefaultSchemeParameters { ParameterUniqueRef = "COMC-WD", ParameterValue = 2210.00m, ParameterType = "Wood", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
              new DefaultSchemeParameters { ParameterUniqueRef = "COMC-OT", ParameterValue = 0.00m, ParameterType = "Other", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "COMC-UK", ParameterValue = 0.00m, ParameterType = "United Kingdom", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "COMC-ENG", ParameterValue = 115.45m, ParameterType = "England", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "COMC-WLS", ParameterValue = 114.00m, ParameterType = "Wales", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "COMC-SCT", ParameterValue = 117.00m, ParameterType = "Scotland", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
+             new DefaultSchemeParameters { ParameterUniqueRef = "COMC-NIR", ParameterValue = 19.00m, ParameterType = "Northern Ireland", ParameterCategory = "Communication costs", ParameterYear = "2024-25" },
              new DefaultSchemeParameters { ParameterUniqueRef = "SAOC-ENG", ParameterValue = 500.00m, ParameterType = "England", ParameterCategory = "Scheme administrator operating costs", ParameterYear = "2024-25" },
              new DefaultSchemeParameters { ParameterUniqueRef = "SAOC-WLS", ParameterValue = 140.55m, ParameterType = "Wales", ParameterCategory = "Scheme administrator operating costs", ParameterYear = "2024-25" },
              new DefaultSchemeParameters { ParameterUniqueRef = "SAOC-SCT", ParameterValue = 170.00m, ParameterType = "Scotland", ParameterCategory = "Scheme administrator operating costs", ParameterYear = "2024-25" },
@@ -146,10 +153,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
              new DefaultSchemeParameters { ParameterUniqueRef = "TONT-AD", ParameterValue = -10.00m, ParameterType = "Amount Decrease", ParameterCategory = "Tonnage change threshold", ParameterYear = "2024-25" },
              new DefaultSchemeParameters { ParameterUniqueRef = "TONT-PI", ParameterValue = 2.00m, ParameterType = "Percent Increase", ParameterCategory = "Tonnage change threshold", ParameterYear = "2024-25" },
              new DefaultSchemeParameters { ParameterUniqueRef = "TONT-PD", ParameterValue = -0.50m, ParameterType = "Percent Decrease", ParameterCategory = "Tonnage change threshold", ParameterYear = "2024-25" },
-             new DefaultSchemeParameters { ParameterUniqueRef = "LEVY-ENG", ParameterValue = 115.45m, ParameterType = "England", ParameterCategory = "Levy", ParameterYear = "2024-25" },
-             new DefaultSchemeParameters { ParameterUniqueRef = "LEVY-WLS", ParameterValue = 114.00m, ParameterType = "Wales", ParameterCategory = "Levy", ParameterYear = "2024-25" },
-             new DefaultSchemeParameters { ParameterUniqueRef = "LEVY-SCT", ParameterValue = 117.00m, ParameterType = "Scotland", ParameterCategory = "Levy", ParameterYear = "2024-25" },
-             new DefaultSchemeParameters { ParameterUniqueRef = "LEVY-NIR", ParameterValue = 19.00m, ParameterType = "Northern Ireland", ParameterCategory = "Levy", ParameterYear = "2024-25" },
              ]);
 
             return defaultParameterValues;
