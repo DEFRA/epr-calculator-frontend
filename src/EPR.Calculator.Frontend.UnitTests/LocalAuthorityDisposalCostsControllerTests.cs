@@ -75,6 +75,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.LocalAuthorityDisposalCostsIndex, result.ViewName);
         }
 
         [TestMethod]
