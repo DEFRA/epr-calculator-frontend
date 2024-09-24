@@ -50,7 +50,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result.ViewData["LateReportingTonnage"]);
             Assert.IsNotNull(result.ViewData["MaterialityThreshold"]);
             Assert.IsNotNull(result.ViewData["BadDebtProvision"]);
-            Assert.IsNotNull(result.ViewData["Levy"]);
+            Assert.IsNotNull(result.ViewData["CommunicationCostsByCountry"]);
             Assert.IsNotNull(result.ViewData["TonnageChange"]);
 
             Assert.AreEqual(true, result.ViewData["IsDataAvailable"]);

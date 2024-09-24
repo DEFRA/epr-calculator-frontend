@@ -198,7 +198,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new UploadFileController();
             var result = controller.DownloadCsvTemplate() as PhysicalFileResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual("SchemeParameterTemplate.v0.1.xlsx", result.FileDownloadName);
+            Assert.AreEqual(StaticHelpers.Path, result.FileDownloadName);
         }
     }
 }

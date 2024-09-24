@@ -1,17 +1,17 @@
 Parameter Unique Ref,Parameter Type,Parameter Category,Valid Range From,Valid Range To,Parameter Value,Instructions
-COMC-AL,Communication costs,Aluminium,£0.00,"£999,999,999.99","£2,210.45",1. Update the values in column F: 'Parameter Value'
-COMC-FC,Communication costs,Fibre composite,£0.00,"£999,999,999.99","£2,210.00",2. Select 'File' menu
-COMC-GL,Communication costs,Glass,£0.00,"£999,999,999.99","£2,210.45",3. Select 'Save a Copy' option
-COMC-PC,Communication costs,Paper or card,£0.00,"£999,999,999.99","£2,210.45",4. Select file type:  CSV UTF-8 (Comma delimited) (*.csv)
-COMC-PL,Communication costs,Plastic,£0.00,"£999,999,999.99","£2,210.45",
-COMC-ST,Communication costs,Steel,£0.00,"£999,999,999.99","£2,210.45",
-COMC-WD,Communication costs,Wood,£0.00,"£999,999,999.99","£2,210.00",
-COMC-OT,Communication costs,Other materials,£0.00,"£999,999,999.99","£2,210.45",
-COMC-UK,Communication costs,United Kingdom,£0.00,"£999,999,999.99","£2,210.45",
-COMC-ENG,Communication costs,England,£0.00,"£999,999,999.99","£2,210.45",
-COMC-WLS,Communication costs,Wales,£0.00,"£999,999,999.99","£2,210.45",
-COMC-SCT,Communication costs,Scotland,£0.00,"£999,999,999.99","£2,210.45",
-COMC-NIR,Communication costs,Northern Ireland,£0.00,"£999,999,999.99","£2,210.45",
+COMC-AL,Communication costs by material,Aluminium,£0.00,"£999,999,999.99","£2,210.45",1. Update the values in column F: 'Parameter Value'
+COMC-FC,Communication costs by material,Fibre composite,£0.00,"£999,999,999.99","£2,210.00",2. Select 'File' menu
+COMC-GL,Communication costs by material,Glass,£0.00,"£999,999,999.99","£2,210.45",3. Select 'Save a Copy' option
+COMC-PC,Communication costs by material,Paper or card,£0.00,"£999,999,999.99","£2,210.45",4. Select file type:  CSV UTF-8 (Comma delimited) (*.csv)
+COMC-PL,Communication costs by material,Plastic,£0.00,"£999,999,999.99","£2,210.45",
+COMC-ST,Communication costs by material,Steel,£0.00,"£999,999,999.99","£2,210.45",
+COMC-WD,Communication costs by material,Wood,£0.00,"£999,999,999.99","£2,210.00",
+COMC-OT,Communication costs by material,Other materials,£0.00,"£999,999,999.99","£2,210.45",
+COMC-UK,Communication costs by country,United Kingdom,£0.00,"£999,999,999.99","£2,210.45",
+COMC-ENG,Communication costs by country,England,£0.00,"£999,999,999.99","£2,210.45",
+COMC-WLS,Communication costs by country,Wales,£0.00,"£999,999,999.99","£2,210.45",
+COMC-SCT,Communication costs by country,Scotland,£0.00,"£999,999,999.99","£2,210.45",
+COMC-NIR,Communication costs by country,Northern Ireland,£0.00,"£999,999,999.99","£2,210.45",
 SAOC-ENG,Scheme administrator operating costs,England,£0.00,"£999,999,999.99","£2,210.45",
 SAOC-WLS,Scheme administrator operating costs,Wales,£0.00,"£999,999,999.99","£2,210.45",
 SAOC-SCT,Scheme administrator operating costs,Scotland,£0.00,"£999,999,999.99","£2,210.45",

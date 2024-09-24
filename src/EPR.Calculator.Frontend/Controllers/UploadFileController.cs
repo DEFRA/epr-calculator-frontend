@@ -76,7 +76,7 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), StaticHelpers.Path);
-                return PhysicalFile(filePath, "text/csv", "SchemeParameterTemplate.v0.1.xlsx");
+                return PhysicalFile(filePath, "text/csv", StaticHelpers.Path);
             }
             catch (Exception ex)
             {

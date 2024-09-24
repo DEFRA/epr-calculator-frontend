@@ -11,7 +11,7 @@
     var lateReportingTonnage = ViewBag.LateReportingTonnage;
     var materialityThreshold = ViewBag.MaterialityThreshold;
     var badDebtProvision = ViewBag.BadDebtProvision;
-    var comunnicationCostsByNation = ViewBag.ComunnicationCostsByNation;
+    var communicationCostsByCountry = ViewBag.CommunicationCostsByCountry;
     var tonnageChange = ViewBag.TonnageChange;
     var effectiveFrom = ViewBag.EffectiveFrom;
 }
@@ -37,8 +37,8 @@
                     <h2 class="govuk-heading-l">@ParameterType.CommunicationCostsByMaterial</h2>
                     <partial name="_ItemListPartial" model="communicationData" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
-                    <h2 class="govuk-heading-l">@ParameterType.CommunicationCostsByNation</h2>
-                    <partial name="_ItemListPartial" model="comunnicationCostsByNation" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
+                    <h2 class="govuk-heading-l">@ParameterType.CommunicationCostsByCountry</h2>
+                    <partial name="_ItemListPartial" model="communicationCostsByCountry" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
 
                     <h2 class="govuk-heading-l">@ParameterType.SchemeAdministratorOperatingCosts</h2>
                     <partial name="_ItemListPartial" model="operatingCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
