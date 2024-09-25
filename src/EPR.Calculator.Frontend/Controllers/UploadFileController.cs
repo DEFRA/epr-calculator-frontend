@@ -6,6 +6,7 @@ using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Globalization;
+using System.Net.Mime;
 using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -76,7 +77,7 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), StaticHelpers.Path);
-                return PhysicalFile(filePath, "text/csv", StaticHelpers.Path);
+                return PhysicalFile(filePath, StaticHelpers.ContentType, StaticHelpers.Path);
             }
             catch (Exception ex)
             {
