@@ -77,7 +77,7 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), StaticHelpers.Path);
-                return PhysicalFile(filePath, StaticHelpers.ContentType, StaticHelpers.Path);
+                return PhysicalFile(filePath, StaticHelpers.MimeType, StaticHelpers.Path);
             }
             catch (Exception ex)
             {
