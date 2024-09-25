@@ -33,32 +33,32 @@ namespace EPR.Calculator.Frontend.Helpers
 
         public static async Task<List<SchemeParameterTemplateValue>> PrepareSchemeParameterDataForUpload(IFormFile fileUpload)
         {
-                var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
+            var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
 
-                using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
-                await fileUpload.CopyToAsync(memoryStream);
-                memoryStream.Position = 0;
+            using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
+            await fileUpload.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
 
-                using (var reader = new StreamReader(memoryStream))
+            using (var reader = new StreamReader(memoryStream))
+            {
+                var config = GetCsvConfiguration(UploadType.ParameterSettings);
+                using (var csvReader = new CsvReader(reader, config))
                 {
-                    var config = GetCsvConfiguration(UploadType.ParameterSettings);
-                    using (var csvReader = new CsvReader(reader, config))
+                    await csvReader.ReadAsync();
+                    while (await csvReader.ReadAsync())
                     {
-                        await csvReader.ReadAsync();
-                        while (await csvReader.ReadAsync())
+                        var parameterUniqueReferenceId = csvReader.GetField(0);
+                        var parameterValue = csvReader.GetField(5);
+                        if (parameterUniqueReferenceId != null && parameterValue != null)
                         {
-                            var parameterUniqueReferenceId = csvReader.GetField(0);
-                            var parameterValue = csvReader.GetField(5);
-                            if (parameterUniqueReferenceId != null && parameterValue != null)
-                            {
-                                schemeTemplateParameterValues.Add(
-                                        new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = parameterUniqueReferenceId, ParameterValue = parameterValue });
-                            }
+                            schemeTemplateParameterValues.Add(
+                                    new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = parameterUniqueReferenceId, ParameterValue = parameterValue });
                         }
                     }
                 }
+            }
 
-                return schemeTemplateParameterValues;
+            return schemeTemplateParameterValues;
         }
 
         public static async Task<List<LapcapDataTemplateValueDto>> PrepareLapcapDataForUpload(IFormFile fileUpload)

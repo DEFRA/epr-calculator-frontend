@@ -75,7 +75,6 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.LocalAuthorityDisposalCostsIndex, result.ViewName);
         }
 
         [TestMethod]
@@ -105,6 +104,20 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
+        [TestMethod]
+        public void Index_WhenExceptionThrown_RedirectsToErrorPage()
+        {
+            // Arrange
+            var controller = new LocalAuthorityDisposalCostsController(null, null);
+
+            // Act
+            var result = controller.Index() as RedirectToActionResult;
+
+            // Assert
+            Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 
@@ -183,20 +196,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityDisposalCostsIndex, result.ViewName);
             Assert.IsInstanceOfType(result.Model, typeof(List<IGrouping<string, LocalAuthorityViewModel>>));
-        }
-
-        [TestMethod]
-        public void Index_WhenExceptionThrown_RedirectsToErrorPage()
-        {
-            // Arrange
-            var controller = new LocalAuthorityDisposalCostsController(null, null);
-
-            // Act
-            var result = controller.Index() as RedirectToActionResult;
-
-            // Assert
-            Assert.AreEqual("Index", result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
         }
     }
 }
