@@ -6,7 +6,7 @@ namespace EPR.Calculator.Frontend.Models
     /// Data Transfer Object (DTO) for representing errors related to creating default parameter settings.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public class CreateDefaultParameterSettingErrorDto
+    public class CreateDefaultParameterSettingErrorDto : ErrorDto
     {
         /// <summary>
         /// Gets or sets the error message.

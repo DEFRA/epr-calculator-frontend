@@ -7,7 +7,7 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
-            return View(ViewNames.CalculationRunDetailsIndex);
+            return this.View(ViewNames.CalculationRunDetailsIndex);
         }
     }
 }

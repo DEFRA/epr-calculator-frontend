@@ -1,8 +1,10 @@
-﻿using System.Net;
+﻿using System.Globalization;
+using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
@@ -18,6 +20,8 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class DashboardControllerTests
     {
+        private readonly IConfiguration configuration = ConfigurationItems.GetConfigurationValues();
+
         [TestMethod]
         public async Task DashboardController_Success_View_Test()
         {
@@ -42,7 +46,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var controller = new DashboardController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -73,7 +77,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var controller = new DashboardController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -101,7 +105,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var controller = new DashboardController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
 
             var result = controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
@@ -131,7 +135,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var config = ConfigurationItems.GetConfigurationValues();
+            var config = configuration;
             config.GetSection(ConfigSection.DashboardCalculatorRun).Value = string.Empty;
             var controller = new DashboardController(config, mockHttpClientFactory.Object);
 
@@ -166,7 +170,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
 
-            var controller = new DashboardController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
 
             // Act
             var result = controller.Index() as RedirectToActionResult;
@@ -183,9 +187,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Arrange
             var calculationRuns = new List<CalculationRun>
             {
-                new CalculationRun { CalculatorRunClassificationId = 1 },
-                new CalculationRun { CalculatorRunClassificationId = 2 },
-                new CalculationRun { CalculatorRunClassificationId = 9 } // This will use the default value
+                new CalculationRun { Id = 1, CalculatorRunClassificationId = 1, Name = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.InTheQueue, Financial_Year = "2024-25" },
+                new CalculationRun { Id = 2, CalculatorRunClassificationId = 2, Name = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Running, Financial_Year = "2024-25" },
+                new CalculationRun { Id = 3, CalculatorRunClassificationId = 3, Name = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Unclassified, Financial_Year = "2024-25" },
             };
 
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
@@ -209,9 +213,9 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Assert
             Assert.AreEqual(3, dashboardRunData.Count);
-            Assert.AreEqual("IN THE QUEUE", dashboardRunData[0].Status);
-            Assert.AreEqual("RUNNING", dashboardRunData[1].Status);
-            Assert.AreEqual(string.Empty, dashboardRunData[2].Status); // Default value
+            Assert.AreEqual(CalculationRunStatus.InTheQueue, dashboardRunData.First().Status);
+            Assert.AreEqual(CalculationRunStatus.Running, dashboardRunData[1].Status);
+            Assert.AreEqual(CalculationRunStatus.Unclassified, dashboardRunData.Last().Status); // Default value
         }
     }
 }

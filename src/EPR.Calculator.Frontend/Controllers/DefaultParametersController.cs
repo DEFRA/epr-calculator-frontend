@@ -44,9 +44,15 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var parameterSettingsApi = this.configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.DefaultParameterSettingsApi).Value;
 
+                if (string.IsNullOrWhiteSpace(parameterSettingsApi))
+                {
+                    throw new ArgumentNullException(parameterSettingsApi, "ParameterSettingsApi is null. Check the configuration settings for default parameters");
+                }
+
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
                 var year = this.configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
+
                 var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, year));
                 var response = await client.GetAsync(uri);
 

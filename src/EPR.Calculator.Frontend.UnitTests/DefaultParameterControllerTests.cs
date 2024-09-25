@@ -11,8 +11,11 @@ using Newtonsoft.Json;
 namespace EPR.Calculator.Frontend.UnitTests
 {
     [TestClass]
-    public class DefaultParameterControllerTest
+    public class DefaultParameterControllerTests
     {
+        private static readonly string[] Separator = new string[] { @"bin\" };
+        private static readonly int TotalRecords = 11;
+
         [TestMethod]
         public async Task DefaultParamerController_Success_View_Test()
         {
@@ -42,7 +45,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Index() as ViewResult;
             Assert.IsNotNull(result);
 
-            Assert.AreEqual(result.ViewData.Count, 11);
+            Assert.AreEqual(TotalRecords, result.ViewData.Count);
             Assert.IsNotNull(result.ViewData["CommunicationData"]);
             Assert.IsNotNull(result.ViewData["OperatingCosts"]);
             Assert.IsNotNull(result.ViewData["PreparationCosts"]);
