@@ -1,8 +1,31 @@
 ﻿@{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var BackLink = "Dashboard";
 }
 
-<p class="govuk-body">
-    Placeholder for calculation run name page
-</p>
+<div class="govuk-width-container">
+
+    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+        <partial name="_BackLinkPartial" model="BackLink" />
+
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <div class="govuk-form-group">
+                    <h1 class="govuk-heading-xl">
+                        Calculation name
+                    </h1>
+                    <p class="govuk-body">Give the calculation a name, so you can easily find it.</p>
+                    <div class="govuk-form-group">
+                        <input class="govuk-input govuk-input--width-20" id="telephone-number" name="telephoneNumber" type="tel" aria-describedby="telephone-number-hint" autocomplete="tel">
+                        <div data-lastpass-icon-root="" style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div><br><br><br>
+                        
+                        <a href="@Url.Action("Index", "CalculationRunConfirmation")" class="govuk-button show-continue" style="display: inline;" type="submit">
+                            Run the calculator
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
