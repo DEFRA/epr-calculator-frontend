@@ -23,7 +23,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             ]);
 
             var mockHttpSession = new MockHttpSession();
-            mockHttpSession.SetString("Local_Authority_Upload_Errors", JsonConvert.SerializeObject(errors));
+            mockHttpSession.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, JsonConvert.SerializeObject(errors));
 
             var controller = new LocalAuthorityUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
@@ -45,7 +45,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             ]);
 
             var mockHttpSession = new MockHttpSession();
-            mockHttpSession.SetString("Local_Authority_Upload_Errors", JsonConvert.SerializeObject(errors));
+            mockHttpSession.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, JsonConvert.SerializeObject(errors));
 
             var controller = new LocalAuthorityUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
@@ -77,7 +77,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void LocalAuthorityUploadFileErrorController_No_Error_Messages_Test()
         {
             var mockHttpSession = new MockHttpSession();
-            mockHttpSession.SetString("Local_Authority_Upload_Errors", string.Empty);
+            mockHttpSession.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, string.Empty);
 
             var controller = new LocalAuthorityUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
@@ -159,7 +159,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["Local_Authority_Upload_Errors"] = string.Empty;
+            tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
 
             var controller = new LocalAuthorityUploadFileErrorController()
             {
@@ -177,7 +177,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpSession = new MockHttpSession();
 
             var errors = new List<ValidationErrorDto>() { new ValidationErrorDto { ErrorMessage = StaticHelpers.FileMustBeCSV } };
-            mockHttpSession.SetString("Local_Authority_Upload_Errors", JsonConvert.SerializeObject(errors).ToString());
+            mockHttpSession.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, JsonConvert.SerializeObject(errors).ToString());
 
             var controller = new LocalAuthorityUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
@@ -195,7 +195,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpSession = new MockHttpSession();
 
             var errors = new List<CreateDefaultParameterSettingErrorDto>() { new CreateDefaultParameterSettingErrorDto { Message = "Some message" } };
-            mockHttpSession.SetString("Local_Authority_Upload_Errors", JsonConvert.SerializeObject(errors).ToString());
+            mockHttpSession.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, JsonConvert.SerializeObject(errors).ToString());
 
             var controller = new LocalAuthorityUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();

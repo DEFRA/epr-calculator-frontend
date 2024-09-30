@@ -1,16 +1,20 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    public class LocalAuthorityUploadFileController : Controller
+    public class ParameterUploadFileController : Controller
     {
         public IActionResult Index()
         {
-            return this.View(ViewNames.LocalAuthorityUploadFileIndex);
+            return this.View(ViewNames.ParameterUploadFileIndex);
         }
 
         [HttpPost]
@@ -18,8 +22,8 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var lapcapViewName = await this.GetViewName(fileUpload);
-                return this.View(lapcapViewName);
+                var viewName = await this.GetViewName(fileUpload);
+                return this.View(viewName);
             }
             catch (Exception)
             {
@@ -31,11 +35,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var lapcapFilePath = this.TempData["FilePath"]?.ToString();
+                var filePath = this.TempData["FilePath"]?.ToString();
 
-                if (!string.IsNullOrEmpty(lapcapFilePath))
+                if (!string.IsNullOrEmpty(filePath))
                 {
-                    using var stream = System.IO.File.OpenRead(lapcapFilePath);
+                    using var stream = System.IO.File.OpenRead(filePath);
                     var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
 
                     var viewName = await this.GetViewName(fileUpload);
@@ -51,23 +55,36 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        public IActionResult DownloadCsvTemplate()
+        {
+            try
+            {
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), StaticHelpers.Path);
+                return this.PhysicalFile(filePath, StaticHelpers.MimeType, StaticHelpers.Path);
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(500, "An error occured while processing request" + ex.Message);
+            }
+        }
+
         private async Task<string> GetViewName(IFormFile fileUpload)
         {
             if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
             {
-                var uploadErrors = this.TempData[UploadFileErrorIds.LocalAuthorityUploadErrors]?.ToString();
+                var uploadErrors = this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors]?.ToString();
                 if (!string.IsNullOrEmpty(uploadErrors))
                 {
                     this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(uploadErrors);
-                    return ViewNames.LocalAuthorityUploadFileIndex;
+                    return ViewNames.ParameterUploadFileIndex;
                 }
             }
 
-            var localAuthorityDisposalCosts = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
+            var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
 
-            this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
+            this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
-            return ViewNames.LocalAuthorityUploadFileRefresh;
+            return ViewNames.ParameterUploadFileRefresh;
         }
 
         private ErrorViewModel ValidateCSV(IFormFile fileUpload)
@@ -76,7 +93,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (validationErrors.ErrorMessage != null)
             {
-                this.TempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = JsonConvert.SerializeObject(validationErrors);
+                this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors] = JsonConvert.SerializeObject(validationErrors);
             }
 
             return validationErrors;

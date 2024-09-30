@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.Serialization;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.ViewModels

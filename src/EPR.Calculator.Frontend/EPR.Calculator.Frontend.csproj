@@ -37,13 +37,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="wwwroot\assets\SchemeParameterTemplates\" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<SonarQubeSetting Include="sonar.coverage.exclusions">
 			<Value>Views/**/*.cshtml,Program.cs,wwwroot/js/*.js</Value>
 		</SonarQubeSetting>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Update="wwwroot\assets\SchemeParameterTemplates\SchemeParameterTemplate.v1.1.xlsx">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 </Project>
