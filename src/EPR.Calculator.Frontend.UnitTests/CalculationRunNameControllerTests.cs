@@ -1,11 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
-using EPR.Calculator.Frontend.UnitTests.Mocks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -22,72 +18,26 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void CalculationRunNameController_View_WithCalculationName()
+        public void RunCalculator_ShouldReturnView_WhenCalculationNameIsInvalid()
         {
-            // Arrange
-            var calculationName = "Test Calculation";
-            var sessionMock = new Mock<ISession>();
-            var httpContextMock = new Mock<HttpContext>();
-            httpContextMock.Setup(s => s.Session).Returns(sessionMock.Object);
-
-            var controller = new CalculationRunNameController
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = httpContextMock.Object
-                }
-            };
-
-            // Act
-            var result = controller.CalculateRun(calculationName) as ViewResult;
-
-            // Assert
+            var controller = new CalculationRunNameController();
+            var result = controller.RunCalculator(null) as ViewResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunConfirmationIndex, result.ViewName);
-            Assert.AreEqual(calculationName, controller.ViewBag.CalculationName);
-            sessionMock.Verify(s => s.SetString("CalculationName", calculationName), Times.Once);
+            Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
+            var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
+            Assert.IsNotNull(errorViewModel);
+            Assert.AreEqual(ViewControlNames.CalculationRunName, errorViewModel.DOMElementId);
+            Assert.AreEqual(ErrorMessages.CalculationRunNameEmpty, errorViewModel.ErrorMessage);
         }
-        
+
         [TestMethod]
-        public void CalculationRunNameController_View_WithoutCalculationName()
+        public void RunCalculator_ShouldRedirect_WhenCalculationNameIsValid()
         {
-            // Arrange
-            var existingCalculationName = "Existing Calculation";
-            var sessionMock = new Mock<ISession>();
-            sessionMock.Setup(s => s.GetString("CalculationName")).Returns(existingCalculationName);
-            var httpContextMock = new Mock<HttpContext>();
-            httpContextMock.Setup(s => s.Session).Returns(sessionMock.Object);
-
-            var controller = new CalculationRunNameController
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = httpContextMock.Object
-                }
-            };
-
-            var mockHttpSession = new MockHttpSession();
-
-            mockHttpSession.GetString("CalculationName");
-            controller.ControllerContext.HttpContext.Session = mockHttpSession;
-
-            var result = controller.Index() as ViewResult;
+            var controller = new CalculationRunNameController();
+            var result = controller.RunCalculator("ValidCalculationName") as RedirectToActionResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.LocalAuthorityUploadFileErrorIndex, result.ViewName);
-
-
-
-
-
-
-            // Act
-            var result = controller.CalculateRun(null) as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunConfirmationIndex, result.ViewName);
-            Assert.AreEqual(existingCalculationName, controller.ViewBag.CalculationName);
-
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("CalculationRunConfirmation", result.ControllerName);
         }
     }
 }

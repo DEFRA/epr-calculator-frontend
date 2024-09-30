@@ -38,10 +38,4 @@
 		</SonarQubeSetting>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Content Update="wwwroot\assets\SchemeParameterTemplates\SchemeParameterTemplate.v1.1.xlsx">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	</ItemGroup>
-
 </Project>
