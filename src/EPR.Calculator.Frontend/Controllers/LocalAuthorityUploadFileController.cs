@@ -58,7 +58,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 var uploadErrors = this.TempData[UploadFileErrorIds.LocalAuthorityUploadErrors]?.ToString();
                 if (!string.IsNullOrEmpty(uploadErrors))
                 {
-                    this.ViewBag.Errors = JsonConvert.DeserializeObject<ErrorViewModel>(uploadErrors);
+                    var laUploadErrors = JsonConvert.DeserializeObject<ErrorViewModel>(uploadErrors);
+                    laUploadErrors.DOMElementId = ViewControlNames.FileUpload;
+                    this.ViewBag.Errors = laUploadErrors;
                     return ViewNames.LocalAuthorityUploadFileIndex;
                 }
             }
