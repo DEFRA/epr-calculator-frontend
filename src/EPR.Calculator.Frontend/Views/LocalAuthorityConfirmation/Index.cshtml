@@ -1,31 +1,14 @@
 ﻿@{
     Layout = "_Layout";
+    var model = new ConfirmationViewModel
+            {
+                Title = " You have successfully updated",
+                Body = "The local authority disposal costs",
+                NextText = " All calculations will automatically use the latest local authority disposal costs.",
+                RedirectController = "LocalAuthorityDisposalCosts",
+                SubmitText = "View local authority disposal costs"
+            };
 }
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<partial name="_ConfirmationPartial" model="model" />
 
-<div class="govuk-width-container">
-    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <div class="govuk-panel govuk-panel--confirmation">
-                    <h1 class="govuk-panel__title">
-                        You have successfully updated the local authority disposal costs
-                    </h1>
-                </div>
-                <br />
-
-                <h2 class="govuk-heading-m">What happens next</h2>
-                <p class="govuk-body">
-                    All calculations will automatically use the latest local authority disposal costs.
-                </p>
-
-                &nbsp; &nbsp;
-                <div class="govuk-button-group">
-                    <a href="/LocalAuthorityDisposalCosts/Index" class="govuk-button" type="submit">View local authority disposal costs</a>
-                    <a class="govuk-link" href="/Dashboard/Index">Return to the dashboard</a>
-                </div>
-            </div>
-        </div>
-    </main>
-</div>

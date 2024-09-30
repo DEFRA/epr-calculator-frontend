@@ -63,17 +63,16 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     if (defaultSchemeParameters != null)
                     {
-                        this.ViewBag.CommunicationData = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCosts);
+                        this.ViewBag.CommunicationData = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCostsByMaterial);
+                        this.ViewBag.CommunicationCostsByCountry = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCostsByCountry);
                         this.ViewBag.OperatingCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts);
                         this.ViewBag.PreparationCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts);
                         this.ViewBag.SchemeSetupCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeSetupCosts);
                         this.ViewBag.LateReportingTonnage = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LateReportingTonnage);
                         this.ViewBag.MaterialityThreshold = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.MaterialityThreshold);
                         this.ViewBag.BadDebtProvision = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.BadDebtProvision);
-                        this.ViewBag.Levy = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.Levy);
                         this.ViewBag.TonnageChange = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
                         this.ViewBag.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
-
                         this.ViewBag.IsDataAvailable = true;
 
                         return this.View();
