@@ -24,6 +24,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(CalculationRunNameIndexView);
             }
 
+            this.ViewBag.CalculationName = calculationName;
+            this.HttpContext.Session.SetString("CalculationName", (string)this.ViewBag.CalculationName);
+
             return this.RedirectToAction(CalculationRunConfirmationAction, CalculationRunConfirmationController);
         }
 
@@ -34,13 +37,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 DOMElementId = ViewControlNames.CalculationRunName,
                 ErrorMessage = ErrorMessages.CalculationRunNameEmpty,
             };
-        }
-
-        public IActionResult CalculateRun(string? calculationName)
-        {
-            this.ViewBag.CalculationName = calculationName;
-            this.HttpContext.Session.SetString("CalculationName", calculationName ?? this.HttpContext.Session.GetString("CalculationName"));
-            return this.View(ViewNames.CalculationRunConfirmationIndex);
         }
     }
 }

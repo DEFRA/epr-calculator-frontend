@@ -1,7 +1,12 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.UnitTests.Mocks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
+using Newtonsoft.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -34,7 +39,14 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void RunCalculator_ShouldRedirect_WhenCalculationNameIsValid()
         {
             var controller = new CalculationRunNameController();
+            var mockHttpSession = new MockHttpSession();
+
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Session = mockHttpSession;
+
             var result = controller.RunCalculator("ValidCalculationName") as RedirectToActionResult;
+
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual("CalculationRunConfirmation", result.ControllerName);
