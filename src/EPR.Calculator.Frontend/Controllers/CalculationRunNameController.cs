@@ -9,5 +9,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             return this.View(ViewNames.CalculationRunNameIndex);
         }
+
+        public IActionResult CalculateRun(string? calculationName)
+        {
+            this.ViewBag.CalculationName = calculationName;
+            return this.View(ViewNames.CalculationRunConfirmationIndex);
+        }
     }
 }
