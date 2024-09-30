@@ -1,0 +1,29 @@
+﻿@model ConfirmationViewModel;
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <div class="govuk-panel govuk-panel--confirmation">
+                    <h1 class="govuk-panel__title">
+                        @Model.Title
+                    </h1>
+                    <div class="govuk-panel__body">
+                       @Model.Body
+                    </div>
+                </div>
+
+                <h2 class="govuk-heading-m">What happens next</h2>
+                <p class="govuk-body">
+                    @Model.NextText
+                </p>
+
+                &nbsp; &nbsp;
+                <div class="govuk-button-group">
+                    <a href="@Url.Action("Index", @Model.RedirectController)" class="govuk-button" type="submit">@Model.SubmitText</a>
+                    <a class="govuk-link" href="/Dashboard/Index">Return to the dashboard</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
