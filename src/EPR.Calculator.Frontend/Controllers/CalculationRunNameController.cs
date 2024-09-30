@@ -13,6 +13,7 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult CalculateRun(string? calculationName)
         {
             this.ViewBag.CalculationName = calculationName;
+            this.HttpContext.Session.SetString("CalculationName", calculationName ?? this.HttpContext.Session.GetString("CalculationName"));
             return this.View(ViewNames.CalculationRunConfirmationIndex);
         }
     }

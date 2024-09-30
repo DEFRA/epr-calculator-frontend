@@ -20,7 +20,10 @@
 
                 &nbsp; &nbsp;
                 <div class="govuk-button-group">
-                    <a href="@Url.Action("Index", @Model.RedirectController)" class="govuk-button" type="submit">@Model.SubmitText</a>
+                    @if (!string.IsNullOrEmpty(Model.SubmitText))
+                    {
+                        <a href="@Url.Action("Index", @Model.RedirectController)" class="govuk-button" type="submit">@Model.SubmitText</a>
+                    }
                     <a class="govuk-link" href="/Dashboard/Index">Return to the dashboard</a>
                 </div>
             </div>

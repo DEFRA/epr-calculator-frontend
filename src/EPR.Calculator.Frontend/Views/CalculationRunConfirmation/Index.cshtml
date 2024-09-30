@@ -1,32 +1,13 @@
 ﻿@{
     Layout = "_Layout";
+    dynamic? calculationName = @ViewBag.CalculationName ?? Context.Session.GetString("CalculationName");
+
+    var model = new ConfirmationViewModel
+            {
+                Title = "You have started a calculation",
+                Body = calculationName,
+                NextText = " It will take up to 15 minutes for the calculation to finish. You will be able to view it in the list of calculations on the dashboard."
+            };
 }
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-
-<div class="govuk-width-container">
-    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <div class="govuk-panel govuk-panel--confirmation">
-                    <h1 class="govuk-panel__title">
-                        You have started a calculation
-                    </h1>
-                    <div class="govuk-panel__body">
-                        @ViewBag.CalculationName
-                    </div>
-                </div>
-                <br />
-                
-                <p class="govuk-body">
-                    It will take up to 15 minutes for the calculation to finish. You will be able to view it in the list of calculations on the dashboard.
-                </p>
-
-                &nbsp; &nbsp;
-                <div class="govuk-button-group">
-                    <a class="govuk-link" href="/Dashboard/Index">Return to the dashboard</a>
-                </div>
-            </div>
-        </div>
-    </main>
-</div>
+<partial name="_ConfirmationPartial" model="model" />
