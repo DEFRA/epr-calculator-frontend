@@ -1,8 +1,45 @@
 ﻿@{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var BackLink = "Dashboard";
+    var errors = ViewBag.Errors;
 }
 
-<p class="govuk-body">
-    Placeholder for calculation run name page
-</p>
+<partial name="_BackLinkPartial" model="BackLink" />
+
+@if (errors != null)
+{
+    <partial name="_ErrorBannerPartial" model="errors" />
+}
+
+@using (Html.BeginForm("RunCalculator", "CalculationRunName", FormMethod.Post))
+{
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-form-group">
+                <h1 class="govuk-heading-xl">
+                    Calculation name
+                </h1>
+                <div class="@(errors != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")">
+                    <div id="event-name-hint" class="govuk-hint">
+                        Give the calculation a name, so you can easily find it.
+                    </div>
+                    @if (errors != null)
+                    {
+                        <p id="calculation-name-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
+                        </p>
+                    }
+                    <input class= "@(errors != null ? "govuk-input govuk-input--error": "govuk-input govuk-input--width-20")" id ="calculation-name-1" name="calculationname" type="text" autocomplete="cal">
+                    <div data-lastpass-icon-root="" style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
+                </div>
+            </div>
+            <div class="govuk-form-group">
+                <button id="btnRunCalculator" type="submit" class="govuk-button" data-module="govuk-button">
+                    Run the calculator
+                </button>
+            </div>
+        </div>
+    </div>
+}
+        
