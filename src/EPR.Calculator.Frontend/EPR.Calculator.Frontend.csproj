@@ -40,7 +40,7 @@
 
 	<ItemGroup>
 	  <Content Update="wwwroot\assets\SchemeParameterTemplates\SchemeParameterTemplate.v1.1.xlsx">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	</ItemGroup>
 
