@@ -37,7 +37,7 @@ namespace EPR.Calculator.Frontend.UnitTests.HelpersTest
 
             var result = CsvFileHelper.ValidateCSV(null);
             Assert.IsNotNull(result);
-            Assert.AreEqual(StaticHelpers.FileNotSelected, result.ErrorMessage);
+            Assert.AreEqual(ErrorMessages.FileNotSelected, result.ErrorMessage);
         }
 
         [TestMethod]
@@ -57,7 +57,7 @@ namespace EPR.Calculator.Frontend.UnitTests.HelpersTest
 
             var result = CsvFileHelper.ValidateCSV(file);
             Assert.IsNotNull(result);
-            Assert.AreEqual(StaticHelpers.FileNotExceed50KB, result.ErrorMessage);
+            Assert.AreEqual(ErrorMessages.FileNotExceed50KB, result.ErrorMessage);
         }
 
         [TestMethod]
@@ -73,7 +73,7 @@ namespace EPR.Calculator.Frontend.UnitTests.HelpersTest
 
             var result = CsvFileHelper.ValidateCSV(file);
             Assert.IsNotNull(result);
-            Assert.AreEqual(StaticHelpers.FileMustBeCSV, result.ErrorMessage);
+            Assert.AreEqual(ErrorMessages.FileMustBeCSV, result.ErrorMessage);
         }
 
         [TestMethod]

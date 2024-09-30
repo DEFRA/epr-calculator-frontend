@@ -18,7 +18,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult RunCalculator(string calculationName)
         {
-            if (IsCalculationNameInvalid(calculationName))
+            if (string.IsNullOrEmpty(calculationName))
             {
                 this.ViewBag.Errors = CreateErrorViewModel();
                 return this.View(CalculationRunNameIndexView);
@@ -27,17 +27,12 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.RedirectToAction(CalculationRunConfirmationAction, CalculationRunConfirmationController);
         }
 
-        private static bool IsCalculationNameInvalid(string calculationName)
-        {
-            return string.IsNullOrEmpty(calculationName);
-        }
-
         private static ErrorViewModel CreateErrorViewModel()
         {
             return new ErrorViewModel
             {
                 DOMElementId = ViewControlNames.CalculationRunName,
-                ErrorMessage = StaticHelpers.CalculationRunNameEmpty,
+                ErrorMessage = ErrorMessages.CalculationRunNameEmpty,
             };
         }
     }
