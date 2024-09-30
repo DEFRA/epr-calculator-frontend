@@ -76,7 +76,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (!string.IsNullOrEmpty(uploadErrors))
                 {
                     var parameterUploadErrors = JsonConvert.DeserializeObject<ErrorViewModel>(uploadErrors);
-                    parameterUploadErrors.DOMElementId = ViewControlNames.FileUpload;
+                    if (parameterUploadErrors != null)
+                    {
+                        parameterUploadErrors.DOMElementId = ViewControlNames.FileUpload;
+                    }
+
                     this.ViewBag.Errors = parameterUploadErrors;
                     return ViewNames.ParameterUploadFileIndex;
                 }
