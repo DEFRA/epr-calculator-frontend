@@ -12,7 +12,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         public IActionResult Index()
         {
-            return View(CalculationRunNameIndexView);
+            return this.View(CalculationRunNameIndexView);
         }
 
         [HttpPost]
@@ -20,11 +20,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (IsCalculationNameInvalid(calculationName))
             {
-                ViewBag.Errors = CreateErrorViewModel();
-                return View(CalculationRunNameIndexView);
+                this.ViewBag.Errors = CreateErrorViewModel();
+                return this.View(CalculationRunNameIndexView);
             }
 
-            return RedirectToAction(CalculationRunConfirmationAction, CalculationRunConfirmationController);
+            return this.RedirectToAction(CalculationRunConfirmationAction, CalculationRunConfirmationController);
         }
 
         private static bool IsCalculationNameInvalid(string calculationName)
