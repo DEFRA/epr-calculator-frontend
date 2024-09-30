@@ -176,7 +176,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var mockHttpSession = new MockHttpSession();
 
-            var errors = new List<ValidationErrorDto>() { new ValidationErrorDto { ErrorMessage = StaticHelpers.FileMustBeCSV } };
+            var errors = new List<ValidationErrorDto>() { new ValidationErrorDto { ErrorMessage = ErrorMessages.FileMustBeCSV } };
             mockHttpSession.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, JsonConvert.SerializeObject(errors).ToString());
 
             var controller = new ParameterUploadFileErrorController();

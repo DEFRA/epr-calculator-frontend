@@ -27,7 +27,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
             Assert.IsNotNull(errorViewModel);
             Assert.AreEqual(ViewControlNames.CalculationRunName, errorViewModel.DOMElementId);
-            Assert.AreEqual(StaticHelpers.CalculationRunNameEmpty, errorViewModel.ErrorMessage);
+            Assert.AreEqual(ErrorMessages.CalculationRunNameEmpty, errorViewModel.ErrorMessage);
         }
 
         [TestMethod]
