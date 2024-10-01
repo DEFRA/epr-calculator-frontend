@@ -1,6 +1,6 @@
 ﻿﻿@{
     Layout = "_Layout";
-    string calculationName = !string.IsNullOrEmpty(ViewBag.CalculationName)
+    string calculationName = !string.IsNullOrWhiteSpace(ViewBag.CalculationName)
                                 ? ViewBag.CalculationName.ToString()
                                 : Context.Session.GetString("CalculationName") ?? "";
 

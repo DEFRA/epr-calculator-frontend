@@ -20,7 +20,7 @@
 
                 &nbsp; &nbsp;
                 <div class="govuk-button-group">
-                    @if (!string.IsNullOrEmpty(Model.SubmitText))
+                    @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
                     {
                         <a href="@Url.Action("Index", @Model.RedirectController)" class="govuk-button" type="submit">@Model.SubmitText</a>
                     }

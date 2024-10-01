@@ -18,7 +18,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult RunCalculator(string calculationName)
         {
-            if (string.IsNullOrEmpty(calculationName))
+            if (string.IsNullOrWhiteSpace(calculationName))
             {
                 this.ViewBag.Errors = CreateErrorViewModel();
                 return this.View(CalculationRunNameIndexView);
