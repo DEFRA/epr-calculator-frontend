@@ -1,6 +1,10 @@
 ﻿@{
     Layout = "_Layout";
-    dynamic? calculationName = @ViewBag.CalculationName ?? Context.Session.GetString("CalculationName");
+    string calculationName = string.Empty;
+    if (ViewBag.CalculationName != null)
+    {
+        calculationName = ViewBag.CalculationName.ToString();
+    }
 
     var model = new ConfirmationViewModel
             {
