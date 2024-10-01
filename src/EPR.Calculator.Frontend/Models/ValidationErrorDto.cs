@@ -5,8 +5,8 @@ namespace EPR.Calculator.Frontend.Models
     [ExcludeFromCodeCoverage]
     public class ValidationErrorDto
     {
-        public string Exception { get; set; }
+        public string? Exception { get; set; }
 
-        public string ErrorMessage { get; set; }
+        public required string ErrorMessage { get; set; }
     }
 }

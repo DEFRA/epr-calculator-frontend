@@ -6,17 +6,17 @@ using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    public class LocalAuthorityUploadFileErrorController : Controller
+    public class ParameterUploadFileErrorController : Controller
     {
         public IActionResult Index()
         {
             try
             {
-                var lapcapErrors = this.HttpContext.Session.GetString(UploadFileErrorIds.LocalAuthorityUploadErrors);
+                var errors = this.HttpContext.Session.GetString(UploadFileErrorIds.DefaultParameterUploadErrors);
 
-                if (!string.IsNullOrEmpty(lapcapErrors))
+                if (!string.IsNullOrEmpty(errors))
                 {
-                    var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors);
+                    var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(errors);
 
                     if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
                     {
@@ -24,7 +24,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     }
                     else
                     {
-                        this.ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateLapcapDataErrorDto>>(lapcapErrors);
+                        this.ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
                     }
 
                     if (this.ViewBag.ValidationErrors is null && this.ViewBag.Errors is not null)
@@ -38,7 +38,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         };
                     }
 
-                    return this.View(ViewNames.LocalAuthorityUploadFileErrorIndex);
+                    return this.View(ViewNames.ParameterUploadFileErrorIndex);
                 }
                 else
                 {
@@ -52,9 +52,9 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index([FromBody] string errors)
+        public IActionResult Index([FromBody]string errors)
         {
-            this.HttpContext.Session.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, errors);
+            this.HttpContext.Session.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, errors);
 
             return this.Ok();
         }
@@ -62,18 +62,18 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-            var lapcapFileErrors = CsvFileHelper.ValidateCSV(fileUpload);
-            if (lapcapFileErrors.ErrorMessage is not null)
+            var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
+            if (csvErrors.ErrorMessage is not null)
             {
-                this.ViewBag.DefaultError = lapcapFileErrors;
-                return this.View(ViewNames.LocalAuthorityUploadFileErrorIndex);
+                this.ViewBag.DefaultError = csvErrors;
+                return this.View(ViewNames.ParameterUploadFileErrorIndex);
             }
 
-            var schemeTemplateParameterValues = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
+            var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
 
             this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
 
-            return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
+            return this.View(ViewNames.ParameterUploadFileRefresh);
         }
     }
 }

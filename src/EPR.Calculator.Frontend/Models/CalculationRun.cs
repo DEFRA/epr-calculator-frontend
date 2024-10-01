@@ -9,14 +9,14 @@ namespace EPR.Calculator.Frontend.Models
 
         public int CalculatorRunClassificationId { get; set; }
 
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
-        public string Financial_Year { get; set; }
+        public required string Financial_Year { get; set; }
 
-        public string CreatedBy { get; set; }
+        public required string CreatedBy { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
-        public string Status { get; set; }
+        public required string Status { get; set; }
     }
 }

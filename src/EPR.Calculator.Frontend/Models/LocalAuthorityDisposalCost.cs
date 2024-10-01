@@ -7,7 +7,7 @@ namespace EPR.Calculator.Frontend.Models
     {
         public int Id { get; set; }
 
-        public required string ParameterYear { get; set; }
+        public required string ProjectionYear { get; set; }
 
         public required DateTime EffectiveFrom { get; set; }
 
@@ -19,7 +19,7 @@ namespace EPR.Calculator.Frontend.Models
 
         public required int LapcapDataMasterId { get; set; }
 
-        public required string LapcapDataTemplateMasterUniqueRef { get; set; }
+        public required string LapcapTempUniqueRef { get; set; }
 
         public required string Country { get; set; }
 

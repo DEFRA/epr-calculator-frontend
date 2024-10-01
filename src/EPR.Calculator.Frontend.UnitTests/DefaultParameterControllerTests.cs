@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -11,8 +11,11 @@ using Newtonsoft.Json;
 namespace EPR.Calculator.Frontend.UnitTests
 {
     [TestClass]
-    public class DefaultParameterControllerTest
+    public class DefaultParameterControllerTests
     {
+        private static readonly string[] Separator = new string[] { @"bin\" };
+        private static readonly int TotalRecords = 11;
+
         [TestMethod]
         public async Task DefaultParamerController_Success_View_Test()
         {
@@ -37,12 +40,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var controller = new DefaultParametersController(GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
 
             var result = await controller.Index() as ViewResult;
             Assert.IsNotNull(result);
 
-            Assert.AreEqual(result.ViewData.Count, 11);
+            Assert.AreEqual(TotalRecords, result.ViewData.Count);
             Assert.IsNotNull(result.ViewData["CommunicationData"]);
             Assert.IsNotNull(result.ViewData["OperatingCosts"]);
             Assert.IsNotNull(result.ViewData["PreparationCosts"]);
@@ -50,7 +53,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result.ViewData["LateReportingTonnage"]);
             Assert.IsNotNull(result.ViewData["MaterialityThreshold"]);
             Assert.IsNotNull(result.ViewData["BadDebtProvision"]);
-            Assert.IsNotNull(result.ViewData["Levy"]);
+            Assert.IsNotNull(result.ViewData["CommunicationCostsByCountry"]);
             Assert.IsNotNull(result.ViewData["TonnageChange"]);
 
             Assert.AreEqual(true, result.ViewData["IsDataAvailable"]);
@@ -81,7 +84,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var controller = new DefaultParametersController(GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
 
             var result = await controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -110,23 +113,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var controller = new DefaultParametersController(GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
 
             var result = await controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
-        }
-
-        private IConfiguration GetConfigurationValues()
-        {
-            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(new string[] { @"bin\" }, StringSplitOptions.None)[0];
-            IConfiguration config = new ConfigurationBuilder()
-               .SetBasePath(projectPath)
-               .AddJsonFile("appsettings.Test.json")
-               .Build();
-
-            return config;
         }
     }
 }

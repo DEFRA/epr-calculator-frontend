@@ -2,10 +2,8 @@
     ViewData["Title"] = "Run the service administrator calculator - Upload CSV Error";
     var validationErrors = ViewBag.ValidationErrors;
     var errors = ViewBag.Errors;
-    var BackLink = "UploadFile";
+    var BackLink = "ParameterUploadFile";
     var defaultError = ViewBag.DefaultError;
-    var isDataError = errors == null;
-
 }
 
 <partial name="_BackLinkPartial" model="BackLink" />
@@ -39,7 +37,7 @@
                 Upload the file again
             </label>
 
-            @using (Html.BeginForm("Upload", "UploadCSVError", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            @using (Html.BeginForm("Upload", "ParameterUploadFileError", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
                 <partial name="_UploadFileButtonPartial" />
             }

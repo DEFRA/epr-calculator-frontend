@@ -26,7 +26,7 @@ else
 }
 
 <div class="govuk-form-group">
-    <p class="govuk-body">Make sure you're using the latest version of the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "UploadFile")">default parameters spreadsheet template</a>.</p>
+    <p class="govuk-body">Make sure you're using the latest version of the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "ParameterUploadFile")">default parameters spreadsheet template</a>.</p>
 </div>
 
 @if (errors == null)
@@ -37,7 +37,7 @@ else
 <partial name="_UploadFileInformationPartial" />
 
 
-@using (Html.BeginForm("Upload", "UploadFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("Upload", "ParameterUploadFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <div class="@(errors != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")">
         @if (errors != null)

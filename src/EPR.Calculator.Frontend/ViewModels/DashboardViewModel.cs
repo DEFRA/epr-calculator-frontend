@@ -9,13 +9,13 @@ namespace EPR.Calculator.Frontend.ViewModels
     {
         public DashboardViewModel(CalculationRun calculationRun)
         {
-            Id = calculationRun.Id;
-            Name = calculationRun.Name;
-            CreatedAt = GetFormattedCreatedAt(calculationRun.CreatedAt);
-            CreatedBy = calculationRun.CreatedBy;
-            Status = calculationRun.Status;
-            TagStyle = GetCalculationRunStatusStyles(calculationRun.Status);
-            ShowRunDetailLink = GetShowRunDetailLink(calculationRun.Status);
+            this.Id = calculationRun.Id;
+            this.Name = calculationRun.Name;
+            this.CreatedAt = this.GetFormattedCreatedAt(calculationRun.CreatedAt);
+            this.CreatedBy = calculationRun.CreatedBy;
+            this.Status = calculationRun.Status;
+            this.TagStyle = this.GetCalculationRunStatusStyles(calculationRun.Status);
+            this.ShowRunDetailLink = this.GetShowRunDetailLink(calculationRun.Status);
         }
 
         public int Id { get; set; }
