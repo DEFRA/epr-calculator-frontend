@@ -24,6 +24,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(CalculationRunNameIndexView);
             }
 
+            this.ViewBag.CalculationName = calculationName;
+            this.HttpContext.Session.SetString("CalculationName", (string)this.ViewBag.CalculationName);
+
             return this.RedirectToAction(CalculationRunConfirmationAction, CalculationRunConfirmationController);
         }
 

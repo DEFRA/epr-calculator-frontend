@@ -4,6 +4,7 @@
     {
         public const string CalculationRunDetailsIndex = "~/Views/CalculationRunDetails/Index.cshtml";
         public const string CalculationRunNameIndex = "~/Views/CalculationRunName/Index.cshtml";
+        public const string CalculationRunConfirmationIndex = "~/Views/CalculationRunConfirmation/Index.cshtml";
         public const string DashboardIndex = "~/Views/Dashboard/Index.cshtml";
         public const string LocalAuthorityDisposalCostsIndex = "~/Views/LocalAuthorityDisposalCosts/Index.cshtml";
         public const string LocalAuthorityUploadFileIndex = "~/Views/LocalAuthorityUploadFile/Index.cshtml";

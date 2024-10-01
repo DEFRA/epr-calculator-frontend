@@ -1,7 +1,11 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Text;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.UnitTests.Mocks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -34,10 +38,43 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void RunCalculator_ShouldRedirect_WhenCalculationNameIsValid()
         {
             var controller = new CalculationRunNameController();
+            var mockHttpSession = new MockHttpSession();
+
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Session = mockHttpSession;
+
             var result = controller.RunCalculator("ValidCalculationName") as RedirectToActionResult;
+
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual("CalculationRunConfirmation", result.ControllerName);
+        }
+
+        [TestMethod]
+        public void RunCalculator_WhenCalculationNameIsProvided_ShouldSetSessionAndRedirect()
+        {
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+
+            var controller = new CalculationRunNameController
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = mockHttpContext.Object
+                }
+            };
+
+            string calculationName = "TestCalculation";
+            byte[] calculationNameBytes = Encoding.UTF8.GetBytes(calculationName);
+
+            var result = controller.RunCalculator(calculationName) as RedirectToActionResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("CalculationRunConfirmation", result.ControllerName);
+            mockSession.Verify(s => s.Set("CalculationName", calculationNameBytes), Times.Once);
         }
     }
 }
