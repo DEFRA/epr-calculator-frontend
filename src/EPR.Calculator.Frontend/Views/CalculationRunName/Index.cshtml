@@ -2,30 +2,44 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var BackLink = "Dashboard";
+    var errors = ViewBag.Errors;
 }
 
-<div class="govuk-width-container">
+<partial name="_BackLinkPartial" model="BackLink" />
 
-    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
-        <partial name="_BackLinkPartial" model="BackLink" />
+@if (errors != null)
+{
+    <partial name="_ErrorBannerPartial" model="errors" />
+}
 
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <div class="govuk-form-group">
-                    <h1 class="govuk-heading-xl">
-                        <label for="calculation-name-1">Calculation name</label>
-                    </h1>
-                    <p class="govuk-body">Give the calculation a name, so you can easily find it.</p>
-                    <div class="govuk-form-group">
-                        <input class="govuk-input govuk-input--width-20" id="calculation-name-1" name="calculationname" type="text" autocomplete="cal">
-                        <div data-lastpass-icon-root="" style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div><br><br><br>
-                        
-                        <a href="@Url.Action("Index", "CalculationRunConfirmation")" class="govuk-button show-continue" style="display: inline;" type="submit">
-                            Run the calculator
-                        </a>
+@using (Html.BeginForm("RunCalculator", "CalculationRunName", FormMethod.Post))
+{
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-form-group">
+                <h1 class="govuk-heading-xl">
+                    <label for="calculation-name-1">Calculation name</label>
+                </h1>
+                <div class="@(errors != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")">
+                    <div id="event-name-hint" class="govuk-hint">
+                        Give the calculation a name, so you can easily find it.
                     </div>
+                    @if (errors != null)
+                    {
+                        <p id="calculation-name-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
+                        </p>
+                    }
+                    <input class= "@(errors != null ? "govuk-input govuk-input--error": "govuk-input govuk-input--width-20")" id ="calculation-name-1" name="calculationname" type="text" autocomplete="cal">
+                    <div data-lastpass-icon-root="" style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
                 </div>
             </div>
+            <div class="govuk-form-group">
+                <button id="btnRunCalculator" type="submit" class="govuk-button" data-module="govuk-button">
+                    Run the calculator
+                </button>
+            </div>
         </div>
-    </main>
-</div>
+    </div>
+}
+        
