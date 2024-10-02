@@ -1,10 +1,12 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    public class CalculationRunNameController : Controller
+    public partial class CalculationRunNameController : Controller
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
         private const string CalculationRunConfirmationAction = "Index";
@@ -18,22 +20,47 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult RunCalculator(string calculationName)
         {
-            if (string.IsNullOrEmpty(calculationName))
+            var validationResult = ValidateCalculationRunName(calculationName);
+
+            if (!validationResult.IsValid)
             {
-                this.ViewBag.Errors = CreateErrorViewModel();
+                this.ViewBag.Errors = CreateErrorViewModel(validationResult.ErrorMessage);
                 return this.View(CalculationRunNameIndexView);
             }
 
             return this.RedirectToAction(CalculationRunConfirmationAction, CalculationRunConfirmationController);
         }
 
-        private static ErrorViewModel CreateErrorViewModel()
+        private static ValidationResult ValidateCalculationRunName(string calculationName)
+        {
+            if (string.IsNullOrEmpty(calculationName))
+            {
+                return ValidationResult.Fail(ErrorMessages.CalculationRunNameEmpty);
+            }
+
+            if (calculationName.Length > 100)
+            {
+                return ValidationResult.Fail(ErrorMessages.CalculationRunNameMaxLengthExceeded);
+            }
+
+            if (!AllowOnlyAlphaNumeric().IsMatch(calculationName))
+            {
+                return ValidationResult.Fail(ErrorMessages.CalculationRunNameMustBeAlphaNumeric);
+            }
+
+            return ValidationResult.Success();
+        }
+
+        private static ErrorViewModel CreateErrorViewModel(string errorMessage)
         {
             return new ErrorViewModel
             {
                 DOMElementId = ViewControlNames.CalculationRunName,
-                ErrorMessage = ErrorMessages.CalculationRunNameEmpty,
+                ErrorMessage = errorMessage,
             };
         }
+
+        [GeneratedRegex(@"^[a-zA-Z0-9]{1,100}$")]
+        private static partial Regex AllowOnlyAlphaNumeric();
     }
 }
