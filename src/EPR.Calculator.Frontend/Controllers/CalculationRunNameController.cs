@@ -23,12 +23,12 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             this.ViewBag.CalculationName = calculationName;
-            this.HttpContext.Session.SetString("CalculationName", (string)this.ViewBag.CalculationName);
+            this.HttpContext.Session.SetString(SessionConstants.CalculationName, (string)this.ViewBag.CalculationName);
 
-            return this.RedirectToAction("Confirmation");
+            return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
         }
 
-        public IActionResult Confirmation()
+        public ViewResult Confirmation()
         {
             return this.View(ViewNames.CalculationRunConfirmation);
         }
