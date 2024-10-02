@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net.Http;
+using System.Text;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
@@ -47,8 +48,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = controller.RunCalculator("ValidCalculationName") as RedirectToActionResult;
 
             Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
-            Assert.AreEqual("CalculationRunConfirmation", result.ControllerName);
+            Assert.AreEqual("Confirmation", result.ActionName);
+            Assert.AreEqual("ValidCalculationName", mockHttpSession.GetString("CalculationName"));
         }
 
         [TestMethod]
@@ -72,8 +73,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = controller.RunCalculator(calculationName) as RedirectToActionResult;
 
             Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
-            Assert.AreEqual("CalculationRunConfirmation", result.ControllerName);
+            Assert.AreEqual("Confirmation", result.ActionName);
             mockSession.Verify(s => s.Set("CalculationName", calculationNameBytes), Times.Once);
         }
     }
