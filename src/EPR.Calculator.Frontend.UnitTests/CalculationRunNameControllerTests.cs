@@ -76,5 +76,15 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual("Confirmation", result.ActionName);
             mockSession.Verify(s => s.Set("CalculationName", calculationNameBytes), Times.Once);
         }
+
+        [TestMethod]
+        public void RunCalculatorConfirmation_ReturnsViewResult_WithCorrectViewName()
+        {
+            var controller = new CalculationRunNameController();
+            var result = controller.Confirmation() as ViewResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunConfirmation, result.ViewName);
+        }
     }
 }
