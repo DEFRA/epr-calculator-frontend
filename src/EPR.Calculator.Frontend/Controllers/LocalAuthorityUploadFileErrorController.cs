@@ -69,9 +69,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(ViewNames.LocalAuthorityUploadFileErrorIndex);
             }
 
-            var schemeTemplateParameterValues = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
+            var localAuthorityDisposalCostsValues = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
 
-            this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
+            this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCostsValues.ToArray();
 
             return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
         }
