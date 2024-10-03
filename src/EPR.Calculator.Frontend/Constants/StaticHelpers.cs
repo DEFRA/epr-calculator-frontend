@@ -7,5 +7,6 @@
         public const string MimeType = "test/csv";
         public const long MaxFileSize = 50 * 1024; // 50 KB
         public const string MediaType = "application/json";
+        public const string AllowOnlyAlphaNumeric = @"^[a-zA-Z0-9]+$";
     }
 }
