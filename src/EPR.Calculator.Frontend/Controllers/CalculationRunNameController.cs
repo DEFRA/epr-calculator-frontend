@@ -2,7 +2,6 @@
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -43,11 +42,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 return ValidationResult.Fail(ErrorMessages.CalculationRunNameMaxLengthExceeded);
             }
 
-            if (!AllowOnlyAlphaNumeric().IsMatch(calculationName))
-            {
-                return ValidationResult.Fail(ErrorMessages.CalculationRunNameMustBeAlphaNumeric);
-            }
-
             return ValidationResult.Success();
         }
 
@@ -59,8 +53,5 @@ namespace EPR.Calculator.Frontend.Controllers
                 ErrorMessage = errorMessage,
             };
         }
-
-        [GeneratedRegex(@"^[a-zA-Z0-9]{1,100}$")]
-        private static partial Regex AllowOnlyAlphaNumeric();
     }
 }

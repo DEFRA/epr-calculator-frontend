@@ -68,17 +68,5 @@ namespace EPR.Calculator.Frontend.UnitTests
             var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
             Assert.AreEqual("Calculation name must contain no more than 100 characters", errorViewModel.ErrorMessage);
         }
-
-        [TestMethod]
-        public void RunCalculator_WhenCalculationNameIsNotAlphaNumeric_ShouldReturnViewWithError()
-        {
-            string invalidName = "InvalidName!";
-            var result = _controller.RunCalculator(invalidName) as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
-            Assert.IsTrue(_controller.ViewBag.Errors is ErrorViewModel);
-            var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
-            Assert.AreEqual("Calculation name must only contain numbers and letters", errorViewModel.ErrorMessage);
-        }
     }
 }
