@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    public class CalculationRunNameController : Controller
+    public partial class CalculationRunNameController : Controller
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
         private const string CalculationRunConfirmationAction = "Index";
@@ -43,7 +43,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 return ValidationResult.Fail(ErrorMessages.CalculationRunNameMaxLengthExceeded);
             }
 
-            if (!Regex.IsMatch(calculationName, StaticHelpers.AllowOnlyAlphaNumeric))
+            if (!AllowOnlyAlphaNumeric().IsMatch(calculationName))
             {
                 return ValidationResult.Fail(ErrorMessages.CalculationRunNameMustBeAlphaNumeric);
             }
@@ -59,5 +59,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 ErrorMessage = errorMessage,
             };
         }
+
+        [GeneratedRegex(@"^[a-zA-Z0-9]{1,100}$")]
+        private static partial Regex AllowOnlyAlphaNumeric();
     }
 }
