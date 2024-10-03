@@ -108,6 +108,20 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
+        public void Index_WhenExceptionThrown_RedirectsToErrorPage()
+        {
+            // Arrange
+            var controller = new LocalAuthorityDisposalCostsController(null, null);
+
+            // Act
+            var result = controller.Index() as RedirectToActionResult;
+
+            // Assert
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(UriFormatException))]
         public async Task GetHttpRequest_NullOrEmptyLapcapRunApi_ThrowsArgumentNullException()
         {
