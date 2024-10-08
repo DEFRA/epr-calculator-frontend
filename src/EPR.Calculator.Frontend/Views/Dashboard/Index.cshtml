@@ -13,8 +13,8 @@
     </div>
     <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
         <div class="account-info">
-            <span class="your-name" id="bannerUserName">Jamie Roberts</span>
-            <a class="account-link" href="details" id="signout-link">Sign out</a>
+            <span class="your-name" id="bannerUserName">@User?.Identity?.Name</span>
+            <a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
         </div>
     </div>
 </div>
