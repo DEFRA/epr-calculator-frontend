@@ -23,7 +23,7 @@ builder.Services.AddRazorPages().AddMvcOptions(options =>
 }).AddMicrosoftIdentityUI();
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddMicrosoftIdentityUI();
 
 builder.Services.AddDistributedMemoryCache();
 
