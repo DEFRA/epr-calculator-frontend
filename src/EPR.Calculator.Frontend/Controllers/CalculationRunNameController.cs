@@ -1,12 +1,11 @@
 ﻿using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    public partial class CalculationRunNameController : Controller
+    public class CalculationRunNameController : Controller
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
 
@@ -16,18 +15,20 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult RunCalculator(string calculationName)
+        public IActionResult RunCalculator(InitiateCalculatorRunModel calculationRunName)
         {
-            var validationResult = ValidateCalculationRunName(calculationName);
-
-            if (!validationResult.IsValid)
+            if (!ModelState.IsValid)
             {
-                this.ViewBag.Errors = CreateErrorViewModel(validationResult.ErrorMessage);
+                this.ViewBag.Errors = CreateErrorViewModel(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).LastOrDefault());
                 return this.View(CalculationRunNameIndexView);
             }
 
-            this.ViewBag.CalculationName = calculationName;
-            this.HttpContext.Session.SetString(SessionConstants.CalculationName, (string)this.ViewBag.CalculationName);
+            this.ViewBag.CalculationName = calculationRunName?.CalculationName;
+            if (!string.IsNullOrEmpty(this.ViewBag.CalculationName))
+            {
+                this.HttpContext.Session.SetString(SessionConstants.CalculationName, (string)this.ViewBag.CalculationName);
+            }
+
 
             return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
         }
@@ -35,26 +36,6 @@ namespace EPR.Calculator.Frontend.Controllers
         public ViewResult Confirmation()
         {
             return this.View(ViewNames.CalculationRunConfirmation);
-        }
-
-        private static ValidationResult ValidateCalculationRunName(string calculationName)
-        {
-            if (string.IsNullOrEmpty(calculationName))
-            {
-                return ValidationResult.Fail(ErrorMessages.CalculationRunNameEmpty);
-            }
-
-            if (calculationName.Length > 100)
-            {
-                return ValidationResult.Fail(ErrorMessages.CalculationRunNameMaxLengthExceeded);
-            }
-
-            if (!AllowOnlyAlphaNumeric().IsMatch(calculationName))
-            {
-                return ValidationResult.Fail(ErrorMessages.CalculationRunNameMustBeAlphaNumeric);
-            }
-
-            return ValidationResult.Success();
         }
 
         private static ErrorViewModel CreateErrorViewModel(string errorMessage)
@@ -65,8 +46,5 @@ namespace EPR.Calculator.Frontend.Controllers
                 ErrorMessage = errorMessage,
             };
         }
-
-        [GeneratedRegex(@"^[a-zA-Z0-9]{1,100}$")]
-        private static partial Regex AllowOnlyAlphaNumeric();
     }
 }

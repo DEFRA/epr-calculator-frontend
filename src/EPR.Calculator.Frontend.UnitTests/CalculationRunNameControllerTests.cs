@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -31,6 +32,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void RunCalculator_ShouldReturnView_WhenCalculationNameIsInvalid()
         {
+            _controller.ModelState.AddModelError("CalculationName", "Enter a name for this calculation");
+            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = null };
             var result = _controller.RunCalculator(null) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
@@ -50,7 +53,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
 
-            var result = controller.RunCalculator("ValidCalculationName") as RedirectToActionResult;
+            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "ValidCalculationName" };
+            var result = controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
 
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
@@ -72,10 +76,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                 }
             };
 
-            string calculationName = "TestCalculation";
-            byte[] calculationNameBytes = Encoding.UTF8.GetBytes(calculationName);
+            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "TestCalculation" };
+            byte[] calculationNameBytes = Encoding.UTF8.GetBytes(calculatorRunModel.CalculationName);
 
-            var result = controller.RunCalculator(calculationName) as RedirectToActionResult;
+            var result = controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
 
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
@@ -95,37 +99,40 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void RunCalculator_WhenCalculationNameIsEmpty_ShouldReturnViewWithError()
         {
-            string emptyName = string.Empty;
-            var result = _controller.RunCalculator(emptyName) as ViewResult;
+            _controller.ModelState.AddModelError("CalculationName", "Enter a name for this calculation");
+            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = string.Empty };
+            var result = _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
             Assert.IsTrue(_controller.ViewBag.Errors is ErrorViewModel);
             var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
-            Assert.AreEqual("Enter a name for this calculation", errorViewModel.ErrorMessage);
+            Assert.AreEqual(ErrorMessages.CalculationRunNameEmpty, errorViewModel.ErrorMessage);
         }
 
         [TestMethod]
         public void RunCalculator_WhenCalculationNameIsTooLong_ShouldReturnViewWithError()
         {
-            string longName = new string('a', 101);
-            var result = _controller.RunCalculator(longName) as ViewResult;
+            _controller.ModelState.AddModelError("CalculationName", "Calculation name must contain no more than 100 characters");
+            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = new string('a', 101) };
+            var result = _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
             Assert.IsTrue(_controller.ViewBag.Errors is ErrorViewModel);
             var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
-            Assert.AreEqual("Calculation name must contain no more than 100 characters", errorViewModel.ErrorMessage);
+            Assert.AreEqual(ErrorMessages.CalculationRunNameMaxLengthExceeded, errorViewModel.ErrorMessage);
         }
 
         [TestMethod]
         public void RunCalculator_WhenCalculationNameIsNotAlphaNumeric_ShouldReturnViewWithError()
         {
-            string invalidName = "InvalidName!";
-            var result = _controller.RunCalculator(invalidName) as ViewResult;
+            _controller.ModelState.AddModelError("CalculationName", "Calculation name must only contain numbers and letters");
+            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "InvalidName" };
+            var result = _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
             Assert.IsTrue(_controller.ViewBag.Errors is ErrorViewModel);
             var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
-            Assert.AreEqual("Calculation name must only contain numbers and letters", errorViewModel.ErrorMessage);
+            Assert.AreEqual(ErrorMessages.CalculationRunNameMustBeAlphaNumeric, errorViewModel.ErrorMessage);
         }
     }
 }
