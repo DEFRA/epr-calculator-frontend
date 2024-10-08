@@ -29,7 +29,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.HttpContext.Session.SetString(SessionConstants.CalculationName, (string)this.ViewBag.CalculationName);
             }
 
-
             return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
         }
 
