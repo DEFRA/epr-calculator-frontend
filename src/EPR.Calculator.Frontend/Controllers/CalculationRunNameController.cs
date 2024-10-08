@@ -17,9 +17,9 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult RunCalculator(InitiateCalculatorRunModel calculationRunName)
         {
-            if (!ModelState.IsValid)
+            if (!this.ModelState.IsValid)
             {
-                this.ViewBag.Errors = CreateErrorViewModel(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).LastOrDefault());
+                this.ViewBag.Errors = CreateErrorViewModel(this.ModelState.Values.SelectMany(x => x.Errors)?.Select(x => x.ErrorMessage)?.LastOrDefault());
                 return this.View(CalculationRunNameIndexView);
             }
 
