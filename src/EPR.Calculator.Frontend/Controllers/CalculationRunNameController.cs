@@ -9,8 +9,6 @@ namespace EPR.Calculator.Frontend.Controllers
     public partial class CalculationRunNameController : Controller
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
-        private const string CalculationRunConfirmationAction = "Index";
-        private const string CalculationRunConfirmationController = "CalculationRunConfirmation";
 
         public IActionResult Index()
         {
@@ -28,7 +26,15 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(CalculationRunNameIndexView);
             }
 
-            return this.RedirectToAction(CalculationRunConfirmationAction, CalculationRunConfirmationController);
+            this.ViewBag.CalculationName = calculationName;
+            this.HttpContext.Session.SetString(SessionConstants.CalculationName, (string)this.ViewBag.CalculationName);
+
+            return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
+        }
+
+        public ViewResult Confirmation()
+        {
+            return this.View(ViewNames.CalculationRunConfirmation);
         }
 
         private static ValidationResult ValidateCalculationRunName(string calculationName)
