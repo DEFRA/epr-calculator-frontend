@@ -1,11 +1,12 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using EPR.Calculator.Frontend.Middleware;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDistributedMemoryCache();
-
-builder.Services.AddApplicationInsightsTelemetry();
 
 builder.Services.AddSession(options =>
 {
@@ -15,6 +16,13 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddHttpClient();
+
+builder.Services.AddLogging();
+
+builder.Services.AddApplicationInsightsTelemetry(options =>
+{ 
+    options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionSting"];
+});
 
 var app = builder.Build();
 
@@ -26,6 +34,8 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseMiddleware<GlobalErrorHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
