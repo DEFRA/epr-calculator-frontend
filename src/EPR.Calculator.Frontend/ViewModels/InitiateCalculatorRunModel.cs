@@ -2,6 +2,6 @@
 {
     public class InitiateCalculatorRunModel
     {
-        public string CalculationName { get; set; }
+        public string? CalculationName { get; set; }
     }
 }
