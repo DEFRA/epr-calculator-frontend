@@ -19,7 +19,8 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                this.ViewBag.Errors = CreateErrorViewModel(this.ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).LastOrDefault());
+                var errorMessages = this.ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
+                this.ViewBag.Errors = CreateErrorViewModel(errorMessages.LastOrDefault());
                 return this.View(CalculationRunNameIndexView);
             }
 
