@@ -25,7 +25,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             this.ViewBag.CalculationName = calculationRunName?.CalculationName;
-            if (!string.IsNullOrEmpty(this.ViewBag.CalculationName))
+            if (!string.IsNullOrWhiteSpace(this.ViewBag.CalculationName))
             {
                 this.HttpContext.Session.SetString(SessionConstants.CalculationName, (string)this.ViewBag.CalculationName);
             }
