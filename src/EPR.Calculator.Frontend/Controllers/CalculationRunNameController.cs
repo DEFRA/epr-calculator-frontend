@@ -15,7 +15,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult RunCalculator(InitiateCalculatorRunModel calculationRunName)
+        public IActionResult RunCalculator(InitiateCalculatorRunModel calculationRunModel)
         {
             if (!this.ModelState.IsValid)
             {
@@ -24,12 +24,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(CalculationRunNameIndexView);
             }
 
-            this.ViewBag.CalculationName = calculationRunName?.CalculationName;
-            if (!string.IsNullOrWhiteSpace(this.ViewBag.CalculationName))
-            {
-                this.HttpContext.Session.SetString(SessionConstants.CalculationName, (string)this.ViewBag.CalculationName);
-            }
-
+            this.HttpContext.Session.SetString(SessionConstants.CalculationName, calculationRunModel.CalculationName);
             return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
         }
 
