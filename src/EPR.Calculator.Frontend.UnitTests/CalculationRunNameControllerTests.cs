@@ -48,7 +48,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void RunCalculator_ShouldRedirect_WhenCalculationNameIsValid()
+        public void RunCalculator_ShouldRedirect_IsOnlyAlphabets_WhenCalculationNameIsValid()
         {
             var controller = new CalculationRunNameController();
             var mockHttpSession = new MockHttpSession();
@@ -63,6 +63,60 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
             Assert.AreEqual("ValidCalculationName", mockHttpSession.GetString(SessionConstants.CalculationName));
+        }
+
+        [TestMethod]
+        public void RunCalculator_ShouldRedirect_IsOnlyNumeric_WhenCalculationNameIsValid()
+        {
+            var controller = new CalculationRunNameController();
+            var mockHttpSession = new MockHttpSession();
+
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Session = mockHttpSession;
+
+            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "1234" };
+            var result = controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
+            Assert.AreEqual("1234", mockHttpSession.GetString(SessionConstants.CalculationName));
+        }
+
+        [TestMethod]
+        public void RunCalculator_ShouldRedirect_IsAplhaNumeric_WithNoSpace_WhenCalculationNameIsValid()
+        {
+            var controller = new CalculationRunNameController();
+            var mockHttpSession = new MockHttpSession();
+
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Session = mockHttpSession;
+
+            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "ValidCalculationName1234" };
+            var result = controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
+            Assert.AreEqual("ValidCalculationName1234", mockHttpSession.GetString(SessionConstants.CalculationName));
+        }
+
+        [TestMethod]
+        public void RunCalculator_WhenCalculationName__IsAplhaNumeric_WithSpace_IsValid()
+        {
+            var controller = new CalculationRunNameController();
+            var mockHttpSession = new MockHttpSession();
+
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Session = mockHttpSession;
+
+            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "ValidCalculationName 123" };
+            var result = controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
+            Assert.AreEqual("ValidCalculationName 123", mockHttpSession.GetString(SessionConstants.CalculationName));
         }
 
         [TestMethod]
@@ -131,63 +185,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             _controller.ModelState.AddModelError("CalculationName", "Calculation name must only contain numbers and letters");
             var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "%^&*$@" };
-            var result = _controller.RunCalculator(calculatorRunModel) as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
-            Assert.IsTrue(_controller.ViewBag.Errors is ErrorViewModel);
-            var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
-            Assert.AreEqual(ErrorMessages.CalculationRunNameMustBeAlphaNumeric, errorViewModel.ErrorMessage);
-        }
-
-        [TestMethod]
-        public void RunCalculator_WhenCalculationName_IsOnlyAlphaNumeric_ShouldReturnViewWithError()
-        {
-            _controller.ModelState.AddModelError("CalculationName", "Calculation name must only contain numbers and letters");
-            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "ValidName123" };
-            var result = _controller.RunCalculator(calculatorRunModel) as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
-            Assert.IsTrue(_controller.ViewBag.Errors is ErrorViewModel);
-            var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
-            Assert.AreEqual(ErrorMessages.CalculationRunNameMustBeAlphaNumeric, errorViewModel.ErrorMessage);
-        }
-
-        [TestMethod]
-        public void RunCalculator_WhenCalculationName_IsOnlyAlphabets_ShouldReturnViewWithError()
-        {
-            _controller.ModelState.AddModelError("CalculationName", "Calculation name must only contain numbers and letters");
-            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "InvalidName" };
-            var result = _controller.RunCalculator(calculatorRunModel) as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
-            Assert.IsTrue(_controller.ViewBag.Errors is ErrorViewModel);
-            var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
-            Assert.AreEqual(ErrorMessages.CalculationRunNameMustBeAlphaNumeric, errorViewModel.ErrorMessage);
-        }
-
-        [TestMethod]
-        public void RunCalculator_WhenCalculationName_Has_Spaces_IsValid()
-        {
-            var controller = new CalculationRunNameController();
-            var mockHttpSession = new MockHttpSession();
-
-            controller.ControllerContext = new ControllerContext();
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
-            controller.ControllerContext.HttpContext.Session = mockHttpSession;
-
-            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "ValidCalculationName 123" };
-            var result = controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
-            Assert.AreEqual("ValidCalculationName 123", mockHttpSession.GetString(SessionConstants.CalculationName));
-        }
-
-        [TestMethod]
-        public void RunCalculator_WhenCalculationName_IsOnlyNumeric_ShouldReturnViewWithError()
-        {
-            _controller.ModelState.AddModelError("CalculationName", "Calculation name must only contain numbers and letters");
-            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "12345" };
             var result = _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
