@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -14,17 +15,16 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult RunCalculator(string calculationName)
+        public IActionResult RunCalculator(InitiateCalculatorRunModel calculationRunModel)
         {
-            if (string.IsNullOrWhiteSpace(calculationName))
+            if (!this.ModelState.IsValid)
             {
-                this.ViewBag.Errors = CreateErrorViewModel();
+                var errorMessages = this.ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
+                this.ViewBag.Errors = CreateErrorViewModel(errorMessages.First());
                 return this.View(CalculationRunNameIndexView);
             }
 
-            this.ViewBag.CalculationName = calculationName;
-            this.HttpContext.Session.SetString(SessionConstants.CalculationName, (string)this.ViewBag.CalculationName);
-
+            this.HttpContext.Session.SetString(SessionConstants.CalculationName, calculationRunModel.CalculationName);
             return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
         }
 
@@ -33,12 +33,12 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.View(ViewNames.CalculationRunConfirmation);
         }
 
-        private static ErrorViewModel CreateErrorViewModel()
+        private static ErrorViewModel CreateErrorViewModel(string errorMessage)
         {
             return new ErrorViewModel
             {
                 DOMElementId = ViewControlNames.CalculationRunName,
-                ErrorMessage = ErrorMessages.CalculationRunNameEmpty,
+                ErrorMessage = errorMessage,
             };
         }
     }

@@ -1,4 +1,8 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using EPR.Calculator.Frontend.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -6,6 +10,12 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddApplicationInsightsTelemetry();
+
+builder.Services.AddFluentValidationAutoValidation();
+
+builder.Services.AddFluentValidationClientsideAdapters();
+
+builder.Services.AddValidatorsFromAssemblyContaining<CalculatorRunNameValidator>();
 
 builder.Services.AddSession(options =>
 {
