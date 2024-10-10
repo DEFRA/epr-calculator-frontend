@@ -38,8 +38,7 @@ namespace EPR.Calculator.Frontend.Controllers
         public ViewResult Confirmation()
         {
             throw new SystemException("SUNITA ERROR");
-            //return this.View(ViewNames.CalculationRunConfirmation);
-            
+            return this.View(ViewNames.CalculationRunConfirmation);
         }
 
         private static ErrorViewModel CreateErrorViewModel()
