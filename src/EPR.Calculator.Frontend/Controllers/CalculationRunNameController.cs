@@ -7,8 +7,6 @@ namespace EPR.Calculator.Frontend.Controllers
     public class CalculationRunNameController : Controller
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
-        private const string CalculationRunConfirmationAction = "Index";
-        private const string CalculationRunConfirmationController = "CalculationRunConfirmation";
 
         private readonly ILogger<CalculationRunNameController> _logger;
 
@@ -24,14 +22,24 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         public IActionResult RunCalculator(string calculationName)
-        {   
-            if (string.IsNullOrEmpty(calculationName))
+        {
+            if (string.IsNullOrWhiteSpace(calculationName))
             {
                 this.ViewBag.Errors = CreateErrorViewModel();
                 return this.View(CalculationRunNameIndexView);
             }
+
+            this.ViewBag.CalculationName = calculationName;
+            this.HttpContext.Session.SetString(SessionConstants.CalculationName, (string)this.ViewBag.CalculationName);
+
+            return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
+        }
+
+        public ViewResult Confirmation()
+        {
             throw new SystemException("SUNITA ERROR");
-            //return this.RedirectToAction(CalculationRunConfirmationAction, CalculationRunConfirmationController);
+            //return this.View(ViewNames.CalculationRunConfirmation);
+            
         }
 
         private static ErrorViewModel CreateErrorViewModel()

@@ -1,6 +1,9 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Text;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.UnitTests.Mocks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -35,7 +38,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = controller.RunCalculator(null) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
-            var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
+            var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
             Assert.IsNotNull(errorViewModel);
             Assert.AreEqual(ViewControlNames.CalculationRunName, errorViewModel.DOMElementId);
             Assert.AreEqual(ErrorMessages.CalculationRunNameEmpty, errorViewModel.ErrorMessage);
@@ -45,10 +48,52 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void RunCalculator_ShouldRedirect_WhenCalculationNameIsValid()
         {
             var controller = new CalculationRunNameController(_loggerMock.Object);
+            var mockHttpSession = new MockHttpSession();
+
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Session = mockHttpSession;
+
             var result = controller.RunCalculator("ValidCalculationName") as RedirectToActionResult;
+
             Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
-            Assert.AreEqual("CalculationRunConfirmation", result.ControllerName);
+            Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
+            Assert.AreEqual("ValidCalculationName", mockHttpSession.GetString(SessionConstants.CalculationName));
+        }
+
+        [TestMethod]
+        public void RunCalculator_WhenCalculationNameIsProvided_ShouldSetSessionAndRedirect()
+        {
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+
+            var controller = new CalculationRunNameController(_loggerMock.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = mockHttpContext.Object
+                }
+            };
+
+            string calculationName = "TestCalculation";
+            byte[] calculationNameBytes = Encoding.UTF8.GetBytes(calculationName);
+
+            var result = controller.RunCalculator(calculationName) as RedirectToActionResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
+            mockSession.Verify(s => s.Set(SessionConstants.CalculationName, calculationNameBytes), Times.Once);
+        }
+
+        [TestMethod]
+        public void RunCalculatorConfirmation_ReturnsViewResult_WithCorrectViewName()
+        {
+            var controller = new CalculationRunNameController(_loggerMock.Object);
+            var result = controller.Confirmation() as ViewResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunConfirmation, result.ViewName);
         }
     }
 }
