@@ -24,13 +24,18 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(CalculationRunNameIndexView);
             }
 
-            this.HttpContext.Session.SetString(SessionConstants.CalculationName, calculationRunModel.CalculationName);
+            this.HttpContext.Session.SetString(SessionConstants.CalculationName, calculationRunModel.CalculationName ?? string.Empty);
             return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
         }
 
         public ViewResult Confirmation()
         {
             return this.View(ViewNames.CalculationRunConfirmation);
+        }
+
+        public ActionResult TriggerException()
+        {
+            throw new SystemException("Paycal Internal Server Error Testing");
         }
 
         private static ErrorViewModel CreateErrorViewModel(string errorMessage)

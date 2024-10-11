@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Validators;
+﻿using EPR.Calculator.Frontend.Middleware;
+using EPR.Calculator.Frontend.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 
@@ -45,6 +46,8 @@ app.UseRouting();
 app.UseSession();
 
 app.UseAuthorization();
+
+app.UseMiddleware<GlobalErrorHandlerMiddleware>();
 
 app.MapControllerRoute(
     name: "default",
