@@ -44,7 +44,7 @@ USER dotnet
 
 # Add internationalisation support
 USER root
-RUN apk add icu-libs icu-data-full libintl
+RUN apk --no-cache add icu-libs icu-data-full libintl
 USER dotnet
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=0
