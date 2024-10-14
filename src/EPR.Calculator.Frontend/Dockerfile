@@ -25,7 +25,7 @@ USER dotnet
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/internal-ca.crt
 
 COPY EPR.Calculator.Frontend/package.json package.json
-RUN npm install
+RUN npm install --ignore-scripts
 
 # Build and publish a release
 COPY EPR.Calculator.Frontend/. ./EPR.Calculator.Frontend/.
