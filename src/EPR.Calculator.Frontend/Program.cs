@@ -1,4 +1,4 @@
-﻿using EPR.Calculator.Frontend.Middleware;
+﻿using EPR.Calculator.Frontend.Exceptions;
 using EPR.Calculator.Frontend.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -27,6 +27,8 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddHttpClient();
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -37,6 +39,10 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+else
+{
+    app.UseExceptionHandler(_ => { });
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -46,8 +52,6 @@ app.UseRouting();
 app.UseSession();
 
 app.UseAuthorization();
-
-app.UseMiddleware<GlobalErrorHandlerMiddleware>();
 
 app.MapControllerRoute(
     name: "default",
