@@ -25,8 +25,21 @@
                         }
                         else if ((@item.ParameterCategory.Contains("Amount") || IsAmount == true))
                         {
+                            string formattedValue;
+                            if (item.ParameterValue < 0)
+                            {
+                                formattedValue = string.Format("{0}{1}{2}", "-", "£", item.ParameterValue.ToString("F2").Trim('-'));
+                            }
+                            else if (item.ParameterValue == 0)
+                            {
+                                formattedValue = string.Format("{0}{1:F0}", "£", item.ParameterValue);
+                            }
+                            else
+                            {
+                                formattedValue = string.Format("{0}{1:F2}", "£", item.ParameterValue);
+                            }
 
-                            @(item.ParameterValue < 0 ? string.Format("{0}{1}{2}", "-","£", @item.ParameterValue.ToString("F2").Trim('-')) : (@item.ParameterValue == 0 ? string.Format("{0}{1:F0}", "£", @item.ParameterValue) : string.Format("{0}{1:F2}", "£", @item.ParameterValue)));
+                            @formattedValue
                            
                         }
                         else
