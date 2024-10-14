@@ -33,11 +33,6 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.View(ViewNames.CalculationRunConfirmation);
         }
 
-        public ActionResult TriggerException()
-        {
-            throw new InvalidOperationException("Paycal Internal Server Error Testing");
-        }
-
         private static ErrorViewModel CreateErrorViewModel(string errorMessage)
         {
             return new ErrorViewModel

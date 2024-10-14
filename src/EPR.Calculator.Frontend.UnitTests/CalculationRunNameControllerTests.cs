@@ -235,14 +235,5 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = _validationRules.TestValidate(model);
             result.ShouldNotHaveValidationErrorFor(x => x.CalculationName);
         }
-
-        [TestMethod]
-        public void TriggerException_ThrowsInvalidOperationException()
-        {
-            var controller = new CalculationRunNameController();
-
-            var exception = Assert.ThrowsException<InvalidOperationException>(() => controller.TriggerException());
-            Assert.AreEqual("Paycal Internal Server Error Testing", exception.Message);
-        }
     }
 }
