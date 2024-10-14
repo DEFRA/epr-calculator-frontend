@@ -72,7 +72,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         this.ViewBag.MaterialityThreshold = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.MaterialityThreshold);
                         this.ViewBag.BadDebtProvision = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.BadDebtProvision);
                         this.ViewBag.TonnageChange = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
-                        this.ViewBag.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
+                        this.ViewBag.EffectiveFrom = defaultSchemeParameters[0].EffectiveFrom;
                         this.ViewBag.IsDataAvailable = true;
 
                         return this.View();
