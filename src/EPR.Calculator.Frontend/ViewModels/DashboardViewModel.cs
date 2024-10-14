@@ -11,7 +11,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         {
             this.Id = calculationRun.Id;
             this.Name = calculationRun.Name;
-            this.CreatedAt = this.GetFormattedCreatedAt(calculationRun.CreatedAt);
+            this.CreatedAt = DashboardViewModel.GetFormattedCreatedAt(calculationRun.CreatedAt);
             this.CreatedBy = calculationRun.CreatedBy;
             this.Status = calculationRun.Status;
             this.TagStyle = DashboardViewModel.GetCalculationRunStatusStyles(calculationRun.Status);
@@ -32,7 +32,7 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public bool ShowRunDetailLink { get; set; }
 
-        private string GetFormattedCreatedAt(DateTime createdAt)
+        private static string GetFormattedCreatedAt(DateTime createdAt)
         {
             return createdAt.ToString("dd MMM yyyy ' at 'H:mm", new System.Globalization.CultureInfo("en-GB"));
         }
