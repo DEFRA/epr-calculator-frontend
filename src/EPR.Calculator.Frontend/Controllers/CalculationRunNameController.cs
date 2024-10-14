@@ -35,7 +35,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         public ActionResult TriggerException()
         {
-            throw new SystemException("Paycal Internal Server Error Testing");
+            throw new InvalidOperationException("Paycal Internal Server Error Testing");
         }
 
         private static ErrorViewModel CreateErrorViewModel(string errorMessage)

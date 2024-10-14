@@ -1,5 +1,4 @@
-﻿using System.Runtime.ExceptionServices;
-using System.Text.Json;
+﻿using System.Text.Json;
 using EPR.Calculator.Frontend.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
@@ -8,6 +7,7 @@ using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
+    [TestClass]
     public class GlobalExceptionHandlerTests
     {
         private Mock<ILogger<GlobalExceptionHandler>> _mockLogger;
