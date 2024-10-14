@@ -24,7 +24,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(CalculationRunNameIndexView);
             }
 
-            this.HttpContext.Session.SetString(SessionConstants.CalculationName, calculationRunModel.CalculationName ?? string.Empty);
+            this.HttpContext.Session.SetString(SessionConstants.CalculationName, calculationRunModel.CalculationName);
             return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
         }
 
