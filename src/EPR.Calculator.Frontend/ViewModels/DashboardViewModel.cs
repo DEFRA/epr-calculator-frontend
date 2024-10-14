@@ -14,8 +14,8 @@ namespace EPR.Calculator.Frontend.ViewModels
             this.CreatedAt = this.GetFormattedCreatedAt(calculationRun.CreatedAt);
             this.CreatedBy = calculationRun.CreatedBy;
             this.Status = calculationRun.Status;
-            this.TagStyle = this.GetCalculationRunStatusStyles(calculationRun.Status);
-            this.ShowRunDetailLink = this.GetShowRunDetailLink(calculationRun.Status);
+            this.TagStyle = DashboardViewModel.GetCalculationRunStatusStyles(calculationRun.Status);
+            this.ShowRunDetailLink = DashboardViewModel.GetShowRunDetailLink(calculationRun.Status);
         }
 
         public int Id { get; set; }
