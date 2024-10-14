@@ -19,6 +19,6 @@ namespace EPR.Calculator.Frontend.Models
         /// <value>
         /// A string containing a detailed description of the error.
         /// </value>
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
     }
 }
