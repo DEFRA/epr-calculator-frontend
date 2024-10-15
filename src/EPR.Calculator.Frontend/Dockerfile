@@ -24,6 +24,8 @@ RUN apk update && apk add --no-cache npm
 USER dotnet
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/internal-ca.crt
 
+USER root
+
 COPY EPR.Calculator.Frontend/package.json package.json
 RUN npm install --ignore-scripts
 
@@ -38,11 +40,9 @@ FROM defradigital/dotnetcore-development:dotnet8.0
 COPY --from=build-env /home/dotnet/EPR.Calculator.Frontend/out .
 
 # Install tzdata
-USER root
 RUN apk add --no-cache tzdata
 
 # Add internationalisation support
-USER root
 RUN apk add --no-cache icu-libs icu-data-full libintl
 
 USER dotnet
