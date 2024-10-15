@@ -20,7 +20,6 @@ COPY Directory.Build.props ./
 RUN dotnet restore "EPR.Calculator.Frontend/EPR.Calculator.Frontend.csproj" --configfile "NuGet.Config"
 
 # Install NPM
-USER root
 RUN apk update && apk add --no-cache npm
 USER dotnet
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/internal-ca.crt
@@ -41,11 +40,11 @@ COPY --from=build-env /home/dotnet/EPR.Calculator.Frontend/out .
 # Install tzdata
 USER root
 RUN apk add --no-cache tzdata
-USER dotnet
 
 # Add internationalisation support
 USER root
-RUN apk --no-cache add icu-libs icu-data-full libintl
+RUN apk add --no-cache icu-libs icu-data-full libintl
+
 USER dotnet
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=0
