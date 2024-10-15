@@ -18,10 +18,10 @@
                 </dt>
                 <dd class="govuk-summary-list__value">
                     @{
-
                         if ((@item.ParameterCategory.Contains("Percent") || @item.ParameterType.Contains("percent")))
                         {
-                            @(item.ParameterValue == 0 ? string.Format("{0:F0}{1}", @item.ParameterValue, "%") : string.Format("{0:F2}{1}", @item.ParameterValue, "%"));
+                            string formattedValue = item.ParameterValue == 0 ? string.Format("{0:F0}{1}", item.ParameterValue, "%") : string.Format("{0:F2}{1}", item.ParameterValue, "%");
+                            @formattedValue
                         }
                         else if ((@item.ParameterCategory.Contains("Amount") || IsAmount == true))
                         {
