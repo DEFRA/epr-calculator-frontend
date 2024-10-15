@@ -11,7 +11,7 @@ namespace EPR.Calculator.Frontend.Models
         /// <value>
         /// A string containing the error message.
         /// </value>
-        public string Message { get; set; }
+        public required string Message { get; set; }
 
         /// <summary>
         /// Gets or sets the error description.
