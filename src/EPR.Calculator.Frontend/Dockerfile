@@ -6,9 +6,9 @@ ENV ASPNETCORE_URLS=http://*:${PORT}
 EXPOSE ${PORT}
 
 # Copy everything
-COPY EPR.Calculator.Frontend/*.csproj ./EPR.Calculator.Frontend/
-COPY EPR.Calculator.Frontend.Common/*.csproj ./EPR.Calculator.Frontend.Common/
-COPY NuGet.Config ./
+COPY -chown=dotnet EPR.Calculator.Frontend/*.csproj ./EPR.Calculator.Frontend/
+COPY -chown=dotnet EPR.Calculator.Frontend.Common/*.csproj ./EPR.Calculator.Frontend.Common/
+COPY -chown=dotnet NuGet.Config ./
 
 # Use Build Argument to insert PAT into Nuget file
 ARG PAT=localhost
