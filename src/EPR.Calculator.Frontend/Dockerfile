@@ -1,4 +1,5 @@
 FROM defradigital/dotnetcore-development:dotnet8.0 AS build-env
+USER root
 
 # Expose the app on a defined port, configurable via a build argument
 ARG PORT=8080
