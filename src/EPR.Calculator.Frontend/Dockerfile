@@ -10,9 +10,6 @@ COPY EPR.Calculator.Frontend/*.csproj ./EPR.Calculator.Frontend/
 COPY EPR.Calculator.Frontend.Common/*.csproj ./EPR.Calculator.Frontend.Common/
 COPY NuGet.Config ./
 
-# Set permissions for the project directories
-RUN chmod -R 755 /home/dotnet/EPR.Calculator.Frontend.Common
-
 # Use Build Argument to insert PAT into Nuget file
 ARG PAT=localhost
 RUN sed -i "s|</configuration>|<packageSourceCredentials><epr-packaging-common><add key=\"Username\" value=\"PAT\" /><add key=\"ClearTextPassword\" value=\"${PAT}\" /></epr-packaging-common></packageSourceCredentials></configuration>|" NuGet.Config
