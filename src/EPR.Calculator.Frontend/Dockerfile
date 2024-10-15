@@ -25,14 +25,15 @@ USER dotnet
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/internal-ca.crt
 
 USER root
-
 COPY EPR.Calculator.Frontend/package.json package.json
 RUN npm install --ignore-scripts
 
 # Build and publish a release
+USER root
 COPY EPR.Calculator.Frontend/. ./EPR.Calculator.Frontend/.
 WORKDIR /home/dotnet/EPR.Calculator.Frontend
 
+USER root
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
@@ -40,13 +41,14 @@ FROM defradigital/dotnetcore-development:dotnet8.0
 COPY --from=build-env /home/dotnet/EPR.Calculator.Frontend/out .
 
 # Install tzdata
+USER root
 RUN apk add --no-cache tzdata
 
 # Add internationalisation support
+USER root
 RUN apk add --no-cache icu-libs icu-data-full libintl
 
 USER dotnet
-
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=0
 
 # Expose the app on a defined port, configurable via a build argument
