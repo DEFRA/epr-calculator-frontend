@@ -3,7 +3,7 @@
     /// <summary>
     /// Contains configuration section and key names used throughout the application.
     /// </summary>
-    public class ConfigSection
+    public static class ConfigSection
     {
         /// <summary>
         /// The configuration section for dashboard calculator run settings.
