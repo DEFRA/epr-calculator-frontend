@@ -46,7 +46,7 @@ RUN apk add --no-cache tzdata
 
 # Add internationalisation support
 USER root
-RUN apk add icu-libs icu-data-full libintl
+RUN apk add --no-cache icu-libs icu-data-full libintl
 USER dotnet
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=0
