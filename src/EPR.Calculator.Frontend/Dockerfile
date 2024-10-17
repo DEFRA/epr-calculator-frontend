@@ -6,9 +6,9 @@ ENV ASPNETCORE_URLS=http://*:${PORT}
 EXPOSE ${PORT}
 
 # Copy everything
-COPY --chown=dotnet EPR.Calculator.Frontend/*.csproj ./EPR.Calculator.Frontend/
-COPY --chown=dotnet EPR.Calculator.Frontend.Common/*.csproj ./EPR.Calculator.Frontend.Common/
-COPY --chown=dotnet NuGet.Config ./
+COPY EPR.Calculator.Frontend/*.csproj ./EPR.Calculator.Frontend/
+COPY EPR.Calculator.Frontend.Common/*.csproj ./EPR.Calculator.Frontend.Common/
+COPY NuGet.Config ./
 
 # Use Build Argument to insert PAT into Nuget file
 ARG PAT=localhost
@@ -24,23 +24,25 @@ RUN apk update && apk add --no-cache npm
 USER dotnet
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/internal-ca.crt
 
+USER root
 COPY EPR.Calculator.Frontend/package.json package.json
 RUN npm install
 
 # Build and publish a release
-COPY --chown=dotnet EPR.Calculator.Frontend/. ./EPR.Calculator.Frontend/.
+USER root
+COPY EPR.Calculator.Frontend/. ./EPR.Calculator.Frontend/.
 WORKDIR /home/dotnet/EPR.Calculator.Frontend
 
+USER root
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
 FROM defradigital/dotnetcore-development:dotnet8.0
-COPY --from=build-env --chown=dotnet /home/dotnet/EPR.Calculator.Frontend/out .
+COPY --from=build-env /home/dotnet/EPR.Calculator.Frontend/out .
 
 # Install tzdata
 USER root
 RUN apk add --no-cache tzdata
-USER dotnet
 
 # Add internationalisation support
 USER root
