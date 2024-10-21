@@ -8,6 +8,14 @@ namespace EPR.Calculator.Frontend.Controllers
     public class CalculationRunNameController : Controller
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
+        private readonly IConfiguration configuration;
+        private readonly IHttpClientFactory clientFactory;
+
+        public CalculationRunNameController(IConfiguration configuration, IHttpClientFactory clientFactory)
+        {
+            this.configuration = configuration;
+            this.clientFactory = clientFactory;
+        }
 
         public IActionResult Index()
         {
@@ -15,7 +23,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult RunCalculator(InitiateCalculatorRunModel calculationRunModel)
+        public async Task<IActionResult> RunCalculator(InitiateCalculatorRunModel calculationRunModel)
         {
             if (!this.ModelState.IsValid)
             {
@@ -26,6 +34,13 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
             {
+                var calculationNameExistsResponse = await this.CheckIfCalculationNameExistsAsync(calculationRunModel.CalculationName);
+                if (calculationNameExistsResponse.IsSuccessStatusCode)
+                {
+                    this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists);
+                    return this.View(CalculationRunNameIndexView);
+                }
+
                 this.HttpContext.Session.SetString(SessionConstants.CalculationName, calculationRunModel.CalculationName);
             }
 
@@ -44,6 +59,24 @@ namespace EPR.Calculator.Frontend.Controllers
                 DOMElementId = ViewControlNames.CalculationRunName,
                 ErrorMessage = errorMessage,
             };
+        }
+
+        private async Task<HttpResponseMessage> CheckIfCalculationNameExistsAsync(string calculationName)
+        {
+            var apiUrl = this.configuration
+                          .GetSection(ConfigSection.CalculationRunNameSettings)
+                          .GetValue<string>(ConfigSection.CalculationRunNameApi);
+
+            if (string.IsNullOrWhiteSpace(apiUrl))
+            {
+                throw new ArgumentNullException(nameof(apiUrl), "CalculationRunNameApi is null or empty. Please check the configuration settings.");
+            }
+
+            var client = this.clientFactory.CreateClient();
+            client.BaseAddress = new Uri(apiUrl);
+
+            var requestUri = new Uri($"{apiUrl}/{calculationName}", UriKind.Absolute);
+            return await client.GetAsync(requestUri);
         }
     }
 }

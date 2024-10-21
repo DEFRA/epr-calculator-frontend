@@ -44,5 +44,15 @@
         /// The key for the Lapcap settings API within the Lapcap settings section.
         /// </summary>
         public const string LapcapSettingsApi = "LapcapSettingsApi";
+
+        /// <summary>
+        /// The configuration section for calculation run name settings section.
+        /// </summary>
+        public const string CalculationRunNameSettings = "CalculationRunNameSettings";
+
+        /// <summary>
+        /// The key for the calculation run name api within the calculation run name settings section.
+        /// </summary>
+        public const string CalculationRunNameApi = "CalculationRunNameApi";
     }
 }
