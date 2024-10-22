@@ -86,7 +86,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task RunCalculator_ShouldRedirect_IsOnlyNumeric_WhenCalculationNameIsValid()
         {
             var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "1234" };
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             MockHttpClientWithResponse();
             var result = await _controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
             Assert.IsNotNull(result);
@@ -98,7 +97,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task RunCalculator_ShouldRedirect_IsAplhaNumeric_WithNoSpace_WhenCalculationNameIsValid()
         {
             var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "ValidCalculationName1234" };
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             MockHttpClientWithResponse();
             var result = await _controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
 
@@ -111,7 +109,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task RunCalculator_WhenCalculationName__IsAplhaNumeric_WithSpace_IsValid()
         {
             var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "ValidCalculationName 123" };
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             MockHttpClientWithResponse();
             var result = await _controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
             Assert.IsNotNull(result);
