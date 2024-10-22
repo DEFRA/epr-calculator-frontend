@@ -1,6 +1,6 @@
 ﻿namespace EPR.Calculator.Frontend.Constants
 {
-    public class StaticHelpers
+    public static class StaticHelpers
     {
         public const string Path = @"wwwroot/assets/SchemeParameterTemplates/SchemeParameterTemplate.v1.1.xlsx";
         public const string FileName = "test.csv";
