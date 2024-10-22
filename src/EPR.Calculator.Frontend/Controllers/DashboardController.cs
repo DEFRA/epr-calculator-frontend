@@ -80,7 +80,7 @@
             {
                 foreach (var calculationRun in calculationRuns)
                 {
-                    var classification_val = runClassifications.FirstOrDefault(c => (int)c == calculationRun.CalculatorRunClassificationId);
+                    var classification_val = runClassifications.Find(c => (int)c == calculationRun.CalculatorRunClassificationId);
                     var member = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classification_val.ToString());
 
                     var attribute = member?.GetCustomAttribute<EnumMemberAttribute>(false);
