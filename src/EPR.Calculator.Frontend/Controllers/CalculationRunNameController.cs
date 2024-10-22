@@ -69,7 +69,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (string.IsNullOrWhiteSpace(apiUrl))
             {
-                throw new ArgumentNullException(nameof(apiUrl), "CalculationRunNameApi is null or empty. Please check the configuration settings.");
+                throw new ArgumentNullException(apiUrl, "CalculationRunNameApi is null or empty. Please check the configuration settings.");
             }
 
             var client = this.clientFactory.CreateClient();

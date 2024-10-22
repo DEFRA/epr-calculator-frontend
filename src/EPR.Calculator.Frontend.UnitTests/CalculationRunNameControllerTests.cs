@@ -26,6 +26,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         private CalculatorRunNameValidator _validationRules;
         private Mock<IHttpClientFactory> mockClientFactory;
         private MockHttpSession mockHttpSession;
+        private Mock<IConfiguration> mockConfiguration;
 
         [TestInitialize]
         public void Setup()
@@ -260,14 +261,25 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
         public async Task CheckIfCalculationNameExistsAsync_ApiUrlIsNull_ShouldThrowArgumentNullException()
         {
+            var mockApiSection = new Mock<IConfigurationSection>();
+            mockApiSection.Setup(s => s.Value).Returns(string.Empty);
+
+            var mockSettingsSection = new Mock<IConfigurationSection>();
+            mockSettingsSection
+                .Setup(s => s.GetSection(ConfigSection.CalculationRunNameApi))
+                .Returns(mockApiSection.Object);
+
+            mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration
+                .Setup(c => c.GetSection(ConfigSection.CalculationRunNameSettings))
+                .Returns(mockSettingsSection.Object);
+
             var model = new InitiateCalculatorRunModel { CalculationName = "TestCalculation" };
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            MockHttpClientWithResponse();
-            var result = await _controller.RunCalculator(model) as RedirectToActionResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
+            _controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object);
+            await _controller.RunCalculator(model);
         }
 
         private void MockHttpClientWithResponse()
