@@ -7,7 +7,7 @@
     {
         /// <summary>
         /// The configuration section for dashboard calculator run settings.
-        /// ///.</summary>
+        /// </summary>
         public const string DashboardCalculatorRun = "DashboardCalculatorRun";
 
         /// <summary>
@@ -16,12 +16,12 @@
         public const string DashboardCalculatorRunApi = "DashboardCalculatorRunApi";
 
         /// <summary>
-        /// The configuration section for dashboard calculator run settings.
-        /// ///.</summary>
+        /// The configuration section for calculator run settings.
+        /// </summary>
         public const string CalculatorRun = "CalculatorRun";
 
         /// <summary>
-        /// The key for the dashboard calculator run API within the dashboard calculator run settings section.
+        /// The key for the calculator run API within the calculator run settings section.
         /// </summary>
         public const string CalculatorRunApi = "CalculatorRunApi";
 
@@ -32,7 +32,7 @@
 
         /// <summary>
         /// The configuration section for dashboard calculator run settings.
-        /// /// </summary>
+        /// </summary>
         public const string ParameterSettings = "ParameterSettings";
 
         /// <summary>
