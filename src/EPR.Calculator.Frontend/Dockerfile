@@ -1,4 +1,5 @@
 FROM defradigital/dotnetcore-development:dotnet8.0 AS build-env
+USER root
 
 # Expose the app on a defined port, configurable via a build argument
 ARG PORT=8080
@@ -23,7 +24,6 @@ COPY Directory.Build.props ./
 RUN dotnet restore "EPR.Calculator.Frontend/EPR.Calculator.Frontend.csproj" --configfile "NuGet.Config"
 
 # Install NPM
-USER root
 RUN apk update && apk add --no-cache npm
 USER dotnet
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/internal-ca.crt
@@ -53,6 +53,7 @@ USER root
 RUN apk add --no-cache icu-libs icu-data-full libintl
 USER dotnet
 
+USER dotnet
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=0
 
 # Expose the app on a defined port, configurable via a build argument
