@@ -296,6 +296,45 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
+        public async Task RunCalculatorConfirmation_UnsuccessfulResponse_RedirectsToErrorPage()
+        {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.InternalServerError // Simulate an unsuccessful response
+                });
+
+            var client = new HttpClient(mockHttpMessageHandler.Object);
+            mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(client);
+
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            byte[] value = System.Text.Encoding.UTF8.GetBytes("TestRun");
+            mockSession.Setup(s => s.TryGetValue(SessionConstants.CalculationName, out value)).Returns(true);
+            mockHttpContext.Setup(c => c.Session).Returns(mockSession.Object);
+
+            controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object, mockLogger.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = mockHttpContext.Object
+                }
+            };
+
+            var result = await controller.Confirmation();
+
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
+            Assert.AreEqual("StandardError", redirectResult.ControllerName);
+        }
+
+        [TestMethod]
         public async Task RunCalculatorConfirmation_ErrorResponse_RedirectsToErrorPage()
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
