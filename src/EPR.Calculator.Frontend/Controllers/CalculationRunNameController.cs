@@ -78,10 +78,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     return this.View(ViewNames.CalculationRunConfirmation);
                 }
-                else
-                {
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
-                }
+
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
             catch (Exception ex)
             {

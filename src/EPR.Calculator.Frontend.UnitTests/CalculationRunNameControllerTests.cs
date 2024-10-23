@@ -321,5 +321,21 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
             Assert.AreEqual("StandardError", redirectResult.ControllerName);
         }
+
+        [TestMethod]
+        public async Task RunCalculatorConfirmation_ExceptionThrown_RedirectsToErrorPage()
+        {
+            mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Throws(new HttpRequestException());
+
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.HttpContext.Session = new Mock<ISession>().Object;
+            controller.HttpContext.Session.SetString(SessionConstants.CalculationName, "TestRun");
+
+            var result = await controller.Confirmation();
+
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
+        }
     }
 }
