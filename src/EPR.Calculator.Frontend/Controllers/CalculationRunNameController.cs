@@ -25,15 +25,39 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> RunCalculator()
+        public async Task<IActionResult> RunCalculator(InitiateCalculatorRunModel calculationRunModel)
         {
-            var apiUrl = this.configuration
-                            .GetSection(ConfigSection.CalculationRunNameSettings)
-                            .GetValue<string>(ConfigSection.CalculationRunNameApi);
+            if (!this.ModelState.IsValid)
+            {
+                var errorMessages = this.ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
+                this.ViewBag.Errors = CreateErrorViewModel(errorMessages.First());
+                return this.View(CalculationRunNameIndexView);
+            }
 
-            var array = new string[] { apiUrl };
+            try
+            {
+                this._logger.LogInformation("Run Calculator started");
+                if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
+                {
+                    var calculationNameExistsResponse = await this.CheckIfCalculationNameExistsAsync(calculationRunModel.CalculationName);
+                    if (calculationNameExistsResponse.IsSuccessStatusCode)
+                    {
+                        this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists);
+                        return this.View(CalculationRunNameIndexView);
+                    }
 
-            return Json(array);
+                    this._logger.LogInformation($"Successfull call to api");
+                    this.HttpContext.Session.SetString(SessionConstants.CalculationName, calculationRunModel.CalculationName);
+                }
+
+                this._logger.LogInformation($"Run Calculator Success");
+                return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError($"Run Calculator Error:{ex}");
+                throw new ArgumentNullException(ex.ToString());
+            }
         }
 
         public ViewResult Confirmation()
