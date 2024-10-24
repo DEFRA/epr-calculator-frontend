@@ -8,6 +8,16 @@ namespace EPR.Calculator.Frontend.Controllers
     public class CalculationRunNameController : Controller
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
+        private readonly IConfiguration configuration;
+        private readonly IHttpClientFactory clientFactory;
+        private readonly ILogger<CalculationRunNameController> _logger;
+
+        public CalculationRunNameController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunNameController> logger)
+        {
+            this.configuration = configuration;
+            this.clientFactory = clientFactory;
+            _logger = logger;
+        }
 
         public IActionResult Index()
         {
@@ -15,7 +25,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult RunCalculator(InitiateCalculatorRunModel calculationRunModel)
+        public async Task<IActionResult> RunCalculator(InitiateCalculatorRunModel calculationRunModel)
         {
             if (!this.ModelState.IsValid)
             {
@@ -24,12 +34,30 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(CalculationRunNameIndexView);
             }
 
-            if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
+            try
             {
-                this.HttpContext.Session.SetString(SessionConstants.CalculationName, calculationRunModel.CalculationName);
-            }
+                this._logger.LogInformation("Run Calculator started");
+                if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
+                {
+                    var calculationNameExistsResponse = await this.CheckIfCalculationNameExistsAsync(calculationRunModel.CalculationName);
+                    if (calculationNameExistsResponse.IsSuccessStatusCode)
+                    {
+                        this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists);
+                        return this.View(CalculationRunNameIndexView);
+                    }
 
-            return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
+                    this._logger.LogInformation($"Successfull call to api");
+                    this.HttpContext.Session.SetString(SessionConstants.CalculationName, calculationRunModel.CalculationName);
+                }
+
+                this._logger.LogInformation($"Run Calculator Success");
+                return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError($"Run Calculator Error:{ex}");
+                throw new ArgumentNullException(ex.ToString());
+            }
         }
 
         public ViewResult Confirmation()
@@ -44,6 +72,25 @@ namespace EPR.Calculator.Frontend.Controllers
                 DOMElementId = ViewControlNames.CalculationRunName,
                 ErrorMessage = errorMessage,
             };
+        }
+
+        private async Task<HttpResponseMessage> CheckIfCalculationNameExistsAsync(string calculationName)
+        {
+            var apiUrl = this.configuration
+                          .GetSection(ConfigSection.CalculationRunNameSettings)
+                          .GetValue<string>(ConfigSection.CalculationRunNameApi);
+
+            if (string.IsNullOrWhiteSpace(apiUrl))
+            {
+                throw new ArgumentNullException(apiUrl, "CalculationRunNameApi is null or empty. Please check the configuration settings.");
+            }
+
+            this._logger.LogInformation($"API Url: {apiUrl}");
+            var client = this.clientFactory.CreateClient();
+            client.BaseAddress = new Uri(apiUrl);
+
+            var requestUri = new Uri($"{apiUrl}/{calculationName}", UriKind.Absolute);
+            return await client.GetAsync(requestUri);
         }
     }
 }
