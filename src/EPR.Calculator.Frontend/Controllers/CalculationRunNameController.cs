@@ -53,12 +53,25 @@ namespace EPR.Calculator.Frontend.Controllers
                 this._logger.LogInformation($"Run Calculator Success");
                 return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                this._logger.LogError($"Run Calculator Error:{ex}");
-                throw new ArgumentNullException(ex.ToString());
+                this._logger.LogError($"Run Calculator Error");
+                throw;
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Temp()
+        {
+            var apiUrl = this.configuration
+                            .GetSection(ConfigSection.CalculationRunNameSettings)
+                            .GetValue<string>(ConfigSection.CalculationRunNameApi);
+
+            var array = new string[] { apiUrl };
+
+            return Json(array);
+        }
+
 
         public ViewResult Confirmation()
         {
