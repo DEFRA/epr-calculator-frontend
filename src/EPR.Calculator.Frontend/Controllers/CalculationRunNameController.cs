@@ -72,7 +72,6 @@ namespace EPR.Calculator.Frontend.Controllers
             return Json(array);
         }
 
-
         public ViewResult Confirmation()
         {
             return this.View(ViewNames.CalculationRunConfirmation);
