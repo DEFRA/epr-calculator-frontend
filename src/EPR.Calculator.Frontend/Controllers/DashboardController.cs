@@ -62,7 +62,7 @@
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.ToString());
+                throw new ArgumentNullException(ex.ToString());
             }
         }
 
