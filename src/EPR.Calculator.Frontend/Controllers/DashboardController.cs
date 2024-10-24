@@ -58,11 +58,11 @@
                     return this.View();
                 }
 
-                return this.View();
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw new ArgumentNullException(ex.ToString());
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
 
