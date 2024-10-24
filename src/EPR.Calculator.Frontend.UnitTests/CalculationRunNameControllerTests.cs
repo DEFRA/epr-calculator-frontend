@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -12,6 +11,7 @@ using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 
@@ -27,13 +27,15 @@ namespace EPR.Calculator.Frontend.UnitTests
         private Mock<IHttpClientFactory> mockClientFactory;
         private MockHttpSession mockHttpSession;
         private Mock<IConfiguration> mockConfiguration;
+        private Mock<ILogger<CalculationRunNameController>> _mockLogger;
 
         [TestInitialize]
         public void Setup()
         {
+            _mockLogger = new Mock<ILogger<CalculationRunNameController>>();
             mockClientFactory = new Mock<IHttpClientFactory>();
             mockHttpSession = new MockHttpSession();
-            _controller = new CalculationRunNameController(configuration, mockClientFactory.Object);
+            _controller = new CalculationRunNameController(configuration, mockClientFactory.Object, _mockLogger.Object);
             _validationRules = new CalculatorRunNameValidator();
 
             var httpContext = new DefaultHttpContext();
@@ -275,7 +277,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(mockSettingsSection.Object);
 
             var model = new InitiateCalculatorRunModel { CalculationName = "TestCalculation" };
-            _controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object);
+            _controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object, _mockLogger.Object);
             await _controller.RunCalculator(model);
         }
 
