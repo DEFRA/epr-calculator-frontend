@@ -281,17 +281,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             await _controller.RunCalculator(model);
         }
 
-        [TestMethod]
-        public async Task Temp_Returns_JsonResult_With_Array()
-        {
-            var result = await _controller.Temp() as JsonResult;
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(JsonResult));
-            var data = result.Value as string[];
-            Assert.IsNotNull(data);
-            Assert.AreEqual(1, data.Length);
-        }
-
         private void MockHttpClientWithResponse()
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
