@@ -27,15 +27,13 @@ namespace EPR.Calculator.Frontend.UnitTests
         private Mock<IHttpClientFactory> mockClientFactory;
         private MockHttpSession mockHttpSession;
         private Mock<IConfiguration> mockConfiguration;
-        private Mock<ILogger<CalculationRunNameController>> _mockLogger;
 
         [TestInitialize]
         public void Setup()
         {
-            _mockLogger = new Mock<ILogger<CalculationRunNameController>>();
             mockClientFactory = new Mock<IHttpClientFactory>();
             mockHttpSession = new MockHttpSession();
-            _controller = new CalculationRunNameController(configuration, mockClientFactory.Object, _mockLogger.Object);
+            _controller = new CalculationRunNameController(configuration, mockClientFactory.Object);
             _validationRules = new CalculatorRunNameValidator();
 
             var httpContext = new DefaultHttpContext();
@@ -277,7 +275,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(mockSettingsSection.Object);
 
             var model = new InitiateCalculatorRunModel { CalculationName = "TestCalculation" };
-            _controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object, _mockLogger.Object);
+            _controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object);
             await _controller.RunCalculator(model);
         }
 
