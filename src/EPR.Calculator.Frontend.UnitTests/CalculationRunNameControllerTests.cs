@@ -1,28 +1,48 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.Validators;
 using EPR.Calculator.Frontend.ViewModels;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
+using Moq.Protected;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
     [TestClass]
     public class CalculationRunNameControllerTests
     {
+        private readonly IConfiguration configuration = ConfigurationItems.GetConfigurationValues();
+
         private CalculationRunNameController _controller;
         private CalculatorRunNameValidator _validationRules;
+        private Mock<IHttpClientFactory> mockClientFactory;
+        private MockHttpSession mockHttpSession;
+        private Mock<IConfiguration> mockConfiguration;
 
         [TestInitialize]
         public void Setup()
         {
-            _controller = new CalculationRunNameController();
+            mockClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpSession = new MockHttpSession();
+            _controller = new CalculationRunNameController(configuration, mockClientFactory.Object);
             _validationRules = new CalculatorRunNameValidator();
+
+            var httpContext = new DefaultHttpContext();
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            };
+            _controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            _controller.ControllerContext.HttpContext.Session = mockHttpSession;
         }
 
         [TestMethod]
@@ -34,13 +54,14 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void RunCalculator_ShouldReturnView_WhenCalculationNameIsInvalid()
+        public async Task RunCalculator_ShouldReturnView_WhenCalculationNameIsInvalid()
         {
             _controller.ModelState.AddModelError("CalculationName", "Enter a name for this calculation");
             var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = null };
-            var result = _controller.RunCalculator(null) as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
+            var result = await _controller.RunCalculator(null);
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            Assert.AreEqual(ViewNames.CalculationRunNameIndex, viewResult.ViewName);
             var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
             Assert.IsNotNull(errorViewModel);
             Assert.AreEqual(ViewControlNames.CalculationRunName, errorViewModel.DOMElementId);
@@ -48,53 +69,36 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void RunCalculator_ShouldRedirect_IsOnlyAlphabets_WhenCalculationNameIsValid()
+        public async Task RunCalculator_ShouldRedirect_IsOnlyAlphabets_WhenCalculationNameIsValid()
         {
-            var controller = new CalculationRunNameController();
-            var mockHttpSession = new MockHttpSession();
-
-            controller.ControllerContext = new ControllerContext();
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
-            controller.ControllerContext.HttpContext.Session = mockHttpSession;
-
-            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "ValidCalculationName" };
-            var result = controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
-
+            var model = new InitiateCalculatorRunModel
+            {
+                CalculationName = "ValidCalculationName"
+            };
+            MockHttpClientWithResponse();
+            var result = await _controller.RunCalculator(model) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
             Assert.AreEqual("ValidCalculationName", mockHttpSession.GetString(SessionConstants.CalculationName));
         }
 
         [TestMethod]
-        public void RunCalculator_ShouldRedirect_IsOnlyNumeric_WhenCalculationNameIsValid()
+        public async Task RunCalculator_ShouldRedirect_IsOnlyNumeric_WhenCalculationNameIsValid()
         {
-            var controller = new CalculationRunNameController();
-            var mockHttpSession = new MockHttpSession();
-
-            controller.ControllerContext = new ControllerContext();
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
-            controller.ControllerContext.HttpContext.Session = mockHttpSession;
-
             var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "1234" };
-            var result = controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
-
+            MockHttpClientWithResponse();
+            var result = await _controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
             Assert.AreEqual("1234", mockHttpSession.GetString(SessionConstants.CalculationName));
         }
 
         [TestMethod]
-        public void RunCalculator_ShouldRedirect_IsAplhaNumeric_WithNoSpace_WhenCalculationNameIsValid()
+        public async Task RunCalculator_ShouldRedirect_IsAplhaNumeric_WithNoSpace_WhenCalculationNameIsValid()
         {
-            var controller = new CalculationRunNameController();
-            var mockHttpSession = new MockHttpSession();
-
-            controller.ControllerContext = new ControllerContext();
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
-            controller.ControllerContext.HttpContext.Session = mockHttpSession;
-
             var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "ValidCalculationName1234" };
-            var result = controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
+            MockHttpClientWithResponse();
+            var result = await _controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
 
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
@@ -102,64 +106,42 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void RunCalculator_WhenCalculationName__IsAplhaNumeric_WithSpace_IsValid()
+        public async Task RunCalculator_WhenCalculationName__IsAplhaNumeric_WithSpace_IsValid()
         {
-            var controller = new CalculationRunNameController();
-            var mockHttpSession = new MockHttpSession();
-
-            controller.ControllerContext = new ControllerContext();
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
-            controller.ControllerContext.HttpContext.Session = mockHttpSession;
-
             var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "ValidCalculationName 123" };
-            var result = controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
-
+            MockHttpClientWithResponse();
+            var result = await _controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
             Assert.AreEqual("ValidCalculationName 123", mockHttpSession.GetString(SessionConstants.CalculationName));
         }
 
         [TestMethod]
-        public void RunCalculator_WhenCalculationNameIsProvided_ShouldSetSessionAndRedirect()
+        public async Task RunCalculator_WhenCalculationNameIsProvided_ShouldSetSessionAndRedirect()
         {
-            var mockHttpContext = new Mock<HttpContext>();
-            var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
-
-            var controller = new CalculationRunNameController
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = mockHttpContext.Object
-                }
-            };
-
             var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "TestCalculation" };
             byte[] calculationNameBytes = Encoding.UTF8.GetBytes(calculatorRunModel.CalculationName);
-
-            var result = controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
-
+            MockHttpClientWithResponse();
+            var result = await _controller.RunCalculator(calculatorRunModel) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
-            mockSession.Verify(s => s.Set(SessionConstants.CalculationName, calculationNameBytes), Times.Once);
+            Assert.AreEqual("TestCalculation", mockHttpSession.GetString(SessionConstants.CalculationName));
         }
 
         [TestMethod]
         public void RunCalculatorConfirmation_ReturnsViewResult_WithCorrectViewName()
         {
-            var controller = new CalculationRunNameController();
-            var result = controller.Confirmation() as ViewResult;
-
+            var result = _controller.Confirmation() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunConfirmation, result.ViewName);
         }
 
         [TestMethod]
-        public void RunCalculator_WhenCalculationNameIsEmpty_ShouldReturnViewWithError()
+        public async Task RunCalculator_WhenCalculationNameIsEmpty_ShouldReturnViewWithError()
         {
             var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = string.Empty };
             _controller.ModelState.AddModelError("CalculationName", "Enter a name for this calculation");
-            var result = _controller.RunCalculator(calculatorRunModel) as ViewResult;
+            var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
             Assert.IsTrue(_controller.ViewBag.Errors is ErrorViewModel);
@@ -168,11 +150,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void RunCalculator_WhenCalculationNameIsTooLong_ShouldReturnViewWithError()
+        public async Task RunCalculator_WhenCalculationNameIsTooLong_ShouldReturnViewWithError()
         {
             _controller.ModelState.AddModelError("CalculationName", "Calculation name must contain no more than 100 characters");
             var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = new string('a', 101) };
-            var result = _controller.RunCalculator(calculatorRunModel) as ViewResult;
+            var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
             Assert.IsTrue(_controller.ViewBag.Errors is ErrorViewModel);
@@ -181,11 +163,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void RunCalculator_WhenCalculationName_IsNotAlphaNumeric_ShouldReturnViewWithError()
+        public async Task RunCalculator_WhenCalculationName_IsNotAlphaNumeric_ShouldReturnViewWithError()
         {
             _controller.ModelState.AddModelError("CalculationName", "Calculation name must only contain numbers and letters");
             var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "%^&*$@" };
-            var result = _controller.RunCalculator(calculatorRunModel) as ViewResult;
+            var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
             Assert.IsTrue(_controller.ViewBag.Errors is ErrorViewModel);
@@ -234,6 +216,83 @@ namespace EPR.Calculator.Frontend.UnitTests
             var model = new InitiateCalculatorRunModel { CalculationName = "test 123" };
             var result = _validationRules.TestValidate(model);
             result.ShouldNotHaveValidationErrorFor(x => x.CalculationName);
+        }
+
+        [TestMethod]
+        public async Task RunCalculator_ValidModel_CalculationNameExists_ShouldReturnToIndexWithError()
+        {
+            // Arrange
+            var model = new InitiateCalculatorRunModel { CalculationName = "TestCalculation" };
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+
+            var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
+            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient);
+            var result = await _controller.RunCalculator(model);
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            Assert.AreEqual(ViewNames.CalculationRunNameIndex, viewResult.ViewName);
+            Assert.IsNotNull(_controller.ViewBag.Errors);
+            Assert.AreEqual(ErrorMessages.CalculationRunNameExists, ((ErrorViewModel)_controller.ViewBag.Errors).ErrorMessage);
+        }
+
+        [TestMethod]
+        public async Task RunCalculator_ValidModel_CalculationNameDoesNotExist_ShouldRedirectToConfirmation()
+        {
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            var model = new InitiateCalculatorRunModel { CalculationName = "UniqueCalculation" };
+            byte[] calculationNameBytes = Encoding.UTF8.GetBytes(model.CalculationName);
+            MockHttpClientWithResponse();
+            var result = await _controller.RunCalculator(model) as RedirectToActionResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public async Task CheckIfCalculationNameExistsAsync_ApiUrlIsNull_ShouldThrowArgumentNullException()
+        {
+            var mockApiSection = new Mock<IConfigurationSection>();
+            mockApiSection.Setup(s => s.Value).Returns(string.Empty);
+
+            var mockSettingsSection = new Mock<IConfigurationSection>();
+            mockSettingsSection
+                .Setup(s => s.GetSection(ConfigSection.CalculationRunNameApi))
+                .Returns(mockApiSection.Object);
+
+            mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration
+                .Setup(c => c.GetSection(ConfigSection.CalculationRunNameSettings))
+                .Returns(mockSettingsSection.Object);
+
+            var model = new InitiateCalculatorRunModel { CalculationName = "TestCalculation" };
+            _controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object);
+            await _controller.RunCalculator(model);
+        }
+
+        private void MockHttpClientWithResponse()
+        {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+
+            var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
+            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient);
         }
     }
 }
