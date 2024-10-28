@@ -435,16 +435,26 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculatorConfirmation_SessionValueIsEmpty_RedirectsToErrorPage()
         {
-            mockConfiguration = new Mock<IConfiguration>();
-            mockConfiguration.Setup(config => config[$"{ConfigSection.CalculationRunSettings}:{ConfigSection.CalculationRunApi}"])
-                             .Returns("http://localhost:5055/v1/calculatorRun");
-
-            var mockApiSection = new Mock<IConfigurationSection>();
-
             var mockSettingsSection = new Mock<IConfigurationSection>();
+
+            var mockParameterYearSection = new Mock<IConfigurationSection>();
+            mockParameterYearSection.Setup(s => s.Value).Returns(string.Empty);
+
+            var mockParameterCalculationRunApiSection = new Mock<IConfigurationSection>();
+            mockParameterCalculationRunApiSection.Setup(s => s.Value).Returns("http://localhost:5055/v1/calculatorRun");
+
             mockSettingsSection
-                .Setup(s => s.GetSection(ConfigSection.ParameterYear))
-                .Returns(mockApiSection.Object);
+                .Setup(s => s.GetSection(ConfigSection.CalculationRunApi))
+                .Returns(mockParameterCalculationRunApiSection.Object);
+
+            mockSettingsSection
+                .Setup(s => s.GetSection(ConfigSection.RunParameterYear))
+                .Returns(mockParameterYearSection.Object);
+
+            mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration
+                .Setup(c => c.GetSection(ConfigSection.CalculationRunSettings))
+                .Returns(mockSettingsSection.Object);
 
             var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
