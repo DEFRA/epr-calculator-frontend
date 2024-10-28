@@ -45,7 +45,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="calculationRunModel">The model containing calculation run details.</param>
         /// <returns>The result of the action.</returns>
         [HttpPost]
-        public IActionResult RunCalculator(InitiateCalculatorRunModel calculationRunModel)
+        public async Task<IActionResult> RunCalculator(InitiateCalculatorRunModel calculationRunModel)
         {
             if (!this.ModelState.IsValid)
             {
@@ -54,12 +54,26 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(CalculationRunNameIndexView);
             }
 
-            if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
+            try
             {
-                this.HttpContext.Session.SetString(SessionConstants.CalculationName, calculationRunModel.CalculationName);
-            }
+                if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
+                {
+                    var calculationNameExistsResponse = await this.CheckIfCalculationNameExistsAsync(calculationRunModel.CalculationName);
+                    if (calculationNameExistsResponse.IsSuccessStatusCode)
+                    {
+                        this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists);
+                        return this.View(CalculationRunNameIndexView);
+                    }
 
-            return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
+                    this.HttpContext.Session.SetString(SessionConstants.CalculationName, calculationRunModel.CalculationName);
+                }
+
+                return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentNullException(ex.ToString());
+            }
         }
 
         /// <summary>
@@ -109,14 +123,14 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The HTTP response message.</returns>
         private async Task<HttpResponseMessage> PostHttpRequestAsync(string calculatorRunName)
         {
-            var calculatorRunApi = this.configuration[$"{ConfigSection.CalculatorRun}:{ConfigSection.CalculatorRunApi}"];
+            var calculatorRunApi = this.configuration[$"{ConfigSection.CalculationRunSettings}:{ConfigSection.CalculationRunApi}"];
 
             if (string.IsNullOrEmpty(calculatorRunApi))
             {
                 throw new ArgumentNullException(calculatorRunApi, "The API URL is null or empty. Check the configuration settings for calculatorRun");
             }
 
-            var year = this.configuration[$"{ConfigSection.CalculatorRun}:{ConfigSection.RunParameterYear}"];
+            var year = this.configuration[$"{ConfigSection.CalculationRunSettings}:{ConfigSection.RunParameterYear}"];
 
             if (string.IsNullOrEmpty(year))
             {
@@ -137,6 +151,24 @@ namespace EPR.Calculator.Frontend.Controllers
             var request = new HttpRequestMessage(HttpMethod.Post, calculatorRunApi) { Content = content };
 
             return await client.SendAsync(request);
+        }
+
+        private async Task<HttpResponseMessage> CheckIfCalculationNameExistsAsync(string calculationName)
+        {
+            var apiUrl = this.configuration
+                          .GetSection(ConfigSection.CalculationRunSettings)
+                          .GetValue<string>(ConfigSection.CalculationRunNameApi);
+
+            if (string.IsNullOrWhiteSpace(apiUrl))
+            {
+                throw new ArgumentNullException(apiUrl, "CalculationRunNameApi is null or empty. Please check the configuration settings.");
+            }
+
+            var client = this.clientFactory.CreateClient();
+            client.BaseAddress = new Uri(apiUrl);
+
+            var requestUri = new Uri($"{apiUrl}/{calculationName}", UriKind.Absolute);
+            return await client.GetAsync(requestUri);
         }
     }
 }
