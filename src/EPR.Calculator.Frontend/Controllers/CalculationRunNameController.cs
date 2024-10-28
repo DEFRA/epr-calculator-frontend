@@ -132,7 +132,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 throw new ArgumentNullException(calculatorRunApi, "The API URL is null or empty. Check the configuration settings for calculatorRun");
             }
 
-            var year = this.configuration[$"{ConfigSection.CalculationRunSettings}:{ConfigSection.RunParameterYear}"];
+            var year = this.configuration
+                          .GetSection(ConfigSection.CalculationRunSettings)
+                          .GetValue<string>(ConfigSection.RunParameterYear);
 
             if (string.IsNullOrEmpty(year))
             {
