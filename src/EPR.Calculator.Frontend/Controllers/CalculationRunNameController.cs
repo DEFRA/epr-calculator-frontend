@@ -123,7 +123,9 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The HTTP response message.</returns>
         private async Task<HttpResponseMessage> PostHttpRequestAsync(string calculatorRunName)
         {
-            var calculatorRunApi = this.configuration[$"{ConfigSection.CalculationRunSettings}:{ConfigSection.CalculationRunApi}"];
+            var calculatorRunApi = this.configuration
+                          .GetSection(ConfigSection.CalculationRunSettings)
+                          .GetValue<string>(ConfigSection.CalculationRunApi);
 
             if (string.IsNullOrEmpty(calculatorRunApi))
             {

@@ -18,7 +18,7 @@
         /// <summary>
         /// The key for the calculator run API within the calculation run settings section.
         /// </summary>
-        public const string CalculationRunApi = "CalculatorRunApi";
+        public const string CalculationRunApi = "CalculationRunApi";
 
         /// <summary>
         /// The key for the run parameter year within the dashboard calculator run settings section.

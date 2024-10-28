@@ -277,7 +277,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task RunCalculatorConfirmation_ValidModel_RedirectsToConfirmation()
         {
             var model = new InitiateCalculatorRunModel { CalculationName = "TestRun" };
-
             var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
             mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
@@ -304,6 +303,38 @@ namespace EPR.Calculator.Frontend.UnitTests
             var redirectResult = result as RedirectToActionResult;
             Assert.IsNotNull(redirectResult);
             Assert.AreEqual(ActionNames.RunCalculatorConfirmation, redirectResult.ActionName);
+        }
+
+        [TestMethod]
+        public async Task RunCalculatorConfirmation_SuccessfulResponse_ReturnsConfirmationView()
+        {
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            byte[] value = System.Text.Encoding.UTF8.GetBytes("TestRun");
+            mockSession.Setup(s => s.TryGetValue(SessionConstants.CalculationName, out value)).Returns(true);
+            mockHttpContext.Setup(c => c.Session).Returns(mockSession.Object);
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                 .Protected()
+                 .Setup<Task<HttpResponseMessage>>(
+                     "SendAsync",
+                     ItExpr.IsAny<HttpRequestMessage>(),
+                     ItExpr.IsAny<CancellationToken>())
+                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Accepted));
+
+            var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
+            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient);
+
+            var result = await _controller.Confirmation();
+
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            Assert.AreEqual(ViewNames.CalculationRunConfirmation, viewResult.ViewName);
         }
 
         [TestMethod]
