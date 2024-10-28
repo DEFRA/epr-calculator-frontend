@@ -27,13 +27,15 @@ namespace EPR.Calculator.Frontend.UnitTests
         private Mock<IHttpClientFactory> mockClientFactory;
         private MockHttpSession mockHttpSession;
         private Mock<IConfiguration> mockConfiguration;
+        private Mock<ILogger<CalculationRunNameController>> mockLogger;
 
         [TestInitialize]
         public void Setup()
         {
             mockClientFactory = new Mock<IHttpClientFactory>();
             mockHttpSession = new MockHttpSession();
-            _controller = new CalculationRunNameController(configuration, mockClientFactory.Object);
+            mockLogger = new Mock<ILogger<CalculationRunNameController>>();
+            _controller = new CalculationRunNameController(configuration, mockClientFactory.Object, mockLogger.Object);
             _validationRules = new CalculatorRunNameValidator();
 
             var httpContext = new DefaultHttpContext();
@@ -126,14 +128,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
             Assert.AreEqual("TestCalculation", mockHttpSession.GetString(SessionConstants.CalculationName));
-        }
-
-        [TestMethod]
-        public void RunCalculatorConfirmation_ReturnsViewResult_WithCorrectViewName()
-        {
-            var result = _controller.Confirmation() as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunConfirmation, result.ViewName);
         }
 
         [TestMethod]
@@ -271,12 +265,229 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             mockConfiguration = new Mock<IConfiguration>();
             mockConfiguration
-                .Setup(c => c.GetSection(ConfigSection.CalculationRunNameSettings))
+                .Setup(c => c.GetSection(ConfigSection.CalculationRunSettings))
                 .Returns(mockSettingsSection.Object);
 
             var model = new InitiateCalculatorRunModel { CalculationName = "TestCalculation" };
-            _controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object);
+            _controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object, mockLogger.Object);
             await _controller.RunCalculator(model);
+        }
+
+        [TestMethod]
+        public async Task RunCalculatorConfirmation_ValidModel_RedirectsToConfirmation()
+        {
+            var model = new InitiateCalculatorRunModel { CalculationName = "TestRun" };
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+
+            var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
+            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient);
+
+            var result = await _controller.RunCalculator(model);
+
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.RunCalculatorConfirmation, redirectResult.ActionName);
+        }
+
+        [TestMethod]
+        public async Task RunCalculatorConfirmation_SuccessfulResponse_ReturnsConfirmationView()
+        {
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            byte[] value = System.Text.Encoding.UTF8.GetBytes("TestRun");
+            mockSession.Setup(s => s.TryGetValue(SessionConstants.CalculationName, out value)).Returns(true);
+            mockHttpContext.Setup(c => c.Session).Returns(mockSession.Object);
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                 .Protected()
+                 .Setup<Task<HttpResponseMessage>>(
+                     "SendAsync",
+                     ItExpr.IsAny<HttpRequestMessage>(),
+                     ItExpr.IsAny<CancellationToken>())
+                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Accepted));
+
+            var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
+            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient);
+
+            var result = await _controller.Confirmation();
+
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            Assert.AreEqual(ViewNames.CalculationRunConfirmation, viewResult.ViewName);
+        }
+
+        [TestMethod]
+        public async Task RunCalculatorConfirmation_ErrorResponse_RedirectsToErrorPage()
+        {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.BadRequest
+                });
+
+            var client = new HttpClient(mockHttpMessageHandler.Object);
+            mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(client);
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            byte[] value = System.Text.Encoding.UTF8.GetBytes("TestRun");
+            mockSession.Setup(s => s.TryGetValue(SessionConstants.CalculationName, out value)).Returns(true);
+            mockHttpContext.Setup(c => c.Session).Returns(mockSession.Object);
+
+            var result = await _controller.Confirmation();
+
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
+            Assert.AreEqual("StandardError", redirectResult.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task RunCalculatorConfirmation_NullExceptionForAPIConfig_RedirectsToErrorPage()
+        {
+            mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration.Setup(config => config[$"{ConfigSection.CalculationRunSettings}:{ConfigSection.CalculationRunApi}"])
+                             .Returns((string)null);
+
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            byte[] value = System.Text.Encoding.UTF8.GetBytes("TestRun");
+            mockSession.Setup(s => s.TryGetValue(SessionConstants.CalculationName, out value)).Returns(true);
+
+            mockHttpContext.Setup(c => c.Session).Returns(mockSession.Object);
+
+            var controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object, mockLogger.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = mockHttpContext.Object
+                }
+            };
+
+            var result = await controller.Confirmation();
+
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
+            Assert.AreEqual("StandardError", redirectResult.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task RunCalculatorConfirmation_NullExceptionForYearConfig_RedirectsToErrorPage()
+        {
+            var mockApiSection = new Mock<IConfigurationSection>();
+
+            var mockSettingsSection = new Mock<IConfigurationSection>();
+            mockSettingsSection
+                .Setup(s => s.GetSection(ConfigSection.CalculationRunApi))
+                .Returns(mockApiSection.Object);
+
+            mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration
+                .Setup(c => c.GetSection(ConfigSection.CalculationRunSettings))
+                .Returns(mockSettingsSection.Object);
+
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            byte[] value = System.Text.Encoding.UTF8.GetBytes("TestRun");
+            mockSession.Setup(s => s.TryGetValue(SessionConstants.CalculationName, out value)).Returns(true);
+
+            mockHttpContext.Setup(c => c.Session).Returns(mockSession.Object);
+
+            var controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object, mockLogger.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = mockHttpContext.Object
+                }
+            };
+
+            var result = await controller.Confirmation();
+
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
+            Assert.AreEqual("StandardError", redirectResult.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task RunCalculatorConfirmation_SessionValueIsEmpty_RedirectsToErrorPage()
+        {
+            var mockSettingsSection = new Mock<IConfigurationSection>();
+
+            var mockParameterYearSection = new Mock<IConfigurationSection>();
+            mockParameterYearSection.Setup(s => s.Value).Returns(string.Empty);
+
+            var mockParameterCalculationRunApiSection = new Mock<IConfigurationSection>();
+            mockParameterCalculationRunApiSection.Setup(s => s.Value).Returns("http://localhost:5055/v1/calculatorRun");
+
+            mockSettingsSection
+                .Setup(s => s.GetSection(ConfigSection.CalculationRunApi))
+                .Returns(mockParameterCalculationRunApiSection.Object);
+
+            mockSettingsSection
+                .Setup(s => s.GetSection(ConfigSection.RunParameterYear))
+                .Returns(mockParameterYearSection.Object);
+
+            mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration
+                .Setup(c => c.GetSection(ConfigSection.CalculationRunSettings))
+                .Returns(mockSettingsSection.Object);
+
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            byte[] value = System.Text.Encoding.UTF8.GetBytes(string.Empty);
+            mockSession.Setup(s => s.TryGetValue(SessionConstants.CalculationName, out value)).Returns(true);
+
+            mockHttpContext.Setup(c => c.Session).Returns(mockSession.Object);
+
+            var controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object, mockLogger.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = mockHttpContext.Object
+                }
+            };
+
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.BadRequest
+                });
+
+            var client = new HttpClient(mockHttpMessageHandler.Object);
+            mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(client);
+
+            var result = await controller.Confirmation();
+
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
+            Assert.AreEqual("StandardError", redirectResult.ControllerName);
         }
 
         private void MockHttpClientWithResponse()
