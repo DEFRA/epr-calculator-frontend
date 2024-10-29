@@ -65,41 +65,31 @@ namespace EPR.Calculator.Frontend.Controllers
                         return this.View(CalculationRunNameIndexView);
                     }
 
-                    this.HttpContext.Session.SetString(SessionConstants.CalculationName, calculationRunModel.CalculationName);
+                    var response = await this.HttpPostToCalculatorRunAPI(calculationRunModel.CalculationName);
+
+                    if (!response.IsSuccessStatusCode || response.StatusCode != HttpStatusCode.Accepted)
+                    {
+                        return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                    }
                 }
 
-                return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
+                return this.RedirectToAction(ActionNames.RunCalculatorConfirmation, calculationRunModel);
             }
             catch (Exception ex)
             {
-                throw new ArgumentNullException(ex.ToString());
+                this.logger.LogError(ex, "Error during calculator run.");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 
         /// <summary>
         /// Displays the confirmation view after running the calculator.
         /// </summary>
-        /// <returns>The confirmation view.</returns>
-        public async Task<IActionResult> Confirmation()
+        /// <param name="calculationRunModel">The model containing calculation run details.</param>
+        /// <returns>The result of the action.</returns>
+        public IActionResult Confirmation(InitiateCalculatorRunModel calculationRunModel)
         {
-            try
-            {
-                string runName = this.HttpContext.Session.GetString(SessionConstants.CalculationName) ?? string.Empty;
-
-                var response = await this.PostHttpRequestAsync(runName);
-
-                if (response.IsSuccessStatusCode && response.StatusCode == HttpStatusCode.Accepted)
-                {
-                    return this.View(ViewNames.CalculationRunConfirmation);
-                }
-
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "Error during confirmation process.");
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
-            }
+            return this.View(ViewNames.CalculationRunConfirmation, calculationRunModel);
         }
 
         /// <summary>
@@ -117,11 +107,12 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
-        /// Sends an HTTP request to the calculator run API.
+        ///  Sends an HTTP request to the calculator run API.
         /// </summary>
         /// <param name="calculatorRunName">The name of the calculator run.</param>
         /// <returns>The HTTP response message.</returns>
-        private async Task<HttpResponseMessage> PostHttpRequestAsync(string calculatorRunName)
+        /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown</exception>
+        private async Task<HttpResponseMessage> HttpPostToCalculatorRunAPI(string calculatorRunName)
         {
             var calculatorRunApi = this.configuration
                           .GetSection(ConfigSection.CalculationRunSettings)
@@ -157,6 +148,11 @@ namespace EPR.Calculator.Frontend.Controllers
             return await client.SendAsync(request);
         }
 
+        /// <summary>
+        /// Checks if a calculation name exists asynchronously.
+        /// </summary>
+        /// <param name="calculationName">The name of the calculation to check.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message indicating whether the calculation name exists.</returns>
         private async Task<HttpResponseMessage> CheckIfCalculationNameExistsAsync(string calculationName)
         {
             var apiUrl = this.configuration
