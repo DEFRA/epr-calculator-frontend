@@ -7,7 +7,7 @@
     {
         /// <summary>
         /// The configuration section for dashboard calculator run settings.
-        /// ///.</summary>
+        /// </summary>
         public const string DashboardCalculatorRun = "DashboardCalculatorRun";
 
         /// <summary>
@@ -27,7 +27,7 @@
 
         /// <summary>
         /// The configuration section for dashboard calculator run settings.
-        /// /// </summary>
+        /// </summary>
         public const string ParameterSettings = "ParameterSettings";
 
         /// <summary>
