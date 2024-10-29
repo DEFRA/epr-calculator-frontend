@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using EPR.Calculator.Frontend.Exceptions;
+using EPR.Calculator.Frontend.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
@@ -29,6 +34,12 @@ builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddApplicationInsightsTelemetry();
 
+builder.Services.AddFluentValidationAutoValidation();
+
+builder.Services.AddFluentValidationClientsideAdapters();
+
+builder.Services.AddValidatorsFromAssemblyContaining<CalculatorRunNameValidator>();
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromSeconds(10);
@@ -38,13 +49,15 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddHttpClient();
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseExceptionHandler("/StandardError/Index");
+
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Dashboard/Error");
-
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }

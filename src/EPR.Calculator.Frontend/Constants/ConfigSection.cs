@@ -3,7 +3,7 @@
     /// <summary>
     /// Contains configuration section and key names used throughout the application.
     /// </summary>
-    public class ConfigSection
+    public static class ConfigSection
     {
         /// <summary>
         /// The configuration section for dashboard calculator run settings.
@@ -14,6 +14,11 @@
         /// The key for the dashboard calculator run API within the dashboard calculator run settings section.
         /// </summary>
         public const string DashboardCalculatorRunApi = "DashboardCalculatorRunApi";
+
+        /// <summary>
+        /// The key for the calculator run API within the calculation run settings section.
+        /// </summary>
+        public const string CalculationRunApi = "CalculationRunApi";
 
         /// <summary>
         /// The key for the run parameter year within the dashboard calculator run settings section.
@@ -44,5 +49,15 @@
         /// The key for the Lapcap settings API within the Lapcap settings section.
         /// </summary>
         public const string LapcapSettingsApi = "LapcapSettingsApi";
+
+        /// <summary>
+        /// The configuration section for calculation run settings section.
+        /// </summary>
+        public const string CalculationRunSettings = "CalculationRunSettings";
+
+        /// <summary>
+        /// The key for the calculation run name api within the calculation run name settings section.
+        /// </summary>
+        public const string CalculationRunNameApi = "CalculationRunNameApi";
     }
 }

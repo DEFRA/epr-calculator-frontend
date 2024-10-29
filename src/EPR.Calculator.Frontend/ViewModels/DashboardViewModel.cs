@@ -11,11 +11,11 @@ namespace EPR.Calculator.Frontend.ViewModels
         {
             this.Id = calculationRun.Id;
             this.Name = calculationRun.Name;
-            this.CreatedAt = this.GetFormattedCreatedAt(calculationRun.CreatedAt);
+            this.CreatedAt = DashboardViewModel.GetFormattedCreatedAt(calculationRun.CreatedAt);
             this.CreatedBy = calculationRun.CreatedBy;
             this.Status = calculationRun.Status;
-            this.TagStyle = this.GetCalculationRunStatusStyles(calculationRun.Status);
-            this.ShowRunDetailLink = this.GetShowRunDetailLink(calculationRun.Status);
+            this.TagStyle = DashboardViewModel.GetCalculationRunStatusStyles(calculationRun.Status);
+            this.ShowRunDetailLink = DashboardViewModel.GetShowRunDetailLink(calculationRun.Status);
         }
 
         public int Id { get; set; }
@@ -32,12 +32,12 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public bool ShowRunDetailLink { get; set; }
 
-        private string GetFormattedCreatedAt(DateTime createdAt)
+        private static string GetFormattedCreatedAt(DateTime createdAt)
         {
             return createdAt.ToString("dd MMM yyyy ' at 'H:mm", new System.Globalization.CultureInfo("en-GB"));
         }
 
-        private string GetCalculationRunStatusStyles(string calculationRunStatus)
+        private static string GetCalculationRunStatusStyles(string calculationRunStatus)
         {
             switch (calculationRunStatus)
             {
@@ -55,7 +55,7 @@ namespace EPR.Calculator.Frontend.ViewModels
             }
         }
 
-        private bool GetShowRunDetailLink(string calculationRunStatus)
+        private static bool GetShowRunDetailLink(string calculationRunStatus)
         {
             return !(calculationRunStatus == CalculationRunStatus.InTheQueue || calculationRunStatus == CalculationRunStatus.Running);
         }
