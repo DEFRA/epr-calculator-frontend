@@ -16,7 +16,7 @@
         public const string DashboardCalculatorRunApi = "DashboardCalculatorRunApi";
 
         /// <summary>
-        /// The key for the calculator run API within the calculation run settings section.
+        /// The key for the calculation run API within the calculation run settings section.
         /// </summary>
         public const string CalculationRunApi = "CalculationRunApi";
 
