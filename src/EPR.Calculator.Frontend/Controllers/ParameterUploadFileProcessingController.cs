@@ -11,13 +11,13 @@ namespace EPR.Calculator.Frontend.Controllers
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
 
-        public string FileName { get; set; }
-
         public ParameterUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
         }
+
+        public string FileName { get; set; }
 
         [HttpPost]
         public IActionResult Index([FromBody] List<SchemeParameterTemplateValue> schemeParameterValues)
