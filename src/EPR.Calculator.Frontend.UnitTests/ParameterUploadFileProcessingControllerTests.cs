@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.UnitTests.Common;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -41,9 +42,12 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Create controller with the mocked factory
             var controller = new ParameterUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object);
+            FileNameTest.AssignFileName(controller, "SchemeParameters.csv");
 
             // Act
             var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as OkObjectResult;
+
+            Assert.AreEqual("SchemeParameters.csv", controller.FileName);
 
             // Assert
             Assert.IsNotNull(result);
@@ -71,7 +75,9 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                     .Returns(httpClient);
             var controller = new ParameterUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object);
+            FileNameTest.AssignFileName(controller, "SchemeParameters.csv");
             var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as BadRequestObjectResult;
+            FileNameTest.AssignFileName(controller, "SchemeParameters.csv");
             Assert.IsNotNull(result);
             Assert.AreNotEqual(201, result.StatusCode);
         }

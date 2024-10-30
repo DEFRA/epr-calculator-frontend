@@ -23,5 +23,13 @@ namespace EPR.Calculator.Frontend.Models
         /// A collection of <see cref="SchemeParameterTemplateValue"/> objects representing the template values for the scheme parameters.
         /// </value>
         public required IEnumerable<SchemeParameterTemplateValue> SchemeParameterTemplateValues { get; set; }
+
+        /// <summary>
+        /// Gets or sets the parameter fielname.
+        /// </summary>
+        /// <value>
+        /// The filename
+        /// </value>
+        public required string ParameterFileName { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.UnitTests.Common;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -165,6 +166,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
+            FileNameTest.AssignFileName(controller, file.FileName);
 
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);

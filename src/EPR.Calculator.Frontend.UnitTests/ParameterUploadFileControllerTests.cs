@@ -1,10 +1,12 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.UnitTests.Common;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -32,6 +34,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
+
+            FileNameTest.AssignFileName(controller, "SchemeParameters.csv");
 
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
@@ -111,6 +115,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
+            FileNameTest.AssignFileName(controller, file.Name);
 
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
@@ -136,7 +141,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
-
+            FileNameTest.AssignFileName(controller, file.Name);
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ParameterUploadFileRefresh, result.ViewName);
