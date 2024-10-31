@@ -1,9 +1,10 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
-using EPR.Calculator.Frontend.UnitTests.Common;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
@@ -39,10 +40,15 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            tempData["FileName"] = "SchemeParameters.csv";
 
             // Create controller with the mocked factory
-            var controller = new ParameterUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object);
-            FileNameTest.AssignFileName(controller, "SchemeParameters.csv");
+            var controller = new ParameterUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object)
+            {
+                TempData = tempData
+            };
 
             // Act
             var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as OkObjectResult;
@@ -71,13 +77,21 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            tempData["FileName"] = "SchemeParameters.csv";
+
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                     .Returns(httpClient);
-            var controller = new ParameterUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object);
-            FileNameTest.AssignFileName(controller, "SchemeParameters.csv");
+            var controller = new ParameterUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object)
+            {
+                TempData = tempData
+            };
+
             var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as BadRequestObjectResult;
-            FileNameTest.AssignFileName(controller, "SchemeParameters.csv");
+
             Assert.IsNotNull(result);
             Assert.AreNotEqual(201, result.StatusCode);
         }
