@@ -8,5 +8,7 @@ namespace EPR.Calculator.Frontend.Models
         public required string ParameterYear { get; set; }
 
         public required IEnumerable<LapcapDataTemplateValueDto> LapcapDataTemplateValues { get; set; }
+
+        public string FileName { get; set; }
     }
 }
