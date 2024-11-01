@@ -8,6 +8,7 @@
     using EPR.Calculator.Frontend.Helpers;
     using EPR.Calculator.Frontend.Models;
     using EPR.Calculator.Frontend.ViewModels;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
 
@@ -37,6 +38,7 @@
         /// <exception cref="ArgumentNullException">
         /// Thrown when the API URL is null or empty.
         /// </exception>
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             try

@@ -6,6 +6,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.TokenCacheProviders.Session;
 using Microsoft.Identity.Web.UI;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +15,7 @@ IEnumerable<string>? initialScopes = builder.Configuration["DownstreamApi:Scopes
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd")
     .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
         .AddDownstreamApi("DownstreamApi", builder.Configuration.GetSection("DownstreamApi"))
-        .AddInMemoryTokenCaches();
+        .AddInMemoryTokenCaches().AddSessionTokenCaches().AddSessionPerUserTokenCache().AddSession();
 
 // </ms_docref_add_msal>
 
@@ -69,9 +70,9 @@ app.UseRouting();
 
 app.UseSession();
 
-app.UseAuthorization();
-
 app.UseAuthentication();
+
+app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
