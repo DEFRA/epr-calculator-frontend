@@ -27,15 +27,16 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
             tempData["FilePath"] = Directory.GetCurrentDirectory() + "/Mocks/SchemeParameters.csv";
+            tempData["FileName"] = "SchemeParameters.csv";
 
             var controller = new ParameterUploadFileController()
             {
                 TempData = tempData
             };
-
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ParameterUploadFileRefresh, result.ViewName);
+            Assert.AreEqual(result.TempData["FileName"].ToString(), "SchemeParameters.csv");
         }
 
         [TestMethod]
@@ -54,6 +55,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ParameterUploadFileIndex, result.ViewName);
+            Assert.IsNull(result.TempData["FileName"]);
         }
 
         [TestMethod]
@@ -106,7 +108,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData[UploadFileErrorIds.DefaultParameterUploadErrors] = string.Empty;
-
+            tempData["FileName"] = "SchemeParameters.csv";
             var controller = new ParameterUploadFileController()
             {
                 TempData = tempData
@@ -131,6 +133,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData[UploadFileErrorIds.DefaultParameterUploadErrors] = string.Empty;
+            tempData["FileName"] = "SchemeParameters.csv";
 
             var controller = new ParameterUploadFileController()
             {

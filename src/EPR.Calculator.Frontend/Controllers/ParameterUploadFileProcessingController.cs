@@ -17,6 +17,8 @@ namespace EPR.Calculator.Frontend.Controllers
             this.clientFactory = clientFactory;
         }
 
+        public string FileName { get; set; }
+
         [HttpPost]
         public IActionResult Index([FromBody] List<SchemeParameterTemplateValue> schemeParameterValues)
         {
@@ -28,6 +30,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     throw new ArgumentNullException(parameterSettingsApi, "ParameterSettingsApi is null. Check the configuration settings for default parameters");
                 }
+
+                this.FileName = this.TempData.Peek("FileName").ToString();
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
@@ -68,6 +72,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 ParameterYear = parameterYear,
                 SchemeParameterTemplateValues = schemeParameterValues,
+                ParameterFileName = this.FileName,
             };
 
             return JsonConvert.SerializeObject(parameterSetting);
