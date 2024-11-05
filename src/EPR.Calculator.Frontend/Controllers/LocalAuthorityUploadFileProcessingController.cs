@@ -17,6 +17,8 @@ namespace EPR.Calculator.Frontend.Controllers
             this.clientFactory = clientFactory;
         }
 
+        public string FileName { get; set; }
+
         [HttpPost]
         public IActionResult Index([FromBody] List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
         {
@@ -28,6 +30,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     throw new ArgumentNullException(lapcapSettingsApi, "LapcapSettingsApi is null. Check the configuration settings for local authority");
                 }
+
+                this.FileName = this.TempData.Peek("FileName").ToString();
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);
@@ -68,6 +72,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 ParameterYear = parameterYear,
                 LapcapDataTemplateValues = lapcapDataTemplateValues,
+                LapcapFileName = this.FileName,
             };
 
             return JsonConvert.SerializeObject(lapcapData);
