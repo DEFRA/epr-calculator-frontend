@@ -27,6 +27,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
             tempData["FilePath"] = Directory.GetCurrentDirectory() + "/Mocks/LocalAuthorityData.csv";
+            tempData["FileName"] = "LocalAuthorityData.csv";
 
             var controller = new LocalAuthorityUploadFileController()
             {
@@ -36,6 +37,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileRefresh, result.ViewName);
+            Assert.AreEqual(result.TempData["FileName"].ToString(), "LocalAuthorityData.csv");
         }
 
         [TestMethod]
@@ -54,6 +56,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileIndex, result.ViewName);
+            Assert.IsNull(result.TempData["FileName"]);
         }
 
         [TestMethod]
@@ -106,6 +109,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
+            tempData["FileName"] = "LocalAuthorityData.csv";
 
             var controller = new LocalAuthorityUploadFileController()
             {
@@ -126,11 +130,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             writer.Write(content);
             writer.Flush();
             stream.Position = 0;
-            var file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.csv");
+            var file = new FormFile(stream, 0, stream.Length, string.Empty, "LocalAuthorityData.csv");
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
+            tempData["FileName"] = "LocalAuthorityData.csv";
 
             var controller = new LocalAuthorityUploadFileController()
             {
@@ -151,7 +156,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             writer.Write(content);
             writer.Flush();
             stream.Position = 0;
-            var file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.txt");
+            var file = new FormFile(stream, 0, stream.Length, string.Empty, "LocalAuthorityData.txt");
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
@@ -176,7 +181,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             writer.Write(content);
             writer.Flush();
             stream.Position = 0;
-            var file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.xlsx");
+            var file = new FormFile(stream, 0, stream.Length, string.Empty, "LocalAuthorityData.xlsx");
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
