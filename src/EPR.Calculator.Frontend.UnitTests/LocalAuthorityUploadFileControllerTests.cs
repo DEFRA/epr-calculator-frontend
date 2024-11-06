@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 
@@ -26,8 +27,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
-            tempData["FilePath"] = Directory.GetCurrentDirectory() + "/Mocks/LocalAuthorityData.csv";
-            tempData["FileName"] = "LocalAuthorityData.csv";
+            tempData["LapcapFilePath"] = Directory.GetCurrentDirectory() + "/Mocks/LocalAuthorityData.csv";
+            tempData["LapcapFileName"] = "LocalAuthorityData.csv";
 
             var controller = new LocalAuthorityUploadFileController()
             {
@@ -37,7 +38,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileRefresh, result.ViewName);
-            Assert.AreEqual(result.TempData["FileName"].ToString(), "LocalAuthorityData.csv");
+            Assert.AreEqual(result.TempData["LapcapFileName"].ToString(), "LocalAuthorityData.csv");
         }
 
         [TestMethod]
@@ -46,7 +47,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
-            tempData["FilePath"] = Directory.GetCurrentDirectory() + "/Mocks/SchemeParameters.txt";
+            tempData["LapcapFilePath"] = Directory.GetCurrentDirectory() + "/Mocks/SchemeParameters.txt";
 
             var controller = new LocalAuthorityUploadFileController()
             {
@@ -56,7 +57,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileIndex, result.ViewName);
-            Assert.IsNull(result.TempData["FileName"]);
+            Assert.IsNull(result.TempData["LapcapFileName"]);
         }
 
         [TestMethod]
@@ -64,7 +65,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["FilePath"] = null;
+            tempData["LapcapFilePath"] = null;
 
             var controller = new LocalAuthorityUploadFileController()
             {
@@ -82,7 +83,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["FilePath"] = "some random file location";
+            tempData["LapcapFilePath"] = "some random file location";
 
             var controller = new LocalAuthorityUploadFileController()
             {
@@ -109,7 +110,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
-            tempData["FileName"] = "LocalAuthorityData.csv";
+            tempData["LapcapFileName"] = "LocalAuthorityData.csv";
 
             var controller = new LocalAuthorityUploadFileController()
             {
@@ -135,7 +136,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
-            tempData["FileName"] = "LocalAuthorityData.csv";
+            tempData["LapcapFileName"] = "LocalAuthorityData.csv";
 
             var controller = new LocalAuthorityUploadFileController()
             {
@@ -195,6 +196,31 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileIndex, result.ViewName);
+        }
+
+        [TestMethod]
+        public async Task LocalAuthorityUploadFileController_ModelState_Clear_Test()
+        {
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+
+            tempData["LapcapFilePath"] = Directory.GetCurrentDirectory() + "/Mocks/LocalAuthorityData.csv";
+            tempData["LapcapFileName"] = "LocalAuthorityData.csv";
+
+            var controller = new LocalAuthorityUploadFileController()
+            {
+                TempData = tempData
+            };
+
+            // Arrange
+            controller.ModelState.AddModelError("key", "Paper value is missing");
+
+            // Act
+            Assert.IsFalse(controller.ModelState.IsValid);
+
+            await controller.Upload();
+            // Assert
+            Assert.IsTrue(controller.ModelState.IsValid);
         }
     }
 }

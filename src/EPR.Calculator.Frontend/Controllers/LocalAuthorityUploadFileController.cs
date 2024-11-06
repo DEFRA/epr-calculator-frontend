@@ -31,7 +31,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var lapcapFilePath = this.TempData["FilePath"]?.ToString();
+                var lapcapFilePath = this.TempData["LapcapFilePath"]?.ToString();
 
                 if (!string.IsNullOrEmpty(lapcapFilePath))
                 {
@@ -39,6 +39,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
 
                     var viewName = await this.GetViewName(fileUpload);
+                    ModelState.Clear();
                     return this.View(viewName);
                 }
 
@@ -72,7 +73,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var localAuthorityDisposalCosts = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
 
             this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
-            this.TempData["FileName"] = fileUpload.FileName;
+            this.TempData["LapcapFileName"] = fileUpload.FileName;
 
             return ViewNames.LocalAuthorityUploadFileRefresh;
         }
