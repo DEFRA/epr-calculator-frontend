@@ -49,6 +49,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (response.Result.IsSuccessStatusCode && response.Result.StatusCode == HttpStatusCode.Created)
                 {
+                    this.TempData.Remove("LapcapFileName");
                     return this.Ok(response.Result);
                 }
 
