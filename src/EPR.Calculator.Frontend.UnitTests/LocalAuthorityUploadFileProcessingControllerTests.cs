@@ -1,11 +1,14 @@
 ﻿using System.Net;
+using Castle.Core.Logging;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Azure.Documents.SystemFunctions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 
@@ -46,7 +49,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             tempData["LapcapFileName"] = "LocalAuthorityData.csv";
 
             // Create controller with the mocked factory
-            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object)
+            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object, new Mock<ILogger<LocalAuthorityUploadFileProcessingController>>().Object)
             {
                 TempData = tempData
             };
@@ -86,7 +89,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                     .Returns(httpClient);
 
-            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object)
+            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object, new Mock<ILogger<LocalAuthorityUploadFileProcessingController>>().Object)
             {
                 TempData = tempData
             };
@@ -117,7 +120,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                     .Returns(httpClient);
             var config = GetConfigurationValues();
             config.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value = string.Empty;
-            var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object);
+            var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object, new Mock<ILogger<LocalAuthorityUploadFileProcessingController>>().Object);
             var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
@@ -146,7 +149,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                     .Returns(httpClient);
             var config = GetConfigurationValues();
             config.GetSection("LapcapSettings").GetSection("ParameterYear").Value = string.Empty;
-            var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object);
+            var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object, new Mock<ILogger<LocalAuthorityUploadFileProcessingController>>().Object);
             var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);

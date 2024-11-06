@@ -10,11 +10,13 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
+        private readonly ILogger<LocalAuthorityUploadFileProcessingController> logger;
 
-        public LocalAuthorityUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory)
+        public LocalAuthorityUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<LocalAuthorityUploadFileProcessingController> logger)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
+            this.logger = logger;
         }
 
         public string FileName { get; set; }
@@ -38,6 +40,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var payload = this.Transform(lapcapDataTemplateValues);
 
+                this.logger.LogInformation($"payload is {payload}");
+
                 var content = new StringContent(payload, System.Text.Encoding.UTF8, StaticHelpers.MediaType);
 
                 var request = new HttpRequestMessage(HttpMethod.Post, new Uri(lapcapSettingsApi));
@@ -49,14 +53,17 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (response.Result.IsSuccessStatusCode && response.Result.StatusCode == HttpStatusCode.Created)
                 {
-                    this.TempData.Remove("LapcapFileName");
                     return this.Ok(response.Result);
                 }
 
+                this.logger.LogInformation($"the response is {response.Result.StatusCode}");
+
                 return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                this.logger.LogError($"the error message is {e.Message}");
+                this.logger.LogError($"the error exception is {e.InnerException}");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
