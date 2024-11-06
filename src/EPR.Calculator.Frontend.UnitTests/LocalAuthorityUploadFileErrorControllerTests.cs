@@ -103,7 +103,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["FilePath"] = "some random file location";
+            tempData["LapcapFilePath"] = "some random file location";
 
             var controller = new LocalAuthorityUploadFileErrorController()
             {

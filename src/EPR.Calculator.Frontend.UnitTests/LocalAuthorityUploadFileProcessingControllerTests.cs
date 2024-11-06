@@ -43,7 +43,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["FileName"] = "LocalAuthorityData.csv";
+            tempData["LapcapFileName"] = "LocalAuthorityData.csv";
 
             // Create controller with the mocked factory
             var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object)
@@ -80,7 +80,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["FileName"] = "LocalAuthorityData.csv";
+            tempData["LapcapFileName"] = "LocalAuthorityData.csv";
 
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))

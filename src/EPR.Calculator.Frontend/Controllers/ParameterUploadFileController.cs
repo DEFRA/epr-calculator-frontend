@@ -43,6 +43,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
 
                     var viewName = await this.GetViewName(fileUpload);
+                    ModelState.Clear();
                     return this.View(viewName);
                 }
 
