@@ -58,14 +58,15 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
                 {
-                    var calculationNameExistsResponse = await this.CheckIfCalculationNameExistsAsync(calculationRunModel.CalculationName);
+                    var calculationName = calculationRunModel.CalculationName.Trim();
+                    var calculationNameExistsResponse = await this.CheckIfCalculationNameExistsAsync(calculationName);
                     if (calculationNameExistsResponse.IsSuccessStatusCode)
                     {
                         this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists);
                         return this.View(CalculationRunNameIndexView);
                     }
 
-                    var response = await this.HttpPostToCalculatorRunAPI(calculationRunModel.CalculationName);
+                    var response = await this.HttpPostToCalculatorRunAPI(calculationName);
 
                     if (!response.IsSuccessStatusCode || response.StatusCode != HttpStatusCode.Accepted)
                     {

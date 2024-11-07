@@ -3,7 +3,7 @@
 ﻿@{
     Layout = "_Layout";
     string calculationName = !string.IsNullOrWhiteSpace(Model.CalculationName)
-                                ? Model.CalculationName.ToString()
+                                ? Model.CalculationName.Trim().ToString()
                                 : string.Empty;
 
     var model = new ConfirmationViewModel
