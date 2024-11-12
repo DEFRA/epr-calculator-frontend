@@ -99,11 +99,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             writer.Write(content);
             writer.Flush();
             stream.Position = 0;
-            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.csv");
+            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "LocalAuthorityData.csv");
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["FilePath"] = "some random file location";
+            tempData["LapcapFilePath"] = "some random file location";
 
             var controller = new LocalAuthorityUploadFileErrorController()
             {
@@ -138,7 +138,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             writer.Write(content);
             writer.Flush();
             stream.Position = 0;
-            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.xlsx");
+            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "LocalAuthorityData.xlsx");
 
             var controller = new LocalAuthorityUploadFileErrorController();
             var result = await controller.Upload(file) as ViewResult;
@@ -155,7 +155,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             writer.Write(content);
             writer.Flush();
             stream.Position = 0;
-            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.csv");
+            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "LocalAuthorityData.csv");
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
