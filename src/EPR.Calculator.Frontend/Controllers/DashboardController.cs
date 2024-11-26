@@ -38,7 +38,6 @@
         /// <exception cref="ArgumentNullException">
         /// Thrown when the API URL is null or empty.
         /// </exception>
-        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             try
