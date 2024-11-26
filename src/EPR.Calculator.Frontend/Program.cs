@@ -31,14 +31,6 @@ else
     builder.Services.AddControllersWithViews();
 }
 
-// </ms_docref_add_msal>
-
-// <ms_docref_add_default_controller_for_sign-in-out>
-
-
-// Add services to the container.
-
-
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddApplicationInsightsTelemetry();
