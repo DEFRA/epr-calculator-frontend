@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="govuk-form-group ">
+
+    <h1 class="govuk-heading-l">There was a problem downloading this file</h1>
+
+    <h1 class="govuk-body-m">This file has not been downloaded. </h1>
+
+
+    <div class="govuk-button-group">
+        <a href="@Url.Action("Index", "UnableDeleteRun")" class="govuk-button govuk-!-margin-top-4" data-module="govuk-button" data-prevent-double-click="true"> Try again </a>
+    </div>
+
+    <form action="/form-handler" method="post" novalidate="">
+        <div class="govuk-button-group">
+            <a href="@Url.Action("Index", "Dashboard")" class="govuk-link" href="dash">Return to the dashboard</a>
+        </div>
+    </form>
+
+</div>
