@@ -46,7 +46,7 @@
                         <fieldset class="govuk-fieldset">
 
                             <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="whereDoYouLive-4" name="whereDoYouLive" type="radio" value="northern-ireland">
+                                <input class="govuk-radios__input" id="delete_button" name="delete" type="radio" value="true">
                                 <label class="govuk-label govuk-radios__label" for="whereDoYouLive-4">
                                     Delete (this cannot be undone)
                                 </label>
@@ -65,7 +65,7 @@
 
                 &nbsp;
                 <div class="govuk-button-group">
-                    @* <a href="delete-success" class="govuk-button" type="submit">Continue</a> *@
+                    <a href="@Url.Action("Index", "DeleteRunConfirmedScreen")" class="govuk-button" type="submit">Continue</a>
                     <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
                 </div>
             </form>
