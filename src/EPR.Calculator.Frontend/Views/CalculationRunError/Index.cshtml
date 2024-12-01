@@ -1,0 +1,15 @@
+﻿@model string
+@{
+    Layout = "_Layout";
+    var BackLink = "Dashboard";
+}
+<partial name="_BackLinkPartial" model="BackLink" />
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-l">Unable to run calculation</h1>
+        <p class="govuk-body">@Model</p>
+        <div class="govuk-button-group">
+            <a href="/Dashboard/Index" class="govuk-button" type="submit">Return to dashboard</a>
+        </div>
+    </div>
+</div>

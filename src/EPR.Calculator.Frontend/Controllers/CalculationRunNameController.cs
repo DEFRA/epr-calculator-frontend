@@ -4,6 +4,7 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -67,6 +68,12 @@ namespace EPR.Calculator.Frontend.Controllers
                     }
 
                     var response = await this.HttpPostToCalculatorRunAPI(calculationName);
+
+                    if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
+                    {
+                        this.TempData["ErrorMessage"] = await this.ExtractErrorMessageAsync(response);
+                        return this.RedirectToAction(ActionNames.CalculationRunErrorIndex, "CalculationRunError");
+                    }
 
                     if (!response.IsSuccessStatusCode || response.StatusCode != HttpStatusCode.Accepted)
                     {
@@ -171,5 +178,26 @@ namespace EPR.Calculator.Frontend.Controllers
             var requestUri = new Uri($"{apiUrl}/{calculationName}", UriKind.Absolute);
             return await client.GetAsync(requestUri);
         }
+
+        /// <summary>
+        /// Extracts the error message coming in api response.
+        /// </summary>
+        /// <param name="response">Http response from api.</param>
+        /// <returns>Error message.</returns>
+        private async Task<string> ExtractErrorMessageAsync(HttpResponseMessage response)
+        {
+            try
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(responseBody);
+                return json["message"]?.ToString() ?? "An error occurred. Please try again.";
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "Error parsing response");
+                return "Unable to process the error response.";
+            }
+        }
+
     }
 }
