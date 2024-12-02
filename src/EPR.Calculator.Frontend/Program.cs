@@ -4,10 +4,33 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.TokenCacheProviders.Session;
+using Microsoft.Identity.Web.UI;
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+var builder = WebApplication.CreateBuilder(args);
+if (builder.Configuration["EnableSecurity"] == "True")
+{
+    IEnumerable<string>? initialScopes = builder.Configuration["DownstreamApi:Scopes"]?.Split(' ');
+    builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd")
+        .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
+        .AddDownstreamApi("DownstreamApi", builder.Configuration.GetSection("DownstreamApi"))
+        .AddInMemoryTokenCaches().AddSessionTokenCaches().AddSessionPerUserTokenCache().AddSession();
+    builder.Services.AddRazorPages().AddMvcOptions(options =>
+    {
+        var policy = new AuthorizationPolicyBuilder()
+            .RequireAuthenticatedUser()
+            .Build();
+        options.Filters.Add(new AuthorizeFilter(policy));
+    }).AddMicrosoftIdentityUI();
+    builder.Services.AddControllersWithViews().AddMicrosoftIdentityUI();
+}
+else
+{
+    builder.Services.AddControllersWithViews();
+}
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -54,6 +77,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseSession();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
