@@ -198,6 +198,5 @@ namespace EPR.Calculator.Frontend.Controllers
                 return "Unable to process the error response.";
             }
         }
-
     }
 }

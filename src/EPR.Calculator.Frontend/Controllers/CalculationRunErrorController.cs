@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EPR.Calculator.Frontend.Constants;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -16,7 +17,7 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult Index()
         {
             var errorMessage = this.TempData["ErrorMessage"] as string;
-            return this.View(model: errorMessage);
+            return this.View(ViewNames.CalcularionRunErrorIndex, errorMessage);
         }
     }
 }
