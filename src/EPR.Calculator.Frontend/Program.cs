@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,13 @@ builder.Services.AddSession(options =>
 builder.Services.AddHttpClient();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+builder.Logging.AddApplicationInsights(
+        configureTelemetryConfiguration: (config) =>
+            config.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString"),
+        configureApplicationInsightsLoggerOptions: (options) => { });
+
+builder.Logging.AddFilter<ApplicationInsightsLoggerProvider>("lapcap", LogLevel.Trace);
 
 var app = builder.Build();
 

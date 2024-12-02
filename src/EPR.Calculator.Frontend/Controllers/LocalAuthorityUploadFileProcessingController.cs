@@ -10,11 +10,16 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
+        private readonly ILogger logger;
 
-        public LocalAuthorityUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory)
+        public LocalAuthorityUploadFileProcessingController(
+            IConfiguration configuration,
+            IHttpClientFactory clientFactory,
+            ILogger<LocalAuthorityUploadFileProcessingController> logger)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
+            this.logger = logger;
         }
 
         public string FileName { get; set; }
@@ -42,6 +47,10 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var request = new HttpRequestMessage(HttpMethod.Post, new Uri(lapcapSettingsApi));
                 request.Content = content;
+
+                var contentstring = new StreamReader(content.ReadAsStream()).ReadToEnd();
+
+                this.logger.LogInformation($"Content:{contentstring}");
 
                 var response = client.SendAsync(request);
 
