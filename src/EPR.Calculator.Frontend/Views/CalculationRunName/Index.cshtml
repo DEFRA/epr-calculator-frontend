@@ -6,7 +6,7 @@
     var errors = ViewBag.Errors;
 }
 
-<partial name="_BackLinkPartial" model="BackLink" />
+<partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
 
 @if (errors != null)
 {

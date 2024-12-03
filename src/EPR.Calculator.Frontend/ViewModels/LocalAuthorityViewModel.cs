@@ -10,29 +10,9 @@ namespace EPR.Calculator.Frontend.ViewModels
     /// View model to display the local authority disposal costs.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public class LocalAuthorityViewModel
+    public record LocalAuthorityViewModel : ViewModelCommonData
     {
-        public LocalAuthorityViewModel(LocalAuthorityDisposalCost localAuthorityDisposalCost)
-        {
-            this.Country = GetCountryDescription(localAuthorityDisposalCost.Country);
-            this.Material = localAuthorityDisposalCost.Material;
-            this.TotalCost = GetTotalCost(localAuthorityDisposalCost.TotalCost);
-            this.CreatedBy = localAuthorityDisposalCost.CreatedBy;
-            this.CreatedAt = GetFormattedCreatedAt(localAuthorityDisposalCost.CreatedAt);
-            this.EffectiveFrom = localAuthorityDisposalCost.EffectiveFrom;
-        }
-
-        public string Country { get; set; }
-
-        public string Material { get; set; }
-
-        public string TotalCost { get; set; }
-
-        public string CreatedBy { get; set; }
-
-        public string CreatedAt { get; set; }
-
-        public DateTime EffectiveFrom { get; set; }
+        public List<IGrouping<string, LocalAuthorityData>> ByCountry { get; init; }
 
         private static string GetCountryDescription(string country)
         {
@@ -53,6 +33,31 @@ namespace EPR.Calculator.Frontend.ViewModels
         private static string GetTotalCost(decimal totalCost)
         {
             return totalCost == 0 ? string.Format("{0}{1:F0}", "£", totalCost) : string.Format("{0}{1:F2}", "£", totalCost);
+        }
+
+        public record LocalAuthorityData
+        {
+            public LocalAuthorityData(LocalAuthorityDisposalCost localAuthorityDisposalCost)
+            {
+                this.Country = GetCountryDescription(localAuthorityDisposalCost.Country);
+                this.Material = localAuthorityDisposalCost.Material;
+                this.TotalCost = GetTotalCost(localAuthorityDisposalCost.TotalCost);
+                this.CreatedBy = localAuthorityDisposalCost.CreatedBy;
+                this.CreatedAt = GetFormattedCreatedAt(localAuthorityDisposalCost.CreatedAt);
+                this.EffectiveFrom = localAuthorityDisposalCost.EffectiveFrom;
+            }
+
+            public string Country { get; set; }
+
+            public string Material { get; set; }
+
+            public string TotalCost { get; set; }
+
+            public string CreatedBy { get; set; }
+
+            public string CreatedAt { get; set; }
+
+            public DateTime EffectiveFrom { get; set; }
         }
     }
 }

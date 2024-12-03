@@ -50,7 +50,13 @@
                     // Ensure deserializedRuns is not null
                     var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
                     var dashboardRunData = GetCalulationRunsData(calculationRuns);
-                    return this.View(ViewNames.DashboardIndex, dashboardRunData);
+                    return this.View(
+                        ViewNames.DashboardIndex,
+                        new DashboardViewModel
+                        {
+                            CurrentUser = this.HttpContext.User.Identity?.Name ?? "[User Name Not Found]",
+                            Calculations = dashboardRunData,
+                        });
                 }
 
                 if (response.Result.StatusCode == HttpStatusCode.NotFound)
@@ -71,10 +77,10 @@
         /// </summary>
         /// <param name="calculationRuns">The list of calculation runs to be processed.</param>
         /// <returns>A list of <see cref="DashboardViewModel"/> objects containing the processed data.</returns>
-        private static List<DashboardViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
+        private static List<DashboardViewModel.CalculationRunViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
         {
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
-            var dashboardRunData = new List<DashboardViewModel>();
+            var dashboardRunData = new List<DashboardViewModel.CalculationRunViewModel>();
 
             if (calculationRuns.Count > 0)
             {
@@ -87,7 +93,7 @@
 
                     calculationRun.Status = attribute?.Value ?? string.Empty; // Use a default value if attribute or value is null
 
-                    dashboardRunData.Add(new DashboardViewModel(calculationRun));
+                    dashboardRunData.Add(new DashboardViewModel.CalculationRunViewModel(calculationRun));
                 }
             }
 

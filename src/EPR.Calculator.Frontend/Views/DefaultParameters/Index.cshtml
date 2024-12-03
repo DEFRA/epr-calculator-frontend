@@ -1,4 +1,6 @@
 ﻿@using EPR.Calculator.Frontend.Constants;
+@using EPR.Calculator.Frontend.ViewModels
+@model ViewModelCommonData
 
 @{
     Layout = "_Layout";
@@ -21,11 +23,11 @@
 
     <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
 
-        <partial name="_BackLinkPartial" model="BackLink" />
+        <partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
 
         @if(ViewBag.IsDataAvailable)
         {
-            <div class="govuk-caption-l">Last updated by Jamie Roberts at <span id="effective-from"></span></div><br>
+            <div class="govuk-caption-l">Last updated by @Model.CurrentUser at <span id="effective-from"></span></div><br>
         }
         <h1 class="govuk-heading-xl">Default calculator parameters</h1>
 

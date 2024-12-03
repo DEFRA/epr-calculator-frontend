@@ -5,32 +5,9 @@ using EPR.Calculator.Frontend.Models;
 namespace EPR.Calculator.Frontend.ViewModels
 {
     [ExcludeFromCodeCoverage]
-    public class DashboardViewModel
+    public record DashboardViewModel : ViewModelCommonData
     {
-        public DashboardViewModel(CalculationRun calculationRun)
-        {
-            this.Id = calculationRun.Id;
-            this.Name = calculationRun.Name;
-            this.CreatedAt = DashboardViewModel.GetFormattedCreatedAt(calculationRun.CreatedAt);
-            this.CreatedBy = calculationRun.CreatedBy;
-            this.Status = calculationRun.Status;
-            this.TagStyle = DashboardViewModel.GetCalculationRunStatusStyles(calculationRun.Status);
-            this.ShowRunDetailLink = DashboardViewModel.GetShowRunDetailLink(calculationRun.Status);
-        }
-
-        public int Id { get; set; }
-
-        public string Name { get; set; }
-
-        public string CreatedAt { get; set; }
-
-        public string CreatedBy { get; set; }
-
-        public string Status { get; set; }
-
-        public string? TagStyle { get; set; }
-
-        public bool ShowRunDetailLink { get; set; }
+        public IEnumerable<CalculationRunViewModel> Calculations { get; init; }
 
         private static string GetFormattedCreatedAt(DateTime createdAt)
         {
@@ -58,6 +35,34 @@ namespace EPR.Calculator.Frontend.ViewModels
         private static bool GetShowRunDetailLink(string calculationRunStatus)
         {
             return !(calculationRunStatus == CalculationRunStatus.InTheQueue || calculationRunStatus == CalculationRunStatus.Running);
+        }
+
+        public record CalculationRunViewModel
+        {
+            public CalculationRunViewModel(CalculationRun calculationRun)
+            {
+                this.Id = calculationRun.Id;
+                this.Name = calculationRun.Name;
+                this.CreatedAt = DashboardViewModel.GetFormattedCreatedAt(calculationRun.CreatedAt);
+                this.CreatedBy = calculationRun.CreatedBy;
+                this.Status = calculationRun.Status;
+                this.TagStyle = DashboardViewModel.GetCalculationRunStatusStyles(calculationRun.Status);
+                this.ShowRunDetailLink = DashboardViewModel.GetShowRunDetailLink(calculationRun.Status);
+            }
+
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+
+            public string CreatedAt { get; set; }
+
+            public string CreatedBy { get; set; }
+
+            public string Status { get; set; }
+
+            public string? TagStyle { get; set; }
+
+            public bool ShowRunDetailLink { get; set; }
         }
     }
 }

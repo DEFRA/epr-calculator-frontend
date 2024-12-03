@@ -1,6 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -38,7 +39,12 @@ namespace EPR.Calculator.Frontend.Controllers
                         };
                     }
 
-                    return this.View(ViewNames.LocalAuthorityUploadFileErrorIndex);
+                    return this.View(
+                        ViewNames.LocalAuthorityUploadFileErrorIndex,
+                        new ViewModelCommonData
+                        {
+                            CurrentUser = this.HttpContext.User.Identity?.Name ?? "[User Name Not Found]",
+                        });
                 }
                 else
                 {
@@ -65,8 +71,12 @@ namespace EPR.Calculator.Frontend.Controllers
             var lapcapFileErrors = CsvFileHelper.ValidateCSV(fileUpload);
             if (lapcapFileErrors.ErrorMessage is not null)
             {
-                this.ViewBag.DefaultError = lapcapFileErrors;
-                return this.View(ViewNames.LocalAuthorityUploadFileErrorIndex);
+                return this.View(
+                    ViewNames.LocalAuthorityUploadFileErrorIndex,
+                    new ViewModelCommonData
+                    {
+                        CurrentUser = this.HttpContext.User.Identity?.Name ?? "[User Name Not Found]",
+                    });
             }
 
             var localAuthorityDisposalCostsValues = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
@@ -74,7 +84,12 @@ namespace EPR.Calculator.Frontend.Controllers
             this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCostsValues.ToArray();
             this.TempData["LapcapFileName"] = fileUpload.FileName;
 
-            return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
+            return this.View(
+                ViewNames.LocalAuthorityUploadFileRefresh,
+                new ViewModelCommonData
+                {
+                    CurrentUser = this.HttpContext.User.Identity?.Name ?? "[User Name Not Found]",
+                });
         }
     }
 }

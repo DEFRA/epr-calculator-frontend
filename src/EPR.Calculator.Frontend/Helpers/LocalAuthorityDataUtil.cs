@@ -18,7 +18,7 @@ namespace EPR.Calculator.Frontend.Helpers
         /// A list of <see cref="LocalAuthorityViewModel"/> objects, grouped by country and with the specified material type prioritized.
         /// Returns null if the input list is null.
         /// </returns>
-        public static List<LocalAuthorityViewModel>? GetLocalAuthorityData(List<LocalAuthorityDisposalCost> localAuthorityDisposalCosts, string matertialType)
+        public static List<LocalAuthorityViewModel.LocalAuthorityData>? GetLocalAuthorityData(List<LocalAuthorityDisposalCost> localAuthorityDisposalCosts, string matertialType)
         {
             if (localAuthorityDisposalCosts == null)
             {
@@ -26,7 +26,7 @@ namespace EPR.Calculator.Frontend.Helpers
             }
 
             var localAuthorityData = localAuthorityDisposalCosts
-                .Select(la => new LocalAuthorityViewModel(la))
+                .Select(la => new LocalAuthorityViewModel.LocalAuthorityData(la))
                 .ToList();
 
             var formattedLocalAuthorityData = localAuthorityData
