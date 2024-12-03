@@ -43,6 +43,8 @@ namespace EPR.Calculator.Frontend.ViewModels
                 this.Status = calculationRun.Status;
                 this.TagStyle = DashboardViewModel.GetCalculationRunStatusStyles(calculationRun.Status);
                 this.ShowRunDetailLink = DashboardViewModel.GetShowRunDetailLink(calculationRun.Status);
+                this.ShowErrorLink = DashboardViewModel.GetShowErrorLink(calculationRun.Status);
+
             }
 
             public int Id { get; set; }
@@ -58,6 +60,8 @@ namespace EPR.Calculator.Frontend.ViewModels
             public string? TagStyle { get; set; }
 
             public bool ShowRunDetailLink { get; set; }
+
+            public bool ShowErrorLink { get; set; }
         }
     }
 }

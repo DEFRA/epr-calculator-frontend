@@ -146,5 +146,10 @@ namespace EPR.Calculator.Frontend.Controllers
             client.BaseAddress = new Uri(apiUrl);
             return client;
         }
+
+        public IActionResult ErrorPage()
+        {
+            return this.View(ViewNames.CalculationRunDetailsErrorPage);
+        }
     }
 }
