@@ -12,8 +12,16 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class ParameterUploadFileController : Controller
     {
+        private readonly ILogger<ParameterUploadFileController> logger;
+
+        public ParameterUploadFileController(ILogger<ParameterUploadFileController> logger)
+        {
+            this.logger = logger;
+        }
+
         public IActionResult Index()
         {
+            this.logger.LogInformation("Test0");
             return this.View(ViewNames.ParameterUploadFileIndex);
         }
 
@@ -22,11 +30,13 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                this.logger.LogInformation("Test1");
                 var viewName = await this.GetViewName(fileUpload);
                 return this.View(viewName);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                this.logger.LogInformation(ex, "Test3");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
@@ -65,12 +75,14 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception ex)
             {
+                this.logger.LogInformation(ex, "Test3");
                 return this.StatusCode(500, "An error occured while processing request" + ex.Message);
             }
         }
 
         private async Task<string> GetViewName(IFormFile fileUpload)
         {
+            this.logger.LogInformation("Test2");
             if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
             {
                 var uploadErrors = this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors]?.ToString();
