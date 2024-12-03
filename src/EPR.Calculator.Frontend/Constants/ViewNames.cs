@@ -3,6 +3,7 @@
     public static class ViewNames
     {
         public const string CalculationRunDetailsIndex = "~/Views/CalculationRunDetails/Index.cshtml";
+        public const string CalculationRunDetailsErrorPage = "~/Views/CalculationRunDetails/ErrorPage.cshtml";
         public const string CalculationRunNameIndex = "~/Views/CalculationRunName/Index.cshtml";
         public const string CalculationRunConfirmation = "~/Views/CalculationRunName/Confirmation.cshtml";
         public const string DashboardIndex = "~/Views/Dashboard/Index.cshtml";

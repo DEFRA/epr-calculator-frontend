@@ -16,6 +16,7 @@ namespace EPR.Calculator.Frontend.ViewModels
             this.Status = calculationRun.Status;
             this.TagStyle = DashboardViewModel.GetCalculationRunStatusStyles(calculationRun.Status);
             this.ShowRunDetailLink = DashboardViewModel.GetShowRunDetailLink(calculationRun.Status);
+            this.ShowErrorLink = DashboardViewModel.GetShowErrorLink(calculationRun.Status);
         }
 
         public int Id { get; set; }
@@ -31,6 +32,8 @@ namespace EPR.Calculator.Frontend.ViewModels
         public string? TagStyle { get; set; }
 
         public bool ShowRunDetailLink { get; set; }
+
+        public bool ShowErrorLink { get; set; }
 
         private static string GetFormattedCreatedAt(DateTime createdAt)
         {
@@ -58,6 +61,11 @@ namespace EPR.Calculator.Frontend.ViewModels
         private static bool GetShowRunDetailLink(string calculationRunStatus)
         {
             return !(calculationRunStatus == CalculationRunStatus.InTheQueue || calculationRunStatus == CalculationRunStatus.Running);
+        }
+
+        private static bool GetShowErrorLink(string calculationRunStatus)
+        {
+            return calculationRunStatus == CalculationRunStatus.Error;
         }
     }
 }

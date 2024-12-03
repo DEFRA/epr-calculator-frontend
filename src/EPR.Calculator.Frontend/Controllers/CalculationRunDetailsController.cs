@@ -9,5 +9,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             return this.View(ViewNames.CalculationRunDetailsIndex);
         }
+
+        public IActionResult ErrorPage()
+        {
+            return this.View(ViewNames.CalculationRunDetailsErrorPage);
+        }
     }
 }
