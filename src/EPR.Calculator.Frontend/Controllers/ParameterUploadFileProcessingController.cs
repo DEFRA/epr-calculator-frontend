@@ -12,7 +12,6 @@ namespace EPR.Calculator.Frontend.Controllers
         private readonly IHttpClientFactory clientFactory;
         private readonly ILogger<ParameterUploadFileProcessingController> logger;
 
-
         public ParameterUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ParameterUploadFileProcessingController> logger)
         {
             this.configuration = configuration;
