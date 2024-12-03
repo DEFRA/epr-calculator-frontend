@@ -1,8 +1,8 @@
-﻿using System.Net;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -10,11 +10,14 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
+        private readonly ILogger<ParameterUploadFileProcessingController> logger;
 
-        public ParameterUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory)
+
+        public ParameterUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ParameterUploadFileProcessingController> logger)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
+            this.logger = logger;
         }
 
         public string FileName { get; set; }
@@ -25,6 +28,7 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
+                this.logger.LogInformation(parameterSettingsApi);
 
                 if (string.IsNullOrWhiteSpace(parameterSettingsApi))
                 {
@@ -35,9 +39,9 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
-
+                this.logger.LogInformation("Transoform starting...");
                 var payload = this.Transform(schemeParameterValues);
-
+                this.logger.LogInformation("Transoform Ended...");
                 var content = new StringContent(payload, System.Text.Encoding.UTF8, StaticHelpers.MediaType);
 
                 var request = new HttpRequestMessage(HttpMethod.Post, new Uri(parameterSettingsApi));
@@ -46,7 +50,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 var response = client.SendAsync(request);
 
                 response.Wait();
-
+                this.logger.LogInformation("response from api...");
                 if (response.Result.IsSuccessStatusCode && response.Result.StatusCode == HttpStatusCode.Created)
                 {
                     return this.Ok(response.Result);
@@ -54,8 +58,9 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                this.logger.LogError(ex, "Error in exception..");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
