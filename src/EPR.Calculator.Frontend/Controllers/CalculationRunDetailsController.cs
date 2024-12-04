@@ -40,16 +40,18 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">The ID of the calculation run.</param>
         /// <returns>The calculation run details index view.</returns>
-        public async Task<IActionResult> IndexAsync(int runId)
+        public async Task<IActionResult> IndexAsync(int runId, string calcName)
         {
+            var getCalculationDetailsResponse = await this.GetCalclDetailsAsync(runId);
+
             var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
             {
                 RunId = runId,
                 ClassificationId = (int)RunClassification.DELETED,
+                CalcName = calcName,
             };
-            var calculationNameExistsResponse = await this.GetCalclDetailsAsync(runId);
 
-            if (!calculationNameExistsResponse.IsSuccessStatusCode)
+            if (!getCalculationDetailsResponse.IsSuccessStatusCode)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
@@ -62,33 +64,29 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">The status update view model.</param>
         /// <returns>The delete confirmation view.</returns>
-        public async Task<IActionResult> DeleteCalcDetails(int runId)
+        public IActionResult DeleteCalcDetails(int runId)
         {
-            var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
-            {
-                RunId = runId,
-                ClassificationId = (int)RunClassification.DELETED,
-            };
-            var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+            var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                                                  .GetSection(ConfigSection.DashboardCalculatorRunApi)
                                                  .Value;
 
             if (string.IsNullOrEmpty(dashboardCalculatorRunApi))
             {
-                // Handle the null or empty case appropriately
-                throw new ArgumentNullException(dashboardCalculatorRunApi, "The API URL cannot be null or empty.");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(dashboardCalculatorRunApi);
+            var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
+            {
+                RunId = runId,
+                ClassificationId = (int)RunClassification.DELETED,
+            };
 
-            var request = new HttpRequestMessage(HttpMethod.Put, new Uri(dashboardCalculatorRunApi));
-
-            var content = new StringContent(JsonConvert.SerializeObject(statusUpdateViewModel), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
-            request.Content = content;
+            var request = new HttpRequestMessage(HttpMethod.Put, new Uri($"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.RunId}&classificationId={statusUpdateViewModel.ClassificationId}"));
             var response = client.SendAsync(request);
             response.Wait();
-            
+
             if (!response.IsCompleted)
             {
                 this.logger.LogError($"Request to {dashboardCalculatorRunApi} failed with status code {response.Result}");
