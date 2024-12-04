@@ -10,5 +10,6 @@ namespace EPR.Calculator.Frontend.Constants
         public const string Play = "PLAY";
         public const string Unclassified = "UNCLASSIFIED";
         public const string Error = "ERROR";
+        public const string Deleted = "DELETED";
     }
 }
