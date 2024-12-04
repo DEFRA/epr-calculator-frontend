@@ -20,7 +20,7 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
-        private readonly ILogger<CalculationRunNameController> logger;
+        private readonly ILogger<CalculationRunDetailsController> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CalculationRunDetailsController"/> class.
@@ -28,7 +28,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="configuration">The configuration settings.</param>
         /// <param name="clientFactory">The HTTP client factory.</param>
         /// <param name="logger">The logger instance.</param>
-        public CalculationRunDetailsController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunNameController> logger)
+        public CalculationRunDetailsController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunDetailsController> logger)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
@@ -39,6 +39,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Displays the calculation run details index view.
         /// </summary>
         /// <param name="runId">The ID of the calculation run.</param>
+        /// <param name="calcName">The calcName of the calculation run.</param>
         /// <returns>The calculation run details index view.</returns>
         public async Task<IActionResult> IndexAsync(int runId, string calcName)
         {
