@@ -8,8 +8,6 @@ namespace EPR.Calculator.Frontend.Models
     [ExcludeFromCodeCoverage]
     public class CreateLapcapDataDto
     {
-        public required string UserName { get; init; }
-
         /// <summary>
         /// Gets or sets the parameter year.
         /// </summary>

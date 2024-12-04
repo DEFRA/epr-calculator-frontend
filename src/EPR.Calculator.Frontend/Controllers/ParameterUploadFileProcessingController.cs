@@ -70,7 +70,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var parameterSetting = new CreateDefaultParameterSettingDto
             {
-                UserName = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
                 ParameterYear = parameterYear,
                 SchemeParameterTemplateValues = schemeParameterValues,
                 ParameterFileName = this.FileName,
