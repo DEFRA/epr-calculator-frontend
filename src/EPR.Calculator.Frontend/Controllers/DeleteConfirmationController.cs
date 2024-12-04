@@ -2,7 +2,7 @@
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    public class UnableDeleteRunController : Controller
+    public class DeleteConfirmationController : Controller
     {
         public IActionResult Index()
         {

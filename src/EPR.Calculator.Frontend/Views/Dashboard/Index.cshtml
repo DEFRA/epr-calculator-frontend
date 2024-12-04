@@ -66,7 +66,7 @@
                             <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
                                 @if (run.ShowRunDetailLink)
                                 {
-                                    <a href="@Url.Action("Index", "CalculationRunDetails")"  class="govuk-link govuk-link--no-visited-state">@run.Name</a>
+                                    <a href="@Url.Action("Index", "CalculationRunDetails",new {runId=@run.Id})"  class="govuk-link govuk-link--no-visited-state">@run.Name</a>
                                 }
                                 else
                                 {
