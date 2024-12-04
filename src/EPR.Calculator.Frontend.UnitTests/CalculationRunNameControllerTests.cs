@@ -463,10 +463,54 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task RunCalculator_ShouldRedirectToError_WhenUnprocessableEntity()
         {
             var calculationRunModel = new InitiateCalculatorRunModel { CalculationName = "TestRun" };
-            var errorMessage = "The Calculator is currently running. You will be able to run another calculation once the current one has finished.";
+            var errorMessage = "The calculator is currently running. You will be able to run another calculation once the current one has finished.";
             var httpResponse = new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
             {
                 Content = new StringContent($"{{ \"message\": \"{errorMessage}\" }}")
+            };
+
+            var mockHttpMessageNotFoundHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageNotFoundHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+
+            var mockHttpClient1 = new HttpClient(mockHttpMessageNotFoundHandler.Object);
+            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient1);
+
+            var mockHttpMessageUnprocessableEntityHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageUnprocessableEntityHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+
+            var mockHttpClient2 = new HttpClient(mockHttpMessageUnprocessableEntityHandler.Object);
+            mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
+                             .Returns(mockHttpClient1)
+                             .Returns(mockHttpClient2);
+
+            var result = await _controller.RunCalculator(calculationRunModel);
+
+            var redirectResult = result as RedirectToActionResult;
+            Assert.AreEqual("Index", redirectResult.ActionName);
+            Assert.AreEqual("CalculationRunError", redirectResult.ControllerName);
+            _tempDataMock.VerifySet(tempData => tempData["ErrorMessage"] = errorMessage, Times.Once);
+        }
+
+        [TestMethod]
+        public async Task RunCalculator_ShouldRedirectToError_WhenUnprocessableEntity_ParsingError()
+        {
+            var calculationRunModel = new InitiateCalculatorRunModel { CalculationName = "TestRun" };
+            var errorMessage = "Unable to process the error response.";
+            var httpResponse = new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
+            {
+                Content = new StringContent($"parsing error")
             };
 
             var mockHttpMessageNotFoundHandler = new Mock<HttpMessageHandler>();
