@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using Azure.Core;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.ViewModels;
@@ -6,6 +7,7 @@ using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
+using Newtonsoft.Json;
 using System.Reflection;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -40,9 +42,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The calculation run details index view.</returns>
         public async Task<IActionResult> IndexAsync(int runId)
         {
-            var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
+            var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
             {
                 RunId = runId,
+                ClassificationId = (int)RunClassification.DELETED,
             };
             var calculationNameExistsResponse = await this.GetCalclDetailsAsync(runId);
 
@@ -57,36 +60,39 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <summary>
         /// Deletes the calculation details.
         /// </summary>
-        /// <param name="statusUpdateViewModel">The status update view model.</param>
+        /// <param name="runId">The status update view model.</param>
         /// <returns>The delete confirmation view.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when the API URL or status update view model is null.</exception>
-        /// <exception cref="HttpRequestException">Thrown when the HTTP request fails.</exception>
-        public async Task<IActionResult> DeleteCalcDetailsAsync(int runId)
+        public async Task<IActionResult> DeleteCalcDetails(int runId)
         {
-            var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
+            var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
             {
                 RunId = runId,
+                ClassificationId = (int)RunClassification.DELETED,
             };
+            var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                                                 .GetSection(ConfigSection.DashboardCalculatorRunApi)
+                                                 .Value;
 
-            var apiUrl = this.configuration
-                .GetSection(ConfigSection.DashboardCalculatorRun)
-                .GetValue<string>(ConfigSection.DashboardCalculatorRunApi);
-
-            if (string.IsNullOrWhiteSpace(apiUrl))
+            if (string.IsNullOrEmpty(dashboardCalculatorRunApi))
             {
-                throw new ArgumentNullException(nameof(apiUrl), "CalculationRunNameApi is null or empty. Please check the configuration settings.");
+                // Handle the null or empty case appropriately
+                throw new ArgumentNullException(dashboardCalculatorRunApi, "The API URL cannot be null or empty.");
             }
 
             var client = this.clientFactory.CreateClient();
-            client.BaseAddress = new Uri(apiUrl);
+            client.BaseAddress = new Uri(dashboardCalculatorRunApi);
 
-            var requestUri = new Uri($"{apiUrl}/{statusUpdateViewModel}", UriKind.Absolute);
-            var response = await client.GetAsync(requestUri);
+            var request = new HttpRequestMessage(HttpMethod.Put, new Uri(dashboardCalculatorRunApi));
 
-            if (!response.IsSuccessStatusCode)
+            var content = new StringContent(JsonConvert.SerializeObject(statusUpdateViewModel), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
+            request.Content = content;
+            var response = client.SendAsync(request);
+            response.Wait();
+            
+            if (!response.IsCompleted)
             {
-                this.logger.LogError($"Request to {requestUri} failed with status code {response.StatusCode}");
-                throw new HttpRequestException($"Request to {requestUri} failed with status code {response.StatusCode}");
+                this.logger.LogError($"Request to {dashboardCalculatorRunApi} failed with status code {response.Result}");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
             return this.View(ViewNames.DeleteConfirmation);

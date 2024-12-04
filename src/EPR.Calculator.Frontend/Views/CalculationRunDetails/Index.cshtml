@@ -1,5 +1,5 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels
-@model CalculatorRunStatusUpdateViewModel
+@model CalculatorRunStatusUpdateDto
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -24,7 +24,7 @@
                     </a>
                 </div>
                 <h2 class="gem-c-attachment__title govuk-body">
-                    <a href="@Url.Action("Index", "DownloadUnavailableError")" class="govuk-link gem-c-attachment__link" target="_self" data-ga4-link="{&quot;event_name&quot;:&quot;file_download&quot;,&quot;type&quot;:&quot;attachment&quot;}">Download</a>
+                    <a href="@Url.Action("Index", "DownloadUnavailableError")" class="govuk-link gem-c-attachment__link" target="_self">Download</a>
                     </a>
                     <p>ID: @Model.RunId</p>
                 </h2>
@@ -64,7 +64,7 @@
 
                 &nbsp;
                 <div class="govuk-button-group">
-                    <a href="@Url.Action("DeleteCalcDetailsAsync", "CalculationRunDetails", new {runId=Model.RunId})" class="govuk-button" type="submit">Continue</a>
+                    <a href="@Url.Action("DeleteCalcDetails", "CalculationRunDetails", new {runId=Model.RunId})" class="govuk-button" type="submit">Continue</a>
                     <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
                 </div>
             </form>
