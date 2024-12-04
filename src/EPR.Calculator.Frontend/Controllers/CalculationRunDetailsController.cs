@@ -47,7 +47,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
-            var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateViewModel
+            var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
             {
                 RunId = runId,
                 ClassificationId = (int)RunClassification.DELETED,
@@ -63,7 +63,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The delete confirmation view.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the API URL or status update view model is null.</exception>
         /// <exception cref="HttpRequestException">Thrown when the HTTP request fails.</exception>
-        public async Task<IActionResult> DeleteCalcDetailsAsync(CalculatorRunStatusUpdateViewModel statusUpdateViewModel)
+        public async Task<IActionResult> DeleteCalcDetailsAsync(CalculatorRunStatusUpdateDto statusUpdateViewModel)
         {
             ArgumentNullException.ThrowIfNull(statusUpdateViewModel);
 
