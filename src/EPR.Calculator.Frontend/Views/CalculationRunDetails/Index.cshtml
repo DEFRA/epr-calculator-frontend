@@ -64,7 +64,7 @@
 
                 &nbsp;
                 <div class="govuk-button-group">
-                    <a href="@Url.Action("DeleteCalcDetailsAsync", "CalculationRunDetails", Model)" class="govuk-button" type="submit">Continue</a>
+                    <a href="@Url.Action("DeleteCalcDetailsAsync", "CalculationRunDetails", new {runId=Model.RunId})" class="govuk-button" type="submit">Continue</a>
                     <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
                 </div>
             </form>

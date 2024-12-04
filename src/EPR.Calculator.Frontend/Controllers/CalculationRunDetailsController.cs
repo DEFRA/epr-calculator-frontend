@@ -40,6 +40,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The calculation run details index view.</returns>
         public async Task<IActionResult> IndexAsync(int runId)
         {
+            var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
+            {
+                RunId = runId,
+            };
             var calculationNameExistsResponse = await this.GetCalclDetailsAsync(runId);
 
             if (!calculationNameExistsResponse.IsSuccessStatusCode)
@@ -47,13 +51,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
-            var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateViewModel
-            {
-                RunId = runId,
-                ClassificationId = (int)RunClassification.DELETED,
-            };
-
-            return this.View(ViewNames.CalculationRunDetailsIndex, calculatorRunStatusUpdate);
+            return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
         }
 
         /// <summary>
@@ -63,9 +61,12 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The delete confirmation view.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the API URL or status update view model is null.</exception>
         /// <exception cref="HttpRequestException">Thrown when the HTTP request fails.</exception>
-        public async Task<IActionResult> DeleteCalcDetailsAsync(CalculatorRunStatusUpdateViewModel statusUpdateViewModel)
+        public async Task<IActionResult> DeleteCalcDetailsAsync(int runId)
         {
-            ArgumentNullException.ThrowIfNull(statusUpdateViewModel);
+            var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
+            {
+                RunId = runId,
+            };
 
             var apiUrl = this.configuration
                 .GetSection(ConfigSection.DashboardCalculatorRun)
