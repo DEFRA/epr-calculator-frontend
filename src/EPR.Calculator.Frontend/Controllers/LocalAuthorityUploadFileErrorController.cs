@@ -30,7 +30,6 @@ namespace EPR.Calculator.Frontend.Controllers
                     // Optionally log additional trace information
                     this._telemetryClient.TrackTrace($"Errors found in uploaded file: {lapcapErrors}");
 
-
                     var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors);
 
                     if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
