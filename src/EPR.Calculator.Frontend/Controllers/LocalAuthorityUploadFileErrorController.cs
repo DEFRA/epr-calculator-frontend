@@ -1,6 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -8,6 +9,13 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class LocalAuthorityUploadFileErrorController : Controller
     {
+        private readonly TelemetryClient _telemetryClient;
+
+        public LocalAuthorityUploadFileErrorController(TelemetryClient telemetryClient)
+        {
+            this._telemetryClient = telemetryClient;
+        }
+
         public IActionResult Index()
         {
             try
@@ -16,6 +24,13 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (!string.IsNullOrEmpty(lapcapErrors))
                 {
+                    // Log the number of errors as a metric
+                    this._telemetryClient.TrackMetric("UploadFileErrorCount", lapcapErrors.Length);
+
+                    // Optionally log additional trace information
+                    this._telemetryClient.TrackTrace($"Errors found in uploaded file: {lapcapErrors}");
+
+
                     var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors);
 
                     if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
@@ -42,11 +57,17 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
                 else
                 {
+                    // Log trace if no errors are found
+                    this._telemetryClient.TrackTrace("No errors found in the uploaded file.");
+
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                // Track exception in Application Insights
+                this._telemetryClient.TrackException(ex);
+
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
