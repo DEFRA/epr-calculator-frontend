@@ -1,4 +1,5 @@
-﻿@using EPR.Calculator.Frontend.ViewModels
+﻿@using EPR.Calculator.Frontend.Constants
+@using EPR.Calculator.Frontend.ViewModels
 @model List<DashboardViewModel>
 
 @{
@@ -66,11 +67,11 @@
                             <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
                                 @if (run.ShowErrorLink)
                                 {
-                                    <a href="@Url.Action("ErrorPage", "CalculationRunDetails", new { id = run.Id })" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
+                                    <a href="@Url.Action(ActionNames.Error, "CalculationRunDetails", new { id = run.Id })" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
                                 }
                                 else if (run.ShowRunDetailLink)
                                 {
-                                    <a href="@Url.Action("Index", "CalculationRunDetails")"  class="govuk-link govuk-link--no-visited-state">@run.Name</a>
+                                    <a href="@Url.Action(ActionNames.Index, "CalculationRunDetails")"  class="govuk-link govuk-link--no-visited-state">@run.Name</a>
                                 }
                                 else
                                 {
