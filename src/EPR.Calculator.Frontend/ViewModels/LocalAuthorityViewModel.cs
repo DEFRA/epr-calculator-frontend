@@ -12,7 +12,9 @@ namespace EPR.Calculator.Frontend.ViewModels
     [ExcludeFromCodeCoverage]
     public record LocalAuthorityViewModel : ViewModelCommonData
     {
-        public List<IGrouping<string, LocalAuthorityData>> ByCountry { get; init; }
+        public required string LastUpdatedBy { get; init; }
+
+        public required List<IGrouping<string, LocalAuthorityData>> ByCountry { get; init; }
 
         private static string GetCountryDescription(string country)
         {

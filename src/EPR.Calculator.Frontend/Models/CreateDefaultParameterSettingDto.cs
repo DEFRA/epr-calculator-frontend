@@ -8,6 +8,8 @@ namespace EPR.Calculator.Frontend.Models
     [ExcludeFromCodeCoverage]
     public class CreateDefaultParameterSettingDto
     {
+        public required string UserName { get; init; }
+
         /// <summary>
         /// Gets or sets the parameter year.
         /// </summary>

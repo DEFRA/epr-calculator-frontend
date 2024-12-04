@@ -15,7 +15,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 ViewNames.LocalAuthorityUploadFileIndex,
                 new ViewModelCommonData
                 {
-                    CurrentUser = this.HttpContext.User.Identity?.Name ?? "[User Name Not Found]",
+                    CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
                 });
         }
 

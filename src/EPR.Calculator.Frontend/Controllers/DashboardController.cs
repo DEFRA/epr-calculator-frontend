@@ -54,7 +54,7 @@
                         ViewNames.DashboardIndex,
                         new DashboardViewModel
                         {
-                            CurrentUser = this.HttpContext.User.Identity?.Name ?? "[User Name Not Found]",
+                            CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
                             Calculations = dashboardRunData,
                         });
                 }

@@ -3,6 +3,7 @@ using CsvHelper.Configuration;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Globalization;
@@ -14,7 +15,12 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
-            return this.View(ViewNames.ParameterUploadFileIndex);
+            return this.View(
+                ViewNames.ParameterUploadFileIndex,
+                new ViewModelCommonData
+                {
+                    CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                });
         }
 
         [HttpPost]
@@ -23,7 +29,12 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var viewName = await this.GetViewName(fileUpload);
-                return this.View(viewName);
+                return this.View(
+                    viewName,
+                    new ViewModelCommonData
+                    {
+                        CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                    });
             }
             catch (Exception)
             {

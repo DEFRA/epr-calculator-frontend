@@ -1,6 +1,6 @@
 ﻿@using EPR.Calculator.Frontend.Constants;
 @using EPR.Calculator.Frontend.ViewModels
-@model ViewModelCommonData
+@model DefaultParametersViewModel
 
 @{
     Layout = "_Layout";
@@ -27,7 +27,7 @@
 
         @if(ViewBag.IsDataAvailable)
         {
-            <div class="govuk-caption-l">Last updated by @Model.CurrentUser at <span id="effective-from"></span></div><br>
+            <div class="govuk-caption-l">Last updated by @Model.LastUpdatedBy at <span id="effective-from"></span></div><br>
         }
         <h1 class="govuk-heading-xl">Default calculator parameters</h1>
 

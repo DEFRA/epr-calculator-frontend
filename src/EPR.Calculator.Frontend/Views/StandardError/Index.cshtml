@@ -1,9 +1,12 @@
-﻿@{
+﻿@using EPR.Calculator.Frontend.ViewModels;
+@model ViewModelCommonData;
+
+@{
     Layout = "_Layout";
     var BackLink = "Dashboard";
 }
 
-<partial name="_BackLinkPartial" model="BackLink" />
+<partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-l">Sorry, there is a problem with the service</h1>

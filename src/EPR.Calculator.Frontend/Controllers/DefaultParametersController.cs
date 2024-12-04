@@ -77,9 +77,10 @@ namespace EPR.Calculator.Frontend.Controllers
                         this.ViewBag.IsDataAvailable = true;
 
                         return this.View(
-                            new ViewModelCommonData
+                            new DefaultParametersViewModel
                             {
-                                CurrentUser = this.HttpContext.User.Identity?.Name ?? "[User Name Not Found]",
+                                CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                                LastUpdatedBy = defaultSchemeParameters.First().CreatedBy,
                             });
                     }
                 }

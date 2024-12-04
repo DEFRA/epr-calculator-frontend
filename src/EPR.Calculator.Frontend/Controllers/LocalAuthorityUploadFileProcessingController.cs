@@ -70,6 +70,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var lapcapData = new CreateLapcapDataDto
             {
+                UserName = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
                 ParameterYear = parameterYear,
                 LapcapDataTemplateValues = lapcapDataTemplateValues,
                 LapcapFileName = this.FileName,

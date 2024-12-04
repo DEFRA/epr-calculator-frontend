@@ -79,10 +79,11 @@ namespace EPR.Calculator.Frontend.Controllers
                     var localAuthorityDataGroupedByCountry = localAuthorityData?.GroupBy((data) => data.Country).ToList();
 
                     return this.View(
-                        ViewNames.LocalAuthorityDisposalCostsIndex, 
+                        ViewNames.LocalAuthorityDisposalCostsIndex,
                         new LocalAuthorityViewModel
                         {
-                            CurrentUser = this.HttpContext.User.Identity?.Name ?? "[User Name Not Found]",
+                            CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                            LastUpdatedBy = deserializedlapcapdata?.First().CreatedBy ?? ErrorMessages.UnknownUser,
                             ByCountry = localAuthorityDataGroupedByCountry,
                         });
                 }
