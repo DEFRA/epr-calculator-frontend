@@ -14,7 +14,7 @@ namespace EPR.Calculator.Frontend.ViewModels
     {
         public LocalAuthorityViewModel(LocalAuthorityDisposalCost localAuthorityDisposalCost)
         {
-            this.Country = GetCountryDescription(localAuthorityDisposalCost.Country);
+            this.Country = localAuthorityDisposalCost.Country;
             this.Material = localAuthorityDisposalCost.Material;
             this.TotalCost = GetTotalCost(localAuthorityDisposalCost.TotalCost);
             this.CreatedBy = localAuthorityDisposalCost.CreatedBy;
@@ -33,17 +33,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         public string CreatedAt { get; set; }
 
         public DateTime EffectiveFrom { get; set; }
-
-        private static string GetCountryDescription(string country)
-        {
-            var countryDescription = typeof(Country).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == country)?.GetCustomAttribute<EnumMemberAttribute>(false)?.Value;
-            if (countryDescription == null)
-            {
-                throw new ArgumentNullException(country, "Country is not returned by the local authority disposal costs API");
-            }
-
-            return countryDescription;
-        }
 
         private static string GetFormattedCreatedAt(DateTime createdAt)
         {
