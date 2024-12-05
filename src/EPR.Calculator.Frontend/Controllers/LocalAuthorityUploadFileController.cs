@@ -19,7 +19,7 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult Index()
         {
             // Track a page visit event
-            this._telemetryClient.TrackEvent("Visited LocalAuthorityUploadFileIndex");
+            this._telemetryClient.TrackEvent("1.Visited LocalAuthorityUploadFileIndex");
 
             return this.View(ViewNames.LocalAuthorityUploadFileIndex);
         }
@@ -29,7 +29,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                this._telemetryClient.TrackEvent("FileUploadInitiated", new Dictionary<string, string>
+                this._telemetryClient.TrackEvent("2.FileUploadInitiated", new Dictionary<string, string>
                 {
                     { "FileName", fileUpload.FileName },
                 });
@@ -39,7 +39,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var lapcapViewName = await this.GetViewName(fileUpload);
 
-                this._telemetryClient.TrackEvent("FileUploadCompleted", new Dictionary<string, string>
+                this._telemetryClient.TrackEvent("4.FileUploadCompleted", new Dictionary<string, string>
                 {
                     { "FileName", fileUpload.FileName },
                     { "ViewName", lapcapViewName },
@@ -115,7 +115,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     this.ViewBag.Errors = localAuthorityUploadErrors;
 
                     // Log validation errors
-                    this._telemetryClient.TrackEvent("ValidationErrorsDetected", new Dictionary<string, string>
+                    this._telemetryClient.TrackEvent("3.2.ValidationErrorsDetected", new Dictionary<string, string>
                     {
                         { "FileName", fileUpload.FileName },
                         { "ErrorDetails", uploadErrors },
@@ -130,7 +130,7 @@ namespace EPR.Calculator.Frontend.Controllers
             this.TempData["LapcapFileName"] = fileUpload.FileName;
 
             // Log successful preparation of data
-            this._telemetryClient.TrackEvent("FileDataPrepared", new Dictionary<string, string>
+            this._telemetryClient.TrackEvent("3.1.FileDataPrepared", new Dictionary<string, string>
             {
                  { "FileName", fileUpload.FileName },
                  { "DataCount", localAuthorityDisposalCosts.Count.ToString() },

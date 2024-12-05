@@ -36,14 +36,32 @@ namespace EPR.Calculator.Frontend.Controllers
                     throw new ArgumentNullException(lapcapSettingsApi, "LapcapSettingsApi is null. Check the configuration settings for local authority");
                 }
 
-                this._telemetryClient.TrackTrace("LapcapSettingsApi retrieved from configuration.");
+                this._telemetryClient.TrackEvent("5.Config settings", new Dictionary<string, string>
+                {
+                    { "lapcapSettingsApi", lapcapSettingsApi },
+                    { "FileName", this.FileName },
+                });
+
+                this._telemetryClient.TrackTrace($"LapcapSettingsApi retrieved from configuration.{lapcapSettingsApi}"); // last trace
+
+                this._telemetryClient.TrackTrace(this.TempData.Peek("LapcapFileName").ToString());
+
+                this._telemetryClient.TrackEvent("6.TempData", new Dictionary<string, string>
+                {
+                    { "lapcapSettingsApi", lapcapSettingsApi },
+                    { "Tempdata", this.TempData.Peek("LapcapFileName").ToString()},
+                });
 
                 this.FileName = this.TempData.Peek("LapcapFileName").ToString();
+
+                this._telemetryClient.TrackTrace(FileName);
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);
 
-                this._telemetryClient.TrackEvent("HTTP Client Created", new Dictionary<string, string>
+                this._telemetryClient.TrackTrace(client.BaseAddress.ToString());
+
+                this._telemetryClient.TrackEvent("7.HTTP Client Created", new Dictionary<string, string>
                 {
                     { "ApiBaseAddress", lapcapSettingsApi },
                     { "FileName", this.FileName },
