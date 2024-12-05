@@ -52,6 +52,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     this.logger.LogError(
                             $"Request failed with status code {getCalculationDetailsResponse.StatusCode}");
+
                     return this.RedirectToAction(ActionNames.StandardErrorIndex,
                             CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
@@ -100,13 +101,16 @@ namespace EPR.Calculator.Frontend.Controllers
                 var request = new HttpRequestMessage(HttpMethod.Put,
                     new Uri(
                         $"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.RunId}&classificationId={statusUpdateViewModel.ClassificationId}"));
+
                 var response = client.SendAsync(request);
+
                 response.Wait();
 
                 if (!response.IsCompleted)
                 {
                     this.logger.LogError(
                         $"Request to {dashboardCalculatorRunApi} failed with status code {response.Result}");
+
                     return this.RedirectToAction(ActionNames.StandardErrorIndex,
                         CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
