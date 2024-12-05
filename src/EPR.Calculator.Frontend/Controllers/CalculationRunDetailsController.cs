@@ -117,11 +117,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 .GetSection(ConfigSection.DashboardCalculatorRun)
                 .GetValue<string>(ConfigSection.DashboardCalculatorRunApi);
 
-            if (string.IsNullOrWhiteSpace(apiUrl))
-            {
-                throw new ArgumentNullException(apiUrl, "CalculationRunNameApi is null or empty. Please check the configuration settings.");
-            }
-
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             return client;
