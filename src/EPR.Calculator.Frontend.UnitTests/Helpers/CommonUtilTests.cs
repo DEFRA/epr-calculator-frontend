@@ -1,4 +1,4 @@
-namespace EPR.Calculator.Frontend.UnitTests.Helpers
+﻿namespace EPR.Calculator.Frontend.UnitTests.Helpers
 {
     using System.Security.Principal;
     using AutoFixture;
