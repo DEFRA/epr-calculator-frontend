@@ -14,7 +14,8 @@ namespace EPR.Calculator.Frontend.ViewModels
     {
         public LocalAuthorityViewModel(LocalAuthorityDisposalCost localAuthorityDisposalCost)
         {
-            this.Country = GetCountryDescription(localAuthorityDisposalCost.Country); this.Material = localAuthorityDisposalCost.Material;
+            this.Country = GetCountryDescription(localAuthorityDisposalCost.Country); 
+            this.Material = localAuthorityDisposalCost.Material;
             this.TotalCost = GetTotalCost(localAuthorityDisposalCost.TotalCost);
             this.CreatedBy = localAuthorityDisposalCost.CreatedBy;
             this.CreatedAt = GetFormattedCreatedAt(localAuthorityDisposalCost.CreatedAt);
