@@ -116,14 +116,14 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task IndexAsync_GetCalculationDetailsExceptionl_ShouldLogErrorAndRedirect()
+        public async Task IndexAsync_GetCalculationDetails_Exception_ShouldLogErrorAndRedirect()
         {
             // Arrange
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.InternalServerError, MockData.GetCalculationRuns());
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
-            var controller = new CalculationRunDetailsController(null, null, null);
+            var controller = new CalculationRunDetailsController(null, null, _mockLogger.Object);
             int runId = 1;
             string calcName = "TestCalc";
 
@@ -131,7 +131,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.IndexAsync(runId, calcName) as RedirectToActionResult;
 
             // Assert
-            Assert.IsNull(result);
+            Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
         }
