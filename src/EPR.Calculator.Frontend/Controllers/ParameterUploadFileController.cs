@@ -19,7 +19,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 ViewNames.ParameterUploadFileIndex,
                 new ViewModelCommonData
                 {
-                    CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 });
         }
 
@@ -33,7 +33,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     viewName,
                     new ViewModelCommonData
                     {
-                        CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                     });
             }
             catch (Exception)

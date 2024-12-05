@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +41,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 CalculationRunNameIndexView,
                 new InitiateCalculatorRunModel
                 {
-                    CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 });
         }
 
@@ -145,7 +146,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 CalculatorRunName = calculatorRunName,
                 FinancialYear = year,
-                CreatedBy = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                CreatedBy = CommonUtil.GetUserName(this.HttpContext),
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);

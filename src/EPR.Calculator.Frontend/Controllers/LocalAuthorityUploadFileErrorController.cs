@@ -43,7 +43,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         ViewNames.LocalAuthorityUploadFileErrorIndex,
                         new ViewModelCommonData
                         {
-                            CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                         });
                 }
                 else
@@ -75,7 +75,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     ViewNames.LocalAuthorityUploadFileErrorIndex,
                     new ViewModelCommonData
                     {
-                        CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                     });
             }
 
@@ -88,7 +88,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 ViewNames.LocalAuthorityUploadFileRefresh,
                 new ViewModelCommonData
                 {
-                    CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 });
         }
     }

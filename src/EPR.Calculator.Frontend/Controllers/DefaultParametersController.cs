@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -79,7 +80,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         return this.View(
                             new DefaultParametersViewModel
                             {
-                                CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                                 LastUpdatedBy = defaultSchemeParameters.First().CreatedBy,
                             });
                     }

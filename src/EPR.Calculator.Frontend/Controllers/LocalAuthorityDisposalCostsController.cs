@@ -82,7 +82,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         ViewNames.LocalAuthorityDisposalCostsIndex,
                         new LocalAuthorityViewModel
                         {
-                            CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                             LastUpdatedBy = deserializedlapcapdata?.First().CreatedBy ?? ErrorMessages.UnknownUser,
                             ByCountry = localAuthorityDataGroupedByCountry,
                         });

@@ -1,4 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +13,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 ViewNames.StandardErrorIndex,
                 new ViewModelCommonData
                 {
-                    CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 });
         }
     }

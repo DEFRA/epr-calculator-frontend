@@ -55,7 +55,7 @@
                         ViewNames.DashboardIndex,
                         new DashboardViewModel
                         {
-                            CurrentUser = this.HttpContext.User.Identity?.Name ?? ErrorMessages.UnknownUser,
+                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                             Calculations = dashboardRunData,
                         });
                 }
