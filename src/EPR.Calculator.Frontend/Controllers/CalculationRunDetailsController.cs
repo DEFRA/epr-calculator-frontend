@@ -1,4 +1,5 @@
-﻿using Azure.Core;
+﻿using Azure;
+using Azure.Core;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
@@ -43,21 +44,36 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The calculation run details index view.</returns>
         public async Task<IActionResult> IndexAsync(int runId, string calcName)
         {
-            var getCalculationDetailsResponse = await this.GetCalculationDetailsAsync(runId);
-
-            var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
+            try
             {
-                RunId = runId,
-                ClassificationId = (int)RunClassification.DELETED,
-                CalcName = calcName,
-            };
+                var getCalculationDetailsResponse = await this.GetCalculationDetailsAsync(runId);
 
-            if (!getCalculationDetailsResponse.IsSuccessStatusCode)
+                if (getCalculationDetailsResponse == null)
+                {
+                    this.logger.LogError(
+                            $"Request failed with status code {getCalculationDetailsResponse.StatusCode}");
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex,
+                            CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                }
+
+                var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
+                {
+                    RunId = runId,
+                    ClassificationId = (int)RunClassification.DELETED,
+                    CalcName = calcName,
+                };
+
+                if (!getCalculationDetailsResponse.IsSuccessStatusCode)
+                {
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                }
+
+                return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
+            }
+            catch (Exception)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-
-            return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
         }
 
         /// <summary>
@@ -67,29 +83,40 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The delete confirmation view.</returns>
         public IActionResult DeleteCalcDetails(int runId)
         {
-            var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                                                 .GetSection(ConfigSection.DashboardCalculatorRunApi)
-                                                 .Value;
-
-            var client = this.clientFactory.CreateClient();
-            client.BaseAddress = new Uri(dashboardCalculatorRunApi);
-            var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
+            try
             {
-                RunId = runId,
-                ClassificationId = (int)RunClassification.DELETED,
-            };
+                var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                    .GetSection(ConfigSection.DashboardCalculatorRunApi)
+                    .Value;
 
-            var request = new HttpRequestMessage(HttpMethod.Put, new Uri($"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.RunId}&classificationId={statusUpdateViewModel.ClassificationId}"));
-            var response = client.SendAsync(request);
-            response.Wait();
+                var client = this.clientFactory.CreateClient();
+                client.BaseAddress = new Uri(dashboardCalculatorRunApi);
+                var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
+                {
+                    RunId = runId,
+                    ClassificationId = (int)RunClassification.DELETED,
+                };
 
-            if (!response.IsCompleted)
+                var request = new HttpRequestMessage(HttpMethod.Put,
+                    new Uri(
+                        $"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.RunId}&classificationId={statusUpdateViewModel.ClassificationId}"));
+                var response = client.SendAsync(request);
+                response.Wait();
+
+                if (!response.IsCompleted)
+                {
+                    this.logger.LogError(
+                        $"Request to {dashboardCalculatorRunApi} failed with status code {response.Result}");
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex,
+                        CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                }
+
+                return this.View(ViewNames.DeleteConfirmation);
+            }
+            catch (Exception)
             {
-                this.logger.LogError($"Request to {dashboardCalculatorRunApi} failed with status code {response.Result}");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-
-            return this.View(ViewNames.DeleteConfirmation);
         }
 
         /// <summary>
