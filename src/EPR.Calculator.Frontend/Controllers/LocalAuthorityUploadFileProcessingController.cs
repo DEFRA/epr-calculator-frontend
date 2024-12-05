@@ -42,17 +42,17 @@ namespace EPR.Calculator.Frontend.Controllers
                     { "FileName", this.FileName },
                 });
 
-                this._telemetryClient.TrackTrace($"LapcapSettingsApi retrieved from configuration.{lapcapSettingsApi}"); // last trace
+                this._telemetryClient.TrackTrace($"LapcapSettingsApi retrieved from configuration.{lapcapSettingsApi},{this.TempData.Peek("LapcapFileName")}"); // last trace
 
-                this._telemetryClient.TrackTrace($"Retrieving TempData.{this.TempData["LapcapFileName"].ToString()}");
-
+                this._telemetryClient.TrackTrace($"Retrieving TempData.{this.TempData.Peek("LapcapFileName")}");
                 this._telemetryClient.TrackEvent("6.TempData", new Dictionary<string, string>
                 {
                     { "lapcapSettingsApi", lapcapSettingsApi },
-                    { "Tempdata", this.TempData["LapcapFileName"].ToString() },
+                    { "Tempdata", this.TempData.Peek("LapcapFileName").ToString()},
                 });
 
-                this.FileName = this.TempData["LapcapFileName"].ToString();
+                this.FileName = this.TempData.Peek("LapcapFileName").ToString();
+
                 this._telemetryClient.TrackTrace(FileName);
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);
