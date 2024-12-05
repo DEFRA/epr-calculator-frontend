@@ -97,44 +97,34 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private string Transform(List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
         {
-            try
+
+            this._telemetryClient.TrackTrace("Transform method started - Preparing to serialize data.");
+            var parameterYear = this.configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
+
+            if (string.IsNullOrWhiteSpace(parameterYear))
             {
-                this._telemetryClient.TrackTrace("Transform method started - Preparing to serialize data.");
-                var parameterYear = this.configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
+                this._telemetryClient.TrackException(new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings."));
+                throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings.");
+            }
 
-                if (string.IsNullOrWhiteSpace(parameterYear))
-                {
-                    this._telemetryClient.TrackException(new ArgumentNullException(nameof(parameterYear), "ParameterYear is null. Check the configuration settings."));
-                    throw new ArgumentNullException(nameof(parameterYear), "ParameterYear is null. Check the configuration settings.");
-                }
+            this._telemetryClient.TrackTrace($"ParameterYear retrieved: {parameterYear}.");
 
-                this._telemetryClient.TrackTrace($"ParameterYear retrieved: {parameterYear}.");
+            var lapcapData = new CreateLapcapDataDto
+            {
+                ParameterYear = parameterYear,
+                LapcapDataTemplateValues = lapcapDataTemplateValues,
+                LapcapFileName = this.FileName,
+            };
 
-                var lapcapData = new CreateLapcapDataDto
-                {
-                    ParameterYear = parameterYear,
-                    LapcapDataTemplateValues = lapcapDataTemplateValues,
-                    LapcapFileName = this.FileName,
-                };
+            var serializedData = JsonConvert.SerializeObject(lapcapData);
 
-                var serializedData = JsonConvert.SerializeObject(lapcapData);
-
-                this._telemetryClient.TrackEvent("Data Serialized", new Dictionary<string, string>
+            this._telemetryClient.TrackEvent("Data Serialized", new Dictionary<string, string>
                 {
                     { "SerializedDataLength", serializedData.Length.ToString() },
                     { "ParameterYear", parameterYear },
                 });
 
-                return serializedData;
-            }
-            catch (Exception ex)
-            {
-                this._telemetryClient.TrackException(ex, new Dictionary<string, string>
-                {
-                    { "Method", "Transform" },
-                });
-                throw;
-            }
+            return serializedData;
         }
     }
 }
