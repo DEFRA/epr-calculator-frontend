@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -16,6 +17,8 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class LocalAuthorityDisposalCostsControllerTests
     {
+        private TelemetryClient _telemetryClient = new();
+
         [TestMethod]
         public async Task LocalAuthorityDisposalCostsController_Success_View_Test()
         {
@@ -40,7 +43,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, _telemetryClient);
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -71,7 +74,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, _telemetryClient);
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -99,7 +102,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, _telemetryClient);
 
             var result = controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
@@ -111,7 +114,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void Index_WhenExceptionThrown_RedirectsToErrorPage()
         {
             // Arrange
-            var controller = new LocalAuthorityDisposalCostsController(null, null);
+            var controller = new LocalAuthorityDisposalCostsController(null, null, _telemetryClient);
 
             // Act
             var result = controller.Index() as RedirectToActionResult;
@@ -156,7 +159,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(string.Empty)).Returns(httpClient).Verifiable();
 
             // Act
-            var result = await LocalAuthorityDisposalCostsController.GetHttpRequest(configuration, mockHttpClientFactory.Object);
+            var result = await LocalAuthorityDisposalCostsController.GetHttpRequest(configuration, mockHttpClientFactory.Object, _telemetryClient);
 
             // Assert is handled by ExpectedException
         }
@@ -186,7 +189,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
 
             // Arrange
-            var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, _telemetryClient);
 
             // Act
 
