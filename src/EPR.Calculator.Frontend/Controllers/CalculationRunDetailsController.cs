@@ -40,10 +40,9 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var getCalculationDetailsResponse = await this.GetCalculationDetailsAsync(runId);
 
-                if (getCalculationDetailsResponse == null)
+                if (!getCalculationDetailsResponse.IsSuccessStatusCode)
                 {
                     this.logger.LogError($"Request failed with status code {getCalculationDetailsResponse.StatusCode}");
-
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
 
@@ -54,15 +53,11 @@ namespace EPR.Calculator.Frontend.Controllers
                     CalcName = calcName,
                 };
 
-                if (!getCalculationDetailsResponse.IsSuccessStatusCode)
-                {
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                }
-
                 return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                this.logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
@@ -101,8 +96,10 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.View(ViewNames.DeleteConfirmation);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+
+                this.logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
