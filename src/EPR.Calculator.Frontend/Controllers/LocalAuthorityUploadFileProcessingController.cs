@@ -49,13 +49,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 this._telemetryClient.TrackEvent("6.TempData", new Dictionary<string, string>
                 {
                     { "lapcapSettingsApi", lapcapSettingsApi },
-                    { "Tempdata", this.TempData.Peek("LapcapFileName").ToString()},
+                    { "Tempdata", this.TempData.Peek("LapcapFileName").ToString() },
                 });
 
                 this.FileName = this.TempData.Peek("LapcapFileName").ToString();
-
                 this._telemetryClient.TrackTrace(FileName);
-
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);
 
