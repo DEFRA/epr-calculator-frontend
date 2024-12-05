@@ -70,7 +70,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 Id = 9, ProjectionYear = "2024-25", EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
                 CreatedBy = "Test User", CreatedAt = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc), LapcapDataMasterId = 1,
-                LapcapTempUniqueRef = "NI-AL", Country = "Northern Ireland", Material = "Aluminium", TotalCost = 10m
+                LapcapTempUniqueRef = "NI-AL", Country = "NI", Material = "Aluminium", TotalCost = 10m
             },
             new LocalAuthorityDisposalCost
             {
