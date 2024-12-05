@@ -94,7 +94,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ViewNames.DeleteConfirmation, result.ViewName);
         }
 
-        private Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)
+        private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler
