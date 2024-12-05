@@ -94,6 +94,27 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ViewNames.DeleteConfirmation, result.ViewName);
         }
 
+        [TestMethod]
+        public async Task IndexAsync_GetCalculationDetailsResponseIsNull_ShouldLogErrorAndRedirect()
+        {
+            // Arrange
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.InternalServerError, MockData.GetCalculationRuns());
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            int runId = 1;
+            string calcName = "TestCalc";
+
+            // Act
+            var result = await controller.IndexAsync(runId, calcName) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
