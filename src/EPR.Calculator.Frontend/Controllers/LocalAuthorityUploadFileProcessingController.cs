@@ -110,11 +110,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 this._telemetryClient.TrackTrace($"ParameterYear retrieved: {parameterYear}.");
 
-                if (string.IsNullOrWhiteSpace(parameterYear))
-                {
-                    throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings for local authority");
-                }
-
                 var lapcapData = new CreateLapcapDataDto
                 {
                     ParameterYear = parameterYear,
