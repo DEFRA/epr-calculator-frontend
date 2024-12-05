@@ -76,9 +76,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                    .GetSection(ConfigSection.DashboardCalculatorRunApi)
-                    .Value;
+                var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetSection(ConfigSection.DashboardCalculatorRunApi).Value;
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(dashboardCalculatorRunApi);
@@ -88,9 +86,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     ClassificationId = (int)RunClassification.DELETED,
                 };
 
-                var request = new HttpRequestMessage(HttpMethod.Put,
-                    new Uri(
-                        $"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.RunId}&classificationId={statusUpdateViewModel.ClassificationId}"));
+                var request = new HttpRequestMessage(HttpMethod.Put, new Uri($"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.RunId}&classificationId={statusUpdateViewModel.ClassificationId}"));
 
                 var response = client.SendAsync(request);
 
@@ -98,8 +94,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (!response.IsCompleted)
                 {
-                    this.logger.LogError(
-                        $"Request to {dashboardCalculatorRunApi} failed with status code {response.Result}");
+                    this.logger.LogError($"Request to {dashboardCalculatorRunApi} failed with status code {response.Result}");
 
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
@@ -133,10 +128,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
         private HttpClient CreateHttpClient()
         {
-            var apiUrl = this.configuration
-                .GetSection(ConfigSection.DashboardCalculatorRun)
-                .GetValue<string>(ConfigSection.DashboardCalculatorRunApi);
-
+            var apiUrl = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetValue<string>(ConfigSection.DashboardCalculatorRunApi);
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             return client;
