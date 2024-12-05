@@ -1,5 +1,6 @@
 namespace EPR.Calculator.Frontend.UnitTests.Helpers
 {
+    using System.Security.Principal;
     using AutoFixture;
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Helpers;
@@ -33,12 +34,27 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
         /// Checks that "Unknown User" is returned when the HTTP context doesn't have a user set.
         /// </summary>
         [TestMethod]
-        public void CanCallGetUserName_NoLoggedInUser()
+        public void CanCallGetUserName_UserNameIsNull()
         {
             // Arrange
             var fixture = new Fixture();
             var context = new Mock<HttpContext>();
             context.Setup(c => c.User.Identity.Name).Returns(default(string));
+
+            // Act
+            var result = CommonUtil.GetUserName(context.Object);
+
+            // Assert
+            Assert.AreEqual(ErrorMessages.UnknownUser, result);
+        }
+
+        [TestMethod]
+        public void CanCallGetUserName_IdentityIsNull()
+        {
+            // Arrange
+            var fixture = new Fixture();
+            var context = new Mock<HttpContext>();
+            context.Setup(c => c.User.Identity).Returns(default(IIdentity));
 
             // Act
             var result = CommonUtil.GetUserName(context.Object);
