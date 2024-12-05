@@ -8,6 +8,6 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public int ClassificationId { get; set; }
 
-        public string CalcName { get; set; }
+        public string? CalcName { get; set; }
     }
 }

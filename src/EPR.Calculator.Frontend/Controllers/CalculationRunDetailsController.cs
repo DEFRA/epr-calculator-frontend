@@ -43,7 +43,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The calculation run details index view.</returns>
         public async Task<IActionResult> IndexAsync(int runId, string calcName)
         {
-            var getCalculationDetailsResponse = await this.GetCalclDetailsAsync(runId);
+            var getCalculationDetailsResponse = await this.GetCalculationDetailsAsync(runId);
 
             var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
             {
@@ -98,16 +98,29 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
-        /// Gets the calculation details.
+        /// Asynchronously retrieves calculation details for a given run ID.
         /// </summary>
-        /// <param name="runId">The ID of the calculation run.</param>
-        /// <returns>The HTTP response message.</returns>
+        /// <param name="runId">The ID of the calculation run to retrieve details for.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
-        private async Task<HttpResponseMessage> GetCalclDetailsAsync(int runId)
+        private async Task<HttpResponseMessage> GetCalculationDetailsAsync(int runId)
+        {
+            var client = this.CreateHttpClient();
+            var apiUrl = client.BaseAddress.ToString();
+            var requestUri = new Uri($"{apiUrl}/{runId}", UriKind.Absolute);
+            return await client.GetAsync(requestUri);
+        }
+
+        /// <summary>
+        /// Creates and configures an <see cref="HttpClient"/> instance.
+        /// </summary>
+        /// <returns>A configured <see cref="HttpClient"/> instance.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
+        private HttpClient CreateHttpClient()
         {
             var apiUrl = this.configuration
-                          .GetSection(ConfigSection.DashboardCalculatorRun)
-                          .GetValue<string>(ConfigSection.DashboardCalculatorRunApi);
+                .GetSection(ConfigSection.DashboardCalculatorRun)
+                .GetValue<string>(ConfigSection.DashboardCalculatorRunApi);
 
             if (string.IsNullOrWhiteSpace(apiUrl))
             {
@@ -116,9 +129,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
-
-            var requestUri = new Uri($"{apiUrl}/{runId}", UriKind.Absolute);
-            return await client.GetAsync(requestUri);
+            return client;
         }
     }
 }
