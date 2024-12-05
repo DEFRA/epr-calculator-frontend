@@ -9,5 +9,6 @@
         public const string CalculationRunNameMaxLengthExceeded = "Calculation name must contain no more than 100 characters";
         public const string CalculationRunNameMustBeAlphaNumeric = "Calculation name must only contain numbers and letters";
         public const string CalculationRunNameExists = "There is already calculation with this name";
+        public const string SelectDeleteCalculation = "Select delete to continue or return to the dashboard";
     }
 }

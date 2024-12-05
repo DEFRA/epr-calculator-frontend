@@ -3,6 +3,7 @@ using Azure.Core;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Humanizer;
 using Microsoft.AspNetCore.Mvc;
@@ -62,13 +63,18 @@ namespace EPR.Calculator.Frontend.Controllers
                     ClassificationId = (int)RunClassification.DELETED,
                     CalcName = calcName,
                 };
+                var deleteCalculatorModel = new DeleteCalculatorModel
+                {
+                    CalculatorRunStatusUpdateDto = statusUpdateViewModel,
+                    DeleteChecked = false,
+                };
 
                 if (!getCalculationDetailsResponse.IsSuccessStatusCode)
                 {
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
 
-                return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
+                return this.View(ViewNames.CalculationRunDetailsIndex, deleteCalculatorModel);
             }
             catch (Exception)
             {
@@ -97,7 +103,20 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     RunId = runId,
                     ClassificationId = (int)RunClassification.DELETED,
+                    CalcName = calcName,
                 };
+
+                var deleteCalculatorModel = new DeleteCalculatorModel
+                {
+                    CalculatorRunStatusUpdateDto = statusUpdateViewModel,
+                    DeleteChecked = deleteChecked,
+                };
+
+                if (!deleteChecked)
+                {
+                    this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.SelectDeleteCalculation);
+                    return this.View(ViewNames.CalculationRunDetailsIndex);
+                }
 
                 var request = new HttpRequestMessage(HttpMethod.Put,
                     new Uri(
@@ -113,7 +132,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
 
-                return this.View(ViewNames.DeleteConfirmation);
+                return this.View(ViewNames.DeleteConfirmation, deleteCalculatorModel);
             }
             catch (Exception)
             {
@@ -154,6 +173,20 @@ namespace EPR.Calculator.Frontend.Controllers
         private bool ValidateDelete(DeleteCalculatorModel deleteCalculatorModel)
         {
             return true;
+        }
+
+        /// <summary>
+        /// Creates an error view model.
+        /// </summary>
+        /// <param name="errorMessage">The error message.</param>
+        /// <returns>The error view model.</returns>
+        private static ErrorViewModel CreateErrorViewModel(string errorMessage)
+        {
+            return new ErrorViewModel
+            {
+                DOMElementId = ViewControlNames.DeleteCalculationName,
+                ErrorMessage = errorMessage,
+            };
         }
     }
 }
