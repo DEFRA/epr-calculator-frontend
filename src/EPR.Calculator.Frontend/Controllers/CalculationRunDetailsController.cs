@@ -63,8 +63,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Deletes the calculation details.
         /// </summary>
         /// <param name="runId">The status update view model.</param>
+        /// <param name="calcName">The calculation name.</param>
+        /// <param name="deleteChecked">The delete is checked or not.</param>
         /// <returns>The delete confirmation view.</returns>
-        public IActionResult DeleteCalcDetails(int runId)
+        public IActionResult DeleteCalcDetails(int runId, string calcName, bool deleteChecked)
         {
             var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                                                  .GetSection(ConfigSection.DashboardCalculatorRunApi)
@@ -81,7 +83,21 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 RunId = runId,
                 ClassificationId = (int)RunClassification.DELETED,
+                CalcName = calcName,
             };
+
+            var deleteCalculatorModel = new DeleteCalculatorModel
+            {
+                CalculatorRunStatusUpdateDto = statusUpdateViewModel,
+                DeleteChecked = deleteChecked,
+            };
+
+            if (!this.ValidateDelete(deleteCalculatorModel))
+            {
+                var errorMessages = this.ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
+                this.ViewBag.Errors = CommonUtil.CreateErrorViewModel(errorMessages.First(), ViewControlNames.CalculationRunName);
+                return this.View(ViewNames.CalculationRunDetailsIndex);
+            }
 
             var request = new HttpRequestMessage(HttpMethod.Put, new Uri($"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.RunId}&classificationId={statusUpdateViewModel.ClassificationId}"));
             var response = client.SendAsync(request);
@@ -118,6 +134,11 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var requestUri = new Uri($"{apiUrl}/{runId}", UriKind.Absolute);
             return await client.GetAsync(requestUri);
+        }
+
+        private bool ValidateDelete(DeleteCalculatorModel deleteCalculatorModel)
+        {
+            return true;
         }
     }
 }
