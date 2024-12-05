@@ -1,16 +1,8 @@
-﻿using Azure;
-using Azure.Core;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.ViewModels;
-using Humanizer;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
-using Newtonsoft.Json;
-using System.Reflection;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -50,11 +42,9 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (getCalculationDetailsResponse == null)
                 {
-                    this.logger.LogError(
-                            $"Request failed with status code {getCalculationDetailsResponse.StatusCode}");
+                    this.logger.LogError($"Request failed with status code {getCalculationDetailsResponse.StatusCode}");
 
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex,
-                            CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
 
                 var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
@@ -111,8 +101,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     this.logger.LogError(
                         $"Request to {dashboardCalculatorRunApi} failed with status code {response.Result}");
 
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex,
-                        CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
 
                 return this.View(ViewNames.DeleteConfirmation);
