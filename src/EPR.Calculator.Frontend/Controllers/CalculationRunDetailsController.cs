@@ -71,11 +71,6 @@ namespace EPR.Calculator.Frontend.Controllers
                                                  .GetSection(ConfigSection.DashboardCalculatorRunApi)
                                                  .Value;
 
-            if (string.IsNullOrEmpty(dashboardCalculatorRunApi))
-            {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
-
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(dashboardCalculatorRunApi);
             var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
