@@ -29,7 +29,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     // Optionally log additional trace information
                     this._telemetryClient.TrackTrace($"Errors found in uploaded file: {lapcapErrors}");
-
+                    this._telemetryClient.TrackTrace($"Starting serialization: {lapcapErrors}");
                     var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors);
 
                     if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
@@ -41,6 +41,9 @@ namespace EPR.Calculator.Frontend.Controllers
                         this.ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateLapcapDataErrorDto>>(lapcapErrors);
                     }
 
+                    this._telemetryClient.TrackTrace($"ViewBag.ValidationErrors: {this.ViewBag.ValidationErrors}");
+                    this._telemetryClient.TrackTrace($"ViewBag.Errors: {this.ViewBag.Errors}");
+
                     if (this.ViewBag.ValidationErrors is null && this.ViewBag.Errors is not null)
                     {
                         this.ViewBag.ValidationErrors = new List<ValidationErrorDto>()
@@ -51,6 +54,8 @@ namespace EPR.Calculator.Frontend.Controllers
                             },
                         };
                     }
+
+                    this._telemetryClient.TrackTrace($"ViewBag.Errors: {this.ViewBag.ValidationErrors}");
 
                     return this.View(ViewNames.LocalAuthorityUploadFileErrorIndex);
                 }
@@ -66,7 +71,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 // Track exception in Application Insights
                 this._telemetryClient.TrackException(ex);
-
+                this._telemetryClient.TrackTrace(ex.ToString());
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
