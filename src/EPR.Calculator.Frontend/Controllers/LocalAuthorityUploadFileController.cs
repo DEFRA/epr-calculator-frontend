@@ -129,7 +129,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
             this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
             this.TempData["LapcapFileName"] = fileUpload.FileName;
-            this._telemetryClient.TrackTrace($"Retrieving TempData 2.{this.TempData["LapcapFileName"]}");
 
             // Log successful preparation of data
             this._telemetryClient.TrackEvent("3.1.FileDataPrepared", new Dictionary<string, string>
@@ -153,7 +152,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 var serializedErrors = JsonConvert.SerializeObject(validationErrors);
 
                 this.TempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = JsonConvert.SerializeObject(validationErrors);
-                this._telemetryClient.TrackTrace($"Retrieving TempData 3.{this.TempData[UploadFileErrorIds.LocalAuthorityUploadErrors]}");
 
                 // Log validation errors as a metric and event
                 this._telemetryClient.TrackMetric("CSVValidationErrors", 1);
