@@ -98,7 +98,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception ex)
             {
-
                 this.logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
