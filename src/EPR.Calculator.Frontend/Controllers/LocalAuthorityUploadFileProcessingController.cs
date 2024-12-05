@@ -44,7 +44,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 this._telemetryClient.TrackTrace($"LapcapSettingsApi retrieved from configuration.{lapcapSettingsApi}"); // last trace
 
-                this._telemetryClient.TrackTrace(this.TempData.Peek("LapcapFileName").ToString());
+                this._telemetryClient.TrackTrace($"Retrieving TempData.{this.TempData.Peek("LapcapFileName").ToString()}");
 
                 this._telemetryClient.TrackEvent("6.TempData", new Dictionary<string, string>
                 {

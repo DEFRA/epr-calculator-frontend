@@ -93,6 +93,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCostsValues.ToArray();
             this.TempData["LapcapFileName"] = fileUpload.FileName;
+            this._telemetryClient.TrackTrace($"Retrieving TempData 4.{this.TempData["LapcapFileName"]}");
 
             return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
         }
