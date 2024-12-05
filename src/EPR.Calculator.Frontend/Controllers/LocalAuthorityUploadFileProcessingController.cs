@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net;
@@ -10,11 +11,13 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
+        private readonly TelemetryClient _telemetryClient;
 
-        public LocalAuthorityUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory)
+        public LocalAuthorityUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory, TelemetryClient telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
+            this._telemetryClient = telemetryClient;
         }
 
         public string FileName { get; set; }
@@ -24,6 +27,8 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                this._telemetryClient.TrackTrace("Index action started - Preparing to send data.");
+
                 var lapcapSettingsApi = this.configuration.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value;
 
                 if (string.IsNullOrWhiteSpace(lapcapSettingsApi))
@@ -31,12 +36,22 @@ namespace EPR.Calculator.Frontend.Controllers
                     throw new ArgumentNullException(lapcapSettingsApi, "LapcapSettingsApi is null. Check the configuration settings for local authority");
                 }
 
+                this._telemetryClient.TrackTrace("LapcapSettingsApi retrieved from configuration.");
+
                 this.FileName = this.TempData.Peek("LapcapFileName").ToString();
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);
 
+                this._telemetryClient.TrackEvent("HTTP Client Created", new Dictionary<string, string>
+                {
+                    { "ApiBaseAddress", lapcapSettingsApi },
+                    { "FileName", this.FileName },
+                });
+
                 var payload = this.Transform(lapcapDataTemplateValues);
+
+                this._telemetryClient.TrackTrace($"Payload created: {payload.Length} characters.");
 
                 var content = new StringContent(payload, System.Text.Encoding.UTF8, StaticHelpers.MediaType);
 
@@ -47,35 +62,84 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 response.Wait();
 
-                if (response.Result.IsSuccessStatusCode && response.Result.StatusCode == HttpStatusCode.Created)
+                var responseResult = response.Result;
+
+                if (responseResult.IsSuccessStatusCode && responseResult.StatusCode == HttpStatusCode.Created)
                 {
-                    return this.Ok(response.Result);
+                    this._telemetryClient.TrackEvent("Data Successfully Uploaded", new Dictionary<string, string>
+                    {
+                        { "StatusCode", responseResult.StatusCode.ToString() },
+                        { "FileName", this.FileName },
+                    });
+
+                    return this.Ok(response);
                 }
+
+                var errorMessage = responseResult.Content.ReadAsStringAsync().Result;
+                this._telemetryClient.TrackEvent("Data Upload Failed", new Dictionary<string, string>
+                {
+                    { "StatusCode", responseResult.StatusCode.ToString() },
+                    { "ErrorMessage", errorMessage },
+                });
 
                 return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                this._telemetryClient.TrackException(ex, new Dictionary<string, string>
+                {
+                    { "Action", "Index" },
+                    { "FileName", this.FileName ?? "N/A" },
+                });
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 
         private string Transform(List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
         {
-            var parameterYear = this.configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
-            if (string.IsNullOrWhiteSpace(parameterYear))
+            try
             {
-                throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings for local authority");
+                this._telemetryClient.TrackTrace("Transform method started - Preparing to serialize data.");
+                var parameterYear = this.configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
+
+                if (string.IsNullOrWhiteSpace(parameterYear))
+                {
+                    this._telemetryClient.TrackException(new ArgumentNullException(nameof(parameterYear), "ParameterYear is null. Check the configuration settings."));
+                    throw new ArgumentNullException(nameof(parameterYear), "ParameterYear is null. Check the configuration settings.");
+                }
+
+                this._telemetryClient.TrackTrace($"ParameterYear retrieved: {parameterYear}.");
+
+                if (string.IsNullOrWhiteSpace(parameterYear))
+                {
+                    throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings for local authority");
+                }
+
+                var lapcapData = new CreateLapcapDataDto
+                {
+                    ParameterYear = parameterYear,
+                    LapcapDataTemplateValues = lapcapDataTemplateValues,
+                    LapcapFileName = this.FileName,
+                };
+
+                var serializedData = JsonConvert.SerializeObject(lapcapData);
+
+                this._telemetryClient.TrackEvent("Data Serialized", new Dictionary<string, string>
+                {
+                    { "SerializedDataLength", serializedData.Length.ToString() },
+                    { "ParameterYear", parameterYear },
+                });
+
+                return serializedData;
             }
-
-            var lapcapData = new CreateLapcapDataDto
+            catch (Exception ex)
             {
-                ParameterYear = parameterYear,
-                LapcapDataTemplateValues = lapcapDataTemplateValues,
-                LapcapFileName = this.FileName,
-            };
-
-            return JsonConvert.SerializeObject(lapcapData);
+                this._telemetryClient.TrackException(ex, new Dictionary<string, string>
+                {
+                    { "Method", "Transform" },
+                });
+                throw;
+            }
         }
     }
 }
