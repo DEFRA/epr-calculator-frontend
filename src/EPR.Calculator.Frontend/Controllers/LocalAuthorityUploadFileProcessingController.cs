@@ -97,7 +97,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private string Transform(List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
         {
-
             this._telemetryClient.TrackTrace("Transform method started - Preparing to serialize data.");
             var parameterYear = this.configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
 
