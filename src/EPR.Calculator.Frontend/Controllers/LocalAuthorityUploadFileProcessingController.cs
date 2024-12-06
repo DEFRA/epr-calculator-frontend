@@ -88,7 +88,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         { "FileName", this.FileName },
                     });
 
-                    return this.Ok(response);
+                    return this.Ok(responseResult);
                 }
 
                 var errorMessage = responseResult.Content.ReadAsStringAsync().Result;
