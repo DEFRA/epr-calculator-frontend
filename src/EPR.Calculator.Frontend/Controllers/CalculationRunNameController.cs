@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +38,12 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The index view.</returns>
         public IActionResult Index()
         {
-            return this.View(CalculationRunNameIndexView);
+            return this.View(
+                CalculationRunNameIndexView,
+                new InitiateCalculatorRunModel
+                {
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                });
         }
 
         /// <summary>
@@ -52,7 +58,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var errorMessages = this.ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
                 this.ViewBag.Errors = CreateErrorViewModel(errorMessages.First());
-                return this.View(CalculationRunNameIndexView);
+                return this.View(CalculationRunNameIndexView, calculationRunModel);
             }
 
             try
@@ -64,7 +70,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     if (calculationNameExistsResponse.IsSuccessStatusCode)
                     {
                         this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists);
-                        return this.View(CalculationRunNameIndexView);
+                        return this.View(CalculationRunNameIndexView, calculationRunModel);
                     }
 
                     var response = await this.HttpPostToCalculatorRunAPI(calculationName);
@@ -147,7 +153,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 CalculatorRunName = calculatorRunName,
                 FinancialYear = year,
-                CreatedBy = "Test User",
+                CreatedBy = CommonUtil.GetUserName(this.HttpContext),
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
