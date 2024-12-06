@@ -15,5 +15,15 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDetailsIndex, result.ViewName);
         }
+
+        [TestMethod]
+        public void CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
+        {
+            var controller = new CalculationRunDetailsController();
+            var result = controller.ErrorPage() as ViewResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsErrorPage, result.ViewName);
+        }
     }
 }
