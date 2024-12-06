@@ -9,6 +9,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -26,6 +27,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         private Mock<IHttpClientFactory> mockClientFactory;
         private Mock<IConfiguration> mockConfiguration;
         private Mock<ILogger<CalculationRunNameController>> mockLogger;
+        private Mock<ITempDataDictionary> _tempDataMock;
 
         private Fixture Fixture { get; } = new Fixture();
 
@@ -36,12 +38,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockLogger = new Mock<ILogger<CalculationRunNameController>>();
             _controller = new CalculationRunNameController(configuration, mockClientFactory.Object, mockLogger.Object);
             _validationRules = new CalculatorRunNameValidator();
+            _tempDataMock = new Mock<ITempDataDictionary>();
 
             var httpContext = new DefaultHttpContext();
             _controller.ControllerContext = new ControllerContext
             {
                 HttpContext = httpContext
             };
+            _controller.TempData = _tempDataMock.Object;
         }
 
         [TestMethod]
@@ -539,6 +543,94 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(redirectResult);
             Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
             Assert.AreEqual("StandardError", redirectResult.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task RunCalculator_ShouldRedirectToError_WhenUnprocessableEntity()
+        {
+            var calculationRunModel = new InitiateCalculatorRunModel { CalculationName = "TestRun" };
+            var errorMessage = "The calculator is currently running. You will be able to run another calculation once the current one has finished.";
+            var httpResponse = new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
+            {
+                Content = new StringContent($"{{ \"message\": \"{errorMessage}\" }}")
+            };
+
+            var mockHttpMessageNotFoundHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageNotFoundHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+
+            var mockHttpClient1 = new HttpClient(mockHttpMessageNotFoundHandler.Object);
+            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient1);
+
+            var mockHttpMessageUnprocessableEntityHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageUnprocessableEntityHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+
+            var mockHttpClient2 = new HttpClient(mockHttpMessageUnprocessableEntityHandler.Object);
+            mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
+                             .Returns(mockHttpClient1)
+                             .Returns(mockHttpClient2);
+
+            var result = await _controller.RunCalculator(calculationRunModel);
+
+            var redirectResult = result as RedirectToActionResult;
+            Assert.AreEqual("Index", redirectResult.ActionName);
+            Assert.AreEqual("CalculationRunError", redirectResult.ControllerName);
+            _tempDataMock.VerifySet(tempData => tempData["ErrorMessage"] = errorMessage, Times.Once);
+        }
+
+        [TestMethod]
+        public async Task RunCalculator_ShouldRedirectToError_WhenUnprocessableEntity_ParsingError()
+        {
+            var calculationRunModel = new InitiateCalculatorRunModel { CalculationName = "TestRun" };
+            var errorMessage = "Unable to process the error response.";
+            var httpResponse = new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
+            {
+                Content = new StringContent($"parsing error")
+            };
+
+            var mockHttpMessageNotFoundHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageNotFoundHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+
+            var mockHttpClient1 = new HttpClient(mockHttpMessageNotFoundHandler.Object);
+            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient1);
+
+            var mockHttpMessageUnprocessableEntityHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageUnprocessableEntityHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+
+            var mockHttpClient2 = new HttpClient(mockHttpMessageUnprocessableEntityHandler.Object);
+            mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
+                             .Returns(mockHttpClient1)
+                             .Returns(mockHttpClient2);
+
+            var result = await _controller.RunCalculator(calculationRunModel);
+
+            var redirectResult = result as RedirectToActionResult;
+            Assert.AreEqual("Index", redirectResult.ActionName);
+            Assert.AreEqual("CalculationRunError", redirectResult.ControllerName);
+            _tempDataMock.VerifySet(tempData => tempData["ErrorMessage"] = errorMessage, Times.Once);
         }
 
         private void MockHttpClientWithResponse()
