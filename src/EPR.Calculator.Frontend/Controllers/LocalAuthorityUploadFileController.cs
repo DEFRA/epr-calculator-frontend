@@ -129,6 +129,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
             this.TempData["LapcapFileName"] = fileUpload.FileName;
+            this.HttpContext.Session.SetString("LapcapFileName", fileUpload.FileName);
 
             // Log successful preparation of data
             this._telemetryClient.TrackEvent("3.1.FileDataPrepared", new Dictionary<string, string>

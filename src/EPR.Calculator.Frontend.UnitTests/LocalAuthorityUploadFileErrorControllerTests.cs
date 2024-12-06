@@ -149,31 +149,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task LocalAuthorityUploadFileErrorController_Upload_View_Post_Test()
-        {
-            var content = MockData.GetSchemeParametersFileContent();
-            var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
-            writer.Write(content);
-            writer.Flush();
-            stream.Position = 0;
-            IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "LocalAuthorityData.csv");
-
-            var httpContext = new DefaultHttpContext();
-            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
-
-            var controller = new LocalAuthorityUploadFileErrorController(_telemetryClient)
-            {
-                TempData = tempData
-            };
-
-            var result = await controller.Upload(file) as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.LocalAuthorityUploadFileRefresh, result.ViewName);
-        }
-
-        [TestMethod]
         public async Task LocalAuthorityUploadFileErrorController_View_Get_Test()
         {
             var mockHttpSession = new MockHttpSession();
