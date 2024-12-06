@@ -10,5 +10,6 @@
         public const string CalculationRunNameMustBeAlphaNumeric = "Calculation name must only contain numbers and letters";
         public const string CalculationRunNameExists = "There is already calculation with this name";
         public const string SelectDeleteCalculation = "Select delete to continue or return to the dashboard";
+        public const string DeleteCalculationError = "This file cannot be deleted";
     }
 }

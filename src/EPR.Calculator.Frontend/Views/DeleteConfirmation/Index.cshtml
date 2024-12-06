@@ -1,20 +1,35 @@
-﻿@using EPR.Calculator.Frontend.ViewModels
-@model DeleteCalculatorModel
+﻿@model EPR.Calculator.Frontend.ViewModels.CalculatorRunStatusUpdateDto
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var BackLink = "Dashboard";
 }
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<partial name="_BackLinkPartial" model="BackLink" />
 
+@{
+    var currentUser = User?.Identity?.Name;
+    if (string.IsNullOrEmpty(currentUser))
+    {
+        currentUser = "Jamie Roberts";
+    }
+}
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <p></p>
+        </div>
+        <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
+            <div class="account-info">
+                <span class="your-name" id="bannerUserName">@currentUser</span>
+                <a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
+            </div>
+        </div>
+    </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <br>
             <h1 class="govuk-heading-xl">You have successfully deleted this file</h1>
-            <span class="govuk-caption-xl">@Model.CalculatorRunStatusUpdateDto.CalcName</span><br>
-            <p>ID: @Model.CalculatorRunStatusUpdateDto.RunId</p>
+            <span class="govuk-caption-xl">@Model.CalcName</span><br>
+            <p>ID: @Model.RunId</p>
             <hr>
             <br>
             <form action="/form-handler" method="post" novalidate="">
