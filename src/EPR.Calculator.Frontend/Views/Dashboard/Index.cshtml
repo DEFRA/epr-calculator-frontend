@@ -14,7 +14,7 @@
     <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
         <div class="account-info">
             <span class="your-name" id="bannerUserName">@Model.CurrentUser</span>
-            <a class="account-link" href="details" id="signout-link">Sign out</a>
+            <a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
         </div>
     </div>
 </div>
