@@ -548,7 +548,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_ShouldRedirectToError_WhenUnprocessableEntity()
         {
-            var calculationRunModel = new InitiateCalculatorRunModel { CalculationName = "TestRun" };
+            var calculationRunModel = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "TestRun"
+            };
             var errorMessage = "The calculator is currently running. You will be able to run another calculation once the current one has finished.";
             var httpResponse = new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
             {
@@ -592,7 +596,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_ShouldRedirectToError_WhenUnprocessableEntity_ParsingError()
         {
-            var calculationRunModel = new InitiateCalculatorRunModel { CalculationName = "TestRun" };
+            var calculationRunModel = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "TestRun"
+            };
             var errorMessage = "Unable to process the error response.";
             var httpResponse = new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
             {
