@@ -31,7 +31,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     this._telemetryClient.TrackTrace($"Errors found in uploaded file: {lapcapErrors}");
                     this._telemetryClient.TrackTrace($"Starting serialization: {lapcapErrors}");
                     var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors);
-
+                    this._telemetryClient.TrackTrace($"Serialization: {JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors)}");
+                    this._telemetryClient.TrackTrace($"After serialization: {validationErrors}");
                     if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
                     {
                         this.ViewBag.ValidationErrors = validationErrors;
@@ -71,7 +72,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 // Track exception in Application Insights
                 this._telemetryClient.TrackException(ex);
-                this._telemetryClient.TrackTrace(ex.ToString());
+                this._telemetryClient.TrackTrace($"Exception{ex}");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
@@ -80,7 +81,7 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult Index([FromBody] string errors)
         {
             this.HttpContext.Session.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, errors);
-
+            this._telemetryClient.TrackTrace($"Errors from Index: {errors}");
             return this.Ok();
         }
 
