@@ -105,6 +105,12 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        private static (string, string) SplitDateTime(string input)
+        {
+            string[] parts = input.Split(new string[] { " at " }, StringSplitOptions.None);
+            return (parts[0], parts[1]);
+        }
+
         /// <summary>
         /// Asynchronously retrieves calculation details for a given run ID.
         /// </summary>
@@ -130,12 +136,6 @@ namespace EPR.Calculator.Frontend.Controllers
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             return client;
-        }
-
-        private static (string, string) SplitDateTime(string input)
-        {
-            string[] parts = input.Split(new string[] { " at " }, StringSplitOptions.None);
-            return (parts[0], parts[1]);
         }
     }
 }
