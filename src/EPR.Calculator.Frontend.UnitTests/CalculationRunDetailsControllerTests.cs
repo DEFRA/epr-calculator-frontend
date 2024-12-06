@@ -40,9 +40,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
             int runId = 1;
             string calcName = "TestCalc";
+            string calDateTime = "21 June 2024 at 12:09";
 
             // Act
-            var result = await controller.IndexAsync(runId, calcName) as ViewResult;
+            var result = await controller.IndexAsync(runId, calcName, calDateTime) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -65,9 +66,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
             int runId = 1;
             string calcName = "TestCalc";
+            string calDateTime = "21 June 2024 at 12:09";
 
             // Act
-            var result = await controller.IndexAsync(runId, calcName) as RedirectToActionResult;
+            var result = await controller.IndexAsync(runId, calcName, calDateTime) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -105,9 +107,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
             int runId = 1;
             string calcName = "TestCalc";
+            string calDateTime = "21 June 2024 at 12:09";
 
             // Act
-            var result = await controller.IndexAsync(runId, calcName) as RedirectToActionResult;
+            var result = await controller.IndexAsync(runId, calcName, calDateTime) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -126,9 +129,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new CalculationRunDetailsController(null, null, _mockLogger.Object);
             int runId = 1;
             string calcName = "TestCalc";
+            string calDateTime = "21 June 2024 at 12:09";
 
             // Act
-            var result = await controller.IndexAsync(runId, calcName) as RedirectToActionResult;
+            var result = await controller.IndexAsync(runId, calcName, calDateTime) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);

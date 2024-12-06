@@ -34,7 +34,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="runId">The ID of the calculation run.</param>
         /// <param name="calcName">The calcName of the calculation run.</param>
         /// <returns>The calculation run details index view.</returns>
-        public async Task<IActionResult> IndexAsync(int runId, string calcName)
+        public async Task<IActionResult> IndexAsync(int runId, string calcName, string createdAt)
         {
             try
             {
@@ -51,6 +51,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     RunId = runId,
                     ClassificationId = (int)RunClassification.DELETED,
                     CalcName = calcName,
+                    CreatedDate = SplitDateTime(createdAt).Item1,
+                    CreatedTime = SplitDateTime(createdAt).Item2,
                 };
 
                 return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
@@ -128,6 +130,12 @@ namespace EPR.Calculator.Frontend.Controllers
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             return client;
+        }
+
+        private static (string, string) SplitDateTime(string input)
+        {
+            string[] parts = input.Split(new string[] { " at " }, StringSplitOptions.None);
+            return (parts[0], parts[1]);
         }
     }
 }

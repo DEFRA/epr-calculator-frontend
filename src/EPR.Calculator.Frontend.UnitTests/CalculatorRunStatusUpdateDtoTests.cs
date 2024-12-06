@@ -13,13 +13,17 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 RunId = 1,
                 ClassificationId = 2,
-                CalcName = "Test Calculation"
+                CalcName = "Test Calculation",
+                CreatedDate = "21 June 2024",
+                CreatedTime = "12:09",
             };
 
             // Act & Assert
             Assert.AreEqual(1, dto.RunId);
             Assert.AreEqual(2, dto.ClassificationId);
             Assert.AreEqual("Test Calculation", dto.CalcName);
+            Assert.AreEqual("21 June 2024", dto.CreatedDate);
+            Assert.AreEqual("12:09", dto.CreatedTime);
         }
 
         [TestMethod]
@@ -30,7 +34,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 RunId = 1,
                 ClassificationId = 2,
-                CalcName = null
+                CalcName = null,
+                CreatedDate = null,
+                CreatedTime = null,
             };
 
             // Act & Assert
