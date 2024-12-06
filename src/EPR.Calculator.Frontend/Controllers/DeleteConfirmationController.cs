@@ -14,12 +14,14 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Displays the delete confirmation screen.
         /// </summary>
         /// <param name="runId">The ID of the calculation run.</param>
+        /// <param name="calcName">The calculation name.</param>
         /// <returns>The delete success view.</returns>
-        public IActionResult Index(int runId)
+        public IActionResult Index(int runId, string calcName)
         {
             var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
             {
                 RunId = runId,
+                CalcName = calcName,
                 ClassificationId = (int)RunClassification.DELETED,
             };
             return this.View(ViewNames.DeleteConfirmation, calculatorRunStatusUpdate);

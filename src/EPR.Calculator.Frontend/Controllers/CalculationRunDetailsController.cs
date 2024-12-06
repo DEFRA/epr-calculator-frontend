@@ -4,6 +4,7 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -104,7 +105,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 var response = client.SendAsync(request);
                 response.Wait();
 
-                if (!response.IsCompleted)
+                if (response.Result.StatusCode != HttpStatusCode.Created)
                 {
                     this.logger.LogError($"Request to {dashboardCalculatorRunApi} failed with status code {response.Result}");
                     this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.DeleteCalculationError);

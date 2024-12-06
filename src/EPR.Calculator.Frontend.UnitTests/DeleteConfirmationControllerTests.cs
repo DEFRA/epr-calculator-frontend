@@ -11,7 +11,9 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void StandardErrorController_View_Test()
         {
             var controller = new DeleteConfirmationController();
-            var result = controller.Index() as ViewResult;
+            int runId = 1;
+            string calcName = "TestCalc";
+            var result = controller.Index(runId, calcName) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.DeleteConfirmation, result.ViewName);
         }

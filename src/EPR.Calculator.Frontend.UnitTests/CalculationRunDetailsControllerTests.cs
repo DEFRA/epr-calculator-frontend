@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -76,7 +77,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void DeleteCalcDetails_ReturnsView_WhenApiCallIsSuccessful()
+        public void DeleteCalcDetails_ReturnsView_WhenDeleteRadioIsNotChecked()
         {
             // Arrange
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetCalculationRuns());
@@ -85,9 +86,58 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
             int runId = 1;
+            string calcName = "TestCalc";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId) as ViewResult;
+            var result = controller.DeleteCalcDetails(runId, calcName, false) as ViewResult;
+
+            var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsIndex, result.ViewName);
+            Assert.AreEqual(ViewControlNames.DeleteCalculationName, errorViewModel.DOMElementId);
+            Assert.AreEqual(ErrorMessages.SelectDeleteCalculation, errorViewModel.ErrorMessage);
+        }
+
+        [TestMethod]
+        public void DeleteCalcDetails_ReturnsView_WhenApiCallIsUnsuccessful()
+        {
+            // Arrange
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.RequestTimeout, MockData.GetCalculationRuns());
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            int runId = 1;
+            string calcName = "TestCalc";
+
+            // Act
+            var result = controller.DeleteCalcDetails(runId, calcName, true) as ViewResult;
+
+            var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsIndex, result.ViewName);
+            Assert.AreEqual(ViewControlNames.DeleteCalculationName, errorViewModel.DOMElementId);
+            Assert.AreEqual(ErrorMessages.DeleteCalculationError, errorViewModel.ErrorMessage);
+        }
+
+        [TestMethod]
+        public void DeleteCalcDetails_ReturnsView_WhenApiCallIsSuccessful()
+        {
+            // Arrange
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.Created, MockData.GetCalculationRuns());
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            int runId = 1;
+            string calcName = "TestCalc";
+
+            // Act
+            var result = controller.DeleteCalcDetails(runId, calcName, true) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
