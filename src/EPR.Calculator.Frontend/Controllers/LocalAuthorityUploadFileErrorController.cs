@@ -72,7 +72,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var localAuthorityDisposalCostsValues = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
 
             this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCostsValues.ToArray();
-            this.TempData["LapcapFileName"] = fileUpload.FileName;
+            this.HttpContext.Session.SetString("LapcapFileName", fileUpload.FileName);
 
             return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
         }

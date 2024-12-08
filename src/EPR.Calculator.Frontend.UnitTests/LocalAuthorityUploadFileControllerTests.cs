@@ -28,17 +28,40 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
             tempData["LapcapFilePath"] = Directory.GetCurrentDirectory() + "/Mocks/LocalAuthorityData.csv";
-            tempData["LapcapFileName"] = "LocalAuthorityData.csv";
 
             var controller = new LocalAuthorityUploadFileController()
             {
                 TempData = tempData
             };
 
+            var fileUploadFileName = "LocalAuthorityData.csv";
+
+            var sessionMock = new Mock<ISession>();
+            var sessionStorage = new Dictionary<string, byte[]>();
+
+            sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+                       .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
+
+            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+                       .Returns((string key, out byte[] value) =>
+                       {
+                           var success = sessionStorage.TryGetValue(key, out var storedValue);
+                           value = storedValue;
+                           return success;
+                       });
+
+            sessionMock.Setup(s => s.Remove(It.IsAny<string>()))
+                       .Callback<string>((key) => sessionStorage.Remove(key));
+
+            var httpContextMock = new Mock<HttpContext>();
+            httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
+            controller.ControllerContext.HttpContext = httpContextMock.Object;
+            controller.HttpContext.Session.SetString("LapcapFileName", fileUploadFileName);
+
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileRefresh, result.ViewName);
-            Assert.AreEqual(result.TempData["LapcapFileName"].ToString(), "LocalAuthorityData.csv");
+            Assert.IsTrue(sessionStorage.ContainsKey("LapcapFileName"));
         }
 
         [TestMethod]
@@ -117,6 +140,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileRefresh, result.ViewName);
@@ -141,6 +172,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new LocalAuthorityUploadFileController()
             {
                 TempData = tempData
+            };
+
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
             };
 
             var result = await controller.Upload(file) as ViewResult;
@@ -205,11 +244,18 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
             tempData["LapcapFilePath"] = Directory.GetCurrentDirectory() + "/Mocks/LocalAuthorityData.csv";
-            tempData["LapcapFileName"] = "LocalAuthorityData.csv";
 
             var controller = new LocalAuthorityUploadFileController()
             {
                 TempData = tempData
+            };
+
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
             };
 
             // Arrange

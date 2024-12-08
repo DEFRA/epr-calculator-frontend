@@ -31,7 +31,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     throw new ArgumentNullException(parameterSettingsApi, "ParameterSettingsApi is null. Check the configuration settings for default parameters");
                 }
 
-                this.FileName = this.TempData.Peek("FileName").ToString();
+                this.FileName = this.HttpContext.Session.GetString("FileName");
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
