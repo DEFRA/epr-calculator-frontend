@@ -1,14 +1,14 @@
-﻿@model string;
+﻿@model (string Backlink, string CurrentUser);
 
 <div class="govuk-grid-row">
 
     <div class="govuk-grid-column-three-quarters">
-        <a href="@Url.Action("Index", @Model)" class="govuk-back-link">Back</a>
+        <a href="@Url.Action("Index", @Model.Backlink)" class="govuk-back-link">Back</a>
     </div>
     <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
         <div class="account-info">
-            <span class="your-name" id="bannerUserName">Jamie Roberts</span>
-            <a class="account-link" href="details" id="signout-link">Sign out</a>
+            <span class="your-name" id="bannerUserName">@Model.CurrentUser</span>
+            <a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
         </div>
     </div>
 

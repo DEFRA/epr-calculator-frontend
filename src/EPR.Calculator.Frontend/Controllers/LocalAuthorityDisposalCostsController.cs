@@ -78,7 +78,14 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     var localAuthorityDataGroupedByCountry = localAuthorityData?.GroupBy((data) => data.Country).ToList();
 
-                    return this.View(ViewNames.LocalAuthorityDisposalCostsIndex, localAuthorityDataGroupedByCountry);
+                    return this.View(
+                        ViewNames.LocalAuthorityDisposalCostsIndex,
+                        new LocalAuthorityViewModel
+                        {
+                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                            LastUpdatedBy = deserializedlapcapdata?.First().CreatedBy ?? ErrorMessages.UnknownUser,
+                            ByCountry = localAuthorityDataGroupedByCountry,
+                        });
                 }
 
                 if (response.Result.StatusCode == HttpStatusCode.NotFound)

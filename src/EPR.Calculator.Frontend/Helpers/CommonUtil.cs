@@ -2,6 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using EPR.Calculator.Frontend.Constants;
+
 namespace EPR.Calculator.Frontend.Helpers
 {
     public static class CommonUtil
@@ -18,5 +20,15 @@ namespace EPR.Calculator.Frontend.Helpers
 
             return contollerName;
         }
+
+        /// <summary>
+        /// Gets the name of the currently logged in user from an HTTP context.
+        /// </summary>
+        /// <param name="context">The HTTP context to get the user from.</param>
+        /// <returns>
+        /// The user name, or <see cref="ErrorMessages.UnknownUser"/> if no user is logged in.
+        /// </returns>
+        public static string GetUserName(HttpContext context)
+            => context.User.Identity?.Name ?? ErrorMessages.UnknownUser;
     }
 }

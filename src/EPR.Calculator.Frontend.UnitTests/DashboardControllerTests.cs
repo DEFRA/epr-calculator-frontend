@@ -2,6 +2,7 @@
 using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
@@ -9,6 +10,7 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -22,9 +24,12 @@ namespace EPR.Calculator.Frontend.UnitTests
     {
         private readonly IConfiguration configuration = ConfigurationItems.GetConfigurationValues();
 
+        private Fixture Fixture { get; } = new Fixture();
+
         [TestMethod]
         public async Task DashboardController_Success_View_Test()
         {
+            // Arrange
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler
                    .Protected()
@@ -46,9 +51,16 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
+            var mockContext = new Mock<HttpContext>();
+            mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
 
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
+            controller.ControllerContext = new ControllerContext { HttpContext = mockContext.Object };
+
+            // Act
             var result = controller.Index() as ViewResult;
+
+            // Assert
             Assert.IsNotNull(result);
         }
 
@@ -193,7 +205,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
 
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
-            var dashboardRunData = new List<DashboardViewModel>();
+            var dashboardRunData = new List<DashboardViewModel.CalculationRunViewModel>();
 
             // Act
             if (calculationRuns.Count > 0)
@@ -207,7 +219,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
                     calculationRun.Status = attribute?.Value ?? string.Empty; // Use a default value if attribute or value is null
 
-                    dashboardRunData.Add(new DashboardViewModel(calculationRun));
+                    dashboardRunData.Add(new DashboardViewModel.CalculationRunViewModel(calculationRun));
                 }
             }
 

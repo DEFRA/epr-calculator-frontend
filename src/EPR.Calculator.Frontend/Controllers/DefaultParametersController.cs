@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -75,7 +77,12 @@ namespace EPR.Calculator.Frontend.Controllers
                         this.ViewBag.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
                         this.ViewBag.IsDataAvailable = true;
 
-                        return this.View();
+                        return this.View(
+                            new DefaultParametersViewModel
+                            {
+                                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                                LastUpdatedBy = defaultSchemeParameters.First().CreatedBy,
+                            });
                     }
                 }
 

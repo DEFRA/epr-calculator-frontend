@@ -1,4 +1,7 @@
-﻿@{
+﻿@using EPR.Calculator.Frontend.ViewModels;
+@model ViewModelCommonData;
+
+@{
     ViewData["Title"] = "Run the service administrator calculator - Upload CSV Error";
     var validationErrors = ViewBag.ValidationErrors;
     var errors = ViewBag.Errors;
@@ -6,7 +9,7 @@
     var defaultError = ViewBag.DefaultError;
 }
 
-<partial name="_BackLinkPartial" model="BackLink" />
+<partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
