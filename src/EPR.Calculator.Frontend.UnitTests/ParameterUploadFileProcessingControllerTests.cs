@@ -149,6 +149,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             var config = GetConfigurationValues();
             config.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value = string.Empty;
             var controller = new ParameterUploadFileProcessingController(config, mockHttpClientFactory.Object);
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
             var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);

@@ -23,6 +23,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception)
             {
+                this.HttpContext.Session.Remove(SessionConstants.LapcapFileName);
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
@@ -48,6 +49,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception)
             {
+                this.HttpContext.Session.Remove(SessionConstants.LapcapFileName);
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
