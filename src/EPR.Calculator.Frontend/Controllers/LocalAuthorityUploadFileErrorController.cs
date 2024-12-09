@@ -62,27 +62,19 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-            try
+            var lapcapFileErrors = CsvFileHelper.ValidateCSV(fileUpload);
+            if (lapcapFileErrors.ErrorMessage is not null)
             {
-                var lapcapFileErrors = CsvFileHelper.ValidateCSV(fileUpload);
-                if (lapcapFileErrors.ErrorMessage is not null)
-                {
-                    this.ViewBag.DefaultError = lapcapFileErrors;
-                    return this.View(ViewNames.LocalAuthorityUploadFileErrorIndex);
-                }
-
-                var localAuthorityDisposalCostsValues = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
-
-                this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCostsValues.ToArray();
-                this.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUpload.FileName);
-
-                return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
+                this.ViewBag.DefaultError = lapcapFileErrors;
+                return this.View(ViewNames.LocalAuthorityUploadFileErrorIndex);
             }
-            catch (Exception)
-            {
-                this.HttpContext.Session.Remove(SessionConstants.LapcapFileName);
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
-            }
+
+            var localAuthorityDisposalCostsValues = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
+
+            this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCostsValues.ToArray();
+            this.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUpload.FileName);
+
+            return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
         }
     }
 }

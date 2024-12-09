@@ -62,27 +62,19 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-            try
+            var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
+            if (csvErrors.ErrorMessage is not null)
             {
-                var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
-                if (csvErrors.ErrorMessage is not null)
-                {
-                    this.ViewBag.DefaultError = csvErrors;
-                    return this.View(ViewNames.ParameterUploadFileErrorIndex);
-                }
-
-                var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
-
-                this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
-                this.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUpload.FileName);
-
-                return this.View(ViewNames.ParameterUploadFileRefresh);
+                this.ViewBag.DefaultError = csvErrors;
+                return this.View(ViewNames.ParameterUploadFileErrorIndex);
             }
-            catch (Exception)
-            {
-                this.HttpContext.Session.Remove(SessionConstants.ParameterFileName);
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
-            }
+
+            var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
+
+            this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
+            this.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUpload.FileName);
+
+            return this.View(ViewNames.ParameterUploadFileRefresh);
         }
     }
 }
