@@ -1,8 +1,68 @@
-﻿@{
+﻿@model EPR.Calculator.Frontend.ViewModels.CalculatorRunStatusUpdateDto
+@{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var BackLink = "Dashboard";
+    var errors = ViewBag.Errors;
 }
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<partial name="_BackLinkPartial" model="BackLink" />
+<main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-third">
+            <h2 class="govuk-heading-m calculator-run-h2">
+                    @Model.CalcName
+                </h2>
+            <section class="gem-c-attachment govuk-!-display-none-print govuk-!-margin-bottom-6" data-module="ga4-link-tracker" data-ga4-link-tracker-module-started="true">
+                <div class="gem-c-attachment__thumbnail">
+                    <a class="govuk-link" target="_self" tabindex="-1" aria-hidden="true" href="#">
+                        <img src="~/images/file.png" alt="" width="99px;" style="padding-top:5px;">
+                    </a>
+                </div>
+                <h2 class="gem-c-attachment__title govuk-body">
+                    <a href="@Url.Action("Index", "DownloadUnavailableError")" class="govuk-link gem-c-attachment__link" target="_self">Download</a><br/>
+                    ID: @Model.RunId
+                </h2>
+                <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.CreatedDate<br>@Model.CreatedTime</p>
+                <div class="gem-c-attachment__details">
+                    <a class="govuk-link gem-c-attachment__link" href="#"></a>
+                </div>
+            </section>
+        </div>
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">What do you want to do with this calculation?</h1>
 
-<p class="govuk-body">
-    Placeholder for calculation run details page
-</p>
+            @using (Html.BeginForm("DeleteCalcDetails", "CalculationRunDetails", FormMethod.Post))
+            {
+                <div class="@(errors != null ? "govuk-form-group govuk-form-group--error" : "govuk-form-group")">
+                    <fieldset class="govuk-fieldset">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="delete_button" name="deleteChecked" type="radio" value="true">
+                                <label class="govuk-label govuk-radios__label" for="file-calc-error">
+                                    Delete (this cannot be undone)
+                                </label>
+                                <input type="hidden" asp-for="RunId" name="runId" />
+                                <input type="hidden" asp-for="CalcName" name="calcName" />
+                            </div>
+                            <br>
+                            @if (errors != null)
+                            {
+                                <p id="file-calc-error" class="govuk-error-message">
+                                    <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
+                                </p>
+                            }
+                        </legend>
+                    </fieldset>
+                </div>
+
+                <div class="govuk-button-group">
+                    <button id="btnContinue" type="submit" class="govuk-button" data-module="govuk-button">
+                        Continue
+                    </button>
+                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
+                </div>
+            }
+        </div>
+    </div>
+</main>

@@ -68,3 +68,7 @@
         background: #d2e2f1;
     }
 }
+
+.calculator-run-h2 {
+    overflow-wrap: break-word;
+}
