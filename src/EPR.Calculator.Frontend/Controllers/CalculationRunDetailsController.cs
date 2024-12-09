@@ -147,7 +147,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return client;
         }
 
-        public IActionResult ErrorPage()
+        public IActionResult Error()
         {
             return this.View(ViewNames.CalculationRunDetailsErrorPage);
         }
