@@ -71,7 +71,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
             controller.ControllerContext.HttpContext = httpContextMock.Object;
-            controller.HttpContext.Session.SetString("FileName", fileUploadFileName);
+            controller.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUploadFileName);
 
             // Act
             var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as OkObjectResult;
@@ -80,7 +80,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(200, result.StatusCode);
             Assert.AreEqual("SchemeParameters.csv", controller.FileName);
-            Assert.IsTrue(sessionStorage.ContainsKey("FileName"));
+            Assert.IsTrue(sessionStorage.ContainsKey(SessionConstants.ParameterFileName));
         }
 
         [TestMethod]

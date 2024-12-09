@@ -31,7 +31,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     throw new ArgumentNullException(lapcapSettingsApi, "LapcapSettingsApi is null. Check the configuration settings for local authority");
                 }
 
-                this.FileName = this.HttpContext.Session.GetString("LapcapFileName");
+                this.FileName = this.HttpContext.Session.GetString(SessionConstants.LapcapFileName);
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);

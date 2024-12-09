@@ -56,12 +56,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
             controller.ControllerContext.HttpContext = httpContextMock.Object;
-            controller.HttpContext.Session.SetString("LapcapFileName", fileUploadFileName);
+            controller.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUploadFileName);
 
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileRefresh, result.ViewName);
-            Assert.IsTrue(sessionStorage.ContainsKey("LapcapFileName"));
+            Assert.IsTrue(sessionStorage.ContainsKey(SessionConstants.LapcapFileName));
         }
 
         [TestMethod]
@@ -80,7 +80,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileIndex, result.ViewName);
-            Assert.IsNull(result.TempData["LapcapFileName"]);
+            Assert.IsNull(result.TempData[SessionConstants.LapcapFileName]);
         }
 
         [TestMethod]
@@ -133,7 +133,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
-            tempData["LapcapFileName"] = "LocalAuthorityData.csv";
 
             var controller = new LocalAuthorityUploadFileController()
             {
@@ -167,7 +166,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
-            tempData["LapcapFileName"] = "LocalAuthorityData.csv";
 
             var controller = new LocalAuthorityUploadFileController()
             {

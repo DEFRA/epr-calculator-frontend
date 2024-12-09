@@ -90,7 +90,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
 
             this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
-            this.HttpContext.Session.SetString("FileName", fileUpload.FileName);
+            this.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUpload.FileName);
 
             return ViewNames.ParameterUploadFileRefresh;
         }

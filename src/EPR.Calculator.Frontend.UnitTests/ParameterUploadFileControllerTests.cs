@@ -55,12 +55,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
             controller.ControllerContext.HttpContext = httpContextMock.Object;
-            controller.HttpContext.Session.SetString("FileName", fileName);
+            controller.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileName);
 
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ParameterUploadFileRefresh, result.ViewName);
-            Assert.IsTrue(sessionStorage.ContainsKey("FileName"));
+            Assert.IsTrue(sessionStorage.ContainsKey(SessionConstants.ParameterFileName));
         }
 
         [TestMethod]
@@ -79,7 +79,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ParameterUploadFileIndex, result.ViewName);
-            Assert.IsNull(result.TempData["FileName"]);
+            Assert.IsNull(result.TempData[SessionConstants.ParameterFileName]);
         }
 
         [TestMethod]

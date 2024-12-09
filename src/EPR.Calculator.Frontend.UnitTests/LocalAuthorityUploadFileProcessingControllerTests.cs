@@ -72,7 +72,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
             controller.ControllerContext.HttpContext = httpContextMock.Object;
-            controller.HttpContext.Session.SetString("LapcapFileName", fileUploadFileName);
+            controller.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUploadFileName);
 
             // Act
             var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as OkObjectResult;
@@ -81,7 +81,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(200, result.StatusCode);
             Assert.AreEqual("LocalAuthorityData.csv", controller.FileName);
-            Assert.IsTrue(sessionStorage.ContainsKey("LapcapFileName"));
+            Assert.IsTrue(sessionStorage.ContainsKey(SessionConstants.LapcapFileName));
         }
 
         [TestMethod]
