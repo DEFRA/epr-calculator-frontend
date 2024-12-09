@@ -135,6 +135,20 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
+        /// Creates an error view model.
+        /// </summary>
+        /// <param name="errorMessage">The error message.</param>
+        /// <returns>The error view model.</returns>
+        private static ErrorViewModel CreateErrorViewModel(string errorMessage)
+        {
+            return new ErrorViewModel
+            {
+                DOMElementId = ViewControlNames.DeleteCalculationName,
+                ErrorMessage = errorMessage,
+            };
+        }
+
+        /// <summary>
         /// Creates and configures an <see cref="HttpClient"/> instance.
         /// </summary>
         /// <returns>A configured <see cref="HttpClient"/> instance.</returns>
@@ -148,20 +162,6 @@ namespace EPR.Calculator.Frontend.Controllers
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             return client;
-        }
-
-        /// <summary>
-        /// Creates an error view model.
-        /// </summary>
-        /// <param name="errorMessage">The error message.</param>
-        /// <returns>The error view model.</returns>
-        private static ErrorViewModel CreateErrorViewModel(string errorMessage)
-        {
-            return new ErrorViewModel
-            {
-                DOMElementId = ViewControlNames.DeleteCalculationName,
-                ErrorMessage = errorMessage,
-            };
         }
     }
 }
