@@ -46,7 +46,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     this.logger.LogError(
                             $"Request failed with status code {getCalculationDetailsResponse.StatusCode}");
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex,
+                    return this.RedirectToAction(
+                            ActionNames.StandardErrorIndex,
                             CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
 
@@ -100,7 +101,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
                 }
 
-                var request = new HttpRequestMessage(HttpMethod.Put,
+                var request = new HttpRequestMessage(
+                    HttpMethod.Put,
                     new Uri($"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.RunId}&classificationId={statusUpdateViewModel.ClassificationId}"));
                 var response = client.SendAsync(request);
                 response.Wait();
