@@ -18,6 +18,6 @@
         public const string ParameterUploadFileRefresh = "~/Views/ParameterUploadFile/Refresh.cshtml";
         public const string StandardErrorIndex = "~/Views/StandardError/Index.cshtml";
         public const string DeleteConfirmation = "~/Views/DeleteConfirmation/Index.cshtml";
-        public const string CalcularionRunErrorIndex = "~/Views/CalculationRunError/Index.cshtml";
+        public const string CalculationRunErrorIndex = "~/Views/CalculationRunError/Index.cshtml";
     }
 }
