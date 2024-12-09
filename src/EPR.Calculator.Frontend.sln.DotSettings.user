@@ -1,6 +1,0 @@
-﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=62a2fd44_002Ded0b_002D425d_002Db17f_002Dc63a3141c92c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="StandardErrorController_View_Test" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;MSTest::F3BFCE34-7E09-49BD-A9DB-5ADA7510EF85::net8.0::EPR.Calculator.Frontend.UnitTests.DeleteConfirmationControllerTests.StandardErrorController_View_Test&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

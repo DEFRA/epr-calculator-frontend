@@ -41,9 +41,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
             int runId = 1;
             string calcName = "TestCalc";
+            string calDateTime = "21 June 2024 at 12:09";
 
             // Act
-            var result = await controller.IndexAsync(runId, calcName) as ViewResult;
+            var result = await controller.IndexAsync(runId, calcName, calDateTime) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -66,9 +67,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
             int runId = 1;
             string calcName = "TestCalc";
+            string calDateTime = "21 June 2024 at 12:09";
 
             // Act
-            var result = await controller.IndexAsync(runId, calcName) as RedirectToActionResult;
+            var result = await controller.IndexAsync(runId, calcName, calDateTime) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -142,6 +144,71 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.DeleteConfirmation, result.ViewName);
+        }
+
+        [TestMethod]
+        public async Task IndexAsync_GetCalculationDetailsResponseIsNull_ShouldLogErrorAndRedirect()
+        {
+            // Arrange
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.InternalServerError, MockData.GetCalculationRuns());
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            int runId = 1;
+            string calcName = "TestCalc";
+            string calDateTime = "21 June 2024 at 12:09";
+
+            // Act
+            var result = await controller.IndexAsync(runId, calcName, calDateTime) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task IndexAsync_GetCalculationDetails_Exception_ShouldLogErrorAndRedirect()
+        {
+            // Arrange
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.InternalServerError, MockData.GetCalculationRuns());
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            var controller = new CalculationRunDetailsController(null, null, _mockLogger.Object);
+            int runId = 1;
+            string calcName = "TestCalc";
+            string calDateTime = "21 June 2024 at 12:09";
+
+            // Act
+            var result = await controller.IndexAsync(runId, calcName, calDateTime) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task DeleteAsync_GetCalculationDetails_Exception_ShouldLogErrorAndRedirect()
+        {
+            // Arrange
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.InternalServerError, MockData.GetCalculationRuns());
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            var controller = new CalculationRunDetailsController(null, null, _mockLogger.Object);
+            int runId = 1;
+            string calcName = "TestCalc";
+
+            // Act
+            var result = controller.DeleteCalcDetails(runId, calcName, true) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
         }
 
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)

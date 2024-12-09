@@ -7,5 +7,9 @@
         public int ClassificationId { get; set; }
 
         public string? CalcName { get; set; }
+
+        public string? CreatedDate { get; set; }
+
+        public string? CreatedTime { get; set; }
     }
 }

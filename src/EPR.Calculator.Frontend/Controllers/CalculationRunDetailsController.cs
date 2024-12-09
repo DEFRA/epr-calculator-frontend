@@ -36,13 +36,13 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="runId">The ID of the calculation run.</param>
         /// <param name="calcName">The calcName of the calculation run.</param>
         /// <returns>The calculation run details index view.</returns>
-        public async Task<IActionResult> IndexAsync(int runId, string calcName)
+        public async Task<IActionResult> IndexAsync(int runId, string calcName, string createdAt)
         {
             try
             {
                 var getCalculationDetailsResponse = await this.GetCalculationDetailsAsync(runId);
 
-                if (getCalculationDetailsResponse == null)
+                if (!getCalculationDetailsResponse.IsSuccessStatusCode)
                 {
                     this.logger.LogError(
                             $"Request failed with status code {getCalculationDetailsResponse?.StatusCode}");
@@ -56,17 +56,15 @@ namespace EPR.Calculator.Frontend.Controllers
                     RunId = runId,
                     ClassificationId = (int)RunClassification.DELETED,
                     CalcName = calcName,
+                    CreatedDate = SplitDateTime(createdAt).Item1,
+                    CreatedTime = SplitDateTime(createdAt).Item2,
                 };
-
-                if (!getCalculationDetailsResponse.IsSuccessStatusCode)
-                {
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                }
 
                 return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                this.logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
@@ -82,9 +80,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                    .GetSection(ConfigSection.DashboardCalculatorRunApi)
-                    .Value;
+                var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetSection(ConfigSection.DashboardCalculatorRunApi).Value;
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(dashboardCalculatorRunApi);
@@ -105,6 +101,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     HttpMethod.Put,
                     new Uri($"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.RunId}&classificationId={statusUpdateViewModel.ClassificationId}"));
                 var response = client.SendAsync(request);
+
                 response.Wait();
 
                 if (response.Result.StatusCode != HttpStatusCode.Created)
@@ -116,8 +113,9 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.View(ViewNames.DeleteConfirmation, statusUpdateViewModel);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                this.logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
@@ -134,6 +132,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 DOMElementId = ViewControlNames.DeleteCalculationName,
                 ErrorMessage = errorMessage,
             };
+        }
+
+        private static (string, string) SplitDateTime(string input)
+        {
+            string[] parts = input.Split(new string[] { " at " }, StringSplitOptions.None);
+            return (parts[0], parts[1]);
         }
 
         /// <summary>
@@ -157,10 +161,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
         private HttpClient CreateHttpClient()
         {
-            var apiUrl = this.configuration
-                .GetSection(ConfigSection.DashboardCalculatorRun)
-                .GetValue<string>(ConfigSection.DashboardCalculatorRunApi);
-
+            var apiUrl = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetValue<string>(ConfigSection.DashboardCalculatorRunApi);
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             return client;
