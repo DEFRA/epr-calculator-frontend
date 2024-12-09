@@ -16,17 +16,14 @@
             <section class="gem-c-attachment govuk-!-display-none-print govuk-!-margin-bottom-6" data-module="ga4-link-tracker" data-ga4-link-tracker-module-started="true">
                 <div class="gem-c-attachment__thumbnail">
                     <a class="govuk-link" target="_self" tabindex="-1" aria-hidden="true" href="#">
-                        <img src="~/images/file.png" alt="" width="99px;" style="padding-top:5px;">
+                        <img src="~/images/file.png" alt="download file" width="99px;" style="padding-top:5px;">
                     </a>
                 </div>
                 <h2 class="gem-c-attachment__title govuk-body">
                     <a href="@Url.Action("Index", "DownloadUnavailableError")" class="govuk-link" target="_self">Download</a><br/>
                     ID: @Model.RunId
                 </h2>
-                <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.CreatedDate<br>@Model.CreatedTime</p>
-                <div class="gem-c-attachment__details">
-                    <a class="govuk-link gem-c-attachment__link" href="#"></a>
-                </div>
+                <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.CreatedDate<br>@Model.CreatedTime</p>               
             </section>
         </div>
         <div class="govuk-grid-column-two-thirds">
@@ -42,7 +39,7 @@
                             <legend></legend>
                             <div class="govuk-radios__item">
                                 <input class="govuk-radios__input" id="delete_button" name="delete" type="radio" value="true">
-                                <label class="govuk-label govuk-radios__label" for="whereDoYouLive-4">
+                                <label class="govuk-label govuk-radios__label" for="delete_button">
                                     Delete (this cannot be undone)
                                 </label>
                             </div>
