@@ -10,7 +10,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.View(ViewNames.CalculationRunDetailsIndex);
         }
 
-        public IActionResult ErrorPage()
+        public IActionResult Error()
         {
             return this.View(ViewNames.CalculationRunDetailsErrorPage);
         }
