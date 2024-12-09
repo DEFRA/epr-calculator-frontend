@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
@@ -166,6 +167,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
+            _mockLogger.Verify(
+               logger => logger.Log(
+                   LogLevel.Error,
+                   It.IsAny<EventId>(),
+                   It.Is<It.IsAnyType>((state, t) => state.ToString().Contains($"Request failed with status code {HttpStatusCode.InternalServerError}")),
+                   null,
+                   It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+               Times.Once);
         }
 
         [TestMethod]
