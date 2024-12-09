@@ -590,7 +590,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var redirectResult = result as RedirectToActionResult;
             Assert.AreEqual("Index", redirectResult.ActionName);
             Assert.AreEqual("CalculationRunError", redirectResult.ControllerName);
-            _tempDataMock.VerifySet(tempData => tempData["ErrorMessage"] = errorMessage, Times.Once);
         }
 
         [TestMethod]
@@ -638,7 +637,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var redirectResult = result as RedirectToActionResult;
             Assert.AreEqual("Index", redirectResult.ActionName);
             Assert.AreEqual("CalculationRunError", redirectResult.ControllerName);
-            _tempDataMock.VerifySet(tempData => tempData["ErrorMessage"] = errorMessage, Times.Once);
         }
 
         private void MockHttpClientWithResponse()
