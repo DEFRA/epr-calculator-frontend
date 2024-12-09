@@ -121,20 +121,6 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
-        /// Asynchronously retrieves calculation details for a given run ID.
-        /// </summary>
-        /// <param name="runId">The ID of the calculation run to retrieve details for.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
-        private async Task<HttpResponseMessage> GetCalculationDetailsAsync(int runId)
-        {
-            var client = this.CreateHttpClient();
-            var apiUrl = client.BaseAddress.ToString();
-            var requestUri = new Uri($"{apiUrl}/{runId}", UriKind.Absolute);
-            return await client.GetAsync(requestUri);
-        }
-
-        /// <summary>
         /// Creates an error view model.
         /// </summary>
         /// <param name="errorMessage">The error message.</param>
@@ -146,6 +132,20 @@ namespace EPR.Calculator.Frontend.Controllers
                 DOMElementId = ViewControlNames.DeleteCalculationName,
                 ErrorMessage = errorMessage,
             };
+        }
+
+        /// <summary>
+        /// Asynchronously retrieves calculation details for a given run ID.
+        /// </summary>
+        /// <param name="runId">The ID of the calculation run to retrieve details for.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
+        private async Task<HttpResponseMessage> GetCalculationDetailsAsync(int runId)
+        {
+            var client = this.CreateHttpClient();
+            var apiUrl = client.BaseAddress.ToString();
+            var requestUri = new Uri($"{apiUrl}/{runId}", UriKind.Absolute);
+            return await client.GetAsync(requestUri);
         }
 
         /// <summary>
