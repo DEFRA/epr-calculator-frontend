@@ -71,7 +71,7 @@
                                 }
                                 else if (run.ShowRunDetailLink)
                                 {
-                                    <a href="@Url.Action(ActionNames.Index, "CalculationRunDetails")"  class="govuk-link govuk-link--no-visited-state">@run.Name</a>
+                                    <a href="@Url.Action("Index", "CalculationRunDetails",new {runId=@run.Id, calcName=run.Name, createdAt = @run.CreatedAt})" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
                                 }
                                 else
                                 {
