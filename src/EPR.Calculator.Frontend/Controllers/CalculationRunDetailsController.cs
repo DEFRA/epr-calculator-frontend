@@ -1,6 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,13 +49,17 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
 
-                var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
+                var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
                 {
-                    RunId = runId,
-                    ClassificationId = (int)RunClassification.DELETED,
-                    CalcName = calcName,
-                    CreatedDate = SplitDateTime(createdAt).Item1,
-                    CreatedTime = SplitDateTime(createdAt).Item2,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    Data = new CalculatorRunStatusUpdateDto
+                    {
+                        RunId = runId,
+                        ClassificationId = (int)RunClassification.DELETED,
+                        CalcName = calcName,
+                        CreatedDate = SplitDateTime(createdAt).Item1,
+                        CreatedTime = SplitDateTime(createdAt).Item2,
+                    },
                 };
 
                 return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
