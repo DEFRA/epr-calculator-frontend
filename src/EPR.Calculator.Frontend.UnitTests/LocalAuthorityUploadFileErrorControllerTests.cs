@@ -181,6 +181,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileRefresh, result.ViewName);
