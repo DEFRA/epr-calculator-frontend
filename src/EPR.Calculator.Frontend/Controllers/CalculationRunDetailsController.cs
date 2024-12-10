@@ -114,6 +114,15 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        /// <summary>
+        /// Error details page.
+        /// </summary>
+        /// <returns>Error details page</returns>
+        public IActionResult Error()
+        {
+            return this.View(ViewNames.CalculationRunDetailsErrorPage);
+        }
+
         private static (string, string) SplitDateTime(string input)
         {
             string[] parts = input.Split(new string[] { " at " }, StringSplitOptions.None);
@@ -145,11 +154,6 @@ namespace EPR.Calculator.Frontend.Controllers
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             return client;
-        }
-
-        public IActionResult Error()
-        {
-            return this.View(ViewNames.CalculationRunDetailsErrorPage);
         }
     }
 }
