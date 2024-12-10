@@ -12,6 +12,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
 
+    [Authorize(Roles = "SASuperUser")]
     public class DashboardController : Controller
     {
         private readonly IConfiguration configuration;

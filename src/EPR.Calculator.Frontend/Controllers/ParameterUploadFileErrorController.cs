@@ -1,11 +1,13 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    [Authorize(Roles = "SASuperUser")]
     public class ParameterUploadFileErrorController : Controller
     {
         public IActionResult Index()

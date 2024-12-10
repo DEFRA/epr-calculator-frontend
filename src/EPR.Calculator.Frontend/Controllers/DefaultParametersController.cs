@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -11,6 +12,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Controller for handling default parameter settings.
     /// </summary>
+    [Authorize(Roles = "SASuperUser")]
     public class DefaultParametersController : Controller
     {
         /// <summary>

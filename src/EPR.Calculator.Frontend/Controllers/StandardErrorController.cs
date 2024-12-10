@@ -1,10 +1,12 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    [Authorize(Roles = "SASuperUser")]
     public class StandardErrorController : Controller
     {
         public IActionResult Index()

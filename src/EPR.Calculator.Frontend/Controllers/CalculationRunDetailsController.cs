@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -9,6 +10,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="CalculationRunDetailsController"/> class.
     /// </summary>
+    [Authorize(Roles = "SASuperUser")]
     public class CalculationRunDetailsController : Controller
     {
         private readonly IConfiguration configuration;
