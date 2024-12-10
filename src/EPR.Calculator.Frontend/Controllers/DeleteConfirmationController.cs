@@ -1,13 +1,18 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using Microsoft.AspNetCore.Authorization;
 using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DeleteConfirmationController"/> class.
     /// </summary>
+    [Authorize(Roles = "SASuperUser")]
     public class DeleteConfirmationController : Controller
     {
         /// <summary>
@@ -16,6 +21,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="runId">The ID of the calculation run.</param>
         /// <param name="calcName">The calculation name.</param>
         /// <returns>The delete success view.</returns>
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index(int runId, string calcName)
         {
             var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
@@ -24,7 +30,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 CalcName = calcName,
                 ClassificationId = (int)RunClassification.DELETED,
             };
-            return this.View(ViewNames.DeleteConfirmation, calculatorRunStatusUpdate);
+            var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
+            {
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                Data = calculatorRunStatusUpdate,
+            };
+            return this.View(ViewNames.DeleteConfirmation, statusUpdateViewModel);
         }
     }
 }

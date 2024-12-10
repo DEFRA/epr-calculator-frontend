@@ -1,4 +1,5 @@
-﻿@model EPR.Calculator.Frontend.ViewModels.CalculatorRunStatusUpdateDto
+﻿@using EPR.Calculator.Frontend.ViewModels
+@model CalculatorRunStatusUpdateViewModel
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -28,8 +29,8 @@
         <div class="govuk-grid-column-two-thirds">
             <br>
             <h1 class="govuk-heading-xl">You have successfully deleted this file</h1>
-            <span class="govuk-caption-xl">@Model.CalcName</span><br>
-            <p>ID: @Model.RunId</p>
+            <span class="govuk-caption-xl">@Model.Data.CalcName</span><br>
+            <p>ID: @Model.Data.RunId</p>
             <hr>
             <br>
             <form action="/form-handler" method="post" novalidate="">

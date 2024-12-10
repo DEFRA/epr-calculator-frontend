@@ -1,10 +1,12 @@
 ﻿using System.Net;
 using System.Net.Http;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -16,6 +18,17 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class LocalAuthorityDisposalCostsControllerTests
     {
+        public LocalAuthorityDisposalCostsControllerTests()
+        {
+            this.Fixture = new Fixture();
+            this.MockHttpContext = new Mock<HttpContext>();
+            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+        }
+
+        private Fixture Fixture { get; init; }
+
+        private Mock<HttpContext> MockHttpContext { get; init; }
+
         [TestMethod]
         public async Task LocalAuthorityDisposalCostsController_Success_View_Test()
         {
@@ -41,6 +54,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
 
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -187,6 +201,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Arrange
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            controller.ControllerContext.HttpContext = MockHttpContext.Object;
 
             // Act
 
@@ -195,7 +210,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityDisposalCostsIndex, result.ViewName);
-            Assert.IsInstanceOfType(result.Model, typeof(List<IGrouping<string, LocalAuthorityViewModel>>));
+            Assert.IsInstanceOfType(result.Model, typeof(LocalAuthorityViewModel));
         }
     }
 }

@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net;
@@ -11,6 +12,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="LocalAuthorityDisposalCostsController"/> class.
     /// </summary>
+    [Authorize(Roles = "SASuperUser")]
     public class LocalAuthorityDisposalCostsController : Controller
     {
         private readonly IConfiguration configuration;
@@ -62,6 +64,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// An IActionResult that renders the LocalAuthorityDisposalCostsIndex view with grouped local authority data if the request is successful.
         /// Redirects to the StandardErrorIndex action in case of an error.
         /// </returns>
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             try
@@ -78,7 +81,14 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     var localAuthorityDataGroupedByCountry = localAuthorityData?.GroupBy((data) => data.Country).ToList();
 
-                    return this.View(ViewNames.LocalAuthorityDisposalCostsIndex, localAuthorityDataGroupedByCountry);
+                    return this.View(
+                        ViewNames.LocalAuthorityDisposalCostsIndex,
+                        new LocalAuthorityViewModel
+                        {
+                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                            LastUpdatedBy = deserializedlapcapdata?.First().CreatedBy ?? ErrorMessages.UnknownUser,
+                            ByCountry = localAuthorityDataGroupedByCountry,
+                        });
                 }
 
                 if (response.Result.StatusCode == HttpStatusCode.NotFound)

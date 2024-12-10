@@ -12,6 +12,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
 
+    [Authorize(Roles = "SASuperUser")]
     public class DashboardController : Controller
     {
         private readonly IConfiguration configuration;
@@ -38,6 +39,7 @@
         /// <exception cref="ArgumentNullException">
         /// Thrown when the API URL is null or empty.
         /// </exception>
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             try
@@ -51,7 +53,13 @@
                     // Ensure deserializedRuns is not null
                     var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
                     var dashboardRunData = GetCalulationRunsData(calculationRuns);
-                    return this.View(ViewNames.DashboardIndex, dashboardRunData);
+                    return this.View(
+                        ViewNames.DashboardIndex,
+                        new DashboardViewModel
+                        {
+                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                            Calculations = dashboardRunData,
+                        });
                 }
 
                 if (response.Result.StatusCode == HttpStatusCode.NotFound)
@@ -72,14 +80,15 @@
         /// </summary>
         /// <param name="calculationRuns">The list of calculation runs to be processed.</param>
         /// <returns>A list of <see cref="DashboardViewModel"/> objects containing the processed data.</returns>
-        private static List<DashboardViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
+        private static List<DashboardViewModel.CalculationRunViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
         {
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
-            var dashboardRunData = new List<DashboardViewModel>();
+            var dashboardRunData = new List<DashboardViewModel.CalculationRunViewModel>();
 
             if (calculationRuns.Count > 0)
             {
-                foreach (var calculationRun in calculationRuns)
+                var displayRuns = calculationRuns.Where(x => x.CalculatorRunClassificationId != (int)RunClassification.DELETED);
+                foreach (var calculationRun in displayRuns)
                 {
                     var classification_val = runClassifications.Find(c => (int)c == calculationRun.CalculatorRunClassificationId);
                     var member = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classification_val.ToString());
@@ -88,7 +97,7 @@
 
                     calculationRun.Status = attribute?.Value ?? string.Empty; // Use a default value if attribute or value is null
 
-                    dashboardRunData.Add(new DashboardViewModel(calculationRun));
+                    dashboardRunData.Add(new DashboardViewModel.CalculationRunViewModel(calculationRun));
                 }
             }
 

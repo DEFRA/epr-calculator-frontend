@@ -1,13 +1,16 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    [Authorize(Roles = "SASuperUser")]
     public class ParameterUploadFileErrorController : Controller
     {
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             try
@@ -52,6 +55,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index([FromBody]string errors)
         {
             this.HttpContext.Session.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, errors);
@@ -60,6 +64,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
@@ -72,7 +77,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
 
             this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
-            this.TempData["FileName"] = fileUpload.FileName;
+            this.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUpload.FileName);
 
             return this.View(ViewNames.ParameterUploadFileRefresh);
         }

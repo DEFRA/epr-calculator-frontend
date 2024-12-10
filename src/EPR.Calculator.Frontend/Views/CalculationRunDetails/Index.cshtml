@@ -1,4 +1,5 @@
-﻿@model EPR.Calculator.Frontend.ViewModels.CalculatorRunStatusUpdateDto
+﻿@using EPR.Calculator.Frontend.ViewModels
+@model CalculatorRunStatusUpdateViewModel
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -6,12 +7,12 @@
     var errors = ViewBag.Errors;
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-<partial name="_BackLinkPartial" model="BackLink" />
+<partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-third">
             <h2 class="govuk-heading-m calculator-run-h2">
-                    @Model.CalcName
+                    @Model.Data.CalcName
                 </h2>
             <section class="gem-c-attachment govuk-!-display-none-print govuk-!-margin-bottom-6" data-module="ga4-link-tracker" data-ga4-link-tracker-module-started="true">
                 <div class="gem-c-attachment__thumbnail">
@@ -20,13 +21,10 @@
                     </a>
                 </div>
                 <h2 class="gem-c-attachment__title govuk-body">
-                    <a href="@Url.Action("Index", "DownloadUnavailableError")" class="govuk-link gem-c-attachment__link" target="_self">Download</a><br/>
-                    ID: @Model.RunId
+                    <a href="@Url.Action("Index", "DownloadUnavailableError")" class="govuk-link" target="_self">Download</a><br/>
+                    ID: @Model.Data.RunId
                 </h2>
-                <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.CreatedDate<br>@Model.CreatedTime</p>
-                <div class="gem-c-attachment__details">
-                    <a class="govuk-link gem-c-attachment__link" href="#"></a>
-                </div>
+                <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.Data.CreatedDate<br>@Model.Data.CreatedTime</p>               
             </section>
         </div>
         <div class="govuk-grid-column-two-thirds">
@@ -41,8 +39,8 @@
                                 <label class="govuk-label govuk-radios__label" for="file-calc-error">
                                     Delete (this cannot be undone)
                                 </label>
-                                <input type="hidden" asp-for="RunId" name="runId" />
-                                <input type="hidden" asp-for="CalcName" name="calcName" />
+                                <input type="hidden" asp-for="@Model.Data.RunId" name="runId" />
+                                <input type="hidden" asp-for="@Model.Data.CalcName" name="calcName" />
                             </div>
                             <br>
                             @if (errors != null)

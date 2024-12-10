@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -11,6 +12,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="CalculationRunDetailsController"/> class.
     /// </summary>
+    [Authorize(Roles = "SASuperUser")]
     public class CalculationRunDetailsController : Controller
     {
         private readonly IConfiguration configuration;
@@ -36,6 +38,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="runId">The ID of the calculation run.</param>
         /// <param name="calcName">The calcName of the calculation run.</param>
         /// <returns>The calculation run details index view.</returns>
+        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> IndexAsync(int runId, string calcName, string createdAt)
         {
             try
@@ -51,13 +54,17 @@ namespace EPR.Calculator.Frontend.Controllers
                             CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
 
-                var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
+                var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
                 {
-                    RunId = runId,
-                    ClassificationId = (int)RunClassification.DELETED,
-                    CalcName = calcName,
-                    CreatedDate = SplitDateTime(createdAt).Item1,
-                    CreatedTime = SplitDateTime(createdAt).Item2,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    Data = new CalculatorRunStatusUpdateDto
+                    {
+                        RunId = runId,
+                        ClassificationId = (int)RunClassification.DELETED,
+                        CalcName = calcName,
+                        CreatedDate = SplitDateTime(createdAt).Item1,
+                        CreatedTime = SplitDateTime(createdAt).Item2,
+                    },
                 };
 
                 return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
@@ -76,6 +83,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="calcName">The calculation name.</param>
         /// <param name="deleteChecked">The delete is checked or not.</param>
         /// <returns>The delete confirmation view.</returns>
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult DeleteCalcDetails(int runId, string calcName, bool deleteChecked)
         {
             try
@@ -84,11 +92,16 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(dashboardCalculatorRunApi);
-                var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
+                var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
                 {
                     RunId = runId,
-                    ClassificationId = (int)RunClassification.DELETED,
                     CalcName = calcName,
+                    ClassificationId = (int)RunClassification.DELETED,
+                };
+                var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
+                {
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    Data = calculatorRunStatusUpdate,
                 };
 
                 if (!deleteChecked)
@@ -99,7 +112,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var request = new HttpRequestMessage(
                     HttpMethod.Put,
-                    new Uri($"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.RunId}&classificationId={statusUpdateViewModel.ClassificationId}"));
+                    new Uri($"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.Data.RunId}&classificationId={statusUpdateViewModel.Data.ClassificationId}"));
                 var response = client.SendAsync(request);
 
                 response.Wait();
@@ -118,6 +131,15 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+        }
+
+        /// <summary>
+        /// Error details page.
+        /// </summary>
+        /// <returns>Error details page</returns>
+        public IActionResult Error()
+        {
+            return this.View(ViewNames.CalculationRunDetailsErrorPage);
         }
 
         /// <summary>
