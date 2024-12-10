@@ -19,6 +19,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="error">error message</param>
         /// <returns>CalcularionRunErrorIndex</returns>
         /// An <see cref="IActionResult"/> that renders the Calculation Run Error Index view with the error message redirects to the Calculation Run Error view.
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index(ErrorDto error)
         {
             return this.View(

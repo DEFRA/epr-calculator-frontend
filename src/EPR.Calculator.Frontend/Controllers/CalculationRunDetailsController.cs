@@ -37,6 +37,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="runId">The ID of the calculation run.</param>
         /// <param name="calcName">The calcName of the calculation run.</param>
         /// <returns>The calculation run details index view.</returns>
+        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> IndexAsync(int runId, string calcName, string createdAt)
         {
             try
@@ -76,6 +77,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">The status update view model.</param>
         /// <returns>The delete confirmation view.</returns>
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult DeleteCalcDetails(int runId)
         {
             try
