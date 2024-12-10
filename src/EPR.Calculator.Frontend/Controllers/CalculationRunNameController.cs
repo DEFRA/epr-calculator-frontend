@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -12,6 +13,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="CalculationRunNameController"/> class.
     /// </summary>
+    [Authorize(Roles = "SASuperUser")]
     public class CalculationRunNameController : Controller
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;

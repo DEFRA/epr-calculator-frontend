@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net;
@@ -11,6 +12,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="LocalAuthorityDisposalCostsController"/> class.
     /// </summary>
+    [Authorize(Roles = "SASuperUser")]
     public class LocalAuthorityDisposalCostsController : Controller
     {
         private readonly IConfiguration configuration;

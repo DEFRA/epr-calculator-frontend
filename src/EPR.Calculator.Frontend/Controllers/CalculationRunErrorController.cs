@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -7,6 +8,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Controller for handling calculation run errors.
     /// </summary>
+    [Authorize(Roles = "SASuperUser")]
     public class CalculationRunErrorController : Controller
     {
         /// <summary>

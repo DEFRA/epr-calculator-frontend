@@ -1,11 +1,13 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    [Authorize(Roles = "SASuperUser")]
     public class LocalAuthorityUploadFileProcessingController : Controller
     {
         private readonly IConfiguration configuration;
