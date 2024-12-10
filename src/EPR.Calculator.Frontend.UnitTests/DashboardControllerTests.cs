@@ -265,6 +265,9 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
 
+            var mockHttpContext = new Mock<HttpContext>();
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
@@ -272,15 +275,19 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Act
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
             var result = controller.Index() as ViewResult;
-            var model = result?.Model as List<DashboardViewModel>;
+            var model = result?.Model as DashboardViewModel;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.IsNotNull(model);
-            Assert.AreEqual(2, model.Count);
-            Assert.AreEqual(CalculationRunStatus.Error, model.First().Status);
-            Assert.IsTrue(model.First().ShowErrorLink);
+            Assert.AreEqual(2, model.Calculations.Count());
+            Assert.AreEqual(CalculationRunStatus.Error, model.Calculations.First().Status);
+            Assert.IsTrue(model.Calculations.First().ShowErrorLink);
         }
     }
 }
