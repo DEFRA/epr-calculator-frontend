@@ -180,6 +180,13 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
         {
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            var mockHttpContext = new Mock<HttpContext>();
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
             var result = controller.Error() as ViewResult;
 
             Assert.IsNotNull(result);
