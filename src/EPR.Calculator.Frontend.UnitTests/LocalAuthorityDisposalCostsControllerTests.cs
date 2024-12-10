@@ -47,6 +47,9 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
 
+            var mockHttpContext = new Mock<HttpContext>();
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
             // Mock IHttpClientFactory
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
             mockHttpClientFactory
@@ -54,7 +57,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
 
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -79,6 +85,9 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
 
+            var mockHttpContext = new Mock<HttpContext>();
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
             // Mock IHttpClientFactory
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
             mockHttpClientFactory
@@ -86,6 +95,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
 
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);

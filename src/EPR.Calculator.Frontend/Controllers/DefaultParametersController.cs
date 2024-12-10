@@ -92,7 +92,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
                     this.ViewBag.IsDataAvailable = false;
-                    return this.View();
+                    return this.View(new DefaultParametersViewModel
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                        LastUpdatedBy = string.Empty,
+                    });
                 }
 
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
