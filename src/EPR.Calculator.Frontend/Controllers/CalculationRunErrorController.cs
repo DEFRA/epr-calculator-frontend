@@ -1,4 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -11,13 +12,12 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <summary>
         /// Handles the Index action for the controller.
         /// </summary>
-        /// <returns>
+        /// <param name="error">error message</param>
+        /// <returns>CalcularionRunErrorIndex</returns>
         /// An <see cref="IActionResult"/> that renders the Calculation Run Error Index view with the error message redirects to the Calculation Run Error view.
-        /// </returns>
-        public IActionResult Index()
+        public IActionResult Index(ErrorDto error)
         {
-            var errorMessage = this.TempData["ErrorMessage"] as string;
-            return this.View(ViewNames.CalcularionRunErrorIndex, errorMessage);
+            return this.View(ViewNames.CalculationRunErrorIndex, error.Message);
         }
     }
 }

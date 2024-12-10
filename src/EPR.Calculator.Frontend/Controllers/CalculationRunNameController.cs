@@ -77,8 +77,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
                     {
-                        this.TempData["ErrorMessage"] = await this.ExtractErrorMessageAsync(response);
-                        return this.RedirectToAction(ActionNames.CalculationRunErrorIndex, "CalculationRunError");
+                        var errorDto = new ErrorDto() { Message = await this.ExtractErrorMessageAsync(response) };
+                        return this.RedirectToAction(ActionNames.CalculationRunErrorIndex, "CalculationRunError", errorDto);
                     }
 
                     if (!response.IsSuccessStatusCode || response.StatusCode != HttpStatusCode.Accepted)
