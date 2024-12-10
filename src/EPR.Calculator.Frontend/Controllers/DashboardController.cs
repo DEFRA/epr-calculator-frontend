@@ -87,7 +87,11 @@
 
             if (calculationRuns.Count > 0)
             {
-                foreach (var calculationRun in calculationRuns)
+                var displayRuns = calculationRuns.Where(x =>
+                    x.CalculatorRunClassificationId != (int)RunClassification.DELETED &&
+                    x.CalculatorRunClassificationId != (int)RunClassification.PLAY &&
+                    x.CalculatorRunClassificationId != (int)RunClassification.QUEUE);
+                foreach (var calculationRun in displayRuns)
                 {
                     var classification_val = runClassifications.Find(c => (int)c == calculationRun.CalculatorRunClassificationId);
                     var member = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classification_val.ToString());

@@ -62,6 +62,11 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Assert
             Assert.IsNotNull(result);
+
+            var resultModel = result.Model as DashboardViewModel;
+            Assert.IsNotNull(resultModel);
+            Assert.AreEqual(3, resultModel.Calculations.Count());
+            Assert.AreEqual(0, resultModel.Calculations.Count(x => x.Id == 12));
         }
 
         [TestMethod]

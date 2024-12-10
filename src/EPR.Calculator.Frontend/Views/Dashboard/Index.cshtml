@@ -74,9 +74,12 @@
                             </p>
                         </dt>
                         <dd class="govuk-summary-list__actions">
-                            <strong class="@run.TagStyle">
-                                @run.Status
-                            </strong>
+                            @if (run.Status is "RUNNING" or "ERROR")
+                            {
+                                <strong class="@run.TagStyle">
+                                    @run.Status
+                                </strong>
+                            }
                         </dd>
                     </div>
                 }

@@ -18,15 +18,10 @@ namespace EPR.Calculator.Frontend.ViewModels
         {
             switch (calculationRunStatus)
             {
-                case CalculationRunStatus.InTheQueue:
                 case CalculationRunStatus.Running:
-                    return "govuk-tag govuk-tag--grey";
-                case CalculationRunStatus.Play:
                     return "govuk-tag govuk-tag--green";
-                case CalculationRunStatus.Unclassified:
-                    return "govuk-tag govuk-tag--blue";
                 case CalculationRunStatus.Error:
-                    return "govuk-tag govuk-tag--yellow";
+                    return "govuk-tag govuk-tag--red";
                 default:
                     return "govuk-tag";
             }
