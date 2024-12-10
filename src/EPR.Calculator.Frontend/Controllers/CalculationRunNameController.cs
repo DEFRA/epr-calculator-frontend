@@ -38,6 +38,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Displays the index view for calculation run names.
         /// </summary>
         /// <returns>The index view.</returns>
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             return this.View(
@@ -54,6 +55,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="calculationRunModel">The model containing calculation run details.</param>
         /// <returns>The result of the action.</returns>
         [HttpPost]
+        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> RunCalculator(InitiateCalculatorRunModel calculationRunModel)
         {
             if (!this.ModelState.IsValid)
@@ -103,6 +105,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="calculationRunModel">The model containing calculation run details.</param>
         /// <returns>The result of the action.</returns>
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Confirmation(InitiateCalculatorRunModel calculationRunModel)
         {
             return this.View(ViewNames.CalculationRunConfirmation, calculationRunModel);
