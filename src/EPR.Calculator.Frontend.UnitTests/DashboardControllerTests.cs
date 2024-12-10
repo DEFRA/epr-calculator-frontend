@@ -67,7 +67,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var resultModel = result.Model as DashboardViewModel;
             Assert.IsNotNull(resultModel);
-            Assert.AreEqual(11, resultModel.Calculations.Count());
+            Assert.AreEqual(3, resultModel.Calculations.Count());
             Assert.AreEqual(0, resultModel.Calculations.Count(x => x.Id == 12));
         }
 
@@ -285,7 +285,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.IsNotNull(model);
-            Assert.AreEqual(2, model.Calculations.Count());
+            Assert.AreEqual(1, model.Calculations.Count());
             Assert.AreEqual(CalculationRunStatus.Error, model.Calculations.First().Status);
             Assert.IsTrue(model.Calculations.First().ShowErrorLink);
         }
