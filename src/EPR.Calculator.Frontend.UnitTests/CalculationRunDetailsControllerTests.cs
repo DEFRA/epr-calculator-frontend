@@ -102,6 +102,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
             int runId = 1;
             string calcName = "TestCalc";
 
@@ -126,6 +128,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
             int runId = 1;
             string calcName = "TestCalc";
 
@@ -150,6 +154,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
             int runId = 1;
             string calcName = "TestCalc";
 
