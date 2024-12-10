@@ -43,7 +43,6 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["LapcapFileName"] = "LocalAuthorityData.csv";
 
             // Create controller with the mocked factory
             var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object)
@@ -51,13 +50,38 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
+            var fileUploadFileName = "LocalAuthorityData.csv";
+
+            var sessionMock = new Mock<ISession>();
+            var sessionStorage = new Dictionary<string, byte[]>();
+
+            sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+                       .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
+
+            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+                       .Returns((string key, out byte[] value) =>
+                       {
+                           var success = sessionStorage.TryGetValue(key, out var storedValue);
+                           value = storedValue;
+                           return success;
+                       });
+
+            sessionMock.Setup(s => s.Remove(It.IsAny<string>()))
+                       .Callback<string>((key) => sessionStorage.Remove(key));
+
+            var httpContextMock = new Mock<HttpContext>();
+            httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
+            controller.ControllerContext.HttpContext = httpContextMock.Object;
+            controller.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUploadFileName);
+
             // Act
             var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as OkObjectResult;
 
             // Assert
-            Assert.AreEqual("LocalAuthorityData.csv", controller.FileName);
             Assert.IsNotNull(result);
             Assert.AreEqual(200, result.StatusCode);
+            Assert.AreEqual("LocalAuthorityData.csv", controller.FileName);
+            Assert.IsTrue(sessionStorage.ContainsKey(SessionConstants.LapcapFileName));
         }
 
         [TestMethod]
@@ -80,7 +104,6 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["LapcapFileName"] = "LocalAuthorityData.csv";
 
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
@@ -90,6 +113,15 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
+
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
             var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as BadRequestObjectResult;
             Assert.IsNotNull(result);
             Assert.AreNotEqual(201, result.StatusCode);
