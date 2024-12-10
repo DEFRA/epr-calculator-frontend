@@ -161,6 +161,16 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 
+        [TestMethod]
+        public void CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
+        {
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            var result = controller.Error() as ViewResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsErrorPage, result.ViewName);
+        }
+
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -177,16 +187,6 @@ namespace EPR.Calculator.Frontend.UnitTests
                 });
 
             return mockHttpMessageHandler;
-        }
-
-        [TestMethod]
-        public void CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
-        {
-            var controller = new CalculationRunDetailsController();
-            var result = controller.Error() as ViewResult;
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunDetailsErrorPage, result.ViewName);
         }
     }
 }
