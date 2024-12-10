@@ -1,8 +1,10 @@
 ﻿using System.Net;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Moq.Protected;
@@ -15,6 +17,8 @@ namespace EPR.Calculator.Frontend.UnitTests
     {
         private static readonly string[] Separator = new string[] { @"bin\" };
         private static readonly int TotalRecords = 11;
+
+        private Fixture Fixture { get; } = new Fixture();
 
         [TestMethod]
         public async Task DefaultParamerController_Success_View_Test()
@@ -41,6 +45,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
 
             var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+
+            var mockContext = new Mock<HttpContext>();
+            mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            controller.ControllerContext.HttpContext = mockContext.Object;
 
             var result = await controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -77,7 +85,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                 });
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
+            var mockHttpContext = new Mock<HttpContext>();
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
             // Mock IHttpClientFactory
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
             mockHttpClientFactory
@@ -85,6 +94,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
 
             var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
 
             var result = await controller.Index() as ViewResult;
             Assert.IsNotNull(result);

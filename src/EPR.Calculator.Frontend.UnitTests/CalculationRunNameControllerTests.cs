@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
@@ -27,6 +28,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         private Mock<IConfiguration> mockConfiguration;
         private Mock<ILogger<CalculationRunNameController>> mockLogger;
         private Mock<ITempDataDictionary> _tempDataMock;
+
+        private Fixture Fixture { get; } = new Fixture();
 
         [TestInitialize]
         public void Setup()
@@ -57,7 +60,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task RunCalculator_ShouldReturnView_WhenCalculationNameIsInvalid()
         {
             _controller.ModelState.AddModelError("CalculationName", "Enter a name for this calculation");
-            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = null };
+            var calculatorRunModel = new InitiateCalculatorRunModel()
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = null,
+            };
             var result = await _controller.RunCalculator(null);
             var viewResult = result as ViewResult;
             Assert.IsNotNull(viewResult);
@@ -73,7 +80,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var model = new InitiateCalculatorRunModel
             {
-                CalculationName = "ValidCalculationName"
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "ValidCalculationName",
             };
             MockHttpClientWithResponse();
             var result = await _controller.RunCalculator(model) as ViewResult;
@@ -85,7 +93,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_ShouldRedirect_IsOnlyNumeric_WhenCalculationNameIsValid()
         {
-            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "1234" };
+            var calculatorRunModel = new InitiateCalculatorRunModel()
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "1234",
+            };
             MockHttpClientWithResponse();
             var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
@@ -96,7 +108,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_ShouldRedirect_IsAplhaNumeric_WithNoSpace_WhenCalculationNameIsValid()
         {
-            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "ValidCalculationName1234" };
+            var calculatorRunModel = new InitiateCalculatorRunModel()
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "ValidCalculationName1234",
+            };
             MockHttpClientWithResponse();
             var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
 
@@ -108,7 +124,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_WhenCalculationName__IsAplhaNumeric_WithSpace_IsValid()
         {
-            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "ValidCalculationName 123" };
+            var calculatorRunModel = new InitiateCalculatorRunModel()
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "ValidCalculationName 123",
+            };
             MockHttpClientWithResponse();
             var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
@@ -119,7 +139,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_WhenCalculationNameIsEmpty_ShouldReturnViewWithError()
         {
-            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = string.Empty };
+            var calculatorRunModel = new InitiateCalculatorRunModel()
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = string.Empty,
+            };
             _controller.ModelState.AddModelError("CalculationName", "Enter a name for this calculation");
             var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
@@ -133,7 +157,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task RunCalculator_WhenCalculationNameIsTooLong_ShouldReturnViewWithError()
         {
             _controller.ModelState.AddModelError("CalculationName", "Calculation name must contain no more than 100 characters");
-            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = new string('a', 101) };
+            var calculatorRunModel = new InitiateCalculatorRunModel()
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = new string('a', 101)
+            };
             var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
@@ -146,7 +174,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task RunCalculator_WhenCalculationName_IsNotAlphaNumeric_ShouldReturnViewWithError()
         {
             _controller.ModelState.AddModelError("CalculationName", "Calculation name must only contain numbers and letters");
-            var calculatorRunModel = new InitiateCalculatorRunModel() { CalculationName = "%^&*$@" };
+            var calculatorRunModel = new InitiateCalculatorRunModel()
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "%^&*$@"
+            };
             var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
@@ -158,7 +190,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void RunCalculator_Validator_Should_Have_Error_Is_Empty()
         {
-            var model = new InitiateCalculatorRunModel { CalculationName = string.Empty };
+            var model = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = string.Empty,
+            };
             var result = _validationRules.TestValidate(model);
             result.ShouldHaveValidationErrorFor(x => x.CalculationName)
                 .WithErrorMessage(ErrorMessages.CalculationRunNameEmpty);
@@ -167,7 +203,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void RunCalculator_Validator_Should_Have_Error_Exceeds_MaxLength()
         {
-            var model = new InitiateCalculatorRunModel { CalculationName = new string('a', 101) };
+            var model = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = new string('a', 101),
+            };
             var result = _validationRules.TestValidate(model);
             result.ShouldHaveValidationErrorFor(x => x.CalculationName)
                 .WithErrorMessage(ErrorMessages.CalculationRunNameMaxLengthExceeded);
@@ -176,7 +216,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void RunCalculator_Validator_Should_Have_Error_When_Is_Not_AlphaNumeric()
         {
-            var model = new InitiateCalculatorRunModel { CalculationName = "test_123" };
+            var model = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "test_123",
+            };
             var result = _validationRules.TestValidate(model);
             result.ShouldHaveValidationErrorFor(x => x.CalculationName)
                 .WithErrorMessage(ErrorMessages.CalculationRunNameMustBeAlphaNumeric);
@@ -185,7 +229,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void RunCalculator_Validator_Should_Not_Have_Error_Is_Valid()
         {
-            var model = new InitiateCalculatorRunModel { CalculationName = "test123" };
+            var model = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "test123",
+            };
             var result = _validationRules.TestValidate(model);
             result.ShouldNotHaveValidationErrorFor(x => x.CalculationName);
         }
@@ -193,7 +241,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void RunCalculator_Validator_Should_Not_Have_Error_Has_Spaces()
         {
-            var model = new InitiateCalculatorRunModel { CalculationName = "test 123" };
+            var model = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "test 123",
+            };
             var result = _validationRules.TestValidate(model);
             result.ShouldNotHaveValidationErrorFor(x => x.CalculationName);
         }
@@ -202,7 +254,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task RunCalculator_ValidModel_CalculationNameExists_ShouldReturnToIndexWithError()
         {
             // Arrange
-            var model = new InitiateCalculatorRunModel { CalculationName = "TestCalculation" };
+            var model = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "TestCalculation",
+            };
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
 
             mockHttpMessageHandler
@@ -226,11 +282,16 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_ValidModel_CalculationNameDoesNotExist_ShouldRedirectToConfirmation()
         {
-            var model = new InitiateCalculatorRunModel { CalculationName = "UniqueCalculation" };
+            var model = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "UniqueCalculation",
+            };
 
             var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
             mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
 
             _controller.ControllerContext = new ControllerContext
             {
@@ -286,7 +347,11 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(c => c.GetSection(ConfigSection.CalculationRunSettings))
                 .Returns(mockSettingsSection.Object);
 
-            var model = new InitiateCalculatorRunModel { CalculationName = "TestCalculation" };
+            var model = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "TestCalculation",
+            };
             _controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object, mockLogger.Object);
             var redirectResult = await _controller.RunCalculator(model) as RedirectToActionResult;
             Assert.IsNotNull(redirectResult);
@@ -297,10 +362,15 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculatorConfirmation_ValidModel_RedirectsToConfirmation()
         {
-            var model = new InitiateCalculatorRunModel { CalculationName = "TestRun" };
+            var model = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "TestRun",
+            };
             var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
             mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
 
             _controller.ControllerContext = new ControllerContext
             {
@@ -344,7 +414,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_HttpPostToCalculatorRunAPI_Failure_RedirectsToStandardError()
         {
-            var model = new InitiateCalculatorRunModel { CalculationName = "TestName" };
+            var model = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "TestName",
+            };
             var mockHttpContext = new Mock<HttpContext>();
             _controller.ControllerContext = new ControllerContext
             {
@@ -391,7 +465,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_ValidModel_ApiCallFails_RedirectsToStandardError()
         {
-            var model = new InitiateCalculatorRunModel { CalculationName = "TestRun" };
+            var model = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "TestRun",
+            };
 
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler
@@ -414,7 +492,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void Confirmation_ReturnsViewResult()
         {
-            var model = new InitiateCalculatorRunModel { CalculationName = "TestRun" };
+            var model = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "TestRun",
+            };
 
             var result = _controller.Confirmation(model) as ViewResult;
 
@@ -426,7 +508,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculatorConfirmation_NullExceptionForAPIConfig_RedirectsToErrorPage()
         {
-            var model = new InitiateCalculatorRunModel { CalculationName = "TestRun" };
+            var model = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "TestRun",
+            };
             mockConfiguration = new Mock<IConfiguration>();
             mockConfiguration.Setup(config => config[$"{ConfigSection.CalculationRunSettings}:{ConfigSection.CalculationRunApi}"])
                              .Returns((string)null);
@@ -462,7 +548,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_ShouldRedirectToError_WhenUnprocessableEntity()
         {
-            var calculationRunModel = new InitiateCalculatorRunModel { CalculationName = "TestRun" };
+            var calculationRunModel = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "TestRun"
+            };
             var errorMessage = "The calculator is currently running. You will be able to run another calculation once the current one has finished.";
             var httpResponse = new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
             {
@@ -505,7 +595,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_ShouldRedirectToError_WhenUnprocessableEntity_ParsingError()
         {
-            var calculationRunModel = new InitiateCalculatorRunModel { CalculationName = "TestRun" };
+            var calculationRunModel = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "TestRun"
+            };
             var errorMessage = "Unable to process the error response.";
             var httpResponse = new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
             {

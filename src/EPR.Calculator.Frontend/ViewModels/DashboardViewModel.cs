@@ -5,32 +5,9 @@ using EPR.Calculator.Frontend.Models;
 namespace EPR.Calculator.Frontend.ViewModels
 {
     [ExcludeFromCodeCoverage]
-    public class DashboardViewModel
+    public record DashboardViewModel : ViewModelCommonData
     {
-        public DashboardViewModel(CalculationRun calculationRun)
-        {
-            this.Id = calculationRun.Id;
-            this.Name = calculationRun.Name;
-            this.CreatedAt = DashboardViewModel.GetFormattedCreatedAt(calculationRun.CreatedAt);
-            this.CreatedBy = calculationRun.CreatedBy;
-            this.Status = calculationRun.Status;
-            this.TagStyle = DashboardViewModel.GetCalculationRunStatusStyles(calculationRun.Status);
-            this.ShowRunDetailLink = DashboardViewModel.GetShowRunDetailLink(calculationRun.Status);
-        }
-
-        public int Id { get; set; }
-
-        public string Name { get; set; }
-
-        public string CreatedAt { get; set; }
-
-        public string CreatedBy { get; set; }
-
-        public string Status { get; set; }
-
-        public string? TagStyle { get; set; }
-
-        public bool ShowRunDetailLink { get; set; }
+        public IEnumerable<CalculationRunViewModel> Calculations { get; init; }
 
         private static string GetFormattedCreatedAt(DateTime createdAt)
         {
@@ -41,15 +18,10 @@ namespace EPR.Calculator.Frontend.ViewModels
         {
             switch (calculationRunStatus)
             {
-                case CalculationRunStatus.InTheQueue:
                 case CalculationRunStatus.Running:
-                    return "govuk-tag govuk-tag--grey";
-                case CalculationRunStatus.Play:
                     return "govuk-tag govuk-tag--green";
-                case CalculationRunStatus.Unclassified:
-                    return "govuk-tag govuk-tag--blue";
                 case CalculationRunStatus.Error:
-                    return "govuk-tag govuk-tag--yellow";
+                    return "govuk-tag govuk-tag--red";
                 default:
                     return "govuk-tag";
             }
@@ -58,6 +30,42 @@ namespace EPR.Calculator.Frontend.ViewModels
         private static bool GetShowRunDetailLink(string calculationRunStatus)
         {
             return !(calculationRunStatus == CalculationRunStatus.InTheQueue || calculationRunStatus == CalculationRunStatus.Running);
+        }
+
+        private static bool GetShowErrorLink(string calculationRunStatus)
+        {
+            return calculationRunStatus == CalculationRunStatus.Error;
+        }
+
+        public record CalculationRunViewModel
+        {
+            public CalculationRunViewModel(CalculationRun calculationRun)
+            {
+                this.Id = calculationRun.Id;
+                this.Name = calculationRun.Name;
+                this.CreatedAt = DashboardViewModel.GetFormattedCreatedAt(calculationRun.CreatedAt);
+                this.CreatedBy = calculationRun.CreatedBy;
+                this.Status = calculationRun.Status;
+                this.TagStyle = DashboardViewModel.GetCalculationRunStatusStyles(calculationRun.Status);
+                this.ShowRunDetailLink = DashboardViewModel.GetShowRunDetailLink(calculationRun.Status);
+                this.ShowErrorLink = DashboardViewModel.GetShowErrorLink(calculationRun.Status);
+            }
+
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+
+            public string CreatedAt { get; set; }
+
+            public string CreatedBy { get; set; }
+
+            public string Status { get; set; }
+
+            public string? TagStyle { get; set; }
+
+            public bool ShowRunDetailLink { get; set; }
+
+            public bool ShowErrorLink { get; set; }
         }
     }
 }

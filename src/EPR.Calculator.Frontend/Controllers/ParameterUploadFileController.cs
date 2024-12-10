@@ -3,6 +3,8 @@ using CsvHelper.Configuration;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Globalization;
@@ -10,20 +12,33 @@ using System.Text.RegularExpressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    [Authorize(Roles = "SASuperUser")]
     public class ParameterUploadFileController : Controller
     {
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
-            return this.View(ViewNames.ParameterUploadFileIndex);
+            return this.View(
+                ViewNames.ParameterUploadFileIndex,
+                new ViewModelCommonData
+                {
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                });
         }
 
         [HttpPost]
+        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             try
             {
                 var viewName = await this.GetViewName(fileUpload);
-                return this.View(viewName);
+                return this.View(
+                    viewName,
+                    new ViewModelCommonData
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    });
             }
             catch (Exception)
             {
@@ -31,6 +46,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> Upload()
         {
             try
@@ -56,6 +72,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult DownloadCsvTemplate()
         {
             try
@@ -90,7 +107,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
 
             this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
-            this.TempData["FileName"] = fileUpload.FileName;
+            this.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUpload.FileName);
 
             return ViewNames.ParameterUploadFileRefresh;
         }

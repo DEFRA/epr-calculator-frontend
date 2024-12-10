@@ -10,26 +10,20 @@ using Microsoft.Identity.Web.TokenCacheProviders.Session;
 using Microsoft.Identity.Web.UI;
 
 var builder = WebApplication.CreateBuilder(args);
-if (builder.Configuration["EnableSecurity"] == "True")
+
+IEnumerable<string>? initialScopes = builder.Configuration["DownstreamApi:Scopes"]?.Split(' ');
+builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd")
+    .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
+    .AddDownstreamApi("DownstreamApi", builder.Configuration.GetSection("DownstreamApi"))
+    .AddInMemoryTokenCaches().AddSessionTokenCaches().AddSessionPerUserTokenCache().AddSession();
+builder.Services.AddRazorPages().AddMvcOptions(options =>
 {
-    IEnumerable<string>? initialScopes = builder.Configuration["DownstreamApi:Scopes"]?.Split(' ');
-    builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd")
-        .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
-        .AddDownstreamApi("DownstreamApi", builder.Configuration.GetSection("DownstreamApi"))
-        .AddInMemoryTokenCaches().AddSessionTokenCaches().AddSessionPerUserTokenCache().AddSession();
-    builder.Services.AddRazorPages().AddMvcOptions(options =>
-    {
-        var policy = new AuthorizationPolicyBuilder()
-            .RequireAuthenticatedUser()
-            .Build();
-        options.Filters.Add(new AuthorizeFilter(policy));
-    }).AddMicrosoftIdentityUI();
-    builder.Services.AddControllersWithViews().AddMicrosoftIdentityUI();
-}
-else
-{
-    builder.Services.AddControllersWithViews();
-}
+    var policy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+    options.Filters.Add(new AuthorizeFilter(policy));
+}).AddMicrosoftIdentityUI();
+builder.Services.AddControllersWithViews().AddMicrosoftIdentityUI();
 
 builder.Services.AddDistributedMemoryCache();
 
