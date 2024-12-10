@@ -7,6 +7,7 @@
     [Authorize(Roles = "SASuperUser")]
     public class LocalAuthorityConfirmationController : Controller
     {
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             return this.View(ViewNames.LocalAuthorityConfirmationIndex);

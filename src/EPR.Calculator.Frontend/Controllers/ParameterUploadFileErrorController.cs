@@ -10,6 +10,7 @@ namespace EPR.Calculator.Frontend.Controllers
     [Authorize(Roles = "SASuperUser")]
     public class ParameterUploadFileErrorController : Controller
     {
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             try
@@ -54,6 +55,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index([FromBody]string errors)
         {
             this.HttpContext.Session.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, errors);
@@ -62,6 +64,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);

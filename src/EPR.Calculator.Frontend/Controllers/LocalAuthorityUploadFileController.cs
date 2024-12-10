@@ -11,6 +11,7 @@ namespace EPR.Calculator.Frontend.Controllers
     [Authorize(Roles = "SASuperUser")]
     public class LocalAuthorityUploadFileController : Controller
     {
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             return this.View(
@@ -22,6 +23,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             try
@@ -35,6 +37,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> Upload()
         {
             try

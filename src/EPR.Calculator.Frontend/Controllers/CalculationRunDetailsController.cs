@@ -1,6 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="runId">The ID of the calculation run.</param>
         /// <param name="calcName">The calcName of the calculation run.</param>
         /// <returns>The calculation run details index view.</returns>
+        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> IndexAsync(int runId, string calcName, string createdAt)
         {
             try
@@ -48,13 +50,17 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
 
-                var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
+                var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
                 {
-                    RunId = runId,
-                    ClassificationId = (int)RunClassification.DELETED,
-                    CalcName = calcName,
-                    CreatedDate = SplitDateTime(createdAt).Item1,
-                    CreatedTime = SplitDateTime(createdAt).Item2,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    Data = new CalculatorRunStatusUpdateDto
+                    {
+                        RunId = runId,
+                        ClassificationId = (int)RunClassification.DELETED,
+                        CalcName = calcName,
+                        CreatedDate = SplitDateTime(createdAt).Item1,
+                        CreatedTime = SplitDateTime(createdAt).Item2,
+                    },
                 };
 
                 return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
@@ -71,6 +77,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">The status update view model.</param>
         /// <returns>The delete confirmation view.</returns>
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult DeleteCalcDetails(int runId)
         {
             try
