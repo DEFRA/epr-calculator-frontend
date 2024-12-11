@@ -1,6 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -8,6 +9,13 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class LocalAuthorityUploadFileController : Controller
     {
+        private readonly TelemetryClient _telemetryClient;
+
+        public LocalAuthorityUploadFileController(TelemetryClient telemetryClient)
+        {
+            this._telemetryClient = telemetryClient;
+        }
+
         public IActionResult Index()
         {
             return this.View(ViewNames.LocalAuthorityUploadFileIndex);
@@ -74,6 +82,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
             this.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUpload.FileName);
+            this._telemetryClient.TrackTrace($"Setting Session data.{this.HttpContext.Session.GetString(SessionConstants.LapcapFileName)}");
 
             return ViewNames.LocalAuthorityUploadFileRefresh;
         }

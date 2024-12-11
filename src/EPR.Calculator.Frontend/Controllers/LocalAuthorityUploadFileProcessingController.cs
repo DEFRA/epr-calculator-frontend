@@ -44,7 +44,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 this.FileName = this.HttpContext.Session.GetString(SessionConstants.LapcapFileName);
 
-                this._telemetryClient.TrackTrace($"Retrieving Session data.{this.HttpContext.Session.GetString("LapcapFileName")}");
+                this._telemetryClient.TrackTrace($"Retrieving Session data.{this.HttpContext.Session.GetString(SessionConstants.LapcapFileName)}");
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);
