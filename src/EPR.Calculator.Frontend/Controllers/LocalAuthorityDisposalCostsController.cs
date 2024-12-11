@@ -92,7 +92,12 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (response.Result.StatusCode == HttpStatusCode.NotFound)
                 {
-                    return this.View(ViewNames.LocalAuthorityDisposalCostsIndex);
+                    return this.View(ViewNames.LocalAuthorityDisposalCostsIndex, new LocalAuthorityViewModel
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                        LastUpdatedBy = ErrorMessages.UnknownUser,
+                        ByCountry = new List<IGrouping<string, LocalAuthorityViewModel.LocalAuthorityData>>(),
+                    });
                 }
 
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
