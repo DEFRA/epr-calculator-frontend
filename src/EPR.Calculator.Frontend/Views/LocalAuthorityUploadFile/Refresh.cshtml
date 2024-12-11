@@ -1,4 +1,5 @@
-﻿@{
+﻿@model FileNameViewModel
+@{
     Layout = "_Layout";
 
     var localAuthorityDisposalCosts = Json.Serialize(ViewData["localAuthorityDisposalCosts"]);
@@ -10,5 +11,5 @@
 <partial name="_RefreshPartial" />
 
 <script type="text/javascript">
-    processAndUploadData(@localAuthorityDisposalCosts, '/LocalAuthorityUploadFileProcessing', '/LocalAuthorityConfirmation', 'LocalAuthorityUploadFileError');
+    processAndUploadData(@localAuthorityDisposalCosts, '/LocalAuthorityUploadFileProcessing', '/LocalAuthorityConfirmation', 'LocalAuthorityUploadFileError', "@Model.LapcapFileName");
 </script>

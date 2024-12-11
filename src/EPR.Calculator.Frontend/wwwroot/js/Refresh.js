@@ -1,6 +1,7 @@
-﻿function processAndUploadData(parameterData, url, sucessUrl, errorAction) {
+﻿function processAndUploadData(parameterData, url, sucessUrl, errorAction, fileName) {
+    const urlWithFileName = `${url}?fileName=${encodeURIComponent(fileName)}`;
     $.ajax({
-        url: url,
+        url: urlWithFileName,
         type: 'POST',
         data: JSON.stringify(parameterData),
         processData: false,

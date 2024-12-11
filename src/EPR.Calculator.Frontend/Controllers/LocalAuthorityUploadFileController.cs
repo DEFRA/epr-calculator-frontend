@@ -27,7 +27,7 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var lapcapViewName = await this.GetViewName(fileUpload);
-                return this.View(lapcapViewName);
+                return this.View(lapcapViewName, new FileNameViewModel() { LapcapFileName = fileUpload.FileName });
             }
             catch (Exception)
             {
@@ -48,7 +48,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     var viewName = await this.GetViewName(fileUpload);
                     ModelState.Clear();
-                    return this.View(viewName);
+                    return this.View(viewName, fileUpload.FileName);
                 }
 
                 // Code will reach this point if the uploaded file is not available

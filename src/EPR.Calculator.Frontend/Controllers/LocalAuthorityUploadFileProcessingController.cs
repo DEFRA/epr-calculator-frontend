@@ -23,7 +23,7 @@ namespace EPR.Calculator.Frontend.Controllers
         public string FileName { get; set; }
 
         [HttpPost]
-        public IActionResult Index([FromBody] List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
+        public IActionResult Index([FromBody] List<LapcapDataTemplateValueDto> lapcapDataTemplateValues, [FromQuery] FileNameViewModel fileNameModel)
         {
             try
             {
@@ -43,8 +43,10 @@ namespace EPR.Calculator.Frontend.Controllers
                 });
 
                 this.FileName = this.HttpContext.Session.GetString(SessionConstants.LapcapFileName);
-
                 this._telemetryClient.TrackTrace($"Retrieving Session data.{this.HttpContext.Session.GetString(SessionConstants.LapcapFileName)}");
+
+                this.FileName = fileNameModel.LapcapFileName;
+                this._telemetryClient.TrackTrace($"Retrieving Session data from Query.{fileNameModel.LapcapFileName}");
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);

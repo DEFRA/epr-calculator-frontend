@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
@@ -75,9 +76,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
             controller.ControllerContext.HttpContext = httpContextMock.Object;
             controller.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUploadFileName);
-
+            var fileNameModel = new FileNameViewModel() { LapcapFileName = fileUploadFileName };
             // Act
-            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as OkObjectResult;
+            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(), fileNameModel) as OkObjectResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -124,7 +125,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                 HttpContext = mockHttpContext.Object
             };
 
-            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as BadRequestObjectResult;
+            var fileUploadFileName = "LocalAuthorityData.csv";
+            var fileNameModel = new FileNameViewModel() { LapcapFileName = fileUploadFileName };
+
+            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(), fileNameModel) as BadRequestObjectResult;
             Assert.IsNotNull(result);
             Assert.AreNotEqual(201, result.StatusCode);
         }
@@ -152,7 +156,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             var config = GetConfigurationValues();
             config.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value = string.Empty;
             var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object, _telemetryClient);
-            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as RedirectToActionResult;
+
+            var fileUploadFileName = "LocalAuthorityData.csv";
+            var fileNameModel = new FileNameViewModel() { LapcapFileName = fileUploadFileName };
+
+            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(), fileNameModel) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
@@ -181,7 +189,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             var config = GetConfigurationValues();
             config.GetSection("LapcapSettings").GetSection("ParameterYear").Value = string.Empty;
             var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object, _telemetryClient);
-            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as RedirectToActionResult;
+
+            var fileUploadFileName = "LocalAuthorityData.csv";
+            var fileNameModel = new FileNameViewModel() { LapcapFileName = fileUploadFileName };
+
+            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(), fileNameModel) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
