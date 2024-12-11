@@ -32,6 +32,11 @@ namespace EPR.Calculator.Frontend.ViewModels
             return !(calculationRunStatus == CalculationRunStatus.InTheQueue || calculationRunStatus == CalculationRunStatus.Running);
         }
 
+        private static bool GetShowErrorLink(string calculationRunStatus)
+        {
+            return calculationRunStatus == CalculationRunStatus.Error;
+        }
+
         public record CalculationRunViewModel
         {
             public CalculationRunViewModel(CalculationRun calculationRun)
@@ -43,6 +48,7 @@ namespace EPR.Calculator.Frontend.ViewModels
                 this.Status = calculationRun.Status;
                 this.TagStyle = DashboardViewModel.GetCalculationRunStatusStyles(calculationRun.Status);
                 this.ShowRunDetailLink = DashboardViewModel.GetShowRunDetailLink(calculationRun.Status);
+                this.ShowErrorLink = DashboardViewModel.GetShowErrorLink(calculationRun.Status);
             }
 
             public int Id { get; set; }
@@ -58,6 +64,8 @@ namespace EPR.Calculator.Frontend.ViewModels
             public string? TagStyle { get; set; }
 
             public bool ShowRunDetailLink { get; set; }
+
+            public bool ShowErrorLink { get; set; }
         }
     }
 }

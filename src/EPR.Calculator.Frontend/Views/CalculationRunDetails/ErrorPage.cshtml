@@ -1,0 +1,19 @@
+﻿@using EPR.Calculator.Frontend.Constants
+@{
+    Layout = "_Layout";
+    var BackLink = "Dashboard";
+}
+
+<partial name="_BackLinkPartial" model="BackLink" />
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+
+        <h1 class="govuk-heading-xl">Error running the calculator</h1>
+        <p class="govuk-body-m">
+            Make sure data has been uploaded for the
+            <a href="@Url.Action(ActionNames.Index, "DefaultParameters")" class="govuk-link govuk-link--no-visited-state">default parameters</a>
+            and the
+            <a href="@Url.Action(ActionNames.Index, "LocalAuthorityDisposalCosts")" class="govuk-link govuk-link--no-visited-state">local authority disposal costs.</a>            
+        </p>
+    </div>
+</div>

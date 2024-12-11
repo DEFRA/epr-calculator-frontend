@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.Serialization;
 using EPR.Calculator.Frontend.Enums;
@@ -16,17 +16,6 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public required List<IGrouping<string, LocalAuthorityData>> ByCountry { get; init; }
 
-        private static string GetCountryDescription(string country)
-        {
-            var countryDescription = typeof(Country).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == country)?.GetCustomAttribute<EnumMemberAttribute>(false)?.Value;
-            if (countryDescription == null)
-            {
-                throw new ArgumentNullException(country, "Country is not returned by the local authority disposal costs API");
-            }
-
-            return countryDescription;
-        }
-
         private static string GetFormattedCreatedAt(DateTime createdAt)
         {
             return createdAt.ToString("dd MMM yyyy ' at 'H:mm", new System.Globalization.CultureInfo("en-GB"));
@@ -41,7 +30,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         {
             public LocalAuthorityData(LocalAuthorityDisposalCost localAuthorityDisposalCost)
             {
-                this.Country = GetCountryDescription(localAuthorityDisposalCost.Country);
+                this.Country = localAuthorityDisposalCost.Country;
                 this.Material = localAuthorityDisposalCost.Material;
                 this.TotalCost = GetTotalCost(localAuthorityDisposalCost.TotalCost);
                 this.CreatedBy = localAuthorityDisposalCost.CreatedBy;

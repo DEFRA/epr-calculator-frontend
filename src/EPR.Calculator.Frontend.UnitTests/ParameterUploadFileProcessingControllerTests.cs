@@ -54,7 +54,6 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["FileName"] = "SchemeParameters.csv";
 
             // Create controller with the mocked factory
             var controller = new ParameterUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object)
@@ -63,14 +62,38 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
             controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
 
+            var fileUploadFileName = "SchemeParameters.csv";
+
+            var sessionMock = new Mock<ISession>();
+            var sessionStorage = new Dictionary<string, byte[]>();
+
+            sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+                       .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
+
+            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+                       .Returns((string key, out byte[] value) =>
+                       {
+                           var success = sessionStorage.TryGetValue(key, out var storedValue);
+                           value = storedValue;
+                           return success;
+                       });
+
+            sessionMock.Setup(s => s.Remove(It.IsAny<string>()))
+                       .Callback<string>((key) => sessionStorage.Remove(key));
+
+            var httpContextMock = new Mock<HttpContext>();
+            httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
+            controller.ControllerContext.HttpContext = httpContextMock.Object;
+            controller.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUploadFileName);
+
             // Act
             var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as OkObjectResult;
-
-            Assert.AreEqual("SchemeParameters.csv", controller.FileName);
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(200, result.StatusCode);
+            Assert.AreEqual("SchemeParameters.csv", controller.FileName);
+            Assert.IsTrue(sessionStorage.ContainsKey(SessionConstants.ParameterFileName));
         }
 
         [TestMethod]
@@ -93,7 +116,6 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            tempData["FileName"] = "SchemeParameters.csv";
 
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
@@ -103,6 +125,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
             controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
+
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
 
             var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as BadRequestObjectResult;
 

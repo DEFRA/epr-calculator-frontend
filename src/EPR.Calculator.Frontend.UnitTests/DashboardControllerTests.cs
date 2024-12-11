@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Serialization;
 using AutoFixture;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -207,6 +209,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 new CalculationRun { Id = 1, CalculatorRunClassificationId = 1, Name = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.InTheQueue, Financial_Year = "2024-25" },
                 new CalculationRun { Id = 2, CalculatorRunClassificationId = 2, Name = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Running, Financial_Year = "2024-25" },
                 new CalculationRun { Id = 3, CalculatorRunClassificationId = 3, Name = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Unclassified, Financial_Year = "2024-25" },
+                new CalculationRun { Id = 5, CalculatorRunClassificationId = 5, Name = "Test 5", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Error, Financial_Year = "2024-25" },
             };
 
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
@@ -229,10 +232,55 @@ namespace EPR.Calculator.Frontend.UnitTests
             }
 
             // Assert
-            Assert.AreEqual(3, dashboardRunData.Count);
+            Assert.AreEqual(4, dashboardRunData.Count);
             Assert.AreEqual(CalculationRunStatus.InTheQueue, dashboardRunData.First().Status);
             Assert.AreEqual(CalculationRunStatus.Running, dashboardRunData[1].Status);
-            Assert.AreEqual(CalculationRunStatus.Unclassified, dashboardRunData.Last().Status); // Default value
+            Assert.AreEqual(CalculationRunStatus.Unclassified, dashboardRunData[2].Status);
+            Assert.AreEqual(CalculationRunStatus.Error, dashboardRunData.Last().Status); // Default value
+        }
+
+        [TestMethod]
+        public async Task Index_ShowsErrorLink_WhenStatusIsError()
+        {
+            var calculationRuns = new List<CalculationRun>
+            {
+                new CalculationRun { Id = 5, CalculatorRunClassificationId = 5, Name = "Test Run", CreatedAt = DateTime.Parse("30/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Error, Financial_Year = "2024-25" },
+                new CalculationRun { Id = 10, CalculatorRunClassificationId = 1, Name = "Test 5", CreatedAt = DateTime.Parse("30/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.InTheQueue, Financial_Year = "2024-25" },
+            };
+
+            var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
+
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = System.Net.HttpStatusCode.OK,
+                    Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(calculationRuns))
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            // Act
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
+            var result = controller.Index() as ViewResult;
+            var model = result?.Model as DashboardViewModel;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(model);
+            Assert.AreEqual(2, model.Calculations.Count());
+            Assert.AreEqual(CalculationRunStatus.Error, model.Calculations.First().Status);
+            Assert.IsTrue(model.Calculations.First().ShowErrorLink);
         }
     }
 }
