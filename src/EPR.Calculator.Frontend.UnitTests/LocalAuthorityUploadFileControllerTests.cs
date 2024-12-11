@@ -1,10 +1,8 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 
@@ -13,12 +11,10 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class LocalAuthorityUploadFileControllerTests
     {
-        private TelemetryClient _telemetryClient = new();
-
         [TestMethod]
         public void LocalAuthorityUploadFileController_View_Test()
         {
-            var controller = new LocalAuthorityUploadFileController(_telemetryClient);
+            var controller = new LocalAuthorityUploadFileController();
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileIndex, result.ViewName);
@@ -32,7 +28,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             tempData["LapcapFilePath"] = Directory.GetCurrentDirectory() + "/Mocks/LocalAuthorityData.csv";
 
-            var controller = new LocalAuthorityUploadFileController(_telemetryClient)
+            var controller = new LocalAuthorityUploadFileController()
             {
                 TempData = tempData
             };
@@ -59,12 +55,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
             controller.ControllerContext.HttpContext = httpContextMock.Object;
-            controller.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUploadFileName);
 
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileRefresh, result.ViewName);
-            Assert.IsTrue(sessionStorage.ContainsKey(SessionConstants.LapcapFileName));
         }
 
         [TestMethod]
@@ -75,7 +69,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             tempData["LapcapFilePath"] = Directory.GetCurrentDirectory() + "/Mocks/SchemeParameters.txt";
 
-            var controller = new LocalAuthorityUploadFileController(_telemetryClient)
+            var controller = new LocalAuthorityUploadFileController()
             {
                 TempData = tempData
             };
@@ -83,7 +77,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileIndex, result.ViewName);
-            Assert.IsNull(result.TempData[SessionConstants.LapcapFileName]);
         }
 
         [TestMethod]
@@ -93,7 +86,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData["LapcapFilePath"] = null;
 
-            var controller = new LocalAuthorityUploadFileController(_telemetryClient)
+            var controller = new LocalAuthorityUploadFileController()
             {
                 TempData = tempData
             };
@@ -111,7 +104,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData["LapcapFilePath"] = "some random file location";
 
-            var controller = new LocalAuthorityUploadFileController(_telemetryClient)
+            var controller = new LocalAuthorityUploadFileController()
             {
                 TempData = tempData
             };
@@ -137,7 +130,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
 
-            var controller = new LocalAuthorityUploadFileController(_telemetryClient)
+            var controller = new LocalAuthorityUploadFileController()
             {
                 TempData = tempData
             };
@@ -170,7 +163,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
 
-            var controller = new LocalAuthorityUploadFileController(_telemetryClient)
+            var controller = new LocalAuthorityUploadFileController()
             {
                 TempData = tempData
             };
@@ -203,7 +196,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
 
-            var controller = new LocalAuthorityUploadFileController(_telemetryClient)
+            var controller = new LocalAuthorityUploadFileController()
             {
                 TempData = tempData
             };
@@ -228,7 +221,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
 
-            var controller = new LocalAuthorityUploadFileController(_telemetryClient)
+            var controller = new LocalAuthorityUploadFileController()
             {
                 TempData = tempData
             };
@@ -246,7 +239,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             tempData["LapcapFilePath"] = Directory.GetCurrentDirectory() + "/Mocks/LocalAuthorityData.csv";
 
-            var controller = new LocalAuthorityUploadFileController(_telemetryClient)
+            var controller = new LocalAuthorityUploadFileController()
             {
                 TempData = tempData
             };

@@ -3,7 +3,6 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -17,7 +16,6 @@ namespace EPR.Calculator.Frontend.UnitTests
     public class LocalAuthorityUploadFileProcessingControllerTests
     {
         private static readonly string[] Separator = new string[] { @"bin\" };
-        private TelemetryClient _telemetryClient = new();
 
         [TestMethod]
         public void LocalAuthorityUploadFileProcessingController_Success_Result_Test()
@@ -48,7 +46,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
             // Create controller with the mocked factory
-            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object, _telemetryClient)
+            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object)
             {
                 TempData = tempData
             };
@@ -75,7 +73,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
             controller.ControllerContext.HttpContext = httpContextMock.Object;
-            controller.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUploadFileName);
             var fileNameModel = new FileNameViewModel() { FileName = fileUploadFileName };
             // Act
             var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(), fileNameModel) as OkObjectResult;
@@ -84,7 +81,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(200, result.StatusCode);
             Assert.AreEqual("LocalAuthorityData.csv", controller.FileName);
-            Assert.IsTrue(sessionStorage.ContainsKey(SessionConstants.LapcapFileName));
         }
 
         [TestMethod]
@@ -112,7 +108,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                     .Returns(httpClient);
 
-            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object, _telemetryClient)
+            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object)
             {
                 TempData = tempData
             };
@@ -155,7 +151,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                     .Returns(httpClient);
             var config = GetConfigurationValues();
             config.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value = string.Empty;
-            var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object, _telemetryClient);
+            var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object);
 
             var fileUploadFileName = "LocalAuthorityData.csv";
             var fileNameModel = new FileNameViewModel() { FileName = fileUploadFileName };
@@ -188,7 +184,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                     .Returns(httpClient);
             var config = GetConfigurationValues();
             config.GetSection("LapcapSettings").GetSection("ParameterYear").Value = string.Empty;
-            var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object, _telemetryClient);
+            var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object);
 
             var fileUploadFileName = "LocalAuthorityData.csv";
             var fileNameModel = new FileNameViewModel() { FileName = fileUploadFileName };

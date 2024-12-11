@@ -1,7 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -9,28 +8,15 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class LocalAuthorityUploadFileErrorController : Controller
     {
-        private readonly TelemetryClient _telemetryClient;
-
-        public LocalAuthorityUploadFileErrorController(TelemetryClient telemetryClient)
-        {
-            this._telemetryClient = telemetryClient;
-        }
-
         public IActionResult Index()
         {
             try
             {
                 var lapcapErrors = this.HttpContext.Session.GetString(UploadFileErrorIds.LocalAuthorityUploadErrors);
-                this._telemetryClient.TrackTrace($"LocalAuthorityUploadErrors: {this.HttpContext.Session.GetString(UploadFileErrorIds.LocalAuthorityUploadErrors)}");
 
                 if (!string.IsNullOrEmpty(lapcapErrors))
                 {
-                    this._telemetryClient.TrackTrace($"Starting serialization: {lapcapErrors}");
-
                     var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors);
-
-                    this._telemetryClient.TrackTrace($"Serialization: {JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors)}");
-                    this._telemetryClient.TrackTrace($"After serialization: {validationErrors}");
 
                     if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
                     {
@@ -40,9 +26,6 @@ namespace EPR.Calculator.Frontend.Controllers
                     {
                         this.ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateLapcapDataErrorDto>>(lapcapErrors);
                     }
-
-                    this._telemetryClient.TrackTrace($"ViewBag.ValidationErrors: {this.ViewBag.ValidationErrors}");
-                    this._telemetryClient.TrackTrace($"ViewBag.Errors: {this.ViewBag.Errors}");
 
                     if (this.ViewBag.ValidationErrors is null && this.ViewBag.Errors is not null)
                     {
@@ -55,13 +38,10 @@ namespace EPR.Calculator.Frontend.Controllers
                         };
                     }
 
-                    this._telemetryClient.TrackTrace($"ViewBag.Errors: {this.ViewBag.ValidationErrors}");
-
                     return this.View(ViewNames.LocalAuthorityUploadFileErrorIndex);
                 }
                 else
                 {
-                    this._telemetryClient.TrackTrace("Exceptions found in the uploaded file.");
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
                 }
             }
@@ -75,7 +55,6 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult Index([FromBody] string errors)
         {
             this.HttpContext.Session.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, errors);
-            this._telemetryClient.TrackTrace($"Errors from Index: {errors}");
             return this.Ok();
         }
 
@@ -92,7 +71,6 @@ namespace EPR.Calculator.Frontend.Controllers
             var localAuthorityDisposalCostsValues = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
 
             this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCostsValues.ToArray();
-            this.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUpload.FileName);
             var fileNameViewModel = new FileNameViewModel { FileName = fileUpload.FileName };
 
             return this.View(ViewNames.LocalAuthorityUploadFileRefresh, fileNameViewModel);
