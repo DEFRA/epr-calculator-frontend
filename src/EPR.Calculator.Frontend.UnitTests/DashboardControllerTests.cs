@@ -26,7 +26,16 @@ namespace EPR.Calculator.Frontend.UnitTests
     {
         private readonly IConfiguration configuration = ConfigurationItems.GetConfigurationValues();
 
-        private Fixture Fixture { get; } = new Fixture();
+        public DashboardControllerTests()
+        {
+            this.Fixture = new Fixture();
+            this.MockHttpContext = new Mock<HttpContext>();
+            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+        }
+
+        private Fixture Fixture { get; init; }
+
+        private Mock<HttpContext> MockHttpContext { get; init; }
 
         [TestMethod]
         public async Task DashboardController_Success_View_Test()
@@ -272,13 +281,14 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Act
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
             var result = controller.Index() as ViewResult;
             var model = result?.Model as DashboardViewModel;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.IsNotNull(model);
-            Assert.AreEqual(2, model.Calculations.Count());
+            Assert.AreEqual(1, model.Calculations.Count());
             Assert.AreEqual(CalculationRunStatus.Error, model.Calculations.First().Status);
             Assert.IsTrue(model.Calculations.First().ShowErrorLink);
         }
