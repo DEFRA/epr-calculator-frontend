@@ -179,6 +179,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
             var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();

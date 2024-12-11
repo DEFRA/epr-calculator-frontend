@@ -139,7 +139,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>Error details page</returns>
         public IActionResult Error()
         {
-            return this.View(ViewNames.CalculationRunDetailsErrorPage);
+            return this.View(ViewNames.CalculationRunDetailsErrorPage, new ViewModelCommonData
+            {
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+            });
         }
 
         /// <summary>

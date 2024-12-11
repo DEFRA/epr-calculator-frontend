@@ -156,10 +156,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockSession = new Mock<ISession>();
             mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
             mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = mockHttpContext.Object
-            };
+            controller.ControllerContext.HttpContext = mockHttpContext.Object;
 
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
@@ -185,7 +182,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
-            controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
 
             var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
