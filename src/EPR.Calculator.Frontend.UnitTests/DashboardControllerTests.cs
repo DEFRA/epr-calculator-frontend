@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Serialization;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
@@ -10,6 +11,7 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -24,9 +26,21 @@ namespace EPR.Calculator.Frontend.UnitTests
     {
         private readonly IConfiguration configuration = ConfigurationItems.GetConfigurationValues();
 
+        public DashboardControllerTests()
+        {
+            this.Fixture = new Fixture();
+            this.MockHttpContext = new Mock<HttpContext>();
+            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+        }
+
+        private Fixture Fixture { get; init; }
+
+        private Mock<HttpContext> MockHttpContext { get; init; }
+
         [TestMethod]
         public async Task DashboardController_Success_View_Test()
         {
+            // Arrange
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler
                    .Protected()
@@ -48,10 +62,22 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
+            var mockContext = new Mock<HttpContext>();
+            mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
 
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
+            controller.ControllerContext = new ControllerContext { HttpContext = mockContext.Object };
+
+            // Act
             var result = controller.Index() as ViewResult;
+
+            // Assert
             Assert.IsNotNull(result);
+
+            var resultModel = result.Model as DashboardViewModel;
+            Assert.IsNotNull(resultModel);
+            Assert.AreEqual(3, resultModel.Calculations.Count());
+            Assert.AreEqual(0, resultModel.Calculations.Count(x => x.Id == 12));
         }
 
         [TestMethod]
@@ -196,7 +222,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
 
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
-            var dashboardRunData = new List<DashboardViewModel>();
+            var dashboardRunData = new List<DashboardViewModel.CalculationRunViewModel>();
 
             // Act
             if (calculationRuns.Count > 0)
@@ -210,7 +236,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
                     calculationRun.Status = attribute?.Value ?? string.Empty; // Use a default value if attribute or value is null
 
-                    dashboardRunData.Add(new DashboardViewModel(calculationRun));
+                    dashboardRunData.Add(new DashboardViewModel.CalculationRunViewModel(calculationRun));
                 }
             }
 
@@ -255,15 +281,16 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Act
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
             var result = controller.Index() as ViewResult;
-            var model = result?.Model as List<DashboardViewModel>;
+            var model = result?.Model as DashboardViewModel;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.IsNotNull(model);
-            Assert.AreEqual(2, model.Count);
-            Assert.AreEqual(CalculationRunStatus.Error, model.First().Status);
-            Assert.IsTrue(model.First().ShowErrorLink);
+            Assert.AreEqual(1, model.Calculations.Count());
+            Assert.AreEqual(CalculationRunStatus.Error, model.Calculations.First().Status);
+            Assert.IsTrue(model.Calculations.First().ShowErrorLink);
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿@using EPR.Calculator.Frontend.Constants;
+@using EPR.Calculator.Frontend.ViewModels;
+@model ViewModelCommonData;
 
 @{
     Layout = "_Layout";
@@ -7,7 +9,7 @@
   
 }
 
-<partial name="_BackLinkPartial" model="BackLink" />
+<partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
 
 
 @if (errors != null)

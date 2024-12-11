@@ -1,11 +1,14 @@
 ﻿using System.Net;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -21,6 +24,17 @@ namespace EPR.Calculator.Frontend.UnitTests
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
         private Mock<IHttpClientFactory> _mockClientFactory;
         private Mock<ILogger<CalculationRunDetailsController>> _mockLogger;
+
+        public CalculationRunDetailsControllerTests()
+        {
+            this.Fixture = new Fixture();
+            this.MockHttpContext = new Mock<HttpContext>();
+            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+        }
+
+        private Fixture Fixture { get; init; }
+
+        private Mock<HttpContext> MockHttpContext { get; init; }
 
         [TestInitialize]
         public void Setup()
@@ -38,6 +52,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
             int runId = 1;
             string calcName = "TestCalc";
             string calDateTime = "21 June 2024 at 12:09";
@@ -48,11 +63,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDetailsIndex, result.ViewName);
-            var model = result.Model as CalculatorRunStatusUpdateDto;
+            var model = result.Model as CalculatorRunStatusUpdateViewModel;
             Assert.IsNotNull(model);
-            Assert.AreEqual(runId, model.RunId);
-            Assert.AreEqual((int)RunClassification.DELETED, model.ClassificationId);
-            Assert.AreEqual(calcName, model.CalcName);
+            Assert.AreEqual(runId, model.Data.RunId);
+            Assert.AreEqual((int)RunClassification.DELETED, model.Data.ClassificationId);
+            Assert.AreEqual(calcName, model.Data.CalcName);
         }
 
         [TestMethod]
@@ -165,6 +180,13 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
         {
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            var mockHttpContext = new Mock<HttpContext>();
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
             var result = controller.Error() as ViewResult;
 
             Assert.IsNotNull(result);

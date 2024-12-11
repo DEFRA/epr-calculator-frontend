@@ -1,19 +1,29 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    [Authorize(Roles = "SASuperUser")]
     public class LocalAuthorityUploadFileController : Controller
     {
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
-            return this.View(ViewNames.LocalAuthorityUploadFileIndex);
+            return this.View(
+                ViewNames.LocalAuthorityUploadFileIndex,
+                new ViewModelCommonData
+                {
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                });
         }
 
         [HttpPost]
+        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             try
@@ -27,6 +37,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> Upload()
         {
             try
