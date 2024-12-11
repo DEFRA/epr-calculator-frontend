@@ -1,11 +1,10 @@
 ﻿using EPR.Calculator.Frontend.Constants;
-using Microsoft.AspNetCore.Authorization;
 using EPR.Calculator.Frontend.Enums;
-using Microsoft.AspNetCore.Mvc;
-using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
