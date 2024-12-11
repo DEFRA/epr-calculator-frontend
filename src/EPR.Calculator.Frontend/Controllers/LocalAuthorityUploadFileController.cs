@@ -26,8 +26,14 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var lapcapViewName = await this.GetViewName(fileUpload);
-                return this.View(lapcapViewName, new FileNameViewModel() { FileName = fileUpload.FileName });
+                string lapcapViewName = await this.GetViewName(fileUpload);
+                if (fileUpload == null)
+                {
+                    return this.View(lapcapViewName);
+                }
+
+                var fileNameViewModel = new FileNameViewModel { FileName = fileUpload.FileName };
+                return this.View(lapcapViewName, fileNameViewModel);
             }
             catch (Exception)
             {
