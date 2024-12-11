@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -13,6 +14,8 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class LocalAuthorityUploadFileErrorControllerTests
     {
+        private TelemetryClient _telemetryClient = new();
+
         [TestMethod]
         public void LocalAuthorityUploadFileErrorController_View_Test()
         {
@@ -25,7 +28,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpSession = new MockHttpSession();
             mockHttpSession.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, JsonConvert.SerializeObject(errors));
 
-            var controller = new LocalAuthorityUploadFileErrorController();
+            var controller = new LocalAuthorityUploadFileErrorController(_telemetryClient);
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
@@ -47,7 +50,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpSession = new MockHttpSession();
             mockHttpSession.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, JsonConvert.SerializeObject(errors));
 
-            var controller = new LocalAuthorityUploadFileErrorController();
+            var controller = new LocalAuthorityUploadFileErrorController(_telemetryClient);
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
@@ -62,7 +65,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var mockHttpSession = new MockHttpSession();
 
-            var controller = new LocalAuthorityUploadFileErrorController();
+            var controller = new LocalAuthorityUploadFileErrorController(_telemetryClient);
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
@@ -79,7 +82,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpSession = new MockHttpSession();
             mockHttpSession.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, string.Empty);
 
-            var controller = new LocalAuthorityUploadFileErrorController();
+            var controller = new LocalAuthorityUploadFileErrorController(_telemetryClient);
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
@@ -105,7 +108,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData["LapcapFilePath"] = "some random file location";
 
-            var controller = new LocalAuthorityUploadFileErrorController()
+            var controller = new LocalAuthorityUploadFileErrorController(_telemetryClient)
             {
                 TempData = tempData
             };
@@ -119,7 +122,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var mockHttpSession = new MockHttpSession();
 
-            var controller = new LocalAuthorityUploadFileErrorController();
+            var controller = new LocalAuthorityUploadFileErrorController(_telemetryClient);
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
@@ -140,7 +143,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             stream.Position = 0;
             IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "LocalAuthorityData.xlsx");
 
-            var controller = new LocalAuthorityUploadFileErrorController();
+            var controller = new LocalAuthorityUploadFileErrorController(_telemetryClient);
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileErrorIndex, result.ViewName);
@@ -161,7 +164,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
 
-            var controller = new LocalAuthorityUploadFileErrorController()
+            var controller = new LocalAuthorityUploadFileErrorController(_telemetryClient)
             {
                 TempData = tempData
             };
@@ -187,7 +190,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var errors = new List<ValidationErrorDto>() { new ValidationErrorDto { ErrorMessage = ErrorMessages.FileMustBeCSV } };
             mockHttpSession.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, JsonConvert.SerializeObject(errors).ToString());
 
-            var controller = new LocalAuthorityUploadFileErrorController();
+            var controller = new LocalAuthorityUploadFileErrorController(_telemetryClient);
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
@@ -205,7 +208,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var errors = new List<CreateDefaultParameterSettingErrorDto>() { new CreateDefaultParameterSettingErrorDto { Message = "Some message" } };
             mockHttpSession.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, JsonConvert.SerializeObject(errors).ToString());
 
-            var controller = new LocalAuthorityUploadFileErrorController();
+            var controller = new LocalAuthorityUploadFileErrorController(_telemetryClient);
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
