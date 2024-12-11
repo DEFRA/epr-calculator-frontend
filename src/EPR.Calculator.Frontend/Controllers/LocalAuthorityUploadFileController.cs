@@ -54,7 +54,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     var viewName = await this.GetViewName(fileUpload);
                     ModelState.Clear();
-                    return this.View(viewName, fileUpload.FileName);
+                    var fileNameViewModel = new FileNameViewModel { FileName = fileUpload.FileName };
+                    return this.View(viewName, fileNameViewModel);
                 }
 
                 // Code will reach this point if the uploaded file is not available

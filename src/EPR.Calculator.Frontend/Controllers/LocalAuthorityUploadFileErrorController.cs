@@ -93,8 +93,9 @@ namespace EPR.Calculator.Frontend.Controllers
 
             this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCostsValues.ToArray();
             this.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUpload.FileName);
+            var fileNameViewModel = new FileNameViewModel { FileName = fileUpload.FileName };
 
-            return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
+            return this.View(ViewNames.LocalAuthorityUploadFileRefresh, fileNameViewModel);
         }
     }
 }
