@@ -4,6 +4,7 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var BackLink = "Dashboard";
+    var errors = ViewBag.Errors;
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
@@ -16,7 +17,7 @@
             <section class="gem-c-attachment govuk-!-display-none-print govuk-!-margin-bottom-6" data-module="ga4-link-tracker" data-ga4-link-tracker-module-started="true">
                 <div class="gem-c-attachment__thumbnail">
                     <a class="govuk-link" target="_self" tabindex="-1" aria-hidden="true" href="#">
-                        <img src="~/images/file.png" alt="download file" width="99px;" style="padding-top:5px;">
+                        <img src="~/images/file.png" alt="" width="99px;" style="padding-top:5px;">
                     </a>
                 </div>
                 <h2 class="gem-c-attachment__title govuk-body">
@@ -28,36 +29,37 @@
         </div>
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">What do you want to do with this calculation?</h1>
-
-            <form action="/form-handler" method="post" novalidate="">
-
-                <input type="hidden" name="answers-checked" value="true">
-
-                <div class="govuk-form-group">
-                    <div class="govuk-form-group">
-                        <fieldset class="govuk-fieldset">
-                            <legend></legend>
+            @using (Html.BeginForm("DeleteCalcDetails", "CalculationRunDetails", FormMethod.Post))
+            {
+                <div class="@(errors != null ? "govuk-form-group govuk-form-group--error" : "govuk-form-group")">
+                    <fieldset class="govuk-fieldset">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                             <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="delete_button" name="delete" type="radio" value="true">
-                                <label class="govuk-label govuk-radios__label" for="delete_button">
+                                <input class="govuk-radios__input" id="delete_button" name="deleteChecked" type="radio" value="true">
+                                <label class="govuk-label govuk-radios__label" for="file-calc-error">
                                     Delete (this cannot be undone)
                                 </label>
+                                <input type="hidden" asp-for="@Model.Data.RunId" name="runId" />
+                                <input type="hidden" asp-for="@Model.Data.CalcName" name="calcName" />
                             </div>
-
-                            @*                             <p id="whereDoYouLive-error" class="govuk-error-message">
-                                <span class="govuk-visually-hidden">Error:</span> This file cannot be deleted
-                            </p> *@
-                        </fieldset>
-                    </div>
-                    <p></p>
+                            <br>
+                            @if (errors != null)
+                            {
+                                <p id="file-calc-error" class="govuk-error-message">
+                                    <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
+                                </p>
+                            }
+                        </legend>
+                    </fieldset>
                 </div>
 
-                &nbsp;
                 <div class="govuk-button-group">
-                    <a href="@Url.Action("DeleteCalcDetails", "CalculationRunDetails", new {runId=Model.Data.RunId})" class="govuk-button" type="submit">Continue</a>
+                    <button id="btnContinue" type="submit" class="govuk-button" data-module="govuk-button">
+                        Continue
+                    </button>
                     <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
                 </div>
-            </form>
+            }
         </div>
     </div>
 </main>
