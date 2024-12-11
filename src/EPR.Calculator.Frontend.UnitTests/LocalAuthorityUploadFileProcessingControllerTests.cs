@@ -76,7 +76,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
             controller.ControllerContext.HttpContext = httpContextMock.Object;
             controller.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUploadFileName);
-            var fileNameModel = new FileNameViewModel() { LapcapFileName = fileUploadFileName };
+            var fileNameModel = new FileNameViewModel() { FileName = fileUploadFileName };
             // Act
             var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(), fileNameModel) as OkObjectResult;
 
@@ -126,7 +126,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
 
             var fileUploadFileName = "LocalAuthorityData.csv";
-            var fileNameModel = new FileNameViewModel() { LapcapFileName = fileUploadFileName };
+            var fileNameModel = new FileNameViewModel() { FileName = fileUploadFileName };
 
             var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(), fileNameModel) as BadRequestObjectResult;
             Assert.IsNotNull(result);
@@ -158,7 +158,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object, _telemetryClient);
 
             var fileUploadFileName = "LocalAuthorityData.csv";
-            var fileNameModel = new FileNameViewModel() { LapcapFileName = fileUploadFileName };
+            var fileNameModel = new FileNameViewModel() { FileName = fileUploadFileName };
 
             var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(), fileNameModel) as RedirectToActionResult;
             Assert.IsNotNull(result);
@@ -191,7 +191,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object, _telemetryClient);
 
             var fileUploadFileName = "LocalAuthorityData.csv";
-            var fileNameModel = new FileNameViewModel() { LapcapFileName = fileUploadFileName };
+            var fileNameModel = new FileNameViewModel() { FileName = fileUploadFileName };
 
             var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(), fileNameModel) as RedirectToActionResult;
             Assert.IsNotNull(result);
