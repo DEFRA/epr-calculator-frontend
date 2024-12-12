@@ -2,7 +2,9 @@
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -84,16 +86,15 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
             controller.ControllerContext.HttpContext = httpContextMock.Object;
-            controller.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUploadFileName);
+            var fileNameModel = new ViewModelCommonData() { CurrentUser = "test", FileName = fileUploadFileName };
 
             // Act
-            var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as OkObjectResult;
+            var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList(), fileNameModel) as OkObjectResult;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(200, result.StatusCode);
             Assert.AreEqual("SchemeParameters.csv", controller.FileName);
-            Assert.IsTrue(sessionStorage.ContainsKey(SessionConstants.ParameterFileName));
         }
 
         [TestMethod]
@@ -134,7 +135,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                 HttpContext = mockHttpContext.Object
             };
 
-            var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as BadRequestObjectResult;
+            var fileUploadFileName = "SchemeParameters.csv";
+            var fileNameModel = new ViewModelCommonData() { CurrentUser = "test", FileName = fileUploadFileName };
+
+            var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList(), fileNameModel) as BadRequestObjectResult;
 
             Assert.IsNotNull(result);
             Assert.AreNotEqual(201, result.StatusCode);
@@ -163,7 +167,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var config = GetConfigurationValues();
             config.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value = string.Empty;
             var controller = new ParameterUploadFileProcessingController(config, mockHttpClientFactory.Object);
-            var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as RedirectToActionResult;
+            var fileUploadFileName = "SchemeParameters.csv";
+            var fileNameModel = new ViewModelCommonData() { CurrentUser = "test", FileName = fileUploadFileName };
+
+            var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList(), fileNameModel) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);

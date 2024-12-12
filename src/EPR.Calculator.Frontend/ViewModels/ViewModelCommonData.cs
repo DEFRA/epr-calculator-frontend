@@ -9,5 +9,7 @@
         /// Gets the name of the currently logged in user.
         /// </summary>
         public required string CurrentUser { get; init; }
+
+        public string? FileName { get; init; }
     }
 }
