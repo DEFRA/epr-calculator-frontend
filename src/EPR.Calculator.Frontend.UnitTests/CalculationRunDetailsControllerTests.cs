@@ -16,7 +16,6 @@ using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
 
-
 namespace EPR.Calculator.Frontend.UnitTests
 {
     [TestClass]
