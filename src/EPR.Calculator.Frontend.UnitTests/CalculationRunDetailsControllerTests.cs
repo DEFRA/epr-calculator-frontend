@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -16,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
+
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -106,9 +106,11 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             int runId = 1;
             string calcName = "TestCalc";
+            string calDate = "21 June 2024";
+            string calTime = "12:09";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId, calcName, false) as ViewResult;
+            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, false) as ViewResult;
 
             var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
 
@@ -132,9 +134,11 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             int runId = 1;
             string calcName = "TestCalc";
+            string calDate = "21 June 2024";
+            string calTime = "12:09";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId, calcName, true) as ViewResult;
+            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true) as ViewResult;
 
             var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
 
@@ -158,9 +162,11 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             int runId = 1;
             string calcName = "TestCalc";
+            string calDate = "21 June 2024";
+            string calTime = "12:09";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId, calcName, true) as ViewResult;
+            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -230,9 +236,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new CalculationRunDetailsController(null, null, _mockLogger.Object);
             int runId = 1;
             string calcName = "TestCalc";
+            string calDate = "21 June 2024";
+            string calTime = "12:09";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId, calcName, true) as RedirectToActionResult;
+            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
