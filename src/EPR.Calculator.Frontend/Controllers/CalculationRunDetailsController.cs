@@ -81,10 +81,12 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">The status update view model.</param>
         /// <param name="calcName">The calculation name.</param>
+        /// <param name="createdTime">The created time.</param>
+        /// <param name="createdDate">The created date.</param>
         /// <param name="deleteChecked">The delete is checked or not.</param>
         /// <returns>The delete confirmation view.</returns>
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult DeleteCalcDetails(int runId, string calcName, bool deleteChecked)
+        public IActionResult DeleteCalcDetails(int runId, string calcName, string createdTime, string createdDate, bool deleteChecked)
         {
             try
             {
@@ -97,6 +99,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     RunId = runId,
                     CalcName = calcName,
                     ClassificationId = (int)RunClassification.DELETED,
+                    CreatedDate = createdDate,
+                    CreatedTime = createdTime,
                 };
                 var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
                 {

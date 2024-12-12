@@ -41,6 +41,8 @@
                                 </label>
                                 <input type="hidden" asp-for="@Model.Data.RunId" name="runId" />
                                 <input type="hidden" asp-for="@Model.Data.CalcName" name="calcName" />
+                                <input type="hidden" asp-for="@Model.Data.CreatedDate" name="createdDate" />
+                                <input type="hidden" asp-for="@Model.Data.CreatedTime" name="createdTime" />
                             </div>
                             <br>
                             @if (errors != null)

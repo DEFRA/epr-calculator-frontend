@@ -3,16 +3,8 @@
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var BackLink = "Dashboard";
 }
 
-@{
-    var currentUser = User?.Identity?.Name;
-    if (string.IsNullOrEmpty(currentUser))
-    {
-        currentUser = "Jamie Roberts";
-    }
-}
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-three-quarters">
@@ -20,7 +12,7 @@
         </div>
         <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
             <div class="account-info">
-                <span class="your-name" id="bannerUserName">@currentUser</span>
+                <span class="your-name" id="bannerUserName">@Model.CurrentUser</span>
                 <a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
             </div>
         </div>
