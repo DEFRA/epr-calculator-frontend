@@ -1,6 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -41,7 +42,12 @@ namespace EPR.Calculator.Frontend.Controllers
                         };
                     }
 
-                    return this.View(ViewNames.ParameterUploadFileErrorIndex);
+                    return this.View(
+                        ViewNames.ParameterUploadFileErrorIndex,
+                        new ViewModelCommonData
+                        {
+                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                        });
                 }
                 else
                 {
@@ -56,10 +62,9 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index([FromBody]string errors)
+        public IActionResult Index([FromBody] string errors)
         {
             this.HttpContext.Session.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, errors);
-
             return this.Ok();
         }
 
@@ -71,15 +76,24 @@ namespace EPR.Calculator.Frontend.Controllers
             if (csvErrors.ErrorMessage is not null)
             {
                 this.ViewBag.DefaultError = csvErrors;
-                return this.View(ViewNames.ParameterUploadFileErrorIndex);
+                return this.View(
+                    ViewNames.ParameterUploadFileErrorIndex,
+                    new ViewModelCommonData
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    });
             }
 
             var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
 
             this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
-            this.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUpload.FileName);
+            var viewModel = new ViewModelCommonData
+            {
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                FileName = fileUpload?.FileName,
+            };
 
-            return this.View(ViewNames.ParameterUploadFileRefresh);
+            return this.View(ViewNames.ParameterUploadFileRefresh, viewModel);
         }
     }
 }

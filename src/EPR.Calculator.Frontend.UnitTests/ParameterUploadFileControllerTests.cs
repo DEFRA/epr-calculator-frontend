@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -65,15 +66,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             sessionMock.Setup(s => s.Remove(It.IsAny<string>()))
                        .Callback<string>((key) => sessionStorage.Remove(key));
 
-            var httpContextMock = new Mock<HttpContext>();
-            httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
-            controller.ControllerContext.HttpContext = httpContextMock.Object;
-            controller.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileName);
+            MockHttpContext.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
+            controller.ControllerContext.HttpContext = MockHttpContext.Object;
 
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ParameterUploadFileRefresh, result.ViewName);
-            Assert.IsTrue(sessionStorage.ContainsKey(SessionConstants.ParameterFileName));
         }
 
         [TestMethod]
@@ -89,10 +87,11 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
+            controller.ControllerContext.HttpContext = MockHttpContext.Object;
+
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ParameterUploadFileIndex, result.ViewName);
-            Assert.IsNull(result.TempData[SessionConstants.ParameterFileName]);
         }
 
         [TestMethod]
@@ -257,6 +256,41 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = controller.DownloadCsvTemplate() as PhysicalFileResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(StaticHelpers.Path, result.FileDownloadName);
+        }
+
+        [TestMethod]
+        public async Task ParameterUploadFileController_Upload_Null_View_Post_Test()
+        {
+            var content = MockData.GetLocalAuthorityDisposalCosts();
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(content);
+            writer.Flush();
+            stream.Position = 0;
+            var file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.csv");
+
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            tempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = string.Empty;
+
+            var controller = new ParameterUploadFileController()
+            {
+                TempData = tempData
+            };
+
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
+            controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
+
+            var result = await controller.Upload(null) as ViewResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.ParameterUploadFileIndex, result.ViewName);
         }
     }
 }

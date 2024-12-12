@@ -33,12 +33,13 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var viewName = await this.GetViewName(fileUpload);
-                return this.View(
-                    viewName,
-                    new ViewModelCommonData
-                    {
-                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    });
+                var viewModel = new ViewModelCommonData
+                {
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    FileName = fileUpload?.FileName,
+                };
+
+                return this.View(viewName, viewModel);
             }
             catch (Exception)
             {
@@ -59,8 +60,14 @@ namespace EPR.Calculator.Frontend.Controllers
                     var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
 
                     var viewName = await this.GetViewName(fileUpload);
-                    ModelState.Clear();
-                    return this.View(viewName);
+                    this.ModelState.Clear();
+                    return this.View(
+                        viewName,
+                        new ViewModelCommonData
+                        {
+                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                            FileName = fileUpload.FileName,
+                        });
                 }
 
                 // Code will reach this point if the uploaded file is not available
@@ -107,8 +114,6 @@ namespace EPR.Calculator.Frontend.Controllers
             var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
 
             this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
-            this.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUpload.FileName);
-
             return ViewNames.ParameterUploadFileRefresh;
         }
 
