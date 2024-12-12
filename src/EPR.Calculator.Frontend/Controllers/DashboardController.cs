@@ -1,10 +1,8 @@
-﻿using Microsoft.Identity.Abstractions;
+﻿using CsvHelper.Configuration;
+using Microsoft.Identity.Abstractions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    using System.Net;
-    using System.Reflection;
-    using System.Runtime.Serialization;
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Enums;
     using EPR.Calculator.Frontend.Helpers;
@@ -13,6 +11,9 @@ namespace EPR.Calculator.Frontend.Controllers
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
+    using System.Net;
+    using System.Reflection;
+    using System.Runtime.Serialization;
 
     [Authorize(Roles = "SASuperUser")]
     public class DashboardController : Controller
@@ -26,7 +27,9 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory, IAuthorizationHeaderProvider authProvider)
+        /// <param name="authProvider"></param>
+        public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory,
+            IAuthorizationHeaderProvider authProvider)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
@@ -44,11 +47,11 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Thrown when the API URL is null or empty.
         /// </exception>
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             try
             {
-                HttpResponseMessage response = await GetHttpRequest(this.configuration, this.clientFactory);
+                using HttpResponseMessage response = await GetHttpRequest(this.configuration, this.clientFactory);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -120,10 +123,19 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
         private async Task<HttpResponseMessage> GetHttpRequest(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
-            string[] scopes = new string[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
-            var accessToken1 = await this.authProvider.CreateAuthorizationHeaderForUserAsync(scopes);
-            //var accessToken2 = await this.authProvider.CreateAuthorizationHeaderForAppAsync("user.default");
-            //var accessToken3 = await this.authProvider.CreateAuthorizationHeaderAsync(scopes);
+            IEnumerable<string>? scopes = configuration.GetSection(ConfigSection.DownStreamApi)
+                ?.GetSection("Scopes")?.GetSection("0")?.Value?.Split(' ');
+            if (scopes == null)
+            {
+                throw new ConfigurationException("DownStreamApi:Scopes:0 missing");
+            }
+
+            var accessToken = HttpContext.Session.GetString("accessToken");
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                accessToken = await this.authProvider.CreateAuthorizationHeaderForUserAsync(scopes);
+                HttpContext.Session.SetString("accessToken", accessToken);
+            }
 
             var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                                                   .GetSection(ConfigSection.DashboardCalculatorRunApi)
@@ -140,7 +152,7 @@ namespace EPR.Calculator.Frontend.Controllers
                                           .Value;
             var client = clientFactory.CreateClient();
             client.BaseAddress = new Uri(dashboardCalculatorRunApi);
-            client.DefaultRequestHeaders.Add("Authorization", accessToken1);
+            client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));
             var runParms = new CalculatorRunParamsDto

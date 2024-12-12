@@ -59,5 +59,7 @@
         /// The key for the calculation run name api within the calculation run name settings section.
         /// </summary>
         public const string CalculationRunNameApi = "CalculationRunNameApi";
+
+        public const string DownStreamApi = "DownStreamApi";
     }
 }
