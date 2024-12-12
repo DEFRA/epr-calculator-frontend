@@ -3,6 +3,7 @@ using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -85,16 +86,15 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
             controller.ControllerContext.HttpContext = httpContextMock.Object;
-            controller.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUploadFileName);
+            var fileNameModel = new ViewModelCommonData() { CurrentUser = "test", FileName = fileUploadFileName };
 
             // Act
-            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as OkObjectResult;
+            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(), fileNameModel) as OkObjectResult;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(200, result.StatusCode);
             Assert.AreEqual("LocalAuthorityData.csv", controller.FileName);
-            Assert.IsTrue(sessionStorage.ContainsKey(SessionConstants.LapcapFileName));
         }
 
         [TestMethod]
@@ -132,8 +132,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
             mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
             controller.ControllerContext.HttpContext = mockHttpContext.Object;
+            var fileUploadFileName = "SchemeParameters.csv";
+            var fileNameModel = new ViewModelCommonData() { CurrentUser = "test", FileName = fileUploadFileName };
 
-            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as BadRequestObjectResult;
+            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(), fileNameModel) as BadRequestObjectResult;
             Assert.IsNotNull(result);
             Assert.AreNotEqual(201, result.StatusCode);
         }
@@ -160,8 +162,11 @@ namespace EPR.Calculator.Frontend.UnitTests
                     .Returns(httpClient);
             var config = GetConfigurationValues();
             config.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value = string.Empty;
+            var fileUploadFileName = "SchemeParameters.csv";
+            var fileNameModel = new ViewModelCommonData() { CurrentUser = "test", FileName = fileUploadFileName };
+
             var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object);
-            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as RedirectToActionResult;
+            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(), fileNameModel) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
@@ -189,8 +194,11 @@ namespace EPR.Calculator.Frontend.UnitTests
                     .Returns(httpClient);
             var config = GetConfigurationValues();
             config.GetSection("LapcapSettings").GetSection("ParameterYear").Value = string.Empty;
+            var fileUploadFileName = "SchemeParameters.csv";
+            var fileNameModel = new ViewModelCommonData() { CurrentUser = "test", FileName = fileUploadFileName };
+
             var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object);
-            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as RedirectToActionResult;
+            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(), fileNameModel) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
