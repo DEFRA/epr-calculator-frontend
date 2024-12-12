@@ -130,11 +130,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 throw new ConfigurationException("DownStreamApi:Scopes:0 missing");
             }
 
-            var accessToken = HttpContext.Session.GetString("accessToken");
+            var accessToken = HttpContext?.Session?.GetString("accessToken");
             if (string.IsNullOrEmpty(accessToken))
             {
                 accessToken = await this.authProvider.CreateAuthorizationHeaderForUserAsync(scopes);
-                HttpContext.Session.SetString("accessToken", accessToken);
+                HttpContext?.Session?.SetString("accessToken", accessToken);
             }
 
             var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
