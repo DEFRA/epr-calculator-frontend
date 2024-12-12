@@ -66,7 +66,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
@@ -109,8 +109,11 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
         private async Task<HttpResponseMessage> GetHttpRequest(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
-            string[] scopes = new string[] { "user.read" };
-            var accessToken = await this.authProvider.CreateAuthorizationHeaderForUserAsync(scopes);
+            string[] scopes = new string[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
+            var accessToken1 = await this.authProvider.CreateAuthorizationHeaderForUserAsync(scopes);
+            //var accessToken2 = await this.authProvider.CreateAuthorizationHeaderForAppAsync("user.default");
+            //var accessToken3 = await this.authProvider.CreateAuthorizationHeaderAsync(scopes);
+
             var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                                                   .GetSection(ConfigSection.DashboardCalculatorRunApi)
                                                   .Value;
@@ -126,7 +129,7 @@ namespace EPR.Calculator.Frontend.Controllers
                                           .Value;
             var client = clientFactory.CreateClient();
             client.BaseAddress = new Uri(dashboardCalculatorRunApi);
-            client.DefaultRequestHeaders.Add("Authorization", accessToken);
+            client.DefaultRequestHeaders.Add("Authorization", accessToken1);
 
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));
             var runParms = new CalculatorRunParamsDto
