@@ -23,7 +23,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index([FromBody] List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
+        public IActionResult Index([FromBody] List<LapcapDataTemplateValueDto> lapcapDataTemplateValues, [FromQuery] FileNameViewModel model)
         {
             try
             {
@@ -34,7 +34,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     throw new ArgumentNullException(lapcapSettingsApi, "LapcapSettingsApi is null. Check the configuration settings for local authority");
                 }
 
-                this.FileName = this.HttpContext.Session.GetString(SessionConstants.LapcapFileName);
+                this.FileName = model.FileName;
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);
@@ -55,6 +55,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.Ok(response.Result);
                 }
 
+                var errorMessage = response.Result.Content.ReadAsStringAsync().Result;
                 return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
             }
             catch (Exception)

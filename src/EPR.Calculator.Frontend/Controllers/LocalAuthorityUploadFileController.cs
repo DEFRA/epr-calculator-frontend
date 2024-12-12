@@ -28,8 +28,14 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var lapcapViewName = await this.GetViewName(fileUpload);
-                return this.View(lapcapViewName);
+                string lapcapViewName = await this.GetViewName(fileUpload);
+                if (fileUpload == null)
+                {
+                    return this.View(lapcapViewName);
+                }
+
+                var fileNameViewModel = new FileNameViewModel { FileName = fileUpload.FileName };
+                return this.View(lapcapViewName, fileNameViewModel);
             }
             catch (Exception)
             {
@@ -51,7 +57,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     var viewName = await this.GetViewName(fileUpload);
                     ModelState.Clear();
-                    return this.View(viewName);
+                    var fileNameViewModel = new FileNameViewModel { FileName = fileUpload.FileName };
+                    return this.View(viewName, fileNameViewModel);
                 }
 
                 // Code will reach this point if the uploaded file is not available
@@ -84,8 +91,6 @@ namespace EPR.Calculator.Frontend.Controllers
             var localAuthorityDisposalCosts = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
 
             this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
-            this.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUpload.FileName);
-
             return ViewNames.LocalAuthorityUploadFileRefresh;
         }
 
