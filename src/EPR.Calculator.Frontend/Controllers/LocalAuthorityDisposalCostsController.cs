@@ -64,6 +64,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// An IActionResult that renders the LocalAuthorityDisposalCostsIndex view with grouped local authority data if the request is successful.
         /// Redirects to the StandardErrorIndex action in case of an error.
         /// </returns>
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             try

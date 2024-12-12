@@ -118,6 +118,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Error details page.
         /// </summary>
         /// <returns>Error details page</returns>
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Error()
         {
             return this.View(ViewNames.CalculationRunDetailsErrorPage, new ViewModelCommonData

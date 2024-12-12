@@ -22,6 +22,7 @@ namespace EPR.Calculator.Frontend.Controllers
         public string FileName { get; set; }
 
         [HttpPost]
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index([FromBody] List<SchemeParameterTemplateValue> schemeParameterValues)
         {
             try
