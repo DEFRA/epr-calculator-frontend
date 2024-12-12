@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
@@ -16,6 +17,17 @@ namespace EPR.Calculator.Frontend.UnitTests
     public class LocalAuthorityUploadFileProcessingControllerTests
     {
         private static readonly string[] Separator = new string[] { @"bin\" };
+
+        public LocalAuthorityUploadFileProcessingControllerTests()
+        {
+            this.Fixture = new Fixture();
+            this.MockHttpContext = new Mock<HttpContext>();
+            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+        }
+
+        private Fixture Fixture { get; init; }
+
+        private Mock<HttpContext> MockHttpContext { get; init; }
 
         [TestMethod]
         public void LocalAuthorityUploadFileProcessingController_Success_Result_Test()
@@ -50,6 +62,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
+            controller.ControllerContext = new ControllerContext { HttpContext = MockHttpContext.Object };
 
             var fileUploadFileName = "LocalAuthorityData.csv";
 
@@ -116,10 +129,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
             mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = mockHttpContext.Object
-            };
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            controller.ControllerContext.HttpContext = mockHttpContext.Object;
 
             var fileUploadFileName = "LocalAuthorityData.csv";
             var fileNameModel = new FileNameViewModel() { FileName = fileUploadFileName };

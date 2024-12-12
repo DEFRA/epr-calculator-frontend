@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using AutoFixture;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Http;
@@ -11,10 +12,22 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class ParameterUploadFileControllerTests
     {
+        public ParameterUploadFileControllerTests()
+        {
+            this.Fixture = new Fixture();
+            this.MockHttpContext = new Mock<HttpContext>();
+            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+        }
+
+        private Fixture Fixture { get; init; }
+
+        private Mock<HttpContext> MockHttpContext { get; init; }
+
         [TestMethod]
         public void ParameterUploadFileController_View_Test()
         {
             var controller = new ParameterUploadFileController();
+            controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ParameterUploadFileIndex, result.ViewName);
@@ -137,14 +150,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
+            controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
 
             var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
             mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = mockHttpContext.Object
-            };
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            controller.ControllerContext.HttpContext = mockHttpContext.Object;
 
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
@@ -174,6 +186,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
             mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
             controller.ControllerContext = new ControllerContext
             {
                 HttpContext = mockHttpContext.Object
@@ -203,6 +217,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
+            controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
 
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
@@ -228,6 +243,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
+            controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
 
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);

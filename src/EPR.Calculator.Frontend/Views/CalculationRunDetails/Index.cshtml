@@ -1,17 +1,17 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels
-@model CalculatorRunStatusUpdateDto
+@model CalculatorRunStatusUpdateViewModel
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var BackLink = "Dashboard";
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-<partial name="_BackLinkPartial" model="BackLink" />
+<partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-third">
             <h2 class="govuk-heading-m calculator-run-h2">
-                    @Model.CalcName
+                    @Model.Data.CalcName
                 </h2>
             <section class="gem-c-attachment govuk-!-display-none-print govuk-!-margin-bottom-6" data-module="ga4-link-tracker" data-ga4-link-tracker-module-started="true">
                 <div class="gem-c-attachment__thumbnail">
@@ -21,9 +21,9 @@
                 </div>
                 <h2 class="gem-c-attachment__title govuk-body">
                     <a href="@Url.Action("Index", "DownloadUnavailableError")" class="govuk-link" target="_self">Download</a><br/>
-                    ID: @Model.RunId
+                    ID: @Model.Data.RunId
                 </h2>
-                <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.CreatedDate<br>@Model.CreatedTime</p>               
+                <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.Data.CreatedDate<br>@Model.Data.CreatedTime</p>               
             </section>
         </div>
         <div class="govuk-grid-column-two-thirds">
@@ -54,7 +54,7 @@
 
                 &nbsp;
                 <div class="govuk-button-group">
-                    <a href="@Url.Action("DeleteCalcDetails", "CalculationRunDetails", new {runId=Model.RunId})" class="govuk-button" type="submit">Continue</a>
+                    <a href="@Url.Action("DeleteCalcDetails", "CalculationRunDetails", new {runId=Model.Data.RunId})" class="govuk-button" type="submit">Continue</a>
                     <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
                 </div>
             </form>

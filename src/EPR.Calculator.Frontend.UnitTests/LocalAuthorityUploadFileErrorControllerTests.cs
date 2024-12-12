@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using AutoFixture;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
@@ -13,6 +14,17 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class LocalAuthorityUploadFileErrorControllerTests
     {
+        public LocalAuthorityUploadFileErrorControllerTests()
+        {
+            this.Fixture = new Fixture();
+            this.MockHttpContext = new Mock<HttpContext>();
+            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+        }
+
+        private Fixture Fixture { get; init; }
+
+        private Mock<HttpContext> MockHttpContext { get; init; }
+
         [TestMethod]
         public void LocalAuthorityUploadFileErrorController_View_Test()
         {
@@ -141,6 +153,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "LocalAuthorityData.xlsx");
 
             var controller = new LocalAuthorityUploadFileErrorController();
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileErrorIndex, result.ViewName);
@@ -165,10 +179,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
             var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
             mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
             controller.ControllerContext = new ControllerContext
             {
                 HttpContext = mockHttpContext.Object

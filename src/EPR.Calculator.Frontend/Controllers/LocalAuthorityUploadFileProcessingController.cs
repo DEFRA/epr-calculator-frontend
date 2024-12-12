@@ -1,11 +1,13 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    [Authorize(Roles = "SASuperUser")]
     public class LocalAuthorityUploadFileProcessingController : Controller
     {
         private readonly IConfiguration configuration;
@@ -20,7 +22,8 @@ namespace EPR.Calculator.Frontend.Controllers
         public string FileName { get; set; }
 
         [HttpPost]
-        public IActionResult Index([FromBody] List<LapcapDataTemplateValueDto> lapcapDataTemplateValues, [FromQuery] FileNameViewModel model)
+        [Authorize(Roles = "SASuperUser")]
+        public IActionResult Index([FromBody] List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
         {
             try
             {

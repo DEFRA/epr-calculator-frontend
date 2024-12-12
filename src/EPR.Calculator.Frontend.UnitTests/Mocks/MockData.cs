@@ -173,7 +173,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
                 new CalculationRun { Id = 8, CalculatorRunClassificationId = 4, Name = "Local Authority data check 3", CreatedAt = DateTime.Parse("08/06/2025 10:00:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play, Financial_Year = "2024-25" },
                 new CalculationRun { Id = 9, CalculatorRunClassificationId = 4, Name = "Local Authority data check 2", CreatedAt = DateTime.Parse("06/06/2025 11:20:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play, Financial_Year = "2024-25" },
                 new CalculationRun { Id = 10, CalculatorRunClassificationId = 4, Name = "Local Authority data check", CreatedAt = DateTime.Parse("02/06/2025 12:02:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Play, Financial_Year = "2024-25" },
-                new CalculationRun { Id = 11, CalculatorRunClassificationId = 5, Name = "Fee adjustment check", CreatedAt = DateTime.Parse("01/06/2025 09:12:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Error, Financial_Year = "2024-25" }
+                new CalculationRun { Id = 11, CalculatorRunClassificationId = 5, Name = "Fee adjustment check", CreatedAt = DateTime.Parse("01/06/2025 09:12:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Error, Financial_Year = "2024-25" },
+                new CalculationRun { Id = 12, CalculatorRunClassificationId = 6, Name = "Deleted Run", CreatedAt = DateTime.Parse("01/06/2025 09:12:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Error, Financial_Year = "2024-25" }
             ]);
 
             return calculationRuns;
