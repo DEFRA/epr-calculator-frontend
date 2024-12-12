@@ -1,11 +1,13 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    [Authorize(Roles = "SASuperUser")]
     public class LocalAuthorityUploadFileProcessingController : Controller
     {
         private readonly IConfiguration configuration;
@@ -20,6 +22,7 @@ namespace EPR.Calculator.Frontend.Controllers
         public string FileName { get; set; }
 
         [HttpPost]
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index([FromBody] List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
         {
             try
@@ -31,7 +34,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     throw new ArgumentNullException(lapcapSettingsApi, "LapcapSettingsApi is null. Check the configuration settings for local authority");
                 }
 
-                this.FileName = this.TempData.Peek("LapcapFileName").ToString();
+                this.FileName = this.HttpContext.Session.GetString(SessionConstants.LapcapFileName);
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);

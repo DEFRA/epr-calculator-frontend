@@ -5,5 +5,7 @@
         public const string StandardErrorIndex = "Index";
         public const string RunCalculatorConfirmation = "Confirmation";
         public const string Index = "Index";
+        public const string Error = "Error";
+        public const string CalculationRunErrorIndex = "Index";
     }
 }

@@ -1,15 +1,19 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="CalculationRunNameController"/> class.
     /// </summary>
+    [Authorize(Roles = "SASuperUser")]
     public class CalculationRunNameController : Controller
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
@@ -34,9 +38,15 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Displays the index view for calculation run names.
         /// </summary>
         /// <returns>The index view.</returns>
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
-            return this.View(CalculationRunNameIndexView);
+            return this.View(
+                CalculationRunNameIndexView,
+                new InitiateCalculatorRunModel
+                {
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                });
         }
 
         /// <summary>
@@ -45,13 +55,14 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="calculationRunModel">The model containing calculation run details.</param>
         /// <returns>The result of the action.</returns>
         [HttpPost]
+        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> RunCalculator(InitiateCalculatorRunModel calculationRunModel)
         {
             if (!this.ModelState.IsValid)
             {
                 var errorMessages = this.ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
                 this.ViewBag.Errors = CreateErrorViewModel(errorMessages.First());
-                return this.View(CalculationRunNameIndexView);
+                return this.View(CalculationRunNameIndexView, calculationRunModel);
             }
 
             try
@@ -63,10 +74,16 @@ namespace EPR.Calculator.Frontend.Controllers
                     if (calculationNameExistsResponse.IsSuccessStatusCode)
                     {
                         this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists);
-                        return this.View(CalculationRunNameIndexView);
+                        return this.View(CalculationRunNameIndexView, calculationRunModel);
                     }
 
                     var response = await this.HttpPostToCalculatorRunAPI(calculationName);
+
+                    if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
+                    {
+                        var errorDto = new ErrorDto() { Message = await this.ExtractErrorMessageAsync(response) };
+                        return this.RedirectToAction(ActionNames.CalculationRunErrorIndex, "CalculationRunError", errorDto);
+                    }
 
                     if (!response.IsSuccessStatusCode || response.StatusCode != HttpStatusCode.Accepted)
                     {
@@ -88,6 +105,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="calculationRunModel">The model containing calculation run details.</param>
         /// <returns>The result of the action.</returns>
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Confirmation(InitiateCalculatorRunModel calculationRunModel)
         {
             return this.View(ViewNames.CalculationRunConfirmation, calculationRunModel);
@@ -140,7 +158,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 CalculatorRunName = calculatorRunName,
                 FinancialYear = year,
-                CreatedBy = "Test User",
+                CreatedBy = CommonUtil.GetUserName(this.HttpContext),
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
@@ -170,6 +188,26 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var requestUri = new Uri($"{apiUrl}/{calculationName}", UriKind.Absolute);
             return await client.GetAsync(requestUri);
+        }
+
+        /// <summary>
+        /// Extracts the error message coming in api response.
+        /// </summary>
+        /// <param name="response">Http response from api.</param>
+        /// <returns>Error message.</returns>
+        private async Task<string> ExtractErrorMessageAsync(HttpResponseMessage response)
+        {
+            try
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(responseBody);
+                return json["message"]?.ToString() ?? "An error occurred. Please try again.";
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "Error parsing response");
+                return "Unable to process the error response.";
+            }
         }
     }
 }

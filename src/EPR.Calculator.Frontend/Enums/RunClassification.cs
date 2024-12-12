@@ -20,5 +20,8 @@ namespace EPR.Calculator.Frontend.Enums
 
         [EnumMember(Value = "ERROR")]
         ERROR = 5,
+
+        [EnumMember(Value = "DELETED")]
+        DELETED = 6,
     }
 }

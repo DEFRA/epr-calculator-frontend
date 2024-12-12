@@ -4,11 +4,13 @@
 
     .your-name {
         margin-right: 8px;
+        white-space: nowrap;
     }
 
     .account-link {
         color: #1d70b8;
         text-underline-offset: 0.1578em;
+        white-space: nowrap;
     }
 }
 
@@ -67,4 +69,8 @@
         color: #144e81;
         background: #d2e2f1;
     }
+}
+
+.calculator-run-h2 {
+    overflow-wrap: break-word;
 }

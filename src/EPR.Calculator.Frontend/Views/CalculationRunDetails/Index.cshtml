@@ -1,8 +1,63 @@
-﻿@{
+﻿@using EPR.Calculator.Frontend.ViewModels
+@model CalculatorRunStatusUpdateViewModel
+@{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var BackLink = "Dashboard";
 }
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
+<main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-third">
+            <h2 class="govuk-heading-m calculator-run-h2">
+                    @Model.Data.CalcName
+                </h2>
+            <section class="gem-c-attachment govuk-!-display-none-print govuk-!-margin-bottom-6" data-module="ga4-link-tracker" data-ga4-link-tracker-module-started="true">
+                <div class="gem-c-attachment__thumbnail">
+                    <a class="govuk-link" target="_self" tabindex="-1" aria-hidden="true" href="#">
+                        <img src="~/images/file.png" alt="download file" width="99px;" style="padding-top:5px;">
+                    </a>
+                </div>
+                <h2 class="gem-c-attachment__title govuk-body">
+                    <a href="@Url.Action("Index", "DownloadUnavailableError")" class="govuk-link" target="_self">Download</a><br/>
+                    ID: @Model.Data.RunId
+                </h2>
+                <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.Data.CreatedDate<br>@Model.Data.CreatedTime</p>               
+            </section>
+        </div>
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">What do you want to do with this calculation?</h1>
 
-<p class="govuk-body">
-    Placeholder for calculation run details page
-</p>
+            <form action="/form-handler" method="post" novalidate="">
+
+                <input type="hidden" name="answers-checked" value="true">
+
+                <div class="govuk-form-group">
+                    <div class="govuk-form-group">
+                        <fieldset class="govuk-fieldset">
+                            <legend></legend>
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="delete_button" name="delete" type="radio" value="true">
+                                <label class="govuk-label govuk-radios__label" for="delete_button">
+                                    Delete (this cannot be undone)
+                                </label>
+                            </div>
+
+                            @*                             <p id="whereDoYouLive-error" class="govuk-error-message">
+                                <span class="govuk-visually-hidden">Error:</span> This file cannot be deleted
+                            </p> *@
+                        </fieldset>
+                    </div>
+                    <p></p>
+                </div>
+
+                &nbsp;
+                <div class="govuk-button-group">
+                    <a href="@Url.Action("DeleteCalcDetails", "CalculationRunDetails", new {runId=Model.Data.RunId})" class="govuk-button" type="submit">Continue</a>
+                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>

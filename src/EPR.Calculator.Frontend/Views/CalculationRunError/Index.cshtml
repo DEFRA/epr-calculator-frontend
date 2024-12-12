@@ -1,0 +1,17 @@
+﻿@using EPR.Calculator.Frontend.ViewModels
+@model CalculationRunErrorViewModel
+@{
+    Layout = "_Layout";
+    var BackLink = "Dashboard";
+}
+<partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-xl">Unable to run calculator</h1>
+        <p class="govuk-body">@Model.ErrorMessage</p>
+        <br />
+        <div class="govuk-button-group">
+            <a href="/Dashboard/Index" class="govuk-button" type="submit">Return to dashboard</a>
+        </div>
+    </div>
+</div>

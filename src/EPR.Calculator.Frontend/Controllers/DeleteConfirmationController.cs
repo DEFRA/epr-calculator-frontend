@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace EPR.Calculator.Frontend.Controllers
 {
     [Authorize(Roles = "SASuperUser")]
-    public class ParameterConfirmationController : Controller
+    public class DeleteConfirmationController : Controller
     {
         [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
-            return this.View(ViewNames.ParameterConfirmationIndex);
+            return this.View(ViewNames.DeleteConfirmation);
         }
     }
 }

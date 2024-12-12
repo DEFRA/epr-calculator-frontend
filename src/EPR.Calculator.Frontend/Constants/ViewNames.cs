@@ -3,6 +3,7 @@
     public static class ViewNames
     {
         public const string CalculationRunDetailsIndex = "~/Views/CalculationRunDetails/Index.cshtml";
+        public const string CalculationRunDetailsErrorPage = "~/Views/CalculationRunDetails/ErrorPage.cshtml";
         public const string CalculationRunNameIndex = "~/Views/CalculationRunName/Index.cshtml";
         public const string CalculationRunConfirmation = "~/Views/CalculationRunName/Confirmation.cshtml";
         public const string DashboardIndex = "~/Views/Dashboard/Index.cshtml";
@@ -17,5 +18,7 @@
         public const string ParameterUploadFileProcessingIndex = "~/Views/ParameterUploadFileProcessing/Index.cshtml";
         public const string ParameterUploadFileRefresh = "~/Views/ParameterUploadFile/Refresh.cshtml";
         public const string StandardErrorIndex = "~/Views/StandardError/Index.cshtml";
+        public const string DeleteConfirmation = "~/Views/DeleteConfirmation/Index.cshtml";
+        public const string CalculationRunErrorIndex = "~/Views/CalculationRunError/Index.cshtml";
     }
 }

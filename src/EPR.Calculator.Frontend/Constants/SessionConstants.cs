@@ -2,6 +2,8 @@
 {
     public static class SessionConstants
     {
-        public const string CalculationName = "CalculationName";
+        public const string ParameterFileName = "ParameterFileName";
+
+        public const string LapcapFileName = "LapcapFileName";
     }
 }

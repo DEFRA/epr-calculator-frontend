@@ -1,13 +1,17 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    [Authorize(Roles = "SASuperUser")]
     public class LocalAuthorityUploadFileErrorController : Controller
     {
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             try
@@ -38,7 +42,12 @@ namespace EPR.Calculator.Frontend.Controllers
                         };
                     }
 
-                    return this.View(ViewNames.LocalAuthorityUploadFileErrorIndex);
+                    return this.View(
+                        ViewNames.LocalAuthorityUploadFileErrorIndex,
+                        new ViewModelCommonData
+                        {
+                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                        });
                 }
                 else
                 {
@@ -52,6 +61,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index([FromBody] string errors)
         {
             this.HttpContext.Session.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, errors);
@@ -60,21 +70,31 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             var lapcapFileErrors = CsvFileHelper.ValidateCSV(fileUpload);
             if (lapcapFileErrors.ErrorMessage is not null)
             {
-                this.ViewBag.DefaultError = lapcapFileErrors;
-                return this.View(ViewNames.LocalAuthorityUploadFileErrorIndex);
+                return this.View(
+                    ViewNames.LocalAuthorityUploadFileErrorIndex,
+                    new ViewModelCommonData
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    });
             }
 
             var localAuthorityDisposalCostsValues = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
 
             this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCostsValues.ToArray();
-            this.TempData["LapcapFileName"] = fileUpload.FileName;
+            this.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUpload.FileName);
 
-            return this.View(ViewNames.LocalAuthorityUploadFileRefresh);
+            return this.View(
+                ViewNames.LocalAuthorityUploadFileRefresh,
+                new ViewModelCommonData
+                {
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                });
         }
     }
 }

@@ -1,17 +1,10 @@
-﻿@using EPR.Calculator.Frontend.ViewModels
-@model List<DashboardViewModel>
+@using EPR.Calculator.Frontend.Constants
+@using EPR.Calculator.Frontend.ViewModels
+@model DashboardViewModel
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-@{
-    var currentUser = User?.Identity?.Name;
-    if (string.IsNullOrEmpty(currentUser))
-    {
-        currentUser = "Jamie Roberts";
-    }
 }
 
 
@@ -21,7 +14,7 @@
     </div>
     <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
         <div class="account-info">
-            <span class="your-name" id="bannerUserName">@currentUser</span>
+            <span class="your-name" id="bannerUserName">@Model.CurrentUser</span>
             <a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
         </div>
     </div>
@@ -59,14 +52,18 @@
         else
         {
             <dl class="govuk-summary-list">
-                @foreach (var run in Model)
+                @foreach (var run in Model.Calculations)
                 {
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key">
                             <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
-                                @if (run.ShowRunDetailLink)
+                                @if (run.ShowErrorLink)
                                 {
-                                    <a href="@Url.Action("Index", "CalculationRunDetails")"  class="govuk-link govuk-link--no-visited-state">@run.Name</a>
+                                    <a href="@Url.Action(ActionNames.Error, "CalculationRunDetails")" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
+                                }
+                                else if (run.ShowRunDetailLink)
+                                {
+                                    <a href="@Url.Action("Index", "CalculationRunDetails",new {runId=@run.Id, calcName=run.Name, createdAt = @run.CreatedAt})" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
                                 }
                                 else
                                 {
@@ -82,9 +79,12 @@
                             </p>
                         </dt>
                         <dd class="govuk-summary-list__actions">
-                            <strong class="@run.TagStyle">
-                                @run.Status
-                            </strong>
+                            @if (run.Status is "RUNNING" or "ERROR")
+                            {
+                                <strong class="@run.TagStyle">
+                                    @run.Status
+                                </strong>
+                            }
                         </dd>
                     </div>
                 }
