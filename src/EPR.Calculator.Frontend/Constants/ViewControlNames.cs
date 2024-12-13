@@ -4,6 +4,6 @@
     {
         public const string FileUpload = "file-upload-1";
         public const string CalculationRunName = "calculation-name-1";
-        public const string DeleteCalculationName = "file-calc-error";
+        public const string DeleteCalculationName = "delete_button";
     }
 }
