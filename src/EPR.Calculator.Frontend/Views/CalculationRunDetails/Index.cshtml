@@ -33,25 +33,24 @@
             {
                 <div class="@(errors != null ? "govuk-form-group govuk-form-group--error" : "govuk-form-group")">
                     <fieldset class="govuk-fieldset">
-                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                            <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="delete_button" name="deleteChecked" type="radio" value="true">
-                                <label class="govuk-label govuk-radios__label" for="file-calc-error">
-                                    Delete (this cannot be undone)
-                                </label>
-                                <input type="hidden" asp-for="@Model.Data.RunId" name="runId" />
-                                <input type="hidden" asp-for="@Model.Data.CalcName" name="calcName" />
-                                <input type="hidden" asp-for="@Model.Data.CreatedDate" name="createdDate" />
-                                <input type="hidden" asp-for="@Model.Data.CreatedTime" name="createdTime" />
-                            </div>
-                            <br>
-                            @if (errors != null)
-                            {
-                                <p id="file-calc-error" class="govuk-error-message">
-                                    <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
-                                </p>
-                            }
-                        </legend>
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l"></legend>
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" id="delete_button" name="deleteChecked" type="radio" value="true">
+                            <label class="govuk-label govuk-radios__label" for="file-calc-error">
+                                Delete (this cannot be undone)
+                            </label>
+                            <input type="hidden" asp-for="@Model.Data.RunId" name="runId" />
+                            <input type="hidden" asp-for="@Model.Data.CalcName" name="calcName" />
+                            <input type="hidden" asp-for="@Model.Data.CreatedDate" name="createdDate" />
+                            <input type="hidden" asp-for="@Model.Data.CreatedTime" name="createdTime" />
+                        </div>
+                        <br>
+                        @if (errors != null)
+                        {
+                            <p id="file-calc-error" class="govuk-error-message">
+                                <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
+                            </p>
+                        }                        
                     </fieldset>
                 </div>
 
