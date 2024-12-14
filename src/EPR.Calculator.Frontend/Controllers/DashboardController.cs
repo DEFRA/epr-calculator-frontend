@@ -134,7 +134,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
         private async Task<HttpResponseMessage> GetHttpRequest(IConfiguration configuration,
-            IHttpClientFactory clientFactory, string accessToken)
+            IHttpClientFactory clientFactory,
+            string accessToken)
         {
             // var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
             // this.telemetryClient.TrackTrace($"before generating {scopes.First()}");
@@ -152,8 +153,8 @@ namespace EPR.Calculator.Frontend.Controllers
             this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
 
             var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                                                  .GetSection(ConfigSection.DashboardCalculatorRunApi)
-                                                  .Value;
+                .GetSection(ConfigSection.DashboardCalculatorRunApi)
+                .Value;
 
             if (string.IsNullOrEmpty(dashboardCalculatorRunApi))
             {
@@ -162,20 +163,23 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             var year = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                                          .GetSection(ConfigSection.RunParameterYear)
-                                          .Value;
+                .GetSection(ConfigSection.RunParameterYear)
+                .Value;
             var client = clientFactory.CreateClient();
             client.BaseAddress = new Uri(dashboardCalculatorRunApi);
             client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
-            this.telemetryClient.TrackTrace($"client.DefaultRequestHeaders.Authorization is {client.DefaultRequestHeaders.Authorization}", SeverityLevel.Information);
+            this.telemetryClient.TrackTrace(
+                $"client.DefaultRequestHeaders.Authorization is {client.DefaultRequestHeaders.Authorization}",
+                SeverityLevel.Information);
 
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));
             var runParms = new CalculatorRunParamsDto
             {
                 FinancialYear = year,
             };
-            var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
+            var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8,
+                StaticHelpers.MediaType);
             request.Content = content;
             var response = await client.SendAsync(request);
             this.telemetryClient.TrackTrace($"Response is {response.StatusCode}", SeverityLevel.Warning);
