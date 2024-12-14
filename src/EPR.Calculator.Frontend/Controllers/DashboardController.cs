@@ -124,10 +124,6 @@ namespace EPR.Calculator.Frontend.Controllers
         private async Task<HttpResponseMessage> GetHttpRequest(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
             var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
-            if (scopes == null)
-            {
-                throw new ConfigurationException("DownStreamApi:Scopes:0 missing");
-            }
 
             var accessToken = HttpContext?.Session?.GetString("accessToken");
             if (string.IsNullOrEmpty(accessToken))
