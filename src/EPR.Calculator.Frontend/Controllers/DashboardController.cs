@@ -12,6 +12,7 @@ namespace EPR.Calculator.Frontend.Controllers
     using Microsoft.ApplicationInsights;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Identity.Web;
     using Newtonsoft.Json;
     using System.Net;
     using System.Reflection;
@@ -51,6 +52,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Thrown when the API URL is null or empty.
         /// </exception>
         [Authorize(Roles = "SASuperUser")]
+        [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" })]
         public async Task<IActionResult> Index()
         {
             try
