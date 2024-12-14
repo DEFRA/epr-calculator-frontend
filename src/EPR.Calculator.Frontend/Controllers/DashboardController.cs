@@ -1,4 +1,5 @@
 ﻿using CsvHelper.Configuration;
+using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Identity.Abstractions;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -136,7 +137,10 @@ namespace EPR.Calculator.Frontend.Controllers
                 HttpContext?.Session?.SetString("accessToken", accessToken);
             }
 
-            this.telemetryClient.TrackTrace($"accessToken is {accessToken}");
+            this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Warning);
+            this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Error);
+            this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Critical);
+            this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
 
             var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                                                   .GetSection(ConfigSection.DashboardCalculatorRunApi)
@@ -155,6 +159,8 @@ namespace EPR.Calculator.Frontend.Controllers
             client.BaseAddress = new Uri(dashboardCalculatorRunApi);
             client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
+            this.telemetryClient.TrackTrace($"client.DefaultRequestHeaders.Authorization is {client.DefaultRequestHeaders.Authorization}", SeverityLevel.Information);
+
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));
             var runParms = new CalculatorRunParamsDto
             {
@@ -163,7 +169,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
             request.Content = content;
             var response = await client.SendAsync(request);
-
+            this.telemetryClient.TrackTrace($"Response is {response.StatusCode}", SeverityLevel.Warning);
             return response;
         }
     }
