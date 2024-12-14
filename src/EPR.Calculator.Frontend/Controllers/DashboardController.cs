@@ -4,6 +4,7 @@ using Microsoft.Identity.Abstractions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    using Azure.Core;
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Enums;
     using EPR.Calculator.Frontend.Helpers;
@@ -17,6 +18,7 @@ namespace EPR.Calculator.Frontend.Controllers
     using System.Net;
     using System.Reflection;
     using System.Runtime.Serialization;
+    using static System.Formats.Asn1.AsnWriter;
 
     [Authorize(Roles = "SASuperUser")]
     public class DashboardController : Controller
@@ -57,7 +59,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                using HttpResponseMessage response = await GetHttpRequest(this.configuration, this.clientFactory);
+                var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
+                var accessToken = await this.authProvider.CreateAuthorizationHeaderForUserAsync(scopes);
+
+                using HttpResponseMessage response = await GetHttpRequest(this.configuration, this.clientFactory, accessToken);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -125,16 +130,18 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
+        /// <param name="s"></param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
-        private async Task<HttpResponseMessage> GetHttpRequest(IConfiguration configuration, IHttpClientFactory clientFactory)
+        private async Task<HttpResponseMessage> GetHttpRequest(IConfiguration configuration,
+            IHttpClientFactory clientFactory, string accessToken)
         {
-            var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
-            this.telemetryClient.TrackTrace($"before generating {scopes.First()}");
-            var accessToken = HttpContext?.Session?.GetString("accessToken");
+            // var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
+            // this.telemetryClient.TrackTrace($"before generating {scopes.First()}");
+            // var accessToken = HttpContext?.Session?.GetString("accessToken");
             if (string.IsNullOrEmpty(accessToken))
             {
-                accessToken = await this.authProvider.CreateAuthorizationHeaderForUserAsync(scopes);
+                // accessToken = await this.authProvider.CreateAuthorizationHeaderForUserAsync(scopes);
                 this.telemetryClient.TrackTrace("after generating..");
                 HttpContext?.Session?.SetString("accessToken", accessToken);
             }
