@@ -25,7 +25,7 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
-        private readonly IAuthorizationHeaderProvider authProvider;
+        private readonly ITokenAcquisition authProvider;
         private readonly TelemetryClient telemetryClient;
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
         /// <param name="authProvider"></param>
         public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory,
-            IAuthorizationHeaderProvider authProvider, TelemetryClient telemetryClient)
+            ITokenAcquisition authProvider, TelemetryClient telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
@@ -59,8 +59,8 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
-                var accessToken = await this.authProvider.CreateAuthorizationHeaderForUserAsync(scopes);
+                var scopes = new List<string> { "5b08a318-755c-4498-b213-3f6c9185878d/.default" };
+                var accessToken = await this.authProvider.GetAccessTokenForAppAsync(scopes[0]);
 
                 using HttpResponseMessage response = await GetHttpRequest(this.configuration, this.clientFactory, accessToken);
 
@@ -151,7 +151,7 @@ namespace EPR.Calculator.Frontend.Controllers
             this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Warning);
             this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Error);
             this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Critical);
-            this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
+            this.telemetryClient.TrackTrace($"accessToken length is {accessToken.Length}", SeverityLevel.Information);
 
             var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                 .GetSection(ConfigSection.DashboardCalculatorRunApi)
