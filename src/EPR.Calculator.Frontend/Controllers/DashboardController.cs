@@ -8,6 +8,7 @@ namespace EPR.Calculator.Frontend.Controllers
     using EPR.Calculator.Frontend.Helpers;
     using EPR.Calculator.Frontend.Models;
     using EPR.Calculator.Frontend.ViewModels;
+    using Microsoft.ApplicationInsights;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
@@ -21,6 +22,7 @@ namespace EPR.Calculator.Frontend.Controllers
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
         private readonly IAuthorizationHeaderProvider authProvider;
+        private readonly TelemetryClient telemetryClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DashboardController"/> class.
@@ -29,11 +31,12 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
         /// <param name="authProvider"></param>
         public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory,
-            IAuthorizationHeaderProvider authProvider)
+            IAuthorizationHeaderProvider authProvider, TelemetryClient telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
             this.authProvider = authProvider;
+            this.telemetryClient = telemetryClient;
         }
 
         /// <summary>
@@ -124,13 +127,16 @@ namespace EPR.Calculator.Frontend.Controllers
         private async Task<HttpResponseMessage> GetHttpRequest(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
             var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
-
+            this.telemetryClient.TrackTrace($"before generating {scopes.First()}");
             var accessToken = HttpContext?.Session?.GetString("accessToken");
             if (string.IsNullOrEmpty(accessToken))
             {
                 accessToken = await this.authProvider.CreateAuthorizationHeaderForUserAsync(scopes);
+                this.telemetryClient.TrackTrace("after generating..");
                 HttpContext?.Session?.SetString("accessToken", accessToken);
             }
+
+            this.telemetryClient.TrackTrace($"accessToken is {accessToken}");
 
             var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                                                   .GetSection(ConfigSection.DashboardCalculatorRunApi)
