@@ -123,8 +123,9 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
         private async Task<HttpResponseMessage> GetHttpRequest(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
-            IEnumerable<string>? scopes = configuration.GetSection(ConfigSection.DownStreamApi)
-                ?.GetSection("Scopes")?.GetSection("0")?.Value?.Split(' ');
+            var scope = configuration.GetSection(ConfigSection.DownStreamApi)
+                ?.GetSection("Scopes")?.Value;
+            var scopes = new List<string> { scope };
             if (scopes == null)
             {
                 throw new ConfigurationException("DownStreamApi:Scopes:0 missing");
