@@ -1,10 +1,8 @@
-﻿using CsvHelper.Configuration;
-using Microsoft.ApplicationInsights.DataContracts;
+﻿using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Identity.Abstractions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    using Azure.Core;
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Enums;
     using EPR.Calculator.Frontend.Helpers;
@@ -18,14 +16,13 @@ namespace EPR.Calculator.Frontend.Controllers
     using System.Net;
     using System.Reflection;
     using System.Runtime.Serialization;
-    using static System.Formats.Asn1.AsnWriter;
 
     [Authorize(Roles = "SASuperUser")]
     public class DashboardController : Controller
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
-        private readonly ITokenAcquisition authProvider;
+        private readonly IAuthorizationHeaderProvider authProvider;
         private readonly TelemetryClient telemetryClient;
 
         /// <summary>
@@ -35,7 +32,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
         /// <param name="authProvider"></param>
         public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory,
-            ITokenAcquisition authProvider, TelemetryClient telemetryClient)
+            IAuthorizationHeaderProvider authProvider, TelemetryClient telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
@@ -59,8 +56,8 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var scopes = new List<string> { "5b08a318-755c-4498-b213-3f6c9185878d/.default" };
-                var accessToken = await this.authProvider.GetAccessTokenForAppAsync(scopes[0]);
+                var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
+                var accessToken = await this.authProvider.CreateAuthorizationHeaderForUserAsync(scopes);
 
                 using HttpResponseMessage response = await GetHttpRequest(this.configuration, this.clientFactory, accessToken);
 
@@ -148,10 +145,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 HttpContext?.Session?.SetString("accessToken", accessToken);
             }
 
-            this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Warning);
-            this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Error);
-            this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Critical);
-            this.telemetryClient.TrackTrace($"accessToken length is {accessToken.Length}", SeverityLevel.Information);
+            this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
+            this.telemetryClient.TrackTrace($"accessToken length {accessToken.Length}", SeverityLevel.Information);
 
             var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                 .GetSection(ConfigSection.DashboardCalculatorRunApi)
