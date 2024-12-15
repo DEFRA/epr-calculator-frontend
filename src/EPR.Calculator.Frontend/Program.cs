@@ -14,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 IEnumerable<string>? initialScopes = builder.Configuration["DownstreamApi:Scopes"]?.Split(' ');
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd")
     .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
+    .AddMicrosoftGraph(builder.Configuration.GetSection("GraphApi"))
     .AddDownstreamApi("DownstreamApi", builder.Configuration.GetSection("DownstreamApi"))
     .AddInMemoryTokenCaches().AddSessionTokenCaches().AddSessionPerUserTokenCache().AddSession();
 builder.Services.AddRazorPages().AddMvcOptions(options =>
