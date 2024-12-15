@@ -143,11 +143,6 @@ namespace EPR.Calculator.Frontend.Controllers
             IHttpClientFactory clientFactory,
             string accessToken)
         {
-            // var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
-            // this.telemetryClient.TrackTrace($"before generating {scopes.First()}");
-            // var accessToken = HttpContext?.Session?.GetString("accessToken");
-
-
             this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
             this.telemetryClient.TrackTrace($"accessToken length {accessToken.Length}", SeverityLevel.Information);
 
