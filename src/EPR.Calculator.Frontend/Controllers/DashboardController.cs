@@ -51,7 +51,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Thrown when the API URL is null or empty.
         /// </exception>
         [Authorize(Roles = "SASuperUser")]
-        [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" })]
+        [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default", "User.Read" })]
         public async Task<IActionResult> Index()
         {
             try
@@ -59,7 +59,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 var accessToken = HttpContext?.Session?.GetString("accessToken");
                 if (string.IsNullOrEmpty(accessToken))
                 {
-                    var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
+                    var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default", "User.Read" };
                     accessToken = await this.tokenAcquisition.GetAccessTokenForUserAsync(scopes);
                     this.telemetryClient.TrackTrace("after generating..");
                     HttpContext?.Session?.SetString("accessToken", accessToken);
