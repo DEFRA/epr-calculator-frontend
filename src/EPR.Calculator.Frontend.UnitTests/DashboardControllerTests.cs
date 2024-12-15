@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -67,11 +68,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockContext = new Mock<HttpContext>();
             mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
 
-            var mockAuthorizationHeaderProvider = new Mock<IAuthorizationHeaderProvider>();
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
             mockAuthorizationHeaderProvider
-                .Setup(x => x.CreateAuthorizationHeaderForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
-                    It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
                 .ReturnsAsync("somevalue");
 
             var mockClient = new TelemetryClient();
@@ -116,11 +116,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var mockAuthorizationHeaderProvider = new Mock<IAuthorizationHeaderProvider>();
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
             mockAuthorizationHeaderProvider
-                .Setup(x => x.CreateAuthorizationHeaderForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
-                    It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
+                    null, null))
                 .ReturnsAsync("somevalue");
 
             var mockClient = new TelemetryClient();
@@ -154,7 +154,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var mockAuthorizationHeaderProvider = new Mock<IAuthorizationHeaderProvider>();
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
                 mockAuthorizationHeaderProvider.Object, new TelemetryClient());
 
@@ -188,7 +188,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
             var config = configuration;
             config.GetSection(ConfigSection.DashboardCalculatorRun).Value = string.Empty;
-            var mockAuthorizationHeaderProvider = new Mock<IAuthorizationHeaderProvider>();
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
             var mockClient = new TelemetryClient();
             var controller = new DashboardController(config, mockHttpClientFactory.Object,
                 mockAuthorizationHeaderProvider.Object, mockClient);
@@ -223,7 +223,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
-            var mockAuthorizationHeaderProvider = new Mock<IAuthorizationHeaderProvider>();
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
             var mockClient = new Mock<TelemetryClient>();
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
                 mockAuthorizationHeaderProvider.Object, mockClient.Object);
@@ -306,11 +306,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var mockAuthorizationHeaderProvider = new Mock<IAuthorizationHeaderProvider>();
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
             mockAuthorizationHeaderProvider
-                .Setup(x => x.CreateAuthorizationHeaderForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
-                    It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
+                    null, null))
                 .ReturnsAsync("somevalue");
             var mockClient = new TelemetryClient();
             // Act

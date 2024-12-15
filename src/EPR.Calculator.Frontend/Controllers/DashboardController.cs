@@ -22,7 +22,7 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
-        private readonly IAuthorizationHeaderProvider authProvider;
+        private readonly ITokenAcquisition tokenAcquisition;
         private readonly TelemetryClient telemetryClient;
 
         /// <summary>
@@ -30,13 +30,13 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        /// <param name="authProvider"></param>
+        /// <param name="tokenAcquisition"></param>
         public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory,
-            IAuthorizationHeaderProvider authProvider, TelemetryClient telemetryClient)
+            ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
-            this.authProvider = authProvider;
+            this.tokenAcquisition = tokenAcquisition;
             this.telemetryClient = telemetryClient;
         }
 
@@ -56,10 +56,18 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
-                var accessToken = await this.authProvider.CreateAuthorizationHeaderForUserAsync(scopes);
+                var accessToken = HttpContext?.Session?.GetString("accessToken");
+                if (string.IsNullOrEmpty(accessToken))
+                {
+                    var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
+                    accessToken = await this.tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+                    this.telemetryClient.TrackTrace("after generating..");
+                    HttpContext?.Session?.SetString("accessToken", accessToken);
+                }
 
-                using HttpResponseMessage response = await GetHttpRequest(this.configuration, this.clientFactory, accessToken);
+                var bearerToken = $"Bearer {accessToken}";
+
+                using HttpResponseMessage response = await GetHttpRequest(this.configuration, this.clientFactory, bearerToken);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -138,12 +146,7 @@ namespace EPR.Calculator.Frontend.Controllers
             // var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default" };
             // this.telemetryClient.TrackTrace($"before generating {scopes.First()}");
             // var accessToken = HttpContext?.Session?.GetString("accessToken");
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                // accessToken = await this.authProvider.CreateAuthorizationHeaderForUserAsync(scopes);
-                this.telemetryClient.TrackTrace("after generating..");
-                HttpContext?.Session?.SetString("accessToken", accessToken);
-            }
+
 
             this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
             this.telemetryClient.TrackTrace($"accessToken length {accessToken.Length}", SeverityLevel.Information);
