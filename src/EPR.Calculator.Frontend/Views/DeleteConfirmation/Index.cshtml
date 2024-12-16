@@ -1,5 +1,36 @@
-﻿<p class="govuk-body">
-    Placeholder for calculation run details page
-</p>
+﻿@using EPR.Calculator.Frontend.ViewModels
+@model CalculatorRunStatusUpdateViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 
-<a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
+<main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <p></p>
+        </div>
+        <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
+            <div class="account-info">
+                <span class="your-name" id="bannerUserName">@Model.CurrentUser</span>
+                <a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
+            </div>
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <br>
+            <h1 class="govuk-heading-xl">You have successfully deleted this file</h1>
+            <span class="govuk-caption-xl">@Model.Data.CalcName</span><br>
+            <p class="govuk-body">ID: @Model.Data.RunId</p>
+            <hr>
+            <br>
+            <form action="/form-handler" method="post" novalidate="">
+                <input type="hidden" name="answers-checked" value="true">
+                <div class="govuk-button-group">
+                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-button" type="submit">Return to the dashboard</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>

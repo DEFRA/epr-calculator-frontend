@@ -93,7 +93,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void DeleteCalcDetails_ReturnsView_WhenApiCallIsSuccessful()
+        public void DeleteCalcDetails_ReturnsView_WhenDeleteRadioIsNotChecked()
         {
             // Arrange
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetCalculationRuns());
@@ -101,10 +101,71 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
             int runId = 1;
+            string calcName = "TestCalc";
+            string calDate = "21 June 2024";
+            string calTime = "12:09";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId) as ViewResult;
+            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, false) as ViewResult;
+
+            var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsIndex, result.ViewName);
+            Assert.AreEqual(ViewControlNames.DeleteCalculationName, errorViewModel.DOMElementId);
+            Assert.AreEqual(ErrorMessages.SelectDeleteCalculation, errorViewModel.ErrorMessage);
+        }
+
+        [TestMethod]
+        public void DeleteCalcDetails_ReturnsView_WhenApiCallIsUnsuccessful()
+        {
+            // Arrange
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.RequestTimeout, MockData.GetCalculationRuns());
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
+            int runId = 1;
+            string calcName = "TestCalc";
+            string calDate = "21 June 2024";
+            string calTime = "12:09";
+
+            // Act
+            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true) as ViewResult;
+
+            var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsIndex, result.ViewName);
+            Assert.AreEqual(ViewControlNames.DeleteCalculationName, errorViewModel.DOMElementId);
+            Assert.AreEqual(ErrorMessages.DeleteCalculationError, errorViewModel.ErrorMessage);
+        }
+
+        [TestMethod]
+        public void DeleteCalcDetails_ReturnsView_WhenApiCallIsSuccessful()
+        {
+            // Arrange
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.Created, MockData.GetCalculationRuns());
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
+            int runId = 1;
+            string calcName = "TestCalc";
+            string calDate = "21 June 2024";
+            string calTime = "12:09";
+
+            // Act
+            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -131,6 +192,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
+            _mockLogger.Verify(
+               logger => logger.Log(
+                   LogLevel.Error,
+                   It.IsAny<EventId>(),
+                   It.Is<It.IsAnyType>((state, t) => state.ToString().Contains($"Request failed with status code {HttpStatusCode.InternalServerError}")),
+                   null,
+                   It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+               Times.Once);
         }
 
         [TestMethod]
@@ -166,9 +235,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new CalculationRunDetailsController(null, null, _mockLogger.Object);
             int runId = 1;
             string calcName = "TestCalc";
+            string calDate = "21 June 2024";
+            string calTime = "12:09";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId) as RedirectToActionResult;
+            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
