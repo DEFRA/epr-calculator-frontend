@@ -99,7 +99,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.View(ViewNames.ParameterUploadFileRefresh, viewModel);
         }
 
-        public static string CompressString(string text)
+        public string CompressString(string text)
         {
             using var outputStream = new MemoryStream();
             using (var zipStream = new GZipStream(outputStream, CompressionMode.Compress))
@@ -111,7 +111,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return Convert.ToBase64String(outputStream.ToArray());
         }
 
-        public static string DecompressString(string compressedText)
+        public string DecompressString(string compressedText)
         {
             var inputBytes = Convert.FromBase64String(compressedText);
             using var inputStream = new MemoryStream(inputBytes);
