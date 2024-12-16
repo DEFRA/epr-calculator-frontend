@@ -36,7 +36,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockMemoryCache = new Mock<IMemoryCache>();
         }
 
-
         [TestMethod]
         public void ParameterUploadCSVErrorController_View_Global_Validation_Test()
         {
