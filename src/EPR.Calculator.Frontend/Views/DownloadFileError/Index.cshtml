@@ -1,0 +1,37 @@
+﻿@{
+    var currentUser = User?.Identity?.Name;
+    if (string.IsNullOrEmpty(currentUser))
+    {
+        currentUser = "Jamie Roberts";
+    }
+}
+<main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <p></p>
+        </div>
+        <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
+            <div class="account-info">
+                <span class="your-name" id="bannerUserName">@currentUser</span>
+                <a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
+            </div>
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form method="POST" action="run-radio">
+                <div class="govuk-form-group ">
+                    <h1 class="govuk-heading-l">There was a problem downloading this file</h1>
+                    <h1 class="govuk-body-m">This file has not been downloaded. </h1>
+                    <button data-prevent-double-click="true" class="govuk-button govuk-!-margin-top-4" data-module="govuk-button">
+                        Try again
+                    </button>
+                    <p class="govuk-body">
+                        <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
+                    </p>                    
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+

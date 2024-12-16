@@ -63,6 +63,13 @@ namespace EPR.Calculator.Frontend.Controllers
                     },
                 };
 
+
+                var downloadResultApi = this.configuration
+                          .GetSection(ConfigSection.CalculationRunSettings)
+                          .GetValue<string>(ConfigSection.DownloadResultApi);
+
+                this.ViewBag.DownloadAPI = new Uri($"{downloadResultApi}/{runId}", UriKind.Absolute);
+
                 return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
             }
             catch (Exception ex)
