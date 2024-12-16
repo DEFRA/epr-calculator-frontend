@@ -21,7 +21,7 @@ function callController(action, data) {
     $.ajax({
         url: url,
         type: 'POST',
-        data: JSON.stringify(data),
+        data: JSON.stringify({ data }),
         contentType: "application/json",
         success: function (response) {
             window.location.href = response.redirectUrl;
