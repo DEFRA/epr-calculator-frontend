@@ -59,7 +59,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 var accessToken = HttpContext?.Session?.GetString("accessToken");
                 if (string.IsNullOrEmpty(accessToken))
                 {
-                    var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/default", "User.Read" };
+                    var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/Read_Scope", "api://542488b9-bf70-429f-bad7-1e592efce352/Write_Scope" };
                     accessToken = await this.tokenAcquisition.GetAccessTokenForUserAsync(scopes);
                     this.telemetryClient.TrackTrace("after generating..");
                     HttpContext?.Session?.SetString("accessToken", accessToken);
