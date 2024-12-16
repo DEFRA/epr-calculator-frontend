@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO.Compression;
+using System.Text;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -13,23 +14,12 @@ namespace EPR.Calculator.Frontend.Controllers
     [Authorize(Roles = "SASuperUser")]
     public class ParameterUploadFileErrorController : Controller
     {
-        private IMemoryCache _memoryCache;
-
-        public ParameterUploadFileErrorController(IMemoryCache memoryCache)
-        {
-            this._memoryCache = memoryCache;
-        }
-
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index(string key)
+        public IActionResult Index(string parameterErrors)
         {
             try
             {
-                string errors = string.Empty;
-                if (this._memoryCache.TryGetValue(key, out string parameterErrors))
-                {
-                    errors = Encoding.UTF8.GetString(Convert.FromBase64String(parameterErrors));
-                }
+                var errors = DecompressString(parameterErrors);
 
                 if (!string.IsNullOrEmpty(errors))
                 {
@@ -77,16 +67,8 @@ namespace EPR.Calculator.Frontend.Controllers
         [Authorize(Roles = "SASuperUser")]
         public IActionResult Index([FromBody] DataRequest errors)
         {
-            var parameterErrors = Convert.ToBase64String(Encoding.UTF8.GetBytes(errors.Data));
-            var key = Guid.NewGuid().ToString();
-
-            using (var cacheEntry = this._memoryCache.CreateEntry(key))
-            {
-                cacheEntry.Value = parameterErrors;
-                cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
-            }
-
-            return this.Ok(new { redirectUrl = this.Url.Action("Index", new { key }) });
+            var parameterErrors = CompressString(errors.Data);
+            return this.Ok(new { redirectUrl = this.Url.Action("Index", new { parameterErrors }) });
         }
 
         [HttpPost]
@@ -115,6 +97,27 @@ namespace EPR.Calculator.Frontend.Controllers
             };
 
             return this.View(ViewNames.ParameterUploadFileRefresh, viewModel);
+        }
+
+        public static string CompressString(string text)
+        {
+            using var outputStream = new MemoryStream();
+            using (var zipStream = new GZipStream(outputStream, CompressionMode.Compress))
+            using (var writer = new StreamWriter(zipStream, Encoding.UTF8))
+            {
+                writer.Write(text);
+            }
+
+            return Convert.ToBase64String(outputStream.ToArray());
+        }
+
+        public static string DecompressString(string compressedText)
+        {
+            var inputBytes = Convert.FromBase64String(compressedText);
+            using var inputStream = new MemoryStream(inputBytes);
+            using var zipStream = new GZipStream(inputStream, CompressionMode.Decompress);
+            using var reader = new StreamReader(zipStream, Encoding.UTF8);
+            return reader.ReadToEnd();
         }
     }
 }

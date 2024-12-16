@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.IO.Compression;
+using System.Text;
+using System.Text.Json.Nodes;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using Newtonsoft.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -48,23 +51,23 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpSession = new MockHttpSession();
             mockHttpSession.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, JsonConvert.SerializeObject(errors));
 
-            var key = "testKey";
-            var mockData = "[{\"parameterUniqueRef\":\"BADEBT-P\",\"parameterCategory\":\"Percentage\",\"parameterType\":\"Bad debt provision\",\"message\":\"The Bad debt provision must be between 0% and 999.99%\",\"description\":\"\"}]";
-            var encodedData = Convert.ToBase64String(Encoding.UTF8.GetBytes(mockData));
-
-            object cachedValue = encodedData;
-
-            var mockMemoryCache = new Mock<IMemoryCache>();
-            mockMemoryCache
-                .Setup(m => m.TryGetValue(key, out cachedValue))
-                .Returns(true);
-
-            var controller = new ParameterUploadFileErrorController(mockMemoryCache.Object);
+            var controller = new ParameterUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
 
-            var result = controller.Index("testKey") as ViewResult;
+            string json = "[{\"uniqueReference\":\"ENG-OT\",\"country\":\"England\",\"material\":\"Other materials\",\"message\":\"Enter the total costs for Other materials in England\",\"description\":\"\"},{\"uniqueReference\":\"NI-AL\",\"country\":\"Northern Ireland\",\"material\":\"Aluminium\",\"message\":\"Enter the total costs for Aluminium in Northern Ireland\",\"description\":\"\"}]";
+
+            using var outputStream = new MemoryStream();
+            using (var zipStream = new GZipStream(outputStream, CompressionMode.Compress))
+            using (var writer = new StreamWriter(zipStream, Encoding.UTF8))
+            {
+                writer.Write(json);
+            }
+
+            var jsonObject = Convert.ToBase64String(outputStream.ToArray());
+
+            var result = controller.Index(jsonObject) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ParameterUploadFileErrorIndex, result.ViewName);
         }
@@ -85,7 +88,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(m => m.TryGetValue(key, out cachedValue))
                 .Returns(true);
 
-            var controller = new ParameterUploadFileErrorController(_mockMemoryCache.Object);
+            var controller = new ParameterUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
@@ -109,7 +112,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockMemoryCache.Setup(m => m.TryGetValue(cacheKey, out outValue))
                 .Returns(true);
 
-            var controller = new ParameterUploadFileErrorController(_mockMemoryCache.Object);
+            var controller = new ParameterUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
@@ -142,7 +145,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockMemoryCache.Setup(m => m.TryGetValue(cacheKey, out outValue))
                 .Returns(true);
 
-            var controller = new ParameterUploadFileErrorController(_mockMemoryCache.Object)
+            var controller = new ParameterUploadFileErrorController()
             {
                 TempData = tempData
             };
@@ -160,7 +163,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns("Index");
 
             var mockHttpSession = new MockHttpSession();
-            var controller = new ParameterUploadFileErrorController(_mockMemoryCache.Object)
+            var controller = new ParameterUploadFileErrorController()
             {
                 Url = mockUrlHelper.Object
             };
@@ -191,7 +194,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             stream.Position = 0;
             IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.xlsx");
 
-            var controller = new ParameterUploadFileErrorController(_mockMemoryCache.Object);
+            var controller = new ParameterUploadFileErrorController();
             controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
 
             var result = await controller.Upload(file) as ViewResult;
@@ -221,7 +224,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockMemoryCache.Setup(m => m.TryGetValue(cacheKey, out outValue))
                 .Returns(true);
 
-            var controller = new ParameterUploadFileErrorController(_mockMemoryCache.Object)
+            var controller = new ParameterUploadFileErrorController()
             {
                 TempData = tempData
             };
@@ -243,23 +246,23 @@ namespace EPR.Calculator.Frontend.UnitTests
             var errors = new List<CreateDefaultParameterSettingErrorDto>() { new CreateDefaultParameterSettingErrorDto { Message = "Some message" } };
             mockHttpSession.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, JsonConvert.SerializeObject(errors).ToString());
 
-            var key = "testKey";
-            var mockData = "[{\"parameterUniqueRef\":\"BADEBT-P\",\"parameterCategory\":\"Percentage\",\"parameterType\":\"Bad debt provision\",\"message\":\"The Bad debt provision must be between 0% and 999.99%\",\"description\":\"\"}]";
-            var encodedData = Convert.ToBase64String(Encoding.UTF8.GetBytes(mockData));
-
-            object cachedValue = encodedData;
-
-            var mockMemoryCache = new Mock<IMemoryCache>();
-            mockMemoryCache
-                .Setup(m => m.TryGetValue(key, out cachedValue))
-                .Returns(true);
-
-            var controller = new ParameterUploadFileErrorController(mockMemoryCache.Object);
+            var controller = new ParameterUploadFileErrorController();
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
 
-            var result = controller.Index(key) as ViewResult;
+            string json = "[{\"uniqueReference\":\"ENG-OT\",\"country\":\"England\",\"material\":\"Other materials\",\"message\":\"Enter the total costs for Other materials in England\",\"description\":\"\"},{\"uniqueReference\":\"NI-AL\",\"country\":\"Northern Ireland\",\"material\":\"Aluminium\",\"message\":\"Enter the total costs for Aluminium in Northern Ireland\",\"description\":\"\"}]";
+
+            using var outputStream = new MemoryStream();
+            using (var zipStream = new GZipStream(outputStream, CompressionMode.Compress))
+            using (var writer = new StreamWriter(zipStream, Encoding.UTF8))
+            {
+                writer.Write(json);
+            }
+
+            var jsonObject = Convert.ToBase64String(outputStream.ToArray());
+
+            var result = controller.Index(jsonObject) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ParameterUploadFileErrorIndex, result.ViewName);
         }
