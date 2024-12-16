@@ -1,9 +1,11 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Text;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -11,12 +13,23 @@ namespace EPR.Calculator.Frontend.Controllers
     [Authorize(Roles = "SASuperUser")]
     public class ParameterUploadFileErrorController : Controller
     {
+        private IMemoryCache _memoryCache;
+
+        public ParameterUploadFileErrorController(IMemoryCache memoryCache)
+        {
+            this._memoryCache = memoryCache;
+        }
+
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index()
+        public IActionResult Index(string key)
         {
             try
             {
-                var errors = this.HttpContext.Session.GetString(UploadFileErrorIds.DefaultParameterUploadErrors);
+                string errors = string.Empty;
+                if (this._memoryCache.TryGetValue(key, out string parameterErrors))
+                {
+                    errors = Encoding.UTF8.GetString(Convert.FromBase64String(parameterErrors));
+                }
 
                 if (!string.IsNullOrEmpty(errors))
                 {
@@ -62,10 +75,18 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index([FromBody] string errors)
+        public IActionResult Index([FromBody] DataRequest errors)
         {
-            this.HttpContext.Session.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, errors);
-            return this.Ok();
+            var parameterErrors = Convert.ToBase64String(Encoding.UTF8.GetBytes(errors.Data));
+            var key = Guid.NewGuid().ToString();
+
+            using (var cacheEntry = this._memoryCache.CreateEntry(key))
+            {
+                cacheEntry.Value = parameterErrors;
+                cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+            }
+
+            return this.Ok(new { redirectUrl = this.Url.Action("Index", new { key }) });
         }
 
         [HttpPost]

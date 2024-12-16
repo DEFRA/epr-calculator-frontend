@@ -1,11 +1,14 @@
-﻿using AutoFixture;
+﻿using System.Text;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using Newtonsoft.Json;
 
@@ -14,6 +17,8 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class ParameterUploadFileErrorControllerTests
     {
+        private Mock<IMemoryCache> _mockMemoryCache;
+
         public ParameterUploadFileErrorControllerTests()
         {
             this.Fixture = new Fixture();
@@ -25,27 +30,12 @@ namespace EPR.Calculator.Frontend.UnitTests
 
         private Mock<HttpContext> MockHttpContext { get; init; }
 
-        [TestMethod]
-        public void ParameterUploadCSVErrorController_View_Test()
+        [TestInitialize]
+        public void Setup()
         {
-            var errors = new List<CreateDefaultParameterSettingErrorDto>();
-            errors.AddRange([
-                new CreateDefaultParameterSettingErrorDto { Message = "Parameter Unique reference is incorrect", Description = string.Empty },
-                new CreateDefaultParameterSettingErrorDto { Message = "Parameter value is incorrect", Description = string.Empty }
-            ]);
-
-            var mockHttpSession = new MockHttpSession();
-            mockHttpSession.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, JsonConvert.SerializeObject(errors));
-
-            var controller = new ParameterUploadFileErrorController();
-            controller.ControllerContext = new ControllerContext();
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
-            controller.ControllerContext.HttpContext.Session = mockHttpSession;
-
-            var result = controller.Index() as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.ParameterUploadFileErrorIndex, result.ViewName);
+            _mockMemoryCache = new Mock<IMemoryCache>();
         }
+
 
         [TestMethod]
         public void ParameterUploadCSVErrorController_View_Global_Validation_Test()
@@ -59,12 +49,23 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpSession = new MockHttpSession();
             mockHttpSession.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, JsonConvert.SerializeObject(errors));
 
-            var controller = new ParameterUploadFileErrorController();
+            var key = "testKey";
+            var mockData = "[{\"parameterUniqueRef\":\"BADEBT-P\",\"parameterCategory\":\"Percentage\",\"parameterType\":\"Bad debt provision\",\"message\":\"The Bad debt provision must be between 0% and 999.99%\",\"description\":\"\"}]";
+            var encodedData = Convert.ToBase64String(Encoding.UTF8.GetBytes(mockData));
+
+            object cachedValue = encodedData;
+
+            var mockMemoryCache = new Mock<IMemoryCache>();
+            mockMemoryCache
+                .Setup(m => m.TryGetValue(key, out cachedValue))
+                .Returns(true);
+
+            var controller = new ParameterUploadFileErrorController(mockMemoryCache.Object);
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
 
-            var result = controller.Index() as ViewResult;
+            var result = controller.Index("testKey") as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ParameterUploadFileErrorIndex, result.ViewName);
         }
@@ -74,12 +75,23 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var mockHttpSession = new MockHttpSession();
 
-            var controller = new ParameterUploadFileErrorController();
+            var key = "testKey";
+            var mockData = "[{\"parameterUniqueRef\":\"BADEBT-P\",\"parameterCategory\":\"Percentage\",\"parameterType\":\"Bad debt provision\",\"message\":\"The Bad debt provision must be between 0% and 999.99%\",\"description\":\"\"}]";
+            var encodedData = Convert.ToBase64String(Encoding.UTF8.GetBytes(mockData));
+
+            object cachedValue = encodedData;
+
+            var mockMemoryCache = new Mock<IMemoryCache>();
+            mockMemoryCache
+                .Setup(m => m.TryGetValue(key, out cachedValue))
+                .Returns(true);
+
+            var controller = new ParameterUploadFileErrorController(_mockMemoryCache.Object);
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
 
-            var result = controller.Index() as RedirectToActionResult;
+            var result = controller.Index("testKey") as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
@@ -91,12 +103,19 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpSession = new MockHttpSession();
             mockHttpSession.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, string.Empty);
 
-            var controller = new ParameterUploadFileErrorController();
+            string cacheKey = "testKey";
+            string cacheValue = "testValue";
+
+            object outValue;
+            _mockMemoryCache.Setup(m => m.TryGetValue(cacheKey, out outValue))
+                .Returns(true);
+
+            var controller = new ParameterUploadFileErrorController(_mockMemoryCache.Object);
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
 
-            var result = controller.Index() as RedirectToActionResult;
+            var result = controller.Index("testKey") as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
@@ -117,7 +136,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData["FilePath"] = "some random file location";
 
-            var controller = new ParameterUploadFileErrorController()
+            string cacheKey = "testKey";
+            string cacheValue = "testValue";
+
+            object outValue;
+            _mockMemoryCache.Setup(m => m.TryGetValue(cacheKey, out outValue))
+                .Returns(true);
+
+            var controller = new ParameterUploadFileErrorController(_mockMemoryCache.Object)
             {
                 TempData = tempData
             };
@@ -129,14 +155,28 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void ParameterUploadCsvErrorController_Post_Returns_Ok_Test()
         {
-            var mockHttpSession = new MockHttpSession();
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            mockUrlHelper
+                .Setup(x => x.Action(It.IsAny<UrlActionContext>()))
+                .Returns("Index");
 
-            var controller = new ParameterUploadFileErrorController();
+            var mockHttpSession = new MockHttpSession();
+            var controller = new ParameterUploadFileErrorController(_mockMemoryCache.Object)
+            {
+                Url = mockUrlHelper.Object
+            };
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
 
-            var result = controller.Index("some errors") as OkResult;
+            var sampleData = "[{\"parameterUniqueRef\":\"BADEBT-P\",\"parameterCategory\":\"Percentage\",\"parameterType\":\"Bad debt provision\",\"message\":\"The Bad debt provision must be between 0% and 999.99%\",\"description\":\"\"}]";
+            var errors = new DataRequest { Data = sampleData };
+            var mockCacheEntry = new Mock<ICacheEntry>();
+
+            _mockMemoryCache.Setup(m => m.CreateEntry(It.IsAny<object>()))
+                .Returns(mockCacheEntry.Object);
+
+            var result = controller.Index(errors) as OkObjectResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(200, result.StatusCode);
         }
@@ -152,7 +192,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             stream.Position = 0;
             IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.xlsx");
 
-            var controller = new ParameterUploadFileErrorController();
+            var controller = new ParameterUploadFileErrorController(_mockMemoryCache.Object);
             controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
 
             var result = await controller.Upload(file) as ViewResult;
@@ -175,7 +215,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
             tempData[UploadFileErrorIds.DefaultParameterUploadErrors] = string.Empty;
 
-            var controller = new ParameterUploadFileErrorController()
+            string cacheKey = "testKey";
+            string cacheValue = "testValue";
+
+            object outValue;
+            _mockMemoryCache.Setup(m => m.TryGetValue(cacheKey, out outValue))
+                .Returns(true);
+
+            var controller = new ParameterUploadFileErrorController(_mockMemoryCache.Object)
             {
                 TempData = tempData
             };
@@ -190,24 +237,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task ParameterUploadCSVErrorController_View_Get_Test()
-        {
-            var mockHttpSession = new MockHttpSession();
-
-            var errors = new List<ValidationErrorDto>() { new ValidationErrorDto { ErrorMessage = ErrorMessages.FileMustBeCSV } };
-            mockHttpSession.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, JsonConvert.SerializeObject(errors).ToString());
-
-            var controller = new ParameterUploadFileErrorController();
-            controller.ControllerContext = new ControllerContext();
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
-            controller.ControllerContext.HttpContext.Session = mockHttpSession;
-
-            var result = controller.Index() as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.ParameterUploadFileErrorIndex, result.ViewName);
-        }
-
-        [TestMethod]
         public async Task ParameterUploadCSVErrorController_View_Get_Error_Test()
         {
             var mockHttpSession = new MockHttpSession();
@@ -215,12 +244,23 @@ namespace EPR.Calculator.Frontend.UnitTests
             var errors = new List<CreateDefaultParameterSettingErrorDto>() { new CreateDefaultParameterSettingErrorDto { Message = "Some message" } };
             mockHttpSession.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, JsonConvert.SerializeObject(errors).ToString());
 
-            var controller = new ParameterUploadFileErrorController();
+            var key = "testKey";
+            var mockData = "[{\"parameterUniqueRef\":\"BADEBT-P\",\"parameterCategory\":\"Percentage\",\"parameterType\":\"Bad debt provision\",\"message\":\"The Bad debt provision must be between 0% and 999.99%\",\"description\":\"\"}]";
+            var encodedData = Convert.ToBase64String(Encoding.UTF8.GetBytes(mockData));
+
+            object cachedValue = encodedData;
+
+            var mockMemoryCache = new Mock<IMemoryCache>();
+            mockMemoryCache
+                .Setup(m => m.TryGetValue(key, out cachedValue))
+                .Returns(true);
+
+            var controller = new ParameterUploadFileErrorController(mockMemoryCache.Object);
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
 
-            var result = controller.Index() as ViewResult;
+            var result = controller.Index(key) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ParameterUploadFileErrorIndex, result.ViewName);
         }
