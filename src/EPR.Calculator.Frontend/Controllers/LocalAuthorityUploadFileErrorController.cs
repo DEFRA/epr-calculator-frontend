@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -12,11 +13,11 @@ namespace EPR.Calculator.Frontend.Controllers
     public class LocalAuthorityUploadFileErrorController : Controller
     {
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index()
+        public IActionResult Index(string laErrors)
         {
             try
             {
-                var lapcapErrors = this.HttpContext.Session.GetString(UploadFileErrorIds.LocalAuthorityUploadErrors);
+                var lapcapErrors = Encoding.UTF8.GetString(Convert.FromBase64String(laErrors));
 
                 if (!string.IsNullOrEmpty(lapcapErrors))
                 {
@@ -62,11 +63,10 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index([FromBody] string errors)
+        public IActionResult Index([FromBody] DataRequest errors)
         {
-            this.HttpContext.Session.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, errors);
-
-            return this.Ok();
+            var laErrors = Convert.ToBase64String(Encoding.UTF8.GetBytes(errors.Data));
+            return this.Ok(new { redirectUrl = this.Url.Action("Index", new { laErrors }) });
         }
 
         [HttpPost]
@@ -76,6 +76,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var lapcapFileErrors = CsvFileHelper.ValidateCSV(fileUpload);
             if (lapcapFileErrors.ErrorMessage is not null)
             {
+                this.ViewBag.DefaultError = lapcapFileErrors;
                 return this.View(
                     ViewNames.LocalAuthorityUploadFileErrorIndex,
                     new ViewModelCommonData
@@ -87,14 +88,13 @@ namespace EPR.Calculator.Frontend.Controllers
             var localAuthorityDisposalCostsValues = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
 
             this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCostsValues.ToArray();
-            this.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUpload.FileName);
+            var viewModel = new ViewModelCommonData
+            {
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                FileName = fileUpload?.FileName,
+            };
 
-            return this.View(
-                ViewNames.LocalAuthorityUploadFileRefresh,
-                new ViewModelCommonData
-                {
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                });
+            return this.View(ViewNames.LocalAuthorityUploadFileRefresh, viewModel);
         }
     }
 }

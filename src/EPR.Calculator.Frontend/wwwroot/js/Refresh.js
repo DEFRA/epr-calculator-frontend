@@ -1,6 +1,7 @@
-﻿function processAndUploadData(parameterData, url, sucessUrl, errorAction) {
+﻿function processAndUploadData(parameterData, url, sucessUrl, errorAction, fileName) {
+    const urlWithFileName = `${url}?fileName=${encodeURIComponent(fileName)}`;
     $.ajax({
-        url: url,
+        url: urlWithFileName,
         type: 'POST',
         data: JSON.stringify(parameterData),
         processData: false,
@@ -16,14 +17,14 @@
 }
 
 function callController(action, data) {
-    let url = "/" + action;
+    let url = `/${action}`;
     $.ajax({
         url: url,
         type: 'POST',
-        data: JSON.stringify(data),
+        data: JSON.stringify({ data }),
         contentType: "application/json",
-        success: function () {
-            window.location.href = url;
+        success: function (response) {
+            window.location.href = response.redirectUrl;
         },
         error: function (xhr, status, error) {
             window.location.href = '/StandardError';
