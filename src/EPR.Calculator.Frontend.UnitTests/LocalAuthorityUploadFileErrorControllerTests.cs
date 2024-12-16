@@ -1,10 +1,12 @@
-﻿using AutoFixture;
+﻿using System.Text;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Newtonsoft.Json;
@@ -41,8 +43,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
+            var json = "'[{\"uniqueReference\":\"ENG-OT\",\"country\":\"England\",\"material\":\"Other materials\",\"message\":\"Enter the total costs for Other materials in England\",\"description\":\"\"},{\"uniqueReference\":\"NI-AL\",\"country\":\"Northern Ireland\",\"material\":\"Aluminium\",\"message\":\"Enter the total costs for Aluminium in Northern Ireland\",\"description\":\"\"}]'";
+            dynamic jsonObject = JsonConvert.DeserializeObject(json);
 
-            var result = controller.Index() as ViewResult;
+            var result = controller.Index(Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonObject))) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileErrorIndex, result.ViewName);
         }
@@ -64,7 +68,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
 
-            var result = controller.Index() as ViewResult;
+            var json = "'[{\"uniqueReference\":\"ENG-OT\",\"country\":\"England\",\"material\":\"Other materials\",\"message\":\"Enter the total costs for Other materials in England\",\"description\":\"\"},{\"uniqueReference\":\"NI-AL\",\"country\":\"Northern Ireland\",\"material\":\"Aluminium\",\"message\":\"Enter the total costs for Aluminium in Northern Ireland\",\"description\":\"\"}]'";
+            dynamic jsonObject = JsonConvert.DeserializeObject(json);
+
+            var result = controller.Index(Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonObject))) as ViewResult;
+
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileErrorIndex, result.ViewName);
         }
@@ -78,8 +86,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
+            var laErrors = "test";
 
-            var result = controller.Index() as RedirectToActionResult;
+            var result = controller.Index(laErrors) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
@@ -95,8 +104,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
+            var laErrors = "test";
 
-            var result = controller.Index() as RedirectToActionResult;
+            var result = controller.Index(laErrors) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
@@ -129,14 +139,26 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void LocalAuthorityUploadFileErrorController_Post_Returns_Ok_Test()
         {
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            mockUrlHelper
+                .Setup(x => x.Action(It.IsAny<UrlActionContext>()))
+                .Returns("Index");
+
             var mockHttpSession = new MockHttpSession();
 
-            var controller = new LocalAuthorityUploadFileErrorController();
+            var controller = new LocalAuthorityUploadFileErrorController
+            {
+                Url = mockUrlHelper.Object
+            };
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
 
-            var result = controller.Index("some errors") as OkResult;
+            var json = "'[{\"uniqueReference\":\"ENG-OT\",\"country\":\"England\",\"material\":\"Other materials\",\"message\":\"Enter the total costs for Other materials in England\",\"description\":\"\"},{\"uniqueReference\":\"NI-AL\",\"country\":\"Northern Ireland\",\"material\":\"Aluminium\",\"message\":\"Enter the total costs for Aluminium in Northern Ireland\",\"description\":\"\"}]'";
+            dynamic jsonObject = JsonConvert.DeserializeObject(json);
+            var request = new DataRequest() { Data = jsonObject };
+
+            var result = controller.Index(request) as OkObjectResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(200, result.StatusCode);
         }
@@ -207,8 +229,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
+            var json = "'[{\"uniqueReference\":\"ENG-OT\",\"country\":\"England\",\"material\":\"Other materials\",\"message\":\"Enter the total costs for Other materials in England\",\"description\":\"\"},{\"uniqueReference\":\"NI-AL\",\"country\":\"Northern Ireland\",\"material\":\"Aluminium\",\"message\":\"Enter the total costs for Aluminium in Northern Ireland\",\"description\":\"\"}]'";
+            dynamic jsonObject = JsonConvert.DeserializeObject(json);
 
-            var result = controller.Index() as ViewResult;
+            var result = controller.Index(Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonObject))) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileErrorIndex, result.ViewName);
         }
@@ -226,7 +250,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Session = mockHttpSession;
 
-            var result = controller.Index() as ViewResult;
+            var json = "'[{\"uniqueReference\":\"ENG-OT\",\"country\":\"England\",\"material\":\"Other materials\",\"message\":\"Enter the total costs for Other materials in England\",\"description\":\"\"},{\"uniqueReference\":\"NI-AL\",\"country\":\"Northern Ireland\",\"material\":\"Aluminium\",\"message\":\"Enter the total costs for Aluminium in Northern Ireland\",\"description\":\"\"}]'";
+            dynamic jsonObject = JsonConvert.DeserializeObject(json);
+
+            var result = controller.Index(Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonObject))) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileErrorIndex, result.ViewName);
         }
