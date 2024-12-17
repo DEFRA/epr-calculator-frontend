@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using AutoFixture;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
@@ -13,6 +14,17 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class ParameterUploadFileErrorControllerTests
     {
+        public ParameterUploadFileErrorControllerTests()
+        {
+            this.Fixture = new Fixture();
+            this.MockHttpContext = new Mock<HttpContext>();
+            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+        }
+
+        private Fixture Fixture { get; init; }
+
+        private Mock<HttpContext> MockHttpContext { get; init; }
+
         [TestMethod]
         public void ParameterUploadCSVErrorController_View_Test()
         {
@@ -141,6 +153,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             IFormFile file = new FormFile(stream, 0, stream.Length, string.Empty, "SchemeParameters.xlsx");
 
             var controller = new ParameterUploadFileErrorController();
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ParameterUploadFileErrorIndex, result.ViewName);
