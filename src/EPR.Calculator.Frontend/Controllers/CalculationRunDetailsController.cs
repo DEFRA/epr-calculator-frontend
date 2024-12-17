@@ -69,6 +69,8 @@ namespace EPR.Calculator.Frontend.Controllers
                           .GetValue<string>(ConfigSection.DownloadResultApi);
 
                 this.ViewBag.DownloadAPI = new Uri($"{downloadResultApi}/{runId}", UriKind.Absolute);
+                this.ViewBag.ErrorPage = $"DownloadFileError?runId={runId}&calcName={calcName}&createdDate={statusUpdateViewModel.Data.CreatedDate}" +
+                    $"&createdTime={statusUpdateViewModel.Data.CreatedTime}";
 
                 return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
             }
