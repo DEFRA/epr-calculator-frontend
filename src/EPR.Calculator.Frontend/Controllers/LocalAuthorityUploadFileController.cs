@@ -29,7 +29,12 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var lapcapViewName = await this.GetViewName(fileUpload);
-                return this.View(lapcapViewName);
+                return this.View(
+                    lapcapViewName,
+                    new ViewModelCommonData
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    });
             }
             catch (Exception)
             {
