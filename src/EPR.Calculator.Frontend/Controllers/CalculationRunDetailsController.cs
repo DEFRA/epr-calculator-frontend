@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -46,8 +47,11 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (!getCalculationDetailsResponse.IsSuccessStatusCode)
                 {
-                    this.logger.LogError($"Request failed with status code {getCalculationDetailsResponse.StatusCode}");
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                    this.logger.LogError(
+                            $"Request failed with status code {getCalculationDetailsResponse?.StatusCode}");
+                    return this.RedirectToAction(
+                            ActionNames.StandardErrorIndex,
+                            CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
 
                 var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
@@ -85,9 +89,13 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Deletes the calculation details.
         /// </summary>
         /// <param name="runId">The status update view model.</param>
+        /// <param name="calcName">The calculation name.</param>
+        /// <param name="createdTime">The created time.</param>
+        /// <param name="createdDate">The created date.</param>
+        /// <param name="deleteChecked">The delete is checked or not.</param>
         /// <returns>The delete confirmation view.</returns>
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult DeleteCalcDetails(int runId)
+        public IActionResult DeleteCalcDetails(int runId, string calcName, string createdTime, string createdDate, bool deleteChecked)
         {
             try
             {
@@ -95,26 +103,41 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(dashboardCalculatorRunApi);
-                var statusUpdateViewModel = new CalculatorRunStatusUpdateDto
+                var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
                 {
                     RunId = runId,
+                    CalcName = calcName,
                     ClassificationId = (int)RunClassification.DELETED,
+                    CreatedDate = createdDate,
+                    CreatedTime = createdTime,
+                };
+                var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
+                {
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    Data = calculatorRunStatusUpdate,
                 };
 
-                var request = new HttpRequestMessage(HttpMethod.Put, new Uri($"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.RunId}&classificationId={statusUpdateViewModel.ClassificationId}"));
+                if (!deleteChecked)
+                {
+                    this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.SelectDeleteCalculation);
+                    return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
+                }
 
+                var request = new HttpRequestMessage(
+                    HttpMethod.Put,
+                    new Uri($"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.Data.RunId}&classificationId={statusUpdateViewModel.Data.ClassificationId}"));
                 var response = client.SendAsync(request);
 
                 response.Wait();
 
-                if (!response.IsCompleted)
+                if (response.Result.StatusCode != HttpStatusCode.Created)
                 {
                     this.logger.LogError($"Request to {dashboardCalculatorRunApi} failed with status code {response.Result}");
-
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                    this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.DeleteCalculationError);
+                    return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
                 }
 
-                return this.View(ViewNames.DeleteConfirmation);
+                return this.View(ViewNames.DeleteConfirmation, statusUpdateViewModel);
             }
             catch (Exception ex)
             {
@@ -133,6 +156,20 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
             });
+        }
+
+        /// <summary>
+        /// Creates an error view model.
+        /// </summary>
+        /// <param name="errorMessage">The error message.</param>
+        /// <returns>The error view model.</returns>
+        private static ErrorViewModel CreateErrorViewModel(string errorMessage)
+        {
+            return new ErrorViewModel
+            {
+                DOMElementId = ViewControlNames.DeleteCalculationName,
+                ErrorMessage = errorMessage,
+            };
         }
 
         private static (string, string) SplitDateTime(string input)
