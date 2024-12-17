@@ -71,6 +71,30 @@
     }
 }
 
-.calculator-run-h2 {
-    overflow-wrap: break-word;
+.caclulator-details {
+    .calculator-run-h2 {
+        overflow-wrap: break-word;
+    }
+    section {
+        position: relative;
+    }
+
+    #section-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 35%;
+        height: 70%;
+        background-color: rgba(0, 0, 0, 0.05); /* Semi-transparent background */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000; /* Ensure it is on top of other elements in the section */
+    }
+
+    #section-overlay img {
+        width: 50px; /* Adjust the size of the spinner image */
+        height: 50px;
+    }
 }
+

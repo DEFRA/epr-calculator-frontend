@@ -8,34 +8,11 @@
     var DownloadAPI = ViewBag.DownloadAPI;
     var ErrorPage = ViewBag.ErrorPage;
 }
-<style>
-    section {
-        position: relative;
-    }
-
-    #section-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 35%;
-        height: 70%;
-        background-color: rgba(0, 0, 0, 0.05); /* Semi-transparent background */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000; /* Ensure it is on top of other elements in the section */
-    }
-
-    #section-overlay img {
-        width: 50px; /* Adjust the size of the spinner image */
-        height: 50px;
-    }
-</style>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
 <partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
-    <div class="govuk-grid-row">
+    <div class="govuk-grid-row caclulator-details">
         <div class="govuk-grid-column-one-third">
             <h2 class="govuk-heading-m calculator-run-h2">
                 @Model.Data.CalcName
@@ -51,8 +28,8 @@
                     ID: @Model.Data.RunId
                 </h2>
                 <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.Data.CreatedDate<br>@Model.Data.CreatedTime</p>
-                <div id="section-overlay" @* style="display:none;" *@>
-                    <img src="../images/spinner.gif" width="50px" alt="spinning wheel to show the file is loading">
+                <div id="section-overlay" style="display:none;">
+                    <img src="../images/spinner.gif" width="50px" alt="spinning wheel to show the file is downloading">
                 </div>                
             </section>
         </div>
