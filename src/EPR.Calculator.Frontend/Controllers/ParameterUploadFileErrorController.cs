@@ -77,7 +77,12 @@ namespace EPR.Calculator.Frontend.Controllers
             if (csvErrors.ErrorMessage is not null)
             {
                 this.ViewBag.DefaultError = csvErrors;
-                return this.View(ViewNames.ParameterUploadFileErrorIndex);
+                return this.View(
+                    ViewNames.ParameterUploadFileErrorIndex,
+                    new ViewModelCommonData
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    });
             }
 
             var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
