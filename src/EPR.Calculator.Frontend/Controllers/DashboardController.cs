@@ -18,12 +18,10 @@ namespace EPR.Calculator.Frontend.Controllers
     using System.Runtime.Serialization;
 
     [Authorize(Roles = "SASuperUser")]
-    public class DashboardController : Controller
+    public class DashboardController : BaseController
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
-        private readonly ITokenAcquisition tokenAcquisition;
-        private readonly TelemetryClient telemetryClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DashboardController"/> class.
@@ -32,12 +30,11 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
         /// <param name="tokenAcquisition"></param>
         public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory,
-            ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+            ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient) : base(configuration, tokenAcquisition,
+            telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
-            this.tokenAcquisition = tokenAcquisition;
-            this.telemetryClient = telemetryClient;
         }
 
         /// <summary>
@@ -55,18 +52,9 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var accessToken = HttpContext?.Session?.GetString("accessToken");
-                if (string.IsNullOrEmpty(accessToken))
-                {
-                    var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/Read_Scope" };
-                    accessToken = await this.tokenAcquisition.GetAccessTokenForUserAsync(scopes);
-                    this.telemetryClient.TrackTrace("after generating..");
-                    HttpContext?.Session?.SetString("accessToken", accessToken);
-                }
+                var accessToken = await AcquireToken();
 
-                var bearerToken = $"Bearer {accessToken}";
-
-                using HttpResponseMessage response = await GetHttpRequest(this.configuration, this.clientFactory, bearerToken);
+                using HttpResponseMessage response = await GetHttpRequest(this.configuration, this.clientFactory, accessToken);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -142,8 +130,6 @@ namespace EPR.Calculator.Frontend.Controllers
             IHttpClientFactory clientFactory,
             string accessToken)
         {
-            this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
-            this.telemetryClient.TrackTrace($"accessToken length {accessToken.Length}", SeverityLevel.Information);
 
             var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                 .GetSection(ConfigSection.DashboardCalculatorRunApi)
