@@ -76,6 +76,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var lapcapFileErrors = CsvFileHelper.ValidateCSV(fileUpload);
             if (lapcapFileErrors.ErrorMessage is not null)
             {
+                this.ViewBag.DefaultError = lapcapFileErrors;
                 return this.View(
                     ViewNames.LocalAuthorityUploadFileErrorIndex,
                     new ViewModelCommonData
