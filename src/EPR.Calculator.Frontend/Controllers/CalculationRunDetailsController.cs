@@ -67,7 +67,6 @@ namespace EPR.Calculator.Frontend.Controllers
                     },
                 };
 
-
                 var downloadResultApi = this.configuration
                           .GetSection(ConfigSection.CalculationRunSettings)
                           .GetValue<string>(ConfigSection.DownloadResultApi);
