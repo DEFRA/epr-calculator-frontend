@@ -1,5 +1,4 @@
 ﻿function downloadFile(url, errorAction, event) {
-    $("#section-overlay").show();
     event.preventDefault();
     $.ajax({
         url: url,
@@ -31,9 +30,6 @@
         },
         error: function (error) {
             window.location.href = errorAction;
-        },
-        complete: function () {
-            $("#section-overlay").hide();
         }
     });  
 }
