@@ -1,0 +1,34 @@
+﻿@using EPR.Calculator.Frontend.ViewModels
+@model CalculatorRunStatusUpdateViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <p></p>
+        </div>
+        <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
+            <div class="account-info">
+                <span class="your-name" id="bannerUserName">@Model.CurrentUser</span>
+                <a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
+            </div>
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            
+                <div class="govuk-form-group ">
+                    <h1 class="govuk-heading-l">There was a problem downloading this file</h1>
+                    <h1 class="govuk-body-m">This file has not been downloaded. </h1>
+                <a href="@Url.Action("Index", "CalculationRunDetails", new {runId=Model.Data.RunId, calcName=Model.Data.CalcName, createdAt = Model.Data.CreatedDate + " at " + Model.Data.CreatedTime})" class="govuk-button" type="submit">Try again</a>
+                    <p class="govuk-body">
+                        <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
+                    </p>                    
+                </div>
+            
+        </div>
+    </div>
+</main>
+

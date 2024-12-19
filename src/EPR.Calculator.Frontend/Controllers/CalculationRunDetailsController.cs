@@ -6,6 +6,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -67,6 +68,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     },
                 };
 
+                this.SetDownloadParameters(statusUpdateViewModel);
+
                 return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
             }
             catch (Exception ex)
@@ -107,6 +110,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                     Data = calculatorRunStatusUpdate,
                 };
+
+                this.SetDownloadParameters(statusUpdateViewModel);
 
                 if (!deleteChecked)
                 {
@@ -195,6 +200,21 @@ namespace EPR.Calculator.Frontend.Controllers
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             return client;
+        }
+
+        private void SetDownloadParameters(CalculatorRunStatusUpdateViewModel statusUpdateViewModel)
+        {
+            var downloadResultApi = this.configuration
+                          .GetSection(ConfigSection.CalculationRunSettings)
+                          .GetValue<string>(ConfigSection.DownloadResultApi);
+
+            this.ViewBag.Timeout = this.configuration
+                  .GetSection(ConfigSection.CalculationRunSettings)
+                  .GetValue<string>(ConfigSection.DownloadResultTimeout);
+
+            this.ViewBag.DownloadAPI = new Uri($"{downloadResultApi}/{statusUpdateViewModel.Data.RunId}", UriKind.Absolute);
+            this.ViewBag.ErrorPage = HttpUtility.UrlPathEncode($"/DownloadFileError/Index?runId={statusUpdateViewModel.Data.RunId}&calcName={statusUpdateViewModel.Data.CalcName}" +
+                $"&createdDate={statusUpdateViewModel.Data.CreatedDate}&createdTime={statusUpdateViewModel.Data.CreatedTime}");
         }
     }
 }
