@@ -6,6 +6,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -71,9 +72,13 @@ namespace EPR.Calculator.Frontend.Controllers
                           .GetSection(ConfigSection.CalculationRunSettings)
                           .GetValue<string>(ConfigSection.DownloadResultApi);
 
+                this.ViewBag.Timeout = this.configuration
+                      .GetSection(ConfigSection.CalculationRunSettings)
+                      .GetValue<string>(ConfigSection.DownloadResultTimeout);
+
                 this.ViewBag.DownloadAPI = new Uri($"{downloadResultApi}/{runId}", UriKind.Absolute);
-                this.ViewBag.ErrorPage = $"DownloadFileError?runId={runId}&calcName={calcName}&createdDate={statusUpdateViewModel.Data.CreatedDate}" +
-                    $"&createdTime={statusUpdateViewModel.Data.CreatedTime}";
+                this.ViewBag.ErrorPage = HttpUtility.UrlPathEncode($"DownloadFileError?runId={runId}&calcName={calcName}" +
+                    $"&createdDate={statusUpdateViewModel.Data.CreatedDate}&createdTime={statusUpdateViewModel.Data.CreatedTime}");
 
                 return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
             }

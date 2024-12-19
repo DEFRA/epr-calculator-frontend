@@ -1,4 +1,4 @@
-﻿function downloadFile(url, errorAction, event) {
+﻿function downloadFile(url, errorAction, event, timeout) {
     event.preventDefault();
     $.ajax({
         url: url,
@@ -6,27 +6,34 @@
         xhrFields: {
             responseType: 'blob'
         },
+        timeout: timeout,
         success: function (data, status, xhr) {
-            // Get the Content-Disposition header
-            var contentDisposition = xhr.getResponseHeader('Content-Disposition');
+            try {
+                // Get the Content-Disposition header
+                const contentDisposition = xhr.getResponseHeader('Content-Disposition');
 
-            // Regular expression to match the filename and filename* parameters
-            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                // Regular expression to match the filename and filename* parameters
+                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
 
-            let filename = '';
-            let matches = filenameRegex.exec(contentDisposition);
-            if (matches != null && matches[1]) {
-                filename = matches[1].replace(/['"]/g, '');
-            } 
+                let filename = '';
+                let matches = filenameRegex.exec(contentDisposition);
+                if (matches != null && matches[1]) {
+                    filename = matches[1].replace(/['"]/g, '');
+                }
 
-            // Create a download link
-            var url = window.URL.createObjectURL(data);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = filename || 'downloaded_file'; // Use extracted filename or a default name
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
+                // Create a download link
+                const url = window.URL.createObjectURL(data);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename || 'downloaded_file'; // Use extracted filename or a default name
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            }
+            catch (error)
+            {
+                window.location.href = errorAction;
+            }            
         },
         error: function (error) {
             window.location.href = errorAction;

@@ -64,5 +64,10 @@
         /// The key for the download result api within the calculation run settings section.
         /// </summary>
         public const string DownloadResultApi = "DownloadResultApi";
+
+        /// <summary>
+        /// The key for the download timeout within the calculation run settings section.
+        /// </summary>
+        public const string DownloadResultTimeout = "DownloadResultTimeout";
     }
 }

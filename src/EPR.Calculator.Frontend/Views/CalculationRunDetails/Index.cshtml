@@ -5,8 +5,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var BackLink = "Dashboard";
     var errors = ViewBag.Errors;
-    var DownloadAPI = ViewBag.DownloadAPI;
-    var ErrorPage = ViewBag.ErrorPage;
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
@@ -24,7 +22,7 @@
                     </a>
                 </div>
                 <h2 class="gem-c-attachment__title govuk-body">
-                    <a href="javascript:void(0)" onclick="downloadFile('@DownloadAPI', '@ErrorPage', event);" class="govuk-link" target="_self">Download</a><br />
+                    <a href="javascript:void(0)" onclick="downloadFile('@ViewBag.DownloadAPI', '@ViewBag.ErrorPage', event, '@ViewBag.Timeout');" class="govuk-link" target="_self">Download</a><br />
                     ID: @Model.Data.RunId
                 </h2>
                 <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.Data.CreatedDate<br>@Model.Data.CreatedTime</p>               
