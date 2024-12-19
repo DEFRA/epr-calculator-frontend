@@ -1,21 +1,24 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     [Authorize(Roles = "SASuperUser")]
-    public class LocalAuthorityUploadFileProcessingController : Controller
+    public class LocalAuthorityUploadFileProcessingController : BaseController
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
 
-        public LocalAuthorityUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory)
+        public LocalAuthorityUploadFileProcessingController(IConfiguration configuration,
+            IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition,
+            TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
         {
-            this.configuration = configuration;
             this.clientFactory = clientFactory;
         }
 

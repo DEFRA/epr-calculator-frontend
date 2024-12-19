@@ -3,8 +3,10 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -13,7 +15,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller for handling default parameter settings.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
-    public class DefaultParametersController : Controller
+    public class DefaultParametersController : BaseController
     {
         /// <summary>
         /// The configuration settings for the application.
@@ -30,9 +32,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="configuration">The configuration settings for the application.</param>
         /// <param name="clientFactory">The factory for creating HTTP clients.</param>
-        public DefaultParametersController(IConfiguration configuration, IHttpClientFactory clientFactory)
+        public DefaultParametersController(IConfiguration configuration, IHttpClientFactory clientFactory,
+            ITokenAcquisition tokenAcquisition,
+            TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
         {
-            this.configuration = configuration;
             this.clientFactory = clientFactory;
         }
 

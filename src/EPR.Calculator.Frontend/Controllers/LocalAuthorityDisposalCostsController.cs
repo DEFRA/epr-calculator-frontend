@@ -2,8 +2,10 @@
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 using System.Net;
 
@@ -13,7 +15,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Initializes a new instance of the <see cref="LocalAuthorityDisposalCostsController"/> class.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
-    public class LocalAuthorityDisposalCostsController : Controller
+    public class LocalAuthorityDisposalCostsController : BaseController
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
@@ -23,9 +25,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        public LocalAuthorityDisposalCostsController(IConfiguration configuration, IHttpClientFactory clientFactory)
+        public LocalAuthorityDisposalCostsController(IConfiguration configuration, IHttpClientFactory clientFactory,
+            ITokenAcquisition tokenAcquisition,
+            TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
         {
-            this.configuration = configuration;
             this.clientFactory = clientFactory;
         }
 

@@ -7,11 +7,13 @@ using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.Validators;
 using EPR.Calculator.Frontend.ViewModels;
 using FluentValidation.TestHelper;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 
@@ -36,7 +38,9 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             mockClientFactory = new Mock<IHttpClientFactory>();
             mockLogger = new Mock<ILogger<CalculationRunNameController>>();
-            _controller = new CalculationRunNameController(configuration, mockClientFactory.Object, mockLogger.Object);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            _controller = new CalculationRunNameController(configuration, mockClientFactory.Object, mockLogger.Object,
+                mockTokenAcquisition.Object, new TelemetryClient());
             _validationRules = new CalculatorRunNameValidator();
             _tempDataMock = new Mock<ITempDataDictionary>();
 
@@ -352,7 +356,9 @@ namespace EPR.Calculator.Frontend.UnitTests
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "TestCalculation",
             };
-            _controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object, mockLogger.Object);
+            var mockTockenAcquisition = new Mock<ITokenAcquisition>();
+            _controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object,
+                mockLogger.Object, mockTockenAcquisition.Object, new TelemetryClient());
             var redirectResult = await _controller.RunCalculator(model) as RedirectToActionResult;
             Assert.IsNotNull(redirectResult);
             Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
@@ -527,7 +533,9 @@ namespace EPR.Calculator.Frontend.UnitTests
                     .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
 
             var mockHttpContext = new Mock<HttpContext>();
-            var controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object, mockLogger.Object)
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object,
+                mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient())
             {
                 ControllerContext = new ControllerContext
                 {
