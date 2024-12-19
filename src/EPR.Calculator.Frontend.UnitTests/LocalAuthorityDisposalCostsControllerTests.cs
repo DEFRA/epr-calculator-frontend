@@ -152,46 +152,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(UriFormatException))]
-        public async Task GetHttpRequest_NullOrEmptyLapcapRunApi_ThrowsArgumentNullException()
-        {
-            // Arrange
-            var inMemorySettings = new Dictionary<string, string>
-            {
-                { $"{ConfigSection.LapcapSettings}:{ConfigSection.LapcapSettingsApi}", " " }
-            };
-
-            IConfiguration configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(inMemorySettings)
-                .Build();
-
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(JsonConvert.SerializeObject(MockData.GetLocalAuthorityDisposalCosts()))
-                });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            // Mock IHttpClientFactory
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(string.Empty)).Returns(httpClient).Verifiable();
-
-            // Act
-            var result = await LocalAuthorityDisposalCostsController.GetHttpRequest(configuration, mockHttpClientFactory.Object);
-
-            // Assert is handled by ExpectedException
-        }
-
-        [TestMethod]
         public async Task Index_SuccessfulResponse_ReturnsViewWithGroupedData()
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();

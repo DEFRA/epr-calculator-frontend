@@ -91,7 +91,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUploadFileName);
 
             // Act
-            var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as OkObjectResult;
+            var task = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList());
+            task.Wait();
+
+            var result = task.Result as OkObjectResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -140,7 +143,9 @@ namespace EPR.Calculator.Frontend.UnitTests
                 HttpContext = mockHttpContext.Object
             };
 
-            var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as BadRequestObjectResult;
+            var task = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList());
+            task.Wait();
+            var result = task.Result as BadRequestObjectResult;
 
             Assert.IsNotNull(result);
             Assert.AreNotEqual(201, result.StatusCode);
@@ -171,7 +176,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new ParameterUploadFileProcessingController(config, mockHttpClientFactory.Object,
                 mockTokenAcquisition.Object, new TelemetryClient());
-            var result = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as RedirectToActionResult;
+            var task = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList());
+            task.Wait();
+            var result = task.Result as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
