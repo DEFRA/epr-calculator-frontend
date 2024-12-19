@@ -32,25 +32,23 @@
             @using (Html.BeginForm("DeleteCalcDetails", "CalculationRunDetails", FormMethod.Post))
             {
                 <div class="@(errors != null ? "govuk-form-group govuk-form-group--error" : "govuk-form-group")">
-                    <fieldset class="govuk-fieldset">
-                        <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="delete_button" name="deleteChecked" type="radio" value="true">
-                            <label class="govuk-label govuk-radios__label" for="delete_button">
-                                Delete (this cannot be undone)
-                            </label>
-                            <input type="hidden" asp-for="@Model.Data.RunId" name="runId" />
-                            <input type="hidden" asp-for="@Model.Data.CalcName" name="calcName" />
-                            <input type="hidden" asp-for="@Model.Data.CreatedDate" name="createdDate" />
-                            <input type="hidden" asp-for="@Model.Data.CreatedTime" name="createdTime" />
-                        </div>
-                        <br>
-                        @if (errors != null)
-                        {
-                            <p id="file-calc-error" class="govuk-error-message">
-                                <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
-                            </p>
-                        }
-                    </fieldset>
+                    <div class="govuk-radios__item">
+                        <input class="govuk-radios__input" id="delete_button" name="deleteChecked" type="radio" value="true">
+                        <label class="govuk-label govuk-radios__label" for="delete_button">
+                            Delete (this cannot be undone)
+                        </label>
+                        <input type="hidden" asp-for="@Model.Data.RunId" name="runId" />
+                        <input type="hidden" asp-for="@Model.Data.CalcName" name="calcName" />
+                        <input type="hidden" asp-for="@Model.Data.CreatedDate" name="createdDate" />
+                        <input type="hidden" asp-for="@Model.Data.CreatedTime" name="createdTime" />
+                    </div>
+                    <br>
+                    @if (errors != null)
+                    {
+                        <p id="file-calc-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
+                        </p>
+                    }
                 </div>
 
                 <div class="govuk-button-group">
