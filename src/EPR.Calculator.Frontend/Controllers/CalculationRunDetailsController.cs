@@ -68,17 +68,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     },
                 };
 
-                var downloadResultApi = this.configuration
-                          .GetSection(ConfigSection.CalculationRunSettings)
-                          .GetValue<string>(ConfigSection.DownloadResultApi);
-
-                this.ViewBag.Timeout = this.configuration
-                      .GetSection(ConfigSection.CalculationRunSettings)
-                      .GetValue<string>(ConfigSection.DownloadResultTimeout);
-
-                this.ViewBag.DownloadAPI = new Uri($"{downloadResultApi}/{runId}", UriKind.Absolute);
-                this.ViewBag.ErrorPage = HttpUtility.UrlPathEncode($"DownloadFileError?runId={runId}&calcName={calcName}" +
-                    $"&createdDate={statusUpdateViewModel.Data.CreatedDate}&createdTime={statusUpdateViewModel.Data.CreatedTime}");
+                this.SetDownloadParameters(statusUpdateViewModel);
 
                 return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
             }
@@ -120,6 +110,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                     Data = calculatorRunStatusUpdate,
                 };
+
+                this.SetDownloadParameters(statusUpdateViewModel);
 
                 if (!deleteChecked)
                 {
@@ -208,6 +200,21 @@ namespace EPR.Calculator.Frontend.Controllers
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             return client;
+        }
+
+        private void SetDownloadParameters(CalculatorRunStatusUpdateViewModel statusUpdateViewModel)
+        {
+            var downloadResultApi = this.configuration
+                          .GetSection(ConfigSection.CalculationRunSettings)
+                          .GetValue<string>(ConfigSection.DownloadResultApi);
+
+            this.ViewBag.Timeout = this.configuration
+                  .GetSection(ConfigSection.CalculationRunSettings)
+                  .GetValue<string>(ConfigSection.DownloadResultTimeout);
+
+            this.ViewBag.DownloadAPI = new Uri($"{downloadResultApi}/{statusUpdateViewModel.Data.RunId}", UriKind.Absolute);
+            this.ViewBag.ErrorPage = HttpUtility.UrlPathEncode($"/DownloadFileError/Index?runId={statusUpdateViewModel.Data.RunId}&calcName={statusUpdateViewModel.Data.CalcName}" +
+                $"&createdDate={statusUpdateViewModel.Data.CreatedDate}&createdTime={statusUpdateViewModel.Data.CreatedTime}");
         }
     }
 }
