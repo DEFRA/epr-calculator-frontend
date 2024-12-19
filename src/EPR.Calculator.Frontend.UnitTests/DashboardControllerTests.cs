@@ -106,6 +106,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
 
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
