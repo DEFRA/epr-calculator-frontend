@@ -157,6 +157,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(calculatorRunApi);
+            var accessToken = await AcquireToken();
+            client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
             var runParms = new CreateCalculatorRunDto
             {

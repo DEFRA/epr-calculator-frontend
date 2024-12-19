@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Azure.Core;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -17,11 +18,6 @@ namespace EPR.Calculator.Frontend.Controllers
     [Authorize(Roles = "SASuperUser")]
     public class DefaultParametersController : BaseController
     {
-        /// <summary>
-        /// The configuration settings for the application.
-        /// </summary>
-        private readonly IConfiguration configuration;
-
         /// <summary>
         /// The factory for creating HTTP clients.
         /// </summary>
@@ -59,6 +55,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
+                var accessToken = await AcquireToken();
+                client.DefaultRequestHeaders.Add("Authorization", accessToken);
                 var year = this.configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
 
                 var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, year));

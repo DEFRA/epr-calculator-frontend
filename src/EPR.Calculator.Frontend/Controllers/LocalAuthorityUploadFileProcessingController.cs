@@ -12,7 +12,6 @@ namespace EPR.Calculator.Frontend.Controllers
     [Authorize(Roles = "SASuperUser")]
     public class LocalAuthorityUploadFileProcessingController : BaseController
     {
-        private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
 
         public LocalAuthorityUploadFileProcessingController(IConfiguration configuration,
@@ -26,7 +25,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index([FromBody] List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
+        public async Task<IActionResult> Index([FromBody] List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
         {
             try
             {
@@ -41,6 +40,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);
+                var accessToken = await AcquireToken();
+                client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
                 var payload = this.Transform(lapcapDataTemplateValues);
 
