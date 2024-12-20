@@ -152,12 +152,11 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
-            var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            MockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
             controller.ControllerContext = new ControllerContext
             {
-                HttpContext = mockHttpContext.Object
+                HttpContext = MockHttpContext.Object
             };
 
             var result = await controller.Upload(file) as ViewResult;
@@ -185,12 +184,11 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
-            var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            MockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
             controller.ControllerContext = new ControllerContext
             {
-                HttpContext = mockHttpContext.Object
+                HttpContext = MockHttpContext.Object
             };
 
             var result = await controller.Upload(file) as ViewResult;
@@ -215,7 +213,14 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var controller = new LocalAuthorityUploadFileController()
             {
-                TempData = tempData
+                TempData = tempData,
+            };
+
+            var mockSession = new Mock<ISession>();
+            MockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = MockHttpContext.Object
             };
 
             var result = await controller.Upload(file) as ViewResult;
@@ -243,6 +248,13 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
+            var mockSession = new Mock<ISession>();
+            MockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = MockHttpContext.Object
+            };
+
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.LocalAuthorityUploadFileIndex, result.ViewName);
@@ -261,12 +273,11 @@ namespace EPR.Calculator.Frontend.UnitTests
                 TempData = tempData
             };
 
-            var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            MockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
             controller.ControllerContext = new ControllerContext
             {
-                HttpContext = mockHttpContext.Object
+                HttpContext = MockHttpContext.Object
             };
 
             // Arrange
