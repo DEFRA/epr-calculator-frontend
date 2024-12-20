@@ -8,15 +8,22 @@ namespace EPR.Calculator.Frontend.Controllers
     public class BaseController : Controller
     {
         private readonly ITokenAcquisition tokenAcquisition;
-        protected readonly TelemetryClient telemetryClient;
-        protected IConfiguration configuration;
 
-        public BaseController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+        public BaseController(IConfiguration configuration, ITokenAcquisition tokenAcquisition,
+            TelemetryClient telemetryClient)
         {
             this.tokenAcquisition = tokenAcquisition;
             this.telemetryClient = telemetryClient;
             this.configuration = configuration;
         }
+
+#pragma warning disable SA1600
+        protected TelemetryClient telemetryClient { get; set; }
+#pragma warning restore SA1600
+
+#pragma warning disable SA1600
+        protected IConfiguration configuration { get; set; }
+#pragma warning restore SA1600
 
 #pragma warning disable SA1600
         protected async Task<string> AcquireToken()
