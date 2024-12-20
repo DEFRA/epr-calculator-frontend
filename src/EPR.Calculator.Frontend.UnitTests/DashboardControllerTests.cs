@@ -11,9 +11,12 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -65,11 +68,20 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockContext = new Mock<HttpContext>();
             mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
 
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
+
+            mockAuthorizationHeaderProvider
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
+
+            var mockClient = new TelemetryClient();
+
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
+                mockAuthorizationHeaderProvider.Object, mockClient);
             controller.ControllerContext = new ControllerContext { HttpContext = mockContext.Object };
 
             // Act
-            var result = controller.Index() as ViewResult;
+            var result = await controller.Index() as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -104,10 +116,19 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
+            mockAuthorizationHeaderProvider
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
+                    null, null))
+                .ReturnsAsync("somevalue");
 
-            var result = controller.Index() as ViewResult;
+            var mockClient = new TelemetryClient();
+
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
+                mockAuthorizationHeaderProvider.Object, mockClient);
+
+            var result = await controller.Index() as ViewResult;
             Assert.IsNotNull(result);
         }
 
@@ -133,9 +154,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
+                mockAuthorizationHeaderProvider.Object, new TelemetryClient());
 
-            var result = controller.Index() as RedirectToActionResult;
+            var result = await controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
@@ -165,16 +188,19 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
             var config = configuration;
             config.GetSection(ConfigSection.DashboardCalculatorRun).Value = string.Empty;
-            var controller = new DashboardController(config, mockHttpClientFactory.Object);
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
+            var mockClient = new TelemetryClient();
+            var controller = new DashboardController(config, mockHttpClientFactory.Object,
+                mockAuthorizationHeaderProvider.Object, mockClient);
 
-            var result = controller.Index() as RedirectToActionResult;
+            var result = await controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 
         [TestMethod]
-        public void Index_RedirectsToStandardError_WhenExceptionIsThrown()
+        public async void Index_RedirectsToStandardError_WhenExceptionIsThrown()
         {
             // Arrange
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -197,11 +223,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
-
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
+            var mockClient = new Mock<TelemetryClient>();
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
+                mockAuthorizationHeaderProvider.Object, mockClient.Object);
 
             // Act
-            var result = controller.Index() as RedirectToActionResult;
+            var result = await controller.Index() as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -278,11 +306,18 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
+            mockAuthorizationHeaderProvider
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
+                    null, null))
+                .ReturnsAsync("somevalue");
+            var mockClient = new TelemetryClient();
             // Act
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object);
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
+                mockAuthorizationHeaderProvider.Object, mockClient);
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
-            var result = controller.Index() as ViewResult;
+            var result = await controller.Index() as ViewResult;
             var model = result?.Model as DashboardViewModel;
 
             // Assert

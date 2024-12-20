@@ -1,19 +1,24 @@
-﻿namespace EPR.Calculator.Frontend.Controllers
+﻿using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.Identity.Abstractions;
+
+namespace EPR.Calculator.Frontend.Controllers
 {
-    using System.Net;
-    using System.Reflection;
-    using System.Runtime.Serialization;
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Enums;
     using EPR.Calculator.Frontend.Helpers;
     using EPR.Calculator.Frontend.Models;
     using EPR.Calculator.Frontend.ViewModels;
+    using Microsoft.ApplicationInsights;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Identity.Web;
     using Newtonsoft.Json;
+    using System.Net;
+    using System.Reflection;
+    using System.Runtime.Serialization;
 
     [Authorize(Roles = "SASuperUser")]
-    public class DashboardController : Controller
+    public class DashboardController : BaseController
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
@@ -23,7 +28,10 @@
         /// </summary>
         /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory)
+        /// <param name="tokenAcquisition"></param>
+        public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory,
+            ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient) : base(configuration, tokenAcquisition,
+            telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
@@ -40,15 +48,17 @@
         /// Thrown when the API URL is null or empty.
         /// </exception>
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             try
             {
-                Task<HttpResponseMessage> response = GetHttpRequest(this.configuration, this.clientFactory);
+                var accessToken = await AcquireToken();
 
-                if (response.Result.IsSuccessStatusCode)
+                using HttpResponseMessage response = await GetHttpRequest(this.configuration, this.clientFactory, accessToken);
+
+                if (response.IsSuccessStatusCode)
                 {
-                    var deserializedRuns = JsonConvert.DeserializeObject<List<CalculationRun>>(response.Result.Content.ReadAsStringAsync().Result);
+                    var deserializedRuns = JsonConvert.DeserializeObject<List<CalculationRun>>(response.Content.ReadAsStringAsync().Result);
 
                     // Ensure deserializedRuns is not null
                     var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
@@ -62,14 +72,14 @@
                         });
                 }
 
-                if (response.Result.StatusCode == HttpStatusCode.NotFound)
+                if (response.StatusCode == HttpStatusCode.NotFound)
                 {
                     return this.View();
                 }
 
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
@@ -112,13 +122,17 @@
         /// </summary>
         /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
+        /// <param name="accessToken">token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
-        private static Task<HttpResponseMessage> GetHttpRequest(IConfiguration configuration, IHttpClientFactory clientFactory)
+        private async Task<HttpResponseMessage> GetHttpRequest(
+            IConfiguration configuration,
+            IHttpClientFactory clientFactory,
+            string accessToken)
         {
             var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                                                  .GetSection(ConfigSection.DashboardCalculatorRunApi)
-                                                  .Value;
+                .GetSection(ConfigSection.DashboardCalculatorRunApi)
+                .Value;
 
             if (string.IsNullOrEmpty(dashboardCalculatorRunApi))
             {
@@ -127,21 +141,26 @@
             }
 
             var year = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                                          .GetSection(ConfigSection.RunParameterYear)
-                                          .Value;
+                .GetSection(ConfigSection.RunParameterYear)
+                .Value;
             var client = clientFactory.CreateClient();
             client.BaseAddress = new Uri(dashboardCalculatorRunApi);
+            client.DefaultRequestHeaders.Add("Authorization", accessToken);
+
+            this.TelemetryClient.TrackTrace(
+                $"client.DefaultRequestHeaders.Authorization is {client.DefaultRequestHeaders.Authorization}",
+                SeverityLevel.Information);
 
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));
             var runParms = new CalculatorRunParamsDto
             {
                 FinancialYear = year,
             };
-            var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
+            var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8,
+                StaticHelpers.MediaType);
             request.Content = content;
-            var response = client.SendAsync(request);
-            response.Wait();
-
+            var response = await client.SendAsync(request);
+            this.TelemetryClient.TrackTrace($"Response is {response.StatusCode}", SeverityLevel.Warning);
             return response;
         }
     }

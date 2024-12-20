@@ -632,7 +632,6 @@
     <Rule Id="SA1113" Action="Error" />
     <Rule Id="SA1114" Action="Error" />
     <Rule Id="SA1115" Action="Error" />
-    <Rule Id="SA1116" Action="Error" />
     <Rule Id="SA1117" Action="None" />
     <Rule Id="SA1118" Action="Error" />
     <Rule Id="SA1119" Action="Error" />
@@ -643,7 +642,6 @@
     <Rule Id="SA1124" Action="Error" />
     <Rule Id="SA1125" Action="Error" />
     <Rule Id="SA1127" Action="Error" />
-    <Rule Id="SA1128" Action="Error" />
     <Rule Id="SA1129" Action="Error" />
     <Rule Id="SA1130" Action="Error" />
     <Rule Id="SA1131" Action="Error" />

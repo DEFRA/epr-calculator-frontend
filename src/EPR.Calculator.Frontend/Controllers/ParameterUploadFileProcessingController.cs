@@ -1,19 +1,22 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     [Authorize(Roles = "SASuperUser")]
-    public class ParameterUploadFileProcessingController : Controller
+    public class ParameterUploadFileProcessingController : BaseController
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
 
-        public ParameterUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory)
+        public ParameterUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition,
+            TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
@@ -23,7 +26,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index([FromBody] List<SchemeParameterTemplateValue> schemeParameterValues)
+        public async Task<IActionResult> Index([FromBody] List<SchemeParameterTemplateValue> schemeParameterValues)
         {
             try
             {
@@ -38,6 +41,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
+                var accessToken = await AcquireToken();
+                client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
                 var payload = this.Transform(schemeParameterValues);
 

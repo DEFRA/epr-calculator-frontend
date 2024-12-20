@@ -1,21 +1,23 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     [Authorize(Roles = "SASuperUser")]
-    public class LocalAuthorityUploadFileProcessingController : Controller
+    public class LocalAuthorityUploadFileProcessingController : BaseController
     {
-        private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
 
-        public LocalAuthorityUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory)
+        public LocalAuthorityUploadFileProcessingController(IConfiguration configuration,
+            IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition,
+            TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
         {
-            this.configuration = configuration;
             this.clientFactory = clientFactory;
         }
 
@@ -23,11 +25,11 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index([FromBody] List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
+        public async Task<IActionResult> Index([FromBody] List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
         {
             try
             {
-                var lapcapSettingsApi = this.configuration.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value;
+                var lapcapSettingsApi = this.Configuration.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value;
 
                 if (string.IsNullOrWhiteSpace(lapcapSettingsApi))
                 {
@@ -38,6 +40,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);
+                var accessToken = await AcquireToken();
+                client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
                 var payload = this.Transform(lapcapDataTemplateValues);
 
@@ -65,7 +69,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private string Transform(List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
         {
-            var parameterYear = this.configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
+            var parameterYear = this.Configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
                 throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings for local authority");
