@@ -212,7 +212,7 @@ namespace EPR.Calculator.Frontend.Controllers
                   .GetSection(ConfigSection.CalculationRunSettings)
                   .GetValue<string>(ConfigSection.DownloadResultTimeoutInMilliSeconds));
 
-            statusUpdateViewModel.DownloadResultURL = new Uri($"{downloadResultApi}/{statusUpdateViewModel.Data.RunId}", UriKind.Absolute);           
+            statusUpdateViewModel.DownloadResultURL = new Uri($"{downloadResultApi}/{statusUpdateViewModel.Data.RunId}", UriKind.Absolute);
             statusUpdateViewModel.DownloadErrorURL = this.GetDownloadErrorPageURL(statusUpdateViewModel);
         }
 
