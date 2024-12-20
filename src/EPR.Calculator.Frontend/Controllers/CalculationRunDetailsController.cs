@@ -3,8 +3,10 @@ using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -13,7 +15,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Initializes a new instance of the <see cref="CalculationRunDetailsController"/> class.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
-    public class CalculationRunDetailsController : Controller
+    public class CalculationRunDetailsController : BaseController
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
@@ -25,7 +27,9 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="configuration">The configuration settings.</param>
         /// <param name="clientFactory">The HTTP client factory.</param>
         /// <param name="logger">The logger instance.</param>
-        public CalculationRunDetailsController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunDetailsController> logger)
+        public CalculationRunDetailsController(IConfiguration configuration, IHttpClientFactory clientFactory,
+            ILogger<CalculationRunDetailsController> logger, ITokenAcquisition tokenAcquisition,
+            TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;

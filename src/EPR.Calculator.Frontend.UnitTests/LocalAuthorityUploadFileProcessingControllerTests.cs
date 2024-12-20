@@ -3,10 +3,13 @@ using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 
@@ -56,8 +59,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            mockTokenAcquisition
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
             // Create controller with the mocked factory
-            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object)
+            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(),
+                mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient())
             {
                 TempData = tempData
             };
@@ -88,7 +96,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUploadFileName);
 
             // Act
-            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as OkObjectResult;
+            var task = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList());
+            task.Wait();
+            var result = task.Result as OkObjectResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -121,8 +131,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                     .Returns(httpClient);
-
-            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object)
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            mockTokenAcquisition
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
+            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(),
+                mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient())
             {
                 TempData = tempData
             };
@@ -133,7 +147,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
             controller.ControllerContext.HttpContext = mockHttpContext.Object;
 
-            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as BadRequestObjectResult;
+            var task = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList());
+            task.Wait();
+            var result = task.Result as BadRequestObjectResult;
             Assert.IsNotNull(result);
             Assert.AreNotEqual(201, result.StatusCode);
         }
@@ -160,8 +176,11 @@ namespace EPR.Calculator.Frontend.UnitTests
                     .Returns(httpClient);
             var config = GetConfigurationValues();
             config.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value = string.Empty;
-            var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object);
-            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as RedirectToActionResult;
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object,
+                mockTokenAcquisition.Object, new TelemetryClient());
+            var task = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList());
+            var result = task.Result as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
@@ -189,8 +208,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                     .Returns(httpClient);
             var config = GetConfigurationValues();
             config.GetSection("LapcapSettings").GetSection("ParameterYear").Value = string.Empty;
-            var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object);
-            var result = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as RedirectToActionResult;
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object,
+                mockTokenAcquisition.Object, new TelemetryClient());
+            var task = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList());
+            task.Wait();
+            var result = task.Result as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
