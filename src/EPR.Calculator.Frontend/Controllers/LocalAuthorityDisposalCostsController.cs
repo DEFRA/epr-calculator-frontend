@@ -73,7 +73,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                Task<HttpResponseMessage> response = GetHttpRequest(this.configuration, this.clientFactory);
+                Task<HttpResponseMessage> response = GetHttpRequest(this.Configuration, this.clientFactory);
 
                 if (response.Result.IsSuccessStatusCode)
                 {

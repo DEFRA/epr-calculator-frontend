@@ -147,7 +147,7 @@ namespace EPR.Calculator.Frontend.Controllers
             client.BaseAddress = new Uri(dashboardCalculatorRunApi);
             client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
-            this.telemetryClient.TrackTrace(
+            this.TelemetryClient.TrackTrace(
                 $"client.DefaultRequestHeaders.Authorization is {client.DefaultRequestHeaders.Authorization}",
                 SeverityLevel.Information);
 
@@ -160,7 +160,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 StaticHelpers.MediaType);
             request.Content = content;
             var response = await client.SendAsync(request);
-            this.telemetryClient.TrackTrace($"Response is {response.StatusCode}", SeverityLevel.Warning);
+            this.TelemetryClient.TrackTrace($"Response is {response.StatusCode}", SeverityLevel.Warning);
             return response;
         }
     }

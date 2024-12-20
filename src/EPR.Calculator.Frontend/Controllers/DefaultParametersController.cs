@@ -46,7 +46,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var parameterSettingsApi = this.configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.DefaultParameterSettingsApi).Value;
+                var parameterSettingsApi = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.DefaultParameterSettingsApi).Value;
 
                 if (string.IsNullOrWhiteSpace(parameterSettingsApi))
                 {
@@ -57,7 +57,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 client.BaseAddress = new Uri(parameterSettingsApi);
                 var accessToken = await AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
-                var year = this.configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
+                var year = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
 
                 var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, year));
                 var response = await client.GetAsync(uri);

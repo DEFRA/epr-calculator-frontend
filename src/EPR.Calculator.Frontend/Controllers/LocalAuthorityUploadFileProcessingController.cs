@@ -29,7 +29,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var lapcapSettingsApi = this.configuration.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value;
+                var lapcapSettingsApi = this.Configuration.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value;
 
                 if (string.IsNullOrWhiteSpace(lapcapSettingsApi))
                 {
@@ -69,7 +69,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private string Transform(List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
         {
-            var parameterYear = this.configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
+            var parameterYear = this.Configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
                 throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings for local authority");

@@ -13,16 +13,16 @@ namespace EPR.Calculator.Frontend.Controllers
             TelemetryClient telemetryClient)
         {
             this.tokenAcquisition = tokenAcquisition;
-            this.telemetryClient = telemetryClient;
-            this.configuration = configuration;
+            this.TelemetryClient = telemetryClient;
+            this.Configuration = configuration;
         }
 
 #pragma warning disable SA1600
-        protected TelemetryClient telemetryClient { get; set; }
+        protected TelemetryClient TelemetryClient { get; set; }
 #pragma warning restore SA1600
 
 #pragma warning disable SA1600
-        protected IConfiguration configuration { get; set; }
+        protected IConfiguration Configuration { get; set; }
 #pragma warning restore SA1600
 
 #pragma warning disable SA1600
@@ -34,13 +34,13 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/Read_Scope" };
                 token = await this.tokenAcquisition.GetAccessTokenForUserAsync(scopes);
-                this.telemetryClient.TrackTrace("after generating..");
+                this.TelemetryClient.TrackTrace("after generating..");
                 HttpContext?.Session?.SetString("accessToken", token);
             }
 
             var accessToken = $"Bearer {token}";
-            this.telemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
-            this.telemetryClient.TrackTrace($"accessToken length {accessToken.Length}", SeverityLevel.Information);
+            this.TelemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
+            this.TelemetryClient.TrackTrace($"accessToken length {accessToken.Length}", SeverityLevel.Information);
             return accessToken;
         }
     }
