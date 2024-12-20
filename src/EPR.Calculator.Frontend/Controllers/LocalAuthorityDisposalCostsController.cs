@@ -25,8 +25,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
         public LocalAuthorityDisposalCostsController(IConfiguration configuration, IHttpClientFactory clientFactory,
-            ITokenAcquisition tokenAcquisition,
-            TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
+            ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient) : base(configuration, tokenAcquisition,
+            telemetryClient)
         {
             this.clientFactory = clientFactory;
         }

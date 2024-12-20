@@ -130,7 +130,6 @@ namespace EPR.Calculator.Frontend.Controllers
             IHttpClientFactory clientFactory,
             string accessToken)
         {
-
             var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                 .GetSection(ConfigSection.DashboardCalculatorRunApi)
                 .Value;
