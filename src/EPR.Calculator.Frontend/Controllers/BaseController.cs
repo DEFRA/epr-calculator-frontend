@@ -1,7 +1,9 @@
-﻿using Microsoft.ApplicationInsights;
+﻿using System.Text;
+using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -32,8 +34,18 @@ namespace EPR.Calculator.Frontend.Controllers
             var token = HttpContext?.Session?.GetString("accessToken");
             if (string.IsNullOrEmpty(token))
             {
-                var scopes = new List<string> { "api://542488b9-bf70-429f-bad7-1e592efce352/Read_Scope" };
-                token = await this.tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+                var scopeArray = new[]
+                {
+                    "openid",
+                    "offline_access",
+                    "api://542488b9-bf70-429f-bad7-1e592efce352/Read_Scope",
+                    "api://542488b9-bf70-429f-bad7-1e592efce352/Write_Scope",
+                    "api://542488b9-bf70-429f-bad7-1e592efce352/default"
+                };
+
+                var scope = string.Join(" ", scopeArray);
+                token = await this.tokenAcquisition.GetAccessTokenForUserAsync([scope]);
+                this.TelemetryClient.TrackTrace($"scope is {scope}");
                 this.TelemetryClient.TrackTrace("after generating..");
                 HttpContext?.Session?.SetString("accessToken", token);
             }
