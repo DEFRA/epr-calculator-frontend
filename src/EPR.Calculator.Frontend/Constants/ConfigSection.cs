@@ -59,5 +59,15 @@
         /// The key for the calculation run name api within the calculation run name settings section.
         /// </summary>
         public const string CalculationRunNameApi = "CalculationRunNameApi";
+
+        /// <summary>
+        /// The key for the download result api within the calculation run settings section.
+        /// </summary>
+        public const string DownloadResultApi = "DownloadResultApi";
+
+        /// <summary>
+        /// The key for the download timeout within the calculation run settings section.
+        /// </summary>
+        public const string DownloadResultTimeoutInMilliSeconds = "DownloadResultTimeoutInMilliSeconds";
     }
 }

@@ -7,9 +7,10 @@
     var errors = ViewBag.Errors;
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/Download.js"></script>
 <partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
-    <div class="govuk-grid-row">
+    <div class="govuk-grid-row caclulator-details">
         <div class="govuk-grid-column-one-third">
             <h2 class="govuk-heading-m calculator-run-h2">
                 @Model.Data.CalcName
@@ -21,10 +22,10 @@
                     </a>
                 </div>
                 <h2 class="gem-c-attachment__title govuk-body">
-                    <a href="@Url.Action("Index", "DownloadUnavailableError")" class="govuk-link" target="_self">Download</a><br />
+                    <a href="javascript:void(0)" onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout');" class="govuk-link" target="_self">Download</a><br />
                     ID: @Model.Data.RunId
                 </h2>
-                <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.Data.CreatedDate<br>@Model.Data.CreatedTime</p>
+                <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.Data.CreatedDate<br>@Model.Data.CreatedTime</p>               
             </section>
         </div>
         <div class="govuk-grid-column-two-thirds">
