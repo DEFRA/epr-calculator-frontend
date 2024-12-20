@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Web;
 
@@ -208,9 +209,11 @@ namespace EPR.Calculator.Frontend.Controllers
                           .GetSection(ConfigSection.CalculationRunSettings)
                           .GetValue<string>(ConfigSection.DownloadResultApi);
 
-            statusUpdateViewModel.DownloadTimeout = Convert.ToInt32(this.configuration
+            string? timeout = this.configuration
                   .GetSection(ConfigSection.CalculationRunSettings)
-                  .GetValue<string>(ConfigSection.DownloadResultTimeoutInMilliSeconds));
+                  .GetValue<string>(ConfigSection.DownloadResultTimeoutInMilliSeconds);
+            int timeoutValue = int.TryParse(timeout, out timeoutValue) ? timeoutValue : 0;
+            statusUpdateViewModel.DownloadTimeout = timeoutValue;
 
             statusUpdateViewModel.DownloadResultURL = new Uri($"{downloadResultApi}/{statusUpdateViewModel.Data.RunId}", UriKind.Absolute);
             statusUpdateViewModel.DownloadErrorURL = this.GetDownloadErrorPageURL(statusUpdateViewModel);
