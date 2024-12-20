@@ -8,10 +8,12 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -50,8 +52,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetCalculationRuns());
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            var mockClient = new TelemetryClient();
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, mockClient);
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
             int runId = 1;
             string calcName = "TestCalc";
@@ -77,8 +80,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.BadRequest, MockData.GetCalculationRuns());
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
             int runId = 1;
             string calcName = "TestCalc";
             string calDateTime = "21 June 2024 at 12:09";
@@ -99,8 +103,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetCalculationRuns());
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
             int runId = 1;
@@ -127,8 +132,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.RequestTimeout, MockData.GetCalculationRuns());
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
 
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
             int runId = 1;
@@ -155,8 +162,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.Created, MockData.GetCalculationRuns());
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
 
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
             int runId = 1;
@@ -180,7 +189,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var mockClient = new TelemetryClient();
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, mockTokenAcquisition.Object, mockClient);
             int runId = 1;
             string calcName = "TestCalc";
             string calDateTime = "21 June 2024 at 12:09";
@@ -210,7 +222,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
-            var controller = new CalculationRunDetailsController(null, null, _mockLogger.Object);
+            var mockClient = new Mock<ITokenAcquisition>();
+            var controller =
+                new CalculationRunDetailsController(null, null, _mockLogger.Object, mockClient.Object,
+                    new TelemetryClient());
             int runId = 1;
             string calcName = "TestCalc";
             string calDateTime = "21 June 2024 at 12:09";
@@ -232,7 +247,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
-            var controller = new CalculationRunDetailsController(null, null, _mockLogger.Object);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+
+            var controller = new CalculationRunDetailsController(null, null, _mockLogger.Object,
+                mockTokenAcquisition.Object, new TelemetryClient());
             int runId = 1;
             string calcName = "TestCalc";
             string calDate = "21 June 2024";
@@ -250,7 +268,9 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
         {
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
             var mockHttpContext = new Mock<HttpContext>();
             mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
             controller.ControllerContext = new ControllerContext
