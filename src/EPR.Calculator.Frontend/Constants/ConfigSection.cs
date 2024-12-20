@@ -68,6 +68,6 @@
         /// <summary>
         /// The key for the download timeout within the calculation run settings section.
         /// </summary>
-        public const string DownloadResultTimeout = "DownloadResultTimeout";
+        public const string DownloadResultTimeoutInMilliSeconds = "DownloadResultTimeoutInMilliSeconds";
     }
 }

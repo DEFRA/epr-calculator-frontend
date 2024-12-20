@@ -208,13 +208,28 @@ namespace EPR.Calculator.Frontend.Controllers
                           .GetSection(ConfigSection.CalculationRunSettings)
                           .GetValue<string>(ConfigSection.DownloadResultApi);
 
-            this.ViewBag.Timeout = this.configuration
+            statusUpdateViewModel.DownloadTimeout = Convert.ToInt32(this.configuration
                   .GetSection(ConfigSection.CalculationRunSettings)
-                  .GetValue<string>(ConfigSection.DownloadResultTimeout);
+                  .GetValue<string>(ConfigSection.DownloadResultTimeoutInMilliSeconds));
 
-            this.ViewBag.DownloadAPI = new Uri($"{downloadResultApi}/{statusUpdateViewModel.Data.RunId}", UriKind.Absolute);
-            this.ViewBag.ErrorPage = HttpUtility.UrlPathEncode($"/DownloadFileError/Index?runId={statusUpdateViewModel.Data.RunId}&calcName={statusUpdateViewModel.Data.CalcName}" +
-                $"&createdDate={statusUpdateViewModel.Data.CreatedDate}&createdTime={statusUpdateViewModel.Data.CreatedTime}");
+            statusUpdateViewModel.DownloadResultURL = new Uri($"{downloadResultApi}/{statusUpdateViewModel.Data.RunId}", UriKind.Absolute);           
+            statusUpdateViewModel.DownloadErrorURL = this.GetDownloadErrorPageURL(statusUpdateViewModel);
+        }
+
+        private string GetDownloadErrorPageURL(CalculatorRunStatusUpdateViewModel statusUpdateViewModel)
+        {
+            var request = this.HttpContext.Request;
+            var currentUri = new Uri($"{request.Scheme}://{request.Host}");
+
+            var builder = new UriBuilder(currentUri);
+            builder.Path = "/DownloadFileError/Index";
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["runId"] = statusUpdateViewModel.Data.RunId.ToString();
+            query["calcName"] = statusUpdateViewModel.Data.CalcName;
+            query["createdDate"] = statusUpdateViewModel.Data.CreatedDate;
+            query["createdTime"] = statusUpdateViewModel.Data.CreatedTime;
+            builder.Query = query.ToString();
+            return builder.ToString();
         }
     }
 }
