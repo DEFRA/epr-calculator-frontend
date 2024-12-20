@@ -58,6 +58,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            mockTokenAcquisition
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
             // Create controller with the mocked factory
             var controller = new ParameterUploadFileProcessingController(GetConfigurationValues(),
                 mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient())
@@ -128,6 +131,9 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                     .Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            mockTokenAcquisition
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
             var controller = new ParameterUploadFileProcessingController(GetConfigurationValues(),
                 mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient())
             {

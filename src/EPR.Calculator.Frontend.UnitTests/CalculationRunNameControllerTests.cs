@@ -30,6 +30,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         private Mock<IConfiguration> mockConfiguration;
         private Mock<ILogger<CalculationRunNameController>> mockLogger;
         private Mock<ITempDataDictionary> _tempDataMock;
+        private Mock<ITokenAcquisition> mockTokenAcquisition;
 
         private Fixture Fixture { get; } = new Fixture();
 
@@ -38,7 +39,10 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             mockClientFactory = new Mock<IHttpClientFactory>();
             mockLogger = new Mock<ILogger<CalculationRunNameController>>();
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            mockTokenAcquisition
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
             _controller = new CalculationRunNameController(configuration, mockClientFactory.Object, mockLogger.Object,
                 mockTokenAcquisition.Object, new TelemetryClient());
             _validationRules = new CalculatorRunNameValidator();
@@ -88,6 +92,16 @@ namespace EPR.Calculator.Frontend.UnitTests
                 CalculationName = "ValidCalculationName",
             };
             MockHttpClientWithResponse();
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
             var result = await _controller.RunCalculator(model) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
@@ -101,6 +115,15 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "1234",
+            };
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
             };
             MockHttpClientWithResponse();
             var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
@@ -118,6 +141,17 @@ namespace EPR.Calculator.Frontend.UnitTests
                 CalculationName = "ValidCalculationName1234",
             };
             MockHttpClientWithResponse();
+
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
             var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
 
             Assert.IsNotNull(result);
@@ -134,6 +168,17 @@ namespace EPR.Calculator.Frontend.UnitTests
                 CalculationName = "ValidCalculationName 123",
             };
             MockHttpClientWithResponse();
+
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
             var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
@@ -273,6 +318,16 @@ namespace EPR.Calculator.Frontend.UnitTests
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
             var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
             mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient);
             var result = await _controller.RunCalculator(model) as ViewResult;
@@ -356,9 +411,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "TestCalculation",
             };
-            var mockTockenAcquisition = new Mock<ITokenAcquisition>();
             _controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object,
-                mockLogger.Object, mockTockenAcquisition.Object, new TelemetryClient());
+                mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
             var redirectResult = await _controller.RunCalculator(model) as RedirectToActionResult;
             Assert.IsNotNull(redirectResult);
             Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
@@ -545,7 +599,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
             mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient);
-            var result = await _controller.RunCalculator(model);
+            var result = await controller.RunCalculator(model);
 
             var redirectResult = result as RedirectToActionResult;
             Assert.IsNotNull(redirectResult);
@@ -593,6 +647,16 @@ namespace EPR.Calculator.Frontend.UnitTests
                              .Returns(mockHttpClient1)
                              .Returns(mockHttpClient2);
 
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
+
             var result = await _controller.RunCalculator(calculationRunModel);
 
             var redirectResult = result as RedirectToActionResult;
@@ -639,6 +703,16 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
                              .Returns(mockHttpClient1)
                              .Returns(mockHttpClient2);
+
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object
+            };
 
             var result = await _controller.RunCalculator(calculationRunModel);
 

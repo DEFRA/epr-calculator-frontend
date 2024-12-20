@@ -30,7 +30,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="clientFactory">The HTTP client factory.</param>
         /// <param name="logger">The logger instance.</param>
         public CalculationRunNameController(IConfiguration configuration, IHttpClientFactory clientFactory,
-            ILogger<CalculationRunNameController> loggerITokenAcquisition, ITokenAcquisition tokenAcquisition,
+            ILogger<CalculationRunNameController> logger, ITokenAcquisition tokenAcquisition,
             TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.configuration = configuration;
@@ -99,7 +99,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "Error during calculator run.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
@@ -191,6 +190,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
+            var accessToken = await AcquireToken();
+            client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
             var requestUri = new Uri($"{apiUrl}/{calculationName}", UriKind.Absolute);
             return await client.GetAsync(requestUri);
