@@ -46,8 +46,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(),
-                mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+
+            var controller = new DefaultParametersController(
+                ConfigurationItems.GetConfigurationValues(),
+                mockHttpClientFactory.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient());
 
             var mockContext = new Mock<HttpContext>();
             mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
