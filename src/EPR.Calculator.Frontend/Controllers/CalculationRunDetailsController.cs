@@ -28,9 +28,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="configuration">The configuration settings.</param>
         /// <param name="clientFactory">The HTTP client factory.</param>
         /// <param name="logger">The logger instance.</param>
-        public CalculationRunDetailsController(IConfiguration configuration, IHttpClientFactory clientFactory,
-            ILogger<CalculationRunDetailsController> logger, ITokenAcquisition tokenAcquisition,
-            TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
+        public CalculationRunDetailsController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunDetailsController> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
@@ -173,7 +171,7 @@ namespace EPR.Calculator.Frontend.Controllers
             };
         }
 
-        private static (string, string) SplitDateTime(string input)
+        private static (string Date, string Time) SplitDateTime(string input)
         {
             string[] parts = input.Split(new string[] { " at " }, StringSplitOptions.None);
             return (parts[0], parts[1]);
@@ -201,6 +199,12 @@ namespace EPR.Calculator.Frontend.Controllers
         private HttpClient CreateHttpClient()
         {
             var apiUrl = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetValue<string>(ConfigSection.DashboardCalculatorRunApi);
+
+            if (string.IsNullOrEmpty(apiUrl))
+            {
+                throw new ArgumentNullException(nameof(apiUrl), "API URL cannot be null or empty.");
+            }
+
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             return client;
