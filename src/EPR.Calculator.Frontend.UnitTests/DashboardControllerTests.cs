@@ -200,7 +200,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async void Index_RedirectsToStandardError_WhenExceptionIsThrown()
+        public void Index_RedirectsToStandardError_WhenExceptionIsThrown()
         {
             // Arrange
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -224,12 +224,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
-            var mockClient = new Mock<TelemetryClient>();
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, mockClient.Object);
+                mockAuthorizationHeaderProvider.Object, new TelemetryClient());
 
             // Act
-            var result = await controller.Index() as RedirectToActionResult;
+            var task = controller.Index();
+            task.Wait();
+
+            var result = task.Result as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
