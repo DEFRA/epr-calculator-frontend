@@ -11,8 +11,7 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         private readonly ITokenAcquisition tokenAcquisition;
 
-        public BaseController(IConfiguration configuration, ITokenAcquisition tokenAcquisition,
-            TelemetryClient telemetryClient)
+        public BaseController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
         {
             this.tokenAcquisition = tokenAcquisition;
             this.TelemetryClient = telemetryClient;
@@ -31,7 +30,7 @@ namespace EPR.Calculator.Frontend.Controllers
         protected async Task<string> AcquireToken()
 #pragma warning restore SA1600
         {
-            var token = HttpContext?.Session?.GetString("accessToken");
+            var token = this.HttpContext?.Session?.GetString("accessToken");
             if (string.IsNullOrEmpty(token))
             {
                 var scopeArray = new[]
@@ -40,14 +39,14 @@ namespace EPR.Calculator.Frontend.Controllers
                     "offline_access",
                     "api://542488b9-bf70-429f-bad7-1e592efce352/Read_Scope",
                     "api://542488b9-bf70-429f-bad7-1e592efce352/Write_Scope",
-                    "api://542488b9-bf70-429f-bad7-1e592efce352/default"
+                    "api://542488b9-bf70-429f-bad7-1e592efce352/default",
                 };
 
                 var scope = string.Join(" ", scopeArray);
                 token = await this.tokenAcquisition.GetAccessTokenForUserAsync([scope]);
                 this.TelemetryClient.TrackTrace($"scope is {scope}");
                 this.TelemetryClient.TrackTrace("after generating..");
-                HttpContext?.Session?.SetString("accessToken", token);
+                this.HttpContext?.Session?.SetString("accessToken", token);
             }
 
             var accessToken = $"Bearer {token}";
