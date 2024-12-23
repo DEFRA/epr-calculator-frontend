@@ -55,6 +55,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(),
                 mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
@@ -92,6 +93,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
 
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(),
                 mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
             controller.ControllerContext = new ControllerContext
@@ -125,6 +127,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
+
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(),
                 mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
