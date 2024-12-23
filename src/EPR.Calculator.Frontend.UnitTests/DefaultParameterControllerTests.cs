@@ -101,7 +101,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
 
-            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(),mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
 
             controller.ControllerContext = new ControllerContext
             {
