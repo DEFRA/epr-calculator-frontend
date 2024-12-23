@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Http;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -34,9 +35,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
         }
 
-        private Fixture Fixture { get; init; }
+        private Fixture Fixture { get; }
 
-        private Mock<HttpContext> MockHttpContext { get; init; }
+        private Mock<HttpContext> MockHttpContext { get; }
 
         [TestInitialize]
         public void Setup()
@@ -52,10 +53,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetCalculationRuns());
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
             var mockClient = new TelemetryClient();
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
                 _mockLogger.Object, new Mock<ITokenAcquisition>().Object, mockClient);
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Request.Scheme = "https";
+            controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
             int runId = 1;
             string calcName = "TestCalc";
             string calDateTime = "21 June 2024 at 12:09";
@@ -71,6 +75,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(runId, model.Data.RunId);
             Assert.AreEqual((int)RunClassification.DELETED, model.Data.ClassificationId);
             Assert.AreEqual(calcName, model.Data.CalcName);
+            Assert.AreEqual(new Uri("http://localhost:5055/v1/DownloadResult/1"), model.DownloadResultURL);
+            Assert.AreEqual("https://localhost:7163/DownloadFileError/Index?runId=1&calcName=TestCalc&createdDate=21+June+2024&createdTime=12%3a09", model.DownloadErrorURL);
+            Assert.AreEqual(30000, model.DownloadTimeout);
         }
 
         [TestMethod]
@@ -106,7 +113,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
                 _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Request.Scheme = "https";
+            controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
 
             int runId = 1;
             string calcName = "TestCalc";
@@ -136,7 +146,9 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
                 _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Request.Scheme = "https";
+            controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
 
             int runId = 1;
             string calcName = "TestCalc";
@@ -166,7 +178,9 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
                 _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Request.Scheme = "https";
+            controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
 
             int runId = 1;
             string calcName = "TestCalc";

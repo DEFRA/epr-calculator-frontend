@@ -6,8 +6,10 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using Microsoft.Identity.Web;
 using System.Net;
+using System.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -71,6 +73,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     },
                 };
 
+                this.SetDownloadParameters(statusUpdateViewModel);
+
                 return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
             }
             catch (Exception ex)
@@ -111,6 +115,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                     Data = calculatorRunStatusUpdate,
                 };
+
+                this.SetDownloadParameters(statusUpdateViewModel);
 
                 if (!deleteChecked)
                 {
@@ -199,6 +205,38 @@ namespace EPR.Calculator.Frontend.Controllers
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             return client;
+        }
+
+        private void SetDownloadParameters(CalculatorRunStatusUpdateViewModel statusUpdateViewModel)
+        {
+            var downloadResultApi = this.configuration
+                          .GetSection(ConfigSection.CalculationRunSettings)
+                          .GetValue<string>(ConfigSection.DownloadResultApi);
+
+            string? timeout = this.configuration
+                  .GetSection(ConfigSection.CalculationRunSettings)
+                  .GetValue<string>(ConfigSection.DownloadResultTimeoutInMilliSeconds);
+            int timeoutValue = int.TryParse(timeout, out timeoutValue) ? timeoutValue : 0;
+            statusUpdateViewModel.DownloadTimeout = timeoutValue;
+
+            statusUpdateViewModel.DownloadResultURL = new Uri($"{downloadResultApi}/{statusUpdateViewModel.Data.RunId}", UriKind.Absolute);
+            statusUpdateViewModel.DownloadErrorURL = this.GetDownloadErrorPageURL(statusUpdateViewModel);
+        }
+
+        private string GetDownloadErrorPageURL(CalculatorRunStatusUpdateViewModel statusUpdateViewModel)
+        {
+            var request = this.HttpContext.Request;
+            var currentUri = new Uri($"{request.Scheme}://{request.Host}");
+
+            var builder = new UriBuilder(currentUri);
+            builder.Path = "/DownloadFileError/Index";
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["runId"] = statusUpdateViewModel.Data.RunId.ToString();
+            query["calcName"] = statusUpdateViewModel.Data.CalcName;
+            query["createdDate"] = statusUpdateViewModel.Data.CreatedDate;
+            query["createdTime"] = statusUpdateViewModel.Data.CreatedTime;
+            builder.Query = query.ToString();
+            return builder.ToString();
         }
     }
 }
