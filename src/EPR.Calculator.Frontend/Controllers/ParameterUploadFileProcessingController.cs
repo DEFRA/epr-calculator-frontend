@@ -15,14 +15,21 @@ namespace EPR.Calculator.Frontend.Controllers
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
 
-        public ParameterUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition,
-            TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ParameterUploadFileProcessingController"/> class.
+        /// </summary>
+        /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
+        /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
+        /// <param name="tokenAcquisition">The token acquisition service.</param>
+        /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
+        public ParameterUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
         }
 
-        public string FileName { get; set; }
+        public string? FileName { get; set; }
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
@@ -41,7 +48,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
-                var accessToken = await AcquireToken();
+                var accessToken = await this.AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
                 var payload = this.Transform(schemeParameterValues);
