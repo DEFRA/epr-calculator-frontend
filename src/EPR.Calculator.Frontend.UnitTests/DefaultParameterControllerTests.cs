@@ -100,8 +100,9 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(),
-                mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+
+            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+
             controller.ControllerContext = new ControllerContext
             {
                 HttpContext = mockHttpContext.Object
@@ -113,7 +114,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task DefaultParamerController_Failure_View_Test()
+        public async Task DefaultParameterController_Failure_View_Test()
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler

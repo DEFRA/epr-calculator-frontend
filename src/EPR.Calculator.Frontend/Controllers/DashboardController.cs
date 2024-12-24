@@ -28,10 +28,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        /// <param name="tokenAcquisition"></param>
-        public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory,
-            ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient) : base(configuration, tokenAcquisition,
-            telemetryClient)
+        /// <param name="tokenAcquisition">The token acquisition service.</param>
+        /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
+        public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
@@ -52,9 +52,9 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var accessToken = await AcquireToken();
+                var accessToken = await this.AcquireToken();
 
-                using HttpResponseMessage response = await GetHttpRequest(this.configuration, this.clientFactory, accessToken);
+                using HttpResponseMessage response = await this.GetHttpRequest(this.configuration, this.clientFactory, accessToken);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -79,7 +79,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
@@ -103,8 +103,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     x.CalculatorRunClassificationId != (int)RunClassification.QUEUE);
                 foreach (var calculationRun in displayRuns)
                 {
-                    var classification_val = runClassifications.Find(c => (int)c == calculationRun.CalculatorRunClassificationId);
-                    var member = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classification_val.ToString());
+                    var classificationVal = runClassifications.Find(c => (int)c == calculationRun.CalculatorRunClassificationId);
+                    var member = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classificationVal.ToString());
 
                     var attribute = member?.GetCustomAttribute<EnumMemberAttribute>(false);
 
@@ -156,8 +156,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 FinancialYear = year,
             };
-            var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8,
-                StaticHelpers.MediaType);
+            var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
             request.Content = content;
             var response = await client.SendAsync(request);
             this.TelemetryClient.TrackTrace($"Response is {response.StatusCode}", SeverityLevel.Warning);

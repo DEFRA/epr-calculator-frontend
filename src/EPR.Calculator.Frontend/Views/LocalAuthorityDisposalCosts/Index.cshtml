@@ -26,22 +26,25 @@
             </div>
             <br>
             <h1 class="govuk-heading-xl">Local authority disposal costs</h1>
-            @foreach (var country in Model?.ByCountry)
+            @if (Model?.ByCountry != null)
             {
-                <h2 class="govuk-heading-l govuk-!-margin-top-3">@country.Key</h2>
-                <dl class="govuk-summary-list govuk-!-margin-bottom-9">
-                    @foreach (var localAuthorityData in country)
-                    {
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                @localAuthorityData.Material
-                            </dt>
-                            <dd class="govuk-summary-list__actions">
-                                @localAuthorityData.TotalCost
-                            </dd>
-                        </div>
-                    }
-                </dl>
+                @foreach (var country in Model.ByCountry)
+                {
+                    <h2 class="govuk-heading-l govuk-!-margin-top-3">@country.Key</h2>
+                    <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+                        @foreach (var localAuthorityData in country)
+                        {
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    @localAuthorityData.Material
+                                </dt>
+                                <dd class="govuk-summary-list__actions">
+                                    @localAuthorityData.TotalCost
+                                </dd>
+                            </div>
+                        }
+                    </dl>
+                }
             }
 
             <form action="" method="post" novalidate="">

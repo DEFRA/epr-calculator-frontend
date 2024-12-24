@@ -14,7 +14,7 @@ namespace EPR.Calculator.Frontend.ViewModels
     {
         public required string LastUpdatedBy { get; init; }
 
-        public required List<IGrouping<string, LocalAuthorityData>> ByCountry { get; init; }
+        public required List<IGrouping<string, LocalAuthorityData>>? ByCountry { get; init; }
 
         private static string GetFormattedCreatedAt(DateTime createdAt)
         {
