@@ -24,9 +24,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        public LocalAuthorityDisposalCostsController(IConfiguration configuration, IHttpClientFactory clientFactory,
-            ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient) : base(configuration, tokenAcquisition,
-            telemetryClient)
+        /// <param name="tokenAcquisition">The token acquisition service.</param>
+        /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
+        public LocalAuthorityDisposalCostsController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.clientFactory = clientFactory;
         }
@@ -40,9 +41,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
         public async Task<HttpResponseMessage> GetHttpRequest(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
-            var lapcapRunApi = configuration.GetSection(ConfigSection.LapcapSettings)
-                                                  .GetSection(ConfigSection.LapcapSettingsApi)
-                                                  .Value;
+            var lapcapRunApi = configuration.GetSection(ConfigSection.LapcapSettings).GetSection(ConfigSection.LapcapSettingsApi).Value;
 
             if (string.IsNullOrEmpty(lapcapRunApi))
             {
@@ -52,7 +51,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var client = clientFactory.CreateClient();
             client.BaseAddress = new Uri(lapcapRunApi);
-            var accessToken = await AcquireToken();
+            var accessToken = await this.AcquireToken();
             client.DefaultRequestHeaders.Add("Authorization", accessToken);
             var year = configuration.GetSection(ConfigSection.LapcapSettings).GetSection(ConfigSection.ParameterYear).Value;
             var uri = new Uri(string.Format("{0}/{1}", lapcapRunApi, year));
@@ -73,7 +72,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                Task<HttpResponseMessage> response = GetHttpRequest(this.Configuration, this.clientFactory);
+                Task<HttpResponseMessage> response = this.GetHttpRequest(this.Configuration, this.clientFactory);
 
                 if (response.Result.IsSuccessStatusCode)
                 {

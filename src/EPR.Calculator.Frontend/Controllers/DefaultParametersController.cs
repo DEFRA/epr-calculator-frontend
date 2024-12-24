@@ -28,9 +28,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="configuration">The configuration settings for the application.</param>
         /// <param name="clientFactory">The factory for creating HTTP clients.</param>
-        public DefaultParametersController(IConfiguration configuration, IHttpClientFactory clientFactory,
-            ITokenAcquisition tokenAcquisition,
-            TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
+        /// <param name="tokenAcquisition">The token acquisition service.</param>
+        /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
+        public DefaultParametersController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.clientFactory = clientFactory;
         }
@@ -55,7 +56,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
-                var accessToken = await AcquireToken();
+                var accessToken = await this.AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
                 var year = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
 
