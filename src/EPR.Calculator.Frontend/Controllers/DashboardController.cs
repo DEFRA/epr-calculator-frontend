@@ -54,7 +54,22 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var accessToken = await this.AcquireToken();
 
-                using HttpResponseMessage response = await this.GetHttpRequest(this.configuration, this.clientFactory, accessToken);
+                var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                    .GetSection(ConfigSection.DashboardCalculatorRunApi)
+                    .Value;
+
+                if (string.IsNullOrEmpty(dashboardCalculatorRunApi))
+                {
+                    // Handle the null or empty case appropriately
+                    throw new ArgumentNullException(dashboardCalculatorRunApi, "The API URL cannot be null or empty.");
+                }
+
+                var year = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                    .GetSection(ConfigSection.RunParameterYear)
+                    .Value;
+
+                using var response =
+                    await this.GetHttpRequest(year, dashboardCalculatorRunApi, this.clientFactory, accessToken);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -120,29 +135,17 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <summary>
         /// Sends an HTTP POST request to the Dashboard Calculator Run API with the specified parameters.
         /// </summary>
-        /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
+        /// <param name="dashboardCalculatorRunApi">The configuration object to retrieve API URL and parameters.</param>
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        /// <param name="accessToken">token.</param>
+        /// <param name="accessToken">token generated</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
         private async Task<HttpResponseMessage> GetHttpRequest(
-            IConfiguration configuration,
+            string year,
+            string dashboardCalculatorRunApi,
             IHttpClientFactory clientFactory,
             string accessToken)
         {
-            var dashboardCalculatorRunApi = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                .GetSection(ConfigSection.DashboardCalculatorRunApi)
-                .Value;
-
-            if (string.IsNullOrEmpty(dashboardCalculatorRunApi))
-            {
-                // Handle the null or empty case appropriately
-                throw new ArgumentNullException(dashboardCalculatorRunApi, "The API URL cannot be null or empty.");
-            }
-
-            var year = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                .GetSection(ConfigSection.RunParameterYear)
-                .Value;
             var client = clientFactory.CreateClient();
             client.BaseAddress = new Uri(dashboardCalculatorRunApi);
             client.DefaultRequestHeaders.Add("Authorization", accessToken);

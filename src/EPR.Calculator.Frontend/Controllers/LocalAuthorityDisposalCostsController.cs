@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
+using System.Configuration;
 using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -35,25 +36,17 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <summary>
         /// Sends an HTTP POST request to the Local Authority Disposal Costs API with the specified parameters.
         /// </summary>
-        /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
+        /// <param name="lapcapRunApi">Lapcap Run Api API URL and parameters.</param>
+        /// <param name="year">year from configuration</param>
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
-        public async Task<HttpResponseMessage> GetHttpRequest(IConfiguration configuration, IHttpClientFactory clientFactory)
+        public async Task<HttpResponseMessage> GetHttpRequest(string lapcapRunApi, string year, IHttpClientFactory clientFactory)
         {
-            var lapcapRunApi = configuration.GetSection(ConfigSection.LapcapSettings).GetSection(ConfigSection.LapcapSettingsApi).Value;
-
-            if (string.IsNullOrEmpty(lapcapRunApi))
-            {
-                // Handle the null or empty case appropriately
-                throw new ArgumentNullException(lapcapRunApi, ApiUrl.Url);
-            }
-
             var client = clientFactory.CreateClient();
             client.BaseAddress = new Uri(lapcapRunApi);
             var accessToken = await this.AcquireToken();
             client.DefaultRequestHeaders.Add("Authorization", accessToken);
-            var year = configuration.GetSection(ConfigSection.LapcapSettings).GetSection(ConfigSection.ParameterYear).Value;
             var uri = new Uri(string.Format("{0}/{1}", lapcapRunApi, year));
             var response = await client.GetAsync(uri);
 
@@ -72,7 +65,18 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                Task<HttpResponseMessage> response = this.GetHttpRequest(this.Configuration, this.clientFactory);
+                var lapcapRunApi = this.Configuration.GetSection(ConfigSection.LapcapSettings).GetSection(ConfigSection.LapcapSettingsApi).Value;
+
+                if (string.IsNullOrEmpty(lapcapRunApi))
+                {
+                    // Handle the null or empty case appropriately
+                    throw new ArgumentNullException(lapcapRunApi, ApiUrl.Url);
+                }
+
+                var year = this.Configuration.GetSection(ConfigSection.LapcapSettings)
+                    .GetSection(ConfigSection.ParameterYear).Value;
+
+                var response = this.GetHttpRequest(lapcapRunApi, year, this.clientFactory);
 
                 if (response.Result.IsSuccessStatusCode)
                 {
