@@ -28,7 +28,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="configuration">The configuration settings.</param>
         /// <param name="clientFactory">The HTTP client factory.</param>
         /// <param name="logger">The logger instance.</param>
-        public CalculationRunDetailsController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunDetailsController> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
+        public CalculationRunDetailsController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunDetailsController> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;

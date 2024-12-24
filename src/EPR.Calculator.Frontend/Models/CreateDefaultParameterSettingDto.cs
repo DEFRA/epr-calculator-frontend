@@ -30,6 +30,6 @@ namespace EPR.Calculator.Frontend.Models
         /// <value>
         /// The filename
         /// </value>
-        public required string ParameterFileName { get; set; }
+        public required string? ParameterFileName { get; set; }
     }
 }
