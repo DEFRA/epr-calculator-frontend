@@ -210,11 +210,6 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var apiUrl = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetValue<string>(ConfigSection.DashboardCalculatorRunApi);
 
-            if (string.IsNullOrEmpty(apiUrl))
-            {
-                throw new ConfigurationException("API URL cannot be null or empty.");
-            }
-
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             return client;

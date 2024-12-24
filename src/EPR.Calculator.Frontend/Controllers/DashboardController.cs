@@ -58,12 +58,6 @@ namespace EPR.Calculator.Frontend.Controllers
                     .GetSection(ConfigSection.DashboardCalculatorRunApi)
                     .Value;
 
-                if (string.IsNullOrEmpty(dashboardCalculatorRunApi))
-                {
-                    // Handle the null or empty case appropriately
-                    throw new ArgumentNullException(dashboardCalculatorRunApi, "The API URL cannot be null or empty.");
-                }
-
                 var year = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                     .GetSection(ConfigSection.RunParameterYear)
                     .Value;

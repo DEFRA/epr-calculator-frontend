@@ -67,12 +67,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var lapcapRunApi = this.Configuration.GetSection(ConfigSection.LapcapSettings).GetSection(ConfigSection.LapcapSettingsApi).Value;
 
-                if (string.IsNullOrEmpty(lapcapRunApi))
-                {
-                    // Handle the null or empty case appropriately
-                    throw new ArgumentNullException(lapcapRunApi, ApiUrl.Url);
-                }
-
                 var year = this.Configuration.GetSection(ConfigSection.LapcapSettings)
                     .GetSection(ConfigSection.ParameterYear).Value;
 
