@@ -52,10 +52,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (!getCalculationDetailsResponse.IsSuccessStatusCode)
                 {
                     this.logger.LogError(
-                            $"Request failed with status code {getCalculationDetailsResponse?.StatusCode}");
+                        "Request failed with status code {StatusCode}", getCalculationDetailsResponse?.StatusCode);
+
                     return this.RedirectToAction(
-                            ActionNames.StandardErrorIndex,
-                            CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                        ActionNames.StandardErrorIndex,
+                        CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
 
                 var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
