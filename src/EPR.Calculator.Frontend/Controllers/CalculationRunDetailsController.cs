@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using System.Net;
 using System.Web;
+using CsvHelper.Configuration;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -211,7 +212,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (string.IsNullOrEmpty(apiUrl))
             {
-                throw new ArgumentNullException(nameof(apiUrl), "API URL cannot be null or empty.");
+                throw new ConfigurationException("API URL cannot be null or empty.");
             }
 
             var client = this.clientFactory.CreateClient();

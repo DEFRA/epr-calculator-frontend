@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using CsvHelper.Configuration;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -194,7 +195,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 .GetValue<string>(ConfigSection.CalculationRunNameApi);
             if (string.IsNullOrWhiteSpace(apiUrl))
             {
-                throw new ArgumentNullException(nameof(apiUrl), "CalculationRunNameApi is null or empty. Please check the configuration settings.");
+                throw new ConfigurationException(
+                    $"CalculationRunNameApi is null or empty. Please check the configuration settings. ${ConfigSection.CalculationRunSettings}");
             }
 
             return apiUrl;
@@ -207,7 +209,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 .GetValue<string>(ConfigSection.CalculationRunApi);
             if (string.IsNullOrEmpty(calculatorRunApi))
             {
-                throw new ArgumentNullException(nameof(calculatorRunApi), "The API URL is null or empty. Check the configuration settings for calculatorRun.");
+                throw new ConfigurationException(
+                    "The API URL is null or empty. Check the configuration settings for calculatorRun.");
             }
 
             var year = this.configuration
@@ -215,7 +218,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 .GetValue<string>(ConfigSection.RunParameterYear);
             if (string.IsNullOrEmpty(year))
             {
-                throw new ArgumentNullException(nameof(year), "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
+                throw new ConfigurationException(
+                    "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
             }
 
             return (calculatorRunApi, year);
