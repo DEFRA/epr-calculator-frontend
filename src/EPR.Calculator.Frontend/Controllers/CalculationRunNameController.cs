@@ -116,6 +116,25 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.View(ViewNames.CalculationRunConfirmation, calculationRunModel);
         }
 
+        [NonAction]
+        public (string ApiUrl, string Year) GetCalculatorRunParameters()
+        {
+            var calculatorRunApi = this.configuration
+                .GetSection(ConfigSection.CalculationRunSettings)
+                .GetValue<string>(ConfigSection.CalculationRunApi);
+
+            var year = this.configuration
+                .GetSection(ConfigSection.CalculationRunSettings)
+                .GetValue<string>(ConfigSection.RunParameterYear);
+            if (string.IsNullOrEmpty(year) || string.IsNullOrEmpty(calculatorRunApi))
+            {
+                throw new ConfigurationErrorsException(
+                    "RunParameterYear or CalculationRunSettings is null or empty. Check the configuration settings for calculatorRun.");
+            }
+
+            return (calculatorRunApi, year);
+        }
+
         /// <summary>
         /// Creates an error view model.
         /// </summary>
@@ -200,24 +219,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return apiUrl;
-        }
-
-        public (string ApiUrl, string Year) GetCalculatorRunParameters()
-        {
-            var calculatorRunApi = this.configuration
-                .GetSection(ConfigSection.CalculationRunSettings)
-                .GetValue<string>(ConfigSection.CalculationRunApi);
-
-            var year = this.configuration
-                .GetSection(ConfigSection.CalculationRunSettings)
-                .GetValue<string>(ConfigSection.RunParameterYear);
-            if (string.IsNullOrEmpty(year) || string.IsNullOrEmpty(calculatorRunApi))
-            {
-                throw new ConfigurationErrorsException(
-                    "RunParameterYear or CalculationRunSettings is null or empty. Check the configuration settings for calculatorRun.");
-            }
-
-            return (calculatorRunApi, year);
         }
     }
 }
