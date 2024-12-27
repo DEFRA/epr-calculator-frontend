@@ -99,7 +99,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.RedirectToAction(ActionNames.RunCalculatorConfirmation, calculationRunModel);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
