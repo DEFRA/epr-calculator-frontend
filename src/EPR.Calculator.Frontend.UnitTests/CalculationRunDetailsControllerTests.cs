@@ -131,7 +131,18 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
                 _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
 
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString("accessToken", "something");
+
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+            controller.ControllerContext.HttpContext = context;
             controller.ControllerContext.HttpContext.Request.Scheme = "https";
             controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
 
@@ -141,7 +152,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, false) as ViewResult;
+            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, false);
+            task.Wait();
+            var result = task.Result as ViewResult;
 
             var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
 
@@ -163,7 +176,18 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
                 _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString("accessToken", "something");
+
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+            controller.ControllerContext.HttpContext = context;
             controller.ControllerContext.HttpContext.Request.Scheme = "https";
             controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
 
@@ -173,7 +197,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true) as ViewResult;
+            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true);
+            task.Wait();
+            var result = task.Result as ViewResult;
 
             var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
 
@@ -195,7 +221,20 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
                 _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString("accessToken", "something");
+
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+
+            controller.ControllerContext.HttpContext = context;
             controller.ControllerContext.HttpContext.Request.Scheme = "https";
             controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
 
@@ -205,7 +244,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true) as ViewResult;
+            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true);
+            task.Wait();
+
+            var result = task.Result as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -288,8 +330,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true) as RedirectToActionResult;
+            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true);
+            task.Wait();
 
+            var result = task.Result as RedirectToActionResult;
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);

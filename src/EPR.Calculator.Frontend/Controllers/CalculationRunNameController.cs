@@ -11,6 +11,7 @@ using System.Configuration;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using Newtonsoft.Json;
 using ConfigurationException = CsvHelper.Configuration.ConfigurationException;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -157,16 +158,41 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown</exception>
         private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
         {
-            var (calculatorRunApi, year) = this.GetCalculatorRunParameters();
+            var calculatorRunApi = this.configuration
+                .GetSection(ConfigSection.CalculationRunSettings)
+                .GetValue<string>(ConfigSection.CalculationRunApi);
+
+            if (string.IsNullOrEmpty(calculatorRunApi))
+            {
+                throw new ArgumentNullException(calculatorRunApi, "The API URL is null or empty. Check the configuration settings for calculatorRun");
+            }
+
+            var year = this.configuration
+                .GetSection(ConfigSection.CalculationRunSettings)
+                .GetValue<string>(ConfigSection.RunParameterYear);
+
+            if (string.IsNullOrEmpty(year))
+            {
+                throw new ArgumentNullException(year, "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
+            }
+
             var client = this.clientFactory.CreateClient();
-            client.BaseAddress = new Uri(calculatorRunApi);
             var accessToken = await this.AcquireToken();
 
-            // Assuming you use the accessToken, calculatorRunName, and year in the request
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var content = new StringContent($"{{ \"name\": \"{calculatorRunName}\", \"year\": \"{year}\" }}", Encoding.UTF8, "application/json");
-            var response = await client.PostAsync("api/calculations", content);
-            return response;
+            client.DefaultRequestHeaders.Add("Authorization", accessToken);
+            client.BaseAddress = new Uri(calculatorRunApi);
+
+            var runParms = new CreateCalculatorRunDto
+            {
+                CalculatorRunName = calculatorRunName,
+                FinancialYear = year,
+                CreatedBy = CommonUtil.GetUserName(this.HttpContext),
+            };
+
+            var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
+            var request = new HttpRequestMessage(HttpMethod.Post, calculatorRunApi) { Content = content };
+
+            return await client.SendAsync(request);
         }
 
         /// <summary>
@@ -181,8 +207,7 @@ namespace EPR.Calculator.Frontend.Controllers
             client.BaseAddress = new Uri(apiUrl);
             var accessToken = await this.AcquireToken();
 
-            // Assuming you use the accessToken and calculationName in the request
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            client.DefaultRequestHeaders.Add("Authorization", accessToken);
             var response = await client.GetAsync($"api/calculations/{calculationName}");
             return response;
         }

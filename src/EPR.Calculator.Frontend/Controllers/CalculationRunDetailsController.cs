@@ -93,7 +93,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="deleteChecked">The delete is checked or not.</param>
         /// <returns>The delete confirmation view.</returns>
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult DeleteCalcDetails(int runId, string calcName, string createdTime, string createdDate, bool deleteChecked)
+        public async Task<IActionResult> DeleteCalcDetails(int runId, string calcName, string createdTime, string createdDate, bool deleteChecked)
         {
             try
             {
@@ -103,6 +103,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (dashboardCalculatorRunApi != null)
                 {
                     client.BaseAddress = new Uri(dashboardCalculatorRunApi);
+                    var accessToken = await this.AcquireToken();
+
+                    client.DefaultRequestHeaders.Add("Authorization", accessToken);
                     var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
                     {
                         RunId = runId,
