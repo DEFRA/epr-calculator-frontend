@@ -156,14 +156,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown</exception>
         private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
         {
-            var calculatorRunApi = this.configuration
-                .GetSection(ConfigSection.CalculationRunSettings)
-                .GetValue<string>(ConfigSection.CalculationRunApi);
-
-            if (string.IsNullOrEmpty(calculatorRunApi))
-            {
-                throw new ArgumentNullException(calculatorRunApi, "The API URL is null or empty. Check the configuration settings for calculatorRun");
-            }
+            var calculatorRunApi = this.GetCalculatorRunApi();
 
             var year = this.configuration
                 .GetSection(ConfigSection.CalculationRunSettings)
@@ -191,6 +184,20 @@ namespace EPR.Calculator.Frontend.Controllers
             var request = new HttpRequestMessage(HttpMethod.Post, calculatorRunApi) { Content = content };
 
             return await client.SendAsync(request);
+        }
+
+        private string? GetCalculatorRunApi()
+        {
+            var calculatorRunApi = this.configuration
+                .GetSection(ConfigSection.CalculationRunSettings)
+                .GetValue<string>(ConfigSection.CalculationRunApi);
+
+            if (string.IsNullOrEmpty(calculatorRunApi))
+            {
+                throw new ArgumentNullException(calculatorRunApi, "The API URL is null or empty. Check the configuration settings for calculatorRun");
+            }
+
+            return calculatorRunApi;
         }
 
         /// <summary>
