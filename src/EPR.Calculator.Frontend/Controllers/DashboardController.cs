@@ -1,4 +1,5 @@
-﻿using Microsoft.ApplicationInsights.DataContracts;
+﻿using System.Configuration;
+using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Identity.Abstractions;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -58,9 +59,14 @@ namespace EPR.Calculator.Frontend.Controllers
                     .GetSection(ConfigSection.DashboardCalculatorRunApi)
                     .Value;
 
-                var year = configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                var year = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                     .GetSection(ConfigSection.RunParameterYear)
                     .Value;
+
+                if (string.IsNullOrWhiteSpace(year) || string.IsNullOrWhiteSpace(dashboardCalculatorRunApi))
+                {
+                    throw new ConfigurationErrorsException("DashboardCalculatorRunApi or RunParameterYear missing");
+                }
 
                 using var response =
                     await this.GetHttpRequest(year, dashboardCalculatorRunApi, this.clientFactory, accessToken);

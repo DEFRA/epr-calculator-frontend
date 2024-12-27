@@ -70,6 +70,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 var year = this.Configuration.GetSection(ConfigSection.LapcapSettings)
                     .GetSection(ConfigSection.ParameterYear).Value;
 
+                if (string.IsNullOrWhiteSpace(year) || string.IsNullOrWhiteSpace(lapcapRunApi))
+                {
+                    throw new ConfigurationErrorsException("LapcapSettings or RunParameterYear missing");
+                }
+
                 var response = this.GetHttpRequest(lapcapRunApi, year, this.clientFactory);
 
                 if (response.Result.IsSuccessStatusCode)
