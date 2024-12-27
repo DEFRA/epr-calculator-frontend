@@ -1,5 +1,4 @@
-﻿using CsvHelper.Configuration;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -197,6 +196,9 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var client = this.CreateHttpClient();
             var apiUrl = client.BaseAddress.ToString();
+            var accessToken = await this.AcquireToken();
+
+            client.DefaultRequestHeaders.Add("Authorization", accessToken);
             var requestUri = new Uri($"{apiUrl}/{runId}", UriKind.Absolute);
             return await client.GetAsync(requestUri);
         }
