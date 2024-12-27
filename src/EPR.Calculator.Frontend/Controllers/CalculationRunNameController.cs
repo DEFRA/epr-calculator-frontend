@@ -6,12 +6,10 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Configuration;
 using System.Net;
-using System.Net.Http.Headers;
-using System.Text;
-using Newtonsoft.Json;
 using ConfigurationException = CsvHelper.Configuration.ConfigurationException;
 
 namespace EPR.Calculator.Frontend.Controllers
