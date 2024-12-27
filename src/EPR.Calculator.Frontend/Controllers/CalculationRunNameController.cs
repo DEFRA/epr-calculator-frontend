@@ -1,8 +1,4 @@
-﻿using System.Net;
-using System.Net.Http.Headers;
-using System.Text;
-using CsvHelper.Configuration;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -10,8 +6,12 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Configuration;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Text;
+using ConfigurationException = CsvHelper.Configuration.ConfigurationException;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -99,7 +99,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.RedirectToAction(ActionNames.RunCalculatorConfirmation, calculationRunModel);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
@@ -202,24 +202,19 @@ namespace EPR.Calculator.Frontend.Controllers
             return apiUrl;
         }
 
-        private (string ApiUrl, string Year) GetCalculatorRunParameters()
+        public (string ApiUrl, string Year) GetCalculatorRunParameters()
         {
             var calculatorRunApi = this.configuration
                 .GetSection(ConfigSection.CalculationRunSettings)
                 .GetValue<string>(ConfigSection.CalculationRunApi);
-            if (string.IsNullOrEmpty(calculatorRunApi))
-            {
-                throw new ConfigurationException(
-                    "The API URL is null or empty. Check the configuration settings for calculatorRun.");
-            }
 
             var year = this.configuration
                 .GetSection(ConfigSection.CalculationRunSettings)
                 .GetValue<string>(ConfigSection.RunParameterYear);
-            if (string.IsNullOrEmpty(year))
+            if (string.IsNullOrEmpty(year) || string.IsNullOrEmpty(calculatorRunApi))
             {
-                throw new ConfigurationException(
-                    "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
+                throw new ConfigurationErrorsException(
+                    "RunParameterYear or CalculationRunSettings is null or empty. Check the configuration settings for calculatorRun.");
             }
 
             return (calculatorRunApi, year);

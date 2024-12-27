@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Configuration;
+using System.Net;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -719,6 +720,15 @@ namespace EPR.Calculator.Frontend.UnitTests
             var redirectResult = result as RedirectToActionResult;
             Assert.AreEqual("Index", redirectResult.ActionName);
             Assert.AreEqual("CalculationRunError", redirectResult.ControllerName);
+        }
+
+        [TestMethod]
+        public void GetCalculatorRunParametersTest()
+        {
+            var blankConfig = ConfigurationItems.GetConfigurationValuesWithEmptyStrings();
+            var controller = new CalculationRunNameController(blankConfig, mockClientFactory.Object, mockLogger.Object,
+                mockTokenAcquisition.Object, new TelemetryClient());
+            Assert.ThrowsException<ConfigurationErrorsException>(() => controller.GetCalculatorRunParameters());
         }
 
         private void MockHttpClientWithResponse()
