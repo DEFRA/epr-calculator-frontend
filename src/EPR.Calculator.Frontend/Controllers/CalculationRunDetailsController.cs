@@ -135,8 +135,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     if (response.Result.StatusCode != HttpStatusCode.Created)
                     {
-                        this.logger.LogError(
-                            $"Request to {dashboardCalculatorRunApi} failed with status code {response.Result}");
                         this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.DeleteCalculationError);
                         return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
                     }

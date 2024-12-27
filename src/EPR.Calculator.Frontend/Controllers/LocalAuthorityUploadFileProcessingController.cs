@@ -35,12 +35,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var lapcapSettingsApi = this.Configuration.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value;
-
-                if (string.IsNullOrWhiteSpace(lapcapSettingsApi))
-                {
-                    throw new ArgumentNullException(lapcapSettingsApi, "LapcapSettingsApi is null. Check the configuration settings for local authority");
-                }
+                var lapcapSettingsApi = this.GetLapcapSettingsApi();
 
                 this.FileName = this.HttpContext.Session.GetString(SessionConstants.LapcapFileName);
 
@@ -71,6 +66,18 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
+        }
+
+        private string? GetLapcapSettingsApi()
+        {
+            var lapcapSettingsApi = this.Configuration.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value;
+
+            if (string.IsNullOrWhiteSpace(lapcapSettingsApi))
+            {
+                throw new ArgumentNullException(lapcapSettingsApi, "LapcapSettingsApi is null. Check the configuration settings for local authority");
+            }
+
+            return lapcapSettingsApi;
         }
 
         private string Transform(List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)

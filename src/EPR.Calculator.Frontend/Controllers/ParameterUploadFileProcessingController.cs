@@ -37,12 +37,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
-
-                if (string.IsNullOrWhiteSpace(parameterSettingsApi))
-                {
-                    throw new ArgumentNullException(parameterSettingsApi, "ParameterSettingsApi is null. Check the configuration settings for default parameters");
-                }
+                var parameterSettingsApi = this.GetParameterSettingsApi();
 
                 this.FileName = this.HttpContext.Session.GetString(SessionConstants.ParameterFileName);
 
@@ -73,6 +68,18 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
+        }
+
+        private string? GetParameterSettingsApi()
+        {
+            var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
+
+            if (string.IsNullOrWhiteSpace(parameterSettingsApi))
+            {
+                throw new ArgumentNullException(parameterSettingsApi, "ParameterSettingsApi is null. Check the configuration settings for default parameters");
+            }
+
+            return parameterSettingsApi;
         }
 
         private string Transform(List<SchemeParameterTemplateValue> schemeParameterValues)
