@@ -3,6 +3,7 @@
 namespace EPR.Calculator.Frontend.ViewModels
 {
     [ExcludeFromCodeCoverage]
+
     /// <summary>
     /// Fields that need to be reused by multiple view models.
     /// </summary>

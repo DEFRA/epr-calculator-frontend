@@ -67,8 +67,8 @@ namespace EPR.Calculator.Frontend.Controllers
                         RunId = runId,
                         ClassificationId = (int)RunClassification.DELETED,
                         CalcName = calcName,
-                        CreatedDate = SplitDateTime(createdAt).Item1,
-                        CreatedTime = SplitDateTime(createdAt).Item2,
+                        CreatedDate = SplitDateTime(createdAt).Date,
+                        CreatedTime = SplitDateTime(createdAt).Time,
                     },
                 };
 
@@ -196,7 +196,7 @@ namespace EPR.Calculator.Frontend.Controllers
         private async Task<HttpResponseMessage> GetCalculationDetailsAsync(int runId)
         {
             var client = this.CreateHttpClient();
-            var apiUrl = client.BaseAddress.ToString();
+            var apiUrl = client.BaseAddress?.ToString();
             var accessToken = await this.AcquireToken();
 
             client.DefaultRequestHeaders.Add("Authorization", accessToken);

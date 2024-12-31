@@ -3,6 +3,7 @@
 namespace EPR.Calculator.Frontend.ViewModels
 {
     [ExcludeFromCodeCoverage]
+
     /// <summary>
     /// The view model for the calculation run error page.
     /// </summary>
