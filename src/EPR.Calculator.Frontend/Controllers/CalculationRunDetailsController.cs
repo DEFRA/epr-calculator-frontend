@@ -196,7 +196,7 @@ namespace EPR.Calculator.Frontend.Controllers
         private async Task<HttpResponseMessage> GetCalculationDetailsAsync(int runId)
         {
             var client = this.CreateHttpClient();
-            var apiUrl = client.BaseAddress?.ToString();
+            var apiUrl = client.BaseAddress.ToString();
             var accessToken = await this.AcquireToken();
 
             client.DefaultRequestHeaders.Add("Authorization", accessToken);

@@ -95,6 +95,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(new Uri("http://localhost:5055/v1/DownloadResult/1"), model.DownloadResultURL);
             Assert.AreEqual("https://localhost:7163/DownloadFileError/Index?runId=1&calcName=TestCalc&createdDate=21+June+2024&createdTime=12%3a09", model.DownloadErrorURL);
             Assert.AreEqual(30000, model.DownloadTimeout);
+            Assert.AreEqual("12:09", model.Data.CreatedTime);
+            Assert.AreEqual("21 June 2024", model.Data.CreatedDate);
         }
 
         [TestMethod]
