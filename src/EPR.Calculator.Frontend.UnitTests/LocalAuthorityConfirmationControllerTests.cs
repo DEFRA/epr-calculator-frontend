@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
+    [TestClass]
     public class LocalAuthorityConfirmationControllerTests
     {
         [TestMethod]
@@ -12,11 +13,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Arrange
             var controller = new LocalAuthorityConfirmationController();
 
-            // Act
-            var result = controller.Index();
-
             // Assert
             var viewResult = controller.Index() as ViewResult;
+            Assert.IsNotNull(viewResult);
             Assert.AreEqual(ViewNames.LocalAuthorityConfirmationIndex, viewResult.ViewName);
         }
     }

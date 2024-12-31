@@ -1,5 +1,8 @@
-﻿namespace EPR.Calculator.Frontend.ViewModels
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace EPR.Calculator.Frontend.ViewModels
 {
+    [ExcludeFromCodeCoverage]
     /// <summary>
     /// Fields that need to be reused by multiple view models.
     /// </summary>
