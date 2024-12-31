@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend.Models;
 namespace EPR.Calculator.Frontend.ViewModels
 {
     [ExcludeFromCodeCoverage]
+
     public record DashboardViewModel : ViewModelCommonData
     {
         public IEnumerable<CalculationRunViewModel>? Calculations { get; init; }

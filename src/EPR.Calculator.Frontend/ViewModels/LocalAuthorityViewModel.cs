@@ -9,6 +9,7 @@ namespace EPR.Calculator.Frontend.ViewModels
     /// <summary>
     /// View model to display the local authority disposal costs.
     /// </summary>
+
     [ExcludeFromCodeCoverage]
     public record LocalAuthorityViewModel : ViewModelCommonData
     {
