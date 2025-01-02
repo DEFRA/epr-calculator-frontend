@@ -10,12 +10,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="appsettings.Test.Blank.json" />
     <None Remove="appsettings.Test.json" />
     <None Remove="Mocks\LocalAuthorityData.csv" />
     <None Remove="Mocks\SchemeParameters.txt" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="appsettings.Test.Blank.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="appsettings.Test.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

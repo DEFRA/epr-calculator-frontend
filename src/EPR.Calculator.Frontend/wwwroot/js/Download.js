@@ -1,4 +1,4 @@
-﻿function downloadFile(url, errorAction, event, timeout) {
+﻿function downloadFile(url, errorAction, event, timeout, token) {
     event.preventDefault();
     $.ajax({
         url: url,
@@ -7,6 +7,10 @@
             responseType: 'blob'
         },
         timeout: timeout,
+        beforeSend: function (xhr) {
+            let bearerToken = "Bearer " + token;
+            xhr.setRequestHeader("Authorization", bearerToken);
+        },
         success: function (data, status, xhr) {
             try {
                 // Get the Content-Disposition header

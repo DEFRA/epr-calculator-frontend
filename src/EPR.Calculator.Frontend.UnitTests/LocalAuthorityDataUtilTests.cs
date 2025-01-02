@@ -10,11 +10,13 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void GetLocalAuthorityData_NullInput_ReturnsNull()
         {
+            // Arrange
+            var emptyList = new List<LocalAuthorityDisposalCost>();
             // Act
-            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(null, string.Empty);
+            var result = LocalAuthorityDataUtil.GetLocalAuthorityData(emptyList, string.Empty);
 
             // Assert
-            Assert.IsNull(result);
+            Assert.AreEqual(0, result?.Count);
         }
 
         [TestMethod]

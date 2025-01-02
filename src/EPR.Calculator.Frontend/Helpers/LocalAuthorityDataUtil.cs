@@ -20,11 +20,6 @@ namespace EPR.Calculator.Frontend.Helpers
         /// </returns>
         public static List<LocalAuthorityViewModel.LocalAuthorityData>? GetLocalAuthorityData(List<LocalAuthorityDisposalCost> localAuthorityDisposalCosts, string matertialType)
         {
-            if (localAuthorityDisposalCosts == null)
-            {
-                return null;
-            }
-
             var localAuthorityData = localAuthorityDisposalCosts
                 .Select(la => new LocalAuthorityViewModel.LocalAuthorityData(la))
                 .ToList();

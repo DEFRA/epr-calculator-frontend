@@ -1,5 +1,6 @@
 ﻿using System.Net;
-using System.Net.Http;
+using System.Security.Claims;
+using System.Security.Principal;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -9,10 +10,12 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -33,9 +36,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
         }
 
-        private Fixture Fixture { get; init; }
+        private Fixture Fixture { get; }
 
-        private Mock<HttpContext> MockHttpContext { get; init; }
+        private Mock<HttpContext> MockHttpContext { get; }
 
         [TestInitialize]
         public void Setup()
@@ -52,8 +55,26 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            var mockClient = new TelemetryClient();
+
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString("accessToken", "something");
+
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, mockClient);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = context
+            };
             controller.ControllerContext.HttpContext.Request.Scheme = "https";
             controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
             int runId = 1;
@@ -74,6 +95,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(new Uri("http://localhost:5055/v1/DownloadResult/1"), model.DownloadResultURL);
             Assert.AreEqual("https://localhost:7163/DownloadFileError/Index?runId=1&calcName=TestCalc&createdDate=21+June+2024&createdTime=12%3a09", model.DownloadErrorURL);
             Assert.AreEqual(30000, model.DownloadTimeout);
+            Assert.AreEqual("12:09", model.Data.CreatedTime);
+            Assert.AreEqual("21 June 2024", model.Data.CreatedDate);
         }
 
         [TestMethod]
@@ -83,8 +106,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.BadRequest, MockData.GetCalculationRuns());
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
             int runId = 1;
             string calcName = "TestCalc";
             string calDateTime = "21 June 2024 at 12:09";
@@ -105,9 +129,22 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetCalculationRuns());
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
 
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString("accessToken", "something");
+
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+            controller.ControllerContext.HttpContext = context;
             controller.ControllerContext.HttpContext.Request.Scheme = "https";
             controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
 
@@ -117,7 +154,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, false) as ViewResult;
+            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, false);
+            task.Wait();
+            var result = task.Result as ViewResult;
 
             var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
 
@@ -135,9 +174,22 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.RequestTimeout, MockData.GetCalculationRuns());
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
 
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString("accessToken", "something");
+
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+            controller.ControllerContext.HttpContext = context;
             controller.ControllerContext.HttpContext.Request.Scheme = "https";
             controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
 
@@ -147,7 +199,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true) as ViewResult;
+            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true);
+            task.Wait();
+            var result = task.Result as ViewResult;
 
             var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
 
@@ -165,9 +219,24 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.Created, MockData.GetCalculationRuns());
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
 
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
+
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString("accessToken", "something");
+
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+
+            controller.ControllerContext.HttpContext = context;
             controller.ControllerContext.HttpContext.Request.Scheme = "https";
             controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
 
@@ -177,7 +246,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true) as ViewResult;
+            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true);
+            task.Wait();
+
+            var result = task.Result as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -192,7 +264,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var mockClient = new TelemetryClient();
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, mockTokenAcquisition.Object, mockClient);
             int runId = 1;
             string calcName = "TestCalc";
             string calDateTime = "21 June 2024 at 12:09";
@@ -222,7 +297,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
-            var controller = new CalculationRunDetailsController(null, null, _mockLogger.Object);
+            var mockClient = new Mock<ITokenAcquisition>();
+            var controller =
+                new CalculationRunDetailsController(null, null, _mockLogger.Object, mockClient.Object,
+                    new TelemetryClient());
             int runId = 1;
             string calcName = "TestCalc";
             string calDateTime = "21 June 2024 at 12:09";
@@ -244,15 +322,20 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
-            var controller = new CalculationRunDetailsController(null, null, _mockLogger.Object);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+
+            var controller = new CalculationRunDetailsController(null, null, _mockLogger.Object,
+                mockTokenAcquisition.Object, new TelemetryClient());
             int runId = 1;
             string calcName = "TestCalc";
             string calDate = "21 June 2024";
             string calTime = "12:09";
 
             // Act
-            var result = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true) as RedirectToActionResult;
+            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true);
+            task.Wait();
 
+            var result = task.Result as RedirectToActionResult;
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
@@ -262,7 +345,9 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
         {
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object, _mockLogger.Object);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
             var mockHttpContext = new Mock<HttpContext>();
             mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
             controller.ControllerContext = new ControllerContext

@@ -1,7 +1,10 @@
 ﻿using EPR.Calculator.Frontend.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
+    [ExcludeFromCodeCoverage]
+
     /// <summary>
     /// The view model for the calculator run status update page.
     /// </summary>
