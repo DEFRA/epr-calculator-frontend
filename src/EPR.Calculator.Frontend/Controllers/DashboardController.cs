@@ -89,7 +89,10 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    return this.View();
+                    return this.View(new DashboardViewModel
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    });
                 }
 
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
