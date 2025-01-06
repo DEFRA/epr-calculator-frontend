@@ -33,17 +33,9 @@ namespace EPR.Calculator.Frontend.Controllers
             var token = this.HttpContext?.Session?.GetString("accessToken");
             if (string.IsNullOrEmpty(token))
             {
-                var scopeArray = new[]
-                {
-                    "openid",
-                    "offline_access",
-                    "api://542488b9-bf70-429f-bad7-1e592efce352/Read_Scope",
-                    "api://542488b9-bf70-429f-bad7-1e592efce352/Write_Scope",
-                    "api://542488b9-bf70-429f-bad7-1e592efce352/default",
-                };
-
-                var scope = string.Join(" ", scopeArray);
-                token = await this.tokenAcquisition.GetAccessTokenForUserAsync([scope]);
+                var scope = this.Configuration.GetSection("DownstreamApi:Scopes").AsEnumerable();
+                var scopes = scope.Select(s => s.Value).Where(x => x != null && !string.IsNullOrEmpty(x));
+                token = await this.tokenAcquisition.GetAccessTokenForUserAsync(scopes);
                 this.TelemetryClient.TrackTrace($"scope is {scope}");
                 this.TelemetryClient.TrackTrace("after generating..");
                 this.HttpContext?.Session?.SetString("accessToken", token);
