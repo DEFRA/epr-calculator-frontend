@@ -255,7 +255,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new ParameterUploadFileController();
             var result = controller.DownloadCsvTemplate() as PhysicalFileResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(StaticHelpers.Path, result.FileDownloadName);
+            Assert.AreEqual(Path.GetFileName(StaticHelpers.Path), result.FileDownloadName);
         }
     }
 }
