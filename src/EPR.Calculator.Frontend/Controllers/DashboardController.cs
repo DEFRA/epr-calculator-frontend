@@ -63,11 +63,6 @@ namespace EPR.Calculator.Frontend.Controllers
                     .GetSection(ConfigSection.RunParameterYear)
                     .Value;
 
-                if (string.IsNullOrWhiteSpace(year) || string.IsNullOrWhiteSpace(dashboardCalculatorRunApi))
-                {
-                    throw new ConfigurationErrorsException("DashboardCalculatorRunApi or RunParameterYear missing");
-                }
-
                 using var response =
                     await this.GetHttpRequest(year, dashboardCalculatorRunApi, this.clientFactory, accessToken);
 
@@ -97,7 +92,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
