@@ -3,6 +3,7 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using static System.Formats.Asn1.AsnWriter;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -30,13 +31,14 @@ namespace EPR.Calculator.Frontend.Controllers
         protected async Task<string> AcquireToken()
 #pragma warning restore SA1600
         {
+            this.TelemetryClient.TrackTrace("AcquireToken");
             var token = this.HttpContext?.Session?.GetString("accessToken");
             if (string.IsNullOrEmpty(token))
             {
                 var scopeArray = this.Configuration.GetSection("DownstreamApi:Scopes").AsEnumerable();
                 var scope = string.Join(" ", scopeArray.Where(x => x.Value != null).Select(x => x.Value));
-                token = await this.tokenAcquisition.GetAccessTokenForUserAsync([scope]);
                 this.TelemetryClient.TrackTrace($"scope is {scope}");
+                token = await this.tokenAcquisition.GetAccessTokenForUserAsync([scope]);
                 this.TelemetryClient.TrackTrace("after generating..");
                 this.HttpContext?.Session?.SetString("accessToken", token);
             }
