@@ -54,6 +54,9 @@ namespace EPR.Calculator.Frontend.Controllers
             var uri = new Uri(string.Format("{0}/{1}", lapcapRunApi, year));
             var response = await client.GetAsync(uri);
 
+            MockApiDumpFile.WriteToFile(uri);
+            MockApiDumpFile.WriteToFile(response);
+
             return response;
         }
 

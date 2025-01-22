@@ -45,10 +45,12 @@
             try
             {
                 Task<HttpResponseMessage> response = GetHttpRequest(this.configuration, this.clientFactory);
+               
 
                 if (response.Result.IsSuccessStatusCode)
                 {
                     var deserializedRuns = JsonConvert.DeserializeObject<List<CalculationRun>>(response.Result.Content.ReadAsStringAsync().Result);
+                    MockApiDumpFile.WriteToFile(response.Result.Content.ReadAsStringAsync().Result);
 
                     // Ensure deserializedRuns is not null
                     var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
@@ -142,6 +144,7 @@
             };
             var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
             request.Content = content;
+            MockApiDumpFile.WriteToFile(request);
             var response = client.SendAsync(request);
             response.Wait();
 

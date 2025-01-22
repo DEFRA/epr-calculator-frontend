@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using Azure;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Net;
+using System.Text.Json;
 using System.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -46,6 +48,7 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var getCalculationDetailsResponse = await this.GetCalculationDetailsAsync(runId);
+                MockApiDumpFile.WriteToFile(getCalculationDetailsResponse);
 
                 if (!getCalculationDetailsResponse.IsSuccessStatusCode)
                 {
@@ -57,7 +60,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
-                {
+                {                   
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                     Data = new CalculatorRunStatusUpdateDto
                     {
@@ -95,6 +98,7 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetSection(ConfigSection.DashboardCalculatorRunApi).Value;
+              
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(dashboardCalculatorRunApi);
@@ -113,6 +117,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 };
 
                 this.SetDownloadParameters(statusUpdateViewModel);
+                
+                MockApiDumpFile.WriteToFile(statusUpdateViewModel);
 
                 if (!deleteChecked)
                 {
@@ -187,6 +193,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var client = this.CreateHttpClient();
             var apiUrl = client.BaseAddress.ToString();
             var requestUri = new Uri($"{apiUrl}/{runId}", UriKind.Absolute);
+            MockApiDumpFile.WriteToFile(requestUri);
             return await client.GetAsync(requestUri);
         }
 
@@ -217,6 +224,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
             statusUpdateViewModel.DownloadResultURL = new Uri($"{downloadResultApi}/{statusUpdateViewModel.Data.RunId}", UriKind.Absolute);
             statusUpdateViewModel.DownloadErrorURL = this.GetDownloadErrorPageURL(statusUpdateViewModel);
+
+            MockApiDumpFile.WriteToFile(statusUpdateViewModel);
         }
 
         private string GetDownloadErrorPageURL(CalculatorRunStatusUpdateViewModel statusUpdateViewModel)

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Azure;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -71,6 +72,10 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     var calculationName = calculationRunModel.CalculationName.Trim();
                     var calculationNameExistsResponse = await this.CheckIfCalculationNameExistsAsync(calculationName);
+                   
+                    MockApiDumpFile.WriteToFile(calculationNameExistsResponse);
+
+
                     if (calculationNameExistsResponse.IsSuccessStatusCode)
                     {
                         this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists);
@@ -163,6 +168,10 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
             var request = new HttpRequestMessage(HttpMethod.Post, calculatorRunApi) { Content = content };
+            MockApiDumpFile.WriteToFile(runParms);
+            MockApiDumpFile.WriteToFile(request);
+
+
 
             return await client.SendAsync(request);
         }
@@ -187,6 +196,7 @@ namespace EPR.Calculator.Frontend.Controllers
             client.BaseAddress = new Uri(apiUrl);
 
             var requestUri = new Uri($"{apiUrl}/{calculationName}", UriKind.Absolute);
+            MockApiDumpFile.WriteToFile(requestUri);
             return await client.GetAsync(requestUri);
         }
 

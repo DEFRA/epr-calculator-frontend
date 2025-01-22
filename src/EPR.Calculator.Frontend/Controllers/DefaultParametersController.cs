@@ -59,8 +59,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 var year = this.configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
 
                 var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, year));
+                MockApiDumpFile.WriteToFile(uri);
                 var response = await client.GetAsync(uri);
-
+                MockApiDumpFile.WriteToFile(response);
                 if (response.IsSuccessStatusCode)
                 {
                     var data = await response.Content.ReadAsStringAsync();
