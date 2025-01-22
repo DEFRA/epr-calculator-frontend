@@ -39,14 +39,23 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     "openid",
                     "offline_access",
-                    "api://542488b9-bf70-429f-bad7-1e592efce352/Read_Scope",
-                    "api://542488b9-bf70-429f-bad7-1e592efce352/Write_Scope",
-                    "api://542488b9-bf70-429f-bad7-1e592efce352/default",
+                    "api://3578935b-788b-4f53-931d-dddd67dca987/Write_Scope",
+                    "api://3578935b-788b-4f53-931d-dddd67dca987/Read_Scope",
+                    "api://3578935b-788b-4f53-931d-dddd67dca987/default",
                 };
 
                 var scope = string.Join(" ", scopeArray);
-                this.TelemetryClient.TrackTrace($"scope is {scope}");
-                token = await this.tokenAcquisition.GetAccessTokenForUserAsync([scope]);
+                try
+                {
+                    this.TelemetryClient.TrackTrace($"GetAccessTokenForUserAsync with scope- {scope}");
+                    token = await this.tokenAcquisition.GetAccessTokenForUserAsync([scope]);
+                }
+                catch (Exception ex)
+                {
+                    this.TelemetryClient.TrackException(ex);
+                    throw;
+                }
+
                 this.TelemetryClient.TrackTrace("after generating..");
                 this.HttpContext?.Session?.SetString("accessToken", token);
             }
