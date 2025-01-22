@@ -207,13 +207,14 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message indicating whether the calculation name exists.</returns>
         private async Task<HttpResponseMessage> CheckIfCalculationNameExistsAsync(string calculationName)
         {
+            var safeName = Uri.EscapeDataString(calculationName);
             var apiUrl = this.GetApiUrl();
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             var accessToken = await this.AcquireToken();
 
             client.DefaultRequestHeaders.Add("Authorization", accessToken);
-            var response = await client.GetAsync($"api/calculations/{calculationName}");
+            var response = await client.GetAsync($"api/calculations/{safeName}");
             return response;
         }
 
