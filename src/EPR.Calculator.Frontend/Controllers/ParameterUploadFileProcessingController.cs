@@ -1,43 +1,50 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     [Authorize(Roles = "SASuperUser")]
-    public class ParameterUploadFileProcessingController : Controller
+    public class ParameterUploadFileProcessingController : BaseController
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
 
-        public ParameterUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ParameterUploadFileProcessingController"/> class.
+        /// </summary>
+        /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
+        /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
+        /// <param name="tokenAcquisition">The token acquisition service.</param>
+        /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
+        public ParameterUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
         }
 
-        public string FileName { get; set; }
+        public string? FileName { get; set; }
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index([FromBody] List<SchemeParameterTemplateValue> schemeParameterValues)
+        public async Task<IActionResult> Index([FromBody] List<SchemeParameterTemplateValue> schemeParameterValues)
         {
             try
             {
-                var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
-
-                if (string.IsNullOrWhiteSpace(parameterSettingsApi))
-                {
-                    throw new ArgumentNullException(parameterSettingsApi, "ParameterSettingsApi is null. Check the configuration settings for default parameters");
-                }
+                var parameterSettingsApi = this.GetParameterSettingsApi();
 
                 this.FileName = this.HttpContext.Session.GetString(SessionConstants.ParameterFileName);
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
+                var accessToken = await this.AcquireToken();
+                client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
                 var payload = this.Transform(schemeParameterValues);
 
@@ -61,6 +68,18 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
+        }
+
+        private string? GetParameterSettingsApi()
+        {
+            var parameterSettingsApi = this.configuration.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value;
+
+            if (string.IsNullOrWhiteSpace(parameterSettingsApi))
+            {
+                throw new ArgumentNullException(parameterSettingsApi, "ParameterSettingsApi is null. Check the configuration settings for default parameters");
+            }
+
+            return parameterSettingsApi;
         }
 
         private string Transform(List<SchemeParameterTemplateValue> schemeParameterValues)

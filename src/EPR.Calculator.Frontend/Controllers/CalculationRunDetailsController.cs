@@ -3,9 +3,10 @@ using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
+using Microsoft.Identity.Web;
 using System.Net;
 using System.Web;
 
@@ -15,7 +16,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Initializes a new instance of the <see cref="CalculationRunDetailsController"/> class.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
-    public class CalculationRunDetailsController : Controller
+    public class CalculationRunDetailsController : BaseController
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
@@ -27,7 +28,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="configuration">The configuration settings.</param>
         /// <param name="clientFactory">The HTTP client factory.</param>
         /// <param name="logger">The logger instance.</param>
-        public CalculationRunDetailsController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunDetailsController> logger)
+        public CalculationRunDetailsController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunDetailsController> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
@@ -50,10 +52,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (!getCalculationDetailsResponse.IsSuccessStatusCode)
                 {
                     this.logger.LogError(
-                            $"Request failed with status code {getCalculationDetailsResponse?.StatusCode}");
+                        "Request failed with status code {StatusCode}", getCalculationDetailsResponse?.StatusCode);
+
                     return this.RedirectToAction(
-                            ActionNames.StandardErrorIndex,
-                            CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                        ActionNames.StandardErrorIndex,
+                        CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
 
                 var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
@@ -64,8 +67,8 @@ namespace EPR.Calculator.Frontend.Controllers
                         RunId = runId,
                         ClassificationId = (int)RunClassification.DELETED,
                         CalcName = calcName,
-                        CreatedDate = SplitDateTime(createdAt).Item1,
-                        CreatedTime = SplitDateTime(createdAt).Item2,
+                        CreatedDate = SplitDateTime(createdAt).Date,
+                        CreatedTime = SplitDateTime(createdAt).Time,
                     },
                 };
 
@@ -90,51 +93,59 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="deleteChecked">The delete is checked or not.</param>
         /// <returns>The delete confirmation view.</returns>
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult DeleteCalcDetails(int runId, string calcName, string createdTime, string createdDate, bool deleteChecked)
+        public async Task<IActionResult> DeleteCalcDetails(int runId, string calcName, string createdTime, string createdDate, bool deleteChecked)
         {
             try
             {
                 var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetSection(ConfigSection.DashboardCalculatorRunApi).Value;
 
                 var client = this.clientFactory.CreateClient();
-                client.BaseAddress = new Uri(dashboardCalculatorRunApi);
-                var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
+                if (dashboardCalculatorRunApi != null)
                 {
-                    RunId = runId,
-                    CalcName = calcName,
-                    ClassificationId = (int)RunClassification.DELETED,
-                    CreatedDate = createdDate,
-                    CreatedTime = createdTime,
-                };
-                var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
-                {
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    Data = calculatorRunStatusUpdate,
-                };
+                    client.BaseAddress = new Uri(dashboardCalculatorRunApi);
+                    var accessToken = await this.AcquireToken();
 
-                this.SetDownloadParameters(statusUpdateViewModel);
+                    client.DefaultRequestHeaders.Add("Authorization", accessToken);
+                    var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
+                    {
+                        RunId = runId,
+                        CalcName = calcName,
+                        ClassificationId = (int)RunClassification.DELETED,
+                        CreatedDate = createdDate,
+                        CreatedTime = createdTime,
+                    };
+                    var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                        Data = calculatorRunStatusUpdate,
+                    };
 
-                if (!deleteChecked)
-                {
-                    this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.SelectDeleteCalculation);
-                    return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
+                    this.SetDownloadParameters(statusUpdateViewModel);
+
+                    if (!deleteChecked)
+                    {
+                        this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.SelectDeleteCalculation);
+                        return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
+                    }
+
+                    var request = new HttpRequestMessage(
+                        HttpMethod.Put,
+                        new Uri(
+                            $"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.Data.RunId}&classificationId={statusUpdateViewModel.Data.ClassificationId}"));
+                    var response = client.SendAsync(request);
+
+                    response.Wait();
+
+                    if (response.Result.StatusCode != HttpStatusCode.Created)
+                    {
+                        this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.DeleteCalculationError);
+                        return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
+                    }
+
+                    return this.View(ViewNames.DeleteConfirmation, statusUpdateViewModel);
                 }
 
-                var request = new HttpRequestMessage(
-                    HttpMethod.Put,
-                    new Uri($"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.Data.RunId}&classificationId={statusUpdateViewModel.Data.ClassificationId}"));
-                var response = client.SendAsync(request);
-
-                response.Wait();
-
-                if (response.Result.StatusCode != HttpStatusCode.Created)
-                {
-                    this.logger.LogError($"Request to {dashboardCalculatorRunApi} failed with status code {response.Result}");
-                    this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.DeleteCalculationError);
-                    return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
-                }
-
-                return this.View(ViewNames.DeleteConfirmation, statusUpdateViewModel);
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
             catch (Exception ex)
             {
@@ -170,7 +181,7 @@ namespace EPR.Calculator.Frontend.Controllers
             };
         }
 
-        private static (string, string) SplitDateTime(string input)
+        private static (string Date, string Time) SplitDateTime(string input)
         {
             string[] parts = input.Split(new string[] { " at " }, StringSplitOptions.None);
             return (parts[0], parts[1]);
@@ -186,6 +197,9 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var client = this.CreateHttpClient();
             var apiUrl = client.BaseAddress.ToString();
+            var accessToken = await this.AcquireToken();
+
+            client.DefaultRequestHeaders.Add("Authorization", accessToken);
             var requestUri = new Uri($"{apiUrl}/{runId}", UriKind.Absolute);
             return await client.GetAsync(requestUri);
         }
@@ -198,6 +212,7 @@ namespace EPR.Calculator.Frontend.Controllers
         private HttpClient CreateHttpClient()
         {
             var apiUrl = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetValue<string>(ConfigSection.DashboardCalculatorRunApi);
+
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             return client;
