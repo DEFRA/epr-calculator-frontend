@@ -4,8 +4,10 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -43,8 +45,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
 
-            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DefaultParametersController(
+                ConfigurationItems.GetConfigurationValues(),
+                mockHttpClientFactory.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient());
 
             var mockContext = new Mock<HttpContext>();
             mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
@@ -92,8 +99,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
 
-            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+
             controller.ControllerContext = new ControllerContext
             {
                 HttpContext = mockHttpContext.Object
@@ -105,7 +114,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task DefaultParamerController_Failure_View_Test()
+        public async Task DefaultParameterController_Failure_View_Test()
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler
@@ -126,7 +135,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object);
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
 
             var result = await controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
