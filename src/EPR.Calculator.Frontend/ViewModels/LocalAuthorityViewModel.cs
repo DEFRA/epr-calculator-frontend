@@ -9,12 +9,13 @@ namespace EPR.Calculator.Frontend.ViewModels
     /// <summary>
     /// View model to display the local authority disposal costs.
     /// </summary>
+
     [ExcludeFromCodeCoverage]
     public record LocalAuthorityViewModel : ViewModelCommonData
     {
         public required string LastUpdatedBy { get; init; }
 
-        public required List<IGrouping<string, LocalAuthorityData>> ByCountry { get; init; }
+        public required List<IGrouping<string, LocalAuthorityData>>? ByCountry { get; init; }
 
         private static string GetFormattedCreatedAt(DateTime createdAt)
         {

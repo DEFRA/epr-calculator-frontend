@@ -1,13 +1,17 @@
 ﻿using System.Net;
-using Azure;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Configuration;
+using System.Net;
+using ConfigurationException = CsvHelper.Configuration.ConfigurationException;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -15,7 +19,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Initializes a new instance of the <see cref="CalculationRunNameController"/> class.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
-    public class CalculationRunNameController : Controller
+    public class CalculationRunNameController : BaseController
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
         private readonly IConfiguration configuration;
@@ -28,7 +32,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="configuration">The configuration settings.</param>
         /// <param name="clientFactory">The HTTP client factory.</param>
         /// <param name="logger">The logger instance.</param>
-        public CalculationRunNameController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunNameController> logger)
+        public CalculationRunNameController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunNameController> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
@@ -82,7 +87,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         return this.View(CalculationRunNameIndexView, calculationRunModel);
                     }
 
-                    var response = await this.HttpPostToCalculatorRunAPI(calculationName);
+                    var response = await this.HttpPostToCalculatorRunApi(calculationName);
 
                     if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
                     {
@@ -98,9 +103,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.RedirectToAction(ActionNames.RunCalculatorConfirmation, calculationRunModel);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                this.logger.LogError(ex, "Error during calculator run.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
@@ -114,6 +118,25 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult Confirmation(InitiateCalculatorRunModel calculationRunModel)
         {
             return this.View(ViewNames.CalculationRunConfirmation, calculationRunModel);
+        }
+
+        [NonAction]
+        public (string ApiUrl, string Year) GetCalculatorRunParameters()
+        {
+            var calculatorRunApi = this.configuration
+                .GetSection(ConfigSection.CalculationRunSettings)
+                .GetValue<string>(ConfigSection.CalculationRunApi);
+
+            var year = this.configuration
+                .GetSection(ConfigSection.CalculationRunSettings)
+                .GetValue<string>(ConfigSection.RunParameterYear);
+            if (string.IsNullOrEmpty(year) || string.IsNullOrEmpty(calculatorRunApi))
+            {
+                throw new ConfigurationErrorsException(
+                    "RunParameterYear or CalculationRunSettings is null or empty. Check the configuration settings for calculatorRun.");
+            }
+
+            return (calculatorRunApi, year);
         }
 
         /// <summary>
@@ -136,20 +159,13 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="calculatorRunName">The name of the calculator run.</param>
         /// <returns>The HTTP response message.</returns>
         /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown</exception>
-        private async Task<HttpResponseMessage> HttpPostToCalculatorRunAPI(string calculatorRunName)
+        private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
         {
-            var calculatorRunApi = this.configuration
-                          .GetSection(ConfigSection.CalculationRunSettings)
-                          .GetValue<string>(ConfigSection.CalculationRunApi);
-
-            if (string.IsNullOrEmpty(calculatorRunApi))
-            {
-                throw new ArgumentNullException(calculatorRunApi, "The API URL is null or empty. Check the configuration settings for calculatorRun");
-            }
+            var calculatorRunApi = this.GetCalculatorRunApi();
 
             var year = this.configuration
-                          .GetSection(ConfigSection.CalculationRunSettings)
-                          .GetValue<string>(ConfigSection.RunParameterYear);
+                .GetSection(ConfigSection.CalculationRunSettings)
+                .GetValue<string>(ConfigSection.RunParameterYear);
 
             if (string.IsNullOrEmpty(year))
             {
@@ -157,6 +173,9 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             var client = this.clientFactory.CreateClient();
+            var accessToken = await this.AcquireToken();
+
+            client.DefaultRequestHeaders.Add("Authorization", accessToken);
             client.BaseAddress = new Uri(calculatorRunApi);
 
             var runParms = new CreateCalculatorRunDto
@@ -176,6 +195,20 @@ namespace EPR.Calculator.Frontend.Controllers
             return await client.SendAsync(request);
         }
 
+        private string? GetCalculatorRunApi()
+        {
+            var calculatorRunApi = this.configuration
+                .GetSection(ConfigSection.CalculationRunSettings)
+                .GetValue<string>(ConfigSection.CalculationRunApi);
+
+            if (string.IsNullOrEmpty(calculatorRunApi))
+            {
+                throw new ArgumentNullException(calculatorRunApi, "The API URL is null or empty. Check the configuration settings for calculatorRun");
+            }
+
+            return calculatorRunApi;
+        }
+
         /// <summary>
         /// Checks if a calculation name exists asynchronously.
         /// </summary>
@@ -183,21 +216,16 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message indicating whether the calculation name exists.</returns>
         private async Task<HttpResponseMessage> CheckIfCalculationNameExistsAsync(string calculationName)
         {
-            var apiUrl = this.configuration
-                          .GetSection(ConfigSection.CalculationRunSettings)
-                          .GetValue<string>(ConfigSection.CalculationRunNameApi);
-
-            if (string.IsNullOrWhiteSpace(apiUrl))
-            {
-                throw new ArgumentNullException(apiUrl, "CalculationRunNameApi is null or empty. Please check the configuration settings.");
-            }
-
+            var safeName = Uri.EscapeDataString(calculationName);
+            var apiUrl = this.GetApiUrl();
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
+            var accessToken = await this.AcquireToken();
 
-            var requestUri = new Uri($"{apiUrl}/{calculationName}", UriKind.Absolute);
+            client.DefaultRequestHeaders.Add("Authorization", accessToken);
+            var response = await client.GetAsync($"api/calculations/{safeName}");
             MockApiDumpFile.WriteToFile(requestUri);
-            return await client.GetAsync(requestUri);
+            return response;
         }
 
         /// <summary>
@@ -218,6 +246,20 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.logger.LogError(ex, "Error parsing response");
                 return "Unable to process the error response.";
             }
+        }
+
+        private string GetApiUrl()
+        {
+            var apiUrl = this.configuration
+                .GetSection(ConfigSection.CalculationRunSettings)
+                .GetValue<string>(ConfigSection.CalculationRunNameApi);
+            if (string.IsNullOrWhiteSpace(apiUrl))
+            {
+                throw new ConfigurationException(
+                    $"CalculationRunNameApi is null or empty. Please check the configuration settings. ${ConfigSection.CalculationRunSettings}");
+            }
+
+            return apiUrl;
         }
     }
 }

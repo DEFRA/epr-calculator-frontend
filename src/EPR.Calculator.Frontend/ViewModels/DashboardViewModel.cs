@@ -5,9 +5,10 @@ using EPR.Calculator.Frontend.Models;
 namespace EPR.Calculator.Frontend.ViewModels
 {
     [ExcludeFromCodeCoverage]
+
     public record DashboardViewModel : ViewModelCommonData
     {
-        public IEnumerable<CalculationRunViewModel> Calculations { get; init; }
+        public IEnumerable<CalculationRunViewModel>? Calculations { get; init; }
 
         private static string GetFormattedCreatedAt(DateTime createdAt)
         {
