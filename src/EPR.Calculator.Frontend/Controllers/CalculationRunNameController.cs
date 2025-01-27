@@ -214,7 +214,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var accessToken = await this.AcquireToken();
 
             client.DefaultRequestHeaders.Add("Authorization", accessToken);
-            var response = await client.GetAsync($"api/calculations/{safeName}");
+            var response = await client.GetAsync($"{apiUrl}/{safeName}");
             return response;
         }
 
