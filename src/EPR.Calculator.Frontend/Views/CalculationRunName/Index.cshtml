@@ -5,7 +5,8 @@
     var BackLink = "Dashboard";
     var errors = ViewBag.Errors;
 }
-
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/common.js"></script>
 <partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
 
 @if (errors != null)
@@ -13,7 +14,8 @@
     <partial name="_ErrorBannerPartial" model="errors" />
 }
 
-@using (Html.BeginForm("RunCalculator", "CalculationRunName", FormMethod.Post))
+
+@using (Html.BeginForm("RunCalculator", "CalculationRunName", FormMethod.Post, new { id = "calculatorNameForm", onsubmit = "return preventFormReSubmission(event, this);" }))
 {
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
