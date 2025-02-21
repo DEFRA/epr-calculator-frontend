@@ -21,7 +21,10 @@ namespace EPR.Calculator.Frontend.Exceptions
                 string token = await tokenAcquisition.GetAccessTokenForUserAsync(
                     scopes: this.downstreamScopes,
                     user: context.Principal);
-                if (token == null) { context.RejectPrincipal(); }
+                if (token == null)
+                {
+                    context.RejectPrincipal();
+                }
             }
             catch (MicrosoftIdentityWebChallengeUserException ex) when (AccountDoesNotExitInTokenCache(ex))
             {
