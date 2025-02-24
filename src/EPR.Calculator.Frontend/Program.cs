@@ -26,7 +26,7 @@ builder.Services.AddRazorPages().AddMvcOptions(options =>
 }).AddMicrosoftIdentityUI();
 builder.Services.AddControllersWithViews().AddMicrosoftIdentityUI();
 
-builder.Services.AddDataProtection().DisableAutomaticKeyGeneration();
+builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Directory.GetCurrentDirectory()));
 
 builder.Services.AddDistributedMemoryCache();
 
