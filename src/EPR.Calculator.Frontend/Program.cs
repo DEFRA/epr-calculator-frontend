@@ -4,6 +4,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.Session;
@@ -25,7 +26,7 @@ builder.Services.AddRazorPages().AddMvcOptions(options =>
 }).AddMicrosoftIdentityUI();
 builder.Services.AddControllersWithViews().AddMicrosoftIdentityUI();
 
-builder.Services.AddDataProtection();
+builder.Services.AddDataProtection().DisableAutomaticKeyGeneration();
 
 builder.Services.AddDistributedMemoryCache();
 
