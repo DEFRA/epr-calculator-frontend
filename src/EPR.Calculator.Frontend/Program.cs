@@ -25,6 +25,8 @@ builder.Services.AddRazorPages().AddMvcOptions(options =>
 }).AddMicrosoftIdentityUI();
 builder.Services.AddControllersWithViews().AddMicrosoftIdentityUI();
 
+builder.Services.AddDataProtection();
+
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddApplicationInsightsTelemetry();
