@@ -111,7 +111,7 @@
             var username = fixture.Create<string>();
             var claims = new[] { new Claim(ClaimTypes.Name, username), new Claim("access_token", "expired_token") };
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
+            var principal = new ClaimsPrincipal();
 
             var mockTokenAcquistion = new Mock<ITokenAcquisition>();
             mockTokenAcquistion.Setup(m => m.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null)).
