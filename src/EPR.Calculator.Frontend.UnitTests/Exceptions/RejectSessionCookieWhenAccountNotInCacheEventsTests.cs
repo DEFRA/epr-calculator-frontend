@@ -9,6 +9,7 @@
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authentication.Cookies;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.Identity.Client;
     using Microsoft.Identity.Web;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
@@ -114,8 +115,8 @@
             var principal = new ClaimsPrincipal();
 
             var mockTokenAcquistion = new Mock<ITokenAcquisition>();
-            mockTokenAcquistion.Setup(m => m.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null)).
-                ThrowsAsync(new MicrosoftIdentityWebChallengeUserException(null, null, null));
+            mockTokenAcquistion.Setup(m => m.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, principal, null)).
+                ThrowsAsync(new MicrosoftIdentityWebChallengeUserException(new MsalUiRequiredException("user_null", "login required"), null, null));
 
             var authTicket = new AuthenticationTicket(principal, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -137,6 +138,7 @@
             // Act
             await _testClass.ValidatePrincipal(mockContext);
 
+            mockTokenAcquistion.Verify(m => m.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, principal, null), Times.Once);
             // Assert
             Assert.IsNull(mockContext.Principal);
         }
