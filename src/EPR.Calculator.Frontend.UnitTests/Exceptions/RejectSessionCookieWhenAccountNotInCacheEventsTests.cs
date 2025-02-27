@@ -75,8 +75,47 @@
             var principal = new ClaimsPrincipal(identity);
 
             var mockTokenAcquistion = new Mock<ITokenAcquisition>();
-            mockTokenAcquistion.Setup(m => m.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,  default, null)).
+            mockTokenAcquistion.Setup(m => m.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, default, null)).
                ReturnsAsync(string.Empty);
+
+            var authTicket = new AuthenticationTicket(principal, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var httpContext = new DefaultHttpContext();
+
+            var authProperties = fixture.Create<AuthenticationProperties>();
+
+            var mockServiceProvider = new Mock<IServiceProvider>();
+            mockServiceProvider.Setup(m => m.GetService(typeof(ITokenAcquisition))).Returns(mockTokenAcquistion.Object);
+
+            httpContext.RequestServices = mockServiceProvider.Object;
+
+            var o = new CookieAuthenticationOptions();
+
+            var authScheme = new AuthenticationScheme(CookieAuthenticationDefaults.AuthenticationScheme, null, typeof(CookieAuthenticationHandler));
+
+            var mockContext = new CookieValidatePrincipalContext(httpContext, authScheme, o, authTicket);
+
+            // Act
+            await _testClass.ValidatePrincipal(mockContext);
+
+            // Assert
+            Assert.IsNull(mockContext.Principal);
+        }
+
+        [TestMethod]
+        public async Task CannotCallAccountDoesNotExitInTokenCache()
+        {
+            // Arrange
+            var fixture = new Fixture()
+            .Customize(new AutoMoqCustomization());
+            var username = fixture.Create<string>();
+            var claims = new[] { new Claim(ClaimTypes.Name, username), new Claim("access_token", "expired_token") };
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            var mockTokenAcquistion = new Mock<ITokenAcquisition>();
+            mockTokenAcquistion.Setup(m => m.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null)).
+                ThrowsAsync(new MicrosoftIdentityWebChallengeUserException(null, null, null));
 
             var authTicket = new AuthenticationTicket(principal, CookieAuthenticationDefaults.AuthenticationScheme);
 
