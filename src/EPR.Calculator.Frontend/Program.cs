@@ -4,6 +4,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
@@ -57,7 +58,12 @@ var app = builder.Build();
 
 app.UseCookiePolicy(new CookiePolicyOptions
 {
+    MinimumSameSitePolicy = SameSiteMode.None,
     Secure = CookieSecurePolicy.Always,
+});
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto,
 });
 
 // Configure the HTTP request pipeline.
