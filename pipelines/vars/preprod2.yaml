@@ -1,0 +1,6 @@
+variables:
+  azureSubscription: 'AZR-RWD-PRE2'
+  docker.imageName: 'eprcalculatorfrontend'
+  acr.azureContainerRegistryName: 'prerwdinfac2401'
+  acr.repositoryName: 'eprcalculatorfrontendrepository'
+  serviceName: 'PRERWDWEBWA2421'
