@@ -241,9 +241,6 @@ namespace EPR.Calculator.Frontend.Controllers
             builder.Path = "/DownloadFileError/Index";
             var query = HttpUtility.ParseQueryString(builder.Query);
             query["runId"] = statusUpdateViewModel.Data.RunId.ToString();
-            query["calcName"] = statusUpdateViewModel.Data.CalcName;
-            query["createdDate"] = statusUpdateViewModel.Data.CreatedDate;
-            query["createdTime"] = statusUpdateViewModel.Data.CreatedTime;
             builder.Query = query.ToString();
             return builder.ToString();
         }
