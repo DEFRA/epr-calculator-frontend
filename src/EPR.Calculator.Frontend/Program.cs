@@ -55,6 +55,11 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 var app = builder.Build();
 
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    Secure = CookieSecurePolicy.Always,
+});
+
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler("/StandardError/Index");
 
