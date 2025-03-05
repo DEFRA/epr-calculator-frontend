@@ -44,6 +44,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <returns>The index view.</returns>
         [Authorize(Roles = "SASuperUser")]
+        [Route("RunANewCalculation")]
         public IActionResult Index()
         {
             return this.View(

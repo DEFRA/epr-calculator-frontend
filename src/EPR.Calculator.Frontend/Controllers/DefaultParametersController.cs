@@ -43,6 +43,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// An <see cref="IActionResult"/> that renders the view with the retrieved data or redirects to an error page.
         /// </returns>
         [Authorize(Roles = "SASuperUser")]
+        [Route("ViewDefaultParameters")]
         public async Task<IActionResult> Index()
         {
             try

@@ -43,6 +43,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="calcName">The calcName of the calculation run.</param>
         /// <returns>The calculation run details index view.</returns>
         [Authorize(Roles = "SASuperUser")]
+        [Route("CalculationRunDetails")]
         public async Task<IActionResult> IndexAsync(int runId, string calcName, string createdAt)
         {
             try
