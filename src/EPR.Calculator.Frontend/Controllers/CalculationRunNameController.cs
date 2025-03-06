@@ -97,7 +97,9 @@ namespace EPR.Calculator.Frontend.Controllers
                     }
                 }
 
-                return this.RedirectToAction(ActionNames.RunCalculatorConfirmation, calculationRunModel);
+                this.TempData["RunName"] = calculationRunModel.CalculationName;
+
+                return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
             }
             catch (Exception)
             {
@@ -111,9 +113,11 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="calculationRunModel">The model containing calculation run details.</param>
         /// <returns>The result of the action.</returns>
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Confirmation(InitiateCalculatorRunModel calculationRunModel)
+        [Route("RunANewCalculation/Confirmation")]
+        public IActionResult Confirmation()
         {
-            return this.View(ViewNames.CalculationRunConfirmation, calculationRunModel);
+            this.ViewBag.RunName = this.TempData["RunName"];
+            return this.View(ViewNames.CalculationRunConfirmation);
         }
 
         [NonAction]
