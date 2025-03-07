@@ -116,8 +116,12 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("RunANewCalculation/Confirmation")]
         public IActionResult Confirmation()
         {
-            this.ViewBag.RunName = this.TempData["RunName"];
-            return this.View(ViewNames.CalculationRunConfirmation);
+            var calculationRunConfirmationViewModel = new CalculationRunConfirmationViewModel
+            {
+                CalculationName = this.TempData["RunName"]?.ToString() ?? string.Empty,
+            };
+
+            return this.View(ViewNames.CalculationRunConfirmation, calculationRunConfirmationViewModel);
         }
 
         [NonAction]
