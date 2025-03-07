@@ -553,17 +553,10 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void Confirmation_ReturnsViewResult()
         {
-            var model = new InitiateCalculatorRunModel
-            {
-                CurrentUser = Fixture.Create<string>(),
-                CalculationName = "TestRun",
-            };
-
-            var result = _controller.Confirmation(model) as ViewResult;
+            var result = _controller.Confirmation() as ViewResult;
 
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunConfirmation, result.ViewName);
-            Assert.AreEqual(model, result.Model);
         }
 
         [TestMethod]

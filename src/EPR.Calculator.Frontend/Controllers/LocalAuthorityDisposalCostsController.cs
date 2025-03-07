@@ -61,6 +61,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Redirects to the StandardErrorIndex action in case of an error.
         /// </returns>
         [Authorize(Roles = "SASuperUser")]
+        [Route("ViewLocalAuthorityDisposalCosts")]
         public IActionResult Index()
         {
             try

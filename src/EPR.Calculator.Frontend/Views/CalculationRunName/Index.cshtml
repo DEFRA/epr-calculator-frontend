@@ -15,7 +15,7 @@
 }
 
 
-@using (Html.BeginForm("RunCalculator", "CalculationRunName", FormMethod.Post, new { id = "calculatorNameForm", onsubmit = "return preventFormReSubmission(event, this);" }))
+@using (Html.BeginForm("RunCalculator", "CalculationRunName", FormMethod.Post))
 {
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">

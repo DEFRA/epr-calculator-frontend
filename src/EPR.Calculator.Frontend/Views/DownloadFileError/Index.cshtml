@@ -22,7 +22,7 @@
                 <div class="govuk-form-group ">
                     <h1 class="govuk-heading-l">There was a problem downloading this file</h1>
                     <h1 class="govuk-body-m">This file has not been downloaded. </h1>
-                <a href="@Url.Action("Index", "CalculationRunDetails", new {runId=Model.Data.RunId, calcName=Model.Data.CalcName, createdAt = Model.Data.CreatedDate + " at " + Model.Data.CreatedTime})" class="govuk-button" type="submit">Try again</a>
+                <a href="@Url.Action("Index", "ViewCalculationRunDetails", new { runId = Model.Data.RunId })" class="govuk-button" type="submit">Try again</a>
                     <p class="govuk-body">
                         <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
                     </p>                    

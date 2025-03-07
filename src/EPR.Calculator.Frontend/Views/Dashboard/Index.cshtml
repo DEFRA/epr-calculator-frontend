@@ -25,19 +25,19 @@
         <h1 class="govuk-heading-xl">Calculate packaging payments</h1>
         <div class="govuk-grid-row tile-group">
             <div class="govuk-grid-column-one-third tile">
-                <a href="/DefaultParameters" class="govuk-link govuk-link--no-visited-state">
+                <a href="/ViewDefaultParameters" class="govuk-link govuk-link--no-visited-state">
                     <span class="govuk-heading-m heading">Manage default parameters</span>
                     <span class="govuk-body more-info">View or update the parameters</span>
                 </a>
             </div>
             <div class="govuk-grid-column-one-third tile">
-                <a href="/LocalAuthorityDisposalCosts" class="govuk-link govuk-link--no-visited-state">
+                <a href="/ViewLocalAuthorityDisposalCosts" class="govuk-link govuk-link--no-visited-state">
                     <span class="govuk-heading-m heading">Manage local authority disposal costs</span>
                     <span class="govuk-body more-info">View or update disposal costs</span>
                 </a>
             </div>
             <div class="govuk-grid-column-one-third tile">
-                <a href="/CalculationRunName" class="govuk-link govuk-link--no-visited-state">
+                <a href="/RunANewCalculation" class="govuk-link govuk-link--no-visited-state">
                     <span class="govuk-heading-m heading">Run the calculator</span>
                     <span class="govuk-body more-info">Use the default parameters or upload a set of temporary parameters</span>
                 </a>
@@ -61,13 +61,13 @@
                                 <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
                                     @if (run.ShowErrorLink)
                                     {
-                                        <a href="@Url.Action(ActionNames.Error, "CalculationRunDetails")" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
+                                        <a href="@Url.Action(ActionNames.Error, "ViewCalculationRunDetails")" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
                                     }
                                     else
                                     {
                                         if (run.ShowRunDetailLink)
                                         {
-                                            <a href="@Url.Action("Index", "CalculationRunDetails", new { runId = @run.Id, calcName = run.Name, createdAt = @run.CreatedAt })" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
+                                            <a href="@Url.Action("Index", "ViewCalculationRunDetails", new { runId = @run.Id })" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
                                         }
                                         else
                                         {

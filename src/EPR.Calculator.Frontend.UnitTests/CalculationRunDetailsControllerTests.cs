@@ -51,7 +51,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task IndexAsync_ReturnsView_WhenApiCallIsSuccessful()
         {
             // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetCalculationRuns());
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetCalculatorRun());
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
@@ -78,11 +78,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.ControllerContext.HttpContext.Request.Scheme = "https";
             controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
             int runId = 1;
-            string calcName = "TestCalc";
-            string calDateTime = "21 June 2024 at 12:09";
+            string calcName = "Test Run";
 
             // Act
-            var result = await controller.IndexAsync(runId, calcName, calDateTime) as ViewResult;
+            var result = await controller.IndexAsync(runId) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -90,13 +89,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             var model = result.Model as CalculatorRunStatusUpdateViewModel;
             Assert.IsNotNull(model);
             Assert.AreEqual(runId, model.Data.RunId);
-            Assert.AreEqual((int)RunClassification.DELETED, model.Data.ClassificationId);
+            Assert.AreEqual((int)RunClassification.UNCLASSIFIED, model.Data.ClassificationId);
             Assert.AreEqual(calcName, model.Data.CalcName);
             Assert.AreEqual(new Uri("http://localhost:5055/v1/DownloadResult/1"), model.DownloadResultURL);
-            Assert.AreEqual("https://localhost:7163/DownloadFileError/Index?runId=1&calcName=TestCalc&createdDate=21+June+2024&createdTime=12%3a09", model.DownloadErrorURL);
+            Assert.AreEqual("https://localhost:7163/DownloadFileError/Index?runId=1", model.DownloadErrorURL);
             Assert.AreEqual(30000, model.DownloadTimeout);
             Assert.AreEqual("12:09", model.Data.CreatedTime);
-            Assert.AreEqual("21 June 2024", model.Data.CreatedDate);
+            Assert.AreEqual("21 Jun 2024", model.Data.CreatedDate);
         }
 
         [TestMethod]
@@ -110,11 +109,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
                 _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
             int runId = 1;
-            string calcName = "TestCalc";
-            string calDateTime = "21 June 2024 at 12:09";
 
             // Act
-            var result = await controller.IndexAsync(runId, calcName, calDateTime) as RedirectToActionResult;
+            var result = await controller.IndexAsync(runId) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -269,11 +266,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
                 _mockLogger.Object, mockTokenAcquisition.Object, mockClient);
             int runId = 1;
-            string calcName = "TestCalc";
-            string calDateTime = "21 June 2024 at 12:09";
 
             // Act
-            var result = await controller.IndexAsync(runId, calcName, calDateTime) as RedirectToActionResult;
+            var result = await controller.IndexAsync(runId) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -302,11 +297,9 @@ namespace EPR.Calculator.Frontend.UnitTests
                 new CalculationRunDetailsController(null, null, _mockLogger.Object, mockClient.Object,
                     new TelemetryClient());
             int runId = 1;
-            string calcName = "TestCalc";
-            string calDateTime = "21 June 2024 at 12:09";
 
             // Act
-            var result = await controller.IndexAsync(runId, calcName, calDateTime) as RedirectToActionResult;
+            var result = await controller.IndexAsync(runId) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);

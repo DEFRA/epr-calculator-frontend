@@ -7,6 +7,7 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using Newtonsoft.Json;
 using System.Net;
 using System.Web;
 
@@ -43,7 +44,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="calcName">The calcName of the calculation run.</param>
         /// <returns>The calculation run details index view.</returns>
         [Authorize(Roles = "SASuperUser")]
-        public async Task<IActionResult> IndexAsync(int runId, string calcName, string createdAt)
+        [Route("ViewCalculationRunDetails")]
+        public async Task<IActionResult> IndexAsync(int runId)
         {
             try
             {
@@ -59,16 +61,18 @@ namespace EPR.Calculator.Frontend.Controllers
                         CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
 
+                var calculatorRun = JsonConvert.DeserializeObject<CalculatorRunDto>(getCalculationDetailsResponse.Content.ReadAsStringAsync().Result);
+
                 var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
                 {
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                     Data = new CalculatorRunStatusUpdateDto
                     {
                         RunId = runId,
-                        ClassificationId = (int)RunClassification.DELETED,
-                        CalcName = calcName,
-                        CreatedDate = SplitDateTime(createdAt).Date,
-                        CreatedTime = SplitDateTime(createdAt).Time,
+                        ClassificationId = calculatorRun.RunClassificationId,
+                        CalcName = calculatorRun.RunName,
+                        CreatedDate = calculatorRun.CreatedAt.ToString("dd MMM yyyy"),
+                        CreatedTime = calculatorRun.CreatedAt.ToString("HH:mm"),
                     },
                 };
 
@@ -181,12 +185,6 @@ namespace EPR.Calculator.Frontend.Controllers
             };
         }
 
-        private static (string Date, string Time) SplitDateTime(string input)
-        {
-            string[] parts = input.Split(new string[] { " at " }, StringSplitOptions.None);
-            return (parts[0], parts[1]);
-        }
-
         /// <summary>
         /// Asynchronously retrieves calculation details for a given run ID.
         /// </summary>
@@ -243,9 +241,6 @@ namespace EPR.Calculator.Frontend.Controllers
             builder.Path = "/DownloadFileError/Index";
             var query = HttpUtility.ParseQueryString(builder.Query);
             query["runId"] = statusUpdateViewModel.Data.RunId.ToString();
-            query["calcName"] = statusUpdateViewModel.Data.CalcName;
-            query["createdDate"] = statusUpdateViewModel.Data.CreatedDate;
-            query["createdTime"] = statusUpdateViewModel.Data.CreatedTime;
             builder.Query = query.ToString();
             return builder.ToString();
         }
