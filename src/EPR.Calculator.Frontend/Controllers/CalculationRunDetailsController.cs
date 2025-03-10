@@ -44,7 +44,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="calcName">The calcName of the calculation run.</param>
         /// <returns>The calculation run details index view.</returns>
         [Authorize(Roles = "SASuperUser")]
-        [Route("ViewCalculationRunDetails")]
+        [Route("ViewCalculationRunDetails/{runId}")]
         public async Task<IActionResult> IndexAsync(int runId)
         {
             try
@@ -62,6 +62,19 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 var calculatorRun = JsonConvert.DeserializeObject<CalculatorRunDto>(getCalculationDetailsResponse.Content.ReadAsStringAsync().Result);
+
+                if (calculatorRun == null)
+                {
+                    throw new ArgumentNullException($"Calculator with run id {runId} not found");
+                }
+
+                if (calculatorRun != null && !this.IsRunEligibleForDisplay(calculatorRun))
+                {
+                    return this.View(ViewNames.CalculationRunDetailsErrorPage, new ViewModelCommonData
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    });
+                }
 
                 var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
                 {
@@ -159,19 +172,6 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
-        /// Error details page.
-        /// </summary>
-        /// <returns>Error details page</returns>
-        [Authorize(Roles = "SASuperUser")]
-        public IActionResult Error()
-        {
-            return this.View(ViewNames.CalculationRunDetailsErrorPage, new ViewModelCommonData
-            {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-            });
-        }
-
-        /// <summary>
         /// Creates an error view model.
         /// </summary>
         /// <param name="errorMessage">The error message.</param>
@@ -243,6 +243,21 @@ namespace EPR.Calculator.Frontend.Controllers
             query["runId"] = statusUpdateViewModel.Data.RunId.ToString();
             builder.Query = query.ToString();
             return builder.ToString();
+        }
+
+        private bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
+        {
+            if (calculatorRun == null)
+            {
+                return false;
+            }
+
+            if (calculatorRun.RunClassificationId == (int)RunClassification.UNCLASSIFIED)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

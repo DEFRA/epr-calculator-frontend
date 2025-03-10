@@ -1,6 +1,4 @@
-﻿using System.Configuration;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.Identity.Abstractions;
+﻿using Microsoft.ApplicationInsights.DataContracts;
 
 namespace EPR.Calculator.Frontend.Controllers
 {

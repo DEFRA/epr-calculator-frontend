@@ -5,7 +5,6 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.Session;
 using Microsoft.Identity.Web.UI;
@@ -77,6 +76,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Dashboard}/{action=Index}");
+    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
 
 app.Run();

@@ -336,20 +336,21 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
+        public async void CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
         {
+            // Arrange
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.BadRequest, MockData.GetCalculationRuns());
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
                 _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
-            var mockHttpContext = new Mock<HttpContext>();
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = mockHttpContext.Object
-            };
+            int runId = 1;
 
-            var result = controller.Error() as ViewResult;
+            // Act
+            var result = await controller.IndexAsync(runId) as ViewResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDetailsErrorPage, result.ViewName);
         }
