@@ -230,20 +230,7 @@ namespace EPR.Calculator.Frontend.Controllers
             statusUpdateViewModel.DownloadTimeout = timeoutValue;
 
             statusUpdateViewModel.DownloadResultURL = new Uri($"{downloadResultApi}/{statusUpdateViewModel.Data.RunId}", UriKind.Absolute);
-            statusUpdateViewModel.DownloadErrorURL = this.GetDownloadErrorPageURL(statusUpdateViewModel);
-        }
-
-        private string GetDownloadErrorPageURL(CalculatorRunStatusUpdateViewModel statusUpdateViewModel)
-        {
-            var request = this.HttpContext.Request;
-            var currentUri = new Uri($"{request.Scheme}://{request.Host}");
-
-            var builder = new UriBuilder(currentUri);
-            builder.Path = "/DownloadFileError/Index";
-            var query = HttpUtility.ParseQueryString(builder.Query);
-            query["runId"] = statusUpdateViewModel.Data.RunId.ToString();
-            builder.Query = query.ToString();
-            return builder.ToString();
+            statusUpdateViewModel.DownloadErrorURL = $"/DownloadFileError/{statusUpdateViewModel.Data.RunId}";
         }
 
         private bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
