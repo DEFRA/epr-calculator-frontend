@@ -171,6 +171,19 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
             };
         }
 
+        public static CalculatorRunDto GetRunningCalculatorRun()
+        {
+            return new CalculatorRunDto
+            {
+                RunId = 1,
+                RunName = "Test Run",
+                RunClassificationId = 2,
+                RunClassificationStatus = "RUNNING",
+                FileExtension = "CSV",
+                CreatedAt = DateTime.Parse("21/06/2024 12:09:00", new CultureInfo("en-GB")),
+            };
+        }
+
         public static IEnumerable<CalculationRun> GetCalculationRuns()
         {
             var calculationRuns = new List<CalculationRun>();
