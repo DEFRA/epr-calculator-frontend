@@ -654,7 +654,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await _controller.RunCalculator(calculationRunModel);
 
             var redirectResult = result as ViewResult;
-            Assert.AreEqual("~/Views/CalculationRunError/Index.cshtml", redirectResult.ViewName);
+            Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", redirectResult.ViewName);
         }
 
         [TestMethod]
@@ -710,7 +710,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await _controller.RunCalculator(calculationRunModel);
 
             var redirectResult = result as ViewResult;
-            Assert.AreEqual("~/Views/CalculationRunError/Index.cshtml", redirectResult.ViewName);
+            Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", redirectResult.ViewName);
         }
 
         [TestMethod]

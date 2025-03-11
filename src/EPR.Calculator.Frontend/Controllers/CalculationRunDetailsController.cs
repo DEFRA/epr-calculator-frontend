@@ -110,7 +110,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="deleteChecked">The delete is checked or not.</param>
         /// <returns>The delete confirmation view.</returns>
         [Authorize(Roles = "SASuperUser")]
-        public async Task<IActionResult> DeleteCalcDetails(int runId, string calcName, string createdTime, string createdDate, bool deleteChecked)
+        [Route("DeleteCalculationRun")]
+        public async Task<IActionResult> DeleteCalculation(int runId, string calcName, string createdTime, string createdDate, bool deleteChecked)
         {
             try
             {

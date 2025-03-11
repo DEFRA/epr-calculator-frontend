@@ -151,7 +151,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, false);
+            var task = controller.DeleteCalculation(runId, calcName, calDate, calTime, false);
             task.Wait();
             var result = task.Result as ViewResult;
 
@@ -165,7 +165,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void DeleteCalcDetails_ReturnsView_WhenApiCallIsUnsuccessful()
+        public void DeleteCalculation_ReturnsView_WhenApiCallIsUnsuccessful()
         {
             // Arrange
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.RequestTimeout, MockData.GetCalculationRuns());
@@ -196,7 +196,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true);
+            var task = controller.DeleteCalculation(runId, calcName, calDate, calTime, true);
             task.Wait();
             var result = task.Result as ViewResult;
 
@@ -210,7 +210,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void DeleteCalcDetails_ReturnsView_WhenApiCallIsSuccessful()
+        public void DeleteCalculation_ReturnsView_WhenApiCallIsSuccessful()
         {
             // Arrange
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.Created, MockData.GetCalculationRuns());
@@ -243,7 +243,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true);
+            var task = controller.DeleteCalculation(runId, calcName, calDate, calTime, true);
             task.Wait();
 
             var result = task.Result as ViewResult;
@@ -325,7 +325,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true);
+            var task = controller.DeleteCalculation(runId, calcName, calDate, calTime, true);
             task.Wait();
 
             var result = task.Result as RedirectToActionResult;
