@@ -44,7 +44,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="calcName">The calcName of the calculation run.</param>
         /// <returns>The calculation run details index view.</returns>
         [Authorize(Roles = "SASuperUser")]
-        [Route("ViewCalculationRunDetails")]
+        [Route("ViewCalculationRunDetails/{runId}")]
         public async Task<IActionResult> IndexAsync(int runId)
         {
             try
@@ -62,6 +62,19 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 var calculatorRun = JsonConvert.DeserializeObject<CalculatorRunDto>(getCalculationDetailsResponse.Content.ReadAsStringAsync().Result);
+
+                if (calculatorRun == null)
+                {
+                    throw new ArgumentNullException($"Calculator with run id {runId} not found");
+                }
+
+                if (calculatorRun != null && !this.IsRunEligibleForDisplay(calculatorRun))
+                {
+                    return this.View(ViewNames.CalculationRunDetailsErrorPage, new ViewModelCommonData
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    });
+                }
 
                 var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
                 {
@@ -97,7 +110,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="deleteChecked">The delete is checked or not.</param>
         /// <returns>The delete confirmation view.</returns>
         [Authorize(Roles = "SASuperUser")]
-        public async Task<IActionResult> DeleteCalcDetails(int runId, string calcName, string createdTime, string createdDate, bool deleteChecked)
+        [Route("DeleteCalculationRun")]
+        public async Task<IActionResult> DeleteCalculation(int runId, string calcName, string createdTime, string createdDate, bool deleteChecked)
         {
             try
             {
@@ -159,19 +173,6 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
-        /// Error details page.
-        /// </summary>
-        /// <returns>Error details page</returns>
-        [Authorize(Roles = "SASuperUser")]
-        public IActionResult Error()
-        {
-            return this.View(ViewNames.CalculationRunDetailsErrorPage, new ViewModelCommonData
-            {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-            });
-        }
-
-        /// <summary>
         /// Creates an error view model.
         /// </summary>
         /// <param name="errorMessage">The error message.</param>
@@ -229,20 +230,22 @@ namespace EPR.Calculator.Frontend.Controllers
             statusUpdateViewModel.DownloadTimeout = timeoutValue;
 
             statusUpdateViewModel.DownloadResultURL = new Uri($"{downloadResultApi}/{statusUpdateViewModel.Data.RunId}", UriKind.Absolute);
-            statusUpdateViewModel.DownloadErrorURL = this.GetDownloadErrorPageURL(statusUpdateViewModel);
+            statusUpdateViewModel.DownloadErrorURL = $"/DownloadFileError/{statusUpdateViewModel.Data.RunId}";
         }
 
-        private string GetDownloadErrorPageURL(CalculatorRunStatusUpdateViewModel statusUpdateViewModel)
+        private bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
         {
-            var request = this.HttpContext.Request;
-            var currentUri = new Uri($"{request.Scheme}://{request.Host}");
+            if (calculatorRun == null)
+            {
+                return false;
+            }
 
-            var builder = new UriBuilder(currentUri);
-            builder.Path = "/DownloadFileError/Index";
-            var query = HttpUtility.ParseQueryString(builder.Query);
-            query["runId"] = statusUpdateViewModel.Data.RunId.ToString();
-            builder.Query = query.ToString();
-            return builder.ToString();
+            if (calculatorRun.RunClassificationId == (int)RunClassification.UNCLASSIFIED)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

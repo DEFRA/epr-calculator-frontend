@@ -59,20 +59,13 @@
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key">
                                 <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
-                                    @if (run.ShowErrorLink)
+                                    @if (run.ShowRunDetailLink)
                                     {
-                                        <a href="@Url.Action(ActionNames.Error, "ViewCalculationRunDetails")" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
+                                        <a href="/ViewCalculationRunDetails/@run.Id" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
                                     }
                                     else
                                     {
-                                        if (run.ShowRunDetailLink)
-                                        {
-                                            <a href="@Url.Action("Index", "ViewCalculationRunDetails", new { runId = @run.Id })" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
-                                        }
-                                        else
-                                        {
-                                            @run.Name
-                                        }
+                                        @run.Name
                                     }
                                 </h3>
                                 <p class="govuk-body">

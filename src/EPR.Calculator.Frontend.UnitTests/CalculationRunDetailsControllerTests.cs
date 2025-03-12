@@ -92,10 +92,93 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual((int)RunClassification.UNCLASSIFIED, model.Data.ClassificationId);
             Assert.AreEqual(calcName, model.Data.CalcName);
             Assert.AreEqual(new Uri("http://localhost:5055/v1/DownloadResult/1"), model.DownloadResultURL);
-            Assert.AreEqual("https://localhost:7163/DownloadFileError/Index?runId=1", model.DownloadErrorURL);
+            Assert.AreEqual("/DownloadFileError/1", model.DownloadErrorURL);
             Assert.AreEqual(30000, model.DownloadTimeout);
             Assert.AreEqual("12:09", model.Data.CreatedTime);
             Assert.AreEqual("21 Jun 2024", model.Data.CreatedDate);
+        }
+
+        [TestMethod]
+        public async Task IndexAsync_ReturnsRunDetailsErrorPage_WhenRunIdStatusIsNotValid()
+        {
+            // Arrange
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetRunningCalculatorRun());
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            var mockClient = new TelemetryClient();
+
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString("accessToken", "something");
+
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, mockClient);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = context
+            };
+            controller.ControllerContext.HttpContext.Request.Scheme = "https";
+            controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
+            int runId = 1;
+            string calcName = "Test Run";
+
+            // Act
+            var result = await controller.IndexAsync(runId) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsErrorPage, result.ViewName);
+        }
+
+        [TestMethod]
+        public async Task IndexAsync_ThrowError_WhenRunIdIsNotValid()
+        {
+            // Arrange
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, null);
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            var mockClient = new TelemetryClient();
+
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString("accessToken", "something");
+
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, mockClient);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = context
+            };
+            controller.ControllerContext.HttpContext.Request.Scheme = "https";
+            controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
+            int runId = 1;
+            string calcName = "Test Run";
+
+            // Act
+            var result = await controller.IndexAsync(runId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
         }
 
         [TestMethod]
@@ -151,7 +234,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, false);
+            var task = controller.DeleteCalculation(runId, calcName, calDate, calTime, false);
             task.Wait();
             var result = task.Result as ViewResult;
 
@@ -165,7 +248,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void DeleteCalcDetails_ReturnsView_WhenApiCallIsUnsuccessful()
+        public void DeleteCalculation_ReturnsView_WhenApiCallIsUnsuccessful()
         {
             // Arrange
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.RequestTimeout, MockData.GetCalculationRuns());
@@ -196,7 +279,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true);
+            var task = controller.DeleteCalculation(runId, calcName, calDate, calTime, true);
             task.Wait();
             var result = task.Result as ViewResult;
 
@@ -210,7 +293,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void DeleteCalcDetails_ReturnsView_WhenApiCallIsSuccessful()
+        public void DeleteCalculation_ReturnsView_WhenApiCallIsSuccessful()
         {
             // Arrange
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.Created, MockData.GetCalculationRuns());
@@ -243,7 +326,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true);
+            var task = controller.DeleteCalculation(runId, calcName, calDate, calTime, true);
             task.Wait();
 
             var result = task.Result as ViewResult;
@@ -325,7 +408,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             string calTime = "12:09";
 
             // Act
-            var task = controller.DeleteCalcDetails(runId, calcName, calDate, calTime, true);
+            var task = controller.DeleteCalculation(runId, calcName, calDate, calTime, true);
             task.Wait();
 
             var result = task.Result as RedirectToActionResult;
@@ -336,20 +419,21 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
+        public async void CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
         {
+            // Arrange
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.BadRequest, MockData.GetCalculationRuns());
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
                 _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
-            var mockHttpContext = new Mock<HttpContext>();
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = mockHttpContext.Object
-            };
+            int runId = 1;
 
-            var result = controller.Error() as ViewResult;
+            // Act
+            var result = await controller.IndexAsync(runId) as ViewResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDetailsErrorPage, result.ViewName);
         }

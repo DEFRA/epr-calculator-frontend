@@ -18,6 +18,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Initializes a new instance of the <see cref="CalculationRunNameController"/> class.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
+    [Route("RunANewCalculation")]
     public class CalculationRunNameController : BaseController
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
@@ -87,8 +88,13 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
                     {
-                        var errorDto = new ErrorDto() { Message = await this.ExtractErrorMessageAsync(response) };
-                        return this.RedirectToAction(ActionNames.CalculationRunErrorIndex, "CalculationRunError", errorDto);
+                        return this.View(
+                            ViewNames.CalculationRunErrorIndex,
+                            new CalculationRunErrorViewModel
+                            {
+                                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                                ErrorMessage = await this.ExtractErrorMessageAsync(response),
+                            });
                     }
 
                     if (!response.IsSuccessStatusCode || response.StatusCode != HttpStatusCode.Accepted)
@@ -113,7 +119,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="calculationRunModel">The model containing calculation run details.</param>
         /// <returns>The result of the action.</returns>
         [Authorize(Roles = "SASuperUser")]
-        [Route("RunANewCalculation/Confirmation")]
+        [Route("Confirmation")]
         public IActionResult Confirmation()
         {
             var calculationRunConfirmationViewModel = new CalculationRunConfirmationViewModel
