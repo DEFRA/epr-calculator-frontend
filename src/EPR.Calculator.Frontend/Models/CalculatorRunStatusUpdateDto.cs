@@ -1,6 +1,4 @@
-﻿using EPR.Calculator.Frontend.Enums;
-
-namespace EPR.Calculator.Frontend.Models
+﻿namespace EPR.Calculator.Frontend.Models
 {
     public class CalculatorRunStatusUpdateDto
     {
