@@ -1,20 +1,12 @@
 ﻿@using EPR.Calculator.Frontend.Constants;
-@using EPR.Calculator.Frontend.ViewModels
+@using EPR.Calculator.Frontend.ViewModels;
+@using EPR.Calculator.Frontend.Extensions;
+
 @model DefaultParametersViewModel
 
 @{
     Layout = "_Layout";
     var BackLink = "Dashboard";
-    var communicationData = ViewBag.CommunicationData;
-    var operatingCosts = ViewBag.OperatingCosts;
-    var preparationCosts = ViewBag.PreparationCosts;
-    var schemeSetupCosts = ViewBag.SchemeSetupCosts;
-    var lateReportingTonnage = ViewBag.LateReportingTonnage;
-    var materialityThreshold = ViewBag.MaterialityThreshold;
-    var badDebtProvision = ViewBag.BadDebtProvision;
-    var communicationCostsByCountry = ViewBag.CommunicationCostsByCountry;
-    var tonnageChange = ViewBag.TonnageChange;
-    var effectiveFrom = ViewBag.EffectiveFrom;
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -25,7 +17,7 @@
 
         <partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
 
-        @if(ViewBag.IsDataAvailable)
+        @if(Model.IsDataAvailable)
         {
             <div class="govuk-caption-l">Last updated by @Model.LastUpdatedBy at <span id="effective-from"></span></div><br>
         }
@@ -33,43 +25,17 @@
 
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                @if(ViewBag.IsDataAvailable)
+                @if(Model.IsDataAvailable)
                 {
-                    <h2 class="govuk-heading-l">@ParameterType.CommunicationCostsByMaterial</h2>
-                    <partial name="_ItemListPartial" model="communicationData" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
-
-                    <h2 class="govuk-heading-l">@ParameterType.CommunicationCostsByCountry</h2>
-                    <partial name="_ItemListPartial" model="communicationCostsByCountry" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
-
-                    <h2 class="govuk-heading-l">@ParameterType.SchemeAdministratorOperatingCosts</h2>
-                    <partial name="_ItemListPartial" model="operatingCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
-
-
-                    <h2 class="govuk-heading-l">@ParameterType.LocalAuthorityDataPreparationCosts</h2>
-                    <partial name="_ItemListPartial" model="preparationCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
-
-
-                    <h2 class="govuk-heading-l">@ParameterType.SchemeSetupCosts</h2>
-                    <partial name="_ItemListPartial" model="schemeSetupCosts" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
-
-
-                    <h2 class="govuk-heading-l">@ParameterType.LateReportingTonnage</h2>
-                    <partial name="_ItemListPartial" model="lateReportingTonnage" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", false } }' />
-
-                    @if(@badDebtProvision.Count >0)
+                    @foreach (ParameterType name in (ParameterType[])Enum.GetValues(typeof(ParameterType)))
                     {
-                        <h2 class="govuk-heading-l">@ParameterType.BadDebtProvision</h2>
-                        <partial name="_ItemListPartial" model="badDebtProvision" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", false } }' />
-                    }
-                       
-                       
+                        var schemeparameterValue = @Model.SchemeParameters.First(t => t.SchemeParameterName == name.GetDisplayName());
+                        if (name == ParameterType.BadDebtProvision && schemeparameterValue.DefaultSchemeParameters.Count() <= 0) { continue; }
 
-                    <h2 class="govuk-heading-l">@ParameterType.MaterialityThreshold</h2>
-                    <partial name="_ItemListPartial" model="materialityThreshold" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
-
-
-                    <h2 class="govuk-heading-l">@ParameterType.TonnageChangeThreshold</h2>
-                    <partial name="_ItemListPartial" model="tonnageChange" view-data='new ViewDataDictionary(ViewData) { { "IsDisplayPrefix", true } }' />
+                        <h2 class="govuk-heading-l">@name.GetDisplayName()</h2>
+                        <partial name="_ItemListPartial" model="schemeparameterValue" />
+                        
+                    }                    
                 }
                 else
                 {
@@ -99,7 +65,7 @@
 
 <script type="text/javascript">
     $(document).ready(() => {
-        const [dateString, timeString] = ('@effectiveFrom').split(' ');
+        const [dateString, timeString] = ("@Model.EffectiveFrom").split(' ');
 
         var day = month = year = 0;
         
