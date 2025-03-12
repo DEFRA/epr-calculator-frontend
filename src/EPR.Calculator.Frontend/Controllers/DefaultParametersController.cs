@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Azure.Core;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
@@ -78,7 +77,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     if (defaultSchemeParameters != null)
                     {
-                        foreach (ParameterType name in (ParameterType[]) Enum.GetValues(typeof(ParameterType)))
+                        foreach (ParameterType name in (ParameterType[])Enum.GetValues(typeof(ParameterType)))
                         {
                             viewModel.SchemeParameters.Add(GetSchemeParametersBasedonCategory(defaultSchemeParameters, name.GetDisplayName()));
                         }

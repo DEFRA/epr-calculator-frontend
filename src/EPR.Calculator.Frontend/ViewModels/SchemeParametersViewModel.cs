@@ -6,8 +6,8 @@ namespace EPR.Calculator.Frontend.ViewModels
     {
         public IEnumerable<DefaultSchemeParameters> DefaultSchemeParameters { get; set; }
 
-        public string SchemeParameterName {  get; set; }
+        public string SchemeParameterName { get; set; }
 
-        public bool IsDisplayPrefix {  get; set; }
+        public bool IsDisplayPrefix { get; set; }
     }
 }
