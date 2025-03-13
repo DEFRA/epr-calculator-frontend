@@ -54,11 +54,13 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(builder.Configuration.GetValue<int>("SessionTimeOut"));
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.Name = "Paycal.session";
 });
 
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(keysDirectory))
-    .SetApplicationName("PaycalFrontend");
+    .SetApplicationName("PaycalFrontend")
+    .ProtectKeysWithDpapiNG();
 
 builder.Services.AddHttpClient();
 
