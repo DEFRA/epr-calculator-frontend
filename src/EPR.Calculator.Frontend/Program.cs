@@ -11,6 +11,13 @@ using Microsoft.Identity.Web.TokenCacheProviders.Session;
 using Microsoft.Identity.Web.UI;
 
 var builder = WebApplication.CreateBuilder(args);
+var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+var keysDirectory = Path.Combine(baseDirectory, "keys");
+
+if (!Directory.Exists(keysDirectory))
+{
+    Directory.CreateDirectory(keysDirectory);
+}
 
 IEnumerable<string> initialScopes = new List<string>();
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd")
@@ -50,7 +57,7 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(path: AppDomain.CurrentDomain.BaseDirectory))
+    .PersistKeysToFileSystem(new DirectoryInfo(keysDirectory))
     .SetApplicationName("PaycalFrontend");
 
 builder.Services.AddHttpClient();
