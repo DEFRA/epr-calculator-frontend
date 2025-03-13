@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.DotNet.Scaffolding.Shared;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.Session;
 using Microsoft.Identity.Web.UI;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -58,9 +60,8 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(keysDirectory))
-    .SetApplicationName("PaycalFrontend")
-    .ProtectKeysWithDpapiNG();
+    .PersistKeysToAzureBlobStorage(builder.Configuration.GetSection("BlobStorage:ConnectionString").Value, "paycal", "paycalDataProtection.xml")
+    .SetApplicationName("PaycalFrontend");
 
 builder.Services.AddHttpClient();
 
