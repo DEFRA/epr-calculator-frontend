@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Exceptions;
+﻿using Azure.Identity;
+using EPR.Calculator.Frontend.Exceptions;
 using EPR.Calculator.Frontend.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -60,6 +61,7 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddDataProtection()
     .PersistKeysToAzureBlobStorage(builder.Configuration.GetSection("BlobStorage:ConnectionString").Value, "paycal", "paycalDataProtection.xml")
+    .ProtectKeysWithAzureKeyVault(new Uri("https://devrwdinfkv1401.vault.azure.net/keys/DataProtectionKetPaycal"), new DefaultAzureCredential())
     .SetApplicationName("PaycalFrontend");
 
 builder.Services.AddHttpClient();
