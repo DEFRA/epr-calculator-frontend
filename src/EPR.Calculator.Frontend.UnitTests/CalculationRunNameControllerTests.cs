@@ -78,7 +78,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var viewResult = result as ViewResult;
             Assert.IsNotNull(viewResult);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, viewResult.ViewName);
-            var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
+            var errorViewModel = viewResult.ViewData.Model as ErrorViewModel;
             Assert.IsNotNull(errorViewModel);
             Assert.AreEqual(ViewControlNames.CalculationRunName, errorViewModel.DOMElementId);
             Assert.AreEqual(ErrorMessages.CalculationRunNameEmpty, errorViewModel.ErrorMessage);
