@@ -50,6 +50,7 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(path: AppDomain.CurrentDomain.BaseDirectory))
     .SetApplicationName("PaycalFrontend");
 
 builder.Services.AddHttpClient();
