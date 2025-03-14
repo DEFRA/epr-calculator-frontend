@@ -30,7 +30,6 @@ namespace EPR.Calculator.Frontend.Exceptions
             catch (MicrosoftIdentityWebChallengeUserException ex) when (AccountDoesNotExitInTokenCache(ex))
             {
                 context.RejectPrincipal();
-                await context.HttpContext.SignOutAsync();
             }
         }
 
