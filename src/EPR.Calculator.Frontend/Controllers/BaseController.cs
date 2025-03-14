@@ -6,6 +6,7 @@ using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" })]
     public class BaseController : Controller
     {
         private readonly ITokenAcquisition tokenAcquisition;
