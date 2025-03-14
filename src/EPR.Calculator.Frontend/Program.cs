@@ -54,7 +54,6 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddDataProtection()
     .PersistKeysToAzureBlobStorage(builder.Configuration.GetSection("BlobStorage:ConnectionString").Value, "paycal", "paycalDataProtection.xml")
-    .ProtectKeysWithAzureKeyVault(new Uri("https://devrwdinfkv1401.vault.azure.net/keys/DataProtectionKetPaycal"), new DefaultAzureCredential())
     .SetApplicationName("PaycalFrontend");
 
 builder.Services.AddHttpClient();
