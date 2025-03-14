@@ -38,12 +38,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     var scope = this.Configuration.GetSection("DownstreamApi:Scopes").Value;
                     this.TelemetryClient.TrackTrace($"GetAccessTokenForUserAsync with scope- {scope}");
-                    var userid = User.GetObjectId();
-                    if (string.IsNullOrEmpty(userid))
-                    {
-                        throw new Exception("User is not authenticated");
-                    }
-
                     token = await this.tokenAcquisition.GetAccessTokenForUserAsync([scope]);
                 }
                 catch (Exception ex)
