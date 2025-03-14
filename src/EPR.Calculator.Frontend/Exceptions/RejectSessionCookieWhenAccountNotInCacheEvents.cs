@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 
@@ -29,6 +30,7 @@ namespace EPR.Calculator.Frontend.Exceptions
             catch (MicrosoftIdentityWebChallengeUserException ex) when (AccountDoesNotExitInTokenCache(ex))
             {
                 context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync();
             }
         }
 

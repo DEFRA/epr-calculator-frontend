@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.Session;
 using Microsoft.Identity.Web.UI;
@@ -21,9 +22,13 @@ builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration,
 
 builder.Services.Configure<CookieAuthenticationOptions>(
     CookieAuthenticationDefaults.AuthenticationScheme,
-    options => options.Events = new RejectSessionCookieWhenAccountNotInCacheEvents(
+    options =>
+    { options.Events = new RejectSessionCookieWhenAccountNotInCacheEvents(
         downstreamScopes: builder.Configuration.GetSection("DownstreamApi").GetValue<string>("Scopes")
-        .Split(" ")));
+        .Split(" "));
+        options.SlidingExpiration = true;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    });
 
 builder.Services.AddRazorPages().AddMvcOptions(options =>
 {
