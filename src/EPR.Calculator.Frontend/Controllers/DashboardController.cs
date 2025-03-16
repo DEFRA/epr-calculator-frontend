@@ -53,6 +53,17 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var accessToken = await this.AcquireToken();
 
+                var financialYearListApi = this.configuration.GetSection(ConfigSection.FinancialYearListApi).Value;
+
+                //using var financialYearListResponse = await this.GetFinancialYears(financialYearListApi, this.clientFactory, accessToken);
+
+                //if (!financialYearListResponse.IsSuccessStatusCode)
+                //{
+                //    throw new HttpRequestException("Unable to get the list of financial years");
+                //}
+
+                //var financialYears = JsonConvert.DeserializeObject<List<string>>(financialYearListResponse.Content.ReadAsStringAsync().Result);
+
                 var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                     .GetSection(ConfigSection.DashboardCalculatorRunApi)
                     .Value;
@@ -62,7 +73,79 @@ namespace EPR.Calculator.Frontend.Controllers
                     .Value;
 
                 using var response =
-                    await this.GetHttpRequest(year, dashboardCalculatorRunApi, this.clientFactory, accessToken);
+                    await this.GetHttpRequest(GetCurrentFinancialYear(), dashboardCalculatorRunApi, this.clientFactory, accessToken);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var deserializedRuns = JsonConvert.DeserializeObject<List<CalculationRun>>(response.Content.ReadAsStringAsync().Result);
+
+                    // Ensure deserializedRuns is not null
+                    var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
+                    var dashboardRunData = GetCalulationRunsData(calculationRuns);
+                    return this.View(
+                        ViewNames.DashboardIndex,
+                        new DashboardViewModel
+                        {
+                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                            Calculations = dashboardRunData,
+                        });
+                }
+
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return this.View(new DashboardViewModel
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    });
+                }
+
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
+            catch (Exception e)
+            {
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
+        }
+
+        /// <summary>
+        /// Handles the Index action for the controller.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IActionResult"/> that renders the Dashboard Index view with the calculation runs data,
+        /// or redirects to the Standard Error page if an error occurs.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the API URL is null or empty.
+        /// </exception>
+        [Authorize(Roles = "SASuperUser")]
+        [Route("Dashboard/{financialYear}")]
+        public async Task<IActionResult> Index(string financialYear)
+        {
+            try
+            {
+                var accessToken = await this.AcquireToken();
+
+                var financialYearListApi = this.configuration.GetSection(ConfigSection.FinancialYearListApi).Value;
+
+                //using var financialYearListResponse = await this.GetFinancialYears(financialYearListApi, this.clientFactory, accessToken);
+
+                //if (!financialYearListResponse.IsSuccessStatusCode)
+                //{
+                //    throw new HttpRequestException("Unable to get the list of financial years");
+                //}
+
+                //var financialYears = JsonConvert.DeserializeObject<List<string>>(financialYearListResponse.Content.ReadAsStringAsync().Result);
+
+                var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                    .GetSection(ConfigSection.DashboardCalculatorRunApi)
+                    .Value;
+
+                var year = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                    .GetSection(ConfigSection.RunParameterYear)
+                    .Value;
+
+                using var response =
+                    await this.GetHttpRequest(financialYear, dashboardCalculatorRunApi, this.clientFactory, accessToken);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -160,6 +243,37 @@ namespace EPR.Calculator.Frontend.Controllers
             var response = await client.SendAsync(request);
             this.TelemetryClient.TrackTrace($"Response is {response.StatusCode}", SeverityLevel.Warning);
             return response;
+        }
+
+        private async Task<HttpResponseMessage> GetFinancialYears(
+            string financialYearListApi,
+            IHttpClientFactory clientFactory,
+            string accessToken)
+        {
+            var client = clientFactory.CreateClient();
+            client.BaseAddress = new Uri(financialYearListApi);
+            client.DefaultRequestHeaders.Add("Authorization", accessToken);
+
+            this.TelemetryClient.TrackTrace(
+                $"client.DefaultRequestHeaders.Authorization is {client.DefaultRequestHeaders.Authorization}",
+                SeverityLevel.Information);
+
+            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(financialYearListApi));
+            var response = await client.SendAsync(request);
+            this.TelemetryClient.TrackTrace($"Response is {response.StatusCode}", SeverityLevel.Warning);
+            return response;
+        }
+
+        private static string GetCurrentFinancialYear()
+        {
+            var today = DateTime.Today;
+            var year = today.Year;
+
+            // If today is between Jan 1st and March 31st, previous FY started two years ago
+            var startYear = (today.Month >= 4) ? year : year - 1;
+            var endYear = (startYear + 1).ToString().Substring(2, 2);
+
+            return $"{startYear}-{endYear}";
         }
     }
 }

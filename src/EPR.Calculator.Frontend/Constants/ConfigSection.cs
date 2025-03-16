@@ -15,6 +15,8 @@
         /// </summary>
         public const string DashboardCalculatorRunApi = "DashboardCalculatorRunApi";
 
+        public const string FinancialYearListApi = "FinancialYearListApi";
+
         /// <summary>
         /// The key for the calculator run API within the calculation run settings section.
         /// </summary>

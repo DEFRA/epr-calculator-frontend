@@ -7,6 +7,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-three-quarters">
@@ -22,7 +23,8 @@
 
 <div class="govuk-grid-row dashboard-page">
     <div class="govuk-grid-column-full">
-        <h1 class="govuk-heading-xl">Calculate packaging payments</h1>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-1">Calculate packaging payments</h1>
+        <p class="govuk-body-m">Set up and run packaging payment calculations, and view past runs by financial year.</p>
         <div class="govuk-grid-row tile-group">
             <div class="govuk-grid-column-one-third tile">
                 <a href="/ViewDefaultParameters" class="govuk-link govuk-link--no-visited-state">
@@ -44,7 +46,20 @@
             </div>
         </div>
 
-        <h2 class="govuk-heading-l govuk-!-margin-top-3">Calculations made in this financial year</h2>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third filter-container">
+                <div class="govuk-form-group">
+                    <label class="govuk-label" for="financial-year-list">
+                        Select a financial year
+                    </label>
+                    <select class="govuk-select" id="financial-year-list" name="financial-year-list">
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="govuk-heading-l govuk-!-margin-top-3 govuk-!-margin-bottom-0">Calculations made in this financial year</h2>
+        <p class="govuk-body-s">View and select a calculation run. You can also filter by financial year to find previous runs.</p>
         @if (Model.Calculations == null)
         {
             <p class="govuk-body">There are no calculations for this financial year.</p>
@@ -91,3 +106,46 @@
         }
     </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(() => {
+
+        var financialYears = [
+            '2023-24',
+            '2024-25',
+            '2025-26'
+        ];
+
+        var financialYearListDropdown = $('#financial-year-list');
+
+        $.each(financialYears, function (index, financialYear) {
+            var option = `<option value="${financialYear}">${financialYear}</option>`;
+            financialYearListDropdown.append(option);
+        });
+
+        /*$.ajax({
+            url: 'http://localhost:5055/v1/financialYearList',
+            type: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                var tableBody = $('#calculation-run-list');
+                $.each(data, function (index, product) {
+                    var row = `<div class="govuk-summary-list__row">
+                        
+                        <td>${product.Id}</td>
+                        <td>${product.Name}</td>
+                        <td>${product.Price}</td>
+                    </tr>`;
+                    tableBody.append(row);
+                });
+            },
+            error: function () {
+                alert('Error loading data');
+            }
+        });*/
+
+        $("#financial-year-list").change(() => {
+            window.location.href = `/dashboard/${financialYearListDropdown.val()}`;
+        });
+    });
+</script>
