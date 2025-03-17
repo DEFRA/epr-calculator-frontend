@@ -45,7 +45,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The calculation run details index view.</returns>
         [Authorize(Roles = "SASuperUser")]
         [Route("ViewCalculationRunDetails/{runId}")]
-        [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" })]
         public async Task<IActionResult> IndexAsync(int runId)
         {
             try
@@ -112,7 +111,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The delete confirmation view.</returns>
         [Authorize(Roles = "SASuperUser")]
         [Route("DeleteCalculationRun")]
-        [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" })]
         public async Task<IActionResult> DeleteCalculation(int runId, string calcName, string createdTime, string createdDate, bool deleteChecked)
         {
             try
