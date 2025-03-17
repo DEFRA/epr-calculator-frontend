@@ -553,17 +553,10 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void Confirmation_ReturnsViewResult()
         {
-            var model = new InitiateCalculatorRunModel
-            {
-                CurrentUser = Fixture.Create<string>(),
-                CalculationName = "TestRun",
-            };
-
-            var result = _controller.Confirmation(model) as ViewResult;
+            var result = _controller.Confirmation() as ViewResult;
 
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunConfirmation, result.ViewName);
-            Assert.AreEqual(model, result.Model);
         }
 
         [TestMethod]
@@ -660,9 +653,8 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = await _controller.RunCalculator(calculationRunModel);
 
-            var redirectResult = result as RedirectToActionResult;
-            Assert.AreEqual("Index", redirectResult.ActionName);
-            Assert.AreEqual("CalculationRunError", redirectResult.ControllerName);
+            var redirectResult = result as ViewResult;
+            Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", redirectResult.ViewName);
         }
 
         [TestMethod]
@@ -717,9 +709,8 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var result = await _controller.RunCalculator(calculationRunModel);
 
-            var redirectResult = result as RedirectToActionResult;
-            Assert.AreEqual("Index", redirectResult.ActionName);
-            Assert.AreEqual("CalculationRunError", redirectResult.ControllerName);
+            var redirectResult = result as ViewResult;
+            Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", redirectResult.ViewName);
         }
 
         [TestMethod]

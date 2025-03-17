@@ -16,6 +16,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="createdDate">The Date of the calculation run.</param>
         /// <param name="createdTime">The Time of the calculation run.</param>
         [Authorize(Roles = "SASuperUser")]
+        [Route("DownloadFileError/{runId}")]
         public IActionResult Index(int runId, string calcName, string createdDate, string createdTime)
         {
             var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
