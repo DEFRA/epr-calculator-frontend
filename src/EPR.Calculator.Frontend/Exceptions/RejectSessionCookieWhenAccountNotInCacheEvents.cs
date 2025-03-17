@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
+using NuGet.Common;
 
 namespace EPR.Calculator.Frontend.Exceptions
 {
@@ -9,19 +11,24 @@ namespace EPR.Calculator.Frontend.Exceptions
     {
         private readonly string[] downstreamScopes;
 
-        public RejectSessionCookieWhenAccountNotInCacheEvents(string[] downstreamScopes)
+        private TelemetryClient telemetryClient;
+
+        public RejectSessionCookieWhenAccountNotInCacheEvents(string[] downstreamScopes, TelemetryClient telemetryClient)
         {
             this.downstreamScopes = downstreamScopes;
+            this.telemetryClient = telemetryClient;
         }
 
         public async override Task ValidatePrincipal(CookieValidatePrincipalContext context)
         {
             try
             {
+                this.telemetryClient.TrackTrace("Inside Validate Principal");
                 var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>();
                 string token = await tokenAcquisition.GetAccessTokenForUserAsync(
                     scopes: this.downstreamScopes,
                     user: context.Principal);
+                this.telemetryClient.TrackTrace($"token :{token}");
                 if (token == null)
                 {
                     context.RejectPrincipal();
@@ -29,6 +36,7 @@ namespace EPR.Calculator.Frontend.Exceptions
             }
             catch (MicrosoftIdentityWebChallengeUserException ex) when (AccountDoesNotExitInTokenCache(ex))
             {
+                this.telemetryClient.TrackTrace($"token not exists :{ex.Message} && {ex.InnerException}");
                 context.RejectPrincipal();
             }
         }

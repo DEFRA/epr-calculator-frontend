@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Exceptions;
 using EPR.Calculator.Frontend.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -24,6 +25,9 @@ builder.Services.Configure<CookieAuthenticationOptions>(
     CookieAuthenticationDefaults.AuthenticationScheme,
     options =>
     {
+        options.Events = new RejectSessionCookieWhenAccountNotInCacheEvents(
+        downstreamScopes: builder.Configuration.GetSection("DownstreamApi").GetValue<string>("Scopes")
+        .Split(" "), new TelemetryClient());
         options.SlidingExpiration = true;
         options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     });

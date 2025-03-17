@@ -25,7 +25,7 @@
         {
             var fixture = new Fixture();
             _downstreamScopes = fixture.Create<string[]>();
-            _testClass = new RejectSessionCookieWhenAccountNotInCacheEvents(_downstreamScopes);
+            _testClass = new RejectSessionCookieWhenAccountNotInCacheEvents(_downstreamScopes, new Microsoft.ApplicationInsights.TelemetryClient());
         }
 
         [TestMethod]
