@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -21,6 +22,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="calcName">The calculation name.</param>
         /// <returns>The delete success view.</returns>
         [Authorize(Roles = "SASuperUser")]
+        [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" })]
         public IActionResult Index(int runId, string calcName)
         {
             var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto

@@ -44,6 +44,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </returns>
         [Authorize(Roles = "SASuperUser")]
         [Route("ViewDefaultParameters")]
+        [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" })]
         public async Task<IActionResult> Index()
         {
             try

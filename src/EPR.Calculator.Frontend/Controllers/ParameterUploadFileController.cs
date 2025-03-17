@@ -6,6 +6,7 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -16,6 +17,7 @@ namespace EPR.Calculator.Frontend.Controllers
     public class ParameterUploadFileController : Controller
     {
         [Authorize(Roles = "SASuperUser")]
+        [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" })]
         public IActionResult Index()
         {
             return this.View(
@@ -28,6 +30,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
+        [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" })]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             try
@@ -47,6 +50,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [Authorize(Roles = "SASuperUser")]
+        [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" })]
         public async Task<IActionResult> Upload()
         {
             try
@@ -73,6 +77,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [Authorize(Roles = "SASuperUser")]
+        [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" })]
         public IActionResult DownloadCsvTemplate()
         {
             try
