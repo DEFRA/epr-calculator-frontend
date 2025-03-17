@@ -24,9 +24,6 @@ builder.Services.Configure<CookieAuthenticationOptions>(
     CookieAuthenticationDefaults.AuthenticationScheme,
     options =>
     {
-        options.Events = new RejectSessionCookieWhenAccountNotInCacheEvents(
-        downstreamScopes: builder.Configuration.GetSection("DownstreamApi").GetValue<string>("Scopes")
-        .Split(" "));
         options.SlidingExpiration = true;
         options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     });
