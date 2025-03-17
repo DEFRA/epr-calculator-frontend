@@ -57,7 +57,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
             controller.ControllerContext.HttpContext = mockContext.Object;
 
-            var result = await controller.Index() as ViewResult;
+            var result = await controller.Index("2024-25") as ViewResult;
             Assert.IsNotNull(result);
 
             Assert.AreEqual(TotalRecords, result.ViewData.Count);
@@ -108,7 +108,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 HttpContext = mockHttpContext.Object
             };
 
-            var result = await controller.Index() as ViewResult;
+            var result = await controller.Index("2024-25") as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(false, result.ViewData["IsDataAvailable"]);
         }
@@ -138,7 +138,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
 
-            var result = await controller.Index() as RedirectToActionResult;
+            var result = await controller.Index("2024-25") as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);

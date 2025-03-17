@@ -27,19 +27,19 @@
         <p class="govuk-body-m">Set up and run packaging payment calculations, and view past runs by financial year.</p>
         <div class="govuk-grid-row tile-group">
             <div class="govuk-grid-column-one-third tile">
-                <a href="/ViewDefaultParameters" class="govuk-link govuk-link--no-visited-state">
+                <a id="view-default-parameters" class="govuk-link govuk-link--no-visited-state">
                     <span class="govuk-heading-m heading">Manage default parameters</span>
                     <span class="govuk-body more-info">View or update the parameters</span>
                 </a>
             </div>
             <div class="govuk-grid-column-one-third tile">
-                <a href="/ViewLocalAuthorityDisposalCosts" class="govuk-link govuk-link--no-visited-state">
+                <a id="view-local-authority-disposal-costs" class="govuk-link govuk-link--no-visited-state">
                     <span class="govuk-heading-m heading">Manage local authority disposal costs</span>
                     <span class="govuk-body more-info">View or update disposal costs</span>
                 </a>
             </div>
             <div class="govuk-grid-column-one-third tile">
-                <a href="/RunANewCalculation" class="govuk-link govuk-link--no-visited-state">
+                <a id="new-calculation-run" class="govuk-link govuk-link--no-visited-state">
                     <span class="govuk-heading-m heading">Run the calculator</span>
                     <span class="govuk-body more-info">Use the default parameters or upload a set of temporary parameters</span>
                 </a>
@@ -145,7 +145,19 @@
         });*/
 
         $("#financial-year-list").change(() => {
-            window.location.href = `/dashboard/${financialYearListDropdown.val()}`;
+            window.location.href = `/Dashboard/${financialYearListDropdown.val()}`;
+        });
+
+        $("#view-default-parameters").click(() => {
+            window.location.href = `/ViewDefaultParameters/${financialYearListDropdown.val()}`;
+        });
+
+        $("#view-local-authority-disposal-costs").click(() => {
+            window.location.href = `/ViewLocalAuthorityDisposalCosts/${financialYearListDropdown.val()}`;
+        });
+
+        $("#new-calculation-run").click(() => {
+            window.location.href = `/RunANewCalculation/${financialYearListDropdown.val()}`;
         });
     });
 </script>

@@ -18,7 +18,6 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Initializes a new instance of the <see cref="CalculationRunNameController"/> class.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
-    [Route("RunANewCalculation")]
     public class CalculationRunNameController : BaseController
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
@@ -45,13 +44,15 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <returns>The index view.</returns>
         [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index()
+        [Route("RunANewCalculation/{financialYear}")]
+        public IActionResult Index(string financialYear)
         {
             return this.View(
                 CalculationRunNameIndexView,
                 new InitiateCalculatorRunModel
                 {
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    FinancialYear = financialYear,
                 });
         }
 

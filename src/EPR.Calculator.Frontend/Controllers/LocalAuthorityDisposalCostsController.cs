@@ -61,22 +61,19 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Redirects to the StandardErrorIndex action in case of an error.
         /// </returns>
         [Authorize(Roles = "SASuperUser")]
-        [Route("ViewLocalAuthorityDisposalCosts")]
-        public IActionResult Index()
+        [Route("ViewLocalAuthorityDisposalCosts/{financialYear}")]
+        public IActionResult Index(string financialYear)
         {
             try
             {
                 var lapcapRunApi = this.Configuration.GetSection(ConfigSection.LapcapSettings).GetSection(ConfigSection.LapcapSettingsApi).Value;
 
-                var year = this.Configuration.GetSection(ConfigSection.LapcapSettings)
-                    .GetSection(ConfigSection.ParameterYear).Value;
-
-                if (string.IsNullOrWhiteSpace(year) || string.IsNullOrWhiteSpace(lapcapRunApi))
+                if (string.IsNullOrWhiteSpace(financialYear) || string.IsNullOrWhiteSpace(lapcapRunApi))
                 {
                     throw new ConfigurationErrorsException("LapcapSettings or RunParameterYear missing");
                 }
 
-                var response = this.GetHttpRequest(lapcapRunApi, year, this.clientFactory);
+                var response = this.GetHttpRequest(lapcapRunApi, financialYear, this.clientFactory);
 
                 if (response.Result.IsSuccessStatusCode)
                 {
