@@ -45,7 +45,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <returns>The index view.</returns>
         [Authorize(Roles = "SASuperUser")]
-        [AuthorizeForScopes(Scopes = new[] { "api://17c1ab24-2914-4c94-98bf-b1b8023cc765/default" })]
         public IActionResult Index()
         {
             return this.View(
