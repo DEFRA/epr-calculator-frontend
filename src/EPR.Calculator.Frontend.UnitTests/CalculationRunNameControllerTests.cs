@@ -61,7 +61,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void RunCalculator_CalculationRunNameController_View_Test()
         {
-            var result = _controller.Index("2024-25") as ViewResult;
+            var result = _controller.Index() as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
         }

@@ -45,15 +45,14 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <returns>The index view.</returns>
         [Authorize(Roles = "SASuperUser")]
-        [Route("RunANewCalculation/{financialYear}")]
-        public IActionResult Index(string financialYear)
+        [Route("RunANewCalculation")]
+        public IActionResult Index()
         {
             return this.View(
                 CalculationRunNameIndexView,
                 new InitiateCalculatorRunModel
                 {
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    FinancialYear = financialYear,
                 });
         }
 

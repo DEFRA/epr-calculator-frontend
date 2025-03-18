@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 using System.Net;
-using System.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {

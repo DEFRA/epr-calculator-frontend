@@ -46,16 +46,6 @@
         public const string FileNotSelected = "Please select a file";
 
         /// <summary>
-        /// Error message for financial year not provided.
-        /// </summary>
-        public const string FinancialYearEmpty = "The financial year not provided";
-
-        /// <summary>
-        /// Error message for financial year not in correct format.
-        /// </summary>
-        public const string FinancialYearIncorrectFormat = "The financial year format is incorrect";
-
-        /// <summary>
         /// Error message for delete calculation run option not selected.
         /// </summary>
         public const string SelectDeleteCalculation = "Select delete to continue or return to the dashboard";

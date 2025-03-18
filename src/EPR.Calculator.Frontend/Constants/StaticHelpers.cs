@@ -16,11 +16,6 @@
         public const string FileName = "test.csv";
 
         /// <summary>
-        /// Static helper for financial year.
-        /// </summary>
-        public const string FinancialYear = @"^(20\d{2})-(\d{2})$";
-
-        /// <summary>
         /// Static helper for maximum file size.
         /// </summary>
         public const long MaxFileSize = 50 * 1024; // 50 KB

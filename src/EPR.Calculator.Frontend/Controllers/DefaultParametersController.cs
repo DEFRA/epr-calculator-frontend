@@ -44,8 +44,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// An <see cref="IActionResult"/> that renders the view with the retrieved data or redirects to an error page.
         /// </returns>
         [Authorize(Roles = "SASuperUser")]
-        [Route("ViewDefaultParameters/{financialYear}")]
-        public async Task<IActionResult> Index(string financialYear)
+        [Route("ViewDefaultParameters")]
+        public async Task<IActionResult> Index()
         {
             try
             {
@@ -61,7 +61,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 var accessToken = await this.AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
-                var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, financialYear));
+                var year = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
+
+                var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, year));
                 var response = await client.GetAsync(uri);
 
                 if (response.IsSuccessStatusCode)

@@ -1,10 +1,13 @@
 @using EPR.Calculator.Frontend.Constants
 @using EPR.Calculator.Frontend.ViewModels
+@inject IHttpContextAccessor HttpContextAccessor
 @model DashboardViewModel
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var token = @HttpContextAccessor.HttpContext?.Session.GetString("accessToken");
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -27,19 +30,19 @@
         <p class="govuk-body-m">Set up and run packaging payment calculations, and view past runs by financial year.</p>
         <div class="govuk-grid-row tile-group">
             <div class="govuk-grid-column-one-third tile">
-                <a id="view-default-parameters" class="govuk-link govuk-link--no-visited-state">
+                <a href="/ViewDefaultParameters" class="govuk-link govuk-link--no-visited-state">
                     <span class="govuk-heading-m heading">Manage default parameters</span>
                     <span class="govuk-body more-info">View or update the parameters</span>
                 </a>
             </div>
             <div class="govuk-grid-column-one-third tile">
-                <a id="view-local-authority-disposal-costs" class="govuk-link govuk-link--no-visited-state">
+                <a href="/ViewLocalAuthorityDisposalCosts" class="govuk-link govuk-link--no-visited-state">
                     <span class="govuk-heading-m heading">Manage local authority disposal costs</span>
                     <span class="govuk-body more-info">View or update disposal costs</span>
                 </a>
             </div>
             <div class="govuk-grid-column-one-third tile">
-                <a id="new-calculation-run" class="govuk-link govuk-link--no-visited-state">
+                <a href="/RunANewCalculation" class="govuk-link govuk-link--no-visited-state">
                     <span class="govuk-heading-m heading">Run the calculator</span>
                     <span class="govuk-body more-info">Use the default parameters or upload a set of temporary parameters</span>
                 </a>
@@ -126,41 +129,29 @@
             financialYearListDropdown.append(option);
         });
 
-        /*$.ajax({
-            url: 'http://localhost:5055/v1/financialYearList',
-            type: 'POST',
-            dataType: 'json',
-            success: function (data) {
-                var tableBody = $('#calculation-run-list');
-                $.each(data, function (index, product) {
-                    var row = `<div class="govuk-summary-list__row">
-                        
-                        <td>${product.Id}</td>
-                        <td>${product.Name}</td>
-                        <td>${product.Price}</td>
-                    </tr>`;
-                    tableBody.append(row);
-                });
+        $.ajax({
+            url: 'http://localhost:5055/v1/financialYears',
+            method: 'GET',
+            beforeSend: function (xhr) {
+                let bearerToken = "Bearer " + @token;
+                xhr.setRequestHeader("Authorization", "Bearer " + bearerToken);
             },
-            error: function () {
-                alert('Error loading data');
+            success: function (data, status, xhr) {
+                try {
+                    console.log(data);
+                }
+                catch (error) {
+                    window.location.href = errorAction;
+                }
+            },
+            error: function (error) {
+                console.log(error);
+                window.location.href = errorAction;
             }
-        });*/
+        });
 
         $("#financial-year-list").change(() => {
             window.location.href = `/Dashboard/${financialYearListDropdown.val()}`;
-        });
-
-        $("#view-default-parameters").click(() => {
-            window.location.href = `/ViewDefaultParameters/${financialYearListDropdown.val()}`;
-        });
-
-        $("#view-local-authority-disposal-costs").click(() => {
-            window.location.href = `/ViewLocalAuthorityDisposalCosts/${financialYearListDropdown.val()}`;
-        });
-
-        $("#new-calculation-run").click(() => {
-            window.location.href = `/RunANewCalculation/${financialYearListDropdown.val()}`;
         });
     });
 </script>
