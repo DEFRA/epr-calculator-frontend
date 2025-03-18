@@ -47,6 +47,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Thrown when the API URL is null or empty.
         /// </exception>
         [Authorize(Roles = "SASuperUser")]
+        [AuthorizeForScopes(Scopes = new[] { "api://17c1ab24-2914-4c94-98bf-b1b8023cc765/default" })]
         public async Task<IActionResult> Index()
         {
             try
