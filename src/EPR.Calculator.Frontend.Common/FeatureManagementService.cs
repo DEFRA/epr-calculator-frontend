@@ -19,7 +19,9 @@ namespace EPR.Calculator.Frontend.Common
                 throw new ArgumentNullException(nameof(showFinancialYearSetting));
             }
 
-            return bool.TryParse(showFinancialYearSetting.Value, out _);
+            var result = bool.TryParse(showFinancialYearSetting.Value, out bool value);
+
+            return result && value;
         }
     }
 }

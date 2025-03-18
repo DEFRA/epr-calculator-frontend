@@ -8,6 +8,8 @@ namespace EPR.Calculator.Frontend.ViewModels
 
     public record DashboardViewModel : ViewModelCommonData
     {
+        public string AccessToken { get; set; }
+
         public string FinancialYear { get; set; }
 
         public bool FinancialYearFeatureEnabled { get; set; }

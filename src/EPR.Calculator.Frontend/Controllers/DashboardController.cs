@@ -105,10 +105,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 // Ensure deserializedRuns is not null
                 var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
                 var dashboardRunData = GetCalulationRunsData(calculationRuns);
+
                 return this.View(
                     ViewNames.DashboardIndex,
                     new DashboardViewModel
                     {
+                        AccessToken = accessToken,
                         CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                         Calculations = dashboardRunData,
                         FinancialYear = financialYear,
@@ -120,7 +122,10 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.View(new DashboardViewModel
                 {
+                    AccessToken = accessToken,
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    FinancialYear = financialYear,
+                    FinancialYearFeatureEnabled = FeatureManagementService.IsShowFinancialYearEnabled(this.configuration),
                 });
             }
 
