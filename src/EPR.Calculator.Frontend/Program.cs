@@ -57,7 +57,7 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(builder.Configuration.GetValue<int>("SessionTimeOut"));
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.Name = SessionConstants.CookieName;
+    options.Cookie.Name = builder.Configuration.GetValue<string>("SessionCookieName");
 });
 
 builder.Services.AddDataProtection()
