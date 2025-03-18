@@ -45,7 +45,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <returns>The index view.</returns>
         [Authorize(Roles = "SASuperUser")]
-        [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" })]
         public IActionResult Index()
         {
             return this.View(
@@ -63,7 +62,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The result of the action.</returns>
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
-        [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" })]
         public async Task<IActionResult> RunCalculator(InitiateCalculatorRunModel calculationRunModel)
         {
             if (!this.ModelState.IsValid)
@@ -121,7 +119,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The result of the action.</returns>
         [Authorize(Roles = "SASuperUser")]
         [Route("Confirmation")]
-        [AuthorizeForScopes(Scopes = new[] { "api://542488b9-bf70-429f-bad7-1e592efce352/default" })]
         public IActionResult Confirmation()
         {
             var calculationRunConfirmationViewModel = new CalculationRunConfirmationViewModel
