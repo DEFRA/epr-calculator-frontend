@@ -30,7 +30,7 @@ builder.Services.Configure<CookieAuthenticationOptions>(
         downstreamScopes: builder.Configuration.GetSection("DownstreamApi").GetValue<string>("Scopes")
         .Split(" "), new TelemetryClient());
         options.SlidingExpiration = true;
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(builder.Configuration.GetValue<int>("SessionTimeOut"));
     });
 
 builder.Services.AddRazorPages().AddMvcOptions(options =>
