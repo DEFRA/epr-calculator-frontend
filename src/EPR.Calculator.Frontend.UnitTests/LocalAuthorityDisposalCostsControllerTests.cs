@@ -59,7 +59,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
-            var result = controller.Index() as ViewResult;
+            var result = controller.Index("2024-25") as ViewResult;
             Assert.IsNotNull(result);
         }
 
@@ -99,7 +99,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 HttpContext = mockHttpContext.Object
             };
 
-            var result = controller.Index() as ViewResult;
+            var result = controller.Index("2024-25") as ViewResult;
             Assert.IsNotNull(result);
         }
 
@@ -129,7 +129,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
 
-            var result = controller.Index() as RedirectToActionResult;
+            var result = controller.Index("2024-25") as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
@@ -144,7 +144,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 new LocalAuthorityDisposalCostsController(null, null, mockTokenAcquisition.Object, new TelemetryClient());
 
             // Act
-            var result = controller.Index() as RedirectToActionResult;
+            var result = controller.Index("2024-25") as RedirectToActionResult;
 
             // Assert
             Assert.AreEqual("Index", result.ActionName);
@@ -182,7 +182,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Act
 
-            var result = controller.Index() as ViewResult;
+            var result = controller.Index("2024-25") as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -216,7 +216,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValuesWithEmptyStrings(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
 
-            var result = controller.Index() as RedirectToActionResult;
+            var result = controller.Index("2024-25") as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);

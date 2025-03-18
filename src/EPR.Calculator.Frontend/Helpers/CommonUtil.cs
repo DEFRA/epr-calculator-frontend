@@ -30,5 +30,21 @@ namespace EPR.Calculator.Frontend.Helpers
         /// </returns>
         public static string GetUserName(HttpContext context)
             => context.User.Identity?.Name ?? ErrorMessages.UnknownUser;
+
+        /// <summary>
+        /// Gets the current financial year.
+        /// </summary>
+        /// <returns>The financial year in the format YYYY-YY.</returns>
+        public static string GetCurrentFinancialYear()
+        {
+            var today = DateTime.Today;
+            var year = today.Year;
+
+            // If today is between Jan 1st and March 31st, previous FY started two years ago
+            var startYear = (today.Month >= 4) ? year : year - 1;
+            var endYear = (startYear + 1).ToString().Substring(2, 2);
+
+            return $"{startYear}-{endYear}";
+        }
     }
 }

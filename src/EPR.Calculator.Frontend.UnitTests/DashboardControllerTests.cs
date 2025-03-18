@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Security.Claims;
 using System.Security.Principal;
 using AutoFixture;
+using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;

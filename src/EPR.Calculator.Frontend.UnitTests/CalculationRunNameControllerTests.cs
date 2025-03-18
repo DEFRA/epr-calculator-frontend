@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Net;
 using AutoFixture;
+using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
@@ -60,7 +61,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void RunCalculator_CalculationRunNameController_View_Test()
         {
-            var result = _controller.Index() as ViewResult;
+            var result = _controller.Index("2024-25") as ViewResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
         }

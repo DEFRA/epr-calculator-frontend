@@ -8,6 +8,10 @@ namespace EPR.Calculator.Frontend.ViewModels
 
     public record DashboardViewModel : ViewModelCommonData
     {
+        public string FinancialYear { get; set; }
+
+        public bool FinancialYearFeatureEnabled { get; set; }
+
         public IEnumerable<CalculationRunViewModel>? Calculations { get; init; }
 
         private static string GetFormattedCreatedAt(DateTime createdAt)
