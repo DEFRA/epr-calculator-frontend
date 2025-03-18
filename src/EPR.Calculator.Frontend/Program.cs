@@ -56,7 +56,7 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(builder.Configuration.GetValue<int>("SessionTimeOut"));
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.Name = Guid.NewGuid().ToString();
+    options.Cookie.Name = "PaycalSession";
 });
 
 builder.Services.AddDataProtection()
