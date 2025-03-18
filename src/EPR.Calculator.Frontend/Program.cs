@@ -1,4 +1,5 @@
 ﻿using Azure.Identity;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Exceptions;
 using EPR.Calculator.Frontend.Validators;
 using FluentValidation;
@@ -56,12 +57,12 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(builder.Configuration.GetValue<int>("SessionTimeOut"));
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.Name = "PaycalSession";
+    options.Cookie.Name = SessionConstants.CookieName;
 });
 
 builder.Services.AddDataProtection()
-    .PersistKeysToAzureBlobStorage(builder.Configuration.GetSection("BlobStorage:ConnectionString").Value, "paycal", "paycalDataProtection.xml")
-    .SetApplicationName("PaycalFrontend");
+    .PersistKeysToAzureBlobStorage(builder.Configuration.GetSection("BlobStorage:ConnectionString").Value, SessionConstants.Paycal, SessionConstants.PaycalDataProtection)
+    .SetApplicationName(SessionConstants.PaycalAppName);
 
 builder.Services.AddHttpClient();
 
