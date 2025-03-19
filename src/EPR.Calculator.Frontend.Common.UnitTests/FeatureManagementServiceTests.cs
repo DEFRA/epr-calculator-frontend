@@ -7,14 +7,12 @@ namespace EPR.Calculator.Frontend.Common.UnitTests
     public class FeatureManagementServiceTests
     {
         private readonly Mock<IConfiguration> mockConfiguration;
-        private readonly Mock<IConfigurationSection> mockConfigurationSection;
         private readonly Mock<IConfigurationSection> mockConfigurationSectionLevelOne;
         private readonly Mock<IConfigurationSection> mockConfigurationSectionLevelTwo;
 
         public FeatureManagementServiceTests()
         {
             mockConfiguration = new Mock<IConfiguration>();
-            mockConfigurationSection = new Mock<IConfigurationSection>();
             mockConfigurationSectionLevelOne = new Mock<IConfigurationSection>();
             mockConfigurationSectionLevelTwo = new Mock<IConfigurationSection>();
         }
@@ -23,14 +21,9 @@ namespace EPR.Calculator.Frontend.Common.UnitTests
         public void Should_IsShowFinancialYearEnabled_ReturnsTrue()
         {
             // Assign
-            mockConfigurationSection.Setup(x => x.Path).Returns("FeatureManagement");
-            mockConfigurationSection.Setup(x => x.Key).Returns("ShowFinancialYear");
-            mockConfigurationSection.Setup(x => x.Value).Returns("true");
-            mockConfiguration.Setup(x => x.GetSection("FeatureManagement")).Returns(mockConfigurationSection.Object);
-            // var configValue = mockConfiguration.Object.GetSection("FeatureManagement:ShowFinancialYear").Value;
-
-            // mockConfigurationSectionLevelOne.Setup(x => x.Path).Returns("FeatureManagement");
-            // mockConfigurationSectionLevelTwo.Setup(x => x.Key).Returns("ShowFinancialYear");
+            mockConfigurationSectionLevelTwo.Setup(x => x.Value).Returns("true");
+            mockConfigurationSectionLevelOne.Setup(x => x.GetSection("ShowFinancialYear")).Returns(mockConfigurationSectionLevelTwo.Object);
+            mockConfiguration.Setup(x => x.GetSection("FeatureManagement")).Returns(mockConfigurationSectionLevelOne.Object);
 
             // Act
             var result = FeatureManagementService.IsShowFinancialYearEnabled(mockConfiguration.Object);
@@ -43,8 +36,9 @@ namespace EPR.Calculator.Frontend.Common.UnitTests
         public void Should_IsShowFinancialYearEnabled_ReturnsFalse()
         {
             // Assign
-            mockConfigurationSection.Setup(x => x.Value).Returns("FeatureManagement");
-            mockConfiguration.Setup(x => x.GetSection("ShowFinancialYear")).Returns(mockConfigurationSection.Object);
+            mockConfigurationSectionLevelTwo.Setup(x => x.Value).Returns("false");
+            mockConfigurationSectionLevelOne.Setup(x => x.GetSection("ShowFinancialYear")).Returns(mockConfigurationSectionLevelTwo.Object);
+            mockConfiguration.Setup(x => x.GetSection("FeatureManagement")).Returns(mockConfigurationSectionLevelOne.Object);
 
             // Act
             var result = FeatureManagementService.IsShowFinancialYearEnabled(mockConfiguration.Object);
