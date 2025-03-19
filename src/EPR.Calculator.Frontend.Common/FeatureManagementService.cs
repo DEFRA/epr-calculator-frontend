@@ -7,17 +7,7 @@ namespace EPR.Calculator.Frontend.Common
     {
         public static bool IsShowFinancialYearEnabled(IConfiguration configuration)
         {
-            var featureManagementSetting = configuration.GetSection(ConfigSection.FeatureManagement);
-            if (featureManagementSetting == null)
-            {
-                throw new ArgumentNullException(nameof(featureManagementSetting));
-            }
-
             var showFinancialYearSetting = configuration.GetSection(ConfigSection.FeatureManagement).GetSection(ConfigSection.ShowFinancialYear);
-            if (showFinancialYearSetting == null)
-            {
-                throw new ArgumentNullException(nameof(showFinancialYearSetting));
-            }
 
             var result = bool.TryParse(showFinancialYearSetting.Value, out bool value);
 
