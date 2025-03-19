@@ -16,11 +16,6 @@ builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration,
     .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
     .AddDownstreamApi("DownstreamApi", builder.Configuration.GetSection("DownstreamApi"))
     .AddInMemoryTokenCaches().AddSessionTokenCaches().AddSessionPerUserTokenCache().AddSession();
-builder.Services.Configure<CookieAuthenticationOptions>(
-    CookieAuthenticationDefaults.AuthenticationScheme,
-    options => options.Events = new RejectSessionCookieWhenAccountNotInCacheEvents(
-        downstreamScopes: builder.Configuration.GetSection("DownstreamApi").GetValue<string>("Scopes")
-        .Split(" ")));
 
 builder.Services.AddRazorPages().AddMvcOptions(options =>
 {
