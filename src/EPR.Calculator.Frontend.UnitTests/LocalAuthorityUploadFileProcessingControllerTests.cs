@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Security.Claims;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -141,9 +142,13 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
+            mockSession.Setup(t => t.Set("accessToken", Fixture.Create<byte[]>()));
             mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
             mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
             controller.ControllerContext.HttpContext = mockHttpContext.Object;
+            mockSession.Setup(t => t.Set("accessToken", Fixture.Create<byte[]>()));
+            mockTokenAcquisition.Setup(t => t.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, It.IsAny<ClaimsPrincipal>(), null))
+                .ReturnsAsync(Fixture.Create<string>);
 
             var task = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList());
             task.Wait();
