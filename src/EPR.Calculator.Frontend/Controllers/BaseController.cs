@@ -37,7 +37,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     var scope = this.Configuration.GetSection("DownstreamApi:Scopes").Value;
                     this.TelemetryClient.TrackTrace($"GetAccessTokenForUserAsync with scope- {scope}");
-                    token = await this.tokenAcquisition.GetAccessTokenForUserAsync([scope]);
+                    token = await this.tokenAcquisition.GetAccessTokenForUserAsync(scopes: [scope], user: User);
                 }
                 catch (Exception ex)
                 {
