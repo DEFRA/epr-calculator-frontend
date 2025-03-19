@@ -9,8 +9,6 @@ EXPOSE ${PORT}
 
 # Copy everything
 USER root
-#COPY EPR.Calculator.Frontend.Common/. ./EPR.Calculator.Frontend.Common/.
-#COPY EPR.Calculator.Frontend/. ./EPR.Calculator.Frontend/.
 COPY EPR.Calculator.Frontend/*.csproj ./EPR.Calculator.Frontend/
 COPY EPR.Calculator.Frontend.Common/*.csproj ./EPR.Calculator.Frontend.Common/
 COPY NuGet.Config ./
