@@ -20,7 +20,7 @@ IEnumerable<string> initialScopes = new List<string>();
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd")
     .EnableTokenAcquisitionToCallDownstreamApi(builder.Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' '))
     .AddDownstreamApi("DownstreamApi", builder.Configuration.GetSection("DownstreamApi"))
-    .AddInMemoryTokenCaches();
+    .AddInMemoryTokenCaches().AddSessionTokenCaches().AddSessionPerUserTokenCache();
 
 builder.Services.Configure<CookieAuthenticationOptions>(
     CookieAuthenticationDefaults.AuthenticationScheme,
