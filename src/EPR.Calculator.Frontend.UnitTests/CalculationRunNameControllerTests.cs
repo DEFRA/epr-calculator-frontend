@@ -452,7 +452,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockSession = new Mock<ISession>();
             mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
             mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
-             mockSession.Setup(t => t.Set("accessToken", Fixture.Create<byte[]>()));
+            mockSession.Setup(t => t.Set("accessToken", Fixture.Create<byte[]>()));
             mockTokenAcquisition.Setup(t => t.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, It.IsAny<ClaimsPrincipal>(), null))
                 .ReturnsAsync(Fixture.Create<string>);
 
