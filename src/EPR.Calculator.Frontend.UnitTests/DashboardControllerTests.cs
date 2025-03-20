@@ -459,7 +459,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsTrue(model.Calculations.First().ShowErrorLink);
         }
 
-        private Mock<HttpMessageHandler> GetMockHttpMessageHandler()
+        private static Mock<HttpMessageHandler> GetMockHttpMessageHandler()
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler
@@ -476,17 +476,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             return mockHttpMessageHandler;
         }
 
-        private Mock<HttpMessageHandler> GetMockHttpMessageHandlerNotFoundMessage(string content)
-        {
-            return GetMockHttpMessageHandler(HttpStatusCode.NotFound, content);
-        }
-
-        private Mock<HttpMessageHandler> GetMockHttpMessageHandlerBadRequestMessage(string content)
-        {
-            return GetMockHttpMessageHandler(HttpStatusCode.BadRequest, content);
-        }
-
-        private Mock<HttpMessageHandler> GetMockHttpMessageHandler(HttpStatusCode statusCode, string content)
+        private static Mock<HttpMessageHandler> GetMockHttpMessageHandler(HttpStatusCode statusCode, string content)
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler
@@ -501,6 +491,16 @@ namespace EPR.Calculator.Frontend.UnitTests
                     Content = new StringContent(content)
                 });
             return mockHttpMessageHandler;
+        }
+
+        private static Mock<HttpMessageHandler> GetMockHttpMessageHandlerNotFoundMessage(string content)
+        {
+            return GetMockHttpMessageHandler(HttpStatusCode.NotFound, content);
+        }
+
+        private static Mock<HttpMessageHandler> GetMockHttpMessageHandlerBadRequestMessage(string content)
+        {
+            return GetMockHttpMessageHandler(HttpStatusCode.BadRequest, content);
         }
     }
 }
