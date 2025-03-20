@@ -1,5 +1,6 @@
 ﻿namespace EPR.Calculator.Frontend.UnitTests.Helpers
 {
+    using System;
     using System.Security.Principal;
     using AutoFixture;
     using EPR.Calculator.Frontend.Constants;
@@ -61,6 +62,19 @@
 
             // Assert
             Assert.AreEqual(ErrorMessages.UnknownUser, result);
+        }
+
+        [TestMethod]
+        public void CanCallGetCurrentFinancialYear()
+        {
+            // Arrange
+            var date = new DateTime(2025, 2, 20, 00, 00, 00);
+
+            // Act
+            var result = CommonUtil.GetFinancialYear(date);
+
+            // Assert
+            Assert.AreEqual("2024-25", result);
         }
     }
 }

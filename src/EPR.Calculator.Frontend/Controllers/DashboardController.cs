@@ -51,7 +51,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var financialYear = CommonUtil.GetCurrentFinancialYear();
+                var financialYear = CommonUtil.GetFinancialYear(DateTime.Now);
                 return await this.GoToDashboardView(financialYear);
             }
             catch (Exception)
@@ -104,7 +104,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 // Ensure deserializedRuns is not null
                 var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
-                var dashboardRunData = GetCalulationRunsData(calculationRuns);
+                var dashboardRunData = DashboardHelper.GetCalulationRunsData(calculationRuns);
 
                 return this.View(
                     ViewNames.DashboardIndex,
@@ -130,38 +130,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-        }
-
-        /// <summary>
-        /// Processes a list of calculation runs and assigns status values based on their classifications.
-        /// </summary>
-        /// <param name="calculationRuns">The list of calculation runs to be processed.</param>
-        /// <returns>A list of <see cref="DashboardViewModel"/> objects containing the processed data.</returns>
-        private static List<DashboardViewModel.CalculationRunViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
-        {
-            var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
-            var dashboardRunData = new List<DashboardViewModel.CalculationRunViewModel>();
-
-            if (calculationRuns.Count > 0)
-            {
-                var displayRuns = calculationRuns.Where(x =>
-                    x.CalculatorRunClassificationId != (int)RunClassification.DELETED &&
-                    x.CalculatorRunClassificationId != (int)RunClassification.PLAY &&
-                    x.CalculatorRunClassificationId != (int)RunClassification.QUEUE);
-                foreach (var calculationRun in displayRuns)
-                {
-                    var classificationVal = runClassifications.Find(c => (int)c == calculationRun.CalculatorRunClassificationId);
-                    var member = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classificationVal.ToString());
-
-                    var attribute = member?.GetCustomAttribute<EnumMemberAttribute>(false);
-
-                    calculationRun.Status = attribute?.Value ?? string.Empty; // Use a default value if attribute or value is null
-
-                    dashboardRunData.Add(new DashboardViewModel.CalculationRunViewModel(calculationRun));
-                }
-            }
-
-            return dashboardRunData;
         }
 
         /// <summary>
