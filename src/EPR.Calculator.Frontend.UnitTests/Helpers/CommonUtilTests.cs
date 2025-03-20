@@ -65,16 +65,19 @@
         }
 
         [TestMethod]
-        public void CanCallGetCurrentFinancialYear()
+        [DataRow("2025-05-20", "2025-26")]
+        [DataRow("2025-01-20", "2024-25")]
+        [DataRow("2024-03-24", "2023-24")]
+        public void CanCallGetCurrentFinancialYear(string dateInput, string expectedFinancialYear)
         {
             // Arrange
-            var date = new DateTime(2025, 2, 20, 00, 00, 00);
+            var date = DateTime.Parse(dateInput);
 
             // Act
             var result = CommonUtil.GetFinancialYear(date);
 
             // Assert
-            Assert.AreEqual("2024-25", result);
+            Assert.AreEqual(expectedFinancialYear, result);
         }
     }
 }
