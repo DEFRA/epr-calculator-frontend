@@ -44,18 +44,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task DashboardController_Success_View_Test()
         {
             // Arrange
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(JsonConvert.SerializeObject(MockData.GetCalculationRuns()))
-                });
+            var mockHttpMessageHandler = GetMockHttpMessageHandler();
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
 
@@ -96,18 +85,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task DashboardController_With_FinancialYear_Success_View_Test()
         {
             // Arrange
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(JsonConvert.SerializeObject(MockData.GetCalculationRuns()))
-                });
+            var mockHttpMessageHandler = GetMockHttpMessageHandler();
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
 
@@ -148,18 +126,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task DashboardController_Success_No_Data_View_Test()
         {
             var content = "No data available for the specified year.Please check the year and try again.";
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Content = new StringContent(content)
-                });
+            var mockHttpMessageHandler = GetMockHttpMessageHandlerNotFoundMessage(content);
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
 
@@ -205,18 +172,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task DashboardController_With_FinancialYear_Success_No_Data_View_Test()
         {
             var content = "No data available for the specified year.Please check the year and try again.";
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Content = new StringContent(content)
-                });
+            var mockHttpMessageHandler = GetMockHttpMessageHandlerNotFoundMessage(content);
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
 
@@ -261,18 +217,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task DashboardController_Failure_View_Test()
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Content = new StringContent("Test content")
-                });
+            var content = "Test content";
+            var mockHttpMessageHandler = GetMockHttpMessageHandlerBadRequestMessage(content);
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             // Mock IHttpClientFactory
@@ -293,18 +239,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task DashboardController_With_FinancialYear_Failure_View_Test()
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Content = new StringContent("Test content")
-                });
+            var content = "Test content";
+            var mockHttpMessageHandler = GetMockHttpMessageHandlerBadRequestMessage(content);
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             // Mock IHttpClientFactory
@@ -325,18 +261,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task DashboardController_Failure_WhenNullConfiguration_Test()
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Content = new StringContent("Test content")
-                });
+            var content = "Test content";
+            var mockHttpMessageHandler = GetMockHttpMessageHandlerBadRequestMessage(content);
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             // Mock IHttpClientFactory
@@ -360,18 +286,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task DashboardController_With_FinancialYear_Failure_WhenNullConfiguration_Test()
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Content = new StringContent("Test content")
-                });
+            var content = "Test content";
+            var mockHttpMessageHandler = GetMockHttpMessageHandlerBadRequestMessage(content);
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             // Mock IHttpClientFactory
@@ -396,18 +312,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void Index_RedirectsToStandardError_WhenExceptionIsThrown()
         {
             // Arrange
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Content = new StringContent("Test content")
-                });
+            var content = "Test content";
+            var mockHttpMessageHandler = GetMockHttpMessageHandlerBadRequestMessage(content);
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
 
@@ -436,18 +342,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void Index_With_FinancialYear_RedirectsToStandardError_WhenExceptionIsThrown()
         {
             // Arrange
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Content = new StringContent("Test content")
-                });
+            var content = "Test content";
+            var mockHttpMessageHandler = GetMockHttpMessageHandlerBadRequestMessage(content);
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
 
@@ -561,6 +457,50 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(1, model.Calculations.Count());
             Assert.AreEqual(CalculationRunStatus.Error, model.Calculations.First().Status);
             Assert.IsTrue(model.Calculations.First().ShowErrorLink);
+        }
+
+        private Mock<HttpMessageHandler> GetMockHttpMessageHandler()
+        {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(JsonConvert.SerializeObject(MockData.GetCalculationRuns()))
+                });
+            return mockHttpMessageHandler;
+        }
+
+        private Mock<HttpMessageHandler> GetMockHttpMessageHandlerNotFoundMessage(string content)
+        {
+            return GetMockHttpMessageHandler(HttpStatusCode.NotFound, content);
+        }
+
+        private Mock<HttpMessageHandler> GetMockHttpMessageHandlerBadRequestMessage(string content)
+        {
+            return GetMockHttpMessageHandler(HttpStatusCode.BadRequest, content);
+        }
+
+        private Mock<HttpMessageHandler> GetMockHttpMessageHandler(HttpStatusCode statusCode, string content)
+        {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = statusCode,
+                    Content = new StringContent(content)
+                });
+            return mockHttpMessageHandler;
         }
     }
 }
