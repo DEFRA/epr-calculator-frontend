@@ -11,3 +11,4 @@
 /.vs
 /src/EPR.Calculator.Frontend.Common/bin/Release/net8.0
 /src/EPR.Calculator.Frontend.UnitTests/bin/Release/net8.0
+/src/EPR.Calculator.Frontend/appsettings.Development.json
