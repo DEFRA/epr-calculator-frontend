@@ -48,61 +48,17 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var parameterSettingsApi = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.DefaultParameterSettingsApi).Value;
-
-                if (string.IsNullOrWhiteSpace(parameterSettingsApi))
-                {
-                    throw new ArgumentNullException(parameterSettingsApi, "ParameterSettingsApi is null. Check the configuration settings for default parameters");
-                }
+                var (parameterSettingsApi, year) = this.GetParameterSettingsApiAndYear();
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
                 var accessToken = await this.AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
-                var year = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
 
                 var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, year));
                 var response = await client.GetAsync(uri);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    var data = await response.Content.ReadAsStringAsync();
-                    var defaultSchemeParameters = JsonConvert.DeserializeObject<List<DefaultSchemeParameters>>(data);
-
-                    if (defaultSchemeParameters != null)
-                    {
-                        this.ViewBag.CommunicationData = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCostsByMaterial);
-                        this.ViewBag.CommunicationCostsByCountry = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCostsByCountry);
-                        this.ViewBag.OperatingCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts);
-                        this.ViewBag.PreparationCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts);
-                        this.ViewBag.SchemeSetupCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeSetupCosts);
-                        this.ViewBag.LateReportingTonnage = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LateReportingTonnage);
-                        this.ViewBag.MaterialityThreshold = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.MaterialityThreshold);
-                        this.ViewBag.BadDebtProvision = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.BadDebtProvision);
-                        this.ViewBag.TonnageChange = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
-                        this.ViewBag.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
-                        this.ViewBag.IsDataAvailable = true;
-
-                        return this.View(
-                            new DefaultParametersViewModel
-                            {
-                                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                                LastUpdatedBy = defaultSchemeParameters.First().CreatedBy,
-                            });
-                    }
-                }
-
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    this.ViewBag.IsDataAvailable = false;
-                    return this.View(new DefaultParametersViewModel
-                    {
-                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                        LastUpdatedBy = string.Empty,
-                    });
-                }
-
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return await this.HandleResponse(response);
             }
             catch (Exception)
             {
@@ -114,6 +70,66 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var schemeParametersBasedonCategory = defaultSchemeParameters.Where(t => t.ParameterType == type).ToList();
             return schemeParametersBasedonCategory;
+        }
+
+        private (string ParameterSettingsApi, string Year) GetParameterSettingsApiAndYear()
+        {
+            var parameterSettingsApi = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.DefaultParameterSettingsApi).Value;
+            if (string.IsNullOrWhiteSpace(parameterSettingsApi))
+            {
+                throw new ArgumentNullException(parameterSettingsApi, "ParameterSettingsApi is null. Check the configuration settings for default parameters");
+            }
+
+            var year = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
+            if (string.IsNullOrWhiteSpace(year))
+            {
+                throw new ArgumentNullException(year, "ParameterYear is null. Check the configuration settings for default parameters");
+            }
+
+            return (parameterSettingsApi, year);
+        }
+
+        private async Task<IActionResult> HandleResponse(HttpResponseMessage response)
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadAsStringAsync();
+                var defaultSchemeParameters = JsonConvert.DeserializeObject<List<DefaultSchemeParameters>>(data);
+
+                if (defaultSchemeParameters != null)
+                {
+                    this.ViewBag.CommunicationData = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCostsByMaterial);
+                    this.ViewBag.CommunicationCostsByCountry = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCostsByCountry);
+                    this.ViewBag.OperatingCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts);
+                    this.ViewBag.PreparationCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts);
+                    this.ViewBag.SchemeSetupCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeSetupCosts);
+                    this.ViewBag.LateReportingTonnage = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LateReportingTonnage);
+                    this.ViewBag.MaterialityThreshold = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.MaterialityThreshold);
+                    this.ViewBag.BadDebtProvision = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.BadDebtProvision);
+                    this.ViewBag.TonnageChange = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
+                    this.ViewBag.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
+                    this.ViewBag.IsDataAvailable = true;
+
+                    return this.View(
+                        new DefaultParametersViewModel
+                        {
+                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                            LastUpdatedBy = defaultSchemeParameters.First().CreatedBy,
+                        });
+                }
+            }
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                this.ViewBag.IsDataAvailable = false;
+                return this.View(new DefaultParametersViewModel
+                {
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    LastUpdatedBy = string.Empty,
+                });
+            }
+
+            return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
         }
     }
 }

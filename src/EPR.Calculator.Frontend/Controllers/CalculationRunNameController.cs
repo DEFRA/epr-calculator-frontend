@@ -167,19 +167,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="calculatorRunName">The name of the calculator run.</param>
         /// <returns>The HTTP response message.</returns>
-        /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown</exception>
+        /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown.</exception>
         private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
         {
-            var calculatorRunApi = this.GetCalculatorRunApi();
-
-            var year = this.configuration
-                .GetSection(ConfigSection.CalculationRunSettings)
-                .GetValue<string>(ConfigSection.RunParameterYear);
-
-            if (string.IsNullOrEmpty(year))
-            {
-                throw new ArgumentNullException(year, "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
-            }
+            var (calculatorRunApi, year) = this.GetCalculatorRunApiAndYear();
 
             var client = this.clientFactory.CreateClient();
             var accessToken = await this.AcquireToken();
@@ -198,6 +189,26 @@ namespace EPR.Calculator.Frontend.Controllers
             var request = new HttpRequestMessage(HttpMethod.Post, calculatorRunApi) { Content = content };
 
             return await client.SendAsync(request);
+        }
+
+        private (string CalculatorRunApi, string Year) GetCalculatorRunApiAndYear()
+        {
+            var calculatorRunApi = this.GetCalculatorRunApi();
+            var year = this.configuration
+                .GetSection(ConfigSection.CalculationRunSettings)
+                .GetValue<string>(ConfigSection.RunParameterYear);
+
+            if (string.IsNullOrEmpty(year))
+            {
+                throw new ArgumentNullException(nameof(year), "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
+            }
+
+            if (string.IsNullOrEmpty(calculatorRunApi))
+            {
+                throw new ArgumentNullException(nameof(calculatorRunApi), "The API URL is null or empty. Check the configuration settings for calculatorRun");
+            }
+
+            return (calculatorRunApi, year);
         }
 
         private string? GetCalculatorRunApi()

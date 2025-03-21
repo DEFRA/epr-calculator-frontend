@@ -61,8 +61,17 @@ namespace EPR.Calculator.Frontend.Controllers
                     .GetSection(ConfigSection.RunParameterYear)
                     .Value;
 
-                using var response =
-                    await this.GetHttpRequest(year, dashboardCalculatorRunApi, this.clientFactory, accessToken);
+                if (string.IsNullOrEmpty(dashboardCalculatorRunApi))
+                {
+                    throw new ArgumentNullException(nameof(dashboardCalculatorRunApi), "DashboardCalculatorRunApi is null or empty. Check the configuration settings.");
+                }
+
+                if (string.IsNullOrEmpty(year))
+                {
+                    throw new ArgumentNullException(nameof(year), "RunParameterYear is null or empty. Check the configuration settings.");
+                }
+
+                using var response = await this.GetHttpRequest(year, dashboardCalculatorRunApi, this.clientFactory, accessToken);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -90,7 +99,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
