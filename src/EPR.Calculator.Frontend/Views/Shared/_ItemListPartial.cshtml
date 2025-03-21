@@ -1,16 +1,16 @@
-﻿@model List<DefaultSchemeParameters>;
+﻿@using EPR.Calculator.Frontend.ViewModels
+@model SchemeParametersViewModel;
 
 @{
-    var IsAmount = @ViewData["IsDisplayPrefix"] as bool?;
+    var IsAmount = @Model.IsDisplayPrefix;
 }
-
 
 <dl class="govuk-summary-list govuk-!-margin-bottom-9">
 
     @if (Model != null)
     {
 
-        @foreach (var item in Model)
+        @foreach (var item in Model.DefaultSchemeParameters)
         {
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">

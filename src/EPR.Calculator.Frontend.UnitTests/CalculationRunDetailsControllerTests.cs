@@ -238,13 +238,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             task.Wait();
             var result = task.Result as ViewResult;
 
-            var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
+            var errorViewModel = result.ViewData.Model as CalculatorRunStatusUpdateViewModel;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDetailsIndex, result.ViewName);
-            Assert.AreEqual(ViewControlNames.DeleteCalculationName, errorViewModel.DOMElementId);
-            Assert.AreEqual(ErrorMessages.SelectDeleteCalculation, errorViewModel.ErrorMessage);
+            Assert.AreEqual(ViewControlNames.DeleteCalculationName, errorViewModel.Errors.DOMElementId);
+            Assert.AreEqual(ErrorMessages.SelectDeleteCalculation, errorViewModel.Errors.ErrorMessage);
         }
 
         [TestMethod]
@@ -283,13 +283,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             task.Wait();
             var result = task.Result as ViewResult;
 
-            var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
+            var errorViewModel = result.ViewData.Model as CalculatorRunStatusUpdateViewModel;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDetailsIndex, result.ViewName);
-            Assert.AreEqual(ViewControlNames.DeleteCalculationName, errorViewModel.DOMElementId);
-            Assert.AreEqual(ErrorMessages.DeleteCalculationError, errorViewModel.ErrorMessage);
+            Assert.AreEqual(ViewControlNames.DeleteCalculationName, errorViewModel.Errors.DOMElementId);
+            Assert.AreEqual(ErrorMessages.DeleteCalculationError, errorViewModel.Errors.ErrorMessage);
         }
 
         [TestMethod]

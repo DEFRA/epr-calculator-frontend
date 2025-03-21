@@ -67,7 +67,7 @@ namespace EPR.Calculator.Frontend.Controllers
             if (!this.ModelState.IsValid)
             {
                 var errorMessages = this.ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
-                this.ViewBag.Errors = CreateErrorViewModel(errorMessages.First());
+                calculationRunModel.Errors = CreateErrorViewModel(errorMessages.First());
                 return this.View(CalculationRunNameIndexView, calculationRunModel);
             }
 
@@ -79,7 +79,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     var calculationNameExistsResponse = await this.CheckIfCalculationNameExistsAsync(calculationName);
                     if (calculationNameExistsResponse.IsSuccessStatusCode)
                     {
-                        this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists);
+                        calculationRunModel.Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists);
                         return this.View(CalculationRunNameIndexView, calculationRunModel);
                     }
 

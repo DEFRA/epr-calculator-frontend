@@ -142,7 +142,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     if (!deleteChecked)
                     {
-                        this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.SelectDeleteCalculation);
+                        statusUpdateViewModel.Errors = CreateErrorViewModel(ErrorMessages.SelectDeleteCalculation);
                         return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
                     }
 
@@ -156,7 +156,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     if (response.Result.StatusCode != HttpStatusCode.Created)
                     {
-                        this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.DeleteCalculationError);
+                        statusUpdateViewModel.Errors = CreateErrorViewModel(ErrorMessages.DeleteCalculationError);
                         return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
                     }
 
