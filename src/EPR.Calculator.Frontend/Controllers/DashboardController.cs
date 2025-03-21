@@ -12,6 +12,7 @@ namespace EPR.Calculator.Frontend.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Identity.Web;
     using Newtonsoft.Json;
+    using System.Collections.Generic;
     using System.Net;
     using System.Reflection;
     using System.Runtime.Serialization;
@@ -61,8 +62,17 @@ namespace EPR.Calculator.Frontend.Controllers
                     .GetSection(ConfigSection.RunParameterYear)
                     .Value;
 
-                using var response =
-                    await this.GetHttpRequest(year, dashboardCalculatorRunApi, this.clientFactory, accessToken);
+                if (string.IsNullOrEmpty(dashboardCalculatorRunApi))
+                {
+                    throw new ArgumentException("DashboardCalculatorRunApi is null or empty. Check the configuration settings.", nameof(dashboardCalculatorRunApi));
+                }
+
+                if (string.IsNullOrEmpty(year))
+                {
+                    throw new ArgumentException("RunParameterYear is null or empty. Check the configuration settings.", nameof(year));
+                }
+
+                using var response = await this.GetHttpRequest(year, dashboardCalculatorRunApi, this.clientFactory, accessToken);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -90,7 +100,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }

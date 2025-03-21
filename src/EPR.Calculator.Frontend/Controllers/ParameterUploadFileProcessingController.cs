@@ -39,7 +39,17 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var parameterSettingsApi = this.GetParameterSettingsApi();
 
+                if (string.IsNullOrWhiteSpace(parameterSettingsApi))
+                {
+                    throw new ArgumentException("ParameterSettingsApi is null. Check the configuration settings for default parameters", nameof(schemeParameterValues));
+                }
+
                 this.FileName = this.HttpContext.Session.GetString(SessionConstants.ParameterFileName);
+
+                if (string.IsNullOrWhiteSpace(this.FileName))
+                {
+                    throw new ArgumentException("FileName is null. Check the session data for ParameterFileName", nameof(schemeParameterValues));
+                }
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
@@ -76,7 +86,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (string.IsNullOrWhiteSpace(parameterSettingsApi))
             {
-                throw new ArgumentNullException(parameterSettingsApi, "ParameterSettingsApi is null. Check the configuration settings for default parameters");
+                throw new ArgumentException("ParameterSettingsApi is null. Check the configuration settings for default parameters", parameterSettingsApi);
             }
 
             return parameterSettingsApi;
@@ -87,7 +97,13 @@ namespace EPR.Calculator.Frontend.Controllers
             var parameterYear = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value;
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
-                throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings for default parameters");
+                throw new ArgumentException("ParameterYear is null. Check the configuration settings for default parameters", parameterYear);
+            }
+
+            var fileName = this.FileName;
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                throw new ArgumentException("FileName is null. Check the session data for ParameterFileName", nameof(schemeParameterValues));
             }
 
             var parameterSetting = new CreateDefaultParameterSettingDto

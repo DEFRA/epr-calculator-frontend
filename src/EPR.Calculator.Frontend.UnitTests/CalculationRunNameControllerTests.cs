@@ -714,6 +714,57 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
+        public void GetCalculatorRunParameters_ThrowsConfigurationErrorsException_WhenYearOrApiUrlIsNullOrEmpty()
+        {
+            // Arrange
+            var mockYearSection = new Mock<IConfigurationSection>();
+            mockYearSection.Setup(s => s.Value).Returns(string.Empty);
+
+            var mockApiSection = new Mock<IConfigurationSection>();
+            mockApiSection.Setup(s => s.Value).Returns("http://validapi.com");
+
+            var mockSettingsSection = new Mock<IConfigurationSection>();
+            mockSettingsSection.Setup(s => s.GetSection(ConfigSection.RunParameterYear)).Returns(mockYearSection.Object);
+            mockSettingsSection.Setup(s => s.GetSection(ConfigSection.CalculationRunApi)).Returns(mockApiSection.Object);
+
+            var mockConfig = new Mock<IConfiguration>();
+            mockConfig.Setup(c => c.GetSection(ConfigSection.CalculationRunSettings)).Returns(mockSettingsSection.Object);
+
+            var controller = new CalculationRunNameController(mockConfig.Object, mockClientFactory.Object, mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
+
+            // Act & Assert
+            var ex = Assert.ThrowsException<ConfigurationErrorsException>(() => controller.GetCalculatorRunParameters());
+            Assert.AreEqual("RunParameterYear or CalculationRunSettings is null or empty. Check the configuration settings for calculatorRun.", ex.Message);
+        }
+
+        [TestMethod]
+        public void GetCalculatorRunParameters_ReturnsValidParameters_WhenYearAndApiUrlAreNotNullOrEmpty()
+        {
+            // Arrange
+            var mockYearSection = new Mock<IConfigurationSection>();
+            mockYearSection.Setup(s => s.Value).Returns("2024");
+
+            var mockApiSection = new Mock<IConfigurationSection>();
+            mockApiSection.Setup(s => s.Value).Returns("http://validapi.com");
+
+            var mockSettingsSection = new Mock<IConfigurationSection>();
+            mockSettingsSection.Setup(s => s.GetSection(ConfigSection.RunParameterYear)).Returns(mockYearSection.Object);
+            mockSettingsSection.Setup(s => s.GetSection(ConfigSection.CalculationRunApi)).Returns(mockApiSection.Object);
+
+            var mockConfig = new Mock<IConfiguration>();
+            mockConfig.Setup(c => c.GetSection(ConfigSection.CalculationRunSettings)).Returns(mockSettingsSection.Object);
+
+            var controller = new CalculationRunNameController(mockConfig.Object, mockClientFactory.Object, mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
+
+            // Act
+            var (apiUrl, year) = controller.GetCalculatorRunParameters();
+
+            // Assert
+            Assert.AreEqual("http://validapi.com", apiUrl);
+            Assert.AreEqual("2024", year);
+        }
+
+        [TestMethod]
         public void GetCalculatorRunParametersTest()
         {
             var blankConfig = ConfigurationItems.GetConfigurationValuesWithEmptyStrings();

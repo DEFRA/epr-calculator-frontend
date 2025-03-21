@@ -137,22 +137,23 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
-            controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
 
             var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
             mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = mockHttpContext.Object
-            };
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            controller.ControllerContext.HttpContext = mockHttpContext.Object;
+
+            // Set the session value to null to trigger the exception
+            mockSession.Setup(s => s.TryGetValue(SessionConstants.ParameterFileName, out It.Ref<byte[]>.IsAny)).Returns(false);
 
             var task = controller.Index(MockData.GetSchemeParameterTemplateValues().ToList());
             task.Wait();
-            var result = task.Result as BadRequestObjectResult;
+            var result = task.Result as RedirectToActionResult;
 
             Assert.IsNotNull(result);
-            Assert.AreNotEqual(201, result.StatusCode);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
         }
 
         [TestMethod]
