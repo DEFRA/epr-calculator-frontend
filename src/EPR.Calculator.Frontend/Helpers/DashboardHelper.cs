@@ -1,0 +1,43 @@
+﻿using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
+using System.Reflection;
+using System.Runtime.Serialization;
+
+namespace EPR.Calculator.Frontend.Helpers
+{
+    public static class DashboardHelper
+    {
+        /// <summary>
+        /// Processes a list of calculation runs and assigns status values based on their classifications.
+        /// </summary>
+        /// <param name="calculationRuns">The list of calculation runs to be processed.</param>
+        /// <returns>A list of <see cref="DashboardViewModel"/> objects containing the processed data.</returns>
+        public static List<DashboardViewModel.CalculationRunViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
+        {
+            var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
+            var dashboardRunData = new List<DashboardViewModel.CalculationRunViewModel>();
+
+            if (calculationRuns.Count > 0)
+            {
+                var displayRuns = calculationRuns.Where(x =>
+                    x.CalculatorRunClassificationId != (int)RunClassification.DELETED &&
+                    x.CalculatorRunClassificationId != (int)RunClassification.PLAY &&
+                    x.CalculatorRunClassificationId != (int)RunClassification.QUEUE);
+                foreach (var calculationRun in displayRuns)
+                {
+                    var classificationVal = runClassifications.Find(c => (int)c == calculationRun.CalculatorRunClassificationId);
+                    var member = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classificationVal.ToString());
+
+                    var attribute = member?.GetCustomAttribute<EnumMemberAttribute>(false);
+
+                    calculationRun.Status = attribute?.Value ?? string.Empty; // Use a default value if attribute or value is null
+
+                    dashboardRunData.Add(new DashboardViewModel.CalculationRunViewModel(calculationRun));
+                }
+            }
+
+            return dashboardRunData;
+        }
+    }
+}
