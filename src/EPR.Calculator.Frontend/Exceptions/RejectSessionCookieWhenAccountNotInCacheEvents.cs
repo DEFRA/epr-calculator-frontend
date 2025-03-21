@@ -36,10 +36,15 @@ namespace EPR.Calculator.Frontend.Exceptions
         /// Is the exception thrown because there is no account in the token cache?
         /// </summary>
         /// <param name="ex">Exception thrown by <see cref="ITokenAcquisition"/>.GetTokenForXX methods.</param>
-        /// <returns>A boolean telling if the exception was about not having an account in the cache</returns>
+        /// <returns>A boolean telling if the exception was about not having an account in the cache.</returns>
         private static bool AccountDoesNotExitInTokenCache(MicrosoftIdentityWebChallengeUserException ex)
         {
-            return ex.InnerException is MsalUiRequiredException && (ex.InnerException as MsalUiRequiredException).ErrorCode == "user_null";
+            if (ex.InnerException is MsalUiRequiredException msalException)
+            {
+                return msalException.ErrorCode == "user_null";
+            }
+
+            return false;
         }
     }
 }

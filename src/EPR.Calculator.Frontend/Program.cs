@@ -18,9 +18,17 @@ builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration,
     .AddInMemoryTokenCaches().AddSessionTokenCaches().AddSessionPerUserTokenCache().AddSession();
 builder.Services.Configure<CookieAuthenticationOptions>(
     CookieAuthenticationDefaults.AuthenticationScheme,
-    options => options.Events = new RejectSessionCookieWhenAccountNotInCacheEvents(
-        downstreamScopes: builder.Configuration.GetSection("DownstreamApi").GetValue<string>("Scopes")
-        .Split(" ")));
+    options =>
+    {
+        var scopes = builder.Configuration.GetSection("DownstreamApi").GetValue<string>("Scopes");
+        if (string.IsNullOrEmpty(scopes))
+        {
+            throw new InvalidOperationException("DownstreamApi:Scopes configuration is missing or empty.");
+        }
+
+        options.Events = new RejectSessionCookieWhenAccountNotInCacheEvents(
+            downstreamScopes: scopes.Split(" "));
+    });
 
 builder.Services.AddRazorPages().AddMvcOptions(options =>
 {
