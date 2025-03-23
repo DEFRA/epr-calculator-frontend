@@ -125,7 +125,8 @@
             success: function (data, status, xhr) {
                 try {
                     var financialYears = data.map(x => x.name);
-                    $.each(financialYears, function (index, financialYear) {
+                    var sortedFinancialYears = sortFinancialYears(financialYears);
+                    $.each(sortedFinancialYears, function (index, financialYear) {
                         var option = financialYear === '@Model.FinancialYear'
                             ? `<option value="${financialYear}" selected>${financialYear}</option>`
                             : `<option value="${financialYear}">${financialYear}</option>`;
@@ -144,5 +145,21 @@
         $('#financial-year-list').change(() => {
             window.location.href = `/Dashboard/${financialYearListDropdown.val()}`;
         });
+
+        sortFinancialYears = (financialYears) => {
+            var currentFinancialYear = getCurrentFinancialYear();
+            var filteredFinancialYears = financialYears.filter(f => f !== currentFinancialYear);
+            filteredFinancialYears.sort().reverse();
+            filteredFinancialYears.unshift(currentFinancialYear);
+            return filteredFinancialYears;
+        }
+
+        getCurrentFinancialYear = () => {
+            let today = new Date();
+            let year = today.getFullYear();
+            let startYear = today.getMonth() < 3 ? year - 1 : year;
+            let endYear = startYear + 1;
+            return `${startYear}-${endYear.toString().slice(-2)}`;
+        }
     });
 </script>
