@@ -115,6 +115,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         Calculations = dashboardRunData,
                         FinancialYear = financialYear,
                         FinancialYearFeatureEnabled = FeatureManagementService.IsShowFinancialYearEnabled(this.configuration),
+                        FinancialYearListApi = this.configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
                     });
             }
 
@@ -126,6 +127,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                     FinancialYear = financialYear,
                     FinancialYearFeatureEnabled = FeatureManagementService.IsShowFinancialYearEnabled(this.configuration),
+                    FinancialYearListApi = this.configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
                 });
             }
 

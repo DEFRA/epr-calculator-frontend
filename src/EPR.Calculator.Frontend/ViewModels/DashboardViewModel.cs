@@ -14,6 +14,8 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public bool FinancialYearFeatureEnabled { get; set; }
 
+        public string FinancialYearListApi { get; set; }
+
         public IEnumerable<CalculationRunViewModel>? Calculations { get; init; }
 
         private static string GetFormattedCreatedAt(DateTime createdAt)
