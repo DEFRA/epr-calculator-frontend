@@ -19,6 +19,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
+		<PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.5.0" />
+		<PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.4.0" />
 		<PackageReference Include="CsvHelper" Version="33.0.1" />
 		<PackageReference Include="FluentValidation" Version="11.10.0" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
@@ -45,6 +47,13 @@
 		<SonarQubeSetting Include="sonar.coverage.exclusions">
 			<Value>Views/**/*.cshtml,Program.cs,wwwroot/js/*.js</Value>
 		</SonarQubeSetting>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Update="StyleCop.Analyzers" Version="1.2.0-beta.556">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
 	</ItemGroup>
 
 </Project>
