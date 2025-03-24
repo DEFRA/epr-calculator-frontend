@@ -32,7 +32,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         private Mock<HttpContext> MockHttpContext { get; init; }
 
         [TestMethod]
-        public void LocalAuthorityUploadFileProcessingController_Success_Result_Test()
+        public async Task LocalAuthorityUploadFileProcessingController_Success_Result_Test()
         {
             // Mock HttpMessageHandler
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -95,9 +95,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUploadFileName);
 
             // Act
-            var task = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList());
-            task.Wait();
-            var result = task.Result as OkObjectResult;
+            var result = await controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as OkObjectResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -107,7 +105,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void LocalAuthorityUploadFileProcessingController_Failure_Result_Test()
+        public async Task LocalAuthorityUploadFileProcessingController_Failure_Result_Test()
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler
@@ -148,17 +146,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Set the session value to null to trigger the exception
             mockSession.Setup(s => s.TryGetValue(SessionConstants.LapcapFileName, out It.Ref<byte[]>.IsAny)).Returns(false);
 
-            var task = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList());
-            task.Wait();
-            var result = task.Result as RedirectToActionResult;
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
+            // Act & Assert
+            var ex = await Assert.ThrowsExceptionAsync<ArgumentException>(() => controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()));
+            Assert.AreEqual("FileName is null. Check the session data for LapcapFileName", ex.Message);
         }
 
         [TestMethod]
-        public void LocalAuthorityUploadFileProcessingController_ArgumentNullExceptionForAPIConfig_Test()
+        public async Task LocalAuthorityUploadFileProcessingController_ArgumentNullExceptionForAPIConfig_Test()
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler
@@ -182,11 +176,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object,
                 mockTokenAcquisition.Object, new TelemetryClient());
-            var task = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList());
-            var result = task.Result as RedirectToActionResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
+
+            // Act & Assert
+            var ex = await Assert.ThrowsExceptionAsync<ArgumentException>(() => controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()));
+            Assert.AreEqual("LapcapSettingsApi is null. Check the configuration settings for local authority", ex.Message);
         }
 
         [TestMethod]
@@ -220,6 +213,78 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task Index_ThrowsArgumentException_WhenLapcapSettingsApiIsNullOrEmpty()
+        {
+            // Arrange
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var mockConfig = new Mock<IConfiguration>();
+            var mockLapcapSettingsSection = new Mock<IConfigurationSection>();
+            mockLapcapSettingsSection.Setup(s => s.Value).Returns(string.Empty);
+            var mockLapcapSettings = new Mock<IConfigurationSection>();
+            mockLapcapSettings.Setup(s => s.GetSection("LapcapSettingsApi")).Returns(mockLapcapSettingsSection.Object);
+            mockConfig.Setup(c => c.GetSection("LapcapSettings")).Returns(mockLapcapSettings.Object);
+
+            var controller = new LocalAuthorityUploadFileProcessingController(mockConfig.Object, mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+
+            // Act & Assert
+            var ex = await Assert.ThrowsExceptionAsync<ArgumentException>(() => controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()));
+            Assert.AreEqual("LapcapSettingsApi is null. Check the configuration settings for local authority", ex.Message);
+        }
+
+        [TestMethod]
+        public async Task Index_ReturnsBadRequest_WhenResponseIsNotCreated()
+        {
+            // Arrange
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Content = new StringContent("response content"),
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            mockTokenAcquisition.Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null)).ReturnsAsync("somevalue");
+
+            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            controller.ControllerContext.HttpContext = mockHttpContext.Object;
+
+            // Set the session value
+            var sessionStorage = new Dictionary<string, byte[]>();
+            sessionStorage[SessionConstants.LapcapFileName] = System.Text.Encoding.UTF8.GetBytes("LocalAuthorityData.csv");
+            mockSession.Setup(s => s.TryGetValue(SessionConstants.LapcapFileName, out It.Ref<byte[]>.IsAny))
+                       .Returns((string key, out byte[] value) =>
+                       {
+                           var success = sessionStorage.TryGetValue(key, out var storedValue);
+                           value = storedValue;
+                           return success;
+                       });
+
+            // Act
+            var result = await controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList()) as BadRequestObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(400, result.StatusCode);
+            Assert.AreEqual("response content", result.Value);
         }
 
         private static IConfiguration GetConfigurationValues()

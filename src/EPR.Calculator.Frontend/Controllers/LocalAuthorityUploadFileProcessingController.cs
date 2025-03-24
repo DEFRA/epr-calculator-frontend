@@ -39,14 +39,14 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (string.IsNullOrWhiteSpace(lapcapSettingsApi))
                 {
-                    throw new ArgumentException("LapcapSettingsApi is null. Check the configuration settings for local authority", nameof(lapcapDataTemplateValues));
+                    throw new ArgumentException("LapcapSettingsApi is null. Check the configuration settings for local authority");
                 }
 
                 this.FileName = this.HttpContext.Session.GetString(SessionConstants.LapcapFileName);
 
                 if (string.IsNullOrWhiteSpace(this.FileName))
                 {
-                    throw new ArgumentException("FileName is null. Check the session data for LapcapFileName", nameof(lapcapDataTemplateValues));
+                    throw new ArgumentException("FileName is null. Check the session data for LapcapFileName");
                 }
 
                 var client = this.clientFactory.CreateClient();
@@ -72,6 +72,10 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
             }
+            catch (ArgumentException)
+            {
+                throw;
+            }
             catch (Exception)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
@@ -95,13 +99,13 @@ namespace EPR.Calculator.Frontend.Controllers
             var parameterYear = this.Configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
-                throw new ArgumentException("ParameterYear is null. Check the configuration settings for local authority", nameof(lapcapDataTemplateValues));
+                throw new ArgumentException("ParameterYear is null. Check the configuration settings for local authority");
             }
 
             var fileName = this.FileName;
             if (string.IsNullOrWhiteSpace(fileName))
             {
-                throw new ArgumentException("FileName is null. Check the session data for LapcapFileName", nameof(lapcapDataTemplateValues));
+                throw new ArgumentException("FileName is null. Check the session data for LapcapFileName");
             }
 
             var lapcapData = new CreateLapcapDataDto

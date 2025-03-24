@@ -41,14 +41,14 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (string.IsNullOrWhiteSpace(parameterSettingsApi))
                 {
-                    throw new ArgumentException("ParameterSettingsApi is null. Check the configuration settings for default parameters", nameof(schemeParameterValues));
+                    throw new ArgumentException("ParameterSettingsApi is null. Check the configuration settings for default parameters");
                 }
 
                 this.FileName = this.HttpContext.Session.GetString(SessionConstants.ParameterFileName);
 
                 if (string.IsNullOrWhiteSpace(this.FileName))
                 {
-                    throw new ArgumentException("FileName is null. Check the session data for ParameterFileName", nameof(schemeParameterValues));
+                    throw new ArgumentException("FileName is null. Check the session data for ParameterFileName");
                 }
 
                 var client = this.clientFactory.CreateClient();
@@ -73,6 +73,10 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
+            }
+            catch (ArgumentException)
+            {
+                throw;
             }
             catch (Exception)
             {
