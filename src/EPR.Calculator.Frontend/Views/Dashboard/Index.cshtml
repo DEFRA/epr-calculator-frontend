@@ -28,7 +28,10 @@
 <div class="govuk-grid-row dashboard-page">
     <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-1">Calculate packaging payments</h1>
-        <p class="govuk-body-m">Set up and run packaging payment calculations, and view past runs by financial year.</p>
+        @if (Model.FinancialYearFeatureEnabled)
+        {
+            <p class="govuk-body-m">Set up and run packaging payment calculations, and view past runs by financial year.</p>
+        }
         <div class="govuk-grid-row tile-group">
             <div class="govuk-grid-column-one-third tile">
                 <a href="/ViewDefaultParameters" class="govuk-link govuk-link--no-visited-state">
@@ -66,7 +69,10 @@
         }
 
         <h2 class="govuk-heading-l govuk-!-margin-top-3 govuk-!-margin-bottom-0">Calculations made in this financial year</h2>
-        <p class="govuk-body-s">View and select a calculation run. You can also filter by financial year to find previous runs.</p>
+        @if (Model.FinancialYearFeatureEnabled)
+        {
+            <p class="govuk-body-s">View and select a calculation run. You can also filter by financial year to find previous runs.</p>
+        }
         @if (Model.Calculations == null)
         {
             <p class="govuk-body">There are no calculations for this financial year.</p>
