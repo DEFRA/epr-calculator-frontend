@@ -170,7 +170,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.ControllerContext.HttpContext.Request.Scheme = "https";
             controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
             int runId = 1;
-            string calcName = "Test Run";
 
             // Act
             var result = await controller.IndexAsync(runId) as RedirectToActionResult;

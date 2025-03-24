@@ -348,5 +348,85 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(CalculationRunStatus.Error, model.Calculations.First().Status);
             Assert.IsTrue(model.Calculations.First().ShowErrorLink);
         }
+
+        [TestMethod]
+        public async Task Index_ThrowsArgumentException_WhenDashboardCalculatorRunApiIsNullOrEmpty()
+        {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Content = new StringContent("response content"),
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+            var config = ConfigurationItems.GetConfigurationValues();
+            var configSection = config.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.DashboardCalculatorRunApi);
+            configSection.Value = string.Empty;
+
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+
+            var controller = new DashboardController(configSection, mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+
+            // Act
+            var task = controller.Index();
+            task.Wait();
+
+            // Act & Assert
+            var result = task.Result as RedirectToActionResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task Index_ThrowsArgumentException_WhenYearIsNullOrEmpty()
+        {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Content = new StringContent("response content"),
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+            var config = ConfigurationItems.GetConfigurationValues();
+            var configSection = config.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.RunParameterYear);
+            configSection.Value = string.Empty;
+
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+
+            var controller = new DashboardController(configSection, mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+
+            // Act
+            var task = controller.Index();
+            task.Wait();
+
+            // Act & Assert
+            var result = task.Result as RedirectToActionResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
+        }
     }
 }
