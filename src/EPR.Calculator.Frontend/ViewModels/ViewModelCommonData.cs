@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using EPR.Calculator.Frontend.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
@@ -12,6 +13,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets the name of the currently logged in user.
         /// </summary>
-        public required string CurrentUser { get; init; }
+        public string CurrentUser { get; init; }
     }
 }
