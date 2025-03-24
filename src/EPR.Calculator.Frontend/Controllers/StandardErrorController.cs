@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    /// <summary>
+    /// Standard Error Controller
+    /// </summary>
     [Authorize(Roles = "SASuperUser")]
     public class StandardErrorController : Controller
     {
