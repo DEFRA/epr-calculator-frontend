@@ -352,81 +352,71 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task Index_ThrowsArgumentException_WhenDashboardCalculatorRunApiIsNullOrEmpty()
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Content = new StringContent("response content"),
-                });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            // Arrange
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-            var config = ConfigurationItems.GetConfigurationValues();
-            var configSection = config.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.DashboardCalculatorRunApi);
-            configSection.Value = string.Empty;
-
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var mockConfig = new Mock<IConfiguration>();
+            var mockApiSection = new Mock<IConfigurationSection>();
+            mockApiSection.Setup(s => s.Value).Returns(string.Empty);
+            var mockYearSection = new Mock<IConfigurationSection>();
+            mockYearSection.Setup(s => s.Value).Returns("2024-25");
+            var mockSettingsSection = new Mock<IConfigurationSection>();
+            mockSettingsSection.Setup(s => s.GetSection(ConfigSection.DashboardCalculatorRunApi)).Returns(mockApiSection.Object);
+            mockSettingsSection.Setup(s => s.GetSection(ConfigSection.RunParameterYear)).Returns(mockYearSection.Object);
+            mockConfig.Setup(c => c.GetSection(ConfigSection.DashboardCalculatorRun)).Returns(mockSettingsSection.Object);
 
-            var controller = new DashboardController(configSection, mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            byte[] tokenBytes = System.Text.Encoding.UTF8.GetBytes("valid_token");
+            mockSession.Setup(s => s.TryGetValue("accessToken", out tokenBytes)).Returns(true);
+            mockHttpContext.Setup(ctx => ctx.Session).Returns(mockSession.Object);
 
-            // Act
-            var task = controller.Index();
-            task.Wait();
+            var controller = new DashboardController(mockConfig.Object, mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient())
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = mockHttpContext.Object
+                }
+            };
 
             // Act & Assert
-            var result = task.Result as RedirectToActionResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
+            var ex = await Assert.ThrowsExceptionAsync<ArgumentException>(() => controller.Index());
+            Assert.AreEqual("DashboardCalculatorRunApi is null or empty. Check the configuration settings.", ex.Message);
         }
 
         [TestMethod]
         public async Task Index_ThrowsArgumentException_WhenYearIsNullOrEmpty()
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Content = new StringContent("response content"),
-                });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            // Arrange
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-            var config = ConfigurationItems.GetConfigurationValues();
-            var configSection = config.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.RunParameterYear);
-            configSection.Value = string.Empty;
-
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var mockConfig = new Mock<IConfiguration>();
+            var mockApiSection = new Mock<IConfigurationSection>();
+            mockApiSection.Setup(s => s.Value).Returns("https://api.example.com");
+            var mockYearSection = new Mock<IConfigurationSection>();
+            mockYearSection.Setup(s => s.Value).Returns(string.Empty);
+            var mockSettingsSection = new Mock<IConfigurationSection>();
+            mockSettingsSection.Setup(s => s.GetSection(ConfigSection.DashboardCalculatorRunApi)).Returns(mockApiSection.Object);
+            mockSettingsSection.Setup(s => s.GetSection(ConfigSection.RunParameterYear)).Returns(mockYearSection.Object);
+            mockConfig.Setup(c => c.GetSection(ConfigSection.DashboardCalculatorRun)).Returns(mockSettingsSection.Object);
 
-            var controller = new DashboardController(configSection, mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            byte[] tokenBytes = System.Text.Encoding.UTF8.GetBytes("valid_token");
+            mockSession.Setup(s => s.TryGetValue("accessToken", out tokenBytes)).Returns(true);
+            mockHttpContext.Setup(ctx => ctx.Session).Returns(mockSession.Object);
 
-            // Act
-            var task = controller.Index();
-            task.Wait();
+            var controller = new DashboardController(mockConfig.Object, mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient())
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = mockHttpContext.Object
+                }
+            };
 
             // Act & Assert
-            var result = task.Result as RedirectToActionResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
+            var ex = await Assert.ThrowsExceptionAsync<ArgumentException>(() => controller.Index());
+            Assert.AreEqual("RunParameterYear is null or empty. Check the configuration settings.", ex.Message);
         }
     }
 }
