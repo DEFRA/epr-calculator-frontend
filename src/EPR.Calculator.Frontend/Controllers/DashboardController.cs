@@ -14,13 +14,17 @@ namespace EPR.Calculator.Frontend.Controllers
     using Newtonsoft.Json;
     using System.Net;
     using System.Reflection;
+    using System.Runtime.ExceptionServices;
     using System.Runtime.Serialization;
+    using System.Security.Cryptography.Xml;
 
     [Authorize(Roles = "SASuperUser")]
     public class DashboardController : BaseController
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
+
+        private bool ShowDetailedError { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DashboardController"/> class.
@@ -51,6 +55,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                this.ShowDetailedError = (bool)this.configuration.GetValue(typeof(bool), "ShowDetailedError");
                 var accessToken = await this.AcquireToken();
 
                 var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
@@ -88,10 +93,15 @@ namespace EPR.Calculator.Frontend.Controllers
                     });
                 }
 
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                return this.ShowDetailedError ? throw new Exception(new HttpResponseMessage(HttpStatusCode.BadRequest).ToString()) : this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-            catch (Exception e)
+            catch (Exception)
             {
+                if (this.ShowDetailedError)
+                {
+                    throw;
+                }
+
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
