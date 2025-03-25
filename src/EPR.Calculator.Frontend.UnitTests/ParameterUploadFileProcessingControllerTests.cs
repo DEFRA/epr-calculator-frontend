@@ -189,13 +189,132 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockConfig = new Mock<IConfiguration>();
             var mockParameterSettingsSection = new Mock<IConfigurationSection>();
             mockParameterSettingsSection.Setup(s => s.Value).Returns(string.Empty);
-            mockConfig.Setup(c => c.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi")).Returns(mockParameterSettingsSection.Object);
+            var mockParameterSettings = new Mock<IConfigurationSection>();
+            mockParameterSettings.Setup(s => s.GetSection("DefaultParameterSettingsApi")).Returns(mockParameterSettingsSection.Object);
+            mockConfig.Setup(c => c.GetSection("ParameterSettings")).Returns(mockParameterSettings.Object);
 
             var controller = new ParameterUploadFileProcessingController(mockConfig.Object, mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
 
             // Act & Assert
             var ex = await Assert.ThrowsExceptionAsync<ArgumentException>(() => controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()));
             Assert.AreEqual("ParameterSettingsApi is null. Check the configuration settings for default parameters", ex.Message);
+        }
+
+        [TestMethod]
+        public async Task Transform_ThrowsArgumentException_WhenParameterYearIsNullOrEmpty()
+        {
+            // Arrange
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.Created,
+                    Content = new StringContent("response content"),
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            mockTokenAcquisition.Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                                .ReturnsAsync("mock-access-token");
+
+            var mockConfig = new Mock<IConfiguration>();
+            var mockParameterYearSection = new Mock<IConfigurationSection>();
+            mockParameterYearSection.Setup(s => s.Value).Returns(string.Empty);
+            var mockParameterSettings = new Mock<IConfigurationSection>();
+            mockParameterSettings.Setup(s => s.GetSection("ParameterYear")).Returns(mockParameterYearSection.Object);
+            var mockDefaultParameterSettingsApiSection = new Mock<IConfigurationSection>();
+            mockDefaultParameterSettingsApiSection.Setup(s => s.Value).Returns("https://api.example.com");
+            mockParameterSettings.Setup(s => s.GetSection("DefaultParameterSettingsApi")).Returns(mockDefaultParameterSettingsApiSection.Object);
+            mockConfig.Setup(c => c.GetSection("ParameterSettings")).Returns(mockParameterSettings.Object);
+
+            var mockDownstreamApiSection = new Mock<IConfigurationSection>();
+            mockDownstreamApiSection.Setup(s => s.Value).Returns("api-scope");
+            mockConfig.Setup(c => c.GetSection("DownstreamApi:Scopes")).Returns(mockDownstreamApiSection.Object);
+
+            var controller = new ParameterUploadFileProcessingController(mockConfig.Object, mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+
+            // Set the session value to a valid file name
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            controller.ControllerContext.HttpContext = mockHttpContext.Object;
+            mockSession.Setup(s => s.TryGetValue(SessionConstants.ParameterFileName, out It.Ref<byte[]>.IsAny))
+                       .Returns((string key, out byte[] value) =>
+                       {
+                           value = System.Text.Encoding.UTF8.GetBytes("SchemeParameters.csv");
+                           return true;
+                       });
+
+            // Act & Assert
+            var ex = await Assert.ThrowsExceptionAsync<ArgumentException>(() => controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()));
+            Assert.AreEqual("ParameterYear is null. Check the configuration settings for default parameters", ex.Message);
+        }
+
+        [TestMethod]
+        public async Task Transform_ThrowsArgumentException_WhenFileNameIsNullOrEmpty()
+        {
+            // Arrange
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var mockConfig = new Mock<IConfiguration>();
+            var mockParameterYearSection = new Mock<IConfigurationSection>();
+            mockParameterYearSection.Setup(s => s.Value).Returns("2024-25");
+            var mockParameterSettings = new Mock<IConfigurationSection>();
+            mockParameterSettings.Setup(s => s.GetSection("ParameterYear")).Returns(mockParameterYearSection.Object);
+            var mockDefaultParameterSettingsApiSection = new Mock<IConfigurationSection>();
+            mockDefaultParameterSettingsApiSection.Setup(s => s.Value).Returns("https://api.example.com");
+            mockParameterSettings.Setup(s => s.GetSection("DefaultParameterSettingsApi")).Returns(mockDefaultParameterSettingsApiSection.Object);
+            mockConfig.Setup(c => c.GetSection("ParameterSettings")).Returns(mockParameterSettings.Object);
+
+            var controller = new ParameterUploadFileProcessingController(mockConfig.Object, mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+
+            // Set the session value to null to trigger the exception
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockSession = new Mock<ISession>();
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            controller.ControllerContext.HttpContext = mockHttpContext.Object;
+            mockSession.Setup(s => s.TryGetValue(SessionConstants.ParameterFileName, out It.Ref<byte[]>.IsAny)).Returns(false);
+
+            // Act & Assert
+            var ex = await Assert.ThrowsExceptionAsync<ArgumentException>(() => controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()));
+            Assert.AreEqual("FileName is null. Check the session data for ParameterFileName", ex.Message);
+        }
+
+        [TestMethod]
+        public async Task Index_RedirectsToStandardError_WhenExceptionIsThrown()
+        {
+            // Arrange
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var mockConfig = new Mock<IConfiguration>();
+            var mockParameterSettingsSection = new Mock<IConfigurationSection>();
+            mockParameterSettingsSection.Setup(s => s.Value).Returns("https://api.example.com");
+            var mockParameterSettings = new Mock<IConfigurationSection>();
+            mockParameterSettings.Setup(s => s.GetSection("DefaultParameterSettingsApi")).Returns(mockParameterSettingsSection.Object);
+            mockConfig.Setup(c => c.GetSection("ParameterSettings")).Returns(mockParameterSettings.Object);
+
+            var controller = new ParameterUploadFileProcessingController(mockConfig.Object, mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+
+            // Simulate an exception
+            mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Throws(new Exception());
+
+            // Act
+            var result = await controller.Index(MockData.GetSchemeParameterTemplateValues().ToList()) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
         }
 
         [TestMethod]

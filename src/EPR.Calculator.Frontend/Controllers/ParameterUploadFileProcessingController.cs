@@ -107,7 +107,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var fileName = this.FileName;
             if (string.IsNullOrWhiteSpace(fileName))
             {
-                throw new ArgumentException("FileName is null. Check the session data for ParameterFileName", nameof(schemeParameterValues));
+                throw new ArgumentException("FileName is null. Check the session data for ParameterFileName");
             }
 
             var parameterSetting = new CreateDefaultParameterSettingDto
