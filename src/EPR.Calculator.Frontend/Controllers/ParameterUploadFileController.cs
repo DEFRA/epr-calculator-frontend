@@ -30,17 +30,30 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [Authorize(Roles = "SASuperUser")]
         [HttpPost]
-        public async Task<IActionResult> Upload(IFormFile fileUpload) => await this.ProcessUploadAsync(fileUpload);
+        public async Task<IActionResult> Upload(IFormFile fileUpload)
+        {
+            return await this.ProcessUploadAsync(fileUpload);
+        }
 
         [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> Upload()
         {
-            if (!this.TryGetFileUpload(out var fileUpload))
+            try
+            {
+                var filePath = this.TempData["FilePath"]?.ToString();
+                if (string.IsNullOrEmpty(filePath))
+                {
+                    return this.RedirectToErrorPage;
+                }
+
+                using var stream = System.IO.File.OpenRead(filePath);
+                var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
+                return await this.ProcessUploadAsync(fileUpload);
+            }
+            catch (Exception)
             {
                 return this.RedirectToErrorPage;
             }
-
-            return await this.ProcessUploadAsync(fileUpload);
         }
 
         [Authorize(Roles = "SASuperUser")]
@@ -56,27 +69,6 @@ namespace EPR.Calculator.Frontend.Controllers
             catch (Exception ex)
             {
                 return this.StatusCode(500, "An error occured while processing request" + ex.Message);
-            }
-        }
-
-        private bool TryGetFileUpload(out IFormFile fileUpload)
-        {
-            fileUpload = null;
-            var filePath = this.TempData["FilePath"]?.ToString();
-            if (string.IsNullOrEmpty(filePath))
-            {
-                return false;
-            }
-
-            try
-            {
-                var stream = System.IO.File.OpenRead(filePath);
-                fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
             }
         }
 
