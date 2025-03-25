@@ -27,10 +27,14 @@
 
 <div class="govuk-grid-row dashboard-page">
     <div class="govuk-grid-column-full">
-        <h1 class="govuk-heading-xl govuk-!-margin-bottom-1">Calculate packaging payments</h1>
         @if (Model.FinancialYearFeatureEnabled)
         {
-            <p class="govuk-body-m">Set up and run packaging payment calculations, and view past runs by financial year.</p>
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-1">Calculate packaging payments</h1>
+            <p class="govuk-hint govuk-!-margin-top-1 govuk-!-margin-bottom-6">Set up and run packaging payment calculations, and view past runs by financial year.</p>
+        }
+        else
+        {
+            <h1 class="govuk-heading-xl">Calculate packaging payments</h1>
         }
         <div class="govuk-grid-row tile-group">
             <div class="govuk-grid-column-one-third tile">
@@ -48,14 +52,25 @@
             <div class="govuk-grid-column-one-third tile">
                 <a href="/RunANewCalculation" class="govuk-link govuk-link--no-visited-state">
                     <span class="govuk-heading-m heading">Run the calculator</span>
-                    <span class="govuk-body more-info">Use the default parameters or upload a set of temporary parameters</span>
+                    <span class="govuk-body more-info">Use the default parameters to run the calculator</span>
                 </a>
             </div>
         </div>
 
-        @if (Model.FinancialYearFeatureEnabled)
-        {
-            <div class="govuk-grid-row">
+        <div class="govuk-grid-row header-container">
+            <div class="govuk-grid-column-two-third caption-text">
+                @if (Model.FinancialYearFeatureEnabled)
+                {
+                    <h2 class="govuk-heading-l govuk-!-margin-top-3 govuk-!-margin-bottom-0">Calculation runs</h2>
+                    <p class="govuk-body-s">View and select a calculation run. You can also filter by financial year to find previous runs.</p>
+                }
+                else
+                {
+                    <h2 class="govuk-heading-l govuk-!-margin-top-3">Calculations made in this financial year</h2>
+                }
+            </div>
+            @if (Model.FinancialYearFeatureEnabled)
+            {
                 <div class="govuk-grid-column-one-third filter-container">
                     <div class="govuk-form-group">
                         <label class="govuk-label" for="financial-year-list">
@@ -65,14 +80,9 @@
                         </select>
                     </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
 
-        <h2 class="govuk-heading-l govuk-!-margin-top-3 govuk-!-margin-bottom-0">Calculations made in this financial year</h2>
-        @if (Model.FinancialYearFeatureEnabled)
-        {
-            <p class="govuk-body-s">View and select a calculation run. You can also filter by financial year to find previous runs.</p>
-        }
         @if (Model.Calculations == null)
         {
             <p class="govuk-body">There are no calculations for this financial year.</p>
