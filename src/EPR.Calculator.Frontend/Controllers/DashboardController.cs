@@ -24,8 +24,6 @@ namespace EPR.Calculator.Frontend.Controllers
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
 
-        private bool ShowDetailedError { get; set; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DashboardController"/> class.
         /// </summary>
@@ -39,6 +37,8 @@ namespace EPR.Calculator.Frontend.Controllers
             this.configuration = configuration;
             this.clientFactory = clientFactory;
         }
+
+        private bool ShowDetailedError { get; set; }
 
         /// <summary>
         /// Handles the Index action for the controller.
