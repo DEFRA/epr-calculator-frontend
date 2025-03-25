@@ -43,7 +43,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             fileUpload = null;
             var filePath = this.TempData["LapcapFilePath"]?.ToString();
-            if (string.IsNullOrEmpty(filePath)) { return false; }
+            if (string.IsNullOrEmpty(filePath))
+            {
+                return false;
+            }
 
             try
             {
