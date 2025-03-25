@@ -41,7 +41,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     parameterUploadViewModel.ParamterErrors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
                 }
 
-                if (parameterUploadViewModel.ValidationErrors == null && parameterUploadViewModel.Errors != null)
+                if (parameterUploadViewModel.ValidationErrors == null && parameterUploadViewModel.ParamterErrors != null)
                 {
                     parameterUploadViewModel.ValidationErrors =
                     [
