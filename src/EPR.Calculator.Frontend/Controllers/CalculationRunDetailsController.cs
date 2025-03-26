@@ -54,7 +54,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (!getCalculationDetailsResponse.IsSuccessStatusCode)
                 {
                     this.logger.LogError(
-                        "Request failed with status code {StatusCode}", getCalculationDetailsResponse?.StatusCode);
+                        "Request failed with status code {StatusCode}", getCalculationDetailsResponse.StatusCode);
 
                     return this.RedirectToAction(
                         ActionNames.StandardErrorIndex,

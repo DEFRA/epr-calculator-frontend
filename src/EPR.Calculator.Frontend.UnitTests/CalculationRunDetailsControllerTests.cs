@@ -419,7 +419,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async void CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
+        public async Task CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
         {
             // Arrange
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.BadRequest, MockData.GetCalculationRuns());
