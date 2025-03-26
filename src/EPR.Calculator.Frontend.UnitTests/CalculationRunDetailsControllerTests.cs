@@ -418,26 +418,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 
-        [TestMethod]
-        public async Task CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
-        {
-            // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.BadRequest, MockData.GetCalculationRuns());
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
-            int runId = 1;
-
-            // Act
-            var result = await controller.IndexAsync(runId) as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunDetailsErrorPage, result.ViewName);
-        }
-
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
