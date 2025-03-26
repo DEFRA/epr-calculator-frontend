@@ -67,8 +67,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     throw new ArgumentNullException($"Calculator with run id {runId} not found");
                 }
-
-                if (calculatorRun != null && !IsRunEligibleForDisplay(calculatorRun))
+                else if (!IsRunEligibleForDisplay(calculatorRun))
                 {
                     return this.View(ViewNames.CalculationRunDetailsErrorPage, new ViewModelCommonData
                     {
@@ -188,11 +187,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private static bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
         {
-            if (calculatorRun == null)
-            {
-                return false;
-            }
-
             if (calculatorRun.RunClassificationId == (int)RunClassification.UNCLASSIFIED)
             {
                 return true;
