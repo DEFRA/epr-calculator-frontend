@@ -14,9 +14,8 @@ namespace EPR.Calculator.Frontend.Controllers
     using Newtonsoft.Json;
     using System.Net;
     using System.Reflection;
-    using System.Runtime.ExceptionServices;
     using System.Runtime.Serialization;
-    using System.Security.Cryptography.Xml;
+
 
     [Authorize(Roles = "SASuperUser")]
     public class DashboardController : BaseController
