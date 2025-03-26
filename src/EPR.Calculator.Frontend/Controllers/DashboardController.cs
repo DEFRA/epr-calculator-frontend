@@ -53,7 +53,12 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                this.ShowDetailedError = (bool)this.configuration.GetValue(typeof(bool), "ShowDetailedError");
+                var showDetailedError = this.configuration.GetValue(typeof(bool), "ShowDetailedError");
+                if (showDetailedError != null)
+                {
+                    this.ShowDetailedError = (bool)showDetailedError;
+                }
+
                 var accessToken = await this.AcquireToken();
 
                 var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
@@ -91,7 +96,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     });
                 }
 
-                return this.ShowDetailedError ? throw new Exception(new HttpResponseMessage(HttpStatusCode.BadRequest).ToString()) : this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                return this.ShowDetailedError ? throw new BadHttpRequestException("Invalid request data") : this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
             catch (Exception)
             {
