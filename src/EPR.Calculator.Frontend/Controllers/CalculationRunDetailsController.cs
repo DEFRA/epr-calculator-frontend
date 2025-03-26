@@ -68,7 +68,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     throw new ArgumentNullException($"Calculator with run id {runId} not found");
                 }
 
-                if (calculatorRun != null && !this.IsRunEligibleForDisplay(calculatorRun))
+                if (calculatorRun != null && !IsRunEligibleForDisplay(calculatorRun))
                 {
                     return this.View(ViewNames.CalculationRunDetailsErrorPage, new ViewModelCommonData
                     {
@@ -82,7 +82,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     Data = new CalculatorRunStatusUpdateDto
                     {
                         RunId = runId,
-                        ClassificationId = calculatorRun.RunClassificationId,
+                        ClassificationId = calculatorRun!.RunClassificationId,
                         CalcName = calculatorRun.RunName,
                         CreatedDate = calculatorRun.CreatedAt.ToString("dd MMM yyyy"),
                         CreatedTime = calculatorRun.CreatedAt.ToString("HH:mm"),
@@ -186,6 +186,21 @@ namespace EPR.Calculator.Frontend.Controllers
             };
         }
 
+        private static bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
+        {
+            if (calculatorRun == null)
+            {
+                return false;
+            }
+
+            if (calculatorRun.RunClassificationId == (int)RunClassification.UNCLASSIFIED)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Asynchronously retrieves calculation details for a given run ID.
         /// </summary>
@@ -195,7 +210,7 @@ namespace EPR.Calculator.Frontend.Controllers
         private async Task<HttpResponseMessage> GetCalculationDetailsAsync(int runId)
         {
             var client = this.CreateHttpClient();
-            var apiUrl = client.BaseAddress.ToString();
+            var apiUrl = client.BaseAddress!.ToString();
             var accessToken = await this.AcquireToken();
 
             client.DefaultRequestHeaders.Add("Authorization", accessToken);
@@ -210,7 +225,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
         private HttpClient CreateHttpClient()
         {
-            var apiUrl = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetValue<string>(ConfigSection.DashboardCalculatorRunApi);
+            var apiUrl = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetValue<string>(ConfigSection.DashboardCalculatorRunApi)!;
 
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
@@ -231,21 +246,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
             statusUpdateViewModel.DownloadResultURL = new Uri($"{downloadResultApi}/{statusUpdateViewModel.Data.RunId}", UriKind.Absolute);
             statusUpdateViewModel.DownloadErrorURL = $"/DownloadFileError/{statusUpdateViewModel.Data.RunId}";
-        }
-
-        private bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
-        {
-            if (calculatorRun == null)
-            {
-                return false;
-            }
-
-            if (calculatorRun.RunClassificationId == (int)RunClassification.UNCLASSIFIED)
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 }

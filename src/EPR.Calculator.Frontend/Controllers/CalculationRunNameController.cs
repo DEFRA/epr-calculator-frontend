@@ -200,7 +200,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return await client.SendAsync(request);
         }
 
-        private string? GetCalculatorRunApi()
+        private string GetCalculatorRunApi()
         {
             var calculatorRunApi = this.configuration
                 .GetSection(ConfigSection.CalculationRunSettings)

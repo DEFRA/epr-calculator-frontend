@@ -27,7 +27,7 @@ namespace EPR.Calculator.Frontend.Controllers
             this.clientFactory = clientFactory;
         }
 
-        public string? FileName { get; set; }
+        public string FileName { get; set; }
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
@@ -37,7 +37,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var lapcapSettingsApi = this.GetLapcapSettingsApi();
 
-                this.FileName = this.HttpContext.Session.GetString(SessionConstants.LapcapFileName);
+                this.FileName = this.HttpContext.Session.GetString(SessionConstants.LapcapFileName)!;
 
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);
@@ -68,7 +68,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private string? GetLapcapSettingsApi()
+        private string GetLapcapSettingsApi()
         {
             var lapcapSettingsApi = this.Configuration.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value;
 
