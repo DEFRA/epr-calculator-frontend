@@ -2,22 +2,19 @@
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    using Azure.Core;
+    using System.Net;
     using EPR.Calculator.Frontend.Common;
     using EPR.Calculator.Frontend.Common.Constants;
     using EPR.Calculator.Frontend.Constants;
-    using EPR.Calculator.Frontend.Enums;
     using EPR.Calculator.Frontend.Helpers;
     using EPR.Calculator.Frontend.Models;
     using EPR.Calculator.Frontend.ViewModels;
     using Microsoft.ApplicationInsights;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.FeatureManagement.Mvc;
     using Microsoft.Identity.Web;
     using Newtonsoft.Json;
-    using System.Net;
-    using System.Reflection;
-    using System.Runtime.Serialization;
 
     [Authorize(Roles = "SASuperUser")]
     public class DashboardController : BaseController
@@ -69,6 +66,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// or redirects to the Standard Error page if an error occurs.
         /// </returns>
         [Authorize(Roles = "SASuperUser")]
+        [FeatureGate(FeatureFlags.ShowFinancialYear)]
         [Route("Dashboard/{financialYear}")]
         public async Task<IActionResult> Index(string financialYear)
         {
@@ -114,7 +112,6 @@ namespace EPR.Calculator.Frontend.Controllers
                         CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                         Calculations = dashboardRunData,
                         FinancialYear = financialYear,
-                        FinancialYearFeatureEnabled = FeatureManagementService.IsShowFinancialYearEnabled(this.configuration),
                         FinancialYearListApi = this.configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
                     });
             }
@@ -126,7 +123,6 @@ namespace EPR.Calculator.Frontend.Controllers
                     AccessToken = accessToken,
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                     FinancialYear = financialYear,
-                    FinancialYearFeatureEnabled = FeatureManagementService.IsShowFinancialYearEnabled(this.configuration),
                     FinancialYearListApi = this.configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
                 });
             }

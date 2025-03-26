@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
-using Moq;
-
-namespace EPR.Calculator.Frontend.Common.UnitTests
+﻿namespace EPR.Calculator.Frontend.Common.UnitTests
 {
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.FeatureManagement;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Moq;
+
     [TestClass]
     public class FeatureManagementServiceTests
     {
@@ -18,33 +20,33 @@ namespace EPR.Calculator.Frontend.Common.UnitTests
         }
 
         [TestMethod]
-        public void Should_IsShowFinancialYearEnabled_ReturnsTrue()
+        public async Task Should_FeatureManager_ReturnsTrue()
         {
             // Assign
-            mockConfigurationSectionLevelTwo.Setup(x => x.Value).Returns("true");
-            mockConfigurationSectionLevelOne.Setup(x => x.GetSection("ShowFinancialYear")).Returns(mockConfigurationSectionLevelTwo.Object);
-            mockConfiguration.Setup(x => x.GetSection("FeatureManagement")).Returns(mockConfigurationSectionLevelOne.Object);
+            var featureManagerMock = new Mock<IFeatureManager>();
+            featureManagerMock.Setup(fm => fm.IsEnabledAsync("some_feature")).Returns(Task.FromResult(true));
+            var featureManager = featureManagerMock.Object;
 
             // Act
-            var result = FeatureManagementService.IsShowFinancialYearEnabled(mockConfiguration.Object);
+            var result = await featureManager.IsEnabledAsync("some_feature");
 
             // Assert
-            Assert.AreEqual(true, result);
+            Assert.IsTrue(result);
         }
 
         [TestMethod]
-        public void Should_IsShowFinancialYearEnabled_ReturnsFalse()
+        public async Task Should_FeatureManager_ReturnsFalse()
         {
             // Assign
-            mockConfigurationSectionLevelTwo.Setup(x => x.Value).Returns("false");
-            mockConfigurationSectionLevelOne.Setup(x => x.GetSection("ShowFinancialYear")).Returns(mockConfigurationSectionLevelTwo.Object);
-            mockConfiguration.Setup(x => x.GetSection("FeatureManagement")).Returns(mockConfigurationSectionLevelOne.Object);
+            var featureManagerMock = new Mock<IFeatureManager>();
+            featureManagerMock.Setup(fm => fm.IsEnabledAsync("some_feature")).Returns(Task.FromResult(false));
+            var featureManager = featureManagerMock.Object;
 
             // Act
-            var result = FeatureManagementService.IsShowFinancialYearEnabled(mockConfiguration.Object);
+            var result = await featureManager.IsEnabledAsync("some_feature");
 
             // Assert
-            Assert.AreEqual(false, result);
+            Assert.IsFalse(result);
         }
     }
 }

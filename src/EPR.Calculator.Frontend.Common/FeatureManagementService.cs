@@ -1,17 +1,19 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.FeatureManagement;
 
 namespace EPR.Calculator.Frontend.Common
 {
     public static class FeatureManagementService
     {
-        public static bool IsShowFinancialYearEnabled(IConfiguration configuration)
+        public static bool IsFeatureEnabled(this IConfiguration configuration, string feature)
         {
-            var showFinancialYearSetting = configuration.GetSection(ConfigSection.FeatureManagement).GetSection(ConfigSection.ShowFinancialYear);
+            var featureServices = new ServiceCollection();
+            featureServices.AddFeatureManagement(configuration);
+            using var provider = featureServices.BuildServiceProvider();
+            var manager = provider.GetRequiredService<IFeatureManager>();
 
-            var result = bool.TryParse(showFinancialYearSetting.Value, out bool value);
-
-            return result && value;
+            return manager.IsEnabledAsync(feature).GetAwaiter().GetResult();
         }
     }
 }

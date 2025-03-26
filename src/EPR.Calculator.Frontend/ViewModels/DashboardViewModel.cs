@@ -12,8 +12,6 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public required string FinancialYear { get; set; }
 
-        public bool FinancialYearFeatureEnabled { get; set; }
-
         public string FinancialYearListApi { get; set; }
 
         public IEnumerable<CalculationRunViewModel>? Calculations { get; init; }
