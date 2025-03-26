@@ -77,51 +77,9 @@
                 </div>
             </feature>
         </div>
-
-        @if (Model.Calculations == null)
-        {
-            <p class="govuk-body">There are no calculations for this financial year.</p>
-        }
-        else
-        {
-            <dl class="govuk-summary-list">
-                @if (Model.Calculations != null)
-                {
-                    foreach (var run in Model.Calculations)
-                    {
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
-                                    @if (run.ShowRunDetailLink)
-                                    {
-                                        <a href="/ViewCalculationRunDetails/@run.Id" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
-                                    }
-                                    else
-                                    {
-                                        @run.Name
-                                    }
-                                </h3>
-                                <p class="govuk-body">
-                                    Calculation ID: @run.Id
-                                    <br/>
-                                    Date: @run.CreatedAt
-                                    <br/>
-                                    Run by: @run.CreatedBy
-                                </p>
-                            </dt>
-                            <dd class="govuk-summary-list__actions">
-                                @if (run.Status is "RUNNING" or "ERROR")
-                                {
-                                    <strong class="@run.TagStyle">
-                                        @run.Status
-                                    </strong>
-                                }
-                            </dd>
-                        </div>
-                    }
-                }
-            </dl>
-        }
+        <div id="calculation-runs">
+            @await Html.PartialAsync("_CalculationRunsPartial", Model.Calculations)
+        </div>
     </div>
 </div>
 
@@ -156,8 +114,20 @@
             }
         });
 
-        $('#financial-year-list').change(() => {
-            window.location.href = `/Dashboard/${financialYearListDropdown.val()}`;
+        financialYearListDropdown.change(function () {
+            var selectedFinancialYear = $(this).val();
+            $.ajax({
+                url: '@Url.Action("GetCalculations", "Dashboard")',
+                type: 'GET',
+                data: { financialYear: selectedFinancialYear },
+                success: function (data) {
+                    $('#calculation-runs').html(data);
+                },
+                error: function (error) {
+                    console.warn(`Unable to get the calculator runs for the financial year ${selectedFinancialYear}`);
+                    window.location.href = '/StandardError';
+                }
+            });
         });
 
         sortFinancialYears = (financialYears) => {

@@ -2,8 +2,6 @@
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    using System.Net;
-    using EPR.Calculator.Frontend.Common;
     using EPR.Calculator.Frontend.Common.Constants;
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Helpers;
@@ -12,11 +10,14 @@ namespace EPR.Calculator.Frontend.Controllers
     using Microsoft.ApplicationInsights;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.FeatureManagement.Mvc;
     using Microsoft.Identity.Web;
     using Newtonsoft.Json;
 
+    /// <summary>
+    /// Controller for handling the dashboard.
+    /// </summary>
     [Authorize(Roles = "SASuperUser")]
+    [Route("/")]
     public class DashboardController : BaseController
     {
         private readonly IConfiguration configuration;
@@ -58,21 +59,17 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
-        /// Handles the Index action for the controller with financial year as parameter.
+        /// Returns the list of calculation runs for the given financial year.
         /// </summary>
-        /// <param name="financialYear">The financial year.</param>
-        /// <returns>
-        /// An <see cref="IActionResult"/> that renders the Dashboard Index view with the calculation runs data,
-        /// or redirects to the Standard Error page if an error occurs.
-        /// </returns>
+        /// <param name="financialYear">The financial year to filter the calculation runs.</param>
+        /// <returns>The list of calculation runs.</returns>
         [Authorize(Roles = "SASuperUser")]
-        [FeatureGate(FeatureFlags.ShowFinancialYear)]
-        [Route("Dashboard/{financialYear}")]
-        public async Task<IActionResult> Index(string financialYear)
+        [Route("Dashboard/GetCalculations")]
+        public async Task<IActionResult> GetCalculations(string financialYear)
         {
             try
             {
-                return await this.GoToDashboardView(financialYear);
+                return await this.GoToDashboardView(financialYear, true);
             }
             catch (Exception)
             {
@@ -80,7 +77,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private async Task<ActionResult> GoToDashboardView(string financialYear)
+        private async Task<ActionResult> GoToDashboardView(string financialYear, bool returnPartialView = false)
         {
             var accessToken = await this.AcquireToken();
 
@@ -94,7 +91,16 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             using var response =
-                    await this.GetHttpRequest(financialYear, dashboardCalculatorRunApi, this.clientFactory, accessToken);
+                await this.GetHttpRequest(financialYear, dashboardCalculatorRunApi, this.clientFactory, accessToken);
+
+            var dashboardViewModel = new DashboardViewModel
+            {
+                AccessToken = accessToken,
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                FinancialYear = financialYear,
+                FinancialYearListApi = this.configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
+                Calculations = null,
+            };
 
             if (response.IsSuccessStatusCode)
             {
@@ -103,31 +109,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 // Ensure deserializedRuns is not null
                 var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
                 var dashboardRunData = DashboardHelper.GetCalulationRunsData(calculationRuns);
-
-                return this.View(
-                    ViewNames.DashboardIndex,
-                    new DashboardViewModel
-                    {
-                        AccessToken = accessToken,
-                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                        Calculations = dashboardRunData,
-                        FinancialYear = financialYear,
-                        FinancialYearListApi = this.configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
-                    });
+                dashboardViewModel.Calculations = dashboardRunData;
             }
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                return this.View(new DashboardViewModel
-                {
-                    AccessToken = accessToken,
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    FinancialYear = financialYear,
-                    FinancialYearListApi = this.configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
-                });
-            }
-
-            return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            return returnPartialView
+                ? this.PartialView("_CalculationRunsPartial", dashboardViewModel.Calculations)
+                : this.View(dashboardViewModel);
         }
 
         /// <summary>

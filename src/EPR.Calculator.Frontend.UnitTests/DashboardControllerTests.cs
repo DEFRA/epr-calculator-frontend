@@ -111,15 +111,15 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.ControllerContext = new ControllerContext { HttpContext = mockContext.Object };
 
             // Act
-            var result = await controller.Index("2024-25") as ViewResult;
+            var result = await controller.GetCalculations("2024-25") as PartialViewResult;
 
             // Assert
             Assert.IsNotNull(result);
 
-            var resultModel = result.Model as DashboardViewModel;
+            var resultModel = result.Model as IEnumerable<CalculationRunViewModel>;
             Assert.IsNotNull(resultModel);
-            Assert.AreEqual(3, resultModel.Calculations.Count());
-            Assert.AreEqual(0, resultModel.Calculations.Count(x => x.Id == 12));
+            Assert.AreEqual(3, resultModel.Count());
+            Assert.AreEqual(0, resultModel.Count(x => x.Id == 12));
         }
 
         [TestMethod]
@@ -252,7 +252,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
                 mockAuthorizationHeaderProvider.Object, new TelemetryClient());
 
-            var result = await controller.Index("2024-25") as RedirectToActionResult;
+            var result = await controller.GetCalculations("2024-25") as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
@@ -302,7 +302,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new DashboardController(config, mockHttpClientFactory.Object,
                 mockAuthorizationHeaderProvider.Object, mockClient);
 
-            var result = await controller.Index("2024-25") as RedirectToActionResult;
+            var result = await controller.GetCalculations("2024-25") as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
@@ -357,7 +357,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 mockAuthorizationHeaderProvider.Object, new TelemetryClient());
 
             // Act
-            var task = controller.Index("2024-25");
+            var task = controller.GetCalculations("2024-25");
             task.Wait();
 
             var result = task.Result as RedirectToActionResult;
@@ -381,7 +381,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
 
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
-            var dashboardRunData = new List<DashboardViewModel.CalculationRunViewModel>();
+            var dashboardRunData = new List<CalculationRunViewModel>();
 
             // Act
             if (calculationRuns.Count > 0)
@@ -395,7 +395,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
                     calculationRun.Status = attribute?.Value ?? string.Empty; // Use a default value if attribute or value is null
 
-                    dashboardRunData.Add(new DashboardViewModel.CalculationRunViewModel(calculationRun));
+                    dashboardRunData.Add(new CalculationRunViewModel(calculationRun));
                 }
             }
 

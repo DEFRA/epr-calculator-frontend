@@ -12,11 +12,11 @@ namespace EPR.Calculator.Frontend.Helpers
         /// Processes a list of calculation runs and assigns status values based on their classifications.
         /// </summary>
         /// <param name="calculationRuns">The list of calculation runs to be processed.</param>
-        /// <returns>A list of <see cref="DashboardViewModel"/> objects containing the processed data.</returns>
-        public static List<DashboardViewModel.CalculationRunViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
+        /// <returns>A list of <see cref="CalculationRunViewModel"/> objects containing the processed data.</returns>
+        public static List<CalculationRunViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
         {
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
-            var dashboardRunData = new List<DashboardViewModel.CalculationRunViewModel>();
+            var dashboardRunData = new List<CalculationRunViewModel>();
 
             if (calculationRuns.Count > 0)
             {
@@ -33,7 +33,7 @@ namespace EPR.Calculator.Frontend.Helpers
 
                     calculationRun.Status = attribute?.Value ?? string.Empty; // Use a default value if attribute or value is null
 
-                    dashboardRunData.Add(new DashboardViewModel.CalculationRunViewModel(calculationRun));
+                    dashboardRunData.Add(new CalculationRunViewModel(calculationRun));
                 }
             }
 
