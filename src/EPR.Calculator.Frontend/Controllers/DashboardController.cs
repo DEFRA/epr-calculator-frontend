@@ -16,7 +16,6 @@ namespace EPR.Calculator.Frontend.Controllers
     using System.Reflection;
     using System.Runtime.Serialization;
 
-
     [Authorize(Roles = "SASuperUser")]
     public class DashboardController : BaseController
     {
