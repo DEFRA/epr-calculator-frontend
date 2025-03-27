@@ -2,16 +2,14 @@
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var BackLink = "Dashboard";
-    var errors = ViewBag.Errors;
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
-<partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
+<partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
 
-@if (errors != null)
+@if (Model.Errors != null)
 {
-    <partial name="_ErrorBannerPartial" model="errors" />
+    <partial name="_ErrorBannerPartial" model="Model.Errors" />
 }
 
 
@@ -24,18 +22,18 @@
                     <label for="calculation-name-1">Calculation name</label>
                 </h1>
 
-                <div class="@(errors != null ? "govuk-form-group govuk-form-group--error" : "govuk-form-group")">
+                <div class="@(Model.Errors != null ? "govuk-form-group govuk-form-group--error" : "govuk-form-group")">
                     <div id="event-name-hint" class="govuk-hint">
                         Give the calculation a name, so you can easily find it.
                     </div>
-                    @if (errors != null)
+                    @if (Model.Errors != null)
                     {
                         <p id="calculation-name-error" class="govuk-error-message">
-                            <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
+                            <span class="govuk-visually-hidden">Error:</span> @Model.Errors.ErrorMessage
                         </p>
                     }
                     @Html.HiddenFor(m => m.CurrentUser)
-                    @Html.TextBoxFor(m => m.CalculationName, new { @class = errors != null ? "govuk-input govuk-input--error" : "govuk-input govuk-input--width-20", id = "calculation-name-1", autocomplete = "name" })
+                    @Html.TextBoxFor(m => m.CalculationName, new { @class = Model.Errors != null ? "govuk-input govuk-input--error" : "govuk-input govuk-input--width-20", id = "calculation-name-1", autocomplete = "name" })
                     <div data-lastpass-icon-root="" style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
                 </div>
             </div>
