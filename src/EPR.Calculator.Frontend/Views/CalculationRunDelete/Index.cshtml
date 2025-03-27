@@ -1,4 +1,6 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels
+@using EPR.Calculator.Frontend.Constants
+
 @model CalculationRunDeleteViewModel
 @{
     ViewData["Title"] = "Index";
@@ -13,16 +15,16 @@
             <h1 class="govuk-heading-xl">Are you sure you want to delete this calculation run?</h1>
             <br>
             <label class="govuk-label">
-                Only delete this calculation run if you no longer need it or have completed another successful run.
+                Only delete this calculation run if you no longer need it or have completed another successful run1.
             </label>
             <br>
             @using (Html.BeginForm("Delete-Confirmation", "CalculationRunDelete", FormMethod.Post))
             {
                 <div class="govuk-button-group">
                     <button id="btnDelete" type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">
-                        Delete run
+                        @ActionLinkLabels.DeleteRun
                     </button>                    
-                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
+                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
                 </div>                
                 @Html.Hidden("RunId", Model.Data.RunId)
                 @Html.AntiForgeryToken()
