@@ -62,7 +62,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     .Value;
 
                 using var response =
-                    await this.GetHttpRequest(year, dashboardCalculatorRunApi, this.clientFactory, accessToken);
+                    await this.GetHttpRequest(year!, dashboardCalculatorRunApi!, this.clientFactory, accessToken);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -90,7 +90,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
