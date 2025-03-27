@@ -28,5 +28,11 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets download Timeout.
         /// </summary>
         public int? DownloadTimeout { get; set; }
+
+        /// <summary>
+        /// Gets or sets the selected calculation run option.
+        /// </summary>
+        public string? SelectedCalcRunOption { get; set; }
+
     }
 }

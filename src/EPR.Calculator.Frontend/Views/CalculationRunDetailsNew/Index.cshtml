@@ -16,7 +16,7 @@
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row calculator-details">
         <div class="govuk-grid-column-two-thirds">
-            @using (Html.BeginForm("YourAction", "CalculationRunDetailsNew", FormMethod.Post))
+            @using (Html.BeginForm("RunCalculationProceed", "CalculationRunDetailsNew", FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
 
@@ -60,14 +60,15 @@
 
                         <div class="govuk-radios" data-module="govuk-radios">
                             <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="initialRun" name="calcRun" type="radio" value="outputClassify">
+                                @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputClassify", new { @class = "govuk-radios__input", id = "initialRun" })
+
                                 <label class="govuk-label govuk-radios__label" for="initialRun">
                                     <strong>Classify</strong><br>
                                     <p class="govuk-body-s" style="margin-bottom: 0;">Choose a classification to process this calculation run</p>
                                 </label>
                             </div>
                             <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="interimRecalculationRun" name="calcRun" type="radio" value="outputDelete">
+                                @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputDelete", new { @class = "govuk-radios__input", id = "interimRecalculationRun" })
                                 <label class="govuk-label govuk-radios__label" for="interimRecalculationRun">
                                     <strong>Delete</strong><br>
                                     <p class="govuk-body-s" style="margin-bottom: 0;">Remove this calculation run if it's no longer needed</p>
@@ -84,7 +85,7 @@
                         </button>
                     </div>
 
-                    &nbsp; &nbsp;  <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
+                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link govuk-!-margin-left-4">Return to the dashboard</a>
                 </div>
             }
         </div>

@@ -87,8 +87,8 @@ namespace EPR.Calculator.Frontend.Controllers
                         CalcName = calculatorRun.RunName,
                         CreatedDate = calculatorRun.CreatedAt.ToString("dd MMM yyyy"),
                         CreatedTime = calculatorRun.CreatedAt.ToString("HH:mm"),
-                        CreatedBy = "Jo Bloggs", // calculatorRun.CreatedBy,
-                        FinancialYear = "2024-25", // calculatorRun.FinancialYear,
+                        CreatedBy = "Jo Bloggs", // calculatorRun.CreatedBy, // ToDo: Dummy data, needs to be replaced at the time of API integration
+                        FinancialYear = "2024-25", // calculatorRun.FinancialYear, //ToDo: Dummy data, needs to be replaced at the time of API integration
                     },
                 };
 
@@ -101,6 +101,19 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+        }
+
+        /// <summary>
+        /// Proceed with the calculation details.
+        /// </summary>
+        /// <returns>confirmation view.</returns>
+        [Authorize(Roles = "SASuperUser")]
+        [Route("DeleteCalculationRun")]
+        public async Task<IActionResult> RunCalculationProceed()
+        {
+            //throw new NotImplementedException("RunCalculationProceed is not yet implemented.");
+
+            return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
         }
 
         /// <summary>
