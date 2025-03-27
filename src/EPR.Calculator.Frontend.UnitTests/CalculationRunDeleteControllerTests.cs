@@ -59,5 +59,23 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ViewNames.CalculationRunDeleteIndex, result.ViewName);
             Assert.AreEqual(runId, resultModel.Data.RunId);
         }
+
+        [TestMethod]
+        public void CalculationRunDelete_Confirmation_Success_View_Test()
+        {
+            // Arrange
+            var controller = new CalculationRunDeleteController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, _mockTelemetryClient);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
+            // Act
+            var result = controller.DeleteConfirmationSuccess() as ViewResult;
+
+            // Assert
+            var resultModel = result.Model;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDeleteConfirmationSuccess, result.ViewName);
+            Assert.IsTrue(typeof(string) == resultModel.GetType());
+        }
     }
 }

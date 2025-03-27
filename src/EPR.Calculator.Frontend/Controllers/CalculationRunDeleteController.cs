@@ -58,5 +58,16 @@ namespace EPR.Calculator.Frontend.Controllers
             };
             return this.View(ViewNames.CalculationRunDeleteIndex, calculationRunDeleteViewModel);
         }
+
+        /// <summary>
+        /// Displays the calculate run delete confirmation screen.
+        /// </summary>
+        /// <returns>The delete confirmation success view.</returns>
+        [Route("confirmation-success")]
+        public IActionResult DeleteConfirmationSuccess()
+        {
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
+            return this.View(ViewNames.CalculationRunDeleteConfirmationSuccess, model: currentUser);
+        }
     }
 }
