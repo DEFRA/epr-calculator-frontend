@@ -68,7 +68,7 @@ namespace EPR.Calculator.Frontend.Controllers
             if (!this.ModelState.IsValid)
             {
                 var errorMessages = this.ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
-                this.ViewBag.Errors = CreateErrorViewModel(errorMessages.First());
+                calculationRunModel.Errors = CreateErrorViewModel(errorMessages.First());
                 return this.View(CalculationRunNameIndexView, calculationRunModel);
             }
 
@@ -80,7 +80,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     var calculationNameExistsResponse = await this.CheckIfCalculationNameExistsAsync(calculationName);
                     if (calculationNameExistsResponse.IsSuccessStatusCode)
                     {
-                        this.ViewBag.Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists);
+                        calculationRunModel.Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists);
                         return this.View(CalculationRunNameIndexView, calculationRunModel);
                     }
 
@@ -103,9 +103,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     }
                 }
 
-                this.TempData["RunName"] = calculationRunModel.CalculationName;
-
-                return this.RedirectToAction(ActionNames.RunCalculatorConfirmation);
+                return this.RedirectToAction(ActionNames.RunCalculatorConfirmation, new { calculationName = calculationRunModel.CalculationName });
             }
             catch (Exception)
             {
@@ -116,15 +114,15 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <summary>
         /// Displays the confirmation view after running the calculator.
         /// </summary>
-        /// <param name="calculationRunModel">The model containing calculation run details.</param>
+        /// <param name="calculationName">calculation run name.</param>
         /// <returns>The result of the action.</returns>
         [Authorize(Roles = "SASuperUser")]
         [Route("Confirmation")]
-        public IActionResult Confirmation()
+        public IActionResult Confirmation(string calculationName)
         {
             var calculationRunConfirmationViewModel = new CalculationRunConfirmationViewModel
             {
-                CalculationName = this.TempData["RunName"]?.ToString() ?? string.Empty,
+                CalculationName = calculationName ?? string.Empty,
             };
 
             return this.View(ViewNames.CalculationRunConfirmation, calculationRunConfirmationViewModel);

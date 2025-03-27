@@ -75,14 +75,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = null,
             };
-            var result = await _controller.RunCalculator(null);
+            var result = await _controller.RunCalculator(calculatorRunModel);
             var viewResult = result as ViewResult;
             Assert.IsNotNull(viewResult);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, viewResult.ViewName);
-            var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
-            Assert.IsNotNull(errorViewModel);
-            Assert.AreEqual(ViewControlNames.CalculationRunName, errorViewModel.DOMElementId);
-            Assert.AreEqual(ErrorMessages.CalculationRunNameEmpty, errorViewModel.ErrorMessage);
+            var initiateCalculatorRunModel = viewResult.Model as InitiateCalculatorRunModel;
+            Assert.IsNotNull(initiateCalculatorRunModel.Errors);
+            Assert.AreEqual(ViewControlNames.CalculationRunName, initiateCalculatorRunModel.Errors.DOMElementId);
+            Assert.AreEqual(ErrorMessages.CalculationRunNameEmpty, initiateCalculatorRunModel.Errors.ErrorMessage);
         }
 
         [TestMethod]
@@ -198,9 +198,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller.ModelState.AddModelError("CalculationName", "Enter a name for this calculation");
             var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
+            var initiateCalculatorRunModel = result.Model as InitiateCalculatorRunModel;
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
-            Assert.IsTrue(_controller.ViewBag.Errors is ErrorViewModel);
-            var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
+            Assert.IsTrue(initiateCalculatorRunModel.Errors is ErrorViewModel);
+            var errorViewModel = initiateCalculatorRunModel.Errors as ErrorViewModel;
             Assert.AreEqual(ErrorMessages.CalculationRunNameEmpty, errorViewModel.ErrorMessage);
         }
 
@@ -215,9 +216,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
             var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
+            var initiateCalculatorRunModel = result.Model as InitiateCalculatorRunModel;
+
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
-            Assert.IsTrue(_controller.ViewBag.Errors is ErrorViewModel);
-            var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
+            Assert.IsTrue(initiateCalculatorRunModel.Errors is ErrorViewModel);
+            var errorViewModel = initiateCalculatorRunModel.Errors as ErrorViewModel;
             Assert.AreEqual(ErrorMessages.CalculationRunNameMaxLengthExceeded, errorViewModel.ErrorMessage);
         }
 
@@ -232,9 +235,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
             var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
+            var initiateCalculatorRunModel = result.Model as InitiateCalculatorRunModel;
+
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
-            Assert.IsTrue(_controller.ViewBag.Errors is ErrorViewModel);
-            var errorViewModel = _controller.ViewBag.Errors as ErrorViewModel;
+            Assert.IsTrue(initiateCalculatorRunModel.Errors is ErrorViewModel);
+            var errorViewModel = initiateCalculatorRunModel.Errors as ErrorViewModel;
             Assert.AreEqual(ErrorMessages.CalculationRunNameMustBeAlphaNumeric, errorViewModel.ErrorMessage);
         }
 
@@ -335,9 +340,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await _controller.RunCalculator(model) as ViewResult;
 
             Assert.IsNotNull(result);
+            var calculatorRunModel = result.Model as InitiateCalculatorRunModel;
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
-            Assert.IsNotNull(_controller.ViewBag.Errors);
-            Assert.AreEqual(ErrorMessages.CalculationRunNameExists, ((ErrorViewModel)_controller.ViewBag.Errors).ErrorMessage);
+            Assert.IsNotNull(calculatorRunModel.Errors);
+            Assert.AreEqual(ErrorMessages.CalculationRunNameExists, ((ErrorViewModel)calculatorRunModel.Errors).ErrorMessage);
         }
 
         [TestMethod]
@@ -554,7 +560,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void Confirmation_ReturnsViewResult()
         {
-            var result = _controller.Confirmation() as ViewResult;
+            var result = _controller.Confirmation("Test") as ViewResult;
 
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunConfirmation, result.ViewName);

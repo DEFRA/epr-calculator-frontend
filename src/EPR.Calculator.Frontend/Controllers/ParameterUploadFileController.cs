@@ -15,35 +15,24 @@ namespace EPR.Calculator.Frontend.Controllers
     [Authorize(Roles = "SASuperUser")]
     public class ParameterUploadFileController : Controller
     {
+        private IActionResult RedirectToErrorPage => this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+
         [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             return this.View(
-                ViewNames.ParameterUploadFileIndex,
-                new ViewModelCommonData
-                {
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                });
+                 ViewNames.ParameterUploadFileIndex,
+                 new ParameterUploadViewModel
+                 {
+                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                 });
         }
 
-        [HttpPost]
         [Authorize(Roles = "SASuperUser")]
+        [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-            try
-            {
-                var viewName = await this.GetViewName(fileUpload);
-                return this.View(
-                    viewName,
-                    new ViewModelCommonData
-                    {
-                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    });
-            }
-            catch (Exception)
-            {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
-            }
+            return await this.ProcessUploadAsync(fileUpload);
         }
 
         [Authorize(Roles = "SASuperUser")]
@@ -52,23 +41,18 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var filePath = this.TempData["FilePath"]?.ToString();
-
-                if (!string.IsNullOrEmpty(filePath))
+                if (string.IsNullOrEmpty(filePath))
                 {
-                    using var stream = System.IO.File.OpenRead(filePath);
-                    var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
-
-                    var viewName = await this.GetViewName(fileUpload);
-                    this.ModelState.Clear();
-                    return this.View(viewName);
+                    return this.RedirectToErrorPage;
                 }
 
-                // Code will reach this point if the uploaded file is not available
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                using var stream = System.IO.File.OpenRead(filePath);
+                var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
+                return await this.ProcessUploadAsync(fileUpload);
             }
             catch (Exception)
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToErrorPage;
             }
         }
 
@@ -88,30 +72,26 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private async Task<string> GetViewName(IFormFile fileUpload)
+        private async Task<IActionResult> ProcessUploadAsync(IFormFile fileUpload)
         {
-            if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
+            try
             {
-                var uploadErrors = this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors]?.ToString();
-                if (!string.IsNullOrEmpty(uploadErrors))
+                var viewName = this.GetViewName(fileUpload);
+                if (viewName == ViewNames.ParameterUploadFileIndex)
                 {
-                    var parameterUploadErrors = JsonConvert.DeserializeObject<ErrorViewModel>(uploadErrors);
-                    if (parameterUploadErrors != null)
-                    {
-                        parameterUploadErrors.DOMElementId = ViewControlNames.FileUpload;
-                    }
-
-                    this.ViewBag.Errors = parameterUploadErrors;
-                    return ViewNames.ParameterUploadFileIndex;
+                    var viewModel = this.CreateParameterUploadViewModel();
+                    return this.View(viewName, viewModel);
+                }
+                else
+                {
+                    var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
+                    return this.View(viewName, new ParameterRefreshViewModel { ParameterTemplateValue = schemeTemplateParameterValues });
                 }
             }
-
-            var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
-
-            this.ViewData["schemeTemplateParameterValues"] = schemeTemplateParameterValues.ToArray();
-            this.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUpload.FileName);
-
-            return ViewNames.ParameterUploadFileRefresh;
+            catch (Exception)
+            {
+                return this.RedirectToErrorPage;
+            }
         }
 
         private ErrorViewModel ValidateCSV(IFormFile fileUpload)
@@ -124,6 +104,33 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return validationErrors;
+        }
+
+        private string GetViewName(IFormFile fileUpload)
+        {
+            if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
+            {
+                return ViewNames.ParameterUploadFileIndex;
+            }
+
+            this.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUpload.FileName);
+
+            return ViewNames.ParameterUploadFileRefresh;
+        }
+
+        private ParameterUploadViewModel CreateParameterUploadViewModel()
+        {
+            var errors = this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors] != null
+                ? JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors]?.ToString())
+                : null;
+
+            if (errors != null)
+            {
+                errors.DOMElementId = ViewControlNames.FileUpload;
+            }
+
+            this.ModelState.Clear();
+            return new ParameterUploadViewModel { Errors = errors };
         }
     }
 }
