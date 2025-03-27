@@ -25,7 +25,7 @@ namespace EPR.Calculator.Frontend.Controllers
         private readonly ILogger<CalculationRunDetailsNewController> logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CalculationRunDetailsController"/> class.
+        /// Initializes a new instance of the <see cref="CalculationRunDetailsNewController"/> class.
         /// </summary>
         /// <param name="configuration">The configuration settings.</param>
         /// <param name="clientFactory">The HTTP client factory.</param>
@@ -42,7 +42,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Displays the calculation run details index view.
         /// </summary>
         /// <param name="runId">The ID of the calculation run.</param>
-        /// <param name="calcName">The calcName of the calculation run.</param>
         /// <returns>The calculation run details index view.</returns>
         [Authorize(Roles = "SASuperUser")]
         [Route("rundetails/{runId}")]
@@ -111,9 +110,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("RunCalculationProceed")]
         public async Task<IActionResult> RunCalculationProceed()
         {
-            //throw new NotImplementedException("RunCalculationProceed is not yet implemented.");
-
-            return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            throw new NotImplementedException("RunCalculationProceed is not yet implemented.");
         }
 
         /// <summary>
