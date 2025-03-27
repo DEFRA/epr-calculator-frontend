@@ -68,7 +68,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private string? GetLapcapSettingsApi()
+        private string GetLapcapSettingsApi()
         {
             var lapcapSettingsApi = this.Configuration.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value;
 
@@ -92,7 +92,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 ParameterYear = parameterYear,
                 LapcapDataTemplateValues = lapcapDataTemplateValues,
-                LapcapFileName = this.FileName,
+                LapcapFileName = this.FileName!,
             };
 
             return JsonConvert.SerializeObject(lapcapData);
