@@ -36,6 +36,8 @@ namespace EPR.Calculator.Frontend.Controllers
             this.clientFactory = clientFactory;
         }
 
+        private bool ShowDetailedError { get; set; }
+
         /// <summary>
         /// Handles the Index action for the controller.
         /// </summary>
@@ -51,6 +53,12 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                var showDetailedError = this.configuration.GetValue(typeof(bool), "ShowDetailedError");
+                if (showDetailedError != null)
+                {
+                    this.ShowDetailedError = (bool)showDetailedError;
+                }
+
                 var accessToken = await this.AcquireToken();
 
                 var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
@@ -88,10 +96,15 @@ namespace EPR.Calculator.Frontend.Controllers
                     });
                 }
 
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                return this.ShowDetailedError ? throw new BadHttpRequestException("Invalid request data") : this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
             catch (Exception)
             {
+                if (this.ShowDetailedError)
+                {
+                    throw;
+                }
+
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
