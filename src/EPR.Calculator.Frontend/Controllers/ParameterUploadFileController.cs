@@ -48,6 +48,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 using var stream = System.IO.File.OpenRead(filePath);
                 var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
+
                 return await this.ProcessUploadAsync(fileUpload);
             }
             catch (Exception)
@@ -85,7 +86,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 else
                 {
                     var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
-                    return this.View(viewName, new ParameterRefreshViewModel { ParameterTemplateValue = schemeTemplateParameterValues });
+                    return this.View(viewName, new ParameterRefreshViewModel { ParameterTemplateValue = schemeTemplateParameterValues, FileName = fileUpload.FileName });
                 }
             }
             catch (Exception)
@@ -112,8 +113,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return ViewNames.ParameterUploadFileIndex;
             }
-
-            this.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUpload.FileName);
 
             return ViewNames.ParameterUploadFileRefresh;
         }

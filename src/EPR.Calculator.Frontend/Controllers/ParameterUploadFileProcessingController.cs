@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,20 +34,17 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
-        public async Task<IActionResult> Index([FromBody] List<SchemeParameterTemplateValue> schemeParameterValues)
+        public async Task<IActionResult> Index([FromBody] ParameterRefreshViewModel parameterRefreshViewModel)
         {
             try
             {
                 var parameterSettingsApi = this.GetParameterSettingsApi();
-
-                this.FileName = this.HttpContext.Session.GetString(SessionConstants.ParameterFileName);
-
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
                 var accessToken = await this.AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
-                var payload = this.Transform(schemeParameterValues);
+                var payload = this.Transform(parameterRefreshViewModel);
 
                 var content = new StringContent(payload, System.Text.Encoding.UTF8, StaticHelpers.MediaType);
 
@@ -82,7 +80,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return parameterSettingsApi;
         }
 
-        private string Transform(List<SchemeParameterTemplateValue> schemeParameterValues)
+        private string Transform(ParameterRefreshViewModel parameterRefreshViewModel)
         {
             var parameterYear = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value;
             if (string.IsNullOrWhiteSpace(parameterYear))
@@ -93,8 +91,8 @@ namespace EPR.Calculator.Frontend.Controllers
             var parameterSetting = new CreateDefaultParameterSettingDto
             {
                 ParameterYear = parameterYear,
-                SchemeParameterTemplateValues = schemeParameterValues,
-                ParameterFileName = this.FileName,
+                SchemeParameterTemplateValues = parameterRefreshViewModel.ParameterTemplateValue,
+                ParameterFileName = parameterRefreshViewModel.FileName,
             };
 
             return JsonConvert.SerializeObject(parameterSetting);

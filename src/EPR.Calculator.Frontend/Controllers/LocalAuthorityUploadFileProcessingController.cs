@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,20 +32,17 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
-        public async Task<IActionResult> Index([FromBody] List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
+        public async Task<IActionResult> Index([FromBody] LapcapRefreshViewModel lapcapRefreshViewModel)
         {
             try
             {
                 var lapcapSettingsApi = this.GetLapcapSettingsApi();
-
-                this.FileName = this.HttpContext.Session.GetString(SessionConstants.LapcapFileName);
-
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);
                 var accessToken = await this.AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
-                var payload = this.Transform(lapcapDataTemplateValues);
+                var payload = this.Transform(lapcapRefreshViewModel);
 
                 var content = new StringContent(payload, System.Text.Encoding.UTF8, StaticHelpers.MediaType);
 
@@ -80,7 +78,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return lapcapSettingsApi;
         }
 
-        private string Transform(List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
+        private string Transform(LapcapRefreshViewModel lapcapRefreshViewModel)
         {
             var parameterYear = this.Configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
             if (string.IsNullOrWhiteSpace(parameterYear))
@@ -91,8 +89,8 @@ namespace EPR.Calculator.Frontend.Controllers
             var lapcapData = new CreateLapcapDataDto
             {
                 ParameterYear = parameterYear,
-                LapcapDataTemplateValues = lapcapDataTemplateValues,
-                LapcapFileName = this.FileName,
+                LapcapDataTemplateValues = lapcapRefreshViewModel.LapcapTemplateValue,
+                LapcapFileName = lapcapRefreshViewModel.FileName,
             };
 
             return JsonConvert.SerializeObject(lapcapData);
