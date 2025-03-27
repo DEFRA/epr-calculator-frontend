@@ -91,9 +91,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var localAuthorityDisposalCostsValues = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
 
-            this.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUpload.FileName);
-
-            return this.View(ViewNames.LocalAuthorityUploadFileRefresh, new LapcapRefreshViewModel { LapcapTemplateValue = localAuthorityDisposalCostsValues });
+            return this.View(ViewNames.LocalAuthorityUploadFileRefresh, new LapcapRefreshViewModel { LapcapTemplateValue = localAuthorityDisposalCostsValues, FileName = fileUpload.FileName });
         }
     }
 }
