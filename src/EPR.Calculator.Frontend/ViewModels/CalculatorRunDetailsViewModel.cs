@@ -33,6 +33,5 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets the selected calculation run option.
         /// </summary>
         public string? SelectedCalcRunOption { get; set; }
-
     }
 }
