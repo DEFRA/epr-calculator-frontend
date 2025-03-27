@@ -72,7 +72,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private string? GetLapcapSettingsApi()
+        private string GetLapcapSettingsApi()
         {
             var lapcapSettingsApi = this.Configuration.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value;
 

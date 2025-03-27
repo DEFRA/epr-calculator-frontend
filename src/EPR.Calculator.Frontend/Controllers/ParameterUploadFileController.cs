@@ -95,28 +95,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private ErrorViewModel ValidateCSV(IFormFile fileUpload)
-        {
-            ErrorViewModel validationErrors = CsvFileHelper.ValidateCSV(fileUpload);
-
-            if (validationErrors.ErrorMessage != null)
-            {
-                this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors] = JsonConvert.SerializeObject(validationErrors);
-            }
-
-            return validationErrors;
-        }
-
-        private string GetViewName(IFormFile fileUpload)
-        {
-            if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
-            {
-                return ViewNames.ParameterUploadFileIndex;
-            }
-
-            return ViewNames.ParameterUploadFileRefresh;
-        }
-
         private ParameterUploadViewModel CreateParameterUploadViewModel()
         {
             var errors = this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors] != null
@@ -130,6 +108,28 @@ namespace EPR.Calculator.Frontend.Controllers
 
             this.ModelState.Clear();
             return new ParameterUploadViewModel { Errors = errors };
+        }
+
+        private string GetViewName(IFormFile fileUpload)
+        {
+            if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
+            {
+                return ViewNames.ParameterUploadFileIndex;
+            }
+
+            return ViewNames.ParameterUploadFileRefresh;
+        }
+
+        private ErrorViewModel ValidateCSV(IFormFile fileUpload)
+        {
+            ErrorViewModel validationErrors = CsvFileHelper.ValidateCSV(fileUpload);
+
+            if (validationErrors.ErrorMessage != null)
+            {
+                this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors] = JsonConvert.SerializeObject(validationErrors);
+            }
+
+            return validationErrors;
         }
     }
 }
