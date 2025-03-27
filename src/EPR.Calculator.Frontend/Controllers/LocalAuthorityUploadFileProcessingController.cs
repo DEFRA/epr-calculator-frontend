@@ -14,6 +14,7 @@ namespace EPR.Calculator.Frontend.Controllers
     public class LocalAuthorityUploadFileProcessingController : BaseController
     {
         private readonly IHttpClientFactory clientFactory;
+        private readonly TelemetryClient _telemetryClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LocalAuthorityUploadFileProcessingController"/> class.
@@ -26,6 +27,7 @@ namespace EPR.Calculator.Frontend.Controllers
             : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.clientFactory = clientFactory;
+            this._telemetryClient = telemetryClient;
         }
 
         public string? FileName { get; set; }
@@ -41,6 +43,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 client.BaseAddress = new Uri(lapcapSettingsApi);
                 var accessToken = await this.AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
+
+                this._telemetryClient.TrackTrace($"1.Lapcap File Name before Transform :{lapcapRefreshViewModel.FileName}");
 
                 var payload = this.Transform(lapcapRefreshViewModel);
 
@@ -58,6 +62,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.Ok(response.Result);
                 }
 
+                this._telemetryClient.TrackTrace($"2.File name before BadRequest :{lapcapRefreshViewModel.FileName}");
+                this._telemetryClient.TrackTrace($"3.Reason for BadRequest :{response.Result.Content.ReadAsStringAsync().Result}");
                 return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
             }
             catch (Exception)
@@ -92,6 +98,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 LapcapDataTemplateValues = lapcapRefreshViewModel.LapcapTemplateValue,
                 LapcapFileName = lapcapRefreshViewModel.FileName,
             };
+
+            this._telemetryClient.TrackTrace($"4.File Name in Transform :{lapcapRefreshViewModel.FileName}");
 
             return JsonConvert.SerializeObject(lapcapData);
         }

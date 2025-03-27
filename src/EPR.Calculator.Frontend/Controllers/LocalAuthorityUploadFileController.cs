@@ -66,7 +66,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 else
                 {
                     var localAuthorityDisposalCosts = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
-                    return this.View(viewName, new LapcapRefreshViewModel { LapcapTemplateValue = localAuthorityDisposalCosts, FileName= fileUpload.FileName });
+                    return this.View(viewName, new LapcapRefreshViewModel { LapcapTemplateValue = localAuthorityDisposalCosts, FileName = fileUpload.FileName });
                 }
             }
             catch (Exception)

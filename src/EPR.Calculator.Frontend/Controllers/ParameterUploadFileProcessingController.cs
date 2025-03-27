@@ -15,6 +15,7 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
+        private readonly TelemetryClient _telemetryClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ParameterUploadFileProcessingController"/> class.
@@ -28,6 +29,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
+            this._telemetryClient = telemetryClient;
         }
 
         public string? FileName { get; set; }
@@ -43,6 +45,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 client.BaseAddress = new Uri(parameterSettingsApi);
                 var accessToken = await this.AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
+
+                this._telemetryClient.TrackTrace($"1.Parameter File Name before Transform :{parameterRefreshViewModel.FileName}");
 
                 var payload = this.Transform(parameterRefreshViewModel);
 
@@ -60,6 +64,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.Ok(response.Result);
                 }
 
+                this._telemetryClient.TrackTrace($"2.File name before BadRequest :{parameterRefreshViewModel.FileName}");
+                this._telemetryClient.TrackTrace($"3.Reason for BadRequest :{response.Result.Content.ReadAsStringAsync().Result}");
                 return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
             }
             catch (Exception)
@@ -95,6 +101,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 ParameterFileName = parameterRefreshViewModel.FileName,
             };
 
+            this._telemetryClient.TrackTrace($"4.File Name in Transform :{parameterRefreshViewModel.FileName}");
             return JsonConvert.SerializeObject(parameterSetting);
         }
     }
