@@ -9,23 +9,12 @@ namespace EPR.Calculator.Frontend.ViewModels
     /// <summary>
     /// View model to display the local authority disposal costs.
     /// </summary>
-
     [ExcludeFromCodeCoverage]
     public record LocalAuthorityViewModel : ViewModelCommonData
     {
         public required string LastUpdatedBy { get; init; }
 
         public required List<IGrouping<string, LocalAuthorityData>>? ByCountry { get; init; }
-
-        private static string GetFormattedCreatedAt(DateTime createdAt)
-        {
-            return createdAt.ToString("dd MMM yyyy ' at 'H:mm", new System.Globalization.CultureInfo("en-GB"));
-        }
-
-        private static string GetTotalCost(decimal totalCost)
-        {
-            return totalCost == 0 ? string.Format("{0}{1:F0}", "£", totalCost) : string.Format("{0}{1:F2}", "£", totalCost);
-        }
 
         public record LocalAuthorityData
         {
@@ -50,6 +39,16 @@ namespace EPR.Calculator.Frontend.ViewModels
             public string CreatedAt { get; set; }
 
             public DateTime EffectiveFrom { get; set; }
+
+            private static string GetFormattedCreatedAt(DateTime createdAt)
+            {
+                return createdAt.ToString("dd MMM yyyy ' at 'H:mm", new System.Globalization.CultureInfo("en-GB"));
+            }
+
+            private static string GetTotalCost(decimal totalCost)
+            {
+                return totalCost == 0 ? string.Format("{0}{1:F0}", "£", totalCost) : string.Format("{0}{1:F2}", "£", totalCost);
+            }
         }
     }
 }
