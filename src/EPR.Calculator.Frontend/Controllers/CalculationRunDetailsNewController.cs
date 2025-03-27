@@ -103,17 +103,6 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
-        /// Proceed with the calculation details.
-        /// </summary>
-        /// <returns>confirmation view.</returns>
-        [Authorize(Roles = "SASuperUser")]
-        [Route("RunCalculationProceed")]
-        public async Task<IActionResult> RunCalculationProceed()
-        {
-            throw new NotImplementedException("RunCalculationProceed is not yet implemented.");
-        }
-
-        /// <summary>
         /// Asynchronously retrieves calculation details for a given run ID.
         /// </summary>
         /// <param name="runId">The ID of the calculation run to retrieve details for.</param>

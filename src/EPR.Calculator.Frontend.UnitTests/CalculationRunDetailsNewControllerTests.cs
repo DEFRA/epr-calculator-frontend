@@ -150,18 +150,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
         }
 
-        [TestMethod]
-        public async Task RunCalculationProceed_ShouldRedirectToStandardError()
-        {
-            // Act
-            var result = await _controller.RunCalculationProceed() as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
-        }
-
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
