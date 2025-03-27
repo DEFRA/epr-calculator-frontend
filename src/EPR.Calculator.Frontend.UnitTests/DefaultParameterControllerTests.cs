@@ -2,8 +2,10 @@
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +20,7 @@ namespace EPR.Calculator.Frontend.UnitTests
     public class DefaultParameterControllerTests
     {
         private static readonly string[] Separator = new string[] { @"bin\" };
-        private static readonly int TotalRecords = 11;
+        private static readonly int TotalRecords = 9;
 
         private Fixture Fixture { get; } = new Fixture();
 
@@ -58,20 +60,20 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.ControllerContext.HttpContext = mockContext.Object;
 
             var result = await controller.Index() as ViewResult;
+
+            var resultModel = result.ViewData.Model as DefaultParametersViewModel;
+
             Assert.IsNotNull(result);
-
-            Assert.AreEqual(TotalRecords, result.ViewData.Count);
-            Assert.IsNotNull(result.ViewData["CommunicationData"]);
-            Assert.IsNotNull(result.ViewData["OperatingCosts"]);
-            Assert.IsNotNull(result.ViewData["PreparationCosts"]);
-            Assert.IsNotNull(result.ViewData["SchemeSetupCosts"]);
-            Assert.IsNotNull(result.ViewData["LateReportingTonnage"]);
-            Assert.IsNotNull(result.ViewData["MaterialityThreshold"]);
-            Assert.IsNotNull(result.ViewData["BadDebtProvision"]);
-            Assert.IsNotNull(result.ViewData["CommunicationCostsByCountry"]);
-            Assert.IsNotNull(result.ViewData["TonnageChange"]);
-
-            Assert.AreEqual(true, result.ViewData["IsDataAvailable"]);
+            Assert.AreEqual(TotalRecords, resultModel.SchemeParameters.Count());
+            Assert.AreEqual(1, resultModel.SchemeParameters.Count(t => t.SchemeParameterName == ParameterType.CommunicationCostsByCountry.GetDisplayName()));
+            Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.CommunicationCostsByMaterial.GetDisplayName()));
+            Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.BadDebtProvision.GetDisplayName()));
+            Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.LateReportingTonnage.GetDisplayName()));
+            Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.LocalAuthorityDataPreparationCosts.GetDisplayName()));
+            Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.MaterialityThreshold.GetDisplayName()));
+            Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.SchemeAdministratorOperatingCosts.GetDisplayName()));
+            Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.SchemeSetupCosts.GetDisplayName()));
+            Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.TonnageChangeThreshold.GetDisplayName()));
         }
 
         [TestMethod]
@@ -109,8 +111,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
 
             var result = await controller.Index() as ViewResult;
+            var defaultParametersViewModel = result.Model as DefaultParametersViewModel;
+
             Assert.IsNotNull(result);
-            Assert.AreEqual(false, result.ViewData["IsDataAvailable"]);
+            Assert.AreEqual(false, defaultParametersViewModel.IsDataAvailable);
         }
 
         [TestMethod]
