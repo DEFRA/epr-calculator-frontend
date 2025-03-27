@@ -29,5 +29,9 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets download Timeout.
         /// </summary>
         public int? DownloadTimeout { get; set; }
+
+        public ErrorViewModel Errors { get; set; }
+
+        public string BackLink { get; set; } = "Dashboard";
     }
 }
