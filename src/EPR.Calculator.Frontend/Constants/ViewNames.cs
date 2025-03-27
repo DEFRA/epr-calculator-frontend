@@ -99,5 +99,10 @@
         /// Download file error index page view.
         /// </summary>
         public const string DownloadFileErrorIndex = "~/Views/DownloadFileError/Index.cshtml";
+
+        /// <summary>
+        /// classifying calculation run controller index page view.
+        /// </summary>
+        public const string ClassifyingCalculationRunIndex = "~/Views/ClassifyingCalculationRun/Index.cshtml";
     }
 }
