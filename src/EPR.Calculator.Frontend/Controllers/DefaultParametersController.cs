@@ -79,7 +79,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     {
                         foreach (ParameterType name in (ParameterType[])Enum.GetValues(typeof(ParameterType)))
                         {
-                            viewModel.SchemeParameters.Add(GetSchemeParametersBasedonCategory(defaultSchemeParameters, name.GetDisplayName()));
+                            viewModel.SchemeParameters.Add(GetSchemeParametersBasedonCategory(defaultSchemeParameters, name));
                         }
 
                         viewModel.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
@@ -107,14 +107,22 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private static SchemeParametersViewModel GetSchemeParametersBasedonCategory(List<DefaultSchemeParameters> defaultSchemeParameters, string type)
+        private static SchemeParametersViewModel GetSchemeParametersBasedonCategory(List<DefaultSchemeParameters> defaultSchemeParameters, ParameterType parameterType)
         {
+            var type = parameterType.GetDisplayName();
+            bool shouldDisplayPrefix = !IsExcludedFromPrefixDisplay(parameterType);
+
             return new SchemeParametersViewModel
             {
                 DefaultSchemeParameters = defaultSchemeParameters.Where(t => t.ParameterType == type).ToList(),
-                IsDisplayPrefix = !(type == nameof(ParameterType.LateReportingTonnage) || type == nameof(ParameterType.BadDebtProvision)),
+                IsDisplayPrefix = shouldDisplayPrefix,
                 SchemeParameterName = type,
             };
+        }
+
+        private static bool IsExcludedFromPrefixDisplay(ParameterType parameterType)
+        {
+            return parameterType == ParameterType.LateReportingTonnage || parameterType == ParameterType.BadDebtProvision;
         }
     }
 }
