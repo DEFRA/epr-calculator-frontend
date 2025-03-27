@@ -108,7 +108,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <returns>confirmation view.</returns>
         [Authorize(Roles = "SASuperUser")]
-        [Route("DeleteCalculationRun")]
+        [Route("RunCalculationProceed")]
         public async Task<IActionResult> RunCalculationProceed()
         {
             //throw new NotImplementedException("RunCalculationProceed is not yet implemented.");
