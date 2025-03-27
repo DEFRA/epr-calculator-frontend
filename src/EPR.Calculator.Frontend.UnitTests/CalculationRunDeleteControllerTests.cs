@@ -1,9 +1,14 @@
 ﻿using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Web;
 using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests
@@ -11,6 +16,11 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class CalculationRunDeleteControllerTests
     {
+        private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
+        private Mock<IHttpClientFactory> _mockClientFactory;
+        private Mock<ILogger<CalculationRunDeleteController>> _mockLogger;
+        private TelemetryClient _mockTelemetryClient;
+
         public CalculationRunDeleteControllerTests()
         {
             this.Fixture = new Fixture();
@@ -22,13 +32,22 @@ namespace EPR.Calculator.Frontend.UnitTests
 
         private Mock<HttpContext> MockHttpContext { get; init; }
 
+        [TestInitialize]
+        public void Setup()
+        {
+            _mockClientFactory = new Mock<IHttpClientFactory>();
+            _mockLogger = new Mock<ILogger<CalculationRunDeleteController>>();
+            _mockTelemetryClient = new TelemetryClient();
+        }
+
         [TestMethod]
         public void CalculationRunDelete_Success_View_Test()
         {
             // Arrange
             int runId = this.Fixture.Create<int>();
 
-            var controller = new CalculationRunDeleteController();
+            var controller = new CalculationRunDeleteController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, _mockTelemetryClient);
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
             // Act
