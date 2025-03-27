@@ -1,5 +1,8 @@
-﻿@{
-    var defaultError = ViewBag.DefaultError;
+﻿@using EPR.Calculator.Frontend.ViewModels;
+@model ParameterUploadViewModel;
+
+@{
+    var defaultError = Model.Errors;
 }
 
 <div class="@(@defaultError != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")">
