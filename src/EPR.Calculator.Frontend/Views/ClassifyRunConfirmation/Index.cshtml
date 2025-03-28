@@ -18,10 +18,11 @@
         @Html.AntiForgeryToken()
         <div class="govuk-form-group">
           <fieldset class="govuk-fieldset">
+            <legend></legend>
             <span class="govuk-caption-l">@Model.Data.RunName</span>
             <h1 class="govuk-heading-l">Calculation run details</h1>            
 
-            <table class="govuk-table">
+            <table class="govuk-table" aria-describedby="Calculation Details">
               <tbody class="govuk-table__body">
                 <tr class="govuk-table__row">
                   <th scope="row" class="govuk-table__header">Financial year</th>

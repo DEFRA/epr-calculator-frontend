@@ -18,8 +18,8 @@
 
         public required string RunClassificationStatus { get; set; }
 
-        public string FinancialYear { get; set; }
+        public required string FinancialYear { get; set; }
 
-        public string Classification { get; set; }
+        public string? Classification { get; set; }
     }
 }
