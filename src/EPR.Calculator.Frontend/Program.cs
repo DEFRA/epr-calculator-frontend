@@ -1,17 +1,13 @@
-﻿using Azure.Identity;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Exceptions;
 using EPR.Calculator.Frontend.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.TokenCacheProviders.Session;
 using Microsoft.Identity.Web.UI;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +35,8 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 
 builder.Services.AddValidatorsFromAssemblyContaining<CalculatorRunNameValidator>();
+
+builder.Services.AddFeatureManagement();
 
 builder.Services.AddSession(options =>
 {

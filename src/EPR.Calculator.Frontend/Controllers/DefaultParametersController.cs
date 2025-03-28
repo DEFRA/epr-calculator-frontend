@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using Azure.Core;
+using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
@@ -59,6 +61,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 client.BaseAddress = new Uri(parameterSettingsApi);
                 var accessToken = await this.AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
+
                 var year = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
 
                 var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, year));

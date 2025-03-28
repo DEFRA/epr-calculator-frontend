@@ -1,12 +1,17 @@
 @using EPR.Calculator.Frontend.Constants
 @using EPR.Calculator.Frontend.ViewModels
+@using EPR.Calculator.Frontend.Helpers
+@inject IHttpContextAccessor HttpContextAccessor
 @model DashboardViewModel
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var currentFinancialYear = CommonUtil.GetFinancialYear(DateTime.Now);
 }
 
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-three-quarters">
@@ -22,7 +27,13 @@
 
 <div class="govuk-grid-row dashboard-page">
     <div class="govuk-grid-column-full">
-        <h1 class="govuk-heading-xl">Calculate packaging payments</h1>
+        <feature name="ShowFinancialYear">
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-1">Calculate packaging payments</h1>
+            <p class="govuk-hint govuk-!-margin-top-1 govuk-!-margin-bottom-6">Set up and run packaging payment calculations, and view past runs by financial year.</p>
+        </feature>
+        <feature name="ShowFinancialYear" negate="true">
+            <h1 class="govuk-heading-xl">Calculate packaging payments</h1>
+        </feature>
         <div class="govuk-grid-row tile-group">
             <div class="govuk-grid-column-one-third tile">
                 <a href="/ViewDefaultParameters" class="govuk-link govuk-link--no-visited-state">
@@ -39,55 +50,91 @@
             <div class="govuk-grid-column-one-third tile">
                 <a href="/RunANewCalculation" class="govuk-link govuk-link--no-visited-state">
                     <span class="govuk-heading-m heading">Run the calculator</span>
-                    <span class="govuk-body more-info">Use the default parameters or upload a set of temporary parameters</span>
+                    <span class="govuk-body more-info">Use the default parameters to run the calculator</span>
                 </a>
             </div>
         </div>
 
-        <h2 class="govuk-heading-l govuk-!-margin-top-3">Calculations made in this financial year</h2>
-        @if (Model.Calculations == null)
-        {
-            <p class="govuk-body">There are no calculations for this financial year.</p>
-        }
-        else
-        {
-            <dl class="govuk-summary-list">
-                @if (Model.Calculations != null)
-                {
-                    foreach (var run in Model.Calculations)
-                    {
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
-                                    @if (run.ShowRunDetailLink)
-                                    {
-                                        <a href="/ViewCalculationRunDetails/@run.Id" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
-                                    }
-                                    else
-                                    {
-                                        @run.Name
-                                    }
-                                </h3>
-                                <p class="govuk-body">
-                                    Calculation ID: @run.Id
-                                    <br/>
-                                    Date: @run.CreatedAt
-                                    <br/>
-                                    Run by: @run.CreatedBy
-                                </p>
-                            </dt>
-                            <dd class="govuk-summary-list__actions">
-                                @if (run.Status is "RUNNING" or "ERROR")
-                                {
-                                    <strong class="@run.TagStyle">
-                                        @run.Status
-                                    </strong>
-                                }
-                            </dd>
-                        </div>
-                    }
-                }
-            </dl>
-        }
+        <div class="govuk-grid-row header-container">
+            <div class="govuk-grid-column-two-third caption-text">
+                <feature name="ShowFinancialYear">
+                    <h2 class="govuk-heading-l govuk-!-margin-top-3 govuk-!-margin-bottom-0">Calculation runs</h2>
+                    <p class="govuk-body-s">View and select a calculation run. You can also filter by financial year to find previous runs.</p>
+                </feature>
+                <feature name="ShowFinancialYear" negate="true">
+                    <h2 class="govuk-heading-l govuk-!-margin-top-3">Calculations made in this financial year</h2>
+                </feature>
+            </div>
+            <feature name="ShowFinancialYear">
+                <div class="govuk-grid-column-one-third filter-container">
+                    <div class="govuk-form-group">
+                        <label class="govuk-label" for="financial-year-list">
+                            Select a financial year
+                        </label>
+                        <select class="govuk-select" id="financial-year-list" name="financial-year-list">
+                        </select>
+                    </div>
+                </div>
+            </feature>
+        </div>
+        <div id="calculation-runs">
+            @await Html.PartialAsync("_CalculationRunsPartial", Model.Calculations)
+        </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(() => {
+
+        var financialYearListDropdown = $('#financial-year-list');
+
+        $.ajax({
+            url: '@Model.FinancialYearListApi',
+            method: 'GET',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Authorization', '@Model.AccessToken');
+            },
+            success: function (data, status, xhr) {
+                try {
+                    var financialYears = data.map(x => x.name);
+                    var sortedFinancialYears = sortFinancialYears(financialYears);
+                    $.each(sortedFinancialYears, function (index, financialYear) {
+                        var option = financialYear === '@Model.FinancialYear'
+                            ? `<option value="${financialYear}" selected>${financialYear}</option>`
+                            : `<option value="${financialYear}">${financialYear}</option>`;
+                        financialYearListDropdown.append(option);
+                    });
+                }
+                catch (error) {
+                    window.location.href = '/StandardError';
+                }
+            },
+            error: function (error) {
+                window.location.href = '/StandardError';
+            }
+        });
+
+        financialYearListDropdown.change(function () {
+            var selectedFinancialYear = $(this).val();
+            $.ajax({
+                url: '@Url.Action("GetCalculations", "Dashboard")',
+                type: 'GET',
+                data: { financialYear: selectedFinancialYear },
+                success: function (data) {
+                    $('#calculation-runs').html(data);
+                },
+                error: function (error) {
+                    console.warn(`Unable to get the calculator runs for the financial year ${selectedFinancialYear}`);
+                    window.location.href = '/StandardError';
+                }
+            });
+        });
+
+        sortFinancialYears = (financialYears) => {
+            var filteredFinancialYears = financialYears.filter(f => f !== '@currentFinancialYear');
+            filteredFinancialYears.sort().reverse();
+            filteredFinancialYears.unshift('@currentFinancialYear');
+            return filteredFinancialYears;
+        }
+    });
+</script>

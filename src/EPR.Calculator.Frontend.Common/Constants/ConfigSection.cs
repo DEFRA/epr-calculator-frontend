@@ -1,4 +1,4 @@
-﻿namespace EPR.Calculator.Frontend.Constants
+﻿namespace EPR.Calculator.Frontend.Common.Constants
 {
     /// <summary>
     /// Contains configuration section and key names used throughout the application.
@@ -15,6 +15,8 @@
         /// </summary>
         public const string DashboardCalculatorRunApi = "DashboardCalculatorRunApi";
 
+        public const string FinancialYearListApi = "FinancialYearListApi";
+
         /// <summary>
         /// The key for the calculator run API within the calculation run settings section.
         /// </summary>
@@ -27,7 +29,7 @@
 
         /// <summary>
         /// The configuration section for dashboard calculator run settings.
-        /// /// </summary>
+        /// </summary>
         public const string ParameterSettings = "ParameterSettings";
 
         /// <summary>
@@ -70,6 +72,19 @@
         /// </summary>
         public const string DownloadResultTimeoutInMilliSeconds = "DownloadResultTimeoutInMilliSeconds";
 
+        /// <summary>
+        /// The key for the down stream api section.
+        /// </summary>
         public const string DownStreamApi = "DownStreamApi";
+
+        /// <summary>
+        /// The key for the feature management section.
+        /// </summary>
+        public const string FeatureManagement = "FeatureManagement";
+
+        /// <summary>
+        /// The key for the show financial year section.
+        /// </summary>
+        public const string ShowFinancialYear = "ShowFinancialYear";
     }
 }
