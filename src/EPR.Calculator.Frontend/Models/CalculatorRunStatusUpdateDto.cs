@@ -11,5 +11,9 @@
         public string? CreatedDate { get; set; }
 
         public string? CreatedTime { get; set; }
+
+        public string? Classification { get; set; }
+
+        public string? FinancialYear { get; set; }
     }
 }
