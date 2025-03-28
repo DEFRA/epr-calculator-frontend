@@ -43,7 +43,7 @@
                             <div class="govuk-radios" data-module="govuk-radios">
 
                                 <div class="govuk-radios__item">
-                                    @Html.RadioButton("calcRun", "outputInitialRun", new { @class = "govuk-radios__input", id = "initialRun" })
+                                    @Html.RadioButton("calcRun", "outputInitialRun", new { @class = "govuk-radios__input", id = "interimRecalculationRun" })
                                     <label class="govuk-label govuk-radios__label" for="initialRun">
                                         <strong>Interim recalculation run</strong><br>
                                         <p class="govuk-body-s" style="margin-bottom: 0;">An official, optional run that can happen any time after the initial run, including after final runs. It can be run multiple times and generate a billing file. It can be used to process late or updated producer data.</p>
@@ -51,7 +51,7 @@
                                 </div>
 
                                 <div class="govuk-radios__item">
-                                    @Html.RadioButton("calcRun", "outputTestRun", new { @class = "govuk-radios__input", id = "interimRecalculationRun" })
+                                    @Html.RadioButton("calcRun", "outputTestRun", new { @class = "govuk-radios__input", id = "finalRecalculationRun" })
                                     <label class="govuk-label govuk-radios__label" for="interimRecalculationRun">
                                         <strong>Final recalculation run</strong><br>
                                         <p class="govuk-body-s" style="margin-bottom: 0;">An official, optional run using corrected data. It can produce a billing file for invoicing and is expected to be the last recalculation.</p>
