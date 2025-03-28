@@ -26,6 +26,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="configuration">The configuration settings.</param>
         /// <param name="clientFactory">The HTTP client factory.</param>
         /// <param name="logger">The logger instance.</param>
+        /// <param name="tokenAcquisition">token acquisition.</param>
+        /// <param name="telemetryClient">telemetry client.</param>
         public ClassifyingCalculationRunController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyingCalculationRunController> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
             : base(configuration, tokenAcquisition, telemetryClient)
         {
