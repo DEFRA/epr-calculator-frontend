@@ -48,9 +48,12 @@ builder.Services.AddSession(options =>
     options.Cookie.Name = builder.Configuration.GetValue<string>("SessionCookieName");
 });
 
-builder.Services.AddDataProtection()
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDataProtection()
     .PersistKeysToAzureBlobStorage(builder.Configuration.GetSection("BlobStorage:ConnectionString").Value, SessionConstants.Paycal, SessionConstants.PaycalDataProtection)
     .SetApplicationName(SessionConstants.PaycalAppName);
+}
 
 builder.Services.AddHttpClient();
 
