@@ -1,7 +1,10 @@
-﻿@{
+﻿@using EPR.Calculator.Frontend.ViewModels;
+@model ParameterRefreshViewModel;
+@{
     Layout = "_Layout";
 
-    var schemeParameterValues = Json.Serialize(ViewData["schemeTemplateParameterValues"]);
+    var schemeParameterValues = Json.Serialize(Model);
+
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>

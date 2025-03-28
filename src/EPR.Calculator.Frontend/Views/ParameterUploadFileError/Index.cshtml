@@ -1,12 +1,12 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels;
-@model ViewModelCommonData;
+@model ParameterUploadViewModel;
 
 @{
     ViewData["Title"] = "Run the service administrator calculator - Upload CSV Error";
-    var validationErrors = ViewBag.ValidationErrors;
-    var errors = ViewBag.Errors;
+    var validationErrors = Model.ValidationErrors;
+    var errors = Model.ParamterErrors;
     var BackLink = "ParameterUploadFile";
-    var defaultError = ViewBag.DefaultError;
+    var defaultError = Model.Errors;
 }
 
 <partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
@@ -42,7 +42,7 @@
 
             @using (Html.BeginForm("Upload", "ParameterUploadFileError", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
-                <partial name="_UploadFileButtonPartial" />
+                <partial name="_ParameterUploadFileButtonPartial" />
             }
         </div>
     </div>
