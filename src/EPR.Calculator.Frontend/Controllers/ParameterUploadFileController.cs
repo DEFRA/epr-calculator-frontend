@@ -48,6 +48,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 using var stream = System.IO.File.OpenRead(filePath);
                 var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
+
                 return await this.ProcessUploadAsync(fileUpload);
             }
             catch (Exception)
@@ -85,37 +86,13 @@ namespace EPR.Calculator.Frontend.Controllers
                 else
                 {
                     var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
-                    return this.View(viewName, new ParameterRefreshViewModel { ParameterTemplateValue = schemeTemplateParameterValues });
+                    return this.View(viewName, new ParameterRefreshViewModel { ParameterTemplateValue = schemeTemplateParameterValues, FileName = fileUpload.FileName });
                 }
             }
             catch (Exception)
             {
                 return this.RedirectToErrorPage;
             }
-        }
-
-        private ErrorViewModel ValidateCSV(IFormFile fileUpload)
-        {
-            ErrorViewModel validationErrors = CsvFileHelper.ValidateCSV(fileUpload);
-
-            if (validationErrors.ErrorMessage != null)
-            {
-                this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors] = JsonConvert.SerializeObject(validationErrors);
-            }
-
-            return validationErrors;
-        }
-
-        private string GetViewName(IFormFile fileUpload)
-        {
-            if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
-            {
-                return ViewNames.ParameterUploadFileIndex;
-            }
-
-            this.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUpload.FileName);
-
-            return ViewNames.ParameterUploadFileRefresh;
         }
 
         private ParameterUploadViewModel CreateParameterUploadViewModel()
@@ -131,6 +108,28 @@ namespace EPR.Calculator.Frontend.Controllers
 
             this.ModelState.Clear();
             return new ParameterUploadViewModel { Errors = errors };
+        }
+
+        private string GetViewName(IFormFile fileUpload)
+        {
+            if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
+            {
+                return ViewNames.ParameterUploadFileIndex;
+            }
+
+            return ViewNames.ParameterUploadFileRefresh;
+        }
+
+        private ErrorViewModel ValidateCSV(IFormFile fileUpload)
+        {
+            ErrorViewModel validationErrors = CsvFileHelper.ValidateCSV(fileUpload);
+
+            if (validationErrors.ErrorMessage != null)
+            {
+                this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors] = JsonConvert.SerializeObject(validationErrors);
+            }
+
+            return validationErrors;
         }
     }
 }

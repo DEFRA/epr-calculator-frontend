@@ -33,6 +33,7 @@
             TestClass = new LapcapRefreshViewModel
             {
                 LapcapTemplateValue = testValue,
+                FileName = Fixture.Create<string>(),
             };
 
             // Assert
@@ -46,6 +47,7 @@
             var same = new LapcapRefreshViewModel
             {
                 LapcapTemplateValue = TestClass.LapcapTemplateValue,
+                FileName = TestClass.FileName
             };
             var different = Fixture.Create<LapcapRefreshViewModel>();
 

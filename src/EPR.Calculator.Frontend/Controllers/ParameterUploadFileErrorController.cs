@@ -87,9 +87,8 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
-            this.HttpContext.Session.SetString(SessionConstants.ParameterFileName, fileUpload.FileName);
 
-            return this.View(ViewNames.ParameterUploadFileRefresh, new ParameterRefreshViewModel { ParameterTemplateValue = schemeTemplateParameterValues });
+            return this.View(ViewNames.ParameterUploadFileRefresh, new ParameterRefreshViewModel { ParameterTemplateValue = schemeTemplateParameterValues, FileName = fileUpload.FileName });
         }
     }
 }
