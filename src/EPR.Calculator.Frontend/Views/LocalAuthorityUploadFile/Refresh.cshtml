@@ -1,7 +1,9 @@
-﻿@{
+﻿@using EPR.Calculator.Frontend.ViewModels;
+@model LapcapRefreshViewModel;
+@{
     Layout = "_Layout";
 
-    var localAuthorityDisposalCosts = Json.Serialize(ViewData["localAuthorityDisposalCosts"]);
+    var localAuthorityDisposalCosts = Json.Serialize(Model);
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>

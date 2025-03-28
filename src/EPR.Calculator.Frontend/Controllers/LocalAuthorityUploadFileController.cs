@@ -11,35 +11,24 @@ namespace EPR.Calculator.Frontend.Controllers
     [Authorize(Roles = "SASuperUser")]
     public class LocalAuthorityUploadFileController : Controller
     {
+        private IActionResult RedirectToErrorPage => this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+
         [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             return this.View(
                 ViewNames.LocalAuthorityUploadFileIndex,
-                new ViewModelCommonData
+                new LapcapUploadViewModel
                 {
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 });
         }
 
-        [HttpPost]
         [Authorize(Roles = "SASuperUser")]
+        [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
-            try
-            {
-                var lapcapViewName = await this.GetViewName(fileUpload);
-                return this.View(
-                    lapcapViewName,
-                    new ViewModelCommonData
-                    {
-                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    });
-            }
-            catch (Exception)
-            {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
-            }
+            return await this.ProcessUploadAsync(fileUpload);
         }
 
         [Authorize(Roles = "SASuperUser")]
@@ -47,51 +36,43 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var lapcapFilePath = this.TempData["LapcapFilePath"]?.ToString();
-
-                if (!string.IsNullOrEmpty(lapcapFilePath))
+                var filePath = this.TempData["LapcapFilePath"]?.ToString();
+                if (string.IsNullOrEmpty(filePath))
                 {
-                    using var stream = System.IO.File.OpenRead(lapcapFilePath);
-                    var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
-
-                    var viewName = await this.GetViewName(fileUpload);
-                    this.ModelState.Clear();
-                    return this.View(viewName);
+                    return this.RedirectToErrorPage;
                 }
 
-                // Code will reach this point if the uploaded file is not available
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                using var stream = System.IO.File.OpenRead(filePath);
+                var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
+                return await this.ProcessUploadAsync(fileUpload);
             }
             catch (Exception)
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToErrorPage;
             }
         }
 
-        private async Task<string> GetViewName(IFormFile fileUpload)
+        private async Task<IActionResult> ProcessUploadAsync(IFormFile fileUpload)
         {
-            if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
+            try
             {
-                var uploadErrors = this.TempData[UploadFileErrorIds.LocalAuthorityUploadErrors]?.ToString();
-                if (!string.IsNullOrEmpty(uploadErrors))
+                var viewName = this.GetViewName(fileUpload);
+                this.ModelState.Clear();
+                if (viewName == ViewNames.LocalAuthorityUploadFileIndex)
                 {
-                    var localAuthorityUploadErrors = JsonConvert.DeserializeObject<ErrorViewModel>(uploadErrors);
-                    if (localAuthorityUploadErrors != null)
-                    {
-                        localAuthorityUploadErrors.DOMElementId = ViewControlNames.FileUpload;
-                    }
-
-                    this.ViewBag.Errors = localAuthorityUploadErrors;
-                    return ViewNames.LocalAuthorityUploadFileIndex;
+                    var viewModel = this.CreateLapcapUploadViewModel();
+                    return this.View(viewName, viewModel);
+                }
+                else
+                {
+                    var localAuthorityDisposalCosts = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
+                    return this.View(viewName, new LapcapRefreshViewModel { LapcapTemplateValue = localAuthorityDisposalCosts, FileName = fileUpload.FileName });
                 }
             }
-
-            var localAuthorityDisposalCosts = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
-
-            this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCosts.ToArray();
-            this.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUpload.FileName);
-
-            return ViewNames.LocalAuthorityUploadFileRefresh;
+            catch (Exception)
+            {
+                return this.RedirectToErrorPage;
+            }
         }
 
         private ErrorViewModel ValidateCSV(IFormFile fileUpload)
@@ -104,6 +85,30 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return validationErrors;
+        }
+
+        private string GetViewName(IFormFile fileUpload)
+        {
+            if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
+            {
+                return ViewNames.LocalAuthorityUploadFileIndex;
+            }
+
+            return ViewNames.LocalAuthorityUploadFileRefresh;
+        }
+
+        private LapcapUploadViewModel CreateLapcapUploadViewModel()
+        {
+            var errors = this.TempData[UploadFileErrorIds.LocalAuthorityUploadErrors] != null
+                ? JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData[UploadFileErrorIds.LocalAuthorityUploadErrors]?.ToString())
+                : null;
+
+            if (errors != null)
+            {
+                errors.DOMElementId = ViewControlNames.FileUpload;
+            }
+
+            return new LapcapUploadViewModel { Errors = errors };
         }
     }
 }
