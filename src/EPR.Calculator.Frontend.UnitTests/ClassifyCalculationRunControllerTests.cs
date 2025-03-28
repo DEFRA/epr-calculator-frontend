@@ -1,25 +1,16 @@
 ﻿using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
-using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Web;
 using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
-    internal class ClassifyCalculationRunControllerTests
+    [TestClass]
+    public class ClassifyCalculationRunControllerTests
     {
-        private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
-        private Mock<IHttpClientFactory> _mockClientFactory;
-        private Mock<ILogger<ClassifyCalculationRunController>> _mockLogger;
-        private TelemetryClient _mockTelemetryClient;
-
         public ClassifyCalculationRunControllerTests()
         {
             this.Fixture = new Fixture();
@@ -27,34 +18,43 @@ namespace EPR.Calculator.Frontend.UnitTests
             this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
         }
 
-        private Fixture Fixture { get; init; }
+        private Fixture Fixture { get; } = new Fixture();
 
         private Mock<HttpContext> MockHttpContext { get; init; }
 
-        [TestInitialize]
-        public void Setup()
+        [TestMethod]
+        public void Index_ReturnsView_WithClassifyCalculationView()
         {
-            _mockClientFactory = new Mock<IHttpClientFactory>();
-            _mockLogger = new Mock<ILogger<ClassifyCalculationRunController>>();
-            _mockTelemetryClient = new TelemetryClient();
+                var controller = new ClassifyCalculationRunController();
+                controller.ControllerContext = new ControllerContext { HttpContext = MockHttpContext.Object };
+                var result = controller.Index() as ViewResult;
+                Assert.IsNotNull(result);
+                Assert.AreEqual(ViewNames.CalculationRunClassification, result.ViewName);
         }
 
         [TestMethod]
-        public void ClassifyCalculationRun_Success_View_Test()
+        public void Index_ReturnsViewResult_WithClassifyCalculationViewModel()
         {
             // Arrange
+            var expectedViewName = ViewNames.CalculationRunClassification;
+            var expectedViewModel = new ClassifyCalculationViewModel("Calculation run 99", "2024-25", 240008, true, "1 December 2024 at 12:09");
 
-            var controller = new ClassifyCalculationRunController(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, _mockTelemetryClient);
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            var controller = new ClassifyCalculationRunController();
+            controller.ControllerContext = new ControllerContext { HttpContext = MockHttpContext.Object };
 
             // Act
             var result = controller.Index() as ViewResult;
 
             // Assert
-            var resultModel = result.Model as ClassifyCalculationViewModel;
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunClassification, result.ViewName);
+            Assert.AreEqual(expectedViewName, result.ViewName);
+            var model = result.Model as ClassifyCalculationViewModel;
+            Assert.IsNotNull(model);
+            Assert.AreEqual(expectedViewModel.CalcName, model.CalcName);
+            Assert.AreEqual(expectedViewModel.FinancialYear, model.FinancialYear);
+            Assert.AreEqual(expectedViewModel.CalculationId, model.CalculationId);
+            Assert.AreEqual(expectedViewModel.ClassificationType, model.ClassificationType);
+            Assert.AreEqual(expectedViewModel.RunDate, model.RunDate);
         }
     }
 }
