@@ -32,7 +32,6 @@ namespace EPR.Calculator.Frontend.Controllers
             this.logger = logger;
         }
 
-
         [HttpGet]
         [Route("accept-invoice-instructions")]
         public IActionResult AcceptInvoiceInstructions()
@@ -40,7 +39,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var model = new AcceptInvoiceInstructionsViewModel
             {
                 AcceptAll = false,
-                ReturnUrl = this.Url.Action("Overview", "PaymentCalculator") ?? "/", //dummy return url
+                ReturnUrl = this.Url.Action("Overview", "PaymentCalculator") ?? "/", // dummy return url
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 CalculationRunTitle = "Calculation run 99"
             };
@@ -54,8 +53,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (model.AcceptAll)
             {
-
-                return this.RedirectToAction("Overview"); //dummy return url
+                return this.RedirectToAction("Overview"); // dummy return url
             }
 
             this.ModelState.AddModelError("AcceptAll", "You must confirm acceptance to proceed.");
