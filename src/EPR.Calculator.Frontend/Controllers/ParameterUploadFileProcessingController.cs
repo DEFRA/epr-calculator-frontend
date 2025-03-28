@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
+        private readonly TelemetryClient _telemetryClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ParameterUploadFileProcessingController"/> class.
@@ -27,26 +29,26 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;
+            this._telemetryClient = telemetryClient;
         }
 
         public string? FileName { get; set; }
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
-        public async Task<IActionResult> Index([FromBody] List<SchemeParameterTemplateValue> schemeParameterValues)
+        public async Task<IActionResult> Index([FromBody] ParameterRefreshViewModel parameterRefreshViewModel)
         {
             try
             {
                 var parameterSettingsApi = this.GetParameterSettingsApi();
-
-                this.FileName = this.HttpContext.Session.GetString(SessionConstants.ParameterFileName);
-
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(parameterSettingsApi);
                 var accessToken = await this.AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
-                var payload = this.Transform(schemeParameterValues);
+                this._telemetryClient.TrackTrace($"1.Parameter File Name before Transform :{parameterRefreshViewModel.FileName}");
+
+                var payload = this.Transform(parameterRefreshViewModel);
 
                 var content = new StringContent(payload, System.Text.Encoding.UTF8, StaticHelpers.MediaType);
 
@@ -62,6 +64,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.Ok(response.Result);
                 }
 
+                this._telemetryClient.TrackTrace($"2.File name before BadRequest :{parameterRefreshViewModel.FileName}");
+                this._telemetryClient.TrackTrace($"3.Reason for BadRequest :{response.Result.Content.ReadAsStringAsync().Result}");
                 return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
             }
             catch (Exception)
@@ -82,7 +86,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return parameterSettingsApi;
         }
 
-        private string Transform(List<SchemeParameterTemplateValue> schemeParameterValues)
+        private string Transform(ParameterRefreshViewModel parameterRefreshViewModel)
         {
             var parameterYear = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value;
             if (string.IsNullOrWhiteSpace(parameterYear))
@@ -93,10 +97,11 @@ namespace EPR.Calculator.Frontend.Controllers
             var parameterSetting = new CreateDefaultParameterSettingDto
             {
                 ParameterYear = parameterYear,
-                SchemeParameterTemplateValues = schemeParameterValues,
-                ParameterFileName = this.FileName,
+                SchemeParameterTemplateValues = parameterRefreshViewModel.ParameterTemplateValue,
+                ParameterFileName = parameterRefreshViewModel.FileName,
             };
 
+            this._telemetryClient.TrackTrace($"4.File Name in Transform :{parameterRefreshViewModel.FileName}");
             return JsonConvert.SerializeObject(parameterSetting);
         }
     }
