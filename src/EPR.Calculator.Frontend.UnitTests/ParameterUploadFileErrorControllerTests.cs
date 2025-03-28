@@ -187,6 +187,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 HttpContext = mockHttpContext.Object
             };
+            var mockHttpSession = new MockHttpSession();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Session = mockHttpSession;
 
             var result = await controller.Upload(file) as ViewResult;
             Assert.IsNotNull(result);

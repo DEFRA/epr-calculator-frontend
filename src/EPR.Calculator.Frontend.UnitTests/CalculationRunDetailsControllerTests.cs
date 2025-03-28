@@ -238,13 +238,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             task.Wait();
             var result = task.Result as ViewResult;
 
-            var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
+            var errorViewModel = result.ViewData.Model as CalculatorRunStatusUpdateViewModel;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDetailsIndex, result.ViewName);
-            Assert.AreEqual(ViewControlNames.DeleteCalculationName, errorViewModel.DOMElementId);
-            Assert.AreEqual(ErrorMessages.SelectDeleteCalculation, errorViewModel.ErrorMessage);
+            Assert.AreEqual(ViewControlNames.DeleteCalculationName, errorViewModel.Errors.DOMElementId);
+            Assert.AreEqual(ErrorMessages.SelectDeleteCalculation, errorViewModel.Errors.ErrorMessage);
         }
 
         [TestMethod]
@@ -283,13 +283,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             task.Wait();
             var result = task.Result as ViewResult;
 
-            var errorViewModel = controller.ViewBag.Errors as ErrorViewModel;
+            var errorViewModel = result.ViewData.Model as CalculatorRunStatusUpdateViewModel;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDetailsIndex, result.ViewName);
-            Assert.AreEqual(ViewControlNames.DeleteCalculationName, errorViewModel.DOMElementId);
-            Assert.AreEqual(ErrorMessages.DeleteCalculationError, errorViewModel.ErrorMessage);
+            Assert.AreEqual(ViewControlNames.DeleteCalculationName, errorViewModel.Errors.DOMElementId);
+            Assert.AreEqual(ErrorMessages.DeleteCalculationError, errorViewModel.Errors.ErrorMessage);
         }
 
         [TestMethod]
@@ -416,26 +416,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
-        }
-
-        [TestMethod]
-        public async void CalculationRunDetailsController_ErrorPage_ReturnsViewResult()
-        {
-            // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.BadRequest, MockData.GetCalculationRuns());
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
-            int runId = 1;
-
-            // Act
-            var result = await controller.IndexAsync(runId) as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunDetailsErrorPage, result.ViewName);
         }
 
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)

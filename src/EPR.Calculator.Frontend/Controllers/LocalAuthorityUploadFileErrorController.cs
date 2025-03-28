@@ -22,32 +22,34 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors);
 
+                    var lapcapUploadViewModel = new LapcapUploadViewModel()
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    };
+
                     if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
                     {
-                        this.ViewBag.ValidationErrors = validationErrors;
+                        lapcapUploadViewModel.ValidationErrors = validationErrors;
                     }
                     else
                     {
-                        this.ViewBag.Errors = JsonConvert.DeserializeObject<List<CreateLapcapDataErrorDto>>(lapcapErrors);
+                        lapcapUploadViewModel.LapcapErrors = JsonConvert.DeserializeObject<List<CreateLapcapDataErrorDto>>(lapcapErrors);
                     }
 
-                    if (this.ViewBag.ValidationErrors is null && this.ViewBag.Errors is not null)
+                    if (lapcapUploadViewModel.ValidationErrors is null && lapcapUploadViewModel.LapcapErrors is not null)
                     {
-                        this.ViewBag.ValidationErrors = new List<ValidationErrorDto>()
-                        {
+                        lapcapUploadViewModel.ValidationErrors =
+                        [
                             new ValidationErrorDto()
                             {
-                                ErrorMessage = this.ViewBag.Errors.Count > 1 ? $"The file contained {this.ViewBag.Errors.Count} errors." : $"The file contained {this.ViewBag.Errors.Count} error.",
+                                ErrorMessage = lapcapUploadViewModel.LapcapErrors.Count > 1 ? $"The file contained {lapcapUploadViewModel.LapcapErrors.Count} errors." : $"The file contained {lapcapUploadViewModel.LapcapErrors.Count} error.",
                             },
-                        };
+                        ];
                     }
 
                     return this.View(
                         ViewNames.LocalAuthorityUploadFileErrorIndex,
-                        new ViewModelCommonData
-                        {
-                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                        });
+                        lapcapUploadViewModel);
                 }
                 else
                 {
@@ -74,28 +76,22 @@ namespace EPR.Calculator.Frontend.Controllers
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             var lapcapFileErrors = CsvFileHelper.ValidateCSV(fileUpload);
+            var lapcapUploadViewModel = new LapcapUploadViewModel
+            {
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+            };
+
             if (lapcapFileErrors.ErrorMessage is not null)
             {
-                this.ViewBag.DefaultError = lapcapFileErrors;
+                lapcapUploadViewModel.Errors = lapcapFileErrors;
                 return this.View(
                     ViewNames.LocalAuthorityUploadFileErrorIndex,
-                    new ViewModelCommonData
-                    {
-                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    });
+                    lapcapUploadViewModel);
             }
 
             var localAuthorityDisposalCostsValues = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
 
-            this.ViewData["localAuthorityDisposalCosts"] = localAuthorityDisposalCostsValues.ToArray();
-            this.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUpload.FileName);
-
-            return this.View(
-                ViewNames.LocalAuthorityUploadFileRefresh,
-                new ViewModelCommonData
-                {
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                });
+            return this.View(ViewNames.LocalAuthorityUploadFileRefresh, new LapcapRefreshViewModel { LapcapTemplateValue = localAuthorityDisposalCostsValues, FileName = fileUpload.FileName });
         }
     }
 }
