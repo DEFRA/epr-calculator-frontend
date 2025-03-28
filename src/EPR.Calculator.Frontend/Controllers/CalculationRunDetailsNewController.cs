@@ -64,6 +64,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     _logger.LogError("Request failed with status code {StatusCode}", response.StatusCode);
                     return RedirectToErrorPage();
                 }
+
                 var calculatorRun = await DeserializeResponseAsync(response);
                 if (calculatorRun == null)
                 {
