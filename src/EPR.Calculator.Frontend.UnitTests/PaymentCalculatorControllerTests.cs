@@ -4,7 +4,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EPR.Calculator.UnitTests.Controllers
+namespace EPR.Calculator.Frontend.UnitTests
 {
     [TestClass]
     public class PaymentCalculatorControllerTests

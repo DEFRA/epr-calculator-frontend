@@ -23,6 +23,7 @@
 
         @using (Html.BeginForm("AcceptInvoiceInstructions", "PaymentCalculator", FormMethod.Post))
         {
+            @Html.AntiForgeryToken()
             @Html.HiddenFor(m => m.ReturnUrl)
             @Html.HiddenFor(m => m.CalculationRunTitle)
             @Html.HiddenFor(m => m.CurrentUser)

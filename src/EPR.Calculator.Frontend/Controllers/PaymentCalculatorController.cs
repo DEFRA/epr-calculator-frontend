@@ -28,6 +28,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [Route("accept-invoice-instructions")]
+        [ValidateAntiForgeryToken]
         public IActionResult AcceptInvoiceInstructions(AcceptInvoiceInstructionsViewModel model)
         {
             if (model.AcceptAll)
