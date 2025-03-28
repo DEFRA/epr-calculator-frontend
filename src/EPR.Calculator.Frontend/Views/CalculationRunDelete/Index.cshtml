@@ -1,0 +1,34 @@
+﻿@using EPR.Calculator.Frontend.ViewModels
+@using EPR.Calculator.Frontend.Constants
+
+@model CalculationRunDeleteViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var BackLink = "Dashboard";
+}
+<main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+    <partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <span class="govuk-caption-xl">@Html.LabelFor(x => x.Data.CalcName) </span><br>
+            <h1 class="govuk-heading-xl">Are you sure you want to delete this calculation run?</h1>
+            <br>
+            <label class="govuk-label">
+                Only delete this calculation run if you no longer need it or have completed another successful run.
+            </label>
+            <br>
+            @using (Html.BeginForm("Delete-Confirmation", "CalculationRunDelete", FormMethod.Post))
+            {
+                <div class="govuk-button-group">
+                    <button id="btnDelete" type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">
+                        @ActionLinkLabels.DeleteRun
+                    </button>                    
+                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
+                </div>                
+                @Html.Hidden("RunId", Model.Data.RunId)
+                @Html.AntiForgeryToken()
+            }
+        </div>
+    </div>
+</main>

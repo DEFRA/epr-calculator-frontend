@@ -99,5 +99,15 @@
         /// Download file error index page view.
         /// </summary>
         public const string DownloadFileErrorIndex = "~/Views/DownloadFileError/Index.cshtml";
+
+        /// <summary>
+        /// Calculator run delete confirmation page view.
+        /// </summary>
+        public const string CalculationRunDeleteIndex = "~/Views/CalculationRunDelete/Index.cshtml";
+
+        /// <summary>
+        /// Calculator run delete confirmation success page view.
+        /// </summary>
+        public const string CalculationRunDeleteConfirmationSuccess = "~/Views/CalculationRunDelete/ConfirmationSuccess.cshtml";
     }
 }
