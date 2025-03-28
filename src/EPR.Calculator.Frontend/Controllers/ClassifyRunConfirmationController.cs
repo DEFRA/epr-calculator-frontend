@@ -1,4 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -58,6 +59,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 var calculatorRun = JsonConvert.DeserializeObject<CalculatorRunDto>(getCalculationDetailsResponse.Content.ReadAsStringAsync().Result);
+
+                if (calculatorRun == null)
+                {
+                    throw new ArgumentNullException($"Calculator with run id {runId} not found");
+                }
+
                 var statusUpdateViewModel = new ClassifyRunConfirmationViewModel
                 {
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
@@ -94,7 +101,6 @@ namespace EPR.Calculator.Frontend.Controllers
             var client = this.CreateHttpClient();
             var apiUrl = client.BaseAddress!.ToString();
             var accessToken = await this.AcquireToken();
-
             client.DefaultRequestHeaders.Add("Authorization", accessToken);
             var requestUri = new Uri($"{apiUrl}/{runId}", UriKind.Absolute);
             return await client.GetAsync(requestUri);
@@ -107,8 +113,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
         private HttpClient CreateHttpClient()
         {
-            var apiUrl = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetValue<string>(ConfigSection.DashboardCalculatorRunApi)!;
-
+            var apiUrl = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                .GetValue<string>(ConfigSection.DashboardCalculatorRunApi);
             var client = this.clientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);
             return client;
