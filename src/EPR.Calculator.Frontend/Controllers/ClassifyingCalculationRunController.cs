@@ -59,10 +59,14 @@ namespace EPR.Calculator.Frontend.Controllers
                         CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
 
-                var calculatorRun = JsonConvert.DeserializeObject<CalculatorRunDto>(getCalculationDetailsResponse.Content.ReadAsStringAsync().Result)
-                                    ?? throw new ArgumentNullException($"Calculator with run id {runId} not found");
+                var calculatorRun = JsonConvert.DeserializeObject<CalculatorRunDto>(getCalculationDetailsResponse.Content.ReadAsStringAsync().Result);
 
-                if (calculatorRun != null && !this.IsRunEligibleForDisplay(calculatorRun))
+                if (calculatorRun == null)
+                {
+                    throw new ArgumentNullException($"Calculator with run id {runId} not found");
+                }
+
+                if (!this.IsRunEligibleForDisplay(calculatorRun))
                 {
                     return this.View(ViewNames.ClassifyingCalculationRunErrorPage, new ViewModelCommonData
                     {
@@ -126,11 +130,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
         {
-            if (calculatorRun == null)
-            {
-                return false;
-            }
-
             if (calculatorRun.RunClassificationId == (int)RunClassification.UNCLASSIFIED)
             {
                 return true;
