@@ -48,7 +48,7 @@ resources:
     - repository: CommonTemplates
       name: RWD-CPR-EPR4P-ADO/epr-webapps-code-deploy-templates
       type: git
-      ref: main
+      ref: feature/gitleaks-hardfail-github
 
 extends:
   template: epr-build-pipeline.yaml@CommonTemplates
