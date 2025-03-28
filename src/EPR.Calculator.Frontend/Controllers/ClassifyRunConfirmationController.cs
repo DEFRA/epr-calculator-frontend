@@ -16,7 +16,6 @@ namespace EPR.Calculator.Frontend.Controllers
     [Authorize(Roles = "SASuperUser")]
     public class ClassifyRunConfirmationController : BaseController
     {
-
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
         private readonly ILogger<ClassifyRunConfirmationController> logger;
@@ -70,8 +69,8 @@ namespace EPR.Calculator.Frontend.Controllers
                         CreatedAt = calculatorRun.CreatedAt,
                         FileExtension = calculatorRun.FileExtension,
                         RunClassificationStatus = calculatorRun.RunClassificationStatus,
-                        FinancialYear = "2024-25", //calculatorRun.FinancialYear
-                        Classification = "Initial run", //calculatorRun.FinancialYear
+                        FinancialYear = "2024-25", // calculatorRun.FinancialYear
+                        Classification = "Initial run", // calculatorRun.FinancialYear
                     },
                 };
 
