@@ -1,9 +1,8 @@
-﻿using EPR.Calculator.Frontend.Controllers;
+﻿using System.Security.Claims;
+using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Security.Claims;
 
 namespace EPR.Calculator.UnitTests.Controllers
 {
