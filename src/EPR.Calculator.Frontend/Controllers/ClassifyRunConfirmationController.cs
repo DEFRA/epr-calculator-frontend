@@ -62,13 +62,14 @@ namespace EPR.Calculator.Frontend.Controllers
                 var statusUpdateViewModel = new ClassifyRunConfirmationViewModel
                 {
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    Data = new CalculatorRunStatusUpdateDto
+                    Data = new CalculatorRunDto
                     {
                         RunId = runId,
-                        ClassificationId = calculatorRun!.RunClassificationId,
-                        CalcName = calculatorRun.RunName,
-                        CreatedDate = calculatorRun.CreatedAt.ToString("dd MMM yyyy"),
-                        CreatedTime = calculatorRun.CreatedAt.ToString("HH:mm"),
+                        RunClassificationId = calculatorRun!.RunClassificationId,
+                        RunName = calculatorRun.RunName,
+                        CreatedAt = calculatorRun.CreatedAt,
+                        FileExtension = calculatorRun.FileExtension,
+                        RunClassificationStatus = calculatorRun.RunClassificationStatus,
                         FinancialYear = "2024-25", //calculatorRun.FinancialYear
                         Classification = "Initial run", //calculatorRun.FinancialYear
                     },

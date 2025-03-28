@@ -13,7 +13,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets the data for the run status update.
         /// </summary>
-        public required CalculatorRunStatusUpdateDto Data { get; init; }
+        public required CalculatorRunDto Data { get; init; }
 
         /// <summary>
         /// Gets or sets download result URL.

@@ -15,9 +15,10 @@
 
       @using (Html.BeginForm("Index", "ClassifyRunAffirm", FormMethod.Post))
       {
+        @Html.AntiForgeryToken()
         <div class="govuk-form-group">
-          <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
-            <span class="govuk-caption-l">@Model.Data.CalcName</span>
+          <fieldset class="govuk-fieldset">
+            <span class="govuk-caption-l">@Model.Data.RunName</span>
             <h1 class="govuk-heading-l">Calculation run details</h1>            
 
             <table class="govuk-table">
@@ -36,7 +37,7 @@
                 </tr>
                 <tr class="govuk-table__row">
                   <th scope="row" class="govuk-table__header">Run date and time</th>
-                  <td class="govuk-table__cell">@Model.Data.CreatedDate at @Model.Data.CreatedTime</td>
+                  <td class="govuk-table__cell">@Model.Data.CreatedAt.ToString("dd MMM yyyy") at @Model.Data.CreatedAt.ToString("HH:mm")</td>
                 </tr>
               </tbody>
             </table>
@@ -50,9 +51,8 @@
             </button>
 
             <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-            <h2 class="govuk-heading-m">Next?</h2>
-            <p class="govuk-body">Accept all invoice instructions contained in the results file.</p>
-            
+            <h2 class="govuk-heading-m">Next step</h2>
+            <p class="govuk-body">Accept all invoice instructions contained in the results file.</p>            
           </fieldset>
         </div>
 
