@@ -11,9 +11,5 @@
         public string? CreatedDate { get; set; }
 
         public string? CreatedTime { get; set; }
-
-        public string? CreatedBy { get; set; }
-
-        public string? FinancialYear { get; set; }
     }
 }
