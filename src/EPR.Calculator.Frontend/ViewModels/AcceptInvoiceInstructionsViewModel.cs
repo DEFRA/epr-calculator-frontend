@@ -1,8 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace EPR.Calculator.Frontend.ViewModels
+﻿namespace EPR.Calculator.Frontend.ViewModels
 {
-    [ExcludeFromCodeCoverage]
     public record AcceptInvoiceInstructionsViewModel : ViewModelCommonData
     {
         public string CalculationRunTitle { get; set; } = string.Empty;
