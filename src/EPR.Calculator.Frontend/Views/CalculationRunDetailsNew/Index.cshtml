@@ -1,7 +1,7 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
-@model CalculatorRunDetailsViewModel
+@model CalculatorRunDetailsNewViewModel
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -35,11 +35,11 @@
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                    <td class="govuk-table__cell">@Model.Data.ClassificationId</td>
+                                    <td class="govuk-table__cell">@Model.Data.RunClassificationId</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@Model.Data.CreatedDate at @Model.Data.CreatedTime</td>
+                                    <td class="govuk-table__cell">@Model.Data.CreatedAt.ToString("dd MMM yyyy") at @Model.Data.CreatedAt.ToString("HH:mm")</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run by</th>

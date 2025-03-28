@@ -97,7 +97,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(viewResult);
             Assert.AreEqual(ViewNames.CalculationRunDetailsNewIndex, viewResult.ViewName);
 
-            var model = viewResult.Model as CalculatorRunDetailsViewModel;
+            var model = viewResult.Model as CalculatorRunDetailsNewViewModel;
             Assert.IsNotNull(model);
             Assert.AreEqual("TestUser", model.CurrentUser); // Assuming CurrentUser is set from HttpContext.User.Identity.Name
         }

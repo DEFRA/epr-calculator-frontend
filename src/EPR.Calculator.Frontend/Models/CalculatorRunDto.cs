@@ -6,7 +6,7 @@ namespace EPR.Calculator.Frontend.Models
     {
         public int RunId { get; set; }
 
-        public string? CreatedBy { get; set; }
+        public string CreatedBy { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
@@ -22,6 +22,6 @@ namespace EPR.Calculator.Frontend.Models
 
         public required string RunClassificationStatus { get; set; }
 
-        public string? FinancialYear { get; set; }
+        public string FinancialYear { get; set; }
     }
 }
