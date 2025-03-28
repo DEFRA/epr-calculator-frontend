@@ -84,7 +84,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         CalcName = calculatorRun.RunName,
                         CreatedDate = calculatorRun.CreatedAt.ToString("dd MMM yyyy"),
                         CreatedTime = calculatorRun.CreatedAt.ToString("HH:mm"),
-                        FinancialYear = calculatorRun.FinancialYear,
+                        FinancialYear = "2024-25", // TODO: Replace with actual data,
                     },
                 };
 
