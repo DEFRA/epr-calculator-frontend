@@ -1,0 +1,65 @@
+﻿@model EPR.Calculator.Frontend.ViewModels.AcceptInvoiceInstructionsViewModel
+
+@{
+    ViewData["Title"] = "Accept all invoice instructions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-three-quarters">
+        <p></p>
+    </div>
+    <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
+        <div class="account-info">
+            <span class="your-name" id="bannerUserName">@Model.CurrentUser</span>
+            <a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
+        </div>
+    </div>
+</div>
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <br />
+
+        @using (Html.BeginForm("AcceptInvoiceInstructions", "PaymentCalculator", FormMethod.Post))
+        {
+            @Html.HiddenFor(m => m.ReturnUrl)
+            @Html.HiddenFor(m => m.CalculationRunTitle)
+            @Html.HiddenFor(m => m.CurrentUser)
+
+            <div class="govuk-form-group">
+                <fieldset class="govuk-fieldset" aria-describedby="acceptance-hint">
+
+                    <span class="govuk-caption-l">@Model.CalculationRunTitle</span>
+                    <h1 class="govuk-heading-l">Accept all invoice instructions</h1>
+
+                    <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible" />
+
+                    <p class="govuk-body">
+                        The results file contains invoice instructions. You must accept all instructions before generating a draft billing file.
+                    </p>
+
+                    <h2 class="govuk-heading-m">Confirm acceptance</h2>
+
+                    <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                        <div class="govuk-checkboxes__item">
+                            <input type="hidden" name="AcceptAll" value="false" />
+                            @Html.CheckBoxFor(m => m.AcceptAll, new { @class = "govuk-checkboxes__input", id = "AcceptAll" })
+                            <label class="govuk-label govuk-checkboxes__label" for="AcceptAll">
+                                I confirm that I have accepted all invoice instructions in the results file.
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="govuk-button-group">
+                <button type="submit" class="govuk-button" data-module="govuk-button">
+                    Accept and generate draft billing file
+                </button>
+
+                <a class="govuk-link" href="@Model.ReturnUrl">Return to previous step</a>
+            </div>
+        }
+    </div>
+</div>
