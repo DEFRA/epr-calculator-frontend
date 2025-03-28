@@ -104,5 +104,10 @@
         /// classifying calculation run controller index page view.
         /// </summary>
         public const string ClassifyingCalculationRunIndex = "~/Views/ClassifyingCalculationRun/Index.cshtml";
+
+        /// <summary>
+        /// classifying calculation run error page view.
+        /// </summary>
+        public const string ClassifyingCalculationRunErrorPage = "~/Views/ClassifyingCalculationRun/ErrorPage.cshtml";
     }
 }

@@ -1,0 +1,11 @@
+﻿﻿@using EPR.Calculator.Frontend.Constants
+@using EPR.Calculator.Frontend.ViewModels
+@model ViewModelCommonData;
+@{
+    Layout = "_Layout";
+    var BackLink = "Dashboard";
+}
+
+<partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
+<div class="govuk-grid-row">
+</div>

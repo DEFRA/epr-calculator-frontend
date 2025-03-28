@@ -62,7 +62,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (calculatorRun != null && !this.IsRunEligibleForDisplay(calculatorRun))
                 {
-                    return this.View(ViewNames.CalculationRunDetailsErrorPage, new ViewModelCommonData
+                    return this.View(ViewNames.ClassifyingCalculationRunErrorPage, new ViewModelCommonData
                     {
                         CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                     });
