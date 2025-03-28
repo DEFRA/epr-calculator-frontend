@@ -66,7 +66,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 else
                 {
                     var localAuthorityDisposalCosts = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
-                    return this.View(viewName, new LapcapRefreshViewModel { LapcapTemplateValue = localAuthorityDisposalCosts });
+                    return this.View(viewName, new LapcapRefreshViewModel { LapcapTemplateValue = localAuthorityDisposalCosts, FileName = fileUpload.FileName });
                 }
             }
             catch (Exception)
@@ -93,8 +93,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return ViewNames.LocalAuthorityUploadFileIndex;
             }
-
-            this.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUpload.FileName);
 
             return ViewNames.LocalAuthorityUploadFileRefresh;
         }
