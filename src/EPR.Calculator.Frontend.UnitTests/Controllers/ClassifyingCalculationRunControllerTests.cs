@@ -30,7 +30,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
     {
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
         private Mock<IHttpClientFactory> _mockClientFactory;
-        private Mock<ILogger<ClassifyingCalculationRunController>> _mockLogger;
+        private Mock<ILogger<ClassifyingCalculationRunScenario1Controller>> _mockLogger;
 
         public ClassifyingCalculationRunControllerTests()
         {
@@ -47,7 +47,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public void Setup()
         {
             _mockClientFactory = new Mock<IHttpClientFactory>();
-            _mockLogger = new Mock<ILogger<ClassifyingCalculationRunController>>();
+            _mockLogger = new Mock<ILogger<ClassifyingCalculationRunScenario1Controller>>();
         }
 
         [TestMethod]
@@ -72,7 +72,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 Session = mockHttpSession
             };
 
-            var controller = new ClassifyingCalculationRunController(_configuration, _mockClientFactory.Object,
+            var controller = new ClassifyingCalculationRunScenario1Controller(_configuration, _mockClientFactory.Object,
                 _mockLogger.Object, new Mock<ITokenAcquisition>().Object, mockClient);
             controller.ControllerContext = new ControllerContext
             {

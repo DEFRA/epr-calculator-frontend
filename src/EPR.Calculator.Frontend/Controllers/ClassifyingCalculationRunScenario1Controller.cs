@@ -11,24 +11,24 @@ using Newtonsoft.Json;
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="ClassifyingCalculationRunController"/> class.
+    /// Initializes a new instance of the <see cref="ClassifyingCalculationRunScenario1Controller"/> class.
     /// </summary>
-    public class ClassifyingCalculationRunController : BaseController
+    public class ClassifyingCalculationRunScenario1Controller : BaseController
     {
         private const string ClassifyingCalculationRuneIndexView = ViewNames.ClassifyingCalculationRunIndex;
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
-        private readonly ILogger<ClassifyingCalculationRunController> logger;
+        private readonly ILogger<ClassifyingCalculationRunScenario1Controller> logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ClassifyingCalculationRunController"/> class.
+        /// Initializes a new instance of the <see cref="ClassifyingCalculationRunScenario1Controller"/> class.
         /// </summary>
         /// <param name="configuration">The configuration settings.</param>
         /// <param name="clientFactory">The HTTP client factory.</param>
         /// <param name="logger">The logger instance.</param>
         /// <param name="tokenAcquisition">token acquisition.</param>
         /// <param name="telemetryClient">telemetry client.</param>
-        public ClassifyingCalculationRunController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyingCalculationRunController> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+        public ClassifyingCalculationRunScenario1Controller(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyingCalculationRunScenario1Controller> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
             : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.configuration = configuration;
@@ -42,7 +42,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="runId"> runId.</param>
         /// <returns>The index view.</returns>
         /// <exception cref="ArgumentNullException">ArgumentNullException.</exception>
-        [Route("ClassifyingCalculationRun/{runId}")]
+        [Route("ClassifyingCalculationRunScenario1/{runId}")]
         public async Task<IActionResult> IndexAsync(int runId)
         {
             try
