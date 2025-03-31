@@ -20,6 +20,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
+using Newtonsoft.Json.Linq;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -32,12 +33,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             this.Fixture = new Fixture();
 
-            this.MockSesion = BuildMockSession();
-            this.MockSesion.Setup(mockSesion => mockSesion.TryGetValue(
-                It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                .Callback(() => Encoding.UTF8.GetBytes(this.Fixture.Create<string>()));
-            var argle = this.MockSesion.Object.TryGetValue("a", out var b);
-            var bargle = Encoding.UTF8.GetBytes(this.Fixture.Create<string>());
+            this.MockSesion = BuildMockSession(this.Fixture);
 
             var mockHttpContext = new Mock<HttpContext>();
             mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
@@ -93,7 +89,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var fileUploadFileName = "SchemeParameters.csv";
 
-            Mock<ISession> sessionMock = BuildMockSession();
+            Mock<ISession> sessionMock = BuildMockSession(this.Fixture);
 
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
@@ -231,9 +227,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             this.MockMessageHandler.Protected().Verify(
                 "SendAsync",
-                Times.Once(),
+                expectedTimesCalled,
                 ItExpr.Is<HttpRequestMessage>(m =>
-                    m.Content.ReadAsStringAsync().Result.Contains($"ParameterYear:{configValue}")),
+                    m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{configValue}\"")),
                 ItExpr.IsAny<CancellationToken>());
         }
 
@@ -243,10 +239,14 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task Index_SendDateFromSessionWhenFeatureFlagEnabled(bool featureFlagEnabled)
         {
             // Arrange
-            var sesionMessage = "This value comes from the session.";
-            this.MockSesion.Setup(MockSesion => MockSesion.TryGetValue(
-                It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                .Callback(() => Encoding.UTF8.GetBytes(sesionMessage));
+            var sessionMessage = "This value comes from the session.";
+            this.MockSesion.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+            .Returns((string key, out byte[] value) =>
+            {
+                value = Encoding.UTF8.GetBytes(sessionMessage);
+                return true;
+            });
+
             this.Configuration
                 .GetSection("FeatureManagement")["ShowFinancialYear"] = featureFlagEnabled.ToString();
             var expectedTimesCalled = featureFlagEnabled ? Times.Once() : Times.Never();
@@ -259,28 +259,40 @@ namespace EPR.Calculator.Frontend.UnitTests
                 "SendAsync",
                 expectedTimesCalled,
                 ItExpr.Is<HttpRequestMessage>(m =>
-                    m.Content.ReadAsStringAsync().Result.Contains($"ParameterYear:{sesionMessage}")),
+                    m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{sessionMessage}\"")),
                 ItExpr.IsAny<CancellationToken>());
         }
 
-        private static Mock<ISession> BuildMockSession()
+        private static Mock<ISession> BuildMockSession(Fixture fixture)
         {
             var sessionMock = new Mock<ISession>();
-            var sessionStorage = new Dictionary<string, byte[]>();
+            var sessionStorage = new Dictionary<string, byte[]>
+            {
+                { "accessToken", Encoding.UTF8.GetBytes(fixture.Create<string>()) },
+            };
 
             sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
                        .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
 
             sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                       .Returns((string key, out byte[] value) =>
-                       {
-                           var success = sessionStorage.TryGetValue(key, out var storedValue);
-                           value = storedValue;
-                           return success;
-                       });
+                .Returns((string key, out byte[] value) =>
+                {
+                    var success = sessionStorage.TryGetValue(key, out var storedValue);
+                    value = storedValue;
+                    return success;
+                });
+
+            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]?>.IsAny))
+               .Returns((string key, out byte[]? value) =>
+               {
+                   var success = sessionStorage.TryGetValue(key, out var storedValue);
+                   value = storedValue;
+                   return success;
+               });
 
             sessionMock.Setup(s => s.Remove(It.IsAny<string>()))
-                       .Callback<string>((key) => sessionStorage.Remove(key));
+           .Callback<string>((key) => sessionStorage.Remove(key));
+
             return sessionMock;
         }
 
@@ -293,11 +305,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                    {
-                        StatusCode = HttpStatusCode.Created,
-                        Content = new StringContent("response content"),
-                    });
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.Created,
+                    Content = new StringContent("response content"),
+                });
             return mockHttpMessageHandler;
         }
 

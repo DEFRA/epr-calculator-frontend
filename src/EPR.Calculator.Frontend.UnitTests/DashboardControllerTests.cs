@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Text;
 using AutoFixture;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
@@ -34,6 +35,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             this.Fixture = new Fixture();
             this.MockHttpContext = new Mock<HttpContext>();
             this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            this.MockHttpContext.Setup(c => c.Session).Returns(BuildMockSession(Fixture).Object);
         }
 
         private Fixture Fixture { get; init; }
@@ -56,6 +58,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockContext = new Mock<HttpContext>();
             mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            mockContext.Setup(c => c.Session).Returns(BuildMockSession(Fixture).Object);
 
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
@@ -97,6 +100,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockContext = new Mock<HttpContext>();
             mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            mockContext.Setup(c => c.Session).Returns(BuildMockSession(Fixture).Object);
 
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
@@ -501,6 +505,39 @@ namespace EPR.Calculator.Frontend.UnitTests
         private static Mock<HttpMessageHandler> GetMockHttpMessageHandlerBadRequestMessage(string content)
         {
             return GetMockHttpMessageHandler(HttpStatusCode.BadRequest, content);
+        }
+
+        private static Mock<ISession> BuildMockSession(Fixture fixture)
+        {
+            var sessionMock = new Mock<ISession>();
+            var sessionStorage = new Dictionary<string, byte[]>
+            {
+                { "accessToken", Encoding.UTF8.GetBytes(fixture.Create<string>()) },
+            };
+
+            sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+                       .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
+
+            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+                .Returns((string key, out byte[] value) =>
+                {
+                    var success = sessionStorage.TryGetValue(key, out var storedValue);
+                    value = storedValue;
+                    return success;
+                });
+
+            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]?>.IsAny))
+               .Returns((string key, out byte[]? value) =>
+               {
+                   var success = sessionStorage.TryGetValue(key, out var storedValue);
+                   value = storedValue;
+                   return success;
+               });
+
+            sessionMock.Setup(s => s.Remove(It.IsAny<string>()))
+           .Callback<string>((key) => sessionStorage.Remove(key));
+
+            return sessionMock;
         }
     }
 }
