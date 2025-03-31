@@ -15,17 +15,17 @@ namespace EPR.Calculator.Frontend.Helpers
             ErrorViewModel errorViewModel = new ErrorViewModel();
             if (fileUpload == null)
             {
-                return errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = ErrorMessages.FileNotSelected };
+                return new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = ErrorMessages.FileNotSelected };
             }
 
             if (!fileUpload.FileName.EndsWith(".csv"))
             {
-                return errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = ErrorMessages.FileMustBeCSV };
+                return new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = ErrorMessages.FileMustBeCSV };
             }
 
             if (fileUpload.Length > StaticHelpers.MaxFileSize)
             {
-                return errorViewModel = new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = ErrorMessages.FileNotExceed50KB };
+                return new ErrorViewModel() { DOMElementId = string.Empty, ErrorMessage = ErrorMessages.FileNotExceed50KB };
             }
 
             return errorViewModel;
