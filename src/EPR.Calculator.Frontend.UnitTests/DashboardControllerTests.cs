@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Text;
 using AutoFixture;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
@@ -34,11 +35,18 @@ namespace EPR.Calculator.Frontend.UnitTests
             this.Fixture = new Fixture();
             this.MockHttpContext = new Mock<HttpContext>();
             this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
+            byte[] storedValue = Encoding.UTF8.GetBytes("FinancialYear");
+            this.MockSession = new Mock<ISession>();
+            this.MockSession.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+                .Callback<string, byte[]>((key, value) => storedValue = value);
         }
 
         private Fixture Fixture { get; init; }
 
         private Mock<HttpContext> MockHttpContext { get; init; }
+
+        private Mock<ISession> MockSession { get; init; }
 
         [TestMethod]
         public async Task DashboardController_Success_View_Test()
@@ -54,8 +62,9 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var mockContext = new Mock<HttpContext>();
-            mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
+            this.MockHttpContext.Setup(c => c.Session).Returns(this.MockSession.Object);
 
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
@@ -67,7 +76,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
                 mockAuthorizationHeaderProvider.Object, mockClient);
-            controller.ControllerContext = new ControllerContext { HttpContext = mockContext.Object };
+            controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
 
             // Act
             var result = await controller.Index() as ViewResult;
@@ -95,8 +104,9 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var mockContext = new Mock<HttpContext>();
-            mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
+            this.MockHttpContext.Setup(c => c.Session).Returns(this.MockSession.Object);
 
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
@@ -108,7 +118,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
                 mockAuthorizationHeaderProvider.Object, mockClient);
-            controller.ControllerContext = new ControllerContext { HttpContext = mockContext.Object };
+            controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
 
             // Act
             var result = await controller.GetCalculations("2024-25") as PartialViewResult;
@@ -443,7 +453,13 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
                     null, null))
                 .ReturnsAsync("somevalue");
+
+            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+
+            this.MockHttpContext.Setup(c => c.Session).Returns(this.MockSession.Object);
+
             var mockClient = new TelemetryClient();
+
             // Act
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
                 mockAuthorizationHeaderProvider.Object, mockClient);

@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using EPR.Calculator.Frontend.Common;
+using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -88,7 +90,10 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private string Transform(ParameterRefreshViewModel parameterRefreshViewModel)
         {
-            var parameterYear = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value;
+            var parameterYear = this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear)
+                ? this.HttpContext.Session.GetString(SessionConstants.FinancialYear)
+                : this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
+
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
                 throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings for default parameters");
