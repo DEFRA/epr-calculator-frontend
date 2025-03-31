@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿using System.Configuration;
+using System.Net;
+using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Common;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -88,10 +91,23 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private string Transform(ParameterRefreshViewModel parameterRefreshViewModel)
         {
-            var parameterYear = this.configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value;
-            if (string.IsNullOrWhiteSpace(parameterYear))
+            string parameterYear;
+            if (this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear))
             {
-                throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings for default parameters");
+                parameterYear = this.HttpContext.Session.GetString(SessionConstants.FinancialYear)!;
+            }
+            else
+            {
+                var configYear = this.configuration
+                    .GetSection("ParameterSettings")
+                    .GetValue<string>("ParameterYear");
+                if (string.IsNullOrWhiteSpace(configYear))
+                {
+                    throw new ConfigurationErrorsException(
+                        "ParameterYear is null. Check the configuration settings for default parameters");
+                }
+
+                parameterYear = configYear;
             }
 
             var parameterSetting = new CreateDefaultParameterSettingDto
