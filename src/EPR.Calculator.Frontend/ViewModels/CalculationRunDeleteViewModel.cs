@@ -6,7 +6,6 @@ namespace EPR.Calculator.Frontend.ViewModels
     /// <summary>
     /// The view model for the calculation run delete page.
     /// </summary>
-    [ExcludeFromCodeCoverage]
     public record CalculationRunDeleteViewModel : ViewModelCommonData
     {
         /// <summary>
