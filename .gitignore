@@ -11,3 +11,6 @@
 /.vs
 /src/EPR.Calculator.Frontend.Common/bin/Release/net8.0
 /src/EPR.Calculator.Frontend.UnitTests/bin/Release/net8.0
+/src/EPR.Calculator.Frontend.Common.UnitTests/bin/Debug/net8.0
+/src/EPR.Calculator.Frontend.Common.UnitTests/obj/Debug/net8.0
+/src/EPR.Calculator.Frontend.Common.UnitTests/obj
