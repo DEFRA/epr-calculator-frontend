@@ -30,5 +30,25 @@ namespace EPR.Calculator.Frontend.Helpers
         /// </returns>
         public static string GetUserName(HttpContext context)
             => context.User.Identity?.Name ?? ErrorMessages.UnknownUser;
+
+        /// <summary>
+        /// Gets the financial year based on the date input.
+        /// </summary>
+        /// <param name="date">Any date.</param>
+        /// <returns>The financial year in the format YYYY-YY.</returns>
+        public static string GetFinancialYear(DateTime date)
+        {
+            var year = date.Year;
+
+            var startYear = date.Month >= 4
+                ? year
+                : year - 1;
+
+            var endYear = date.Month >= 4
+                ? year + 1
+                : year;
+
+            return $"{startYear}-{endYear.ToString().Substring(2, 2)}";
+        }
     }
 }

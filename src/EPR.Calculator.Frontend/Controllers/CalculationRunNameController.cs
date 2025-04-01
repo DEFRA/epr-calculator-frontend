@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -18,7 +19,6 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Initializes a new instance of the <see cref="CalculationRunNameController"/> class.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
-    [Route("RunANewCalculation")]
     public class CalculationRunNameController : BaseController
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
@@ -45,6 +45,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <returns>The index view.</returns>
         [Authorize(Roles = "SASuperUser")]
+        [Route("RunANewCalculation")]
         public IActionResult Index()
         {
             return this.View(
@@ -198,7 +199,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return await client.SendAsync(request);
         }
 
-        private string? GetCalculatorRunApi()
+        private string GetCalculatorRunApi()
         {
             var calculatorRunApi = this.configuration
                 .GetSection(ConfigSection.CalculationRunSettings)
