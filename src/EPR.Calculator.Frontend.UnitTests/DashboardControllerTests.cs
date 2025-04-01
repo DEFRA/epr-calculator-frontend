@@ -535,6 +535,46 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual("One or more errors occurred. (No account or login hint passed)", ex.Message);
         }
 
+        [TestMethod]
+        public async Task GetCalculations_ShowDetailedError_WhenExceptionIsThrown_TokenAsync()
+        {
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
+            mockAuthorizationHeaderProvider
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
+                    null, null))
+                .Throws(new MsalUiRequiredException("Test", "No account or login hint passed"));
+            // Arrange
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Content = new StringContent("Test content")
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            // Mock IHttpClientFactory
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
+
+            configuration["ShowDetailedError"] = "true";
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
+                mockAuthorizationHeaderProvider.Object, new TelemetryClient());
+
+            var task = controller.GetCalculations("2024-25");
+            // Assert
+            AggregateException ex = Assert.ThrowsException<AggregateException>(task.Wait);
+            Assert.AreEqual("One or more errors occurred. (No account or login hint passed)", ex.Message);
+        }
+
         private static Mock<HttpMessageHandler> GetMockHttpMessageHandler()
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
