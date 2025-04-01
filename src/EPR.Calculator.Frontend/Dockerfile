@@ -35,6 +35,7 @@ RUN npm install --ignore-scripts
 # Build and publish a release
 USER root
 COPY EPR.Calculator.Frontend/. ./EPR.Calculator.Frontend/.
+COPY EPR.Calculator.Frontend.Common/. ./EPR.Calculator.Frontend.Common/.
 WORKDIR /home/dotnet/EPR.Calculator.Frontend
 
 USER root
