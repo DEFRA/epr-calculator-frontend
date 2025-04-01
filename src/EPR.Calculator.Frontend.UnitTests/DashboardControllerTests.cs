@@ -18,6 +18,7 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;

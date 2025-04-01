@@ -51,11 +51,22 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                var showDetailedError = this.configuration.GetValue(typeof(bool), "ShowDetailedError");
+                if (showDetailedError != null)
+                {
+                    this.ShowDetailedError = (bool)showDetailedError;
+                }
+
                 var financialYear = CommonUtil.GetFinancialYear(DateTime.Now);
                 return await this.GoToDashboardView(financialYear);
             }
             catch (Exception)
             {
+                if (this.ShowDetailedError)
+                {
+                    throw;
+                }
+
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
@@ -71,10 +82,21 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                var showDetailedError = this.configuration.GetValue(typeof(bool), "ShowDetailedError");
+                if (showDetailedError != null)
+                {
+                    this.ShowDetailedError = (bool)showDetailedError;
+                }
+
                 return await this.GoToDashboardView(financialYear, true);
             }
             catch (Exception)
             {
+                if (this.ShowDetailedError)
+                {
+                    throw;
+                }
+
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
