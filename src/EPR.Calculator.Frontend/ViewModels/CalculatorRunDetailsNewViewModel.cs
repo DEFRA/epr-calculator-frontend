@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace EPR.Calculator.Frontend.ViewModels
 {
     /// <summary>
-    /// The view model for the calculator run status update page.
+    /// The view model for the calculator run Details page.
     /// </summary>
     [ExcludeFromCodeCoverage]
     public record CalculatorRunDetailsNewViewModel : ViewModelCommonData
