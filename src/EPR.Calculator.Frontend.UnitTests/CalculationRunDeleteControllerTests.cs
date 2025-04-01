@@ -57,7 +57,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var resultModel = result.Model as CalculationRunDeleteViewModel;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDeleteIndex, result.ViewName);
-            Assert.AreEqual(runId, resultModel.Data.RunId);
+            Assert.AreEqual(runId, resultModel.CalculatorRunStatusData.RunId);
         }
 
         [TestMethod]

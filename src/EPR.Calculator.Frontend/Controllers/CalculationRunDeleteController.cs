@@ -54,7 +54,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var calculationRunDeleteViewModel = new CalculationRunDeleteViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                Data = calculatorRunStatusUpdate,
+                CalculatorRunStatusData = calculatorRunStatusUpdate,
             };
             return this.View(ViewNames.CalculationRunDeleteIndex, calculationRunDeleteViewModel);
         }

@@ -10,8 +10,8 @@ namespace EPR.Calculator.Frontend.ViewModels
     public record CalculationRunDeleteViewModel : ViewModelCommonData
     {
         /// <summary>
-        /// Gets the data for the run status update.
+        /// Gets the calculator run status data for the run status update.
         /// </summary>
-        public required CalculatorRunStatusUpdateDto Data { get; init; }
+        public required CalculatorRunStatusUpdateDto CalculatorRunStatusData { get; init; }
     }
 }
