@@ -46,6 +46,23 @@
         }
     }
 
+    .header-container {
+        display: flex;
+        margin: 0;
+    }
+
+    .caption-text {
+        float: left;
+        width: 68%;
+    }
+
+    .filter-container {
+        display: flex;
+        justify-content: end;
+        float: right;
+        padding: 0;
+    }
+
     .govuk-summary-list {
         border-top: 1px solid #b1b4b6;
 

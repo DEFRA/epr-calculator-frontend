@@ -109,5 +109,10 @@
         /// Calculator run delete confirmation success page view.
         /// </summary>
         public const string CalculationRunDeleteConfirmationSuccess = "~/Views/CalculationRunDelete/ConfirmationSuccess.cshtml";
+
+        /// <summary>
+        /// Calculation Run Classification index page view.
+        /// </summary>
+        public const string CalculationRunClassification = "~/Views/ClassifyCalculationRun/Index.cshtml";
     }
 }
