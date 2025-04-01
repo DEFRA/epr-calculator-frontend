@@ -1,0 +1,14 @@
+﻿@{
+	Layout = "_Layout";
+	var model = new ConfirmationViewModel
+	{
+		Title = " Billing file sent",
+		Body = "You have successfully sent the billing file to the FSS.",
+		NextText = "The FSS will process the billing file based on the invoice instructions you accepted. " +
+					"<br/><br/>" +
+					"You can return to the dashboard to review calculation runs or start a new run.",
+		RedirectController = "Dashboard",
+	};
+}
+
+<partial name="_ConfirmationPartial" model="model" />

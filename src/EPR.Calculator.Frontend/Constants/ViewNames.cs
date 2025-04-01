@@ -114,5 +114,10 @@
         /// Calculation Run Classification index page view.
         /// </summary>
         public const string CalculationRunClassification = "~/Views/ClassifyCalculationRun/Index.cshtml";
+
+        /// <summary>
+        /// Payment Calculator Billing Confirmation index page view.
+        /// </summary>
+        public const string BillingConfirmationSuccess = "~/Views/PaymentCalculator/BillingConfirmation.cshtml";
     }
 }
