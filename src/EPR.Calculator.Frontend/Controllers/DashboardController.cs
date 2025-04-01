@@ -51,11 +51,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var showDetailedError = this.configuration.GetValue(typeof(bool), "ShowDetailedError");
-                if (showDetailedError != null)
-                {
-                    this.ShowDetailedError = (bool)showDetailedError;
-                }
+                this.IsShowDetailedError();
 
                 var financialYear = CommonUtil.GetFinancialYear(DateTime.Now);
                 return await this.GoToDashboardView(financialYear);
@@ -82,11 +78,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var showDetailedError = this.configuration.GetValue(typeof(bool), "ShowDetailedError");
-                if (showDetailedError != null)
-                {
-                    this.ShowDetailedError = (bool)showDetailedError;
-                }
+                this.IsShowDetailedError();
 
                 return await this.GoToDashboardView(financialYear, true);
             }
@@ -98,6 +90,15 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
+        }
+
+        private void IsShowDetailedError()
+        {
+            var showDetailedError = this.configuration.GetValue(typeof(bool), CommonConstants.ShowDetailedError);
+            if (showDetailedError != null)
+            {
+                this.ShowDetailedError = (bool)showDetailedError;
             }
         }
 
