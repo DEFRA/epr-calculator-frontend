@@ -84,13 +84,13 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
-            var model = result.Model as ClassifyCalculationRunViewModel;
+            var model = result.Model as ClassifyCalculationRunScenerio1ViewModel;
             Assert.IsNotNull(model);
-            Assert.AreEqual(runId, model.Data.RunId);
-            Assert.AreEqual((int)RunClassification.UNCLASSIFIED, model.Data.ClassificationId);
-            Assert.AreEqual(calcName, model.Data.CalcName);
-            Assert.AreEqual("12:09", model.Data.CreatedTime);
-            Assert.AreEqual("21 Jun 2024", model.Data.CreatedDate);
+            Assert.AreEqual(runId, model.CalculatorRunStatus.RunId);
+            Assert.AreEqual((int)RunClassification.UNCLASSIFIED, model.CalculatorRunStatus.ClassificationId);
+            Assert.AreEqual(calcName, model.CalculatorRunStatus.CalcName);
+            Assert.AreEqual("12:09", model.CalculatorRunStatus.CreatedTime);
+            Assert.AreEqual("21 Jun 2024", model.CalculatorRunStatus.CreatedDate);
         }
 
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)

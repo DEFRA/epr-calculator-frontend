@@ -1,9 +1,10 @@
-﻿@model EPR.Calculator.Frontend.ViewModels.ClassifyCalculationRunViewModel
+﻿@using EPR.Calculator.Frontend.Constants
+@model EPR.Calculator.Frontend.ViewModels.ClassifyCalculationRunScenerio1ViewModel
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var BackLink = "Dashboard";
+    var BackLink = Model.BackLink;
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
@@ -13,22 +14,22 @@
     <div class="govuk-grid-column-two-thirds">
         <div class="govuk-form-group">
             <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
-                <span id="approval-code-hint" class="govuk-caption-l">@Model.Data.CalcName</span>
+                <span id="approval-code-hint" class="govuk-caption-l">@Model.CalculatorRunStatus.CalcName</span>
                 <h1 class="govuk-heading-l">Classify calculation run</h1>
 
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">
                         <tr class="govuk-table__row">
                             <th scope="row" class="govuk-table__header">Financial year</th>
-                            <td class="govuk-table__cell">@Model.Data.FinancialYear</td>
+                            <td class="govuk-table__cell">@Model.CalculatorRunStatus.FinancialYear</td>
                         </tr>
                         <tr class="govuk-table__row">
                             <th scope="row" class="govuk-table__header">Calculation ID</th>
-                            <td class="govuk-table__cell">@Model.Data.RunId</td>
+                            <td class="govuk-table__cell">@Model.CalculatorRunStatus.RunId</td>
                         </tr>
                         <tr class="govuk-table__row">
                             <th scope="row" class="govuk-table__header">Run date and time</th>
-                            <td class="govuk-table__cell">@Model.Data.CreatedDate at @Model.Data.CreatedTime</td>
+                            <td class="govuk-table__cell">@Model.CalculatorRunStatus.CreatedDate at @Model.CalculatorRunStatus.CreatedTime</td>
                         </tr>
                     </tbody>
                 </table>
@@ -89,7 +90,7 @@
             <button type="submit" class="govuk-button" data-module="govuk-button">
                 Confirm classification
             </button>
-            <a href="/Dashboard/Index" class="govuk-link" type="submit">Return to dashboard</a>
+            <a href="/Dashboard/Index" class="govuk-link" type="submit">@ActionLinkLabels.ReturnToDashBoard</a>
         </div>
     </div>
 </div>

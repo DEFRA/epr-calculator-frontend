@@ -46,10 +46,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var classifyCalculationRunViewModel = new ClassifyCalculationRunViewModel
+                var classifyCalculationRunViewModel = new ClassifyCalculationRunScenerio1ViewModel
                 {
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    Data = new CalculatorRunStatusUpdateDto
+                    CalculatorRunStatus = new CalculatorRunStatusUpdateDto
                     {
                         RunId = runId,
                         ClassificationId = 3, // TODO: Replace with actual data,
