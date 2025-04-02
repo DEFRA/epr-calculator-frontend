@@ -51,7 +51,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public async Task IndexAsync_ReturnsView_WhenApiCallIsSuccessful()
+        public async Task Index_ReturnsView_WhenApiCallIsSuccessful()
         {
             // Arrange
             var mockClient = new TelemetryClient();
@@ -75,8 +75,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             };
             controller.ControllerContext.HttpContext.Request.Scheme = "https";
             controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
-            int runId = 1;
-            string calcName = "Test Run";
+            int runId = 240008;
+            string calcName = "Calculation run 99";
 
             // Act
             var result = controller.Index(runId) as ViewResult;
@@ -90,7 +90,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.AreEqual((int)RunClassification.UNCLASSIFIED, model.CalculatorRunStatus.ClassificationId);
             Assert.AreEqual(calcName, model.CalculatorRunStatus.CalcName);
             Assert.AreEqual("12:09", model.CalculatorRunStatus.CreatedTime);
-            Assert.AreEqual("21 Jun 2024", model.CalculatorRunStatus.CreatedDate);
+            Assert.AreEqual("01 May 2024", model.CalculatorRunStatus.CreatedDate);
         }
 
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)
