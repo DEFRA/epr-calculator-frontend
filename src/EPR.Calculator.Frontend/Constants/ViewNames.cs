@@ -11,9 +11,14 @@
         public const string CalculationRunDetailsIndex = "~/Views/CalculationRunDetails/Index.cshtml";
 
         /// <summary>
-        /// Calculator run details controller index page view.
+        /// Classify run confirmation controller index page view.
         /// </summary>
         public const string ClassifyRunConfirmationIndex = "~/Views/ClassifyRunConfirmation/Index.cshtml";
+
+        /// <summary>
+        /// Calculator run details controller index new page view.
+        /// </summary>
+        public const string CalculationRunDetailsNewIndex = "~/Views/CalculationRunDetailsNew/Index.cshtml";
 
         /// <summary>
         /// Calculator run details error page view.
