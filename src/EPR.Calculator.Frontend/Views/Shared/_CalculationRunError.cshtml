@@ -11,7 +11,7 @@
         <p class="govuk-body">@Model.ErrorMessage</p>
         <br />
         <div class="govuk-button-group">
-            <a href="/" class="govuk-button" type="submit">Return to dashboard</a>
+            <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to dashboard</a>
         </div>
     </div>
 </div>
