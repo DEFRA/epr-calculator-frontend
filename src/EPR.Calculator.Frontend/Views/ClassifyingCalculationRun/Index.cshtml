@@ -13,7 +13,7 @@
     <div class="govuk-grid-column-two-thirds">
         <div class="govuk-form-group">
             <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
-                <span class="govuk-caption-l">@Model.Data.CalcName</span>
+                <span id="approval-code-hint" class="govuk-caption-l">@Model.Data.CalcName</span>
                 <h1 class="govuk-heading-l">Classify calculation run</h1>
 
                 <table class="govuk-table">
@@ -46,7 +46,7 @@
 
 
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" id="interimRecalculationRun" name="calcRun" type="radio" value="outputTestRun">
+                        <input class="govuk-radios__input" id="testRun" name="calcRun" type="radio" value="outputTestRun">
                         <label class="govuk-label govuk-radios__label" for="testRun">
                             <strong>Test run</strong><br>
                             <p class="govuk-body-s" style="margin-bottom: 0;">An unofficial run to view the calculation results without generating a billing file for invoicing.</p>

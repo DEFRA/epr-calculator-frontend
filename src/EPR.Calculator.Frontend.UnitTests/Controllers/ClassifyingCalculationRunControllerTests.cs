@@ -54,12 +54,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task IndexAsync_ReturnsView_WhenApiCallIsSuccessful()
         {
             // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetCalculatorRun());
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-
             var mockClient = new TelemetryClient();
-
             var identity = new GenericIdentity("TestUser");
             identity.AddClaim(new Claim("name", "TestUser"));
             var principal = new ClaimsPrincipal(identity);
@@ -84,7 +79,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             string calcName = "Test Run";
 
             // Act
-            var result = await controller.IndexAsync(runId) as ViewResult;
+            var result = controller.Index(runId) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
