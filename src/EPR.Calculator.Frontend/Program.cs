@@ -1,11 +1,8 @@
-﻿using Azure.Identity;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Exceptions;
 using EPR.Calculator.Frontend.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -19,7 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd")
     .EnableTokenAcquisitionToCallDownstreamApi(builder.Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' '))
     .AddDownstreamApi("DownstreamApi", builder.Configuration.GetSection("DownstreamApi"))
-    .AddInMemoryTokenCaches();
+    .AddDistributedTokenCaches();
 
 builder.Services.AddRazorPages().AddMvcOptions(options =>
 {
@@ -39,6 +36,16 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 
 builder.Services.AddValidatorsFromAssemblyContaining<CalculatorRunNameValidator>();
+
+var distributedSqlServerCacheConfigSection = builder.Configuration.GetSection("DistributedSqlServerCache");
+
+builder.Services.AddDistributedSqlServerCache(options =>
+{
+    options.ConnectionString = distributedSqlServerCacheConfigSection.GetValue<string>("ConnectionString");
+    options.SchemaName = "dbo";
+    options.TableName = distributedSqlServerCacheConfigSection.GetValue<string>("TableName");
+    options.DefaultSlidingExpiration = TimeSpan.FromMinutes(distributedSqlServerCacheConfigSection.GetValue<int>("DefaultSlidingExpirationInMinutes"));
+});
 
 builder.Services.AddSession(options =>
 {

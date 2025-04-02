@@ -30,7 +30,8 @@ namespace EPR.Calculator.Frontend.Controllers
 #pragma warning restore SA1600
         {
             this.TelemetryClient.TrackTrace("AcquireToken");
-            var token = this.HttpContext?.Session?.GetString("accessToken");
+            string? token = null;
+
             if (string.IsNullOrEmpty(token))
             {
                 try
@@ -46,7 +47,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 this.TelemetryClient.TrackTrace("after generating..");
-                this.HttpContext?.Session?.SetString("accessToken", token);
             }
 
             var accessToken = $"Bearer {token}";
