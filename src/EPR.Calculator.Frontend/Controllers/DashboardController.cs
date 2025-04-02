@@ -37,6 +37,8 @@ namespace EPR.Calculator.Frontend.Controllers
             this.clientFactory = clientFactory;
         }
 
+        private bool ShowDetailedError { get; set; }
+
         /// <summary>
         /// Handles the Index action for the controller.
         /// </summary>
@@ -49,11 +51,18 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                this.IsShowDetailedError();
+
                 var financialYear = CommonUtil.GetFinancialYear(DateTime.Now);
                 return await this.GoToDashboardView(financialYear);
             }
             catch (Exception)
             {
+                if (this.ShowDetailedError)
+                {
+                    throw;
+                }
+
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
@@ -69,11 +78,27 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                this.IsShowDetailedError();
+
                 return await this.GoToDashboardView(financialYear, true);
             }
             catch (Exception)
             {
+                if (this.ShowDetailedError)
+                {
+                    throw;
+                }
+
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
+        }
+
+        private void IsShowDetailedError()
+        {
+            var showDetailedError = this.configuration.GetValue(typeof(bool), CommonConstants.ShowDetailedError);
+            if (showDetailedError != null)
+            {
+                this.ShowDetailedError = (bool)showDetailedError;
             }
         }
 
