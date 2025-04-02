@@ -21,22 +21,20 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class LocalAuthorityUploadFileProcessingControllerTests
     {
-        private static readonly string[] Separator = new string[] { @"bin\" };
-
         public LocalAuthorityUploadFileProcessingControllerTests()
         {
             this.Fixture = new Fixture();
-            this.MockSesion = BuildMockSession(this.Fixture);
+            this.MockSesion = TestMockUtils.BuildMockSession(this.Fixture);
             this.MockHttpContext = new Mock<HttpContext>();
             this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
             this.MockHttpContext.Setup(c => c.Session).Returns(this.MockSesion.Object);
 
-            this.Configuration = BuildConfiguration();
+            this.Configuration = TestMockUtils.BuildConfiguration();
             this.Configuration
                 .GetSection("ParameterSettings")["ParameterYear"] = this.Fixture.Create<string>();
 
-            this.MockMessageHandler = BuildMockMessageHandler();
-            Mock<IHttpClientFactory> mockHttpClientFactory = BuildMockHttpClientFactory(
+            this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler();
+            Mock<IHttpClientFactory> mockHttpClientFactory = TestMockUtils.BuildMockHttpClientFactory(
                 this.MockMessageHandler.Object);
             this.TestClass = new LocalAuthorityUploadFileProcessingController(
                 this.Configuration,
@@ -94,7 +92,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
                 .ReturnsAsync("somevalue");
             // Create controller with the mocked factory
-            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient())
+            var controller = new LocalAuthorityUploadFileProcessingController(TestMockUtils.BuildConfiguration(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient())
             {
                 TempData = tempData
             };
@@ -167,7 +165,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockTokenAcquisition
                 .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
                 .ReturnsAsync("somevalue");
-            var controller = new LocalAuthorityUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient())
+            var controller = new LocalAuthorityUploadFileProcessingController(TestMockUtils.BuildConfiguration(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient())
             {
                 TempData = tempData
             };
@@ -211,7 +209,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                     .Returns(httpClient);
-            var config = GetConfigurationValues();
+            var config = TestMockUtils.BuildConfiguration();
             config.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value = string.Empty;
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object,
@@ -249,7 +247,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                     .Returns(httpClient);
-            var config = GetConfigurationValues();
+            var config = TestMockUtils.BuildConfiguration();
             config.GetSection("LapcapSettings").GetSection("ParameterYear").Value = string.Empty;
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object,
@@ -322,92 +320,6 @@ namespace EPR.Calculator.Frontend.UnitTests
                 ItExpr.Is<HttpRequestMessage>(m =>
                     m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{sessionMessage}\"")),
                 ItExpr.IsAny<CancellationToken>());
-        }
-
-        private static IConfiguration GetConfigurationValues()
-        {
-            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(Separator, StringSplitOptions.None)[0];
-            IConfiguration config = new ConfigurationBuilder()
-               .SetBasePath(projectPath)
-               .AddJsonFile("appsettings.Test.json")
-               .Build();
-
-            return config;
-        }
-
-        private static Mock<ISession> BuildMockSession(Fixture fixture)
-        {
-            var sessionMock = new Mock<ISession>();
-            var sessionStorage = new Dictionary<string, byte[]>
-            {
-                { "accessToken", Encoding.UTF8.GetBytes(fixture.Create<string>()) },
-            };
-
-            sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
-                       .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
-
-            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                .Returns((string key, out byte[] value) =>
-                {
-                    var success = sessionStorage.TryGetValue(key, out var storedValue);
-                    value = storedValue;
-                    return success;
-                });
-
-            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]?>.IsAny))
-               .Returns((string key, out byte[]? value) =>
-               {
-                   var success = sessionStorage.TryGetValue(key, out var storedValue);
-                   value = storedValue;
-                   return success;
-               });
-
-            sessionMock.Setup(s => s.Remove(It.IsAny<string>()))
-           .Callback<string>((key) => sessionStorage.Remove(key));
-
-            return sessionMock;
-        }
-
-        private static Mock<HttpMessageHandler> BuildMockMessageHandler()
-        {
-            // Mock HttpMessageHandler
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.Created,
-                    Content = new StringContent("response content"),
-                });
-            return mockHttpMessageHandler;
-        }
-
-        private static Mock<IHttpClientFactory> BuildMockHttpClientFactory(HttpMessageHandler httpMessageHandler)
-        {
-            // Create HttpClient with the mocked handler
-            var httpClient = new HttpClient(httpMessageHandler);
-
-            // Mock IHttpClientFactory
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-            return mockHttpClientFactory;
-        }
-
-        private static IConfiguration BuildConfiguration()
-        {
-            string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(Separator, StringSplitOptions.None)[0];
-            IConfiguration config = new ConfigurationBuilder()
-               .SetBasePath(projectPath)
-               .AddJsonFile("appsettings.Test.json")
-               .Build();
-
-            return config;
         }
     }
 }

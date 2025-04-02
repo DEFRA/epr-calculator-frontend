@@ -88,23 +88,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private string Transform(LapcapRefreshViewModel lapcapRefreshViewModel)
         {
-            string parameterYear;
-            if (this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear))
-            {
-                parameterYear = this.HttpContext.Session.GetString(SessionConstants.FinancialYear)!;
-            }
-            else
-            {
-                var configYear = this.Configuration
-                    .GetSection("LapcapSettings")
-                    .GetValue<string>("ParameterYear");
-                if (string.IsNullOrWhiteSpace(configYear))
-                {
-                    throw new ArgumentNullException(configYear, "ParameterYear is null. Check the configuration settings for local authority");
-                }
-
-                parameterYear = configYear;
-            }
+            string parameterYear = this.GetParameterYear("LapcapSettings");
 
             var lapcapData = new CreateLapcapDataDto
             {
