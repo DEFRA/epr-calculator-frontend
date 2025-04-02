@@ -1,4 +1,7 @@
 ﻿using System.Text;
+using EPR.Calculator.Frontend.Common;
+using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Constants;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Mvc;
@@ -53,6 +56,37 @@ namespace EPR.Calculator.Frontend.Controllers
             this.TelemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
             this.TelemetryClient.TrackTrace($"accessToken length {accessToken.Length}", SeverityLevel.Information);
             return accessToken;
+        }
+
+        /// <summary>
+        /// Returns financial year, dependant on the ShowFinancialYear feature flag.
+        /// </summary>
+        /// <param name="configSection">The section of the config file to look for the financial year in.</param>
+        /// <returns>
+        /// If ShowFinancialYear is enabled, returns the financial year selected on the dashboard.
+        /// If it's disabled, returns the financial year from the config file.
+        /// </returns>
+        protected string GetParameterYear(string configSection)
+        {
+            string parameterYear;
+            if (this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear))
+            {
+                parameterYear = this.HttpContext.Session.GetString(SessionConstants.FinancialYear)!;
+            }
+            else
+            {
+                var configYear = this.Configuration
+                    .GetSection(configSection)
+                    .GetValue<string>("ParameterYear");
+                if (string.IsNullOrWhiteSpace(configYear))
+                {
+                    throw new ArgumentNullException(configYear, "ParameterYear is null. Check the configuration settings.");
+                }
+
+                parameterYear = configYear;
+            }
+
+            return parameterYear;
         }
     }
 }

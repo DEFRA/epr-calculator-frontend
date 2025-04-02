@@ -90,14 +90,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private string Transform(ParameterRefreshViewModel parameterRefreshViewModel)
         {
-            var parameterYear = this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear)
-                ? this.HttpContext.Session.GetString(SessionConstants.FinancialYear)
-                : this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
-
-            if (string.IsNullOrWhiteSpace(parameterYear))
-            {
-                throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings for default parameters");
-            }
+            var parameterYear = this.GetParameterYear(ConfigSection.ParameterSettings);
 
             var parameterSetting = new CreateDefaultParameterSettingDto
             {
