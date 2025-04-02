@@ -47,7 +47,6 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("runoverview/{runId}")]
         public Task<IActionResult> IndexAsync(int runId)
         {
-
             // Get the calculation run details from the API
             var calculatorRun = new CalculatorRunDto()
             {

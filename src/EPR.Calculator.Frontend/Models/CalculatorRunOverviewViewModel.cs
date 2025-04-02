@@ -17,7 +17,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets or sets the title of the Back Link.
         /// </summary>
-        public string BackLink { get; set; } = "";
+        public string BackLink { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets the data for the run status update.
