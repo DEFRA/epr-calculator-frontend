@@ -15,7 +15,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// </summary>
     public class ClassifyingCalculationRunScenario1Controller : BaseController
     {
-        private const string ClassifyingCalculationRunIndexView = ViewNames.ClassifyingCalculationRunIndex;
+        private const string ClassifyingCalculationRunIndexView = ViewNames.ClassifyingCalculationRunScenario1Index;
         private readonly IConfiguration configuration;
         private readonly IHttpClientFactory clientFactory;
         private readonly ILogger<ClassifyingCalculationRunScenario1Controller> logger;

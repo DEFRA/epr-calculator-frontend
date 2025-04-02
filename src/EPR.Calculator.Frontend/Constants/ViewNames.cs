@@ -103,11 +103,11 @@
         /// <summary>
         /// classifying calculation run controller index page view.
         /// </summary>
-        public const string ClassifyingCalculationRunIndex = "~/Views/ClassifyingCalculationRun/Index.cshtml";
+        public const string ClassifyingCalculationRunScenario1Index = "~/Views/ClassifyingCalculationRunScenario1/Index.cshtml";
 
         /// <summary>
         /// classifying calculation run error page view.
         /// </summary>
-        public const string ClassifyingCalculationRunErrorPage = "~/Views/ClassifyingCalculationRun/ErrorPage.cshtml";
+        public const string ClassifyingCalculationRunScenario1ErrorPage = "~/Views/ClassifyingCalculationRunScenario1/ErrorPage.cshtml";
     }
 }
