@@ -1,4 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,8 +19,17 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("billing-file-success")]
         public IActionResult BillingFileSuccess()
         {
+            // Create the view model
+            var model = new ConfirmationViewModel
+            {
+                Title = ConfirmationMessages.BillingFileSuccess.Title,
+                Body = ConfirmationMessages.BillingFileSuccess.Body,
+                NextText = ConfirmationMessages.BillingFileSuccess.NextText,
+                RedirectController = "Dashboard",
+            };
+
             // Return the view
-            return this.View(ViewNames.BillingConfirmationSuccess);
+            return this.View(ViewNames.BillingConfirmationSuccess, model);
         }
     }
 }
