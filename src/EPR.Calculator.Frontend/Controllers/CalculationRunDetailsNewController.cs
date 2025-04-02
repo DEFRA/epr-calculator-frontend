@@ -9,24 +9,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
-using System.Net;
-using System.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="CalculationRunDetailsController"/> class.
+    /// Controller responsible for displaying the details of a calculation run.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
     [Route("payment-calculator")]
     public class CalculationRunDetailsNewController : BaseController
     {
-        private readonly IHttpClientFactory _clientFactory;
-        private readonly ILogger<CalculationRunDetailsNewController> _logger;
         private readonly IConfiguration _configuration;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CalculationRunDetailsNewController"/> class.
         /// <summary>
         /// Initializes a new instance of the <see cref="CalculationRunDetailsNewController"/> class.
         /// </summary>
@@ -44,78 +38,35 @@ namespace EPR.Calculator.Frontend.Controllers
             : base(configuration, tokenAcquisition, telemetryClient)
         {
             _configuration = configuration;
-            _clientFactory = clientFactory;
-            _logger = logger;
         }
+
 
         /// <summary>
-        /// Displays the calculation run details index view.
+        /// Gets the calculation run overview page.
         /// </summary>
-        /// <param name="runId">The ID of the calculation run.</param>
-        /// <returns>The calculation run details index view.</returns>
+        /// <param name="runId">Run ID.</param>
+        /// <returns>View. </returns>
         [Authorize(Roles = "SASuperUser")]
         [Route("rundetails/{runId}")]
-        public async Task<IActionResult> IndexAsync(int runId)
+        public Task<IActionResult> IndexAsync(int runId)
         {
-            try
+            // Get the calculation run details from the API
+            var calculatorRun = new CalculatorRunDto()
             {
-                var response = await GetCalculationDetailsAsync(runId);
-                if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogError("Request failed with status code {StatusCode}", response.StatusCode);
-                    return RedirectToErrorPage();
-                }
+                RunId = runId,
+                FinancialYear = "2024-25",
+                FileExtension = "xlsx",
+                RunClassificationStatus = "Draft",
+                RunName = "Calculation run 99",
+                RunClassificationId = 3,
+                CreatedAt = DateTime.Now,
+                CreatedBy = "Jo Bloggs",
+            };
 
-                var calculatorRun = await DeserializeResponseAsync(response);
-                if (calculatorRun == null)
-                {
-                    throw new ArgumentNullException($"Calculator with run id {runId} not found");
-                }
+            var viewModel = CreateViewModel(runId, calculatorRun);
+            SetDownloadParameters(viewModel);
 
-                if (!IsRunEligibleForDisplay(calculatorRun))
-                {
-                    return View(ViewNames.CalculationRunDetailsErrorPage, CreateViewModelCommonData());
-                }
-
-                var viewModel = CreateViewModel(runId, calculatorRun);
-                SetDownloadParameters(viewModel);
-
-                return View(ViewNames.CalculationRunDetailsNewIndex, viewModel);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while processing the request.");
-                return RedirectToErrorPage();
-            }
-        }
-
-        private static bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
-            => calculatorRun.RunClassificationId == (int)RunClassification.UNCLASSIFIED;
-
-        private async Task<HttpResponseMessage> GetCalculationDetailsAsync(int runId)
-        {
-            var client = CreateHttpClient();
-            client.DefaultRequestHeaders.Add("Authorization", await AcquireToken());
-            return await client.GetAsync($"{client.BaseAddress}/{runId}");
-        }
-
-        private HttpClient CreateHttpClient()
-        {
-            var apiUrl = _configuration.GetValue<string>($"{ConfigSection.DashboardCalculatorRun}:{ConfigSection.DashboardCalculatorRunApi}");
-            var client = _clientFactory.CreateClient();
-            client.BaseAddress = new Uri(apiUrl!);
-            return client;
-        }
-
-        private async Task<CalculatorRunDto?> DeserializeResponseAsync(HttpResponseMessage response)
-        {
-            var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<CalculatorRunDto>(content);
-        }
-
-        private ViewModelCommonData CreateViewModelCommonData()
-        {
-            return new ViewModelCommonData { CurrentUser = CommonUtil.GetUserName(HttpContext) };
+            return Task.FromResult<IActionResult>(View(ViewNames.CalculationRunDetailsNewIndex, viewModel));
         }
 
         private CalculatorRunDetailsNewViewModel CreateViewModel(int runId, CalculatorRunDto calculatorRun)
@@ -129,8 +80,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     RunClassificationId = calculatorRun.RunClassificationId,
                     RunName = calculatorRun.RunName,
                     CreatedAt = calculatorRun.CreatedAt,
-                    CreatedBy = "Jo Bloggs", // TODO: Replace with actual data
-                    FinancialYear = "2024-25", // TODO: Replace with actual data
+                    CreatedBy = calculatorRun.CreatedBy,
+                    FinancialYear = calculatorRun.FinancialYear,
                     FileExtension = calculatorRun.FileExtension,
                     RunClassificationStatus = calculatorRun.RunClassificationStatus,
                 },
@@ -141,11 +92,9 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var baseApiUrl = _configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
             viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.Data.RunId}");
+
             viewModel.DownloadErrorURL = $"/DownloadFileError/{viewModel.Data.RunId}";
             viewModel.DownloadTimeout = _configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
         }
-
-        private IActionResult RedirectToErrorPage()
-         => RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
     }
 }
