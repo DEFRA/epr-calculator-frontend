@@ -40,7 +40,6 @@ namespace EPR.Calculator.Frontend.Controllers
             _configuration = configuration;
         }
 
-
         /// <summary>
         /// Gets the calculation run overview page.
         /// </summary>
