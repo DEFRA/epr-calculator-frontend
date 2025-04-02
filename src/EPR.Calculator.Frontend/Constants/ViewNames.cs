@@ -119,10 +119,5 @@
         /// classifying calculation run controller scenario1 index page view.
         /// </summary>
         public const string ClassifyingCalculationRunScenario1Index = "~/Views/ClassifyingCalculationRunScenario1/Index.cshtml";
-
-        /// <summary>
-        /// classifying calculation run controller scenario1 error page view.
-        /// </summary>
-        public const string ClassifyingCalculationRunScenario1ErrorPage = "~/Views/ClassifyingCalculationRunScenario1/ErrorPage.cshtml";
     }
 }
