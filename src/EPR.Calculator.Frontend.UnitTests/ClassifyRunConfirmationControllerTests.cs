@@ -69,13 +69,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Arrange
             var runId = 1;
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.BadRequest, string.Empty);
-            var client = new HttpClient(mockHttpMessageHandler.Object);
-
-            _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(client);
-            MockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
 
             // Act
-            var result = await _controller.IndexAsync(runId);
+            var result = _controller.IndexAsync(runId);
 
             // Assert
             var redirectResult = result as RedirectToActionResult;
@@ -94,7 +90,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
 
             // Act
-            var result = await _controller.IndexAsync(calculatorRunDto.RunId);
+            var result = _controller.IndexAsync(calculatorRunDto.RunId);
 
             // Assert
             var viewResult = result as ViewResult;
@@ -103,25 +99,6 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var model = viewResult.Model as ClassifyRunConfirmationViewModel;
             Assert.IsNotNull(model);
-        }
-
-        [TestMethod]
-        public async Task IndexAsync_ThrowsArgumentNullException_WhenCalculatorRunIsNull()
-        {
-            // Arrange
-            var runId = 1;
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, null);
-            var client = new HttpClient(mockHttpMessageHandler.Object);
-            _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(client);
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
-
-            // Act
-            var result = await _controller.IndexAsync(runId);
-
-            // Assert
-            var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
         }
 
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)

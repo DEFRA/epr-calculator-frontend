@@ -1,5 +1,4 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -7,7 +6,6 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -17,8 +15,6 @@ namespace EPR.Calculator.Frontend.Controllers
     [Authorize(Roles = "SASuperUser")]
     public class ClassifyRunConfirmationController : BaseController
     {
-        private readonly IConfiguration configuration;
-        private readonly IHttpClientFactory clientFactory;
         private readonly ILogger<ClassifyRunConfirmationController> logger;
 
         /// <summary>
@@ -27,55 +23,36 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="configuration">The configuration settings.</param>
         /// <param name="clientFactory">The HTTP client factory.</param>
         /// <param name="logger">The logger instance.</param>
+        /// <param name="tokenAcquisition">The token acquisition service.</param>
+        /// <param name="telemetryClient">The telemetry client.</param>
         public ClassifyRunConfirmationController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyRunConfirmationController> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
             : base(configuration, tokenAcquisition, telemetryClient)
         {
-            this.configuration = configuration;
-            this.clientFactory = clientFactory;
             this.logger = logger;
         }
 
         /// <summary>
-        /// Displays the calculation run details index view.
+        /// Classify run confirmation index view.
         /// </summary>
         /// <param name="runId">The ID of the calculation run.</param>
-        /// <returns>The calculation run details index view.</returns>
+        /// <returns>The classify run confirmation index view.</returns>
         [Authorize(Roles = "SASuperUser")]
         [Route("ClassifyRunConfirmation/{runId}")]
-        public async Task<IActionResult> IndexAsync(int runId)
+        public IActionResult IndexAsync(int runId)
         {
             try
             {
-                var getCalculationDetailsResponse = await this.GetCalculationDetailsAsync(runId);
-
-                if (!getCalculationDetailsResponse.IsSuccessStatusCode)
-                {
-                    this.logger.LogError(
-                        "Request failed with status code {StatusCode}", getCalculationDetailsResponse.StatusCode);
-
-                    return this.RedirectToAction(
-                        ActionNames.StandardErrorIndex,
-                        CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                }
-
-                var calculatorRun = JsonConvert.DeserializeObject<CalculatorRunDto>(getCalculationDetailsResponse.Content.ReadAsStringAsync().Result);
-
-                if (calculatorRun == null)
-                {
-                    throw new ArgumentNullException($"Calculator with run id {runId} not found");
-                }
-
                 var statusUpdateViewModel = new ClassifyRunConfirmationViewModel
                 {
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                     Data = new CalculatorRunDto
                     {
                         RunId = runId,
-                        RunClassificationId = calculatorRun!.RunClassificationId,
-                        RunName = calculatorRun.RunName,
-                        CreatedAt = calculatorRun.CreatedAt,
-                        FileExtension = calculatorRun.FileExtension,
-                        RunClassificationStatus = calculatorRun.RunClassificationStatus,
+                        RunClassificationId = 240008,
+                        RunName = "Calculation run 99",
+                        CreatedAt = DateTime.Now,
+                        FileExtension = ".csv",
+                        RunClassificationStatus = "3",
                         FinancialYear = "2024-25", // calculatorRun.FinancialYear
                         Classification = "Initial run", // calculatorRun.FinancialYear
                     },
@@ -88,25 +65,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-        }
-
-        private async Task<HttpResponseMessage> GetCalculationDetailsAsync(int runId)
-        {
-            var client = this.CreateHttpClient();
-            var apiUrl = client.BaseAddress!.ToString();
-            var accessToken = await this.AcquireToken();
-            client.DefaultRequestHeaders.Add("Authorization", accessToken);
-            var requestUri = new Uri($"{apiUrl}/{runId}", UriKind.Absolute);
-            return await client.GetAsync(requestUri);
-        }
-
-        private HttpClient CreateHttpClient()
-        {
-            var apiUrl = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                .GetValue<string>(ConfigSection.DashboardCalculatorRunApi);
-            var client = this.clientFactory.CreateClient();
-            client.BaseAddress = new Uri(apiUrl!);
-            return client;
         }
     }
 }
