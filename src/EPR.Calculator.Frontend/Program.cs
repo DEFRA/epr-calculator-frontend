@@ -49,7 +49,7 @@ builder.Services.AddSession(options =>
     options.Cookie.Name = builder.Configuration.GetValue<string>("SessionCookieName");
 });
 
-if (!builder.Environment.IsDevelopment() && environmentName != "local")
+if (environmentName != "local")
 {
     builder.Services.AddDataProtection()
     .PersistKeysToAzureBlobStorage(builder.Configuration.GetSection("BlobStorage:ConnectionString").Value, SessionConstants.Paycal, SessionConstants.PaycalDataProtection)
