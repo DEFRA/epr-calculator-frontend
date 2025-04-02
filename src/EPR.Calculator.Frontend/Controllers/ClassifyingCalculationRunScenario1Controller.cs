@@ -51,10 +51,10 @@ namespace EPR.Calculator.Frontend.Controllers
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                     CalculatorRunStatus = new CalculatorRunStatusUpdateDto
                     {
-                        RunId = runId,
+                        RunId = 240008,
                         ClassificationId = 3, // TODO: Replace with actual data,
-                        CalcName = "Test Run", // TODO: Replace with actual data,
-                        CreatedDate = "21 Jun 2024", // TODO: Replace with actual data,
+                        CalcName = "Calculation run 99", // TODO: Replace with actual data,
+                        CreatedDate = "01 May 2024", // TODO: Replace with actual data,
                         CreatedTime = "12:09", // TODO: Replace with actual data,
                         FinancialYear = "2024-25", // TODO: Replace with actual data,
                     },
