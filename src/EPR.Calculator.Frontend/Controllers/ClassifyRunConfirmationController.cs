@@ -1,5 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Enums;
+﻿using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
