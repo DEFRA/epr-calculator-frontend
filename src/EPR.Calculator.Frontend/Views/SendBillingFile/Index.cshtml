@@ -14,7 +14,8 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 &nbsp; &nbsp; <br>
-                <form method="POST" action="classification">
+               @using(Html.BeginForm("","",FormMethod.Post))
+               {
                     <div class="govuk-form-group">
                         <fieldset class="govuk-fieldset">
                             <div class="govuk-form-group">
@@ -41,11 +42,11 @@
                                 @ActionLinkLabels.SendBillingFile
                                 </a>
 
-                            <a class="govuk-link" href="@Url.Action("Index", "Dashboard")">@ActionLinkLabels.ReturnToDashBoard</a>
+                            <a class="govuk-link" asp-action="Index" asp-controller="Dashboard" >@ActionLinkLabels.ReturnToDashBoard</a>
                             </div>
                         </fieldset>
                     </div>
-                </form>
+               }
             </div>
         </div>
 </div>
