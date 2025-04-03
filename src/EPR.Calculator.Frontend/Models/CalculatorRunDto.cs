@@ -1,8 +1,12 @@
-﻿namespace EPR.Calculator.Frontend.Models
+﻿using System.Drawing.Printing;
+
+namespace EPR.Calculator.Frontend.Models
 {
     public class CalculatorRunDto
     {
         public int RunId { get; set; }
+
+        public string CreatedBy { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
