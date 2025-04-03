@@ -283,6 +283,9 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .GetSection("ParameterSettings")["ParameterYear"] = configValue;
             this.Configuration
                 .GetSection("FeatureManagement")["ShowFinancialYear"] = featureFlagEnabled.ToString();
+            this.MockSesion.Object.Set(
+                SessionConstants.FinancialYear,
+                Encoding.UTF8.GetBytes("This value comes from the session."));
             var expectedTimesCalled = featureFlagEnabled ? Times.Never() : Times.Once();
 
             // Act
