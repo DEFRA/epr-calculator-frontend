@@ -16,6 +16,11 @@
         public const string ReturnToDashBoard = "Return to the dashboard";
 
         /// <summary>
+        /// Return to DashBoard Label.
+        /// </summary>
+        public const string SendBillingFile = "Send billing file";
+
+        /// <summary>
         /// Index Title.
         /// </summary>
         public const string IndexTitle = "Index";
