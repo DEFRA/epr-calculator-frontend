@@ -28,6 +28,11 @@
                 "The FSS will process the billing file based on the invoice instructions you accepted.",
                 "You can return to the dashboard to review calculation runs or start a new run."
             ];
+
+            /// <summary>
+            /// Redirect controller for confirmation partial.
+            /// </summary>
+            public static string RedirectController = "Dashboard";
         }
     }
 }

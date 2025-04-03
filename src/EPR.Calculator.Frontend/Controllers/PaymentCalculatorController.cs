@@ -25,7 +25,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 Title = ConfirmationMessages.BillingFileSuccess.Title,
                 Body = ConfirmationMessages.BillingFileSuccess.Body,
                 AdditionalParagraphs = ConfirmationMessages.BillingFileSuccess.NextText,
-                RedirectController = "Dashboard",
+                RedirectController = ConfirmationMessages.BillingFileSuccess.RedirectController,
             };
 
             // Return the view
