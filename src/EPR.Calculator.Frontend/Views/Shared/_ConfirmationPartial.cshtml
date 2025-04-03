@@ -15,9 +15,12 @@
                 </div>
 
                 <h2 class="govuk-heading-m">What happens next</h2>
-                <p class="govuk-body">
-                    @Html.Raw(Model.NextText)
-                </p>
+                @foreach (var text in Model.AdditionalParagraphs)
+                {
+	                <p class="govuk-body">
+		                @text
+	                </p>
+                }
 
                 &nbsp; &nbsp;
                 <div class="govuk-button-group">

@@ -9,14 +9,14 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller responsible for payments.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
-    [Route("payment-calculator")]
+    [Route("PaymentCalculator")]
     public class PaymentCalculatorController : Controller
     {
         /// <summary>
         /// Displays a billing file sent confirmation screen.
         /// </summary>
         /// <returns>Billing file sent page.</returns>
-        [Route("billing-file-success")]
+        [Route("BillingFileSuccess")]
         public IActionResult BillingFileSuccess()
         {
             // Create the view model
@@ -24,7 +24,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 Title = ConfirmationMessages.BillingFileSuccess.Title,
                 Body = ConfirmationMessages.BillingFileSuccess.Body,
-                NextText = ConfirmationMessages.BillingFileSuccess.NextText,
+                AdditionalParagraphs = ConfirmationMessages.BillingFileSuccess.NextText,
                 RedirectController = "Dashboard",
             };
 

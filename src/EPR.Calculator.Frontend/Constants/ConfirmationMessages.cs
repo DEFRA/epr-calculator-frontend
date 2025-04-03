@@ -21,11 +21,13 @@
             public const string Body = "You have successfully sent the billing file to the FSS.";
 
             /// <summary>
-            /// Next text for confirmation partial.
+            /// Additional text paragraphs for confirmation partial.
             /// </summary>
-            public const string NextText = "The FSS will process the billing file based on the invoice instructions you accepted. " +
-                                           "<br/><br/>" +
-                                           "You can return to the dashboard to review calculation runs or start a new run.";
+            public static readonly List<string> NextText =
+            [
+                "The FSS will process the billing file based on the invoice instructions you accepted.",
+                "You can return to the dashboard to review calculation runs or start a new run."
+            ];
         }
     }
 }
