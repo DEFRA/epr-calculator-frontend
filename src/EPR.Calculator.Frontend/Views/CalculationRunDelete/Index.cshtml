@@ -18,7 +18,7 @@
                 Only delete this calculation run if you no longer need it or have completed another successful run.
             </label>
             <br>
-            @using (Html.BeginForm("Delete-Confirmation", "CalculationRunDelete", FormMethod.Post))
+            @using (Html.BeginForm("confirmation-success", "CalculationRunDelete", FormMethod.Post))
             {
                 <div class="govuk-button-group">
                     <button id="btnDelete" type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">

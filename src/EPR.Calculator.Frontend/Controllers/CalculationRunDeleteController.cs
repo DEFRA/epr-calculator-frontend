@@ -42,7 +42,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">The ID of the calculation run.</param>
         /// <returns>The delete confirmation view.</returns>
-        [Route("delete-confirmation/{runId}")]
+        [Route("delete-confirmation")]
         public IActionResult Index(int runId)
         {
             var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
