@@ -22,11 +22,11 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="CalculationRunOverviewController"/> class.
         /// </summary>
-        /// <param name="configuration">configuration</param>
-        /// <param name="clientFactory">clientFactory</param>
-        /// <param name="logger">logger</param>
-        /// <param name="tokenAcquisition">tokenAcquisition</param>
-        /// <param name="telemetryClient">telemetryClient</param>
+        /// <param name="configuration">configuration.</param>
+        /// <param name="clientFactory">clientFactory.</param>
+        /// <param name="logger">logger.</param>
+        /// <param name="tokenAcquisition">tokenAcquisition.</param>
+        /// <param name="telemetryClient">telemetryClient.</param>
         public CalculationRunOverviewController(
             IConfiguration configuration,
             IHttpClientFactory clientFactory,

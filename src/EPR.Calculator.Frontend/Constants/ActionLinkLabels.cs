@@ -3,7 +3,7 @@
     /// <summary>
     /// List of action link labels.
     /// </summary>
-    public class ActionLinkLabels
+    public static class ActionLinkLabels
     {
         /// <summary>
         /// Calculation Delete Run Label.

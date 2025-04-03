@@ -10,7 +10,7 @@ namespace EPR.Calculator.Frontend.ViewModels
     public record CalculatorRunOverviewViewModel : ViewModelCommonData
     {
         /// <summary>
-        /// Gets or sets the title of the Back Link.
+        /// Gets the title of the Back Link.
         /// </summary>
         public string BackLinkURL { get; init; } = string.Empty; // ToDo: will be update at the time of implementing the back link functionality.
 
