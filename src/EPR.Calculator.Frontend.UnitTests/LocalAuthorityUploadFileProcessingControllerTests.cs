@@ -3,6 +3,7 @@ using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -92,18 +93,21 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
             controller.ControllerContext.HttpContext = httpContextMock.Object;
-            controller.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUploadFileName);
 
             // Act
-            var task = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList());
+            var viewModel = new LapcapRefreshViewModel()
+            {
+                LapcapTemplateValue = MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(),
+                FileName = "Test Name",
+            };
+
+            var task = controller.Index(viewModel);
             task.Wait();
             var result = task.Result as OkObjectResult;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(200, result.StatusCode);
-            Assert.AreEqual("LocalAuthorityData.csv", controller.FileName);
-            Assert.IsTrue(sessionStorage.ContainsKey(SessionConstants.LapcapFileName));
         }
 
         [TestMethod]
@@ -145,7 +149,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
             controller.ControllerContext.HttpContext = mockHttpContext.Object;
 
-            var task = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList());
+            var viewModel = new LapcapRefreshViewModel()
+            {
+                LapcapTemplateValue = MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(),
+                FileName = "Test Name",
+            };
+
+            var task = controller.Index(viewModel);
             task.Wait();
             var result = task.Result as BadRequestObjectResult;
             Assert.IsNotNull(result);
@@ -177,7 +187,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object,
                 mockTokenAcquisition.Object, new TelemetryClient());
-            var task = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList());
+            var viewModel = new LapcapRefreshViewModel()
+            {
+                LapcapTemplateValue = MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(),
+                FileName = "Test Name",
+            };
+
+            var task = controller.Index(viewModel);
             var result = task.Result as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
@@ -209,7 +225,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new LocalAuthorityUploadFileProcessingController(config, mockHttpClientFactory.Object,
                 mockTokenAcquisition.Object, new TelemetryClient());
-            var task = controller.Index(MockData.GetLocalAuthorityDisposalCostsToUpload().ToList());
+
+            var viewModel = new LapcapRefreshViewModel()
+            {
+                LapcapTemplateValue = MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(),
+                FileName = "Test Name",
+            };
+
+            var task = controller.Index(viewModel);
             task.Wait();
             var result = task.Result as RedirectToActionResult;
             Assert.IsNotNull(result);

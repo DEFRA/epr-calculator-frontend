@@ -2,8 +2,8 @@
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+    using EPR.Calculator.Frontend.Common.Constants;
     using EPR.Calculator.Frontend.Constants;
-    using EPR.Calculator.Frontend.Enums;
     using EPR.Calculator.Frontend.Helpers;
     using EPR.Calculator.Frontend.Models;
     using EPR.Calculator.Frontend.ViewModels;
@@ -12,11 +12,12 @@ namespace EPR.Calculator.Frontend.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Identity.Web;
     using Newtonsoft.Json;
-    using System.Net;
-    using System.Reflection;
-    using System.Runtime.Serialization;
 
+    /// <summary>
+    /// Controller for handling the dashboard.
+    /// </summary>
     [Authorize(Roles = "SASuperUser")]
+    [Route("/")]
     public class DashboardController : BaseController
     {
         private readonly IConfiguration configuration;
@@ -36,6 +37,8 @@ namespace EPR.Calculator.Frontend.Controllers
             this.clientFactory = clientFactory;
         }
 
+        private bool ShowDetailedError { get; set; }
+
         /// <summary>
         /// Handles the Index action for the controller.
         /// </summary>
@@ -43,89 +46,100 @@ namespace EPR.Calculator.Frontend.Controllers
         /// An <see cref="IActionResult"/> that renders the Dashboard Index view with the calculation runs data,
         /// or redirects to the Standard Error page if an error occurs.
         /// </returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when the API URL is null or empty.
-        /// </exception>
         [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> Index()
         {
             try
             {
-                var accessToken = await this.AcquireToken();
+                this.IsShowDetailedError();
 
-                var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                    .GetSection(ConfigSection.DashboardCalculatorRunApi)
-                    .Value;
-
-                var year = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                    .GetSection(ConfigSection.RunParameterYear)
-                    .Value;
-
-                using var response =
-                    await this.GetHttpRequest(year, dashboardCalculatorRunApi, this.clientFactory, accessToken);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var deserializedRuns = JsonConvert.DeserializeObject<List<CalculationRun>>(response.Content.ReadAsStringAsync().Result);
-
-                    // Ensure deserializedRuns is not null
-                    var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
-                    var dashboardRunData = GetCalulationRunsData(calculationRuns);
-                    return this.View(
-                        ViewNames.DashboardIndex,
-                        new DashboardViewModel
-                        {
-                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                            Calculations = dashboardRunData,
-                        });
-                }
-
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return this.View(new DashboardViewModel
-                    {
-                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    });
-                }
-
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                var financialYear = CommonUtil.GetFinancialYear(DateTime.Now);
+                return await this.GoToDashboardView(financialYear);
             }
-            catch (Exception e)
+            catch (Exception)
             {
+                if (this.ShowDetailedError)
+                {
+                    throw;
+                }
+
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
 
         /// <summary>
-        /// Processes a list of calculation runs and assigns status values based on their classifications.
+        /// Returns the list of calculation runs for the given financial year.
         /// </summary>
-        /// <param name="calculationRuns">The list of calculation runs to be processed.</param>
-        /// <returns>A list of <see cref="DashboardViewModel"/> objects containing the processed data.</returns>
-        private static List<DashboardViewModel.CalculationRunViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
+        /// <param name="financialYear">The financial year to filter the calculation runs.</param>
+        /// <returns>The list of calculation runs.</returns>
+        [Authorize(Roles = "SASuperUser")]
+        [Route("Dashboard/GetCalculations")]
+        public async Task<IActionResult> GetCalculations(string financialYear)
         {
-            var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
-            var dashboardRunData = new List<DashboardViewModel.CalculationRunViewModel>();
-
-            if (calculationRuns.Count > 0)
+            try
             {
-                var displayRuns = calculationRuns.Where(x =>
-                    x.CalculatorRunClassificationId != (int)RunClassification.DELETED &&
-                    x.CalculatorRunClassificationId != (int)RunClassification.PLAY &&
-                    x.CalculatorRunClassificationId != (int)RunClassification.QUEUE);
-                foreach (var calculationRun in displayRuns)
+                this.IsShowDetailedError();
+
+                return await this.GoToDashboardView(financialYear, true);
+            }
+            catch (Exception)
+            {
+                if (this.ShowDetailedError)
                 {
-                    var classificationVal = runClassifications.Find(c => (int)c == calculationRun.CalculatorRunClassificationId);
-                    var member = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classificationVal.ToString());
-
-                    var attribute = member?.GetCustomAttribute<EnumMemberAttribute>(false);
-
-                    calculationRun.Status = attribute?.Value ?? string.Empty; // Use a default value if attribute or value is null
-
-                    dashboardRunData.Add(new DashboardViewModel.CalculationRunViewModel(calculationRun));
+                    throw;
                 }
+
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
+        }
+
+        private void IsShowDetailedError()
+        {
+            var showDetailedError = this.configuration.GetValue(typeof(bool), CommonConstants.ShowDetailedError);
+            if (showDetailedError != null)
+            {
+                this.ShowDetailedError = (bool)showDetailedError;
+            }
+        }
+
+        private async Task<ActionResult> GoToDashboardView(string financialYear, bool returnPartialView = false)
+        {
+            var accessToken = await this.AcquireToken();
+
+            var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                .GetSection(ConfigSection.DashboardCalculatorRunApi)
+                .Value;
+
+            if (dashboardCalculatorRunApi == null)
+            {
+                throw new ArgumentNullException(dashboardCalculatorRunApi);
             }
 
-            return dashboardRunData;
+            using var response =
+                await this.GetHttpRequest(financialYear, dashboardCalculatorRunApi, this.clientFactory, accessToken);
+
+            var dashboardViewModel = new DashboardViewModel
+            {
+                AccessToken = accessToken,
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                FinancialYear = financialYear,
+                FinancialYearListApi = this.configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
+                Calculations = null,
+            };
+
+            if (response.IsSuccessStatusCode)
+            {
+                var deserializedRuns = JsonConvert.DeserializeObject<List<CalculationRun>>(response.Content.ReadAsStringAsync().Result);
+
+                // Ensure deserializedRuns is not null
+                var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
+                var dashboardRunData = DashboardHelper.GetCalulationRunsData(calculationRuns);
+                dashboardViewModel.Calculations = dashboardRunData;
+            }
+
+            return returnPartialView
+                ? this.PartialView("_CalculationRunsPartial", dashboardViewModel.Calculations)
+                : this.View(dashboardViewModel);
         }
 
         /// <summary>

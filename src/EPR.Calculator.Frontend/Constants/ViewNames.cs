@@ -11,6 +11,11 @@
         public const string CalculationRunDetailsIndex = "~/Views/CalculationRunDetails/Index.cshtml";
 
         /// <summary>
+        /// Calculator run details controller index new page view.
+        /// </summary>
+        public const string CalculationRunDetailsNewIndex = "~/Views/CalculationRunDetailsNew/Index.cshtml";
+
+        /// <summary>
         /// Calculator run details error page view.
         /// </summary>
         public const string CalculationRunDetailsErrorPage = "~/Views/CalculationRunDetails/ErrorPage.cshtml";
@@ -99,5 +104,25 @@
         /// Download file error index page view.
         /// </summary>
         public const string DownloadFileErrorIndex = "~/Views/DownloadFileError/Index.cshtml";
+
+        /// <summary>
+        /// Calculator run delete confirmation page view.
+        /// </summary>
+        public const string CalculationRunDeleteIndex = "~/Views/CalculationRunDelete/Index.cshtml";
+
+        /// <summary>
+        /// Calculator run delete confirmation success page view.
+        /// </summary>
+        public const string CalculationRunDeleteConfirmationSuccess = "~/Views/CalculationRunDelete/ConfirmationSuccess.cshtml";
+
+        /// <summary>
+        /// Calculation Run Classification index page view.
+        /// </summary>
+        public const string CalculationRunClassification = "~/Views/ClassifyCalculationRun/Index.cshtml";
+
+        /// <summary>
+        /// classifying calculation run controller scenario1 index page view.
+        /// </summary>
+        public const string ClassifyingCalculationRunScenario1Index = "~/Views/ClassifyingCalculationRunScenario1/Index.cshtml";
     }
 }

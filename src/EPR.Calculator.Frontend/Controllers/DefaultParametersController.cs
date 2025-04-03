@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using Azure.Core;
+using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -59,6 +61,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 client.BaseAddress = new Uri(parameterSettingsApi);
                 var accessToken = await this.AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
+
                 var year = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
 
                 var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, year));
@@ -66,54 +69,63 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
+                    var viewModel = new DefaultParametersViewModel
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                        LastUpdatedBy = CommonUtil.GetUserName(this.HttpContext),
+                        SchemeParameters = new List<SchemeParametersViewModel>(),
+                    };
                     var data = await response.Content.ReadAsStringAsync();
                     var defaultSchemeParameters = JsonConvert.DeserializeObject<List<DefaultSchemeParameters>>(data);
 
                     if (defaultSchemeParameters != null)
                     {
-                        this.ViewBag.CommunicationData = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCostsByMaterial);
-                        this.ViewBag.CommunicationCostsByCountry = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.CommunicationCostsByCountry);
-                        this.ViewBag.OperatingCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeAdministratorOperatingCosts);
-                        this.ViewBag.PreparationCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LocalAuthorityDataPreparationCosts);
-                        this.ViewBag.SchemeSetupCosts = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.SchemeSetupCosts);
-                        this.ViewBag.LateReportingTonnage = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.LateReportingTonnage);
-                        this.ViewBag.MaterialityThreshold = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.MaterialityThreshold);
-                        this.ViewBag.BadDebtProvision = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.BadDebtProvision);
-                        this.ViewBag.TonnageChange = GetSchemeParametersBasedonCategory(defaultSchemeParameters, ParameterType.TonnageChangeThreshold);
-                        this.ViewBag.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
-                        this.ViewBag.IsDataAvailable = true;
+                        foreach (ParameterType name in (ParameterType[])Enum.GetValues(typeof(ParameterType)))
+                        {
+                            viewModel.SchemeParameters.Add(GetSchemeParametersBasedonCategory(defaultSchemeParameters, name));
+                        }
 
-                        return this.View(
-                            new DefaultParametersViewModel
-                            {
-                                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                                LastUpdatedBy = defaultSchemeParameters.First().CreatedBy,
-                            });
+                        viewModel.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
+                        viewModel.IsDataAvailable = true;
+
+                        return this.View(viewModel);
                     }
                 }
 
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    this.ViewBag.IsDataAvailable = false;
                     return this.View(new DefaultParametersViewModel
                     {
                         CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                         LastUpdatedBy = string.Empty,
+                        IsDataAvailable = false,
                     });
                 }
 
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
 
-        private static List<DefaultSchemeParameters> GetSchemeParametersBasedonCategory(List<DefaultSchemeParameters> defaultSchemeParameters, string type)
+        private static SchemeParametersViewModel GetSchemeParametersBasedonCategory(List<DefaultSchemeParameters> defaultSchemeParameters, ParameterType parameterType)
         {
-            var schemeParametersBasedonCategory = defaultSchemeParameters.Where(t => t.ParameterType == type).ToList();
-            return schemeParametersBasedonCategory;
+            var type = parameterType.GetDisplayName();
+            bool shouldDisplayPrefix = !IsExcludedFromPrefixDisplay(parameterType);
+
+            return new SchemeParametersViewModel
+            {
+                DefaultSchemeParameters = defaultSchemeParameters.Where(t => t.ParameterType == type).ToList(),
+                IsDisplayPrefix = shouldDisplayPrefix,
+                SchemeParameterName = type,
+            };
+        }
+
+        private static bool IsExcludedFromPrefixDisplay(ParameterType parameterType)
+        {
+            return parameterType == ParameterType.LateReportingTonnage || parameterType == ParameterType.BadDebtProvision;
         }
     }
 }

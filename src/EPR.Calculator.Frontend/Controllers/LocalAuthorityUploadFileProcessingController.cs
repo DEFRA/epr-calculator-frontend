@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace EPR.Calculator.Frontend.Controllers
     public class LocalAuthorityUploadFileProcessingController : BaseController
     {
         private readonly IHttpClientFactory clientFactory;
+        private readonly TelemetryClient _telemetryClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LocalAuthorityUploadFileProcessingController"/> class.
@@ -25,26 +27,26 @@ namespace EPR.Calculator.Frontend.Controllers
             : base(configuration, tokenAcquisition, telemetryClient)
         {
             this.clientFactory = clientFactory;
+            this._telemetryClient = telemetryClient;
         }
 
         public string? FileName { get; set; }
 
         [HttpPost]
         [Authorize(Roles = "SASuperUser")]
-        public async Task<IActionResult> Index([FromBody] List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
+        public async Task<IActionResult> Index([FromBody] LapcapRefreshViewModel lapcapRefreshViewModel)
         {
             try
             {
                 var lapcapSettingsApi = this.GetLapcapSettingsApi();
-
-                this.FileName = this.HttpContext.Session.GetString(SessionConstants.LapcapFileName);
-
                 var client = this.clientFactory.CreateClient();
                 client.BaseAddress = new Uri(lapcapSettingsApi);
                 var accessToken = await this.AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
-                var payload = this.Transform(lapcapDataTemplateValues);
+                this._telemetryClient.TrackTrace($"1.Lapcap File Name before Transform :{lapcapRefreshViewModel.FileName}");
+
+                var payload = this.Transform(lapcapRefreshViewModel);
 
                 var content = new StringContent(payload, System.Text.Encoding.UTF8, StaticHelpers.MediaType);
 
@@ -60,6 +62,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.Ok(response.Result);
                 }
 
+                this._telemetryClient.TrackTrace($"2.File name before BadRequest :{lapcapRefreshViewModel.FileName}");
+                this._telemetryClient.TrackTrace($"3.Reason for BadRequest :{response.Result.Content.ReadAsStringAsync().Result}");
                 return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
             }
             catch (Exception)
@@ -68,7 +72,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private string? GetLapcapSettingsApi()
+        private string GetLapcapSettingsApi()
         {
             var lapcapSettingsApi = this.Configuration.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value;
 
@@ -80,7 +84,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return lapcapSettingsApi;
         }
 
-        private string Transform(List<LapcapDataTemplateValueDto> lapcapDataTemplateValues)
+        private string Transform(LapcapRefreshViewModel lapcapRefreshViewModel)
         {
             var parameterYear = this.Configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
             if (string.IsNullOrWhiteSpace(parameterYear))
@@ -91,9 +95,11 @@ namespace EPR.Calculator.Frontend.Controllers
             var lapcapData = new CreateLapcapDataDto
             {
                 ParameterYear = parameterYear,
-                LapcapDataTemplateValues = lapcapDataTemplateValues,
-                LapcapFileName = this.FileName,
+                LapcapDataTemplateValues = lapcapRefreshViewModel.LapcapTemplateValue,
+                LapcapFileName = lapcapRefreshViewModel.FileName,
             };
+
+            this._telemetryClient.TrackTrace($"4.File Name in Transform :{lapcapRefreshViewModel.FileName}");
 
             return JsonConvert.SerializeObject(lapcapData);
         }
