@@ -124,5 +124,9 @@
         /// Payment Calculator Billing Confirmation index page view.
         /// </summary>
         public const string BillingConfirmationSuccess = "~/Views/PaymentCalculator/BillingConfirmation.cshtml";
+
+        /// classifying calculation run controller scenario1 index page view.
+        /// </summary>
+        public const string ClassifyingCalculationRunScenario1Index = "~/Views/ClassifyingCalculationRunScenario1/Index.cshtml";
     }
 }
