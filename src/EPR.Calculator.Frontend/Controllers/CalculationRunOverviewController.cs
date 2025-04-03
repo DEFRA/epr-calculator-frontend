@@ -43,7 +43,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId"> Run Id.</param>
         /// <returns>View.</returns>
-        [Authorize(Roles = "SASuperUser")]
         [Route("runoverview/{runId}")]
         public Task<IActionResult> IndexAsync(int runId)
         {
