@@ -7,16 +7,8 @@ using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    public class SendBillingFileController : BaseController
+    public class SendBillingFileController : Controller
     {
-        private readonly IConfiguration configuration;
-
-        public SendBillingFileController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
-        {
-            this.configuration = configuration;
-        }
-
         public IActionResult Index()
         {
             var billingFileViewModel = new SendBillingFileViewModel()
@@ -26,6 +18,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 SendBillFileHeading = CommonConstants.SendBillingFile,
                 WarningContent = CommonConstants.WarningContent,
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                BackLink = string.Empty,
             };
 
             return this.View(billingFileViewModel);
