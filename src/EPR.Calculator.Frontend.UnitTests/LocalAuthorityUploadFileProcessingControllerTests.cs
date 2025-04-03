@@ -278,6 +278,9 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .GetSection("LapcapSettings")["ParameterYear"] = configValue;
             this.Configuration
                 .GetSection("FeatureManagement")["ShowFinancialYear"] = featureFlagEnabled.ToString();
+            this.MockSesion.Object.Set(
+                SessionConstants.FinancialYear,
+                Encoding.UTF8.GetBytes("This value comes from the session."));
             var expectedTimesCalled = featureFlagEnabled ? Times.Never() : Times.Once();
 
             // Act
@@ -299,12 +302,9 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             // Arrange
             var sessionMessage = "This value comes from the session.";
-            this.MockSesion.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-            .Returns((string key, out byte[] value) =>
-            {
-                value = Encoding.UTF8.GetBytes(sessionMessage);
-                return true;
-            });
+            this.MockSesion.Object.Set(
+                SessionConstants.FinancialYear,
+                Encoding.UTF8.GetBytes(sessionMessage));
 
             this.Configuration
                 .GetSection("FeatureManagement")["ShowFinancialYear"] = featureFlagEnabled.ToString();
@@ -319,6 +319,28 @@ namespace EPR.Calculator.Frontend.UnitTests
                 expectedTimesCalled,
                 ItExpr.Is<HttpRequestMessage>(m =>
                     m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{sessionMessage}\"")),
+                ItExpr.IsAny<CancellationToken>());
+        }
+
+        [TestMethod]
+        public async Task Index_FallBackToConfigDateWhenNoFinancialYearInSession()
+        {
+            // Arrange
+            var configValue = "This value comes from the config.";
+            this.Configuration
+                .GetSection("LapcapSettings")["ParameterYear"] = configValue;
+            this.Configuration
+                .GetSection("FeatureManagement")["ShowFinancialYear"] = true.ToString();
+
+            // Act
+            var result = await TestClass.Index(new LapcapRefreshViewModel());
+
+            // Assert
+            this.MockMessageHandler.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(m =>
+                    m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{configValue}\"")),
                 ItExpr.IsAny<CancellationToken>());
         }
     }
