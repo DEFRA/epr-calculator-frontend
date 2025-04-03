@@ -19,5 +19,15 @@
         /// Index action.
         /// </summary>
         public const string Index = "Index";
+
+        /// <summary>
+        /// Confirmation Success action.
+        /// </summary>
+        public const string ConfirmationSuccess = "confirmationsuccess";
+
+        /// <summary>
+        /// Delete Confirmation Success action.
+        /// </summary>
+        public const string DeleteConfirmation = "deleteconfirmation";
     }
 }
