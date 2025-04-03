@@ -55,7 +55,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
             _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
 
-            var result = await _controller.IndexAsync(testRunId);
+            var result = await _controller.Index(testRunId);
 
             Assert.IsInstanceOfType(result, typeof(ViewResult));
             var viewResult = result as ViewResult;
