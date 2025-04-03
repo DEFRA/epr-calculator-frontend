@@ -14,10 +14,11 @@
     <div class="govuk-grid-column-two-thirds">
         <div class="govuk-form-group">
             <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
+                <legend></legend>
                 <span id="approval-code-hint" class="govuk-caption-l">@Model.CalculatorRunStatus.CalcName</span>
                 <h1 class="govuk-heading-l">Classify calculation run</h1>
 
-                <table class="govuk-table">
+                <table class="govuk-table" aria-describedby="table-description">
                     <tbody class="govuk-table__body">
                         <tr class="govuk-table__row">
                             <th scope="row" class="govuk-table__header">Financial year</th>
