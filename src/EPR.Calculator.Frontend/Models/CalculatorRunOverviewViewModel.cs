@@ -10,14 +10,9 @@ namespace EPR.Calculator.Frontend.ViewModels
     public record CalculatorRunOverviewViewModel : ViewModelCommonData
     {
         /// <summary>
-        /// Gets or sets the title of the page.
-        /// </summary>
-        public string Title { get; init; } = "Index";
-
-        /// <summary>
         /// Gets or sets the title of the Back Link.
         /// </summary>
-        public string BackLink { get; init; } = string.Empty; // ToDo: will be update at the time of implementing the back link functionality.
+        public string BackLinkURL { get; init; } = string.Empty; // ToDo: will be update at the time of implementing the back link functionality.
 
         /// <summary>
         /// Gets the data for the run status update.

@@ -22,8 +22,6 @@ namespace EPR.Calculator.Frontend.Models
 
         public required string RunClassificationStatus { get; set; }
 
-        public string CreatedBy { get; set; }
-
         public string FinancialYear { get; set; }
     }
 }

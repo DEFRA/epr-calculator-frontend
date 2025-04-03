@@ -1,14 +1,15 @@
-﻿@using EPR.Calculator.Frontend.ViewModels
+﻿@using EPR.Calculator.Frontend.Constants
+@using EPR.Calculator.Frontend.ViewModels
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunOverviewViewModel
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = @ActionLinkLabels.IndexTitle;
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
-<partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
+<partial name="_BackLinkPartial" model="(Model.BackLinkURL, Model.CurrentUser)" />
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row CalculationRunOverview">
         <div class="govuk-grid-column-two-thirds">
