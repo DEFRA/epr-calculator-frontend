@@ -15,7 +15,7 @@ using Microsoft.Identity.Web.TokenCacheProviders.Session;
 using Microsoft.Identity.Web.UI;
 
 var builder = WebApplication.CreateBuilder(args);
-var environmentName = builder.Environment.EnvironmentName.ToLower();
+var environmentName = builder.Environment.EnvironmentName?.ToLower() ?? string.Empty;
 
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd")
     .EnableTokenAcquisitionToCallDownstreamApi(builder.Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' '))
