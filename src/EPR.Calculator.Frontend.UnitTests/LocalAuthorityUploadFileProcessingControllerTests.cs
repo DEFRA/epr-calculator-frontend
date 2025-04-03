@@ -343,5 +343,22 @@ namespace EPR.Calculator.Frontend.UnitTests
                     m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{configValue}\"")),
                 ItExpr.IsAny<CancellationToken>());
         }
+
+        [TestMethod]
+        public async Task Index_RedirectToErrorWhenNoFinancialYearInEitherSessionOrConfig()
+        {
+            // Arrange
+            var configValue = "This value comes from the config.";
+            this.Configuration
+                .GetSection("LapcapSettings")["ParameterYear"] = null;
+            this.Configuration
+                .GetSection("FeatureManagement")["ShowFinancialYear"] = true.ToString();
+
+            // Act
+            var result = await TestClass.Index(new LapcapRefreshViewModel());
+
+            // Assert
+            Assert.AreEqual((result as RedirectToActionResult).ControllerName, "StandardError");
+        }
     }
 }
