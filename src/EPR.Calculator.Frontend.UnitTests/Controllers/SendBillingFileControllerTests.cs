@@ -1,4 +1,4 @@
-namespace EPR.Calculator.Frontend.UnitTests.Controllers
+﻿namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
     using System;
     using System.Security.Claims;
