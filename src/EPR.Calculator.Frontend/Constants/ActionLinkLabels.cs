@@ -3,7 +3,7 @@
     /// <summary>
     /// List of action link labels.
     /// </summary>
-    public class ActionLinkLabels
+    public static class ActionLinkLabels
     {
         /// <summary>
         /// Calculation Delete Run Label.
@@ -14,5 +14,10 @@
         /// Return to DashBoard Label.
         /// </summary>
         public const string ReturnToDashBoard = "Return to the dashboard";
+
+        /// <summary>
+        /// Index Title.
+        /// </summary>
+        public const string IndexTitle = "Index";
     }
 }
