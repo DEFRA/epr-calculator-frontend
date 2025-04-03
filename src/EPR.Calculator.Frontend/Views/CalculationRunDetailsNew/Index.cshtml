@@ -14,7 +14,7 @@
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row calculator-details">
         <div class="govuk-grid-column-two-thirds">
-            @using (Html.BeginForm("Delete-Confirmation", "CalculationRunDelete", new { runId = @Model.Data.RunId }))
+            @using (Html.BeginForm("deleteconfirmation", "CalculationRunDelete", new { runId = @Model.Data.RunId }))
             {
                 @Html.AntiForgeryToken()
 
