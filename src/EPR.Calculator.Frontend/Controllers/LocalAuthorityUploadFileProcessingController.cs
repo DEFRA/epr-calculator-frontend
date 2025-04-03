@@ -24,7 +24,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="tokenAcquisition">The token acquisition service.</param>
         /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
         public LocalAuthorityUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
         {
             this.clientFactory = clientFactory;
             this._telemetryClient = telemetryClient;

@@ -1,4 +1,10 @@
-﻿using System.Text;
+﻿using System.Configuration;
+using System.Text;
+using System.Text.Json;
+using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Models;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Mvc;
@@ -6,28 +12,29 @@ using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    public class BaseController : Controller
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BaseController"/> class.
+    /// </summary>
+    /// <param name="clientFactory">an HTTP client factory that will be used for making connections to the calculator API.</param>
+    public class BaseController(
+        IConfiguration configuration,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient,
+        IHttpClientFactory clientFactory) : Controller
     {
-        private readonly ITokenAcquisition tokenAcquisition;
+        private readonly ITokenAcquisition tokenAcquisition = tokenAcquisition;
 
-        public BaseController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-        {
-            this.tokenAcquisition = tokenAcquisition;
-            this.TelemetryClient = telemetryClient;
-            this.Configuration = configuration;
-        }
+        protected TelemetryClient TelemetryClient { get; init; } = telemetryClient;
 
-#pragma warning disable SA1600
-        protected TelemetryClient TelemetryClient { get; set; }
-#pragma warning restore SA1600
+        /// <summary>Gets the configuration object to retrieve API URL and parameters.</summary>
+        protected IConfiguration Configuration { get; init; } = configuration;
 
-#pragma warning disable SA1600
-        protected IConfiguration Configuration { get; set; }
-#pragma warning restore SA1600
+        /// <summary>
+        /// Gets an HTTP client factory that will be used for making connections to the calculator API.
+        /// </summary>
+        private IHttpClientFactory ClientFactory { get; init; } = clientFactory;
 
-#pragma warning disable SA1600
         protected async Task<string> AcquireToken()
-#pragma warning restore SA1600
         {
             this.TelemetryClient.TrackTrace("AcquireToken");
             var token = this.HttpContext?.Session?.GetString("accessToken");
@@ -54,5 +61,111 @@ namespace EPR.Calculator.Frontend.Controllers
             this.TelemetryClient.TrackTrace($"accessToken length {accessToken.Length}", SeverityLevel.Information);
             return accessToken;
         }
+
+        private async Task<HttpClient> GetHttpClient()
+        {
+            var client = this.ClientFactory.CreateClient();
+            var accessToken = await this.AcquireToken();
+            client.DefaultRequestHeaders.Add("Authorization", accessToken);
+            return client;
+        }
+
+        private async Task<HttpResponseMessage> CallApi(
+            HttpMethod httpMethod,
+            Uri apiUrl,
+            object? body)
+            => await this.CallApi(httpMethod, apiUrl, string.Empty, body);
+
+        private async Task<HttpResponseMessage> CallApi(
+            HttpMethod httpMethod,
+            Uri apiUrl,
+            string argument,
+            object? body)
+        {
+            var argsString = !string.IsNullOrEmpty(argument)
+                ? $"/{argument}"
+                : string.Empty;
+            var request = new HttpRequestMessage(
+                httpMethod,
+                new Uri($"{apiUrl}{argsString}"));
+            if (body is not null)
+            {
+                request.Content = new StringContent(
+                    JsonSerializer.Serialize(body),
+                    Encoding.UTF8,
+                    StaticHelpers.MediaType);
+            }
+
+            var client = await this.GetHttpClient();
+            return await client.SendAsync(request);
+        }
+
+        protected async Task<HttpResponseMessage> GetCalculatorRunAsync(int runId)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.DashboardCalculatorRunApi);
+            return await this.CallApi(
+                HttpMethod.Get,
+                apiUrl,
+                runId.ToString(),
+                null);
+        }
+
+        protected async Task<HttpResponseMessage> CheckCalcNameExistsAsync(string calculationName)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.CalculationRunSettings,
+                ConfigSection.CalculationRunNameApi);
+            return await this.CallApi(HttpMethod.Get, apiUrl, calculationName);
+        }
+
+        protected async Task<HttpResponseMessage> PutCalculatorRun(int runId, RunClassification classification)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.DashboardCalculatorRunApi);
+            var args = (runId, (int)classification);
+            return await this.CallApi(HttpMethod.Put, apiUrl, args);
+        }
+
+        protected async Task<HttpResponseMessage> PostCalculatorRuns()
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.DashboardCalculatorRunApi);
+            var financialYear = this.GetConfigSetting(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.RunParameterYear);
+            if (string.IsNullOrEmpty(financialYear))
+            {
+                throw new ArgumentNullException(
+                    financialYear,
+                    "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
+            }
+
+            return await this.CallApi(HttpMethod.Post, apiUrl, (CalculatorRunParamsDto)financialYear);
+        }
+
+        protected async Task<HttpResponseMessage> PostAsync(Uri apiUrl, object dto)
+            => await this.CallApi(HttpMethod.Post, apiUrl, dto);
+
+        private string GetConfigSetting(string configSection, string configKey)
+        {
+            var value = this.Configuration
+                            .GetSection(configSection)
+                            .GetValue<string>(configKey);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ConfigurationErrorsException(
+                    $"{configSection}:{configKey} is null or empty. Please check the configuration settings. " +
+                    $"${ConfigSection.CalculationRunSettings}");
+            }
+
+            return value;
+        }
+
+        private Uri GetApiUrl(string configSection, string configKey)
+            => new Uri(this.GetConfigSetting(configSection, configKey));
     }
 }

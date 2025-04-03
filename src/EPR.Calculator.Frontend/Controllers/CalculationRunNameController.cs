@@ -6,6 +6,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -22,9 +23,6 @@ namespace EPR.Calculator.Frontend.Controllers
     public class CalculationRunNameController : BaseController
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
-        private readonly IConfiguration configuration;
-        private readonly IHttpClientFactory clientFactory;
-        private readonly ILogger<CalculationRunNameController> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CalculationRunNameController"/> class.
@@ -33,12 +31,12 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="clientFactory">The HTTP client factory.</param>
         /// <param name="logger">The logger instance.</param>
         public CalculationRunNameController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunNameController> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
         {
-            this.configuration = configuration;
-            this.clientFactory = clientFactory;
-            this.logger = logger;
+            this.Logger = logger;
         }
+
+        private ILogger<CalculationRunNameController> Logger { get; init; }
 
         /// <summary>
         /// Displays the index view for calculation run names.
@@ -128,25 +126,6 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.View(ViewNames.CalculationRunConfirmation, calculationRunConfirmationViewModel);
         }
 
-        [NonAction]
-        public (string ApiUrl, string Year) GetCalculatorRunParameters()
-        {
-            var calculatorRunApi = this.configuration
-                .GetSection(ConfigSection.CalculationRunSettings)
-                .GetValue<string>(ConfigSection.CalculationRunApi);
-
-            var year = this.configuration
-                .GetSection(ConfigSection.CalculationRunSettings)
-                .GetValue<string>(ConfigSection.RunParameterYear);
-            if (string.IsNullOrEmpty(year) || string.IsNullOrEmpty(calculatorRunApi))
-            {
-                throw new ConfigurationErrorsException(
-                    "RunParameterYear or CalculationRunSettings is null or empty. Check the configuration settings for calculatorRun.");
-            }
-
-            return (calculatorRunApi, year);
-        }
-
         /// <summary>
         /// Creates an error view model.
         /// </summary>
@@ -171,7 +150,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var calculatorRunApi = this.GetCalculatorRunApi();
 
-            var year = this.configuration
+            var year = this.Configuration
                 .GetSection(ConfigSection.CalculationRunSettings)
                 .GetValue<string>(ConfigSection.RunParameterYear);
 
@@ -179,12 +158,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 throw new ArgumentNullException(year, "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
             }
-
-            var client = this.clientFactory.CreateClient();
-            var accessToken = await this.AcquireToken();
-
-            client.DefaultRequestHeaders.Add("Authorization", accessToken);
-            client.BaseAddress = new Uri(calculatorRunApi);
 
             var runParms = new CreateCalculatorRunDto
             {
@@ -196,12 +169,12 @@ namespace EPR.Calculator.Frontend.Controllers
             var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
             var request = new HttpRequestMessage(HttpMethod.Post, calculatorRunApi) { Content = content };
 
-            return await client.SendAsync(request);
+            return await this.PostAsync(new Uri(calculatorRunApi), runParms);
         }
 
         private string GetCalculatorRunApi()
         {
-            var calculatorRunApi = this.configuration
+            var calculatorRunApi = this.Configuration
                 .GetSection(ConfigSection.CalculationRunSettings)
                 .GetValue<string>(ConfigSection.CalculationRunApi);
 
@@ -221,13 +194,7 @@ namespace EPR.Calculator.Frontend.Controllers
         private async Task<HttpResponseMessage> CheckIfCalculationNameExistsAsync(string calculationName)
         {
             var safeName = Uri.EscapeDataString(calculationName);
-            var apiUrl = this.GetApiUrl();
-            var client = this.clientFactory.CreateClient();
-            client.BaseAddress = new Uri(apiUrl);
-            var accessToken = await this.AcquireToken();
-
-            client.DefaultRequestHeaders.Add("Authorization", accessToken);
-            var response = await client.GetAsync($"{apiUrl}/{safeName}");
+            var response = await this.CheckCalcNameExistsAsync(safeName);
             return response;
         }
 
@@ -246,14 +213,14 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "Error parsing response");
+                this.Logger.LogError(ex, "Error parsing response");
                 return "Unable to process the error response.";
             }
         }
 
         private string GetApiUrl()
         {
-            var apiUrl = this.configuration
+            var apiUrl = this.Configuration
                 .GetSection(ConfigSection.CalculationRunSettings)
                 .GetValue<string>(ConfigSection.CalculationRunNameApi);
             if (string.IsNullOrWhiteSpace(apiUrl))

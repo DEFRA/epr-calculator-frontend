@@ -35,7 +35,7 @@ namespace EPR.Calculator.Frontend.Controllers
             ILogger<CalculationRunDetailsNewController> logger,
             ITokenAcquisition tokenAcquisition,
             TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
         {
             _configuration = configuration;
         }

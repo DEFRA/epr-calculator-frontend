@@ -20,9 +20,6 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("/")]
     public class DashboardController : BaseController
     {
-        private readonly IConfiguration configuration;
-        private readonly IHttpClientFactory clientFactory;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DashboardController"/> class.
         /// </summary>
@@ -30,12 +27,19 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
         /// <param name="tokenAcquisition">The token acquisition service.</param>
         /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
-        public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
+        public DashboardController(
+            IConfiguration configuration,
+            IHttpClientFactory clientFactory,
+            ITokenAcquisition tokenAcquisition,
+            TelemetryClient telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
         {
-            this.configuration = configuration;
-            this.clientFactory = clientFactory;
+            this.DashboardCalculatorRunApi = new Uri(
+                this.Configuration.GetSection(ConfigSection.DashboardCalculatorRun)
+                    .GetValue<string>(ConfigSection.DashboardCalculatorRunApi));
         }
+
+        private Uri DashboardCalculatorRunApi { get; init; }
 
         private bool ShowDetailedError { get; set; }
 
@@ -95,7 +99,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private void IsShowDetailedError()
         {
-            var showDetailedError = this.configuration.GetValue(typeof(bool), CommonConstants.ShowDetailedError);
+            var showDetailedError = this.Configuration.GetValue(typeof(bool), CommonConstants.ShowDetailedError);
             if (showDetailedError != null)
             {
                 this.ShowDetailedError = (bool)showDetailedError;
@@ -106,24 +110,14 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var accessToken = await this.AcquireToken();
 
-            var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                .GetSection(ConfigSection.DashboardCalculatorRunApi)
-                .Value;
-
-            if (dashboardCalculatorRunApi == null)
-            {
-                throw new ArgumentNullException(dashboardCalculatorRunApi);
-            }
-
-            using var response =
-                await this.GetHttpRequest(financialYear, dashboardCalculatorRunApi, this.clientFactory, accessToken);
+            using var response = await this.PostCalculatorRuns();
 
             var dashboardViewModel = new DashboardViewModel
             {
                 AccessToken = accessToken,
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 FinancialYear = financialYear,
-                FinancialYearListApi = this.configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
+                FinancialYearListApi = this.Configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
                 Calculations = null,
             };
 
@@ -140,40 +134,6 @@ namespace EPR.Calculator.Frontend.Controllers
             return returnPartialView
                 ? this.PartialView("_CalculationRunsPartial", dashboardViewModel.Calculations)
                 : this.View(dashboardViewModel);
-        }
-
-        /// <summary>
-        /// Sends an HTTP POST request to the Dashboard Calculator Run API with the specified parameters.
-        /// </summary>
-        /// <param name="dashboardCalculatorRunApi">The configuration object to retrieve API URL and parameters.</param>
-        /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        /// <param name="accessToken">token generated</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
-        private async Task<HttpResponseMessage> GetHttpRequest(
-            string year,
-            string dashboardCalculatorRunApi,
-            IHttpClientFactory clientFactory,
-            string accessToken)
-        {
-            var client = clientFactory.CreateClient();
-            client.BaseAddress = new Uri(dashboardCalculatorRunApi);
-            client.DefaultRequestHeaders.Add("Authorization", accessToken);
-
-            this.TelemetryClient.TrackTrace(
-                $"client.DefaultRequestHeaders.Authorization is {client.DefaultRequestHeaders.Authorization}",
-                SeverityLevel.Information);
-
-            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));
-            var runParms = new CalculatorRunParamsDto
-            {
-                FinancialYear = year,
-            };
-            var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
-            request.Content = content;
-            var response = await client.SendAsync(request);
-            this.TelemetryClient.TrackTrace($"Response is {response.StatusCode}", SeverityLevel.Warning);
-            return response;
         }
     }
 }
