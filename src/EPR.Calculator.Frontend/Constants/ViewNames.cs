@@ -124,5 +124,10 @@
         /// Calculation Run Classification index page view.
         /// </summary>
         public const string CalculationRunClassification = "~/Views/ClassifyCalculationRun/Index.cshtml";
+
+        /// <summary>
+        /// classifying calculation run controller scenario1 index page view.
+        /// </summary>
+        public const string ClassifyingCalculationRunScenario1Index = "~/Views/ClassifyingCalculationRunScenario1/Index.cshtml";
     }
 }
