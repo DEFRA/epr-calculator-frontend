@@ -2,7 +2,6 @@
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
@@ -10,7 +9,6 @@ using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    [Authorize(Roles = "SASuperUser")]
     public class LocalAuthorityUploadFileProcessingController : BaseController
     {
         private readonly IHttpClientFactory clientFactory;
@@ -33,7 +31,6 @@ namespace EPR.Calculator.Frontend.Controllers
         public string? FileName { get; set; }
 
         [HttpPost]
-        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> Index([FromBody] LapcapRefreshViewModel lapcapRefreshViewModel)
         {
             try

@@ -20,10 +20,11 @@ builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration,
 builder.Services.AddRazorPages().AddMvcOptions(options =>
 {
     var policy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
+        .RequireAuthenticatedUser().RequireRole(UserRoles.SASuperUser)
         .Build();
     options.Filters.Add(new AuthorizeFilter(policy));
 }).AddMicrosoftIdentityUI();
+
 builder.Services.AddControllersWithViews().AddMicrosoftIdentityUI();
 
 builder.Services.AddDistributedMemoryCache();
