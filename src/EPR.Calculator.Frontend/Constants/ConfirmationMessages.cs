@@ -21,11 +21,6 @@
             public const string Body = "You have successfully sent the billing file to the FSS.";
 
             /// <summary>
-            /// Redirect controller for confirmation partial.
-            /// </summary>
-            public const string RedirectController = "Dashboard";
-
-            /// <summary>
             /// Additional text paragraphs for confirmation partial.
             /// </summary>
             public static readonly List<string> NextText =

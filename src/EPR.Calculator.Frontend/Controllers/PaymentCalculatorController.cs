@@ -30,7 +30,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     Title = ConfirmationMessages.BillingFileSuccess.Title,
                     Body = ConfirmationMessages.BillingFileSuccess.Body,
                     AdditionalParagraphs = ConfirmationMessages.BillingFileSuccess.NextText,
-                    RedirectController = ConfirmationMessages.BillingFileSuccess.RedirectController,
+                    RedirectController =CommonConstants.DashBoard,
                 }
             };
 
