@@ -38,7 +38,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The classify run confirmation index view.</returns>
         [Authorize(Roles = "SASuperUser")]
         [Route("ClassifyRunConfirmation/{runId}")]
-        public IActionResult IndexAsync(int runId)
+        public IActionResult Index(int runId)
         {
             try
             {
@@ -53,8 +53,8 @@ namespace EPR.Calculator.Frontend.Controllers
                         CreatedAt = DateTime.Now,
                         FileExtension = ".csv",
                         RunClassificationStatus = "3",
-                        FinancialYear = "2024-25", // calculatorRun.FinancialYear
-                        Classification = "Initial run", // calculatorRun.FinancialYear
+                        FinancialYear = "2024-25",
+                        Classification = "Initial run",
                     },
                 };
 

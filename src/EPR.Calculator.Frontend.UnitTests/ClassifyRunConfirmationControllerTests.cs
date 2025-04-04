@@ -71,7 +71,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.BadRequest, string.Empty);
 
             // Act
-            var result = _controller.IndexAsync(runId);
+            var result = _controller.Index(runId);
 
             // Assert
             var redirectResult = result as RedirectToActionResult;
@@ -90,7 +90,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
 
             // Act
-            var result = _controller.IndexAsync(calculatorRunDto.RunId);
+            var result = _controller.Index(calculatorRunDto.RunId);
 
             // Assert
             var viewResult = result as ViewResult;
