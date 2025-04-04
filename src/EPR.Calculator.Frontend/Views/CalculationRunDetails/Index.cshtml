@@ -36,6 +36,7 @@
             <h1 class="govuk-heading-l">What do you want to do with this calculation?</h1>
             @using (Html.BeginForm("DeleteCalculation", "CalculationRunDetails", FormMethod.Post))
             {
+                @Html.AntiForgeryToken()
                 <div class="@(Model.Errors != null ? "govuk-form-group govuk-form-group--error" : "govuk-form-group")">
                     <div class="govuk-radios__item">
                         <input class="govuk-radios__input" id="delete_button" name="deleteChecked" type="radio" value="true">
