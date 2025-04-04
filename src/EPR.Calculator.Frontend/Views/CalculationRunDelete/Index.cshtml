@@ -18,7 +18,7 @@
                 Only delete this calculation run if you no longer need it or have completed another successful run.
             </label>
             <br>
-            @using (Html.BeginForm("Delete-Confirmation", "CalculationRunDelete", FormMethod.Post))
+            @using (Html.BeginForm(ActionNames.ConfirmationSuccess, ControllerNames.CalculationRunDelete, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
                 <div class="govuk-button-group">
