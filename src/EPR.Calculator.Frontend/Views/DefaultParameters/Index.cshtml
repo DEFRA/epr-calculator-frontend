@@ -47,13 +47,15 @@
                     </p>
                 }
 
-                <form action="/form-handler" method="post" novalidate="">
+                @using (Html.BeginForm("DeleteCalculation", "CalculationRunDetails", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
                     <input type="hidden" name="answers-checked" value="true">
                     <div class="govuk-button-group">
                         <a href="@Url.Action("Index", "ParameterUploadFile")" class="govuk-button" type="submit">Upload new default parameters</a>
                         <a href="@Url.Action("Index", "Dashboard")" class="govuk-link" href="dash">Return to the dashboard</a>
                     </div>
-                </form>
+                }
 
 
             </div>
