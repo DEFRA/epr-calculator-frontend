@@ -176,6 +176,14 @@ namespace EPR.Calculator.Frontend.Controllers
             return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, dto);
         }
 
+        protected async Task<HttpResponseMessage> GetDefaultParameters(string parameterYear)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.ParameterSettings,
+                ConfigSection.DefaultParameterSettingsApi);
+            return await this.CallApi(HttpMethod.Get, apiUrl, parameterYear, null);
+        }
+
         /// <summary>
         /// Calls the "postDefaultParameterSettings" POST endpoint.
         /// </summary>
@@ -189,8 +197,13 @@ namespace EPR.Calculator.Frontend.Controllers
             return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, dto);
         }
 
-        protected async Task<HttpResponseMessage> PostAsync(Uri apiUrl, object dto)
-            => await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, dto);
+        protected async Task<HttpResponseMessage> GetLapcapData(string parameterYear)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.LapcapSettings,
+                ConfigSection.LapcapSettingsApi);
+            return await this.CallApi(HttpMethod.Get, apiUrl, parameterYear, null);
+        }
 
         /// <summary>
         /// Retrieves a configuration setting from the specified section and key.

@@ -18,7 +18,10 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="tokenAcquisition">The token acquisition service.</param>
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     [Authorize(Roles = "SASuperUser")]
-    public class ParameterUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+    public class ParameterUploadFileProcessingController(IConfiguration configuration,
+        IHttpClientFactory clientFactory,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient)
         : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
         [HttpPost]

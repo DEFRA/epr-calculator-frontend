@@ -30,7 +30,12 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="configuration">The configuration settings.</param>
         /// <param name="clientFactory">The HTTP client factory.</param>
         /// <param name="logger">The logger instance.</param>
-        public CalculationRunNameController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunNameController> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+        public CalculationRunNameController(
+            IConfiguration configuration,
+            IHttpClientFactory clientFactory,
+            ILogger<CalculationRunNameController> logger,
+            ITokenAcquisition tokenAcquisition,
+            TelemetryClient telemetryClient)
             : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
         {
             this.Logger = logger;

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Configuration;
+using System.Net;
 using Azure.Core;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
@@ -17,27 +18,21 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Controller for handling default parameter settings.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="DefaultParametersController"/> class.
+    /// </remarks>
+    /// <param name="configuration">The configuration settings for the application.</param>
+    /// <param name="clientFactory">The factory for creating HTTP clients.</param>
+    /// <param name="tokenAcquisition">The token acquisition service.</param>
+    /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     [Authorize(Roles = "SASuperUser")]
-    public class DefaultParametersController : BaseController
+    public class DefaultParametersController(
+        IConfiguration configuration,
+        IHttpClientFactory clientFactory,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        /// <summary>
-        /// The factory for creating HTTP clients.
-        /// </summary>
-        private readonly IHttpClientFactory clientFactory;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DefaultParametersController"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration settings for the application.</param>
-        /// <param name="clientFactory">The factory for creating HTTP clients.</param>
-        /// <param name="tokenAcquisition">The token acquisition service.</param>
-        /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
-        public DefaultParametersController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
-        {
-            this.clientFactory = clientFactory;
-        }
-
         /// <summary>
         /// Handles the Index action for retrieving and displaying default scheme parameters.
         /// </summary>
@@ -50,22 +45,13 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var parameterSettingsApi = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.DefaultParameterSettingsApi).Value;
-
-                if (string.IsNullOrWhiteSpace(parameterSettingsApi))
+                var year = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
+                if (string.IsNullOrWhiteSpace(year))
                 {
-                    throw new ArgumentNullException(parameterSettingsApi, "ParameterSettingsApi is null. Check the configuration settings for default parameters");
+                    throw new ConfigurationErrorsException("RunParameterYear missing");
                 }
 
-                var client = this.clientFactory.CreateClient();
-                client.BaseAddress = new Uri(parameterSettingsApi);
-                var accessToken = await this.AcquireToken();
-                client.DefaultRequestHeaders.Add("Authorization", accessToken);
-
-                var year = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
-
-                var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, year));
-                var response = await client.GetAsync(uri);
+                var response = await this.GetDefaultParameters(year);
 
                 if (response.IsSuccessStatusCode)
                 {
