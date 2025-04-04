@@ -148,8 +148,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown</exception>
         private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
         {
-            var calculatorRunApi = this.GetCalculatorRunApi();
-
             var year = this.Configuration
                 .GetSection(ConfigSection.CalculationRunSettings)
                 .GetValue<string>(ConfigSection.RunParameterYear);
@@ -166,24 +164,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 CreatedBy = CommonUtil.GetUserName(this.HttpContext),
             };
 
-            var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
-            var request = new HttpRequestMessage(HttpMethod.Post, calculatorRunApi) { Content = content };
-
-            return await this.PostAsync(new Uri(calculatorRunApi), runParms);
-        }
-
-        private string GetCalculatorRunApi()
-        {
-            var calculatorRunApi = this.Configuration
-                .GetSection(ConfigSection.CalculationRunSettings)
-                .GetValue<string>(ConfigSection.CalculationRunApi);
-
-            if (string.IsNullOrEmpty(calculatorRunApi))
-            {
-                throw new ArgumentNullException(calculatorRunApi, "The API URL is null or empty. Check the configuration settings for calculatorRun");
-            }
-
-            return calculatorRunApi;
+            return await this.PostCalculatorRun(runParms);
         }
 
         /// <summary>
@@ -216,20 +197,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.Logger.LogError(ex, "Error parsing response");
                 return "Unable to process the error response.";
             }
-        }
-
-        private string GetApiUrl()
-        {
-            var apiUrl = this.Configuration
-                .GetSection(ConfigSection.CalculationRunSettings)
-                .GetValue<string>(ConfigSection.CalculationRunNameApi);
-            if (string.IsNullOrWhiteSpace(apiUrl))
-            {
-                throw new ConfigurationException(
-                    $"CalculationRunNameApi is null or empty. Please check the configuration settings. ${ConfigSection.CalculationRunSettings}");
-            }
-
-            return apiUrl;
         }
     }
 }

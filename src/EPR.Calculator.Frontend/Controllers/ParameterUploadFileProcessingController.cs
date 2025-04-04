@@ -27,7 +27,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var response = this.PostLapcapData(
+                var response = this.PostDefaultParameters(
                     new CreateDefaultParameterSettingDto(
                         parameterRefreshViewModel,
 

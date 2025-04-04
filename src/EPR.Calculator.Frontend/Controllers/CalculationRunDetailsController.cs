@@ -134,7 +134,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
                     }
 
-                    using var response = await this.PutCalculatorRun(runId, RunClassification.DELETED);
+                    using var response = await this.PutCalculatorRuns(runId, RunClassification.DELETED);
 
                     if (response.StatusCode != HttpStatusCode.Created)
                     {

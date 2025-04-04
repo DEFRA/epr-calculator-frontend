@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using EPR.Calculator.Frontend.ViewModels;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.Models
 {
@@ -8,6 +9,14 @@ namespace EPR.Calculator.Frontend.Models
     [ExcludeFromCodeCoverage]
     public class CreateLapcapDataDto
     {
+        [SetsRequiredMembers]
+        public CreateLapcapDataDto(LapcapRefreshViewModel original, string parameterYear)
+        {
+            this.LapcapDataTemplateValues = original.LapcapTemplateValue;
+            this.LapcapFileName = original.FileName;
+            this.ParameterYear = parameterYear;
+        }
+
         /// <summary>
         /// Gets or sets the parameter year.
         /// </summary>

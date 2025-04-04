@@ -73,12 +73,6 @@ namespace EPR.Calculator.Frontend.Controllers
         private async Task<HttpResponseMessage> CallApi(
             HttpMethod httpMethod,
             Uri apiUrl,
-            object? body)
-            => await this.CallApi(httpMethod, apiUrl, string.Empty, body);
-
-        private async Task<HttpResponseMessage> CallApi(
-            HttpMethod httpMethod,
-            Uri apiUrl,
             string argument,
             object? body)
         {
@@ -118,18 +112,26 @@ namespace EPR.Calculator.Frontend.Controllers
             var apiUrl = this.GetApiUrl(
                 ConfigSection.CalculationRunSettings,
                 ConfigSection.CalculationRunNameApi);
-            return await this.CallApi(HttpMethod.Get, apiUrl, calculationName);
+            return await this.CallApi(HttpMethod.Get, apiUrl, calculationName, null);
         }
 
-        protected async Task<HttpResponseMessage> PutCalculatorRun(int runId, RunClassification classification)
+        /// <summary>
+        /// Calls the "calculatorRun" POST endpoint.
+        /// </summary>
+        /// <param name="dto">The data transfer object to serialise and use as the body of the request.</param>
+        /// <returns>The response message returned by the endpoint.</returns>
+        protected async Task<HttpResponseMessage> PostCalculatorRun(CreateCalculatorRunDto dto)
         {
             var apiUrl = this.GetApiUrl(
-                ConfigSection.DashboardCalculatorRun,
-                ConfigSection.DashboardCalculatorRunApi);
-            var args = (runId, (int)classification);
-            return await this.CallApi(HttpMethod.Put, apiUrl, args);
+                ConfigSection.CalculationRunSettings,
+                ConfigSection.CalculationRunApi);
+            return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, dto);
         }
 
+        /// <summary>
+        /// Calls the "calculatorRuns" POST endpoint.
+        /// </summary>
+        /// <returns>The response message returned by the endpoint.</returns>
         protected async Task<HttpResponseMessage> PostCalculatorRuns()
         {
             var apiUrl = this.GetApiUrl(
@@ -145,20 +147,54 @@ namespace EPR.Calculator.Frontend.Controllers
                     "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
             }
 
-            return await this.CallApi(HttpMethod.Post, apiUrl, (CalculatorRunParamsDto)financialYear);
+            return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, (CalculatorRunParamsDto)financialYear);
         }
 
-        protected async Task<HttpResponseMessage> PostLapcapData(CreateDefaultParameterSettingDto dto)
+        /// <summary>
+        /// Calls the "calculatorRuns" PUT endpoint.
+        /// </summary>
+        /// <returns>The response message returned by the endpoint.</returns>
+        protected async Task<HttpResponseMessage> PutCalculatorRuns(int runId, RunClassification classification)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.DashboardCalculatorRunApi);
+            var args = (runId, (int)classification);
+            return await this.CallApi(HttpMethod.Put, apiUrl, string.Empty, args);
+        }
+
+        /// <summary>
+        /// Calls the "postDefaultParameterSettings" POST endpoint.
+        /// </summary>
+        /// <param name="dto">The data transfer object to serialise and use as the body of the request.</param>
+        /// <returns>The response message returned by the endpoint.</returns>
+        protected async Task<HttpResponseMessage> PostDefaultParameters(CreateDefaultParameterSettingDto dto)
         {
             var apiUrl = this.GetApiUrl(
                 ConfigSection.ParameterSettings,
                 ConfigSection.DefaultParameterSettingsApi);
-            return await this.CallApi(HttpMethod.Post, apiUrl, dto);
+            return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, dto);
+        }
+
+        /// <summary>
+        /// Calls the "postDefaultParameterSettings" POST endpoint.
+        /// </summary>
+        /// <param name="dto">The data transfer object to serialise and use as the body of the request.</param>
+        /// <returns>The response message returned by the endpoint.</returns>
+        protected async Task<HttpResponseMessage> PostLapcapData(CreateLapcapDataDto dto)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.LapcapSettings,
+                ConfigSection.LapcapSettingsApi);
+            return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, dto);
         }
 
         protected async Task<HttpResponseMessage> PostAsync(Uri apiUrl, object dto)
-            => await this.CallApi(HttpMethod.Post, apiUrl, dto);
+            => await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, dto);
 
+        /// <summary>
+        /// Retrieves a configuration setting from the specified section and key.
+        /// </summary>
         private string GetConfigSetting(string configSection, string configKey)
         {
             var value = this.Configuration
@@ -174,6 +210,9 @@ namespace EPR.Calculator.Frontend.Controllers
             return value;
         }
 
+        /// <summary>
+        /// Retrieves the API URL from the specified configuration section and key.
+        /// </summary>
         private Uri GetApiUrl(string configSection, string configKey)
             => new Uri(this.GetConfigSetting(configSection, configKey));
     }
