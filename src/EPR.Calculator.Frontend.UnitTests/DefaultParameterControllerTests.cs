@@ -57,6 +57,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockContext = new Mock<HttpContext>();
             mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            mockContext.Setup(c => c.Session).Returns(TestMockUtils.BuildMockSession(Fixture).Object);
             controller.ControllerContext.HttpContext = mockContext.Object;
 
             var result = await controller.Index() as ViewResult;
@@ -96,6 +97,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             var mockHttpContext = new Mock<HttpContext>();
             mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            mockHttpContext.Setup(c => c.Session).Returns(TestMockUtils.BuildMockSession(Fixture).Object);
             // Mock IHttpClientFactory
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
             mockHttpClientFactory
