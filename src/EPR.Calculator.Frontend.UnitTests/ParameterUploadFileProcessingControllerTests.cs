@@ -96,7 +96,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var viewModel = new ParameterRefreshViewModel()
             {
-                ParameterTemplateValue = MockData.GetSchemeParameterTemplateValues().ToList(),
+                ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
                 FileName = "Test Name",
             };
 
@@ -154,7 +154,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var viewModel = new ParameterRefreshViewModel()
             {
-                ParameterTemplateValue = MockData.GetSchemeParameterTemplateValues().ToList(),
+                ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
                 FileName = "Test Name",
             };
 
@@ -193,7 +193,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 mockTokenAcquisition.Object, new TelemetryClient());
             var viewModel = new ParameterRefreshViewModel()
             {
-                ParameterTemplateValue = MockData.GetSchemeParameterTemplateValues().ToList(),
+                ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
                 FileName = "Test Name",
             };
 

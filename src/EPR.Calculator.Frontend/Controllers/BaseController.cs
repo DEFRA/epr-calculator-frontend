@@ -85,13 +85,14 @@ namespace EPR.Calculator.Frontend.Controllers
             var argsString = !string.IsNullOrEmpty(argument)
                 ? $"/{argument}"
                 : string.Empty;
+            var contentString = JsonSerializer.Serialize(body);
             var request = new HttpRequestMessage(
                 httpMethod,
                 new Uri($"{apiUrl}{argsString}"));
             if (body is not null)
             {
                 request.Content = new StringContent(
-                    JsonSerializer.Serialize(body),
+                    contentString,
                     Encoding.UTF8,
                     StaticHelpers.MediaType);
             }
@@ -145,6 +146,14 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return await this.CallApi(HttpMethod.Post, apiUrl, (CalculatorRunParamsDto)financialYear);
+        }
+
+        protected async Task<HttpResponseMessage> PostLapcapData(CreateDefaultParameterSettingDto dto)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.ParameterSettings,
+                ConfigSection.DefaultParameterSettingsApi);
+            return await this.CallApi(HttpMethod.Post, apiUrl, dto);
         }
 
         protected async Task<HttpResponseMessage> PostAsync(Uri apiUrl, object dto)
