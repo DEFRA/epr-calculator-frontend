@@ -16,6 +16,7 @@
                 &nbsp; &nbsp; <br>
                @using(Html.BeginForm("","",FormMethod.Post))
                {
+                    @Html.AntiForgeryToken()
                     <div class="govuk-form-group">
                         <fieldset class="govuk-fieldset">
                             <div class="govuk-form-group">
