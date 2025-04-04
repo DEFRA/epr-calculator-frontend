@@ -1,5 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,12 +22,16 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult BillingFileSuccess()
         {
             // Create the view model
-            var model = new ConfirmationViewModel
+            var model = new BillingFileSuccessViewModel
             {
-                Title = ConfirmationMessages.BillingFileSuccess.Title,
-                Body = ConfirmationMessages.BillingFileSuccess.Body,
-                AdditionalParagraphs = ConfirmationMessages.BillingFileSuccess.NextText,
-                RedirectController = ConfirmationMessages.BillingFileSuccess.RedirectController,
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                ConfirmationViewModel = new ConfirmationViewModel
+                {
+                    Title = ConfirmationMessages.BillingFileSuccess.Title,
+                    Body = ConfirmationMessages.BillingFileSuccess.Body,
+                    AdditionalParagraphs = ConfirmationMessages.BillingFileSuccess.NextText,
+                    RedirectController = ConfirmationMessages.BillingFileSuccess.RedirectController,
+                }
             };
 
             // Return the view
