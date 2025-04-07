@@ -2,18 +2,15 @@
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    [Authorize(Roles = "SASuperUser")]
     public class LocalAuthorityUploadFileController : Controller
     {
         private IActionResult RedirectToErrorPage => this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
 
-        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             return this.View(
@@ -24,14 +21,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 });
         }
 
-        [Authorize(Roles = "SASuperUser")]
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             return await this.ProcessUploadAsync(fileUpload);
         }
 
-        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> Upload()
         {
             try

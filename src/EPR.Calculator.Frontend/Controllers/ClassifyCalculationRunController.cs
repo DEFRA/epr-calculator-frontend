@@ -1,7 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -9,14 +8,12 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Controller responsible for classifying calculation runs.
     /// </summary>
-    [Authorize(Roles = "SASuperUser")]
     public class ClassifyCalculationRunController : Controller
     {
         /// <summary>
         /// Displays the classification view for a calculation run.
         /// </summary>
         /// <returns>The classification view with the calculation run details.</returns>
-        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index()
         {
             // Create a view model with the details of the calculation run.

@@ -1,21 +1,17 @@
 ﻿using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
     /// Controller responsible for displaying the details of a calculation run.
     /// </summary>
-    [Authorize(Roles = "SASuperUser")]
     [Route("payment-calculator")]
     public class CalculationRunDetailsNewController : BaseController
     {
@@ -45,7 +41,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">Run ID.</param>
         /// <returns>View. </returns>
-        [Authorize(Roles = "SASuperUser")]
         [Route("rundetails/{runId}")]
         public Task<IActionResult> IndexAsync(int runId)
         {

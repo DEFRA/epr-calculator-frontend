@@ -5,7 +5,6 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
@@ -16,7 +15,6 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="CalculationRunDetailsController"/> class.
     /// </summary>
-    [Authorize(Roles = "SASuperUser")]
     public class CalculationRunDetailsController : BaseController
     {
         private readonly IConfiguration configuration;
@@ -41,9 +39,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Displays the calculation run details index view.
         /// </summary>
         /// <param name="runId">The ID of the calculation run.</param>
-        /// <param name="calcName">The calcName of the calculation run.</param>
         /// <returns>The calculation run details index view.</returns>
-        [Authorize(Roles = "SASuperUser")]
         [Route("ViewCalculationRunDetails/{runId}")]
         public async Task<IActionResult> IndexAsync(int runId)
         {
@@ -108,7 +104,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="createdDate">The created date.</param>
         /// <param name="deleteChecked">The delete is checked or not.</param>
         /// <returns>The delete confirmation view.</returns>
-        [Authorize(Roles = "SASuperUser")]
         [Route("DeleteCalculationRun")]
         public async Task<IActionResult> DeleteCalculation(int runId, string calcName, string createdTime, string createdDate, bool deleteChecked)
         {

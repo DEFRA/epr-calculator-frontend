@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Azure.Core;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
@@ -7,7 +6,6 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
@@ -17,7 +15,6 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Controller for handling default parameter settings.
     /// </summary>
-    [Authorize(Roles = "SASuperUser")]
     public class DefaultParametersController : BaseController
     {
         /// <summary>
@@ -44,7 +41,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>
         /// An <see cref="IActionResult"/> that renders the view with the retrieved data or redirects to an error page.
         /// </returns>
-        [Authorize(Roles = "SASuperUser")]
         [Route("ViewDefaultParameters")]
         public async Task<IActionResult> Index()
         {

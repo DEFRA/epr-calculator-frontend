@@ -4,7 +4,6 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 
@@ -13,7 +12,6 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="CalculationRunDeleteController"/> class.
     /// </summary>
-    [Authorize(Roles = "SASuperUser")]
     [Route("[controller]")]
     public class CalculationRunDeleteController : BaseController
     {
