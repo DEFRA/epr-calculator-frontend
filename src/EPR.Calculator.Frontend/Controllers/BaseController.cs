@@ -62,39 +62,6 @@ namespace EPR.Calculator.Frontend.Controllers
             return accessToken;
         }
 
-        private async Task<HttpClient> GetHttpClient()
-        {
-            var client = this.ClientFactory.CreateClient();
-            var accessToken = await this.AcquireToken();
-            client.DefaultRequestHeaders.Add("Authorization", accessToken);
-            return client;
-        }
-
-        private async Task<HttpResponseMessage> CallApi(
-            HttpMethod httpMethod,
-            Uri apiUrl,
-            string argument,
-            object? body)
-        {
-            var argsString = !string.IsNullOrEmpty(argument)
-                ? $"/{argument}"
-                : string.Empty;
-            var contentString = JsonSerializer.Serialize(body);
-            var request = new HttpRequestMessage(
-                httpMethod,
-                new Uri($"{apiUrl}{argsString}"));
-            if (body is not null)
-            {
-                request.Content = new StringContent(
-                    contentString,
-                    Encoding.UTF8,
-                    StaticHelpers.MediaType);
-            }
-
-            var client = await this.GetHttpClient();
-            return await client.SendAsync(request);
-        }
-
         protected async Task<HttpResponseMessage> GetCalculatorRunAsync(int runId)
         {
             var apiUrl = this.GetApiUrl(
@@ -203,6 +170,39 @@ namespace EPR.Calculator.Frontend.Controllers
                 ConfigSection.LapcapSettings,
                 ConfigSection.LapcapSettingsApi);
             return await this.CallApi(HttpMethod.Get, apiUrl, parameterYear, null);
+        }
+
+        private async Task<HttpClient> GetHttpClient()
+        {
+            var client = this.ClientFactory.CreateClient();
+            var accessToken = await this.AcquireToken();
+            client.DefaultRequestHeaders.Add("Authorization", accessToken);
+            return client;
+        }
+
+        private async Task<HttpResponseMessage> CallApi(
+            HttpMethod httpMethod,
+            Uri apiUrl,
+            string argument,
+            object? body)
+        {
+            var argsString = !string.IsNullOrEmpty(argument)
+                ? $"/{argument}"
+                : string.Empty;
+            var contentString = JsonSerializer.Serialize(body);
+            var request = new HttpRequestMessage(
+                httpMethod,
+                new Uri($"{apiUrl}{argsString}"));
+            if (body is not null)
+            {
+                request.Content = new StringContent(
+                    contentString,
+                    Encoding.UTF8,
+                    StaticHelpers.MediaType);
+            }
+
+            var client = await this.GetHttpClient();
+            return await client.SendAsync(request);
         }
 
         /// <summary>

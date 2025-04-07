@@ -178,17 +178,6 @@ namespace EPR.Calculator.Frontend.Controllers
             return false;
         }
 
-        /// <summary>
-        /// Asynchronously retrieves calculation details for a given run ID.
-        /// </summary>
-        /// <param name="runId">The ID of the calculation run to retrieve details for.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
-        private async Task<HttpResponseMessage> GetCalculationDetailsAsync(int runId)
-        {
-            return await this.GetCalculationDetailsAsync(runId);
-        }
-
         private void SetDownloadParameters(CalculatorRunStatusUpdateViewModel statusUpdateViewModel)
         {
             var downloadResultApi = this.Configuration

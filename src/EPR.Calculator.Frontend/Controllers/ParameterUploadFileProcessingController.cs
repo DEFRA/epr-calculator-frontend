@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.NetworkInformation;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -30,12 +31,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                // TODO: Retrieving the year is being refactored in my other change.
+                // Will need to re-look at this line once that change is merged in.
                 var response = this.PostDefaultParameters(
                     new CreateDefaultParameterSettingDto(
                         parameterRefreshViewModel,
-
-                        // TODO: Retrieving the year is being refactored in my other change.
-                        // Will need to re-look at this line once that change is merged in.
                         this.Configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value));
 
                 response.Wait();

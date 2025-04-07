@@ -13,28 +13,21 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="ClassifyingCalculationRunScenario1Controller"/> class.
     /// </summary>
-    public class ClassifyingCalculationRunScenario1Controller : BaseController
+    /// <param name="configuration">The configuration settings.</param>
+    /// <param name="clientFactory">The HTTP client factory.</param>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="tokenAcquisition">token acquisition.</param>
+    /// <param name="telemetryClient">telemetry client.</param>
+    public class ClassifyingCalculationRunScenario1Controller(
+        IConfiguration configuration,
+        IHttpClientFactory clientFactory,
+        ILogger<ClassifyingCalculationRunScenario1Controller> logger,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
         private const string ClassifyingCalculationRunIndexView = ViewNames.ClassifyingCalculationRunScenario1Index;
-        private readonly IConfiguration configuration;
-        private readonly IHttpClientFactory clientFactory;
-        private readonly ILogger<ClassifyingCalculationRunScenario1Controller> logger;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ClassifyingCalculationRunScenario1Controller"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration settings.</param>
-        /// <param name="clientFactory">The HTTP client factory.</param>
-        /// <param name="logger">The logger instance.</param>
-        /// <param name="tokenAcquisition">token acquisition.</param>
-        /// <param name="telemetryClient">telemetry client.</param>
-        public ClassifyingCalculationRunScenario1Controller(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyingCalculationRunScenario1Controller> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
-        {
-            this.configuration = configuration;
-            this.clientFactory = clientFactory;
-            this.logger = logger;
-        }
+        private readonly ILogger<ClassifyingCalculationRunScenario1Controller> logger = logger;
 
         /// <summary>
         /// Displays the index view for classifying calculation runs.

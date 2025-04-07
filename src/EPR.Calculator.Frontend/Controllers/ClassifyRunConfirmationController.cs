@@ -12,24 +12,23 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="ClassifyRunConfirmationController"/> class.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="ClassifyRunConfirmationController"/> class.
+    /// </remarks>
+    /// <param name="configuration">The configuration settings.</param>
+    /// <param name="clientFactory">The HTTP client factory.</param>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="tokenAcquisition">The token acquisition service.</param>
+    /// <param name="telemetryClient">The telemetry client.</param>
     [Authorize(Roles = "SASuperUser")]
-    public class ClassifyRunConfirmationController : BaseController
+    public class ClassifyRunConfirmationController(
+        IConfiguration configuration,
+        IHttpClientFactory clientFactory,
+        ILogger<ClassifyRunConfirmationController> logger,
+        ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        private readonly ILogger<ClassifyRunConfirmationController> logger;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ClassifyRunConfirmationController"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration settings.</param>
-        /// <param name="clientFactory">The HTTP client factory.</param>
-        /// <param name="logger">The logger instance.</param>
-        /// <param name="tokenAcquisition">The token acquisition service.</param>
-        /// <param name="telemetryClient">The telemetry client.</param>
-        public ClassifyRunConfirmationController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyRunConfirmationController> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
-        {
-            this.logger = logger;
-        }
+        private readonly ILogger<ClassifyRunConfirmationController> logger = logger;
 
         /// <summary>
         /// Classify run confirmation index view.
