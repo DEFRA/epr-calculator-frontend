@@ -1,4 +1,5 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels
+@using EPR.Calculator.Frontend.Constants
 @model ClassifyCalculationViewModel
 
 @{
@@ -102,7 +103,7 @@
                     <button class="govuk-button" data-module="govuk-button">
                         Confirm classification
                     </button>
-                    @Html.ActionLink("Return to the dashboard", "Index", "Dashboard", null, new { @class = "govuk-link" })
+                     <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
                 </div>
             </div>
         }

@@ -11,13 +11,13 @@
         public static class BillingFileSuccess
         {
             /// <summary>
-            /// Title for confirmation partial.
-            /// </summary>
+        /// Title for confirmation partial.
+        /// </summary>
             public const string Title = "Billing file sent";
 
-            /// <summary>
-            /// Body text for confirmation partial.
-            /// </summary>
+        /// <summary>
+        /// Body text for confirmation partial.
+        /// </summary>
             public const string Body = "You have successfully sent the billing file to the FSS.";
 
             /// <summary>
@@ -25,14 +25,14 @@
             /// </summary>
             public const string RedirectController = "Dashboard";
 
-            /// <summary>
-            /// Additional text paragraphs for confirmation partial.
-            /// </summary>
+        /// <summary>
+        /// Additional text paragraphs for confirmation partial.
+        /// </summary>
             public static readonly List<string> NextText =
-            [
-                "The FSS will process the billing file based on the invoice instructions you accepted.",
+        [
+            "The FSS will process the billing file based on the invoice instructions you accepted.",
                 "You can return to the dashboard to review calculation runs or start a new run."
-            ];
-        }
+        ];
     }
+}
 }

@@ -53,8 +53,8 @@ namespace EPR.Calculator.Frontend.Controllers
                         CreatedAt = DateTime.Now,
                         FileExtension = ".csv",
                         RunClassificationStatus = "3",
-                        FinancialYear = "2024-25", // calculatorRun.FinancialYear
-                        Classification = "Initial run", // calculatorRun.FinancialYear
+                        FinancialYear = "2024-25",
+                        Classification = "Initial run",
                     },
                 };
 

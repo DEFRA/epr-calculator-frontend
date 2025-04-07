@@ -29,7 +29,7 @@ namespace EPR.Calculator.Frontend.Controllers
             ITokenAcquisition tokenAcquisition,
             TelemetryClient telemetryClient)
             : base(configuration, tokenAcquisition, telemetryClient)
-        {
+    {
             _configuration = configuration;
         }
 

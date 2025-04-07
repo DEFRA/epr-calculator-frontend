@@ -42,6 +42,7 @@
 
             @using (Html.BeginForm("Upload", "ParameterUploadFileError", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
+                @Html.AntiForgeryToken()
                 <partial name="_ParameterUploadFileButtonPartial" />
             }
         </div>

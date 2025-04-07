@@ -11,5 +11,7 @@
         public required string ConfirmationContent { get; set; }
 
         public required string WarningContent { get; set; }
+
+        public required string BackLink { get; set; }
     }
 }
