@@ -138,9 +138,9 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var confirmationModel = model.ConfirmationViewModel;
             Assert.IsNotNull(confirmationModel);
-            Assert.AreEqual(ConfirmationMessages.BillingFileSuccess.Title, confirmationModel.Title);
-            Assert.AreEqual(ConfirmationMessages.BillingFileSuccess.Body, confirmationModel.Body);
-            CollectionAssert.AreEqual(ConfirmationMessages.BillingFileSuccess.NextText, confirmationModel.AdditionalParagraphs);
+            Assert.AreEqual(ConfirmationMessages.BillingFileSuccessTitle, confirmationModel.Title);
+            Assert.AreEqual(ConfirmationMessages.BillingFileSuccessBody, confirmationModel.Body);
+            CollectionAssert.AreEqual(ConfirmationMessages.BillingFileSuccessAdditionalParagraphs, confirmationModel.AdditionalParagraphs);
             Assert.AreEqual(CommonConstants.DashBoard, confirmationModel.RedirectController);
         }
     }
