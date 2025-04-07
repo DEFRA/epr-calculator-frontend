@@ -20,6 +20,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 RedirectController = ParameterConfirmation.RedirectController,
                 SubmitText = ParameterConfirmation.SubmitText,
             };
+
             return this.View(ViewNames.ParameterConfirmationIndex,parameterConfirmationViewModel);
         }
     }
