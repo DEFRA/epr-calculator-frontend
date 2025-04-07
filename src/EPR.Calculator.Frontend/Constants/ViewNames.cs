@@ -11,6 +11,11 @@
         public const string CalculationRunDetailsIndex = "~/Views/CalculationRunDetails/Index.cshtml";
 
         /// <summary>
+        /// Classify run confirmation controller index page view.
+        /// </summary>
+        public const string ClassifyRunConfirmationIndex = "~/Views/ClassifyRunConfirmation/Index.cshtml";
+
+        /// <summary>
         /// Calculator run details controller index new page view.
         /// </summary>
         public const string CalculationRunDetailsNewIndex = "~/Views/CalculationRunDetailsNew/Index.cshtml";
@@ -119,5 +124,10 @@
         /// Calculation Run Classification index page view.
         /// </summary>
         public const string CalculationRunClassification = "~/Views/ClassifyCalculationRun/Index.cshtml";
+
+        /// <summary>
+        /// classifying calculation run controller scenario1 index page view.
+        /// </summary>
+        public const string ClassifyingCalculationRunScenario1Index = "~/Views/ClassifyingCalculationRunScenario1/Index.cshtml";
     }
 }
