@@ -42,7 +42,6 @@
                 User = principal,
                 Session = mockHttpSession
             };
-
             var controller = new SendBillingFileController();
             controller.ControllerContext = new ControllerContext
             {
@@ -50,7 +49,7 @@
             };
 
             // Act
-            var result = controller.Index() as ViewResult;
+            var result = controller.Index(99) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);

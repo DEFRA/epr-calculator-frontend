@@ -24,8 +24,6 @@ namespace EPR.Calculator.Frontend.Models
 
         public string? Classification { get; set; }
 
-        public string? Classification { get; set; }
-
         public string FinancialYear { get; set; }
     }
 }
