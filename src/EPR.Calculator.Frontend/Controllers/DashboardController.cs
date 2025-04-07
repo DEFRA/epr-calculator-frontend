@@ -16,31 +16,22 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Controller for handling the dashboard.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="DashboardController"/> class.
+    /// </remarks>
+    /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
+    /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
+    /// <param name="tokenAcquisition">The token acquisition service.</param>
+    /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     [Authorize(Roles = "SASuperUser")]
     [Route("/")]
-    public class DashboardController : BaseController
+    public class DashboardController(
+        IConfiguration configuration,
+        IHttpClientFactory clientFactory,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DashboardController"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
-        /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        /// <param name="tokenAcquisition">The token acquisition service.</param>
-        /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
-        public DashboardController(
-            IConfiguration configuration,
-            IHttpClientFactory clientFactory,
-            ITokenAcquisition tokenAcquisition,
-            TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
-        {
-            this.DashboardCalculatorRunApi = new Uri(
-                this.Configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                    .GetValue<string>(ConfigSection.DashboardCalculatorRunApi));
-        }
-
-        private Uri DashboardCalculatorRunApi { get; init; }
-
         private bool ShowDetailedError { get; set; }
 
         /// <summary>

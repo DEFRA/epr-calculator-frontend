@@ -23,7 +23,6 @@ namespace EPR.Calculator.Frontend.Controllers
     public class CalculationRunDeleteController(
         IConfiguration configuration,
         IHttpClientFactory clientFactory,
-        ILogger<CalculationRunDeleteController> logger,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient)
         : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
