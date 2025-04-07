@@ -59,28 +59,20 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
-        /// Returns financial year, dependant on the ShowFinancialYear feature flag.
+        /// Returns the financial year from session if feature enabled, else from config.
         /// </summary>
-        /// <param name="configSection">The section of the config file to look for the financial year in.</param>
-        /// <returns>
-        /// If ShowFinancialYear is enabled, returns the financial year selected on the dashboard.
-        /// If it's disabled, returns the financial year from the config file.
-        /// </returns>
+        /// <param name="configSection">The configuration section.</param>
+        /// <returns>Returns the financial year.</returns>
+        /// <exception cref="ArgumentNullException">Returns error if financial year is null or empty.</exception>
         protected string GetParameterYear(string configSection)
         {
-            string? parameterYear = this.HttpContext.Session.GetString(SessionConstants.FinancialYear);
-            if (!this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear)
-                || parameterYear is null)
-            {
-                var configYear = this.Configuration
-                    .GetSection(configSection)
-                    .GetValue<string>("ParameterYear");
-                if (string.IsNullOrWhiteSpace(configYear))
-                {
-                    throw new ArgumentNullException(configYear, "ParameterYear is null. Check the configuration settings.");
-                }
+            var parameterYear = this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear)
+                ? this.HttpContext.Session.GetString(SessionConstants.FinancialYear)
+                : this.Configuration.GetSection(configSection).GetValue<string>("ParameterYear");
 
-                parameterYear = configYear;
+            if (string.IsNullOrWhiteSpace(parameterYear))
+            {
+                throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings.");
             }
 
             return parameterYear;
