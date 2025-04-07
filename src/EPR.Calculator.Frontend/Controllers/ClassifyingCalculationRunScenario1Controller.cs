@@ -29,7 +29,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="tokenAcquisition">token acquisition.</param>
         /// <param name="telemetryClient">telemetry client.</param>
         public ClassifyingCalculationRunScenario1Controller(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyingCalculationRunScenario1Controller> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
         {
             this.configuration = configuration;
             this.clientFactory = clientFactory;

@@ -26,7 +26,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="tokenAcquisition">The token acquisition service.</param>
         /// <param name="telemetryClient">The telemetry client.</param>
         public ClassifyRunConfirmationController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyRunConfirmationController> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
         {
             this.logger = logger;
         }

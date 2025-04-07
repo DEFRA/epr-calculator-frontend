@@ -25,7 +25,7 @@ namespace EPR.Calculator.Frontend.Controllers
         IHttpClientFactory clientFactory,
         ILogger<CalculationRunDetailsController> logger,
         ITokenAcquisition tokenAcquisition,
-        TelemetryClient telemetryClient) 
+        TelemetryClient telemetryClient)
         : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
         private ILogger<CalculationRunDetailsController> Logger { get; init; } = logger;
