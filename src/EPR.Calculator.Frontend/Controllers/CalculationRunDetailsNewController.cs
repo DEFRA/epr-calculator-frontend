@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -16,7 +17,6 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller responsible for displaying the details of a calculation run.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
-    [Route("payment-calculator")]
     public class CalculationRunDetailsNewController : BaseController
     {
         private readonly IConfiguration _configuration;
@@ -45,12 +45,42 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">Run ID.</param>
         /// <returns>View. </returns>
-        [Authorize(Roles = "SASuperUser")]
         [Route("rundetails/{runId}")]
-        public Task<IActionResult> IndexAsync(int runId)
+        public IActionResult Index(int runId)
+        {
+            CalculatorRunDto calculatorRun = GetCalculationRunDetails(runId);
+
+            var viewModel = CreateViewModel(runId, calculatorRun);
+
+            return View(ViewNames.CalculationRunDetailsNewIndex, viewModel);
+        }
+
+        [HttpPost]
+        public IActionResult Submit(int runId, string SelectedCalcRunOption)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction("Index", new { runId });
+            }
+
+            if (SelectedCalcRunOption == "outputClassify")
+            {
+                return RedirectToAction("Index", "ClassifyingCalculationRunScenario1", new { runId });
+            }
+            else if (SelectedCalcRunOption == "outputDelete")
+            {
+                return RedirectToAction("Index", "CalculationRunDelete", new { runId = runId });
+            }
+            else
+            {
+                return RedirectToAction("Index", new { runId });
+            }
+        }
+
+        private static CalculatorRunDto GetCalculationRunDetails(int runId)
         {
             // Get the calculation run details from the API
-            var calculatorRun = new CalculatorRunDto()
+            CalculatorRunDto calculatorRunDto = new()
             {
                 RunId = runId,
                 FinancialYear = "2024-25",
@@ -61,16 +91,14 @@ namespace EPR.Calculator.Frontend.Controllers
                 CreatedAt = DateTime.Now,
                 CreatedBy = "Jo Bloggs",
             };
-
-            var viewModel = CreateViewModel(runId, calculatorRun);
-            SetDownloadParameters(viewModel);
-
-            return Task.FromResult<IActionResult>(View(ViewNames.CalculationRunDetailsNewIndex, viewModel));
+            var calculatorRun = calculatorRunDto;
+            return calculatorRun;
         }
+
 
         private CalculatorRunDetailsNewViewModel CreateViewModel(int runId, CalculatorRunDto calculatorRun)
         {
-            return new CalculatorRunDetailsNewViewModel
+            var viewModel = new CalculatorRunDetailsNewViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(HttpContext),
                 Data = new CalculatorRunDto
@@ -85,6 +113,10 @@ namespace EPR.Calculator.Frontend.Controllers
                     RunClassificationStatus = calculatorRun.RunClassificationStatus,
                 },
             };
+
+            SetDownloadParameters(viewModel);
+
+            return viewModel;
         }
 
         private void SetDownloadParameters(CalculatorRunDetailsNewViewModel viewModel)

@@ -13,6 +13,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Initializes a new instance of the <see cref="ClassifyRunConfirmationController"/> class.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
+    [Route("[controller]")]
     public class ClassifyRunConfirmationController : BaseController
     {
         private readonly ILogger<ClassifyRunConfirmationController> logger;
@@ -36,9 +37,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">The ID of the calculation run.</param>
         /// <returns>The classify run confirmation index view.</returns>
-        [Authorize(Roles = "SASuperUser")]
         [Route("ClassifyRunConfirmation/{runId}")]
-        public IActionResult IndexAsync(int runId)
+        public IActionResult Index(int runId)
         {
             try
             {
@@ -65,6 +65,17 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+        }
+
+        [HttpPost]
+        public IActionResult SubmitClassifyRunConfirmation(int runId)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return RedirectToAction("Index", new { runId });
+            }
+
+            return RedirectToAction("Index", "PaymentCalculator", new { runId = runId });
         }
     }
 }

@@ -9,15 +9,16 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Initializes a new instance of the <see cref="PaymentCalculatorController"/> class.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
-    [Route("payment-calculator")]
+    [Route("[controller]")]
     public class PaymentCalculatorController : Controller
     {
         [HttpGet]
-        [Route("accept-invoice-instructions")]
-        public IActionResult AcceptInvoiceInstructions()
+        [Route("paymentcalculator/{runId}")]
+        public IActionResult Index(int runId)
         {
             var model = new AcceptInvoiceInstructionsViewModel
             {
+                RunId = 99,
                 AcceptAll = false,
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 CalculationRunTitle = "Calculation run 99",
@@ -27,17 +28,10 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        [Route("accept-invoice-instructions")]
         [ValidateAntiForgeryToken]
-        public IActionResult AcceptInvoiceInstructions(AcceptInvoiceInstructionsViewModel model)
+        public IActionResult AcceptInvoiceInstructions(int runId)
         {
-            if (model.AcceptAll)
-            {
-                return this.RedirectToAction("Overview"); // dummy return url
-            }
-
-            this.ModelState.AddModelError("AcceptAll", "You must confirm acceptance to proceed.");
-            return this.View(model);
+            return RedirectToAction("Index", "CalculationRunOverview", new { runId = runId });
         }
     }
 }

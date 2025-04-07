@@ -14,15 +14,16 @@
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row calculator-details">
         <div class="govuk-grid-column-two-thirds">
-            @using (Html.BeginForm("ActionToBeImplemented", "CalculationRunDetailsNew", FormMethod.Post))
+            @using (Html.BeginForm("Submit", "CalculationRunDetailsNew", FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
 
+                @Html.Hidden("RunId", Model.Data.RunId)
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
                         <legend class="govuk-caption-l">
                             Calculation run @Model.Data.RunId
-                        </legend>                        
+                        </legend>
                         <h1 class="govuk-heading-l">Calculation run details</h1>
                         <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
                         <h3 class="govuk-body-m">Download the results file to review the calculation run offline. When you are ready, return to classify or delete it.</h3>
@@ -54,7 +55,7 @@
                         <h2 class="govuk-heading-m">Downloads</h2>
                         <p class="govuk-body">Download files related to this calculation run.</p>
 
-                        <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                        <button type="submit" id="downloadResultFileBtn" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                             Results file
                         </button>
 
@@ -63,7 +64,7 @@
 
                         <div class="govuk-radios" data-module="govuk-radios">
                             <div class="govuk-radios__item">
-                                @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputClassify", new { @class = "govuk-radios__input", id = "initialRun" })
+                                @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputClassify", new { @class = "govuk-radios__input" })
 
                                 <label class="govuk-label govuk-radios__label" for="initialRun">
                                     <strong>Classify</strong><br>
@@ -71,7 +72,7 @@
                                 </label>
                             </div>
                             <div class="govuk-radios__item">
-                                @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputDelete", new { @class = "govuk-radios__input", id = "interimRecalculationRun" })
+                                @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputDelete", new { @class = "govuk-radios__input" })
                                 <label class="govuk-label govuk-radios__label" for="interimRecalculationRun">
                                     <strong>Delete</strong><br>
                                     <p class="govuk-body-s" style="margin-bottom: 0;">Remove this calculation run if it's no longer needed</p>
@@ -83,7 +84,7 @@
 
                 <div class="govuk-button-group">
                     <div class="govuk-button-group">
-                        <button class="govuk-button" data-module="govuk-button">
+                        <button type="Submit" class="govuk-button" data-module="govuk-button">
                             Continue
                         </button>
                     </div>

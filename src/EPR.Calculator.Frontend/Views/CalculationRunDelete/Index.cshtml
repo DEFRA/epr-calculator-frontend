@@ -8,7 +8,7 @@
     var BackLink = "Dashboard";
 }
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
-    <partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
+    <partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <span class="govuk-caption-xl">@Html.LabelFor(x => x.CalculatorRunStatusData.CalcName) </span><br>
@@ -18,7 +18,7 @@
                 Only delete this calculation run if you no longer need it or have completed another successful run.
             </label>
             <br>
-            @using (Html.BeginForm("Delete-Confirmation", "CalculationRunDelete", FormMethod.Post))
+            @using (Html.BeginForm("DeleteConfirmationSuccess", "CalculationRunDelete", FormMethod.Post))
             {
                 <div class="govuk-button-group">
                     <button id="btnDelete" type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">

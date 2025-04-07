@@ -4,6 +4,7 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
@@ -13,6 +14,8 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="ClassifyingCalculationRunScenario1Controller"/> class.
     /// </summary>
+    [Authorize(Roles = "SASuperUser")]
+    [Route("[controller]")]
     public class ClassifyingCalculationRunScenario1Controller : BaseController
     {
         private const string ClassifyingCalculationRunIndexView = ViewNames.ClassifyingCalculationRunScenario1Index;
@@ -58,6 +61,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         CreatedTime = "12:09", // TODO: Replace with actual data,
                         FinancialYear = "2024-25", // TODO: Replace with actual data,
                     },
+                    BackLink = $"/paymentcalculator/{runId}",
                 };
 
                 return this.View(ClassifyingCalculationRunIndexView, classifyCalculationRunViewModel);
@@ -67,6 +71,17 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+        }
+
+        [HttpPost]
+        public IActionResult SubmitClassifyRunConfirm(int runId)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return RedirectToAction("Index", new { runId });
+            }
+
+            return RedirectToAction("Index", "ClassifyRunConfirmation", new { runId = runId });
         }
     }
 }

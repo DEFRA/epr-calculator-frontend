@@ -14,7 +14,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller for the calculation run overview page.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
-    [Route("payment-calculator")]
+    [Route("[controller]")]
     public class CalculationRunOverviewController : BaseController
     {
         private readonly IConfiguration _configuration;
@@ -63,6 +63,17 @@ namespace EPR.Calculator.Frontend.Controllers
             SetDownloadParameters(viewModel);
 
             return Task.FromResult<IActionResult>(View(ViewNames.CalculationRunOverviewIndex, viewModel));
+        }
+
+        [HttpPost]
+        public IActionResult SubmitCalculationRunOverview(int runId)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return RedirectToAction("Index", new { runId });
+            }
+
+            return RedirectToAction("Index", "SendBillingFile", new { runId = runId });
         }
 
         private CalculatorRunOverviewViewModel CreateViewModel(int runId, CalculatorRunDto calculatorRun)
