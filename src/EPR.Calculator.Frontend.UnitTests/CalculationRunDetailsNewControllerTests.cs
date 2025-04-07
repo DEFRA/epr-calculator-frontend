@@ -48,14 +48,14 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task IndexAsync_ValidRunId_ReturnsViewResult()
+        public void Index_ValidRunId_ReturnsViewResult()
         {
             int runId = 1;
 
             // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
             _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
 
-            var result = await _controller.IndexAsync(runId);
+            var result = _controller.Index(runId);
 
             Assert.IsInstanceOfType(result, typeof(ViewResult));
             var viewResult = result as ViewResult;
