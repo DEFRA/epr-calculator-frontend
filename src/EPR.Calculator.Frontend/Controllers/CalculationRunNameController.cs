@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Configuration;
 using System.Net;
+using System.Reflection;
 using ConfigurationException = CsvHelper.Configuration.ConfigurationException;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -120,9 +121,11 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("Confirmation")]
         public IActionResult Confirmation(string calculationName)
         {
-            var calculationRunConfirmationViewModel = new CalculationRunConfirmationViewModel
+            var calculationRunConfirmationViewModel = new ConfirmationViewModel
             {
-                CalculationName = calculationName ?? string.Empty,
+                Title = CalculatorRunNames.Title,
+                Body = calculationName ?? string.Empty,
+                NextText = CalculatorRunNames.NextText,
             };
 
             return this.View(ViewNames.CalculationRunConfirmation, calculationRunConfirmationViewModel);

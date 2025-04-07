@@ -1,5 +1,6 @@
 ﻿namespace EPR.Calculator.Frontend.ViewModels
 {
+    using EPR.Calculator.Frontend.Models;
     using System.Diagnostics.CodeAnalysis;
 
     /// <summary>

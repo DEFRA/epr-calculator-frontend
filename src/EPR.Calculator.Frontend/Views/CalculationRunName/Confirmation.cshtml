@@ -1,14 +1,7 @@
-﻿@model EPR.Calculator.Frontend.ViewModels.CalculationRunConfirmationViewModel
+﻿@model EPR.Calculator.Frontend.Models.ConfirmationViewModel;
 ﻿@using EPR.Calculator.Frontend.Constants
 ﻿@{
     Layout = "_Layout";
-
-    var model = new ConfirmationViewModel
-    {
-        Title = "You have started a calculation",
-        Body = Model.CalculationName,
-        NextText = " It will take up to 15 minutes for the calculation to finish. You will be able to view it in the list of calculations on the dashboard."
-    };
 }
 
-<partial name="_ConfirmationPartial" model="model" />
+<partial name="_ConfirmationPartial" model=Model />
