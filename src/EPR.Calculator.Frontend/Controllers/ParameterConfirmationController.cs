@@ -21,7 +21,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 SubmitText = ParameterConfirmation.SubmitText,
             };
 
-            return this.View(ViewNames.ParameterConfirmationIndex,parameterConfirmationViewModel);
+            return this.View(ViewNames.ParameterConfirmationIndex, parameterConfirmationViewModel);
         }
     }
 }
