@@ -55,9 +55,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 ConfirmationViewModel = new ConfirmationViewModel
                 {
-                    Title = ConfirmationMessages.BillingFileSuccess.Title,
-                    Body = ConfirmationMessages.BillingFileSuccess.Body,
-                    AdditionalParagraphs = ConfirmationMessages.BillingFileSuccess.NextText,
+                    Title = ConfirmationMessages.BillingFileSuccessTitle,
+                    Body = ConfirmationMessages.BillingFileSuccessBody,
+                    AdditionalParagraphs = ConfirmationMessages.BillingFileSuccessAdditionalParagraphs,
                     RedirectController = CommonConstants.DashBoard,
                 }
             };
