@@ -15,6 +15,7 @@
 
 @using (Html.BeginForm("RunCalculator", "CalculationRunName", FormMethod.Post))
 {
+    @Html.AntiForgeryToken()
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <div class="govuk-form-group">

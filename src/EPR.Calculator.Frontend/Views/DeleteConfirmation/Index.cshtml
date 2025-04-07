@@ -25,12 +25,14 @@
             <p class="govuk-body">ID: @Model.Data.RunId</p>
             <hr>
             <br>
-            <form action="/form-handler" method="post" novalidate="">
+            @using (Html.BeginForm("Index", "Dashboard", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="answers-checked" value="true">
                 <div class="govuk-button-group">
                     <a href="@Url.Action("Index", "Dashboard")" class="govuk-button" type="submit">Return to the dashboard</a>
                 </div>
-            </form>
+            }
         </div>
     </div>
 </main>
