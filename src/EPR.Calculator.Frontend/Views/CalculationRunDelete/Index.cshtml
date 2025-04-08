@@ -20,6 +20,7 @@
             <br>
             @using (Html.BeginForm("Delete-Confirmation", "CalculationRunDelete", FormMethod.Post))
             {
+                @Html.AntiForgeryToken()
                 <div class="govuk-button-group">
                     <button id="btnDelete" type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">
                         @ActionLinkLabels.DeleteRun
