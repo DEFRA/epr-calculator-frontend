@@ -33,13 +33,9 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                // TODO: Update this when get year from dropdown change is merged.
-                var parameterYear = this.Configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
-                ArgumentException.ThrowIfNullOrEmpty(parameterYear);
-
                 var response = this.PostLapcapData(new CreateLapcapDataDto(
                     lapcapRefreshViewModel,
-                    parameterYear));
+                    this.GetFinancialYear("LapcapSettings")));
 
                 response.Wait();
 

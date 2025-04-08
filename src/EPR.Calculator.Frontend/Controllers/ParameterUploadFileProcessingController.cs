@@ -32,23 +32,20 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                // TODO: Retrieving the year is being refactored in my other change.
-                // Will need to re-look at this line once that change is merged in.
-                var response = this.PostDefaultParameters(
+
+                var response = await this.PostDefaultParameters(
                     new CreateDefaultParameterSettingDto(
                         parameterRefreshViewModel,
-                        this.Configuration.GetSection("ParameterSettings").GetSection("ParameterYear").Value));
+                        this.GetFinancialYear("ParameterSettings")));
 
-                response.Wait();
-
-                if (response.Result.IsSuccessStatusCode && response.Result.StatusCode == HttpStatusCode.Created)
+                if (response.IsSuccessStatusCode && response.StatusCode == HttpStatusCode.Created)
                 {
-                    return this.Ok(response.Result);
+                    return this.Ok(response);
                 }
 
                 this.TelemetryClient.TrackTrace($"2.File name before BadRequest :{parameterRefreshViewModel.FileName}");
-                this.TelemetryClient.TrackTrace($"3.Reason for BadRequest :{response.Result.Content.ReadAsStringAsync().Result}");
-                return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
+                this.TelemetryClient.TrackTrace($"3.Reason for BadRequest :{response.Content.ReadAsStringAsync().Result}");
+                return this.BadRequest(response.Content.ReadAsStringAsync().Result);
             }
             catch (Exception)
             {
