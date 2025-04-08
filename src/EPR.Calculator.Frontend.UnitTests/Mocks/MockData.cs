@@ -168,6 +168,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
                 RunClassificationStatus = "UNCLASSIFIED",
                 FileExtension = "CSV",
                 CreatedAt = DateTime.Parse("21/06/2024 12:09:00", new CultureInfo("en-GB")),
+                FinancialYear = "2024-25",
             };
         }
 
@@ -181,6 +182,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
                 RunClassificationStatus = "RUNNING",
                 FileExtension = "CSV",
                 CreatedAt = DateTime.Parse("21/06/2024 12:09:00", new CultureInfo("en-GB")),
+                FinancialYear = "2024-25",
             };
         }
 
