@@ -23,7 +23,7 @@
         /// <summary>
         /// Confirmation Success action.
         /// </summary>
-        public const string ConfirmationSuccess = "confirmationsuccess";
+        public const string ConfirmationSuccess = "ConfirmationSuccess";
 
         /// <summary>
         /// Delete Confirmation Success action.
