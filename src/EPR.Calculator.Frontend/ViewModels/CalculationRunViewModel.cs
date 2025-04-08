@@ -64,6 +64,10 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// </summary>
         public bool ShowErrorLink { get; set; }
 
+        public string FeatureOffLink {  get { return $"/ViewCalculationRunDetails/{Id}"; } }
+
+        public string FeatureOnLink { get { return $"/SomeOtherLink/{Id}"; } }
+
         private static string GetFormattedCreatedAt(DateTime createdAt)
         {
             return createdAt.ToString("dd MMM yyyy ' at 'H:mm", new System.Globalization.CultureInfo("en-GB"));
