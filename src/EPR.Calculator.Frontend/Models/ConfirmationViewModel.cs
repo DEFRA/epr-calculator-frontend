@@ -13,6 +13,8 @@ namespace EPR.Calculator.Frontend.Models
 
         public string? RedirectController { get; set; }
 
+        public string? NextText { get; set; }
+
         public required string Body { get; set; }
     }
 }

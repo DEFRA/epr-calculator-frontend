@@ -26,6 +26,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 NextText = ParameterConfirmation.NextText,
                 RedirectController = ParameterConfirmation.RedirectController,
                 SubmitText = ParameterConfirmation.SubmitText,
+                AdditionalParagraphs = new List<string>(),
             };
 
             // Return the view with the view model
