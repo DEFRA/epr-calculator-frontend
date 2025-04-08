@@ -68,19 +68,13 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </returns>
         protected string GetParameterYear(string configSection)
         {
-            string? parameterYear = this.HttpContext.Session.GetString(SessionConstants.FinancialYear);
-            if (!this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear)
-                || parameterYear is null)
-            {
-                var configYear = this.Configuration
-                    .GetSection(configSection)
-                    .GetValue<string>("ParameterYear");
-                if (string.IsNullOrWhiteSpace(configYear))
-                {
-                    throw new ArgumentNullException(configYear, "ParameterYear is null. Check the configuration settings for local authority");
-                }
+            var parameterYear = this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear)
+               ? this.HttpContext.Session.GetString(SessionConstants.FinancialYear)
+               : this.Configuration.GetSection(configSection).GetValue<string>("ParameterYear");
 
-                parameterYear = configYear;
+            if (string.IsNullOrWhiteSpace(parameterYear))
+            {
+                throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings.");
             }
 
             return parameterYear;
