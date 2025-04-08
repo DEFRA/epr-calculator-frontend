@@ -28,6 +28,6 @@
         /// <summary>
         /// Delete Confirmation Success action.
         /// </summary>
-        public const string DeleteConfirmation = "deleteconfirmation";
+        public const string DeleteConfirmation = "DeleteConfirmation";
     }
 }
