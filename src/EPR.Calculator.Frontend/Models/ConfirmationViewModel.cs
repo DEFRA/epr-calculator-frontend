@@ -9,7 +9,7 @@ namespace EPR.Calculator.Frontend.Models
 
         public string? SubmitText { get; set; }
 
-        public required string NextText { get; set; }
+        public required List<string> AdditionalParagraphs { get; set; }
 
         public string? RedirectController { get; set; }
 
