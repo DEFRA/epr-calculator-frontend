@@ -1,10 +1,6 @@
 ﻿<div class="govuk-grid-row">
-	<div class="govuk-grid-column-full">
-		<div class="govuk-grid-row govuk-!-display-flex govuk-!-justify-content-space-between govuk-!-padding-right-3">
-			<div class="account-info govuk-body-s govuk-!-margin-top-4">
-				<span class="your-name" id="bannerUserName">@Model</span>
-				<a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
-			</div>
-		</div>
+	<div class="govuk-body-s govuk-!-margin-top-4 govuk-!-padding-right-3 epr-!-account-info">
+		<span class="your-name" id="bannerUserName">@Model</span>
+		<a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
 	</div>
 </div>
