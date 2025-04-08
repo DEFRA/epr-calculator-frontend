@@ -323,7 +323,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task Index_RedirectToErrorWhenNoFinancialYearInSession()
+        public async Task Index_UsesConfigWhenFinancialYearMissingFromSession()
         {
             // Arrange
             var configValue = "This value comes from the config.";
@@ -336,7 +336,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await TestClass.Index(new LapcapRefreshViewModel());
 
             // Assert
-            Assert.AreEqual((result as RedirectToActionResult).ControllerName, "StandardError");
+            this.MockMessageHandler.Protected().Verify(
+                "SendAsync",
+                Times.Once(), ItExpr.Is<HttpRequestMessage>(m =>
+                    m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{configValue}\"")),
+                ItExpr.IsAny<CancellationToken>());
         }
 
         [TestMethod]
