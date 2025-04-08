@@ -3,6 +3,7 @@
 // </copyright>
 
 using EPR.Calculator.Frontend.Constants;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace EPR.Calculator.Frontend.Helpers
 {
@@ -49,6 +50,12 @@ namespace EPR.Calculator.Frontend.Helpers
                 : year;
 
             return $"{startYear}-{endYear.ToString().Substring(2, 2)}";
+        }
+
+        public static DateTime GetDateTime(DateTime date)
+        {
+            var britishZone = TimeZoneInfo.FindSystemTimeZoneById(CommonConstants.TimeZone);
+            return TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Utc, britishZone);
         }
     }
 }
