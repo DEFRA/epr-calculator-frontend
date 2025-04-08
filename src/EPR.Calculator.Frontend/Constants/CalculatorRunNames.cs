@@ -13,6 +13,9 @@
         /// <summary>
         /// The text displayed to the user indicating the time required for the calculation to complete.
         /// </summary>
-        public const string NextText = "It will take up to 15 minutes for the calculation to finish. You will be able to view it in the list of calculations on the dashboard.";
+        public static readonly List<string> AdditionalParagraphs = new List<string>
+        {
+            "It will take up to 15 minutes for the calculation to finish. You will be able to view it in the list of calculations on the dashboard.",
+        };
     }
 }

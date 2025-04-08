@@ -16,11 +16,6 @@
         public const string Body = "The default parameters";
 
         /// <summary>
-        /// The text displayed to the user indicating that all calculations will use the new parameters unless manually changed.
-        /// </summary>
-        public const string NextText = "All calculations will automatically use the new parameters, unless they are manually changed.";
-
-        /// <summary>
         /// The controller to redirect to for viewing default parameters.
         /// </summary>
         public const string RedirectController = "DefaultParameters";
@@ -29,5 +24,13 @@
         /// The text for the submit button to view new default parameters.
         /// </summary>
         public const string SubmitText = "View new default parameters";
+
+        /// <summary>
+        /// The text displayed to the user indicating that all calculations will use the new parameters unless manually changed.
+        /// </summary>
+        public static readonly List<string> AdditionalParagraphs = new List<string>
+        {
+            "All calculations will automatically use the new parameters, unless they are manually changed.",
+        };
     }
 }
