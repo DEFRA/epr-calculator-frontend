@@ -43,7 +43,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId"> Run Id.</param>
         /// <returns>View.</returns>
-        [Route("runoverview/{runId}")]
+        [Route("{runId}")]
         public Task<IActionResult> Index(int runId)
         {
             // Get the calculation run details from the API
@@ -53,10 +53,10 @@ namespace EPR.Calculator.Frontend.Controllers
                 FinancialYear = "2024-25",
                 FileExtension = "xlsx",
                 RunClassificationStatus = "Draft",
-                RunName = "Calculation run 99",
+                RunName = "Calculation Run 99",
                 RunClassificationId = 240008,
-                CreatedAt = DateTime.Now,
-                CreatedBy = "Jo Bloggs",
+                CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0),
+                CreatedBy = "Steve Jones",
             };
 
             var viewModel = CreateViewModel(runId, calculatorRun);
@@ -70,10 +70,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                return RedirectToAction("Index", new { runId });
+                return RedirectToAction(ActionNames.Index, new { runId });
             }
 
-            return RedirectToAction("Index", "SendBillingFile", new { runId = runId });
+            return RedirectToAction(ActionNames.Index, ControllerNames.SendBillingFile, new { runId = runId });
         }
 
         private CalculatorRunOverviewViewModel CreateViewModel(int runId, CalculatorRunDto calculatorRun)
@@ -92,6 +92,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     FileExtension = calculatorRun.FileExtension,
                     RunClassificationStatus = calculatorRun.RunClassificationStatus,
                 },
+                BackLink = ControllerNames.PaymentCalculator,
             };
         }
 

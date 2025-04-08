@@ -8,7 +8,7 @@
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
-<partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
+<partial name="_BackLinkPartialNew" model="(Model.BackLink, Model.CurrentUser,Model.CalculatorRunStatus.RunId)" />
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -96,7 +96,8 @@
                     <button type="submit" class="govuk-button" data-module="govuk-button">
                         Confirm classification
                     </button>
-                    <a href="@Url.Action("Index","Dashboard") class="govuk-link" type="submit">@ActionLinkLabels.ReturnToDashBoard</a>
+
+                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>                    
                 </div>
             }
         </div>

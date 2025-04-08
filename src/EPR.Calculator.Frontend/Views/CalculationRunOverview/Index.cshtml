@@ -9,7 +9,7 @@
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
-<partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
+<partial name="_BackLinkPartialNew" model="(Model.BackLink, Model.CurrentUser,Model.Data.RunId)" />
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row CalculationRunOverview">
         <div class="govuk-grid-column-two-thirds">
@@ -22,8 +22,8 @@
                         <div class="govuk-form-group">
                             <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
                                 <legend class="govuk-caption-l">
-                                    Calculation run @Model.Data.RunId
-                                </legend>                                
+                                    @Model.Data.RunName
+                                </legend>
                                 <h1 class="govuk-heading-l">Calculation run details</h1>
 
                                 <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
@@ -43,7 +43,7 @@
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                            <td class="govuk-table__cell">240008</td>
+                                            <td class="govuk-table__cell">@Model.Data.RunId</td>
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Run date and time</th>
@@ -86,9 +86,8 @@
                                             Continue
                                         </button>
                                     </div>
-                                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>                                    
+                                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
                                 </div>
-
                             </fieldset>
                         </div>
                     </fieldset>

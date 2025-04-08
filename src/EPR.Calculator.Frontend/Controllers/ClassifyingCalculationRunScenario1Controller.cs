@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -44,7 +45,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId"> runId.</param>
         /// <returns>The index view.</returns>
-        [Route("ClassifyingCalculationRunScenario1/{runId}")]
+        [Route("{runId}")]
         public IActionResult Index(int runId)
         {
             try
@@ -54,14 +55,14 @@ namespace EPR.Calculator.Frontend.Controllers
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                     CalculatorRunStatus = new CalculatorRunStatusUpdateDto
                     {
-                        RunId = 240008,
-                        ClassificationId = 3, // TODO: Replace with actual data,
-                        CalcName = "Calculation run 99", // TODO: Replace with actual data,
+                        RunId = runId,
+                        ClassificationId = 240008, // TODO: Replace with actual data,
+                        CalcName = "Calculation Run 99", // TODO: Replace with actual data,
                         CreatedDate = "01 May 2024", // TODO: Replace with actual data,
                         CreatedTime = "12:09", // TODO: Replace with actual data,
                         FinancialYear = "2024-25", // TODO: Replace with actual data,
                     },
-                    BackLink = $"/paymentcalculator/{runId}",
+                    BackLink = ControllerNames.CalculationRunDetails,
                 };
 
                 return this.View(ClassifyingCalculationRunIndexView, classifyCalculationRunViewModel);
@@ -78,10 +79,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                return RedirectToAction("Index", new { runId });
+                return RedirectToAction(ActionNames.Index, new { runId });
             }
 
-            return RedirectToAction("Index", "ClassifyRunConfirmation", new { runId = runId });
+            return RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = runId });
         }
     }
 }

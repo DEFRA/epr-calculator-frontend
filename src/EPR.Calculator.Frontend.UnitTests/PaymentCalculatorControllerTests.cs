@@ -43,7 +43,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void AcceptInvoiceInstructions_Get_ReturnsViewWithModel()
         {
             // Act
-            var result = controller.AcceptInvoiceInstructions();
+            var result = controller.AcceptInvoiceInstructions(99);
 
             // Assert
             var viewResult = result as ViewResult;
@@ -67,7 +67,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
 
             // Act
-            var result = controller.AcceptInvoiceInstructions(model);
+            var result = controller.AcceptInvoiceInstructions(99);
 
             // Assert
             var redirectResult = result as RedirectToActionResult;
@@ -87,7 +87,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
 
             // Act
-            var result = controller.AcceptInvoiceInstructions(model);
+            var result = controller.AcceptInvoiceInstructions(99);
 
             // Assert
             var viewResult = result as ViewResult;

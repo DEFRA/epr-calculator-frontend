@@ -17,6 +17,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller responsible for displaying the details of a calculation run.
     /// </summary>
     [Authorize(Roles = "SASuperUser")]
+    [Route("[controller]")]
     public class CalculationRunDetailsNewController : BaseController
     {
         private readonly IConfiguration _configuration;
@@ -45,7 +46,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">Run ID.</param>
         /// <returns>View. </returns>
-        [Route("rundetails/{runId}")]
+        [Route("{runId}")]
         public IActionResult Index(int runId)
         {
             CalculatorRunDto calculatorRun = GetCalculationRunDetails(runId);
@@ -65,15 +66,15 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (SelectedCalcRunOption == "outputClassify")
             {
-                return RedirectToAction("Index", "ClassifyingCalculationRunScenario1", new { runId });
+                return RedirectToAction(ActionNames.Index, ControllerNames.ClassifyingCalculationRun, new { runId });
             }
             else if (SelectedCalcRunOption == "outputDelete")
             {
-                return RedirectToAction("Index", "CalculationRunDelete", new { runId = runId });
+                return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { runId = runId });
             }
             else
             {
-                return RedirectToAction("Index", new { runId });
+                return RedirectToAction(ActionNames.Index, new { runId });
             }
         }
 
@@ -86,10 +87,10 @@ namespace EPR.Calculator.Frontend.Controllers
                 FinancialYear = "2024-25",
                 FileExtension = "xlsx",
                 RunClassificationStatus = "Draft",
-                RunName = "Calculation run 99",
-                RunClassificationId = 3,
-                CreatedAt = DateTime.Now,
-                CreatedBy = "Jo Bloggs",
+                RunName = "Calculation Run 99",
+                RunClassificationId = 240008,
+                CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0),
+                CreatedBy = "Steve Jones",
             };
             var calculatorRun = calculatorRunDto;
             return calculatorRun;

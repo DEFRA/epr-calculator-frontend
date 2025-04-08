@@ -12,18 +12,18 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class SendBillingFileController : Controller
     {
-        [Route("sendbillingfile/{runId}")]
+        [Route("{runId}")]
         public IActionResult Index(int runId)
         {
             var billingFileViewModel = new SendBillingFileViewModel()
             {
                 RunId = runId,
-                CalcRunName = "Calculation run 99",
+                CalcRunName = "Calculation Run 99",
                 ConfirmationContent = CommonConstants.ConfirmationContent,
                 SendBillFileHeading = CommonConstants.SendBillingFile,
                 WarningContent = CommonConstants.WarningContent,
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                BackLink = string.Empty,
+                BackLink = ControllerNames.CalculationRunOverview,
             };
 
             return this.View(billingFileViewModel);
@@ -34,10 +34,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction("Index", new { runId });
+                return RedirectToAction(ActionNames.Index, new { runId });
             }
 
-            return RedirectToAction("Index", "CalculationRunDelete", new { runId = runId });
+            return RedirectToAction("BillingFileSuccess", ControllerNames.PaymentCalculator);
         }
     }
 }

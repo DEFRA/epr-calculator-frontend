@@ -15,32 +15,31 @@ namespace EPR.Calculator.Frontend.Controllers
     public class PaymentCalculatorController : Controller
     {
         [HttpGet]
-        [Route("accept-invoice-instructions")]
-        public IActionResult AcceptInvoiceInstructions()
+        [Route("{runId}")]
+        public IActionResult Index(int runId)
         {
             var model = new AcceptInvoiceInstructionsViewModel
             {
-                RunId = 99,
+                RunId = runId,
                 AcceptAll = false,
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                CalculationRunTitle = "Calculation run 99",
+                CalculationRunTitle = "Calculation Run 99",
+                BackLink = ControllerNames.ClassifyRunConfirmation,
             };
 
             return this.View(model);
         }
 
         [HttpPost]
-        [Route("accept-invoice-instructions")]
         [ValidateAntiForgeryToken]
-        public IActionResult AcceptInvoiceInstructions(AcceptInvoiceInstructionsViewModel model)
+        public IActionResult AcceptInvoiceInstructions(int runId)
         {
-            if (model.AcceptAll)
+            if (!this.ModelState.IsValid)
             {
-                return this.RedirectToAction("Overview"); // dummy return url
+                return RedirectToAction(ActionNames.Index, new { runId });
             }
 
-            this.ModelState.AddModelError("AcceptAll", "You must confirm acceptance to proceed.");
-            return this.View(model);
+            return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId });
         }
 
         /// <summary>

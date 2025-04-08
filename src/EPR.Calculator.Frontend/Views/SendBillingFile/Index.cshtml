@@ -3,53 +3,51 @@
 @model SendBillingFileViewModel;
 
 
-@{ 
+@{
     Layout = "_Layout";
 }
-
-<partial name="_BackLinkPartial" model="(@Model.BackLink, @Model.CurrentUser)" />
-
+<partial name="_BackLinkPartialNew" model="(Model.BackLink, Model.CurrentUser,Model.RunId)" />
 <div class="govuk-width-container ">
 
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                &nbsp; &nbsp; <br>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            &nbsp; &nbsp; <br>
             @using (Html.BeginForm("SubmitSendBillingFile", "SendBillingFile", FormMethod.Post))
-               {
-                    @Html.AntiForgeryToken()
+            {
+                @Html.AntiForgeryToken()
                 @Html.Hidden("RunId", Model.RunId)
 
-                    <div class="govuk-form-group">
-                        <fieldset class="govuk-fieldset">
-                            <div class="govuk-form-group">
-                                <fieldset class="govuk-fieldset">
-                                    <legend></legend>
-                                    <span class="govuk-caption-l">@Model.CalcRunName</span>
-                                    <h1 class="govuk-heading-l">@Model.SendBillFileHeading</h1>
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset">
+                        <div class="govuk-form-group">
+                            <fieldset class="govuk-fieldset">
+                                <legend></legend>
+                                <span class="govuk-caption-l">@Model.CalcRunName</span>
+                                <h1 class="govuk-heading-l">@Model.SendBillFileHeading</h1>
 
-                                    <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
-                                    <h3 class="govuk-body-m">@Model.ConfirmationContent</h3>
+                                <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
+                                <h3 class="govuk-body-m">@Model.ConfirmationContent</h3>
 
-                                    <div class="govuk-warning-text">
-                                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                                        <strong class="govuk-warning-text__text">
-                                            <span class="govuk-visually-hidden">Warning</span>
-                                            @Model.WarningContent
-                                        </strong>
-                                    </div>
-                                </fieldset>
-                            </div>                         
+                                <div class="govuk-warning-text">
+                                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                                    <strong class="govuk-warning-text__text">
+                                        <span class="govuk-visually-hidden">Warning</span>
+                                        @Model.WarningContent
+                                    </strong>
+                                </div>
+                            </fieldset>
+                        </div>
 
-                            <div class="govuk-button-group">
-                                <a href="#" class="govuk-button show-continue" style="display: inline;">
+                        <div class="govuk-button-group">                     
+                            <button type="submit" class="govuk-button" data-module="govuk-button">
                                 @ActionLinkLabels.SendBillingFile
-                                </a>
+                            </button>
 
                             <a class="govuk-link" asp-action="Index" asp-controller="Dashboard">@ActionLinkLabels.ReturnToDashBoard</a>
-                            </div>
-                        </fieldset>
-                    </div>
-               }
-            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            }
         </div>
+    </div>
 </div>

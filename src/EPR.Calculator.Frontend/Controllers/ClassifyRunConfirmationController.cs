@@ -37,7 +37,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">The ID of the calculation run.</param>
         /// <returns>The classify run confirmation index view.</returns>
-        [Route("ClassifyRunConfirmation/{runId}")]
+        [Route("{runId}")]
         public IActionResult Index(int runId)
         {
             try
@@ -49,13 +49,14 @@ namespace EPR.Calculator.Frontend.Controllers
                     {
                         RunId = runId,
                         RunClassificationId = 240008,
-                        RunName = "Calculation run 99",
-                        CreatedAt = DateTime.Now,
+                        RunName = "Calculation Run 99",
+                        CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0),
                         FileExtension = ".csv",
                         RunClassificationStatus = "3",
                         FinancialYear = "2024-25",
                         Classification = "Initial run",
                     },
+                    BackLink = ControllerNames.ClassifyingCalculationRun,
                 };
 
                 return this.View(ViewNames.ClassifyRunConfirmationIndex, statusUpdateViewModel);
@@ -72,10 +73,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                return RedirectToAction("Index", new { runId });
+                return RedirectToAction(ActionNames.Index, new { runId });
             }
 
-            return RedirectToAction("Index", "PaymentCalculator", new { runId = runId });
+            return RedirectToAction(ActionNames.Index, ControllerNames.PaymentCalculator, new { runId = runId });
         }
     }
 }

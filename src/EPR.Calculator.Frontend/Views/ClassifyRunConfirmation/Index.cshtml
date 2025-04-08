@@ -2,73 +2,73 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @model ClassifyRunConfirmationViewModel
 @{
-  ViewData["Title"] = "Index";
-  Layout = "~/Views/Shared/_Layout.cshtml";
-  var BackLink = "Dashboard";
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var BackLink = "Dashboard";
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
-<partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
+<partial name="_BackLinkPartialNew" model="(Model.BackLink, Model.CurrentUser,Model.Data.RunId)" />
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
 
             @using (Html.BeginForm("SubmitClassifyRunConfirmation", "ClassifyRunConfirmation", FormMethod.Post))
-      {
-        @Html.AntiForgeryToken()
+            {
+                @Html.AntiForgeryToken()
                 @Html.Hidden("RunId", Model.Data.RunId)
 
-        <div class="govuk-form-group">
-          <fieldset class="govuk-fieldset">
-            <legend></legend>
-            <span class="govuk-caption-l">@Model.Data.RunName</span>
-            <h1 class="govuk-heading-l">Calculation run details</h1>            
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset">
+                        <legend></legend>
+                        <span class="govuk-caption-l">@Model.Data.RunName</span>
+                        <h1 class="govuk-heading-l">Calculation run details</h1>
 
-            <table class="govuk-table" aria-describedby="Calculation Details">
-              <tbody class="govuk-table__body">
-                <tr class="govuk-table__row">
-                  <th scope="row" class="govuk-table__header">Financial year</th>
-                  <td class="govuk-table__cell">@Model.Data.FinancialYear</td>
-                </tr>
-                <tr class="govuk-table__row">
-                  <th scope="row" class="govuk-table__header">Classification</th>
-                  <td class="govuk-table__cell">@Model.Data.Classification</td>
-                </tr>
-                <tr class="govuk-table__row">
-                  <th scope="row" class="govuk-table__header">Calculation ID</th>
-                  <td class="govuk-table__cell">@Model.Data.RunId</td>
-                </tr>
-                <tr class="govuk-table__row">
-                  <th scope="row" class="govuk-table__header">Run date and time</th>
-                  <td class="govuk-table__cell">@Model.Data.CreatedAt.ToString("dd MMM yyyy") at @Model.Data.CreatedAt.ToString("HH:mm")</td>
-                </tr>
-              </tbody>
-            </table>
+                        <table class="govuk-table" aria-describedby="Calculation Details">
+                            <tbody class="govuk-table__body">
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Financial year</th>
+                                    <td class="govuk-table__cell">@Model.Data.FinancialYear</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Classification</th>
+                                    <td class="govuk-table__cell">@Model.Data.Classification</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Calculation ID</th>
+                                    <td class="govuk-table__cell">@Model.Data.RunId</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Run date and time</th>
+                                    <td class="govuk-table__cell">@Model.Data.CreatedAt.ToString("dd MMM yyyy") at @Model.Data.CreatedAt.ToString("HH:mm")</td>
+                                </tr>
+                            </tbody>
+                        </table>
 
-            <h2 class="govuk-heading-m">Downloads</h2>
-            <p class="govuk-body">Download files related to this calculation run.</p>
+                        <h2 class="govuk-heading-m">Downloads</h2>
+                        <p class="govuk-body">Download files related to this calculation run.</p>
 
-            <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
-                    onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
-              Results file
-            </button>
+                        <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
+                                onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
+                            Results file
+                        </button>
 
-            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-            <h2 class="govuk-heading-m">Next step</h2>
+                        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                        <h2 class="govuk-heading-m">Next step</h2>
                         <p class="govuk-body">Accept all billing instructions contained in the results file.</p>
-          </fieldset>
-        </div>
+                    </fieldset>
+                </div>
 
-        <div class="govuk-button-group">
-          <div class="govuk-button-group">
-            <button class="govuk-button" data-module="govuk-button">
-              Continue
-            </button>
-          </div>
+                <div class="govuk-button-group">
+                    <div class="govuk-button-group">
+                        <button class="govuk-button" data-module="govuk-button">
+                            Continue
+                        </button>
+                    </div>
 
-          <a href="@Url.Action("Index", "Dashboard")" class="govuk-link govuk-!-margin-left-4">Return to the dashboard</a>
+                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link govuk-!-margin-left-4">Return to the dashboard</a>
+                </div>
+            }
         </div>
-      }      
     </div>
-  </div>
 </main>
