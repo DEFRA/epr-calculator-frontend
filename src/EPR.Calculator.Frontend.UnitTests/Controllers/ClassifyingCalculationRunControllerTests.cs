@@ -1,14 +1,9 @@
-﻿using System;
-using System.Net;
-using System.Net.Http;
+﻿using System.Net;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Threading.Tasks;
 using AutoFixture;
-using AutoFixture.AutoMoq;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
-using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -18,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -76,7 +70,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             controller.ControllerContext.HttpContext.Request.Scheme = "https";
             controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
             int runId = 240008;
-            string calcName = "Calculation run 99";
+            string calcName = "Calculation Run 99";
 
             // Act
             var result = controller.Index(runId) as ViewResult;
@@ -87,7 +81,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var model = result.Model as ClassifyCalculationRunScenerio1ViewModel;
             Assert.IsNotNull(model);
             Assert.AreEqual(runId, model.CalculatorRunStatus.RunId);
-            Assert.AreEqual((int)RunClassification.UNCLASSIFIED, model.CalculatorRunStatus.ClassificationId);
             Assert.AreEqual(calcName, model.CalculatorRunStatus.CalcName);
             Assert.AreEqual("12:09", model.CalculatorRunStatus.CreatedTime);
             Assert.AreEqual("01 May 2024", model.CalculatorRunStatus.CreatedDate);

@@ -40,63 +40,38 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void AcceptInvoiceInstructions_Get_ReturnsViewWithModel()
-        {
-            // Act
-            var result = controller.AcceptInvoiceInstructions(99);
-
-            // Assert
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-
-            var model = viewResult.Model as AcceptInvoiceInstructionsViewModel;
-            Assert.IsNotNull(model);
-            Assert.IsFalse(model.AcceptAll);
-            Assert.AreEqual("Calculation run 99", model.CalculationRunTitle);
-        }
-
-        [TestMethod]
-        public void AcceptInvoiceInstructions_Post_WhenAccepted_ReturnsRedirectToOverview()
+        public void AcceptInvoiceInstructions_Post_ValidModelState_RedirectsToCalculationRunOverview()
         {
             // Arrange
-            var model = new AcceptInvoiceInstructionsViewModel
-            {
-                AcceptAll = true,
-                CurrentUser = "Test User",
-                CalculationRunTitle = "Calculation run 99"
-            };
+            int runId = 99;
 
             // Act
-            var result = controller.AcceptInvoiceInstructions(99);
+            var result = controller.AcceptInvoiceInstructions(runId);
 
             // Assert
             var redirectResult = result as RedirectToActionResult;
             Assert.IsNotNull(redirectResult);
-            Assert.AreEqual("Overview", redirectResult.ActionName);
+            Assert.AreEqual(ActionNames.Index, redirectResult.ActionName);
+            Assert.AreEqual(ControllerNames.CalculationRunOverview, redirectResult.ControllerName);
+            Assert.AreEqual(runId, redirectResult.RouteValues["runId"]);
         }
 
         [TestMethod]
-        public void AcceptInvoiceInstructions_Post_WhenNotAccepted_ReturnsViewWithError()
+        public void AcceptInvoiceInstructions_Post_InvalidModelState_RedirectsToIndex()
         {
             // Arrange
-            var model = new AcceptInvoiceInstructionsViewModel
-            {
-                AcceptAll = false,
-                CurrentUser = "Test User",
-                CalculationRunTitle = "Calculation run 99"
-            };
+            int runId = 99;
+            controller.ModelState.AddModelError("Test", "Invalid");
 
             // Act
-            var result = controller.AcceptInvoiceInstructions(99);
+            var result = controller.AcceptInvoiceInstructions(runId);
 
             // Assert
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-
-            var returnedModel = viewResult.Model as AcceptInvoiceInstructionsViewModel;
-            Assert.IsNotNull(returnedModel);
-            Assert.IsFalse(returnedModel.AcceptAll);
-            Assert.IsTrue(controller.ModelState.ContainsKey("AcceptAll"));
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.Index, redirectResult.ActionName);
+            Assert.IsNull(redirectResult.ControllerName); // Same controller
+            Assert.AreEqual(runId, redirectResult.RouteValues["runId"]);
         }
 
         [TestMethod]

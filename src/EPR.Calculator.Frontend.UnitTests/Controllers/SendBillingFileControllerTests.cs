@@ -56,7 +56,7 @@
 
             var model = result.Model as SendBillingFileViewModel;
             Assert.IsNotNull(model);
-            Assert.AreEqual("Calculation run 99", model.CalcRunName);
+            Assert.AreEqual("Calculation Run 99", model.CalcRunName);
             Assert.AreEqual(CommonConstants.SendBillingFile, model.SendBillFileHeading);
             Assert.AreEqual(CommonConstants.WarningContent, model.WarningContent);
             Assert.AreEqual(CommonConstants.ConfirmationContent, model.ConfirmationContent);
