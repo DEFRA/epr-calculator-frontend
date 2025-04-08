@@ -13,5 +13,7 @@
         public const string CookieName = "PaycalSession";
 
         public const string PaycalAppName = "PaycalFrontend";
+
+        public const string FinancialYear = "FinancialYear";
     }
 }
