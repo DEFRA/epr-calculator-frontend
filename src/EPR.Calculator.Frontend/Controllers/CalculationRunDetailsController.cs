@@ -110,8 +110,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (dashboardCalculatorRunApi != null)
                 {
-                    var accessToken = await this.AcquireToken();
-
                     var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
                     {
                         RunId = runId,

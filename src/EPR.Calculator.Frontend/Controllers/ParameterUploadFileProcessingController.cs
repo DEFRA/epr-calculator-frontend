@@ -32,7 +32,6 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-
                 var response = await this.PostDefaultParameters(
                     new CreateDefaultParameterSettingDto(
                         parameterRefreshViewModel,
