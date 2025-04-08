@@ -1,4 +1,7 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Net;
+using EPR.Calculator.Frontend.Common;
+using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -6,7 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
-using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -86,11 +88,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private string Transform(LapcapRefreshViewModel lapcapRefreshViewModel)
         {
-            var parameterYear = this.Configuration.GetSection("LapcapSettings").GetSection("ParameterYear").Value;
-            if (string.IsNullOrWhiteSpace(parameterYear))
-            {
-                throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings for local authority");
-            }
+            string parameterYear = this.GetFinancialYear("LapcapSettings");
 
             var lapcapData = new CreateLapcapDataDto
             {
