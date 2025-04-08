@@ -101,7 +101,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var accessToken = await this.AcquireToken();
 
-            using var response = await this.PostCalculatorRuns();
+            this.HttpContext.Session.SetString(SessionConstants.FinancialYear, financialYear);
 
             var dashboardViewModel = new DashboardViewModel
             {
@@ -111,6 +111,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 FinancialYearListApi = this.Configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
                 Calculations = null,
             };
+
+            using var response = await this.PostCalculatorRuns();
 
             if (response.IsSuccessStatusCode)
             {

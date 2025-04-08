@@ -1,6 +1,6 @@
 ﻿using System.Configuration;
 using System.Net;
-using Azure.Core;
+using EPR.Calculator.Frontend.Common;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
@@ -45,13 +45,9 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var year = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
-                if (string.IsNullOrWhiteSpace(year))
-                {
-                    throw new ConfigurationErrorsException("RunParameterYear missing");
-                }
+                var parameterYear = this.GetFinancialYear(ConfigSection.ParameterSettings);
 
-                var response = await this.GetDefaultParameters(year);
+                var response = await this.GetDefaultParameters(parameterYear);
 
                 if (response.IsSuccessStatusCode)
                 {
