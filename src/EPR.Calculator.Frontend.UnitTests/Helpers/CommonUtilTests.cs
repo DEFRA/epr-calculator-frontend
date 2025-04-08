@@ -1,6 +1,7 @@
 ﻿namespace EPR.Calculator.Frontend.UnitTests.Helpers
 {
     using System;
+    using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,7 +14,7 @@
             // Arrange
             var date = DateTime.UtcNow;
             DateTime thisTime = DateTime.Now;
-            bool isDaylight = TimeZoneInfo.Local.IsDaylightSavingTime(thisTime);
+            bool isDaylight = TimeZoneInfo.FindSystemTimeZoneById(CommonConstants.TimeZone).IsDaylightSavingTime(thisTime);
 
             var expectedDate = isDaylight ? date.AddHours(1) : date;
 
