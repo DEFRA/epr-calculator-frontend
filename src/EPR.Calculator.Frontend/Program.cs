@@ -15,8 +15,7 @@ var environmentName = builder.Environment.EnvironmentName?.ToLower() ?? string.E
 
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd")
     .EnableTokenAcquisitionToCallDownstreamApi(builder.Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' '))
-    .AddDownstreamApi("DownstreamApi", builder.Configuration.GetSection("DownstreamApi"))
-    .AddInMemoryTokenCaches();
+    .AddDownstreamApi("DownstreamApi", builder.Configuration.GetSection("DownstreamApi"));
 
 builder.Services.AddRazorPages().AddMvcOptions(options =>
 {
