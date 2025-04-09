@@ -1,4 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.ViewModels
@@ -66,7 +67,7 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         private static string GetFormattedCreatedAt(DateTime createdAt)
         {
-            return createdAt.ToString("dd MMM yyyy ' at 'H:mm", new System.Globalization.CultureInfo("en-GB"));
+          return CommonUtil.GetDateTime(createdAt).ToString($"{CommonConstants.DateFormat} ' at '{CommonConstants.TimeFormat}", new System.Globalization.CultureInfo("en-GB"));
         }
 
         private static string GetCalculationRunStatusStyles(string calculationRunStatus)

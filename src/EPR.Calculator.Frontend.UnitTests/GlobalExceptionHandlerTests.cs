@@ -56,9 +56,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task TryHandleAsync_ReturnsExpectedJsonResponse_InDevelopment()
+        [DataRow("Development")]
+        [DataRow("local")]
+        public async Task TryHandleAsync_ReturnsExpectedJsonResponse_InDevelopment_Or_InLocal(string environmentName)
         {
-            _mockEnv.Setup(env => env.EnvironmentName).Returns(Environments.Development);
+            _mockEnv.Setup(env => env.EnvironmentName).Returns(environmentName);
             var exception = new Exception("Test exception");
 
             await _exceptionHandler.TryHandleAsync(_httpContext, exception, _cancellationToken);
@@ -73,9 +75,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task TryHandleAsync_ReturnsExpectedJsonResponse_DummyStackTrace_InDevelopment()
+        [DataRow("Development")]
+        [DataRow("local")]
+        public async Task TryHandleAsync_ReturnsExpectedJsonResponse_DummyStackTrace_InDevelopment_Or_InLocal(string environmentName)
         {
-            _mockEnv.Setup(env => env.EnvironmentName).Returns(Environments.Development);
+            _mockEnv.Setup(env => env.EnvironmentName).Returns(environmentName);
             var dummyStackTrace = "at DummyNamespace.DummyClass.DummyMethod() in /DummyFile.cs:line 42";
             var exception = GlobalExceptionHandlerTestsHelpers.CreateExceptionWithDummyStackTrace("Test exception with dummy stack trace", dummyStackTrace);
 

@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Threading.Tasks;
 using AutoFixture;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
@@ -36,6 +35,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             this.Fixture = new Fixture();
             this.MockHttpContext = new Mock<HttpContext>();
             this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            this.MockHttpContext.Setup(c => c.Session).Returns(TestMockUtils.BuildMockSession(Fixture).Object);
         }
 
         private Fixture Fixture { get; init; }
@@ -58,6 +58,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockContext = new Mock<HttpContext>();
             mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            mockContext.Setup(c => c.Session).Returns(TestMockUtils.BuildMockSession(Fixture).Object);
 
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
@@ -99,6 +100,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockContext = new Mock<HttpContext>();
             mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            mockContext.Setup(c => c.Session).Returns(TestMockUtils.BuildMockSession(Fixture).Object);
 
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
