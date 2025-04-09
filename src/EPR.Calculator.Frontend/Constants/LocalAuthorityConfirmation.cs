@@ -1,4 +1,6 @@
-﻿namespace EPR.Calculator.Frontend.Constants
+﻿using Humanizer;
+
+namespace EPR.Calculator.Frontend.Constants
 {
     public static class LocalAuthorityConfirmation
     {
@@ -25,9 +27,14 @@
         /// <summary>
         /// The text displayed to the user indicating that all calculations will use the new local authority disposal costs unless manually changed.
         /// </summary>
-        public static readonly List<string> AdditionalParagraphs = new List<string>
+        private static readonly List<string> AdditionalParagraphsValue = new List<string>
         {
-            "All calculations will automatically use the latest local authority disposal costs.",
+           "All calculations will automatically use the latest local authority disposal costs.",
         };
+
+        /// <summary>
+        /// Gets the additional paragraphs.
+        /// </summary>
+        public static IReadOnlyList<string> AdditionalParagraphs => AdditionalParagraphsValue.AsReadOnly();
     }
 }

@@ -23,7 +23,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 Title = ParameterConfirmation.Title,
                 Body = ParameterConfirmation.Body,
-                AdditionalParagraphs = ParameterConfirmation.AdditionalParagraphs,
+                AdditionalParagraphs = ParameterConfirmation.AdditionalParagraphs.ToList(),
                 RedirectController = ParameterConfirmation.RedirectController,
                 SubmitText = ParameterConfirmation.SubmitText,
             };

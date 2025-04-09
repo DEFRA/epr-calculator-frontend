@@ -13,9 +13,14 @@
         /// <summary>
         /// The text displayed to the user indicating the time required for the calculation to complete.
         /// </summary>
-        public static readonly List<string> AdditionalParagraphs = new List<string>
+        private static readonly List<string> AdditionalParagraphsValue = new List<string>
         {
             "It will take up to 15 minutes for the calculation to finish. You will be able to view it in the list of calculations on the dashboard.",
         };
+
+        /// <summary>
+        /// Gets the additional paragraphs.
+        /// </summary>
+        public static IReadOnlyList<string> AdditionalParagraphs => AdditionalParagraphsValue.AsReadOnly();
     }
 }

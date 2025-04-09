@@ -124,7 +124,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 Title = CalculatorRunNames.Title,
                 Body = calculationName ?? string.Empty,
-                AdditionalParagraphs = CalculatorRunNames.AdditionalParagraphs,
+                AdditionalParagraphs = CalculatorRunNames.AdditionalParagraphs.ToList(),
             };
 
             return this.View(ViewNames.CalculationRunConfirmation, calculationRunConfirmationViewModel);

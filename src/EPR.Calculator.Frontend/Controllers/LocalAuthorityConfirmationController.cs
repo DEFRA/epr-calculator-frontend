@@ -25,7 +25,7 @@
                 Body = ParameterConfirmation.Body,
                 RedirectController = ParameterConfirmation.RedirectController,
                 SubmitText = ParameterConfirmation.SubmitText,
-                AdditionalParagraphs = LocalAuthorityConfirmation.AdditionalParagraphs,
+                AdditionalParagraphs = LocalAuthorityConfirmation.AdditionalParagraphs.ToList(),
             };
 
             // Return the view with the view model
