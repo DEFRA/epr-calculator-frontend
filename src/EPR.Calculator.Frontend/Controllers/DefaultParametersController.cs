@@ -47,7 +47,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var parameterYear = this.GetFinancialYear(ConfigSection.ParameterSettings);
 
-                var response = await this.GetDefaultParameters(parameterYear);
+                var response = await this.GetDefaultParametersAsync(parameterYear);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -108,6 +108,14 @@ namespace EPR.Calculator.Frontend.Controllers
         private static bool IsExcludedFromPrefixDisplay(ParameterType parameterType)
         {
             return parameterType == ParameterType.LateReportingTonnage || parameterType == ParameterType.BadDebtProvision;
+        }
+
+        private async Task<HttpResponseMessage> GetDefaultParametersAsync(string parameterYear)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.ParameterSettings,
+                ConfigSection.DefaultParameterSettingsApi);
+            return await this.CallApi(HttpMethod.Get, apiUrl, parameterYear, null);
         }
     }
 }

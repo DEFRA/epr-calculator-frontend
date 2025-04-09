@@ -112,7 +112,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 Calculations = null,
             };
 
-            using var response = await this.PostCalculatorRuns();
+            using var response = await this.PostCalculatorRunsAsync(financialYear);
 
             if (response.IsSuccessStatusCode)
             {
@@ -127,6 +127,25 @@ namespace EPR.Calculator.Frontend.Controllers
             return returnPartialView
                 ? this.PartialView("_CalculationRunsPartial", dashboardViewModel.Calculations)
                 : this.View(dashboardViewModel);
+        }
+
+        /// <summary>
+        /// Calls the "calculatorRuns" POST endpoint.
+        /// </summary>
+        /// <returns>The response message returned by the endpoint.</returns>
+        private async Task<HttpResponseMessage> PostCalculatorRunsAsync(string financialYear)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.DashboardCalculatorRunApi);
+            if (string.IsNullOrEmpty(financialYear))
+            {
+                throw new ArgumentNullException(
+                    financialYear,
+                    "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
+            }
+
+            return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, (CalculatorRunParamsDto)financialYear);
         }
     }
 }

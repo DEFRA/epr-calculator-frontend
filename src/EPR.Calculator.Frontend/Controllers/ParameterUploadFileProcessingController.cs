@@ -32,7 +32,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var response = await this.PostDefaultParameters(
+                var response = await this.PostDefaultParametersAsync(
                     new CreateDefaultParameterSettingDto(
                         parameterRefreshViewModel,
                         this.GetFinancialYear("ParameterSettings")));
@@ -50,6 +50,19 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
+        }
+
+        /// <summary>
+        /// Calls the "postDefaultParameterSettings" POST endpoint.
+        /// </summary>
+        /// <param name="dto">The data transfer object to serialise and use as the body of the request.</param>
+        /// <returns>The response message returned by the endpoint.</returns>
+        protected async Task<HttpResponseMessage> PostDefaultParametersAsync(CreateDefaultParameterSettingDto dto)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.ParameterSettings,
+                ConfigSection.DefaultParameterSettingsApi);
+            return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, dto);
         }
     }
 }

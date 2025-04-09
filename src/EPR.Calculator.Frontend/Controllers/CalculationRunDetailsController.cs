@@ -132,7 +132,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
                     }
 
-                    using var response = await this.PutCalculatorRuns(runId, RunClassification.DELETED);
+                    using var response = await this.PutCalculatorRunsAsync(runId, RunClassification.DELETED);
 
                     if (response.StatusCode != HttpStatusCode.Created)
                     {
@@ -190,6 +190,31 @@ namespace EPR.Calculator.Frontend.Controllers
 
             statusUpdateViewModel.DownloadResultURL = new Uri($"{downloadResultApi}/{statusUpdateViewModel.Data.RunId}", UriKind.Absolute);
             statusUpdateViewModel.DownloadErrorURL = $"/DownloadFileError/{statusUpdateViewModel.Data.RunId}";
+        }
+
+        /// <summary>
+        /// Calls the "calculatorRuns" PUT endpoint.
+        /// </summary>
+        /// <returns>The response message returned by the endpoint.</returns>
+        private async Task<HttpResponseMessage> PutCalculatorRunsAsync(int runId, RunClassification classification)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.DashboardCalculatorRunApi);
+            var args = (runId, (int)classification);
+            return await this.CallApi(HttpMethod.Put, apiUrl, string.Empty, args);
+        }
+
+        protected async Task<HttpResponseMessage> GetCalculatorRunAsync(int runId)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.DashboardCalculatorRunApi);
+            return await this.CallApi(
+                HttpMethod.Get,
+                apiUrl,
+                runId.ToString(),
+                null);
         }
     }
 }

@@ -169,7 +169,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 CreatedBy = CommonUtil.GetUserName(this.HttpContext),
             };
 
-            return await this.PostCalculatorRun(runParms);
+            return await this.PostCalculatorRunAsync(runParms);
         }
 
         /// <summary>
@@ -202,6 +202,27 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.Logger.LogError(ex, "Error parsing response");
                 return "Unable to process the error response.";
             }
+        }
+
+        /// <summary>
+        /// Calls the "calculatorRun" POST endpoint.
+        /// </summary>
+        /// <param name="dto">The data transfer object to serialise and use as the body of the request.</param>
+        /// <returns>The response message returned by the endpoint.</returns>
+        private async Task<HttpResponseMessage> PostCalculatorRunAsync(CreateCalculatorRunDto dto)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.CalculationRunSettings,
+                ConfigSection.CalculationRunApi);
+            return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, dto);
+        }
+
+        private async Task<HttpResponseMessage> CheckCalcNameExistsAsync(string calculationName)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.CalculationRunSettings,
+                ConfigSection.CalculationRunNameApi);
+            return await this.CallApi(HttpMethod.Get, apiUrl, calculationName, null);
         }
     }
 }

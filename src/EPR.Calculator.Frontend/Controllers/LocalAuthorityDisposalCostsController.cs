@@ -49,7 +49,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     throw new ConfigurationErrorsException("RunParameterYear missing");
                 }
 
-                var response = this.GetLapcapData(year);
+                var response = this.GetLapcapDataAsync(year);
 
                 if (response.Result.IsSuccessStatusCode)
                 {
@@ -87,6 +87,14 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+        }
+
+        private async Task<HttpResponseMessage> GetLapcapDataAsync(string parameterYear)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.LapcapSettings,
+                ConfigSection.LapcapSettingsApi);
+            return await this.CallApi(HttpMethod.Get, apiUrl, parameterYear, null);
         }
     }
 }

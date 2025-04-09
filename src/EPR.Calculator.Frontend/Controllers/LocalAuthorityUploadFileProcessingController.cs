@@ -33,7 +33,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var response = this.PostLapcapData(new CreateLapcapDataDto(
+                var response = this.PostLapcapDataAsync(new CreateLapcapDataDto(
                     lapcapRefreshViewModel,
                     this.GetFinancialYear("LapcapSettings")));
 
@@ -52,6 +52,19 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
+        }
+
+        /// <summary>
+        /// Calls the "postDefaultParameterSettings" POST endpoint.
+        /// </summary>
+        /// <param name="dto">The data transfer object to serialise and use as the body of the request.</param>
+        /// <returns>The response message returned by the endpoint.</returns>
+        private async Task<HttpResponseMessage> PostLapcapDataAsync(CreateLapcapDataDto dto)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.LapcapSettings,
+                ConfigSection.LapcapSettingsApi);
+            return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, dto);
         }
     }
 }
