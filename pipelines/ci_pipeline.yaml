@@ -48,7 +48,7 @@ resources:
     - repository: CommonTemplates
       name: RWD-CPR-EPR4P-ADO/epr-webapps-code-deploy-templates
       type: git
-      ref: 529865/concurrent-steps
+      ref: feature/529865-sq-task-tidy
 
 extends:
   template: epr-build-pipeline.yaml@CommonTemplates
