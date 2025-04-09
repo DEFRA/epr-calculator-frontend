@@ -39,7 +39,5 @@
         /// Billing File Success action.
         /// </summary>
         public const string BillingFileSuccess = "BillingFileSuccess";
-
-
     }
 }

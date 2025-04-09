@@ -96,7 +96,6 @@ namespace EPR.Calculator.Frontend.Controllers
             return calculatorRun;
         }
 
-
         private CalculatorRunDetailsNewViewModel CreateViewModel(int runId, CalculatorRunDto calculatorRun)
         {
             var viewModel = new CalculatorRunDetailsNewViewModel
