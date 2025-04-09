@@ -55,7 +55,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 RunClassificationStatus = "Draft",
                 RunName = "Calculation Run 99",
                 RunClassificationId = 240008,
-                CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0),
+                CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
                 CreatedBy = "Steve Jones",
             };
 

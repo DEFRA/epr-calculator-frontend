@@ -56,11 +56,11 @@ namespace EPR.Calculator.Frontend.Controllers
                     CalculatorRunStatus = new CalculatorRunStatusUpdateDto
                     {
                         RunId = runId,
-                        ClassificationId = 240008, // TODO: Replace with actual data,
-                        CalcName = "Calculation Run 99", // TODO: Replace with actual data,
-                        CreatedDate = "01 May 2024", // TODO: Replace with actual data,
-                        CreatedTime = "12:09", // TODO: Replace with actual data,
-                        FinancialYear = "2024-25", // TODO: Replace with actual data,
+                        ClassificationId = 240008,
+                        CalcName = "Calculation Run 99",
+                        CreatedDate = "01 May 2024",
+                        CreatedTime = "12:09",
+                        FinancialYear = "2024-25",
                     },
                     BackLink = ControllerNames.CalculationRunDetails,
                 };

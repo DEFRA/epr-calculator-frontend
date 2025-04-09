@@ -50,7 +50,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         RunId = runId,
                         RunClassificationId = 240008,
                         RunName = "Calculation Run 99",
-                        CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0),
+                        CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
                         FileExtension = ".csv",
                         RunClassificationStatus = "3",
                         FinancialYear = "2024-25",
