@@ -1,4 +1,5 @@
-﻿@model EPR.Calculator.Frontend.ViewModels.AcceptInvoiceInstructionsViewModel
+﻿@using EPR.Calculator.Frontend.Constants
+@model EPR.Calculator.Frontend.ViewModels.AcceptInvoiceInstructionsViewModel
 
 @{
     ViewData["Title"] = "Accept all invoice instructions";
@@ -9,7 +10,7 @@
     <div class="govuk-grid-column-two-thirds">
         <br />
 
-        @using (Html.BeginForm("AcceptInvoiceInstructions", "PaymentCalculator", FormMethod.Post))
+        @using (Html.BeginForm(ActionNames.Submit, ControllerNames.PaymentCalculator, FormMethod.Post))
         {
             @Html.AntiForgeryToken()
             @Html.Hidden("RunId", Model.RunId)
@@ -37,7 +38,7 @@
                         <div class="govuk-checkboxes__item">
                             <input type="hidden" name="AcceptAll" value="false" />
                             @Html.CheckBoxFor(m => m.AcceptAll, new { @class = "govuk-checkboxes__input", id = "AcceptAll" })
-                            <label class="govuk-label govuk-checkboxes__label" for="AcceptAll">                                
+                            <label class="govuk-label govuk-checkboxes__label" for="AcceptAll">
                                 I confirm that I have accepted all billing instructions in the results file.
                             </label>
                         </div>

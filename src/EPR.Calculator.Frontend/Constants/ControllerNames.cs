@@ -2,6 +2,8 @@
 {
     public static class ControllerNames
     {
+        public const string Dashboard = "Dashboard";
+
         public const string CalculationRunDetails = "CalculationRunDetailsNew";
 
         public const string ClassifyingCalculationRun = "ClassifyingCalculationRunScenario1";

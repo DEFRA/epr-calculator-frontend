@@ -17,14 +17,14 @@
                 Only delete this calculation run if you no longer need it or have completed another successful run.
             </label>
             <br>
-            @using (Html.BeginForm("DeleteConfirmationSuccess", "CalculationRunDelete", FormMethod.Post))
+            @using (Html.BeginForm(ActionNames.DeleteConfirmationSuccess, ControllerNames.CalculationRunDelete, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
                 <div class="govuk-button-group">
                     <button id="btnDelete" type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">
                         @ActionLinkLabels.DeleteRun
                     </button>
-                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
+                    <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
                 </div>
                 @Html.Hidden("RunId", Model.CalculatorRunStatusData.RunId)
                 @Html.AntiForgeryToken()

@@ -32,7 +32,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AcceptInvoiceInstructions(int runId)
+        public IActionResult Submit(int runId)
         {
             if (!this.ModelState.IsValid)
             {
@@ -58,7 +58,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     Title = ConfirmationMessages.BillingFileSuccessTitle,
                     Body = ConfirmationMessages.BillingFileSuccessBody,
                     AdditionalParagraphs = ConfirmationMessages.BillingFileSuccessAdditionalParagraphs,
-                    RedirectController = CommonConstants.DashBoard,
+                    RedirectController = ControllerNames.Dashboard,
                 },
             };
 

@@ -66,7 +66,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult SubmitCalculationRunOverview(int runId)
+        public IActionResult Submit(int runId)
         {
             if (!this.ModelState.IsValid)
             {

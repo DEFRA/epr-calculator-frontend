@@ -1,4 +1,5 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels
+@using EPR.Calculator.Frontend.Constants
 @model IEnumerable<CalculationRunViewModel>
 
 @if (Model == null)
@@ -17,7 +18,7 @@ else
                         <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
                             @if (run.ShowRunDetailLink)
                             {
-                            <a href="@Url.Action("Index", "CalculationRunDetailsNew", new { runId = run.Id })" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
+                                <a href="@Url.Action(ActionNames.Index, ControllerNames.CalculationRunDetails, new { runId = run.Id })" class="govuk-link govuk-link--no-visited-state">@run.Name</a>
                             }
                             else
                             {

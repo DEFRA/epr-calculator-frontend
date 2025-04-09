@@ -1,4 +1,5 @@
-﻿@model EPR.Calculator.Frontend.ViewModels.AcceptInvoiceInstructionsViewModel
+﻿@using EPR.Calculator.Frontend.Constants
+@model EPR.Calculator.Frontend.ViewModels.AcceptInvoiceInstructionsViewModel
 
 @{
     ViewData["Title"] = "Accept all invoice instructions";
@@ -21,7 +22,7 @@
     <div class="govuk-grid-column-two-thirds">
         <br />
 
-        @using (Html.BeginForm("AcceptInvoiceInstructions", "PaymentCalculator", FormMethod.Post))
+        @using (Html.BeginForm("AcceptInvoiceInstructions", ControllerNames.PaymentCalculator, FormMethod.Post))
         {
             @Html.AntiForgeryToken()
             @Html.HiddenFor(m => m.ReturnUrl)

@@ -8,8 +8,6 @@ namespace EPR.Calculator.Frontend.ViewModels
     {
         public string? CalculationName { get; set; }
 
-        public ErrorViewModel? Errors { get; set; }
-
-        public string BackLink { get; set; } = "Dashboard";
+        public ErrorViewModel? Errors { get; set; } 
     }
 }

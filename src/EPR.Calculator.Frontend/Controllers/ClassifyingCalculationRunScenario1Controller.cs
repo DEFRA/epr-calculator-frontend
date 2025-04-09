@@ -75,7 +75,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult SubmitClassifyRunConfirm(int runId)
+        public IActionResult Submit(int runId)
         {
             if (!this.ModelState.IsValid)
             {

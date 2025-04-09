@@ -1,4 +1,5 @@
-﻿@using EPR.Calculator.Frontend.ViewModels
+﻿@using EPR.Calculator.Frontend.Constants
+@using EPR.Calculator.Frontend.ViewModels
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunDetailsNewViewModel
@@ -13,7 +14,7 @@
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row calculator-details">
         <div class="govuk-grid-column-two-thirds">
-            @using (Html.BeginForm("Submit", "CalculationRunDetailsNew", FormMethod.Post))
+            @using (Html.BeginForm(ActionNames.Submit, ControllerNames.CalculationRunDetails, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
 
@@ -88,7 +89,7 @@
                         </button>
                     </div>
 
-                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link govuk-!-margin-left-4">Return to the dashboard</a>
+                    <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
                 </div>
             }
         </div>

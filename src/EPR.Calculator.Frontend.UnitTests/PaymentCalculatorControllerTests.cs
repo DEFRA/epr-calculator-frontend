@@ -46,7 +46,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             int runId = 99;
 
             // Act
-            var result = controller.AcceptInvoiceInstructions(runId);
+            var result = controller.Submit(runId);
 
             // Assert
             var redirectResult = result as RedirectToActionResult;
@@ -64,7 +64,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.ModelState.AddModelError("Test", "Invalid");
 
             // Act
-            var result = controller.AcceptInvoiceInstructions(runId);
+            var result = controller.Submit(runId);
 
             // Assert
             var redirectResult = result as RedirectToActionResult;
@@ -116,7 +116,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ConfirmationMessages.BillingFileSuccessTitle, confirmationModel.Title);
             Assert.AreEqual(ConfirmationMessages.BillingFileSuccessBody, confirmationModel.Body);
             CollectionAssert.AreEqual(ConfirmationMessages.BillingFileSuccessAdditionalParagraphs, confirmationModel.AdditionalParagraphs);
-            Assert.AreEqual(CommonConstants.DashBoard, confirmationModel.RedirectController);
+            Assert.AreEqual(ControllerNames.Dashboard, confirmationModel.RedirectController);
         }
     }
 }

@@ -30,14 +30,14 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult SubmitSendBillingFile(int runId)
+        public IActionResult Submit(int runId)
         {
             if (!ModelState.IsValid)
             {
                 return RedirectToAction(ActionNames.Index, new { runId });
             }
 
-            return RedirectToAction("BillingFileSuccess", ControllerNames.PaymentCalculator);
+            return RedirectToAction(ActionNames.BillingFileSuccess, ControllerNames.PaymentCalculator);
         }
     }
 }

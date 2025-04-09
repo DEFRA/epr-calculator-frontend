@@ -1,10 +1,10 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels
+@using EPR.Calculator.Frontend.Constants
 @inject IHttpContextAccessor HttpContextAccessor
 @model ClassifyRunConfirmationViewModel
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var BackLink = "Dashboard";
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
@@ -13,7 +13,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
 
-            @using (Html.BeginForm("SubmitClassifyRunConfirmation", "ClassifyRunConfirmation", FormMethod.Post))
+            @using (Html.BeginForm(ActionNames.Submit, ControllerNames.ClassifyRunConfirmation, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
                 @Html.Hidden("RunId", Model.Data.RunId)
@@ -66,7 +66,7 @@
                         </button>
                     </div>
 
-                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link govuk-!-margin-left-4">Return to the dashboard</a>
+                    <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
                 </div>
             }
         </div>

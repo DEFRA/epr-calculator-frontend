@@ -1,9 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using EPR.Calculator.Frontend.ViewModels;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.Models
 {
     [ExcludeFromCodeCoverage]
-    public class ConfirmationViewModel
+    public record ConfirmationViewModel : ViewModelCommonData
     {
         public required string Title { get; set; }
 

@@ -2,7 +2,6 @@
 @using EPR.Calculator.Frontend.Constants;
 @model SendBillingFileViewModel;
 
-
 @{
     Layout = "_Layout";
 }
@@ -12,7 +11,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             &nbsp; &nbsp; <br>
-            @using (Html.BeginForm("SubmitSendBillingFile", "SendBillingFile", FormMethod.Post))
+            @using (Html.BeginForm(ActionNames.Submit, ControllerNames.SendBillingFile, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
                 @Html.Hidden("RunId", Model.RunId)
@@ -38,12 +37,11 @@
                             </fieldset>
                         </div>
 
-                        <div class="govuk-button-group">                     
+                        <div class="govuk-button-group">
                             <button type="submit" class="govuk-button" data-module="govuk-button">
                                 @ActionLinkLabels.SendBillingFile
                             </button>
-
-                            <a class="govuk-link" asp-action="Index" asp-controller="Dashboard">@ActionLinkLabels.ReturnToDashBoard</a>
+                            <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
                         </div>
                     </fieldset>
                 </div>
