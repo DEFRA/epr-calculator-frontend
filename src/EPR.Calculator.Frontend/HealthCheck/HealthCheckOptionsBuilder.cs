@@ -10,7 +10,6 @@ namespace EPR.Calculator.Frontend.HealthCheck
     [ExcludeFromCodeCoverage]
     public class HealthCheckOptionsBuilder
     {
-
         /// <summary>
                 /// Builds and returns a <see cref="HealthCheckOptions"/> instance with predefined settings.
                 /// </summary>
