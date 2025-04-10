@@ -33,11 +33,6 @@ namespace EPR.Calculator.Frontend.Controllers
             _configuration = configuration;
         }
 
-        /// <summary>
-        /// Gets the calculation run overview page.
-        /// </summary>
-        /// <param name="runId">Run ID.</param>
-        /// <returns>View. </returns>
         [Route("{runId}")]
         public IActionResult Index(int runId)
         {

@@ -2,9 +2,13 @@
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Web;
 using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests
@@ -12,30 +16,29 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class PaymentCalculatorControllerTests
     {
-        private PaymentCalculatorController controller;
-
-        public PaymentCalculatorControllerTests()
-        {
-            this.Fixture = new Fixture();
-            this.MockHttpContext = new Mock<HttpContext>();
-            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
-        }
-
-        private Fixture Fixture { get; init; }
-
-        private Mock<HttpContext> MockHttpContext { get; init; }
+        private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
+        private Mock<ITokenAcquisition> _mockTokenAcquisition;
+        private TelemetryClient _telemetryClient;
+        private PaymentCalculatorController _controller;
+        private Mock<HttpContext> _mockHttpContext;
 
         [TestInitialize]
         public void Setup()
         {
-            controller = new PaymentCalculatorController();
+            _mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            _telemetryClient = new TelemetryClient();
+            _mockHttpContext = new Mock<HttpContext>();
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.User = new ClaimsPrincipal();
-
-            controller.ControllerContext = new ControllerContext
+            _controller = new PaymentCalculatorController(
+                   _configuration,
+                   _mockTokenAcquisition.Object,
+                   _telemetryClient)
             {
-                HttpContext = httpContext
+                // Setting the mocked HttpContext for the controller
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = _mockHttpContext.Object
+                }
             };
         }
 
@@ -46,7 +49,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             int runId = 99;
 
             // Act
-            var result = controller.Submit(runId);
+            var result = _controller.Submit(runId);
 
             // Assert
             var redirectResult = result as RedirectToActionResult;
@@ -61,10 +64,13 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             // Arrange
             int runId = 99;
-            controller.ModelState.AddModelError("Test", "Invalid");
+            _controller.ModelState.AddModelError("Test", "Invalid");
+
+            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
+            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
 
             // Act
-            var result = controller.Submit(runId);
+            var result = _controller.Submit(runId);
 
             // Assert
             var redirectResult = result as RedirectToActionResult;
@@ -77,14 +83,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void Index_ReturnsViewResult_WithCorrectViewName()
         {
-            // Arrange
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext()
-            };
+            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
+            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
 
             // Assert
-            var viewResult = controller.BillingFileSuccess() as ViewResult;
+            var viewResult = _controller.BillingFileSuccess() as ViewResult;
             Assert.IsNotNull(viewResult);
             Assert.AreEqual(ViewNames.BillingConfirmationSuccess, viewResult.ViewName);
         }
@@ -92,17 +95,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void BillingFileSuccess_ReturnsViewResult_WithCorrectViewModel()
         {
-            // Arrange
-            var controller = new PaymentCalculatorController
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = this.MockHttpContext.Object
-                }
-            };
+            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
+            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
 
             // Act
-            var result = controller.BillingFileSuccess() as ViewResult;
+            var result = _controller.BillingFileSuccess() as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
