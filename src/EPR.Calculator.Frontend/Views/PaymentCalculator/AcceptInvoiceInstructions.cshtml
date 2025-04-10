@@ -27,8 +27,8 @@
             @Html.HiddenFor(m => m.ReturnUrl)
             @Html.HiddenFor(m => m.CalculationRunTitle)
             @Html.HiddenFor(m => m.CurrentUser)
-			
-            @if (ViewData.ModelState["AcceptAll"]?.Errors.Count > 0)
+
+			@if (Model.Errors.Any(e => e.DOMElementId == nameof(Model.AcceptAll)))
             {
 	            <div class="govuk-error-summary" data-module="govuk-error-summary">
 		            <div role="alert">
@@ -58,10 +58,10 @@
 		            The results file contains invoice instructions. You must accept all instructions before generating a draft billing file.
 	            </p>
 
-				<div class="govuk-form-group @(ViewData.ModelState["AcceptAll"]?.Errors.Count > 0 ? "govuk-form-group--error" : "")">
+				<div class="govuk-form-group @(Model.Errors.Any(e => e.DOMElementId == nameof(Model.AcceptAll)) ? "govuk-form-group--error" : "")">
 		            <h2 class="govuk-heading-m">Confirm acceptance</h2>
 					
-		            @if (ViewData.ModelState["AcceptAll"]?.Errors.Count > 0)
+		            @if (Model.Errors.Any(e => e.DOMElementId == nameof(Model.AcceptAll)))
 		            {
 			            <p id="acceptance-error" class="govuk-error-message">
 				            <span class="govuk-visually-hidden">Error:</span> Confirm that you have accepted all billing instructions before continuing.

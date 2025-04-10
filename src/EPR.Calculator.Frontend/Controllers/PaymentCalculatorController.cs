@@ -38,7 +38,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction("Overview"); // dummy return url I confirm that I have accepted all billing instructions in the results file.
             }
 
-            this.ModelState.AddModelError("AcceptAll", "You must confirm acceptance to proceed.");
+            model.Errors.Add(new ErrorViewModel
+            {
+                DOMElementId = "AcceptAll",
+                ErrorMessage = "You must confirm acceptance to proceed.",
+            });
             return this.View(model);
         }
 
