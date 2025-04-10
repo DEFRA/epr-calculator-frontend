@@ -6,7 +6,7 @@
         {
             None,
             OutputClassify,
-            OutputDelete
+            OutputDelete,
         }
     }
 }

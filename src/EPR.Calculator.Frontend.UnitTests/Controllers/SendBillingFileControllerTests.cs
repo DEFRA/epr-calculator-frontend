@@ -1,5 +1,4 @@
-﻿using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Controllers;
+﻿using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
