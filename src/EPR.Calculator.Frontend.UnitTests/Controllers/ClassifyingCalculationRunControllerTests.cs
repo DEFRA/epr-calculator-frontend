@@ -1,11 +1,6 @@
-﻿using System.Net;
-using System.Security.Claims;
-using System.Security.Principal;
-using AutoFixture;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
-using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
@@ -13,10 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
-using Microsoft.IdentityModel.Abstractions;
 using Moq;
-using Moq.Protected;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {

@@ -33,23 +33,23 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [Route("{runId}")]
         public IActionResult Index(int runId)
-        {           
-                var classifyCalculationRunViewModel = new ClassifyCalculationRunScenerio1ViewModel
+        {
+            var classifyCalculationRunViewModel = new ClassifyCalculationRunScenerio1ViewModel
+            {
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CalculatorRunStatus = new CalculatorRunStatusUpdateDto
                 {
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    CalculatorRunStatus = new CalculatorRunStatusUpdateDto
-                    {
-                        RunId = runId,
-                        ClassificationId = 240008,
-                        CalcName = "Calculation Run 99",
-                        CreatedDate = "01 May 2024",
-                        CreatedTime = "12:09",
-                        FinancialYear = "2024-25",
-                    },
-                    BackLink = ControllerNames.CalculationRunDetails,
-                };
+                    RunId = runId,
+                    ClassificationId = 240008,
+                    CalcName = "Calculation Run 99",
+                    CreatedDate = "01 May 2024",
+                    CreatedTime = "12:09",
+                    FinancialYear = "2024-25",
+                },
+                BackLink = ControllerNames.CalculationRunDetails,
+            };
 
-                return this.View(ClassifyingCalculationRunIndexView, classifyCalculationRunViewModel);           
+            return this.View(ClassifyingCalculationRunIndexView, classifyCalculationRunViewModel);
         }
 
         [HttpPost]
