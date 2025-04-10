@@ -18,7 +18,7 @@
             {
                 @Html.AntiForgeryToken()
 
-                @Html.Hidden("RunId", Model.Data.RunId)
+                @Html.Hidden("Data.RunId", Model.Data.RunId)
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
                         <legend class="govuk-caption-l">
