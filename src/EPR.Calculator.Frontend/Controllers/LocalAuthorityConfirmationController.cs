@@ -29,7 +29,7 @@
             };
 
             // Return the view with the view model
-            return this.View(ViewNames.LocalAuthorityConfirmationIndex);
+            return this.View(ViewNames.LocalAuthorityConfirmationIndex, parameterConfirmationViewModel);
         }
     }
 }
