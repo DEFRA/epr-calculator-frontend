@@ -29,10 +29,14 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             var testValue = fixture.Create<List<SchemeParameterTemplateValue>>();
 
             // Act
-            _testClass.ParameterTemplateValue = testValue;
+            _testClass = new ParameterRefreshViewModel
+            {
+                FileName = fixture.Create<string>(),
+                ParameterTemplateValues = testValue,
+            };
 
             // Assert
-            Assert.AreSame(testValue, _testClass.ParameterTemplateValue);
+            Assert.AreSame(testValue, _testClass.ParameterTemplateValues);
         }
     }
 }

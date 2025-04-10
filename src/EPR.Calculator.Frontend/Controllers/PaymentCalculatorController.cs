@@ -59,7 +59,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     Body = ConfirmationMessages.BillingFileSuccessBody,
                     AdditionalParagraphs = ConfirmationMessages.BillingFileSuccessAdditionalParagraphs,
                     RedirectController = CommonConstants.DashBoard,
-                }
+                },
             };
 
             // Return the view

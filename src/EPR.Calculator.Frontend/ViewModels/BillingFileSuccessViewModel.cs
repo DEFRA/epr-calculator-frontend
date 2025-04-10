@@ -8,8 +8,8 @@ namespace EPR.Calculator.Frontend.ViewModels
     public record BillingFileSuccessViewModel : ViewModelCommonData
     {
         /// <summary>
-        /// Gets or sets the confirmation view model for use in the partial.
+        /// Gets the confirmation view model for use in the partial.
         /// </summary>
-        public ConfirmationViewModel ConfirmationViewModel { get; set; }
+        public required ConfirmationViewModel ConfirmationViewModel { get; init; }
     }
 }

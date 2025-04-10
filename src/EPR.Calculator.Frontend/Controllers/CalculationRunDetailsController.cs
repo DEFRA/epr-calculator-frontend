@@ -16,32 +16,24 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="CalculationRunDetailsController"/> class.
     /// </summary>
+    /// <param name="configuration">The configuration settings.</param>
+    /// <param name="clientFactory">The HTTP client factory.</param>
+    /// <param name="logger">The logger instance.</param>
     [Authorize(Roles = "SASuperUser")]
-    public class CalculationRunDetailsController : BaseController
+    public class CalculationRunDetailsController(
+        IConfiguration configuration,
+        IHttpClientFactory clientFactory,
+        ILogger<CalculationRunDetailsController> logger,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        private readonly IConfiguration configuration;
-        private readonly IHttpClientFactory clientFactory;
-        private readonly ILogger<CalculationRunDetailsController> logger;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CalculationRunDetailsController"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration settings.</param>
-        /// <param name="clientFactory">The HTTP client factory.</param>
-        /// <param name="logger">The logger instance.</param>
-        public CalculationRunDetailsController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunDetailsController> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
-        {
-            this.configuration = configuration;
-            this.clientFactory = clientFactory;
-            this.logger = logger;
-        }
+        private ILogger<CalculationRunDetailsController> Logger { get; init; } = logger;
 
         /// <summary>
         /// Displays the calculation run details index view.
         /// </summary>
         /// <param name="runId">The ID of the calculation run.</param>
-        /// <param name="calcName">The calcName of the calculation run.</param>
         /// <returns>The calculation run details index view.</returns>
         [Authorize(Roles = "SASuperUser")]
         [Route("ViewCalculationRunDetails/{runId}")]
@@ -49,11 +41,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var getCalculationDetailsResponse = await this.GetCalculationDetailsAsync(runId);
+                using var getCalculationDetailsResponse = await this.GetCalculatorRunAsync(runId);
 
                 if (!getCalculationDetailsResponse.IsSuccessStatusCode)
                 {
-                    this.logger.LogError(
+                    this.Logger.LogError(
                         "Request failed with status code {StatusCode}", getCalculationDetailsResponse.StatusCode);
 
                     return this.RedirectToAction(
@@ -94,7 +86,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "An error occurred while processing the request.");
+                this.Logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
@@ -114,15 +106,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetSection(ConfigSection.DashboardCalculatorRunApi).Value;
+                var dashboardCalculatorRunApi = this.Configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetSection(ConfigSection.DashboardCalculatorRunApi).Value;
 
-                var client = this.clientFactory.CreateClient();
                 if (dashboardCalculatorRunApi != null)
                 {
-                    client.BaseAddress = new Uri(dashboardCalculatorRunApi);
-                    var accessToken = await this.AcquireToken();
-
-                    client.DefaultRequestHeaders.Add("Authorization", accessToken);
                     var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
                     {
                         RunId = runId,
@@ -145,15 +132,9 @@ namespace EPR.Calculator.Frontend.Controllers
                         return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
                     }
 
-                    var request = new HttpRequestMessage(
-                        HttpMethod.Put,
-                        new Uri(
-                            $"{dashboardCalculatorRunApi}?runId={statusUpdateViewModel.Data.RunId}&classificationId={statusUpdateViewModel.Data.ClassificationId}"));
-                    var response = client.SendAsync(request);
+                    using var response = await this.PutCalculatorRunsAsync(runId, RunClassification.DELETED);
 
-                    response.Wait();
-
-                    if (response.Result.StatusCode != HttpStatusCode.Created)
+                    if (response.StatusCode != HttpStatusCode.Created)
                     {
                         statusUpdateViewModel.Errors = CreateErrorViewModel(ErrorMessages.DeleteCalculationError);
                         return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
@@ -166,7 +147,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "An error occurred while processing the request.");
+                this.Logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
@@ -195,44 +176,13 @@ namespace EPR.Calculator.Frontend.Controllers
             return false;
         }
 
-        /// <summary>
-        /// Asynchronously retrieves calculation details for a given run ID.
-        /// </summary>
-        /// <param name="runId">The ID of the calculation run to retrieve details for.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
-        private async Task<HttpResponseMessage> GetCalculationDetailsAsync(int runId)
-        {
-            var client = this.CreateHttpClient();
-            var apiUrl = client.BaseAddress!.ToString();
-            var accessToken = await this.AcquireToken();
-
-            client.DefaultRequestHeaders.Add("Authorization", accessToken);
-            var requestUri = new Uri($"{apiUrl}/{runId}", UriKind.Absolute);
-            return await client.GetAsync(requestUri);
-        }
-
-        /// <summary>
-        /// Creates and configures an <see cref="HttpClient"/> instance.
-        /// </summary>
-        /// <returns>A configured <see cref="HttpClient"/> instance.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
-        private HttpClient CreateHttpClient()
-        {
-            var apiUrl = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetValue<string>(ConfigSection.DashboardCalculatorRunApi)!;
-
-            var client = this.clientFactory.CreateClient();
-            client.BaseAddress = new Uri(apiUrl);
-            return client;
-        }
-
         private void SetDownloadParameters(CalculatorRunStatusUpdateViewModel statusUpdateViewModel)
         {
-            var downloadResultApi = this.configuration
+            var downloadResultApi = this.Configuration
                           .GetSection(ConfigSection.CalculationRunSettings)
                           .GetValue<string>(ConfigSection.DownloadResultApi);
 
-            string? timeout = this.configuration
+            string? timeout = this.Configuration
                   .GetSection(ConfigSection.CalculationRunSettings)
                   .GetValue<string>(ConfigSection.DownloadResultTimeoutInMilliSeconds);
             int timeoutValue = int.TryParse(timeout, out timeoutValue) ? timeoutValue : 0;
@@ -240,6 +190,31 @@ namespace EPR.Calculator.Frontend.Controllers
 
             statusUpdateViewModel.DownloadResultURL = new Uri($"{downloadResultApi}/{statusUpdateViewModel.Data.RunId}", UriKind.Absolute);
             statusUpdateViewModel.DownloadErrorURL = $"/DownloadFileError/{statusUpdateViewModel.Data.RunId}";
+        }
+
+        /// <summary>
+        /// Calls the "calculatorRuns" PUT endpoint.
+        /// </summary>
+        /// <returns>The response message returned by the endpoint.</returns>
+        private async Task<HttpResponseMessage> PutCalculatorRunsAsync(int runId, RunClassification classification)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.DashboardCalculatorRunApi);
+            var args = (runId, (int)classification);
+            return await this.CallApi(HttpMethod.Put, apiUrl, string.Empty, args);
+        }
+
+        protected async Task<HttpResponseMessage> GetCalculatorRunAsync(int runId)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.DashboardCalculatorRunApi);
+            return await this.CallApi(
+                HttpMethod.Get,
+                apiUrl,
+                runId.ToString(),
+                null);
         }
     }
 }
