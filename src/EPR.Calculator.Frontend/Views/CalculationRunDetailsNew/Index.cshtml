@@ -66,14 +66,14 @@
                             <div class="govuk-radios__item">
                                 @Html.RadioButtonFor(model => model.SelectedCalcRunOption, CommonEnums.CalculationRunOption.OutputClassify, new { @class = "govuk-radios__input", id = "outputClassify" })
                                 <label class="govuk-label govuk-radios__label" for="outputClassify">
-                                    <strong>Classify</strong><br>
+                                    <strong>Classify</strong><br />
                                     <p class="govuk-body-s" style="margin-bottom: 0;">Choose a classification to process this calculation run</p>
                                 </label>
                             </div>
                             <div class="govuk-radios__item">
                                 @Html.RadioButtonFor(model => model.SelectedCalcRunOption, CommonEnums.CalculationRunOption.OutputDelete, new { @class = "govuk-radios__input", id = "outputDelete" })
                                 <label class="govuk-label govuk-radios__label" for="outputDelete">
-                                    <strong>Delete</strong><br>
+                                    <strong>Delete</strong><br />
                                     <p class="govuk-body-s" style="margin-bottom: 0;">Remove this calculation run if it's no longer needed</p>
                                 </label>
                             </div>

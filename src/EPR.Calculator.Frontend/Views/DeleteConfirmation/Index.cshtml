@@ -21,10 +21,10 @@
         <div class="govuk-grid-column-two-thirds">
             <br>
             <h1 class="govuk-heading-xl">You have successfully deleted this calculation</h1>
-            <span class="govuk-caption-xl">@Model.Data.CalcName</span><br>
+            <span class="govuk-caption-xl">@Model.Data.CalcName</span><br />
             <p class="govuk-body">ID: @Model.Data.RunId</p>
             <hr>
-            <br>
+            <br />
             @using (Html.BeginForm("Index", "Dashboard", FormMethod.Post))
             {
                 @Html.AntiForgeryToken()

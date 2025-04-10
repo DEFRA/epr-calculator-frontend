@@ -46,7 +46,7 @@
                         <div class="govuk-radios__item">
                             @Html.RadioButton("calcRun", "outputInitialRun", new { @class = "govuk-radios__input", id = "interimRecalculationRun" })
                             <label class="govuk-label govuk-radios__label" for="interimRecalculationRun">
-                                <strong>Interim recalculation run</strong><br>
+                                <strong>Interim recalculation run</strong><br />
                                 <p class="govuk-body-s" style="margin-bottom: 0;">An official, optional run that can happen any time after the initial run, including after final runs. It can be run multiple times and generate a billing file. It can be used to process late or updated producer data.</p>
                             </label>
                         </div>
@@ -54,7 +54,7 @@
                         <div class="govuk-radios__item">
                             @Html.RadioButton("calcRun", "outputTestRun", new { @class = "govuk-radios__input", id = "finalRecalculationRun" })
                             <label class="govuk-label govuk-radios__label" for="finalRecalculationRun">
-                                <strong>Final recalculation run</strong><br>
+                                <strong>Final recalculation run</strong><br />
                                 <p class="govuk-body-s" style="margin-bottom: 0;">An official, optional run using corrected data. It can produce a billing file for invoicing and is expected to be the last recalculation.</p>
                             </label>
                         </div>
@@ -62,7 +62,7 @@
                         <div class="govuk-radios__item">
                             @Html.RadioButton("calcRun", "outputTestRun", new { @class = "govuk-radios__input", id = "finalRun" })
                             <label class="govuk-label govuk-radios__label" for="finalRun">
-                                <strong>Final run</strong><br>
+                                <strong>Final run</strong><br />
                                 <p class="govuk-body-s" style="margin-bottom: 0;">An official, mandatory run at the end of the financial year that can produce a billing file for invoicing. Corrections after this must use the interim recalculation classification.</p>
                             </label>
                         </div>
@@ -70,14 +70,14 @@
                         <div class="govuk-radios__item">
                             @Html.RadioButton("calcRun", "outputTestRun", new { @class = "govuk-radios__input", id = "testRun" })
                             <label class="govuk-label govuk-radios__label" for="testRun">
-                                <strong>Test run</strong><br>
+                                <strong>Test run</strong><br />
                                 <p class="govuk-body-s" style="margin-bottom: 0;">An unofficial run to view the calculation results without generating a billing file for invoicing.</p>
                             </label>
                         </div>
 
                     </div>
                 </fieldset>
-                <br>
+                <br />
                 <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
                     <div class="govuk-notification-banner__header">
                         <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
@@ -86,7 +86,7 @@
                     </div>
                     <div class="govuk-notification-banner__content">
                         <p class="govuk-body-s">
-                            <strong>Initial run</strong><br>
+                            <strong>Initial run</strong><br />
                             Already classified for financial year @Html.DisplayFor(model => model.FinancialYear) on @Html.DisplayFor(model => model.RunDate).
                         </p>
                     </div>
