@@ -13,8 +13,6 @@ namespace EPR.Calculator.Frontend.Controllers
     /// </summary>
     public class ClassifyingCalculationRunScenario2Controller : BaseController
     {
-        private readonly IConfiguration configuration;
-        private readonly IHttpClientFactory clientFactory;
         private readonly ILogger<ClassifyingCalculationRunScenario2Controller> logger;
 
         /// <summary>
@@ -28,8 +26,6 @@ namespace EPR.Calculator.Frontend.Controllers
         public ClassifyingCalculationRunScenario2Controller(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyingCalculationRunScenario2Controller> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
             : base(configuration, tokenAcquisition, telemetryClient)
         {
-            this.configuration = configuration;
-            this.clientFactory = clientFactory;
             this.logger = logger;
         }
 
@@ -49,11 +45,11 @@ namespace EPR.Calculator.Frontend.Controllers
                     CalculatorRunStatus = new CalculatorRunStatusUpdateDto
                     {
                         RunId = 240008,
-                        ClassificationId = 3, // TODO: Replace with actual data,
-                        CalcName = "Calculation run 99", // TODO: Replace with actual data,
-                        CreatedDate = "01 May 2024", // TODO: Replace with actual data,
-                        CreatedTime = "12:09", // TODO: Replace with actual data,
-                        FinancialYear = "2024-25", // TODO: Replace with actual data,
+                        ClassificationId = 3,
+                        CalcName = "Calculation run 99",
+                        CreatedDate = "01 May 2024",
+                        CreatedTime = "12:09",
+                        FinancialYear = "2024-25",
                     },
                 };
 
