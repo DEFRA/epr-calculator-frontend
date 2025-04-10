@@ -47,7 +47,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Submit(CalculatorRunDetailsNewViewModel model)
         {
-            if (model.SelectedCalcRunOption == null || model.SelectedCalcRunOption== CommonEnums.CalculationRunOption.None)
+            if (model.SelectedCalcRunOption == null || model.SelectedCalcRunOption == CommonEnums.CalculationRunOption.None)
             {
                 return RedirectToAction("Index", new { model.Data.RunId });
             }
