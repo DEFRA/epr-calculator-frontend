@@ -13,20 +13,11 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Controller for the calculation run overview page.
     /// </summary>
-    [Authorize(Roles = "SASuperUser")]
     [Route("[controller]")]
     public class CalculationRunOverviewController : BaseController
     {
         private readonly IConfiguration _configuration;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CalculationRunOverviewController"/> class.
-        /// </summary>
-        /// <param name="configuration">configuration.</param>
-        /// <param name="clientFactory">clientFactory.</param>
-        /// <param name="logger">logger.</param>
-        /// <param name="tokenAcquisition">tokenAcquisition.</param>
-        /// <param name="telemetryClient">telemetryClient.</param>
         public CalculationRunOverviewController(
             IConfiguration configuration,
             IHttpClientFactory clientFactory,
@@ -38,11 +29,6 @@ namespace EPR.Calculator.Frontend.Controllers
             _configuration = configuration;
         }
 
-        /// <summary>
-        /// Gets the calculation run overview page.
-        /// </summary>
-        /// <param name="runId"> Run Id.</param>
-        /// <returns>View.</returns>
         [Route("{runId}")]
         public Task<IActionResult> Index(int runId)
         {
@@ -66,6 +52,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Submit(int runId)
         {
             if (!this.ModelState.IsValid)

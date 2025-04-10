@@ -13,9 +13,8 @@ using System.Reflection;
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="ClassifyingCalculationRunScenario1Controller"/> class.
+    /// Controller for handling classifying calculation run scenario 1.
     /// </summary>
-    [Authorize(Roles = "SASuperUser")]
     [Route("[controller]")]
     public class ClassifyingCalculationRunScenario1Controller : BaseController
     {
@@ -24,14 +23,6 @@ namespace EPR.Calculator.Frontend.Controllers
         private readonly IHttpClientFactory clientFactory;
         private readonly ILogger<ClassifyingCalculationRunScenario1Controller> logger;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ClassifyingCalculationRunScenario1Controller"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration settings.</param>
-        /// <param name="clientFactory">The HTTP client factory.</param>
-        /// <param name="logger">The logger instance.</param>
-        /// <param name="tokenAcquisition">token acquisition.</param>
-        /// <param name="telemetryClient">telemetry client.</param>
         public ClassifyingCalculationRunScenario1Controller(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyingCalculationRunScenario1Controller> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
             : base(configuration, tokenAcquisition, telemetryClient)
         {
@@ -40,11 +31,6 @@ namespace EPR.Calculator.Frontend.Controllers
             this.logger = logger;
         }
 
-        /// <summary>
-        /// Displays the index view for classifying calculation runs.
-        /// </summary>
-        /// <param name="runId"> runId.</param>
-        /// <returns>The index view.</returns>
         [Route("{runId}")]
         public IActionResult Index(int runId)
         {
@@ -75,6 +61,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Submit(int runId)
         {
             if (!this.ModelState.IsValid)

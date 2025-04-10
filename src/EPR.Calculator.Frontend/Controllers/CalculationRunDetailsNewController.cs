@@ -10,26 +10,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 using System.Reflection;
+using static EPR.Calculator.Frontend.Constants.CommonEnums;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
     /// Controller responsible for displaying the details of a calculation run.
     /// </summary>
-    [Authorize(Roles = "SASuperUser")]
     [Route("[controller]")]
     public class CalculationRunDetailsNewController : BaseController
     {
         private readonly IConfiguration _configuration;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CalculationRunDetailsNewController"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration settings.</param>
-        /// <param name="clientFactory">The HTTP client factory.</param>
-        /// <param name="logger">The logger instance.</param>
-        /// <param name="tokenAcquisition">The token acquisition service.</param>
-        /// <param name="telemetryClient">The telemetry client.</param>
         public CalculationRunDetailsNewController(
             IConfiguration configuration,
             IHttpClientFactory clientFactory,
@@ -57,24 +49,24 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
-        public IActionResult Submit(int runId, string SelectedCalcRunOption)
+        [ValidateAntiForgeryToken]
+        public IActionResult Submit(int runId, CalculationRunOption? selectedCalcRunOption)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || selectedCalcRunOption == null || selectedCalcRunOption == CommonEnums.CalculationRunOption.None)
             {
                 return RedirectToAction("Index", new { runId });
             }
 
-            if (SelectedCalcRunOption == "outputClassify")
+            switch (selectedCalcRunOption)
             {
-                return RedirectToAction(ActionNames.Index, ControllerNames.ClassifyingCalculationRun, new { runId });
-            }
-            else if (SelectedCalcRunOption == "outputDelete")
-            {
-                return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { runId = runId });
-            }
-            else
-            {
-                return RedirectToAction(ActionNames.Index, new { runId });
+                case CommonEnums.CalculationRunOption.OutputClassify:
+                    return RedirectToAction(ActionNames.Index, ControllerNames.ClassifyingCalculationRun, new { runId });
+
+                case CommonEnums.CalculationRunOption.OutputDelete:
+                    return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { runId });
+
+                default:
+                    return RedirectToAction(ActionNames.Index, new { runId });
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Models;
 using System.Diagnostics.CodeAnalysis;
+using static EPR.Calculator.Frontend.Constants.CommonEnums;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
@@ -32,6 +33,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets or sets the selected calculation run option.
         /// </summary>
-        public string? SelectedCalcRunOption { get; set; }
+        public CalculationRunOption? SelectedCalcRunOption { get; set; }
     }
 }

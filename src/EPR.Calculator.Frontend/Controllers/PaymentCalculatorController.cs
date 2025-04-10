@@ -2,18 +2,23 @@
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="PaymentCalculatorController"/> class.
+    /// Controller for handling payment calculations.
     /// </summary>
-    [Authorize(Roles = "SASuperUser")]
     [Route("[controller]")]
-    public class PaymentCalculatorController : Controller
+    public class PaymentCalculatorController : BaseController
     {
+        public PaymentCalculatorController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
+        {
+        }
+
         [HttpGet]
         [Route("{runId}")]
         public IActionResult Index(int runId)
@@ -47,9 +52,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <returns>Billing file sent page.</returns>
         [Route("BillingFileSuccess")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult BillingFileSuccess()
         {
-            // Create the view model
             var model = new BillingFileSuccessViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
@@ -62,7 +68,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 },
             };
 
-            // Return the view
             return this.View(ViewNames.BillingConfirmationSuccess, model);
         }
     }

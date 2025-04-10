@@ -8,10 +8,17 @@ using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    [Authorize(Roles = "SASuperUser")]
+    /// <summary>
+    /// Controller for sending billing files.
+    /// </summary>
     [Route("[controller]")]
-    public class SendBillingFileController : Controller
+    public class SendBillingFileController : BaseController
     {
+        public SendBillingFileController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+            : base(configuration, tokenAcquisition, telemetryClient)
+        {
+        }
+
         [Route("{runId}")]
         public IActionResult Index(int runId)
         {
@@ -30,6 +37,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Submit(int runId)
         {
             if (!ModelState.IsValid)
