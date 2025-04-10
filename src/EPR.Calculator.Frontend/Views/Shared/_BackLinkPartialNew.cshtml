@@ -1,9 +1,10 @@
-﻿@model (string Backlink, string CurrentUser, int RunId);
+﻿@using EPR.Calculator.Frontend.ViewModels
+@model BackLinkPartialViewModel
 
 <div class="govuk-grid-row">
 
     <div class="govuk-grid-column-three-quarters">
-        <a href="@Url.Content($"~/{Model.Backlink}/{@Model.RunId}")" class="govuk-back-link">Back</a>
+        <a href="@Url.Content($"~/{Model.BackLink}/{Model.RunId}")" class="govuk-back-link">Back</a>
     </div>
     <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
         <div class="account-info">
