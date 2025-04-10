@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Exceptions;
+using EPR.Calculator.Frontend.HealthCheck;
 using EPR.Calculator.Frontend.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -38,6 +39,8 @@ builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<CalculatorRunNameValidator>();
 
 builder.Services.AddFeatureManagement();
+
+builder.Services.AddHealthChecks();
 
 builder.Services.AddSession(options =>
 {
@@ -83,5 +86,6 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Dashboard}/{action=Index}/{id?}");
+app.MapHealthChecks("/admin/health", HealthCheckOptionsBuilder.Build()).AllowAnonymous();
 
 app.Run();
