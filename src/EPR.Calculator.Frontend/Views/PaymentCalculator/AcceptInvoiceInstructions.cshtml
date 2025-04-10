@@ -27,34 +27,58 @@
             @Html.HiddenFor(m => m.ReturnUrl)
             @Html.HiddenFor(m => m.CalculationRunTitle)
             @Html.HiddenFor(m => m.CurrentUser)
+			
+            @if (ViewData.ModelState["AcceptAll"]?.Errors.Count > 0)
+            {
+	            <div class="govuk-error-summary" data-module="govuk-error-summary">
+		            <div role="alert">
+			            <h2 class="govuk-error-summary__title">
+				            There is a problem
+			            </h2>
+			            <div class="govuk-error-summary__body">
+				            <ul class="govuk-list govuk-error-summary__list">
+					            <li>
+						            <a href="#">Confirm that you have accepted all billing instructions before continuing.</a>
+					            </li>
+				            </ul>
+			            </div>
+		            </div>
+	            </div>
+            }
 
-            <div class="govuk-form-group">
-                <fieldset class="govuk-fieldset" aria-describedby="acceptance-hint">
+            <fieldset class="govuk-fieldset" aria-describedby="acceptance-hint">
+	            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+		            <span class="govuk-caption-l">@Model.CalculationRunTitle</span>
+		            <h1 class="govuk-heading-l">Accept all invoice instructions</h1>
+	            </legend>
 
-                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                        <span class="govuk-caption-l">@Model.CalculationRunTitle</span>
-                        <h1 class="govuk-heading-l">Accept all invoice instructions</h1>
-                    </legend>
+	            <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible"/>
 
-                    <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible" />
+	            <p class="govuk-body">
+		            The results file contains invoice instructions. You must accept all instructions before generating a draft billing file.
+	            </p>
 
-                    <p class="govuk-body">
-                        The results file contains invoice instructions. You must accept all instructions before generating a draft billing file.
-                    </p>
+				<div class="govuk-form-group @(ViewData.ModelState["AcceptAll"]?.Errors.Count > 0 ? "govuk-form-group--error" : "")">
+		            <h2 class="govuk-heading-m">Confirm acceptance</h2>
+					
+		            @if (ViewData.ModelState["AcceptAll"]?.Errors.Count > 0)
+		            {
+			            <p id="acceptance-error" class="govuk-error-message">
+				            <span class="govuk-visually-hidden">Error:</span> Confirm that you have accepted all billing instructions before continuing.
+			            </p>
+		            }
 
-                    <h2 class="govuk-heading-m">Confirm acceptance</h2>
+		            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+			            <div class="govuk-checkboxes__item">
+				            @Html.CheckBoxFor(m => m.AcceptAll, new { @class = "govuk-checkboxes__input" })
+				            <label class="govuk-label govuk-checkboxes__label" for="AcceptAll">
+					            I confirm that I accept all billing instructions in the results file.
+				            </label>
+			            </div>
+		            </div>
+	            </div>
 
-                    <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-                        <div class="govuk-checkboxes__item">
-                            <input type="hidden" name="AcceptAll" value="false" />
-                            @Html.CheckBoxFor(m => m.AcceptAll, new { @class = "govuk-checkboxes__input", id = "AcceptAll" })
-                            <label class="govuk-label govuk-checkboxes__label" for="AcceptAll">
-                                I confirm that I have accepted all invoice instructions in the results file.
-                            </label>
-                        </div>
-                    </div>
-                </fieldset>
-            </div>
+            </fieldset>
 
             <div class="govuk-button-group">
                 <button type="submit" class="govuk-button" data-module="govuk-button">
