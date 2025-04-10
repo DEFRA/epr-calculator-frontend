@@ -1,4 +1,4 @@
-namespace EPR.Calculator.Frontend.UnitTests.ViewModels
+﻿namespace EPR.Calculator.Frontend.UnitTests.ViewModels
 {
     using AutoFixture;
     using AutoFixture.AutoMoq;
