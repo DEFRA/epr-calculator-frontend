@@ -104,7 +104,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(ControllerNames.ClassifyingCalculationRun , result.ControllerName);
+            Assert.AreEqual(ControllerNames.ClassifyingCalculationRun, result.ControllerName);
             Assert.AreEqual(1, result.RouteValues["runId"]);
         }
 
@@ -117,7 +117,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(ControllerNames.CalculationRunDelete , result.ControllerName);
+            Assert.AreEqual(ControllerNames.CalculationRunDelete, result.ControllerName);
             Assert.AreEqual(1, result.RouteValues["runId"]);
         }
 

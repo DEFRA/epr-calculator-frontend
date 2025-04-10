@@ -56,7 +56,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsInstanceOfType(result.Model, typeof(AcceptInvoiceInstructionsViewModel));
             var model = result.Model as AcceptInvoiceInstructionsViewModel;
             Assert.AreEqual(runId, model.RunId);
-            Assert.IsFalse(model.AcceptAll); 
+            Assert.IsFalse(model.AcceptAll);
             Assert.AreEqual("Calculation Run 99", model.CalculationRunTitle);
             Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, model.BackLink);
         }

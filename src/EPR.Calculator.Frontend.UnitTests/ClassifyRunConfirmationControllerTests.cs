@@ -129,7 +129,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(ControllerNames.PaymentCalculator , result.ControllerName);
+            Assert.AreEqual(ControllerNames.PaymentCalculator, result.ControllerName);
             Assert.AreEqual(runId, result.RouteValues["runId"]);
         }
 
