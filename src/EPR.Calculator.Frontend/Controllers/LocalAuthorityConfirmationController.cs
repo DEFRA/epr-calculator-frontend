@@ -19,17 +19,17 @@
         public IActionResult Index()
         {
             // Create a view model for parameter confirmation
-            var parameterConfirmationViewModel = new ConfirmationViewModel
+            var localAuthorityConfirmationViewModel = new ConfirmationViewModel
             {
-                Title = ParameterConfirmation.Title,
-                Body = ParameterConfirmation.Body,
-                RedirectController = ParameterConfirmation.RedirectController,
-                SubmitText = ParameterConfirmation.SubmitText,
+                Title = LocalAuthorityConfirmation.Title,
+                Body = LocalAuthorityConfirmation.Body,
+                RedirectController = LocalAuthorityConfirmation.RedirectController,
+                SubmitText = LocalAuthorityConfirmation.SubmitText,
                 AdditionalParagraphs = LocalAuthorityConfirmation.AdditionalParagraphs.ToList(),
             };
 
             // Return the view with the view model
-            return this.View(ViewNames.LocalAuthorityConfirmationIndex, parameterConfirmationViewModel);
+            return this.View(ViewNames.LocalAuthorityConfirmationIndex, localAuthorityConfirmationViewModel);
         }
     }
 }
