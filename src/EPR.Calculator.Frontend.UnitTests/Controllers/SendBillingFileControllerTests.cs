@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Controllers;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -56,6 +57,37 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var viewResult = result as ViewResult;
             Assert.IsNotNull(viewResult);
             Assert.IsInstanceOfType(viewResult.Model, typeof(SendBillingFileViewModel));
+        }
+
+        [TestMethod]
+        public void Submit_ModelStateInvalid_RedirectsToIndex()
+        {
+            // Arrange
+            _controller.ModelState.AddModelError("Error", "Model state is invalid");
+            int runId = 1;
+
+            // Act
+            var result = _controller.Submit(runId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(runId, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public void Submit_ModelStateValid_RedirectsToBillingFileSuccess()
+        {
+            // Arrange
+            int runId = 1;
+
+            // Act
+            var result = _controller.Submit(runId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.BillingFileSuccess, result.ActionName);
+            Assert.AreEqual(ControllerNames.PaymentCalculator, result.ControllerName);
         }
     }
 }

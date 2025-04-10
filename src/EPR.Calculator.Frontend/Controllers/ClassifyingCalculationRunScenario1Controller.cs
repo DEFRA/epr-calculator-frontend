@@ -33,9 +33,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [Route("{runId}")]
         public IActionResult Index(int runId)
-        {
-            try
-            {
+        {           
                 var classifyCalculationRunViewModel = new ClassifyCalculationRunScenerio1ViewModel
                 {
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
@@ -51,13 +49,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     BackLink = ControllerNames.CalculationRunDetails,
                 };
 
-                return this.View(ClassifyingCalculationRunIndexView, classifyCalculationRunViewModel);
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "An error occurred while processing the request.");
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
+                return this.View(ClassifyingCalculationRunIndexView, classifyCalculationRunViewModel);           
         }
 
         [HttpPost]
