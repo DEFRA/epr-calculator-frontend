@@ -71,8 +71,18 @@ namespace EPR.Calculator.Frontend.UnitTests
             int runId = 1;
             _controller.ModelState.AddModelError("Error", "Model error");
 
+            var model = new CalculatorRunDetailsNewViewModel()
+            {
+                Data = new Models.CalculatorRunDto()
+                {
+                    RunId = runId,
+                    RunName = "Test Run",
+                },
+                SelectedCalcRunOption = null
+            };
+
             // Act
-            var result = _controller.Submit(runId, null) as RedirectToActionResult;
+            var result = _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -86,8 +96,18 @@ namespace EPR.Calculator.Frontend.UnitTests
             int runId = 1;
             var selectedOption = CalculationRunOption.OutputClassify;
 
+            var model = new CalculatorRunDetailsNewViewModel()
+            {
+                Data = new Models.CalculatorRunDto()
+                {
+                    RunId = runId,
+                    RunName = "Test Run",
+                },
+                SelectedCalcRunOption = selectedOption
+            };
+
             // Act
-            var result = _controller.Submit(runId, selectedOption) as RedirectToActionResult;
+            var result = _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -98,8 +118,18 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void Submit_ValidModelState_OutputClassify_ReturnsRedirectToAction()
         {
+            var model = new CalculatorRunDetailsNewViewModel()
+            {
+                Data = new Models.CalculatorRunDto()
+                {
+                    RunId = 1,
+                    RunName = "Test Run",
+                },
+                SelectedCalcRunOption = CalculationRunOption.OutputClassify
+            };
+
             // Act
-            var result = _controller.Submit(1, CalculationRunOption.OutputClassify) as RedirectToActionResult;
+            var result = _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -111,8 +141,17 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void Submit_ValidModelState_OutputDelete_ReturnsRedirectToAction()
         {
+            var model = new CalculatorRunDetailsNewViewModel()
+            {
+                Data = new Models.CalculatorRunDto()
+                {
+                    RunId = 1,
+                    RunName = "Test Run",
+                },
+                SelectedCalcRunOption = CalculationRunOption.OutputDelete
+            };
             // Act
-            var result = _controller.Submit(1, CalculationRunOption.OutputDelete) as RedirectToActionResult;
+            var result = _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -124,8 +163,18 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void Submit_ValidModelState_Default_ReturnsRedirectToAction()
         {
+            var model = new CalculatorRunDetailsNewViewModel()
+            {
+                Data = new Models.CalculatorRunDto()
+                {
+                    RunId = 1,
+                    RunName = "Test Run",
+                },
+                SelectedCalcRunOption = (CalculationRunOption)999
+            };
+
             // Act
-            var result = _controller.Submit(1, (CalculationRunOption)999) as RedirectToActionResult;
+            var result = _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);

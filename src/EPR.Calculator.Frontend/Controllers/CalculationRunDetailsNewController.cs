@@ -45,23 +45,23 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Submit(int runId, CalculationRunOption? selectedCalcRunOption)
+        public IActionResult Submit(CalculatorRunDetailsNewViewModel model)
         {
-            if (!ModelState.IsValid || selectedCalcRunOption == null || selectedCalcRunOption == CommonEnums.CalculationRunOption.None)
+            if (model.SelectedCalcRunOption == null || model.SelectedCalcRunOption== CommonEnums.CalculationRunOption.None)
             {
-                return RedirectToAction("Index", new { runId });
+                return RedirectToAction("Index", new { model.Data.RunId });
             }
 
-            switch (selectedCalcRunOption)
+            switch (model.SelectedCalcRunOption)
             {
                 case CommonEnums.CalculationRunOption.OutputClassify:
-                    return RedirectToAction(ActionNames.Index, ControllerNames.ClassifyingCalculationRun, new { runId });
+                    return RedirectToAction(ActionNames.Index, ControllerNames.ClassifyingCalculationRun, new { model.Data.RunId });
 
                 case CommonEnums.CalculationRunOption.OutputDelete:
-                    return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { runId });
+                    return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { model.Data.RunId });
 
                 default:
-                    return RedirectToAction(ActionNames.Index, new { runId });
+                    return RedirectToAction(ActionNames.Index, new { model.Data.RunId });
             }
         }
 
