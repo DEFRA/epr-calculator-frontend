@@ -2,6 +2,8 @@
 {
     public record SendBillingFileViewModel : ViewModelCommonData
     {
+        public required int RunId { get; set; }
+
         public required string CalcRunName { get; set; }
 
         public required string SendBillFileHeading { get; set; }

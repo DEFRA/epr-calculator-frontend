@@ -25,11 +25,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public void Index_ReturnsView_WithClassifyCalculationView()
         {
-                var controller = new ClassifyCalculationRunController();
-                controller.ControllerContext = new ControllerContext { HttpContext = MockHttpContext.Object };
-                var result = controller.Index() as ViewResult;
-                Assert.IsNotNull(result);
-                Assert.AreEqual(ViewNames.CalculationRunClassification, result.ViewName);
+            var controller = new ClassifyCalculationRunController();
+            controller.ControllerContext = new ControllerContext { HttpContext = MockHttpContext.Object };
+            var result = controller.Index() as ViewResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunClassification, result.ViewName);
         }
 
         [TestMethod]
@@ -37,7 +37,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             // Arrange
             var expectedViewName = ViewNames.CalculationRunClassification;
-            var expectedViewModel = new ClassifyCalculationViewModel("Calculation run 99", "2024-25", 240008, true, "1 December 2024 at 12:09");
+            var expectedViewModel = new ClassifyCalculationViewModel(99, "Calculation run 99", "2024-25", 240008, true, "1 December 2024 at 12:09");
 
             var controller = new ClassifyCalculationRunController();
             controller.ControllerContext = new ControllerContext { HttpContext = MockHttpContext.Object };

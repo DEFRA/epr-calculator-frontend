@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Models;
 using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.ViewModels
@@ -14,5 +15,10 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets the name of the currently logged in user.
         /// </summary>
         public string CurrentUser { get; init; }
+
+        /// <summary>
+        /// Gets or sets the title of the Back Link.
+        /// </summary>
+        public string BackLink { get; set; } = ControllerNames.Dashboard;
     }
 }

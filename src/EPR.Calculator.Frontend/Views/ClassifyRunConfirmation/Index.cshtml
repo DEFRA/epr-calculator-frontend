@@ -1,72 +1,78 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels
+@using EPR.Calculator.Frontend.Constants
 @inject IHttpContextAccessor HttpContextAccessor
 @model ClassifyRunConfirmationViewModel
 @{
-  ViewData["Title"] = "Index";
-  Layout = "~/Views/Shared/_Layout.cshtml";
-  var BackLink = "Dashboard";
+    var backLinkModel = new BackLinkPartialViewModel
+            {
+                BackLink = Model.BackLink,
+                CurrentUser = Model.CurrentUser,
+                RunId = Model.Data.RunId
+            };
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
-<partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
+<partial name="_BackLinkPartialNew" model="backLinkModel" />
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
 
-      @using (Html.BeginForm("Index", "ClassifyRunAffirm", FormMethod.Post))
-      {
-        @Html.AntiForgeryToken()
-        <div class="govuk-form-group">
-          <fieldset class="govuk-fieldset">
-            <legend></legend>
-            <span class="govuk-caption-l">@Model.Data.RunName</span>
-            <h1 class="govuk-heading-l">Calculation run details</h1>            
+            @using (Html.BeginForm(ActionNames.Submit, ControllerNames.ClassifyRunConfirmation, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("RunId", Model.Data.RunId)
 
-            <table class="govuk-table" aria-describedby="Calculation Details">
-              <tbody class="govuk-table__body">
-                <tr class="govuk-table__row">
-                  <th scope="row" class="govuk-table__header">Financial year</th>
-                  <td class="govuk-table__cell">@Model.Data.FinancialYear</td>
-                </tr>
-                <tr class="govuk-table__row">
-                  <th scope="row" class="govuk-table__header">Classification</th>
-                  <td class="govuk-table__cell">@Model.Data.Classification</td>
-                </tr>
-                <tr class="govuk-table__row">
-                  <th scope="row" class="govuk-table__header">Calculation ID</th>
-                  <td class="govuk-table__cell">@Model.Data.RunId</td>
-                </tr>
-                <tr class="govuk-table__row">
-                  <th scope="row" class="govuk-table__header">Run date and time</th>
-                  <td class="govuk-table__cell">@Model.Data.CreatedAt.ToString("dd MMM yyyy") at @Model.Data.CreatedAt.ToString("HH:mm")</td>
-                </tr>
-              </tbody>
-            </table>
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset">
+                        <legend></legend>
+                        <span class="govuk-caption-l">@Model.Data.RunName</span>
+                        <h1 class="govuk-heading-l">Calculation run details</h1>
 
-            <h2 class="govuk-heading-m">Downloads</h2>
-            <p class="govuk-body">Download files related to this calculation run.</p>
+                        <table class="govuk-table" aria-describedby="Calculation Details">
+                            <tbody class="govuk-table__body">
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Financial year</th>
+                                    <td class="govuk-table__cell">@Model.Data.FinancialYear</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Classification</th>
+                                    <td class="govuk-table__cell">@Model.Data.Classification</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Calculation ID</th>
+                                    <td class="govuk-table__cell">@Model.Data.RunId</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Run date and time</th>
+                                    <td class="govuk-table__cell">@Model.Data.CreatedAt.ToString("dd MMM yyyy") at @Model.Data.CreatedAt.ToString("HH:mm")</td>
+                                </tr>
+                            </tbody>
+                        </table>
 
-            <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
-                    onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
-              Results file
-            </button>
+                        <h2 class="govuk-heading-m">Downloads</h2>
+                        <p class="govuk-body">Download files related to this calculation run.</p>
 
-            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-            <h2 class="govuk-heading-m">Next step</h2>
-            <p class="govuk-body">Accept all invoice instructions contained in the results file.</p>            
-          </fieldset>
+                        <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
+                                onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
+                            Results file
+                        </button>
+
+                        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                        <h2 class="govuk-heading-m">Next step</h2>
+                        <p class="govuk-body">Accept all billing instructions contained in the results file.</p>
+                    </fieldset>
+                </div>
+
+                <div class="govuk-button-group">
+                    <div class="govuk-button-group">
+                        <button class="govuk-button" data-module="govuk-button">
+                            Continue
+                        </button>
+                    </div>
+
+                    <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
+                </div>
+            }
         </div>
-
-        <div class="govuk-button-group">
-          <div class="govuk-button-group">
-            <button class="govuk-button" data-module="govuk-button">
-              Continue
-            </button>
-          </div>
-
-          <a href="@Url.Action("Index", "Dashboard")" class="govuk-link govuk-!-margin-left-4">Return to the dashboard</a>
-        </div>
-      }      
     </div>
-  </div>
 </main>

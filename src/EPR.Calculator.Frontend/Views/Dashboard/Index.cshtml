@@ -107,7 +107,7 @@
         financialYearListDropdown.change(function () {
             var selectedFinancialYear = $(this).val();
             $.ajax({
-                url: '@Url.Action("GetCalculations", "Dashboard")',
+                url: '@Url.Action("GetCalculations", ControllerNames.Dashboard)',
                 type: 'GET',
                 data: { financialYear: selectedFinancialYear },
                 success: function (data) {

@@ -11,11 +11,6 @@ namespace EPR.Calculator.Frontend.ViewModels
     public record ClassifyCalculationRunScenerio1ViewModel : ViewModelCommonData
     {
         /// <summary>
-        /// Gets or sets the back link.
-        /// </summary>
-        public string BackLink { get; set; } = CommonConstants.DashBoard;
-
-        /// <summary>
         /// Gets or sets the errors.
         /// </summary>
         public ErrorViewModel? Errors { get; set; }
