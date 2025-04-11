@@ -54,5 +54,10 @@
         /// Error message for unknown user.
         /// </summary>
         public const string UnknownUser = "Unknown User";
+
+        /// <summary>
+        /// Error message for classify run type option not selected.
+        /// </summary>
+        public const string ClassifyRunTypeNotSelected = "Select a classification before confirming.";
     }
 }

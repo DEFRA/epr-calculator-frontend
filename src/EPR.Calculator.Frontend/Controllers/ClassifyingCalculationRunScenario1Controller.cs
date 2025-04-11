@@ -23,6 +23,14 @@ namespace EPR.Calculator.Frontend.Controllers
         private readonly IHttpClientFactory clientFactory;
         private readonly ILogger<ClassifyingCalculationRunScenario1Controller> logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClassifyingCalculationRunScenario1Controller"/> class.
+        /// </summary>
+        /// <param name="configuration">configuration.</param>
+        /// <param name="clientFactory">client factory.</param>
+        /// <param name="logger">classifying calculation run scenario1 logger.</param>
+        /// <param name="tokenAcquisition">token acquisition.</param>
+        /// <param name="telemetryClient">telemetry client.</param>
         public ClassifyingCalculationRunScenario1Controller(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyingCalculationRunScenario1Controller> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
             : base(configuration, tokenAcquisition, telemetryClient)
         {
@@ -32,6 +40,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [Route("{runId}")]
+        [HttpGet]
         public IActionResult Index(int runId)
         {
             try
@@ -60,16 +69,43 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        [Route("Submit")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Submit(int runId)
+        public IActionResult Submit(ClassifyCalculationRunScenerio1SubmitViewModel classifyCalculationRunScenerio1SubmitViewModel)
         {
-            if (!this.ModelState.IsValid)
+            try
             {
-                return RedirectToAction(ActionNames.Index, new { runId });
-            }
+                if (!this.ModelState.IsValid)
+                {
+                    var classifyCalculationRunViewModel = new ClassifyCalculationRunScenerio1ViewModel
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                        CalculatorRunStatus = new CalculatorRunStatusUpdateDto
+                        {
+                            RunId = classifyCalculationRunScenerio1SubmitViewModel.RunId,
+                            ClassificationId = 240008,
+                            CalcName = "Calculation Run 99",
+                            CreatedDate = "01 May 2024",
+                            CreatedTime = "12:09",
+                            FinancialYear = "2024-25",
+                        },
+                        BackLink = ControllerNames.CalculationRunDetails,
+                    };
 
-            return RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = runId });
+                    var errors = this.ModelState.Where(x => x.Value.Errors.Count > 0).Select(x => new { x.Key, x.Value.Errors.FirstOrDefault().ErrorMessage }).ToList();
+                    classifyCalculationRunViewModel.Errors = ErrorModelHelper.CreateErrorViewModel($"{errors.FirstOrDefault().Key}-Error", errors.FirstOrDefault().ErrorMessage);
+
+                    return this.View(ClassifyingCalculationRunIndexView, classifyCalculationRunViewModel);
+                }
+
+                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = classifyCalculationRunScenerio1SubmitViewModel.RunId });
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "An error occurred while processing the request.");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
         }
     }
 }

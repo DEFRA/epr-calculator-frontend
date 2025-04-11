@@ -1,15 +1,21 @@
 ﻿@using EPR.Calculator.Frontend.Constants
+@using EPR.Calculator.Frontend.Enums;
 @model EPR.Calculator.Frontend.ViewModels.ClassifyCalculationRunScenerio1ViewModel
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var BackLink = Model.BackLink;
+    var errors = Model.Errors;
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
 <partial name="_BackLinkPartialNew" model="(Model.BackLink, Model.CurrentUser,Model.CalculatorRunStatus.RunId)" />
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+    @if (errors != null)
+    {
+        <partial name="_ErrorBannerPartial" model="errors" />
+    }
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.ClassifyingCalculationRun, FormMethod.Post))
@@ -41,25 +47,27 @@
                         </table>
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--invisible">
 
-                        <div class="govuk-radios" data-module="govuk-radios">
-
+                        <div class="govuk-radios @(errors != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")" data-module="govuk-radios">
                             <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="initialRun" name="calcRun" type="radio" value="outputInitialRun">
+                                <input class="govuk-radios__input" id="initialRun" name="ClassifyRunType" type="radio" value="@ClassifyRunType.InitialRun">
                                 <label class="govuk-label govuk-radios__label" for="initialRun">
                                     <strong>Initial run</strong><br>
                                     <p class="govuk-body-s" style="margin-bottom: 0;">The first official mandatory run of the financial year, used as the baseline for all future recalculations. This run generates an initial billing file for invoicing.</p>
                                 </label>
                             </div>
-
-
                             <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="testRun" name="calcRun" type="radio" value="outputTestRun">
+                                <input class="govuk-radios__input" id="testRun" name="ClassifyRunType" type="radio" value="@ClassifyRunType.TestRun">
                                 <label class="govuk-label govuk-radios__label" for="testRun">
                                     <strong>Test run</strong><br>
                                     <p class="govuk-body-s" style="margin-bottom: 0;">An unofficial run to view the calculation results without generating a billing file for invoicing.</p>
                                 </label>
                             </div>
-
+                            @if (errors != null)
+                            {
+                                <p id="ClassifyRunType-Error" class="govuk-error-message">
+                                    <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
+                                </p>
+                            }
                         </div>
                     </fieldset>
                     <br>

@@ -4,6 +4,7 @@ using System.Security.Principal;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -25,6 +26,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
         private Mock<IHttpClientFactory> _mockClientFactory;
         private Mock<ILogger<ClassifyingCalculationRunScenario1Controller>> _mockLogger;
+        private TelemetryClient _mockTelemetryClient;
 
         public ClassifyingCalculationRunControllerTests()
         {
@@ -40,15 +42,15 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         [TestInitialize]
         public void Setup()
         {
-            _mockClientFactory = new Mock<IHttpClientFactory>();
-            _mockLogger = new Mock<ILogger<ClassifyingCalculationRunScenario1Controller>>();
+            this._mockClientFactory = new Mock<IHttpClientFactory>();
+            this._mockLogger = new Mock<ILogger<ClassifyingCalculationRunScenario1Controller>>();
+            this._mockTelemetryClient = new TelemetryClient();
         }
 
         [TestMethod]
         public async Task Index_ReturnsView_WhenApiCallIsSuccessful()
         {
             // Arrange
-            var mockClient = new TelemetryClient();
             var identity = new GenericIdentity("TestUser");
             identity.AddClaim(new Claim("name", "TestUser"));
             var principal = new ClaimsPrincipal(identity);
@@ -62,7 +64,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             };
 
             var controller = new ClassifyingCalculationRunScenario1Controller(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, mockClient);
+                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, this._mockTelemetryClient);
             controller.ControllerContext = new ControllerContext
             {
                 HttpContext = context
@@ -84,6 +86,69 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.AreEqual(calcName, model.CalculatorRunStatus.CalcName);
             Assert.AreEqual("12:09", model.CalculatorRunStatus.CreatedTime);
             Assert.AreEqual("01 May 2024", model.CalculatorRunStatus.CreatedDate);
+        }
+
+        [TestMethod]
+        public async Task Submit_Post_ValidModelState_RedirectsToClassifyRunConfirmation()
+        {
+            // Arrange
+            var runId = Fixture.Create<int>();
+
+            var submitModel = Fixture.Create<ClassifyCalculationRunScenerio1SubmitViewModel>() with { RunId = runId, ClassifyRunType = ClassifyRunType.TestRun };
+
+            var controller = new ClassifyingCalculationRunScenario1Controller(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, this._mockTelemetryClient);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
+            // Act
+            var result = controller.Submit(submitModel);
+
+            // Assert
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.Index, redirectResult.ActionName);
+            Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, redirectResult.ControllerName);
+            Assert.AreEqual(runId, redirectResult.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public async Task Submit_Post_InValidModelState_RedirectsToIndex()
+        {
+            // Arrange
+            var submitModel = Fixture.Create<ClassifyCalculationRunScenerio1SubmitViewModel>();
+            var errorMessage = Fixture.Create<string>();
+
+            var controller = new ClassifyingCalculationRunScenario1Controller(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, this._mockTelemetryClient);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
+            controller.ModelState.AddModelError("Test", errorMessage);
+
+            // Act
+            var result = controller.Submit(submitModel) as ViewResult;
+            var model = result.Model as ClassifyCalculationRunScenerio1ViewModel;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
+            Assert.IsNotNull(model);
+            Assert.AreEqual(errorMessage, model.Errors.ErrorMessage);
+            Assert.AreEqual(submitModel.RunId, model.CalculatorRunStatus.RunId);
+        }
+
+        [TestMethod]
+        public async Task Submit_Post_InValidSubmitModel_RedirectsToStandardError()
+        {
+            // Arrange
+            var controller = new ClassifyingCalculationRunScenario1Controller(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, this._mockTelemetryClient);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
+            // Act
+            var result = controller.Submit(null) as RedirectToActionResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+            Assert.AreEqual("StandardError", result.ControllerName);
         }
 
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)
