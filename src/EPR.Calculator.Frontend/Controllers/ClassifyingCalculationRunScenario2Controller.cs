@@ -14,20 +14,15 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class ClassifyingCalculationRunScenario2Controller : BaseController
     {
-        private readonly ILogger<ClassifyingCalculationRunScenario2Controller> logger;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ClassifyingCalculationRunScenario2Controller"/> class.
         /// </summary>
         /// <param name="configuration">The configuration settings.</param>
-        /// <param name="clientFactory">The HTTP client factory.</param>
-        /// <param name="logger">The logger instance.</param>
         /// <param name="tokenAcquisition">token acquisition.</param>
         /// <param name="telemetryClient">telemetry client.</param>
-        public ClassifyingCalculationRunScenario2Controller(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyingCalculationRunScenario2Controller> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
+        public ClassifyingCalculationRunScenario2Controller(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
             : base(configuration, tokenAcquisition, telemetryClient)
         {
-            this.logger = logger;
         }
 
         /// <summary>
