@@ -36,7 +36,6 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         public void CanSetAndGetClassifyRunType()
         {
             // Arrange
-
             var testValue = Fixture.Create<ClassifyRunType?>();
 
             // Act
