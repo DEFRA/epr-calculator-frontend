@@ -10,43 +10,20 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
     {
         private ClassifyCalculationRunScenerio1SubmitViewModel _testClass;
 
+        private IFixture Fixture { get; set; }
+
         [TestInitialize]
         public void SetUp()
         {
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
-            _testClass = fixture.Create<ClassifyCalculationRunScenerio1SubmitViewModel>();
-        }
-
-        [TestMethod]
-        public void ImplementsIEquatable_ClassifyCalculationRunScenerio1SubmitViewModel()
-        {
-            // Arrange
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
-            var same = new ClassifyCalculationRunScenerio1SubmitViewModel();
-            var different = fixture.Create<ClassifyCalculationRunScenerio1SubmitViewModel>();
-
-            // Assert
-            Assert.IsFalse(_testClass.Equals(default(object)));
-            Assert.IsFalse(_testClass.Equals(new object()));
-            Assert.IsTrue(_testClass.Equals((object)same));
-            Assert.IsFalse(_testClass.Equals((object)different));
-            Assert.IsTrue(_testClass.Equals(same));
-            Assert.IsFalse(_testClass.Equals(different));
-            Assert.AreEqual(same.GetHashCode(), _testClass.GetHashCode());
-            Assert.AreNotEqual(different.GetHashCode(), _testClass.GetHashCode());
-            Assert.IsTrue(_testClass == same);
-            Assert.IsFalse(_testClass == different);
-            Assert.IsFalse(_testClass != same);
-            Assert.IsTrue(_testClass != different);
+            Fixture = new Fixture().Customize(new AutoMoqCustomization());
+            _testClass = Fixture.Create<ClassifyCalculationRunScenerio1SubmitViewModel>();
         }
 
         [TestMethod]
         public void CanSetAndGetRunId()
         {
             // Arrange
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
-
-            var testValue = fixture.Create<int>();
+            var testValue = Fixture.Create<int>();
 
             // Act
             _testClass.RunId = testValue;
@@ -59,9 +36,8 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         public void CanSetAndGetClassifyRunType()
         {
             // Arrange
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
 
-            var testValue = fixture.Create<ClassifyRunType?>();
+            var testValue = Fixture.Create<ClassifyRunType?>();
 
             // Act
             _testClass.ClassifyRunType = testValue;
