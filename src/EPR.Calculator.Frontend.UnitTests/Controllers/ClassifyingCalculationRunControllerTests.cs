@@ -128,6 +128,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var result = controller.Submit(submitModel) as ViewResult;
             var model = result.Model as ClassifyCalculationRunScenerio1ViewModel;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
             Assert.IsNotNull(model);
@@ -146,6 +147,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Act
             var result = controller.Submit(null) as RedirectToActionResult;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
