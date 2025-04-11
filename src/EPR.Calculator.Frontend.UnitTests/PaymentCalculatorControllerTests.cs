@@ -96,7 +96,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             var returnedModel = viewResult.Model as AcceptInvoiceInstructionsViewModel;
             Assert.IsNotNull(returnedModel);
             Assert.IsFalse(returnedModel.AcceptAll);
-            Assert.IsTrue(controller.ModelState.ContainsKey("AcceptAll"));
+            var error = returnedModel.Errors.SingleOrDefault(e => e.DOMElementId == nameof(model.AcceptAll));
+            Assert.IsNotNull(error);
         }
 
         [TestMethod]
