@@ -323,14 +323,27 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task Index_UsesConfigWhenFinancialYearMissingFromSession()
+        public async Task Index_UsesConfigWhenFeatureFlagIsDisabled()
         {
             // Arrange
             var configValue = "This value comes from the config.";
             this.Configuration
                 .GetSection("LapcapSettings")["ParameterYear"] = configValue;
             this.Configuration
-                .GetSection("FeatureManagement")["ShowFinancialYear"] = true.ToString();
+                .GetSection("FeatureManagement")["ShowFinancialYear"] = false.ToString(); // feature disabled
+
+            // Setup SendAsync mock
+            this.MockMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent("mock response")
+                });
 
             // Act
             var result = await TestClass.Index(new LapcapRefreshViewModel());
@@ -338,7 +351,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             this.MockMessageHandler.Protected().Verify(
                 "SendAsync",
-                Times.Once(), ItExpr.Is<HttpRequestMessage>(m =>
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(m =>
                     m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{configValue}\"")),
                 ItExpr.IsAny<CancellationToken>());
         }
@@ -347,17 +361,34 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task Index_RedirectToErrorWhenNoFinancialYearInEitherSessionOrConfig()
         {
             // Arrange
-            var configValue = "This value comes from the config.";
             this.Configuration
                 .GetSection("LapcapSettings")["ParameterYear"] = null;
             this.Configuration
                 .GetSection("FeatureManagement")["ShowFinancialYear"] = true.ToString();
 
+            // Clear financial year from session
+            this.MockSesion.Object.Remove(SessionConstants.FinancialYear); // Optional if using TryGetValue below
+
+            var sessionMock = new Mock<ISession>();
+            sessionMock.Setup(s => s.TryGetValue(SessionConstants.FinancialYear, out It.Ref<byte[]>.IsAny))
+                       .Returns(false);
+
+            var httpContextMock = new Mock<HttpContext>();
+            httpContextMock.Setup(c => c.Session).Returns(sessionMock.Object);
+
+            var controller = TestClass;
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContextMock.Object
+            };
+
             // Act
-            var result = await TestClass.Index(new LapcapRefreshViewModel());
+            var result = await controller.Index(new LapcapRefreshViewModel());
 
             // Assert
-            Assert.AreEqual((result as RedirectToActionResult).ControllerName, "StandardError");
+            var redirect = result as RedirectToActionResult;
+            Assert.IsNotNull(redirect);
+            Assert.AreEqual("StandardError", redirect.ControllerName);
         }
     }
 }
