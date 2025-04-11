@@ -11,6 +11,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="ClassifyingCalculationRunScenario2Controller"/> class.
     /// </summary>
+    [Route("[controller]")]
     public class ClassifyingCalculationRunScenario2Controller : BaseController
     {
         private readonly ILogger<ClassifyingCalculationRunScenario2Controller> logger;
@@ -34,32 +35,25 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId"> runId.</param>
         /// <returns>The index view.</returns>
-        [Route("ClassifyingCalculationRunScenario2/{runId}")]
+        [Route("PostFinalClassification/{runId}")]
+        [HttpGet]
         public IActionResult Index(int runId)
         {
-            try
+            var classifyCalculationRunViewModel = new ClassifyCalculationRunScenerio2ViewModel
             {
-                var classifyCalculationRunViewModel = new ClassifyCalculationRunScenerio2ViewModel
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CalculatorRunStatus = new CalculatorRunStatusUpdateDto
                 {
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    CalculatorRunStatus = new CalculatorRunStatusUpdateDto
-                    {
-                        RunId = 240008,
-                        ClassificationId = 3,
-                        CalcName = "Calculation run 99",
-                        CreatedDate = "01 May 2024",
-                        CreatedTime = "12:09",
-                        FinancialYear = "2024-25",
-                    },
-                };
+                    RunId = 240008,
+                    ClassificationId = 3,
+                    CalcName = "Calculation run 99",
+                    CreatedDate = "01 May 2024",
+                    CreatedTime = "12:09",
+                    FinancialYear = "2024-25",
+                },
+            };
 
-                return this.View(ViewNames.ClassifyingCalculationRunScenario2Index, classifyCalculationRunViewModel);
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "An error occurred while processing the request.");
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
+            return this.View(ViewNames.ClassifyingCalculationRunScenario2Index, classifyCalculationRunViewModel);
         }
     }
 }

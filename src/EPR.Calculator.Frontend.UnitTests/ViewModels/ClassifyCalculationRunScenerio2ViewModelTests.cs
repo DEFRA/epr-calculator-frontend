@@ -31,21 +31,6 @@
         }
 
         [TestMethod]
-        public void CanSetAndGetBackLink()
-        {
-            // Arrange
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
-
-            var testValue = fixture.Create<string>();
-
-            // Act
-            _testClass.BackLink = testValue;
-
-            // Assert
-            Assert.AreEqual(testValue, _testClass.BackLink);
-        }
-
-        [TestMethod]
         public void CanSetAndGetErrors()
         {
             // Arrange

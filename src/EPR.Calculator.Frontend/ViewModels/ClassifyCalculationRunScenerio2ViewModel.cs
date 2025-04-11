@@ -10,11 +10,6 @@ namespace EPR.Calculator.Frontend.ViewModels
     public record ClassifyCalculationRunScenerio2ViewModel : ViewModelCommonData
     {
         /// <summary>
-        /// Gets or sets the back link.
-        /// </summary>
-        public string BackLink { get; set; } = CommonConstants.DashBoard;
-
-        /// <summary>
         /// Gets or sets the errors.
         /// </summary>
         public ErrorViewModel? Errors { get; set; }
@@ -23,5 +18,10 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets the data for the run status update.
         /// </summary>
         public required CalculatorRunStatusUpdateDto CalculatorRunStatus { get; init; }
+
+        /// <summary>
+        /// Gets or sets the selected calculation run option.
+        /// </summary>
+        public string? SelectedCalcRunOption { get; set; }
     }
 }

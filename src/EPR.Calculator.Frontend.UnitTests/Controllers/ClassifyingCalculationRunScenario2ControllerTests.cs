@@ -66,22 +66,6 @@
         }
 
         [TestMethod]
-        public async Task IndexAsync_ReturnsRedirect_WhenApiCallFails()
-        {
-            // Arrange
-            var runId = 1;
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.BadRequest, string.Empty);
-
-            // Act
-            var result = _controller.Index(runId);
-
-            // Assert
-            var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
-        }
-
-        [TestMethod]
         public async Task IndexAsync_ReturnsView_WhenRunExists()
         {
             // Arrange
