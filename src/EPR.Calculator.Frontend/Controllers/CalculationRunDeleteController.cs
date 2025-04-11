@@ -42,7 +42,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">The ID of the calculation run.</param>
         /// <returns>The delete confirmation view.</returns>
-        [Route("delete-confirmation/{runId}")]
+        [Route("DeleteConfirmation")]
         public IActionResult Index(int runId)
         {
             var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
@@ -63,7 +63,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Displays the calculate run delete confirmation screen.
         /// </summary>
         /// <returns>The delete confirmation success view.</returns>
-        [Route("confirmation-success")]
+        [Route("ConfirmationSuccess")]
         public IActionResult DeleteConfirmationSuccess()
         {
             var currentUser = CommonUtil.GetUserName(this.HttpContext);
