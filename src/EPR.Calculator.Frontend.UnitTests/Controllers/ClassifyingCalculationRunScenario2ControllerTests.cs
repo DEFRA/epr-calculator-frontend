@@ -53,8 +53,6 @@
         {
             _controller = new ClassifyingCalculationRunScenario2Controller(
                _configuration,
-               _mockHttpClientFactory.Object,
-               _mockLogger.Object,
                _mockTokenAcquisition.Object,
                _telemetryClient)
             {
