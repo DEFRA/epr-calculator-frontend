@@ -38,6 +38,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The classify run confirmation index view.</returns>
         [Authorize(Roles = "SASuperUser")]
         [Route("ClassifyRunConfirmation/{runId}")]
+        [HttpGet]
         public IActionResult Index(int runId)
         {
             try
