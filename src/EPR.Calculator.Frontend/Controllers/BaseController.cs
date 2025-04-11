@@ -33,29 +33,23 @@ namespace EPR.Calculator.Frontend.Controllers
 #pragma warning restore SA1600
         {
             this.TelemetryClient.TrackTrace("AcquireToken");
-            var token = this.HttpContext?.Session?.GetString("accessToken");
-            if (string.IsNullOrEmpty(token))
+            try
             {
-                try
-                {
-                    var scope = this.Configuration.GetSection("DownstreamApi:Scopes").Value!;
-                    this.TelemetryClient.TrackTrace($"GetAccessTokenForUserAsync with scope- {scope}");
-                    token = await this.tokenAcquisition.GetAccessTokenForUserAsync([scope]);
-                }
-                catch (Exception ex)
-                {
-                    this.TelemetryClient.TrackException(ex);
-                    throw;
-                }
+                var scope = this.Configuration.GetSection("DownstreamApi:Scopes").Value!;
+                this.TelemetryClient.TrackTrace($"GetAccessTokenForUserAsync with scope- {scope}");
 
-                this.TelemetryClient.TrackTrace("after generating..");
-                this.HttpContext?.Session?.SetString("accessToken", token);
+                // Acquire token directly for the current request
+                var token = await this.tokenAcquisition.GetAccessTokenForUserAsync([scope]);
+                var accessToken = $"Bearer {token}";
+                this.TelemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
+                this.TelemetryClient.TrackTrace($"accessToken length {accessToken.Length}", SeverityLevel.Information);
+                return accessToken;
             }
-
-            var accessToken = $"Bearer {token}";
-            this.TelemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
-            this.TelemetryClient.TrackTrace($"accessToken length {accessToken.Length}", SeverityLevel.Information);
-            return accessToken;
+            catch (Exception ex)
+            {
+                this.TelemetryClient.TrackException(ex);
+                throw;
+            }
         }
 
         /// <summary>
