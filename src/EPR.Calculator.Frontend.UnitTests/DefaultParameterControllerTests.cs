@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using AutoFixture;
+using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Extensions;
@@ -9,6 +10,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
@@ -148,6 +150,70 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task DefaultParameterController_ParameterYearMissing_RedirectsToDashboard()
+        {
+            // Arrange
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+
+            var httpClient = new HttpClient();
+            mockHttpClientFactory
+                .Setup(f => f.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            var mockConfigSection = new Mock<IConfigurationSection>();
+            mockConfigSection.Setup(x => x.Value).Returns("https://mock.api");
+
+            var mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration.Setup(c => c.GetSection(ConfigSection.ParameterSettings))
+                             .Returns(mockConfigSection.Object);
+            mockConfiguration.Setup(c => c.GetSection(ConfigSection.ParameterSettings)
+                                          .GetSection(ConfigSection.DefaultParameterSettingsApi))
+                             .Returns(mockConfigSection.Object);
+
+            var controller = new TestableDefaultParametersController(
+                mockConfiguration.Object,
+                mockHttpClientFactory.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient());
+
+            var mockContext = new Mock<HttpContext>();
+            mockContext.Setup(c => c.User.Identity.Name).Returns("TestUser");
+            mockContext.Setup(c => c.Session).Returns(TestMockUtils.BuildMockSession(Fixture).Object);
+
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockContext.Object
+            };
+
+            // Act
+            var result = await controller.Index();
+
+            // Assert
+            var redirect = result as RedirectToActionResult;
+            Assert.IsNotNull(redirect);
+            Assert.AreEqual(ActionNames.Index, redirect.ActionName);
+            Assert.AreEqual("Dashboard", redirect.ControllerName);
+        }
+
+        private class TestableDefaultParametersController : DefaultParametersController
+        {
+            public TestableDefaultParametersController(
+                IConfiguration configuration,
+                IHttpClientFactory clientFactory,
+                ITokenAcquisition tokenAcquisition,
+                TelemetryClient telemetryClient)
+                : base(configuration, clientFactory, tokenAcquisition, telemetryClient)
+            {
+            }
+
+            protected override string GetFinancialYear(string configSection)
+            {
+                throw new ArgumentNullException("ParameterYear", "ParameterYear is null. Check the configuration settings.");
+            }
         }
     }
 }

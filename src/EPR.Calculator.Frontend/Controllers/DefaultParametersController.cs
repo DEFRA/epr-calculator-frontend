@@ -103,6 +103,11 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception ex)
             {
+                if (ex.Message != null && ex.Message.Contains("ParameterYear"))
+                {
+                    return this.RedirectToAction(ActionNames.Index, "Dashboard");
+                }
+
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }
         }
