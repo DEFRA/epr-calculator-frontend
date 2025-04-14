@@ -120,9 +120,11 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("Confirmation")]
         public IActionResult Confirmation(string calculationName)
         {
-            var calculationRunConfirmationViewModel = new CalculationRunConfirmationViewModel
+            var calculationRunConfirmationViewModel = new ConfirmationViewModel
             {
-                CalculationName = calculationName ?? string.Empty,
+                Title = CalculatorRunNames.Title,
+                Body = calculationName ?? string.Empty,
+                AdditionalParagraphs = CalculatorRunNames.AdditionalParagraphs.ToList(),
             };
 
             return this.View(ViewNames.CalculationRunConfirmation, calculationRunConfirmationViewModel);
