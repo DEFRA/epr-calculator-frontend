@@ -12,7 +12,8 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Controller responsible for displaying the details of a calculation run.
     /// </summary>
-    [Route("payment-calculator")]
+    [Authorize(Roles = "SASuperUser")]
+    [Route("PaymentCalculator")]
     public class CalculationRunDetailsNewController : BaseController
     {
         private readonly IConfiguration _configuration;
@@ -41,7 +42,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">Run ID.</param>
         /// <returns>View. </returns>
-        [Route("rundetails/{runId}")]
+        [Authorize(Roles = "SASuperUser")]
+        [Route("RunDetails/")]
         public Task<IActionResult> IndexAsync(int runId)
         {
             // Get the calculation run details from the API

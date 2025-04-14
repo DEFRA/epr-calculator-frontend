@@ -101,6 +101,8 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var accessToken = await this.AcquireToken();
 
+            this.HttpContext.Session.SetString(SessionConstants.FinancialYear, financialYear);
+
             var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
                 .GetSection(ConfigSection.DashboardCalculatorRunApi)
                 .Value;

@@ -1,4 +1,5 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels
+@using EPR.Calculator.Frontend.Constants
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunDetailsNewViewModel
@@ -14,13 +15,13 @@
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row calculator-details">
         <div class="govuk-grid-column-two-thirds">
-            @using (Html.BeginForm("ActionToBeImplemented", "CalculationRunDetailsNew", FormMethod.Post))
+            @using (Html.BeginForm(ActionNames.DeleteConfirmation, ControllerNames.CalculationRunDelete, new { runId = @Model.Data.RunId }))
             {
                 @Html.AntiForgeryToken()
 
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
-                        <legend class="govuk-caption-l">
+                        <legend id="approval-code-hint" class="govuk-caption-l">
                             Calculation run @Model.Data.RunId
                         </legend>                        
                         <h1 class="govuk-heading-l">Calculation run details</h1>
@@ -28,7 +29,7 @@
                         <h3 class="govuk-body-m">Download the results file to review the calculation run offline. When you are ready, return to classify or delete it.</h3>
 
                         <table class="govuk-table" aria-describedby="table-description">
-                            <caption class="govuk-visually-hidden">
+                            <caption id="table-description" class="govuk-visually-hidden">
                                 Details of the calculation run including financial year, calculation ID, run date, and created by.
                             </caption>
                             <tbody class="govuk-table__body">
@@ -82,13 +83,10 @@
                 </div>
 
                 <div class="govuk-button-group">
-                    <div class="govuk-button-group">
-                        <button class="govuk-button" data-module="govuk-button">
-                            Continue
-                        </button>
-                    </div>
-
-                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link govuk-!-margin-left-4">Return to the dashboard</a>
+                    <button class="govuk-button" data-module="govuk-button">
+                        Continue
+                    </button>
+                    <a class="govuk-link" asp-action="Index" asp-controller="Dashboard">@ActionLinkLabels.ReturnToDashBoard</a>
                 </div>
             }
         </div>

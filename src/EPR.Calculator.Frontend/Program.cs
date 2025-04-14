@@ -11,6 +11,7 @@ using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 
 var builder = WebApplication.CreateBuilder(args);
+var environmentName = builder.Environment.EnvironmentName?.ToLower() ?? string.Empty;
 
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd")
     .EnableTokenAcquisitionToCallDownstreamApi(builder.Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' '))
@@ -47,9 +48,12 @@ builder.Services.AddSession(options =>
     options.Cookie.Name = builder.Configuration.GetValue<string>("SessionCookieName");
 });
 
-builder.Services.AddDataProtection()
+if (environmentName != EPR.Calculator.Frontend.Constants.Environment.Local.ToLower())
+{
+    builder.Services.AddDataProtection()
     .PersistKeysToAzureBlobStorage(builder.Configuration.GetSection("BlobStorage:ConnectionString").Value, SessionConstants.Paycal, SessionConstants.PaycalDataProtection)
     .SetApplicationName(SessionConstants.PaycalAppName);
+}
 
 builder.Services.AddHttpClient();
 
@@ -60,7 +64,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler("/StandardError/Index");
 
-if (!app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment() && environmentName != EPR.Calculator.Frontend.Constants.Environment.Local.ToLower())
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();

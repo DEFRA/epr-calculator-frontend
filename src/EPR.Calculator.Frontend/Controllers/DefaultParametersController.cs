@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using EPR.Calculator.Frontend.Common;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
@@ -58,9 +59,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 var accessToken = await this.AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
-                var year = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.ParameterYear).Value;
+                var parameterYear = this.GetFinancialYear(ConfigSection.ParameterSettings);
 
-                var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, year));
+                var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, parameterYear));
                 var response = await client.GetAsync(uri);
 
                 if (response.IsSuccessStatusCode)
