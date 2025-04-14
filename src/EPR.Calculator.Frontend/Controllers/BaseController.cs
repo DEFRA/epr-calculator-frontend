@@ -41,7 +41,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 // Acquire token directly for the current request
                 var token = await this.tokenAcquisition.GetAccessTokenForUserAsync([scope]);
                 var accessToken = $"Bearer {token}";
-                this.TelemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
                 this.TelemetryClient.TrackTrace($"accessToken length {accessToken.Length}", SeverityLevel.Information);
                 return accessToken;
             }
