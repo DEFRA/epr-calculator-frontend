@@ -87,13 +87,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         BackLink = ControllerNames.CalculationRunDetails,
                     };
 
-                    classifyCalculationRunViewModel.Errors = this.ModelState
-                                                                    .Where(x => x.Value!.Errors.Count > 0)
-                                                                    .SelectMany(x => x.Value!.Errors
-                                                                        .Select(e => ErrorModelHelper.CreateErrorViewModel(
-                                                                            $"{x.Key}-Error",
-                                                                            e.ErrorMessage))
-                                                                    ).ToList();
+                    classifyCalculationRunViewModel.Errors = ModelStateHelper.GetErrors(this.ModelState);
 
                     return this.View(ClassifyingCalculationRunIndexView, classifyCalculationRunViewModel);
                 }
