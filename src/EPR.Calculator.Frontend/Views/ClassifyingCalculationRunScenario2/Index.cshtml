@@ -3,12 +3,11 @@
 
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-    var BackLink = CommonConstants.DashBoard;
+    Layout = "~/Views/Shared/_Layout.cshtml";    
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
-<partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
+<partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">

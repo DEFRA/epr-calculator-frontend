@@ -48,6 +48,12 @@
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--invisible">
 
                         <div class="govuk-radios @(errors != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")" data-module="govuk-radios">
+                            @if (errors != null)
+                            {
+                                <p id="ClassifyRunType-Error" class="govuk-error-message">
+                                    <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
+                                </p>
+                            }
                             <div class="govuk-radios__item">
                                 <input class="govuk-radios__input" id="initialRun" name="ClassifyRunType" type="radio" value="@ClassifyRunType.InitialRun">
                                 <label class="govuk-label govuk-radios__label" for="initialRun">
@@ -62,12 +68,7 @@
                                     <p class="govuk-body-s" style="margin-bottom: 0;">An unofficial run to view the calculation results without generating a billing file for invoicing.</p>
                                 </label>
                             </div>
-                            @if (errors != null)
-                            {
-                                <p id="ClassifyRunType-Error" class="govuk-error-message">
-                                    <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
-                                </p>
-                            }
+                            
                         </div>
                     </fieldset>
                     <br>
