@@ -6,6 +6,11 @@
     public static class ErrorMessages
     {
         /// <summary>
+        /// Error Title.
+        /// </summary>
+        public const string ErrorSummaryTitle = "There is a problem";
+
+        /// <summary>
         /// Error message for calculation run name not provided.
         /// </summary>
         public const string CalculationRunNameEmpty = "Enter a name for this calculation";

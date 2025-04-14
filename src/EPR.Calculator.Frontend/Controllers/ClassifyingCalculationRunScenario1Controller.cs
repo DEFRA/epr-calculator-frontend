@@ -30,12 +30,11 @@ namespace EPR.Calculator.Frontend.Controllers
             this.logger = logger;
         }
 
-        [Route("{runId}")]
-        [HttpGet]
         /// </summary>
         /// <param name="runId"> runId.</param>
         /// <returns>The index view.</returns>
-        [Route("ClassifyingCalculationRunScenario1/{runId}")]
+        [Route("{runId}")]
+        [HttpGet]
         public IActionResult Index(int runId)
         {
             try
@@ -67,7 +66,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("Submit")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Submit(ClassifyCalculationRunScenerio1SubmitViewModel classifyCalculationRunScenerio1SubmitViewModel)
+        public IActionResult Submit(ClassifyCalculationRunScenerio1SubmitViewModel model)
         {
             try
             {
@@ -78,7 +77,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                         CalculatorRunStatus = new CalculatorRunStatusUpdateDto
                         {
-                            RunId = classifyCalculationRunScenerio1SubmitViewModel.RunId,
+                            RunId = model.RunId,
                             ClassificationId = 240008,
                             CalcName = "Calculation Run 99",
                             CreatedDate = "01 May 2024",
@@ -88,13 +87,21 @@ namespace EPR.Calculator.Frontend.Controllers
                         BackLink = ControllerNames.CalculationRunDetails,
                     };
 
-                    var errors = this.ModelState.Where(x => x.Value.Errors.Count > 0).Select(x => new { x.Key, x.Value.Errors.FirstOrDefault().ErrorMessage }).ToList();
-                    classifyCalculationRunViewModel.Errors = ErrorModelHelper.CreateErrorViewModel($"{errors.FirstOrDefault().Key}-Error", errors.FirstOrDefault().ErrorMessage);
+                    //var errors = this.ModelState.Where(x => x.Value.Errors.Count > 0).Select(x => new { x.Key, x.Value.Errors.FirstOrDefault().ErrorMessage }).ToList();
+                    //classifyCalculationRunViewModel.Errors = ErrorModelHelper.CreateErrorViewModel($"{errors.FirstOrDefault().Key}-Error", errors.FirstOrDefault().ErrorMessage);
+
+                    classifyCalculationRunViewModel.Errors = this.ModelState
+                                                                    .Where(x => x.Value.Errors.Count > 0)
+                                                                    .SelectMany(x => x.Value.Errors
+                                                                        .Select(e => ErrorModelHelper.CreateErrorViewModel(
+                                                                            $"{x.Key}-Error",
+                                                                            e.ErrorMessage))
+                                                                    ).ToList();
 
                     return this.View(ClassifyingCalculationRunIndexView, classifyCalculationRunViewModel);
                 }
 
-                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = classifyCalculationRunScenerio1SubmitViewModel.RunId });
+                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.RunId });
             }
             catch (Exception ex)
             {

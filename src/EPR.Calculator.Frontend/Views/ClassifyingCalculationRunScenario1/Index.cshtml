@@ -26,6 +26,7 @@
             {
                 @Html.AntiForgeryToken()
                 @Html.Hidden("RunId", Model.CalculatorRunStatus.RunId)
+                @Html.HiddenFor(m => m.CurrentUser)
 
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
@@ -52,11 +53,14 @@
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--invisible">
 
                         <div class="govuk-radios @(errors != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")" data-module="govuk-radios">
-                            @if (errors != null)
+                            @if (errors != null && errors.Any())
                             {
-                                <p id="ClassifyRunType-Error" class="govuk-error-message">
-                                    <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
-                                </p>
+                                @foreach (var error in errors)
+                                {
+                                    <p id="@error.DOMElementId" class="govuk-error-message">
+                                        <span class="govuk-visually-hidden">Error:</span> @error.ErrorMessage
+                                    </p>
+                                }
                             }
                             <div class="govuk-radios__item">
                                 <input class="govuk-radios__input" id="initialRun" name="ClassifyRunType" type="radio" value="@ClassifyRunType.InitialRun">
