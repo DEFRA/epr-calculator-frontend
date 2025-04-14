@@ -1,24 +1,28 @@
 ﻿using EPR.Calculator.Frontend.Models;
 using System.Diagnostics.CodeAnalysis;
-using static EPR.Calculator.Frontend.Constants.CommonEnums;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
     /// <summary>
-    /// The view model for the calculator run Details page.
+    /// The view model for the calculator run status update page.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public record CalculatorRunDetailsNewViewModel : ViewModelCommonData
+    public record CalculatorRunOverviewViewModel : ViewModelCommonData
     {
         /// <summary>
         /// Gets the data for the run status update.
         /// </summary>
-        public CalculatorRunDto Data { get; init; }
+        public required CalculatorRunDto Data { get; init; }
 
         /// <summary>
         /// Gets or sets download result URL.
         /// </summary>
         public Uri? DownloadResultURL { get; set; }
+
+        /// <summary>
+        /// Gets or sets download Drafted Billing File URL.
+        /// </summary>
+        public Uri? DownloadDraftBillingURL { get; set; }
 
         /// <summary>
         /// Gets or sets download error URL.
@@ -29,10 +33,5 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets download Timeout.
         /// </summary>
         public int? DownloadTimeout { get; set; }
-
-        /// <summary>
-        /// Gets or sets the selected calculation run option.
-        /// </summary>
-        public CalculationRunOption? SelectedCalcRunOption { get; set; }
     }
 }

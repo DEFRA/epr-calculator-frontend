@@ -40,19 +40,20 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">The ID of the calculation run.</param>
         /// <returns>The delete confirmation view.</returns>
-        [Route("DeleteConfirmation")]
+        [Route("{runId}")]
         public IActionResult Index(int runId)
         {
             var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
             {
                 RunId = runId,
-                CalcName = "Calculation Run Name",
+                CalcName = "Calculation Run 99",
                 ClassificationId = (int)RunClassification.DELETED,
             };
             var calculationRunDeleteViewModel = new CalculationRunDeleteViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 CalculatorRunStatusData = calculatorRunStatusUpdate,
+                BackLink = ControllerNames.CalculationRunDetails,
             };
             return this.View(ViewNames.CalculationRunDeleteIndex, calculationRunDeleteViewModel);
         }
@@ -61,7 +62,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Displays the calculate run delete confirmation screen.
         /// </summary>
         /// <returns>The delete confirmation success view.</returns>
-        [Route("ConfirmationSuccess")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmationSuccess()
         {
             var currentUser = CommonUtil.GetUserName(this.HttpContext);
