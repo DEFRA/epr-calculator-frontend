@@ -4,7 +4,6 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
@@ -18,7 +17,6 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="CalculationRunNameController"/> class.
     /// </summary>
-    [Authorize(Roles = "SASuperUser")]
     public class CalculationRunNameController : BaseController
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
@@ -44,7 +42,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Displays the index view for calculation run names.
         /// </summary>
         /// <returns>The index view.</returns>
-        [Authorize(Roles = "SASuperUser")]
         [Route("RunANewCalculation")]
         public IActionResult Index()
         {
@@ -62,7 +59,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="calculationRunModel">The model containing calculation run details.</param>
         /// <returns>The result of the action.</returns>
         [HttpPost]
-        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> RunCalculator(InitiateCalculatorRunModel calculationRunModel)
         {
             if (!this.ModelState.IsValid)
@@ -116,13 +112,14 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="calculationName">calculation run name.</param>
         /// <returns>The result of the action.</returns>
-        [Authorize(Roles = "SASuperUser")]
         [Route("Confirmation")]
         public IActionResult Confirmation(string calculationName)
         {
-            var calculationRunConfirmationViewModel = new CalculationRunConfirmationViewModel
+            var calculationRunConfirmationViewModel = new ConfirmationViewModel
             {
-                CalculationName = calculationName ?? string.Empty,
+                Title = CalculatorRunNames.Title,
+                Body = calculationName ?? string.Empty,
+                AdditionalParagraphs = CalculatorRunNames.AdditionalParagraphs.ToList(),
             };
 
             return this.View(ViewNames.CalculationRunConfirmation, calculationRunConfirmationViewModel);
