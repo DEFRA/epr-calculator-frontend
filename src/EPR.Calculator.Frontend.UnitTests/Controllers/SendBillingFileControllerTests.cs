@@ -58,5 +58,36 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(viewResult);
             Assert.IsInstanceOfType(viewResult.Model, typeof(SendBillingFileViewModel));
         }
+
+        [TestMethod]
+        public void Submit_ModelStateInvalid_RedirectsToIndex()
+        {
+            // Arrange
+            _controller.ModelState.AddModelError("Error", "Model state is invalid");
+            int runId = 1;
+
+            // Act
+            var result = _controller.Submit(runId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(runId, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public void Submit_ModelStateValid_RedirectsToBillingFileSuccess()
+        {
+            // Arrange
+            int runId = 1;
+
+            // Act
+            var result = _controller.Submit(runId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.BillingFileSuccess, result.ActionName);
+            Assert.AreEqual(ControllerNames.PaymentCalculator, result.ControllerName);
+        }
     }
 }

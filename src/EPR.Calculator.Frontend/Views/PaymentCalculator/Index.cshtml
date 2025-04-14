@@ -1,11 +1,16 @@
 ﻿@using EPR.Calculator.Frontend.Constants
+@using EPR.Calculator.Frontend.ViewModels
 @model EPR.Calculator.Frontend.ViewModels.AcceptInvoiceInstructionsViewModel
 
 @{
-    ViewData["Title"] = "Accept all invoice instructions";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    var backLinkModel = new BackLinkPartialViewModel
+            {
+                BackLink = Model.BackLink,
+                CurrentUser = Model.CurrentUser,
+                RunId = Model.RunId
+            };
 }
-<partial name="_BackLinkPartialNew" model="(Model.BackLink, Model.CurrentUser,Model.RunId)" />
+<partial name="_BackLinkPartialNew" model="backLinkModel" />
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <br />

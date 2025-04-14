@@ -1,5 +1,5 @@
-﻿using EPR.Calculator.Frontend.Controllers;
-using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using Moq;
+using static EPR.Calculator.Frontend.Constants.CommonEnums;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -61,6 +62,124 @@ namespace EPR.Calculator.Frontend.UnitTests
             var viewResult = result as ViewResult;
             Assert.IsNotNull(viewResult);
             Assert.IsInstanceOfType(viewResult.Model, typeof(CalculatorRunDetailsNewViewModel));
+        }
+
+        [TestMethod]
+        public void Submit_InvalidModelState_ReturnsRedirectToAction()
+        {
+            // Arrange
+            int runId = 1;
+            _controller.ModelState.AddModelError("Error", "Model error");
+
+            var model = new CalculatorRunDetailsNewViewModel()
+            {
+                Data = new Models.CalculatorRunDto()
+                {
+                    RunId = runId,
+                    RunName = "Test Run",
+                },
+                SelectedCalcRunOption = null
+            };
+
+            // Act
+            var result = _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+        }
+
+        [TestMethod]
+        public void Submit_ValidModelState_RedirectsToCorrectAction()
+        {
+            // Arrange
+            int runId = 1;
+            var selectedOption = CalculationRunOption.OutputClassify;
+
+            var model = new CalculatorRunDetailsNewViewModel()
+            {
+                Data = new Models.CalculatorRunDto()
+                {
+                    RunId = runId,
+                    RunName = "Test Run",
+                },
+                SelectedCalcRunOption = selectedOption
+            };
+
+            // Act
+            var result = _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.ClassifyingCalculationRun, result.ControllerName);
+        }
+
+        [TestMethod]
+        public void Submit_ValidModelState_OutputClassify_ReturnsRedirectToAction()
+        {
+            var model = new CalculatorRunDetailsNewViewModel()
+            {
+                Data = new Models.CalculatorRunDto()
+                {
+                    RunId = 1,
+                    RunName = "Test Run",
+                },
+                SelectedCalcRunOption = CalculationRunOption.OutputClassify
+            };
+
+            // Act
+            var result = _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.ClassifyingCalculationRun, result.ControllerName);
+            Assert.AreEqual(1, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public void Submit_ValidModelState_OutputDelete_ReturnsRedirectToAction()
+        {
+            var model = new CalculatorRunDetailsNewViewModel()
+            {
+                Data = new Models.CalculatorRunDto()
+                {
+                    RunId = 1,
+                    RunName = "Test Run",
+                },
+                SelectedCalcRunOption = CalculationRunOption.OutputDelete
+            };
+            // Act
+            var result = _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.CalculationRunDelete, result.ControllerName);
+            Assert.AreEqual(1, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public void Submit_ValidModelState_Default_ReturnsRedirectToAction()
+        {
+            var model = new CalculatorRunDetailsNewViewModel()
+            {
+                Data = new Models.CalculatorRunDto()
+                {
+                    RunId = 1,
+                    RunName = "Test Run",
+                },
+                SelectedCalcRunOption = (CalculationRunOption)999
+            };
+
+            // Act
+            var result = _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(1, result.RouteValues["runId"]);
         }
     }
 }

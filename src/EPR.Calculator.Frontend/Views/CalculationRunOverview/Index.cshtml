@@ -4,12 +4,16 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunOverviewViewModel
 @{
-    ViewData["Title"] = @ActionLinkLabels.IndexTitle;
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    var backLinkModel = new BackLinkPartialViewModel
+            {
+                BackLink = Model.BackLink,
+                CurrentUser = Model.CurrentUser,
+                RunId = Model.Data.RunId
+            };
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
-<partial name="_BackLinkPartialNew" model="(Model.BackLink, Model.CurrentUser,Model.Data.RunId)" />
+<partial name="_BackLinkPartialNew" model="backLinkModel" />
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row CalculationRunOverview">
         <div class="govuk-grid-column-two-thirds">

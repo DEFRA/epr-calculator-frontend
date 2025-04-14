@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using AutoFixture;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
@@ -40,6 +38,27 @@ namespace EPR.Calculator.Frontend.UnitTests
                     HttpContext = _mockHttpContext.Object
                 }
             };
+        }
+
+        [TestMethod]
+        public void Index_ReturnsViewResult_WithAcceptInvoiceInstructionsViewModel()
+        {
+            // Arrange
+            int runId = 1;
+            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
+            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+
+            // Act
+            var result = _controller.Index(runId) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Model, typeof(AcceptInvoiceInstructionsViewModel));
+            var model = result.Model as AcceptInvoiceInstructionsViewModel;
+            Assert.AreEqual(runId, model.RunId);
+            Assert.IsFalse(model.AcceptAll);
+            Assert.AreEqual("Calculation Run 99", model.CalculationRunTitle);
+            Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, model.BackLink);
         }
 
         [TestMethod]

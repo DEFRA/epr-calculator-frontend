@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Controllers;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -61,6 +62,40 @@ namespace EPR.Calculator.Frontend.UnitTests
             var viewResult = result as ViewResult;
             Assert.IsNotNull(viewResult);
             Assert.IsInstanceOfType(viewResult.Model, typeof(CalculatorRunOverviewViewModel));
+        }
+
+        [TestMethod]
+        public void Submit_ModelStateInvalid_RedirectsToIndex()
+        {
+            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
+            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+
+            // Arrange
+            _controller.ModelState.AddModelError("Error", "Model state is invalid");
+
+            // Act
+            var result = _controller.Submit(1) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(1, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public void Submit_ModelStateValid_RedirectsToSendBillingFile()
+        {
+            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
+            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+
+            // Act
+            var result = _controller.Submit(1) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.SendBillingFile, result.ControllerName);
+            Assert.AreEqual(1, result.RouteValues["runId"]);
         }
     }
 }

@@ -3,14 +3,19 @@
 @model SendBillingFileViewModel;
 
 @{
-    Layout = "_Layout";
+    var backLinkModel = new BackLinkPartialViewModel
+            {
+                BackLink = Model.BackLink,
+                CurrentUser = Model.CurrentUser,
+                RunId = Model.RunId
+            };
 }
-<partial name="_BackLinkPartialNew" model="(Model.BackLink, Model.CurrentUser,Model.RunId)" />
+<partial name="_BackLinkPartialNew" model="backLinkModel" />
 <div class="govuk-width-container ">
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            &nbsp; &nbsp; <br>
+            <br />
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.SendBillingFile, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()

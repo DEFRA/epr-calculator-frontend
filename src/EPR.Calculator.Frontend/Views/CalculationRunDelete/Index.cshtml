@@ -3,11 +3,15 @@
 
 @model CalculationRunDeleteViewModel
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    var backLinkModel = new BackLinkPartialViewModel
+            {
+                BackLink = Model.BackLink,
+                CurrentUser = Model.CurrentUser,
+                RunId = Model.CalculatorRunStatusData.RunId
+            };
 }
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
-    <partial name="_BackLinkPartialNew" model="(Model.BackLink, Model.CurrentUser, Model.CalculatorRunStatusData.RunId)" />
+    <partial name="_BackLinkPartialNew" model="backLinkModel" />
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <span class="govuk-caption-xl">@Model.CalculatorRunStatusData.CalcName </span><br>

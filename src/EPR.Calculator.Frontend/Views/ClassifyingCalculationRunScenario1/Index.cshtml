@@ -3,14 +3,17 @@
 @model EPR.Calculator.Frontend.ViewModels.ClassifyCalculationRunScenerio1ViewModel
 
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-    var BackLink = Model.BackLink;
+     var backLinkModel = new BackLinkPartialViewModel
+         {
+             BackLink = Model.BackLink,
+             CurrentUser = Model.CurrentUser,
+             RunId = Model.CalculatorRunStatus.RunId
+         };
     var errors = Model.Errors;
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
-<partial name="_BackLinkPartialNew" model="(Model.BackLink, Model.CurrentUser,Model.CalculatorRunStatus.RunId)" />
+<partial name="_BackLinkPartialNew" model="backLinkModel" />
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     @if (errors != null)
     {
