@@ -4,7 +4,6 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
@@ -16,7 +15,6 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="LocalAuthorityDisposalCostsController"/> class.
     /// </summary>
-    [Authorize(Roles = "SASuperUser")]
     public class LocalAuthorityDisposalCostsController : BaseController
     {
         private readonly IHttpClientFactory clientFactory;
@@ -61,7 +59,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// An IActionResult that renders the LocalAuthorityDisposalCostsIndex view with grouped local authority data if the request is successful.
         /// Redirects to the StandardErrorIndex action in case of an error.
         /// </returns>
-        [Authorize(Roles = "SASuperUser")]
         [Route("ViewLocalAuthorityDisposalCosts")]
         public IActionResult Index()
         {
@@ -69,8 +66,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var lapcapRunApi = this.Configuration.GetSection(ConfigSection.LapcapSettings).GetSection(ConfigSection.LapcapSettingsApi).Value;
 
-                var year = this.Configuration.GetSection(ConfigSection.LapcapSettings)
-                    .GetSection(ConfigSection.ParameterYear).Value;
+                var year = this.GetFinancialYear(ConfigSection.LapcapSettings);
 
                 if (string.IsNullOrWhiteSpace(year) || string.IsNullOrWhiteSpace(lapcapRunApi))
                 {

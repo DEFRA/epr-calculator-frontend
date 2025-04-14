@@ -130,6 +130,7 @@
         /// </summary>
         public const string BillingConfirmationSuccess = "~/Views/PaymentCalculator/BillingConfirmation.cshtml";
 
+        /// <summary>
         /// classifying calculation run controller scenario1 index page view.
         /// </summary>
         public const string ClassifyingCalculationRunScenario1Index = "~/Views/ClassifyingCalculationRunScenario1/Index.cshtml";
@@ -138,5 +139,10 @@
         /// Calculation Run Classification confirmation page view.
         /// </summary>
         public const string CalculationRunOverviewIndex = "~/Views/CalculationRunOverview/Index.cshtml";
+
+        /// <summary>
+        /// classifying calculation run controller scenario2 index page view.
+        /// </summary>
+        public const string ClassifyingCalculationRunScenario2Index = "~/Views/ClassifyingCalculationRunScenario2/Index.cshtml";
     }
 }
