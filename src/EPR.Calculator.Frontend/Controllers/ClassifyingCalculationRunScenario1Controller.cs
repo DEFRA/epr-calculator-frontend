@@ -87,12 +87,9 @@ namespace EPR.Calculator.Frontend.Controllers
                         BackLink = ControllerNames.CalculationRunDetails,
                     };
 
-                    //var errors = this.ModelState.Where(x => x.Value.Errors.Count > 0).Select(x => new { x.Key, x.Value.Errors.FirstOrDefault().ErrorMessage }).ToList();
-                    //classifyCalculationRunViewModel.Errors = ErrorModelHelper.CreateErrorViewModel($"{errors.FirstOrDefault().Key}-Error", errors.FirstOrDefault().ErrorMessage);
-
                     classifyCalculationRunViewModel.Errors = this.ModelState
-                                                                    .Where(x => x.Value.Errors.Count > 0)
-                                                                    .SelectMany(x => x.Value.Errors
+                                                                    .Where(x => x.Value!.Errors.Count > 0)
+                                                                    .SelectMany(x => x.Value!.Errors
                                                                         .Select(e => ErrorModelHelper.CreateErrorViewModel(
                                                                             $"{x.Key}-Error",
                                                                             e.ErrorMessage))
