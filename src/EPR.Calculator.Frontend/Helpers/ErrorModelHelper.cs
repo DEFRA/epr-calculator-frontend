@@ -35,7 +35,6 @@ namespace EPR.Calculator.Frontend.Helpers
                                                                             $"{x.Key}-Error",
                                                                             e.ErrorMessage))
                                                                     ).ToList();
-
         }
     }
 }
