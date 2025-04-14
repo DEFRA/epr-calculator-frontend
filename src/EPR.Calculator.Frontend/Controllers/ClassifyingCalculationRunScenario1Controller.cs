@@ -1,12 +1,10 @@
 ﻿using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
