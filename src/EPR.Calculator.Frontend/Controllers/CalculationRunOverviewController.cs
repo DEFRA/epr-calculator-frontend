@@ -7,24 +7,21 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using Newtonsoft.Json;
-using System.Reflection;
-using static EPR.Calculator.Frontend.Constants.CommonEnums;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
-    /// Controller responsible for displaying the details of a calculation run.
+    /// Controller for the calculation run overview page.
     /// </summary>
     [Route("[controller]")]
-    public class CalculationRunDetailsNewController : BaseController
+    public class CalculationRunOverviewController : BaseController
     {
         private readonly IConfiguration _configuration;
 
-        public CalculationRunDetailsNewController(
+        public CalculationRunOverviewController(
             IConfiguration configuration,
             IHttpClientFactory clientFactory,
-            ILogger<CalculationRunDetailsNewController> logger,
+            ILogger<CalculationRunOverviewController> logger,
             ITokenAcquisition tokenAcquisition,
             TelemetryClient telemetryClient)
             : base(configuration, tokenAcquisition, telemetryClient)
@@ -33,41 +30,10 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [Route("{runId}")]
-        public IActionResult Index(int runId)
-        {
-            CalculatorRunDto calculatorRun = GetCalculationRunDetails(runId);
-
-            var viewModel = CreateViewModel(runId, calculatorRun);
-
-            return View(ViewNames.CalculationRunDetailsNewIndex, viewModel);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Submit(CalculatorRunDetailsNewViewModel model)
-        {
-            if (model.SelectedCalcRunOption == null || model.SelectedCalcRunOption == CommonEnums.CalculationRunOption.None)
-            {
-                return RedirectToAction("Index", new { model.Data.RunId });
-            }
-
-            switch (model.SelectedCalcRunOption)
-            {
-                case CommonEnums.CalculationRunOption.OutputClassify:
-                    return RedirectToAction(ActionNames.Index, ControllerNames.ClassifyingCalculationRun, new { model.Data.RunId });
-
-                case CommonEnums.CalculationRunOption.OutputDelete:
-                    return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { model.Data.RunId });
-
-                default:
-                    return RedirectToAction(ActionNames.Index, new { model.Data.RunId });
-            }
-        }
-
-        private static CalculatorRunDto GetCalculationRunDetails(int runId)
+        public Task<IActionResult> Index(int runId)
         {
             // Get the calculation run details from the API
-            CalculatorRunDto calculatorRunDto = new()
+            var calculatorRun = new CalculatorRunDto()
             {
                 RunId = runId,
                 FinancialYear = "2024-25",
@@ -78,13 +44,28 @@ namespace EPR.Calculator.Frontend.Controllers
                 CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
                 CreatedBy = "Steve Jones",
             };
-            var calculatorRun = calculatorRunDto;
-            return calculatorRun;
+
+            var viewModel = CreateViewModel(runId, calculatorRun);
+            SetDownloadParameters(viewModel);
+
+            return Task.FromResult<IActionResult>(View(ViewNames.CalculationRunOverviewIndex, viewModel));
         }
 
-        private CalculatorRunDetailsNewViewModel CreateViewModel(int runId, CalculatorRunDto calculatorRun)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Submit(int runId)
         {
-            var viewModel = new CalculatorRunDetailsNewViewModel
+            if (!this.ModelState.IsValid)
+            {
+                return RedirectToAction(ActionNames.Index, new { runId });
+            }
+
+            return RedirectToAction(ActionNames.Index, ControllerNames.SendBillingFile, new { runId = runId });
+        }
+
+        private CalculatorRunOverviewViewModel CreateViewModel(int runId, CalculatorRunDto calculatorRun)
+        {
+            return new CalculatorRunOverviewViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(HttpContext),
                 Data = new CalculatorRunDto
@@ -98,17 +79,17 @@ namespace EPR.Calculator.Frontend.Controllers
                     FileExtension = calculatorRun.FileExtension,
                     RunClassificationStatus = calculatorRun.RunClassificationStatus,
                 },
+                BackLink = ControllerNames.PaymentCalculator,
             };
-
-            SetDownloadParameters(viewModel);
-
-            return viewModel;
         }
 
-        private void SetDownloadParameters(CalculatorRunDetailsNewViewModel viewModel)
+        private void SetDownloadParameters(CalculatorRunOverviewViewModel viewModel)
         {
             var baseApiUrl = _configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
             viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.Data.RunId}");
+
+            var draftedBillingApiUrl = _configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadDraftBillingApi}");
+            viewModel.DownloadDraftBillingURL = new Uri($"{draftedBillingApiUrl}/{viewModel.Data.RunId}");
 
             viewModel.DownloadErrorURL = $"/DownloadFileError/{viewModel.Data.RunId}";
             viewModel.DownloadTimeout = _configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");

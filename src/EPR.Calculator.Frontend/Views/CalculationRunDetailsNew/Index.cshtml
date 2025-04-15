@@ -1,29 +1,29 @@
-﻿@using EPR.Calculator.Frontend.ViewModels
-@using EPR.Calculator.Frontend.Constants
+﻿@using EPR.Calculator.Frontend.Constants
+@using EPR.Calculator.Frontend.ViewModels
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunDetailsNewViewModel
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
 <partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
-
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row calculator-details">
         <div class="govuk-grid-column-two-thirds">
-            @using (Html.BeginForm(ActionNames.DeleteConfirmation, ControllerNames.CalculationRunDelete, new { runId = @Model.Data.RunId }))
+            @using (Html.BeginForm(ActionNames.Submit, ControllerNames.CalculationRunDetails, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
 
+                @Html.Hidden("Data.RunId", Model.Data.RunId)
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
-                        <legend id="approval-code-hint" class="govuk-caption-l">
-                            Calculation run @Model.Data.RunId
-                        </legend>                        
+                        <legend class="govuk-caption-l">
+                            @Model.Data.RunName
+                        </legend>
                         <h1 class="govuk-heading-l">Calculation run details</h1>
                         <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
                         <h3 class="govuk-body-m">Download the results file to review the calculation run offline. When you are ready, return to classify or delete it.</h3>
@@ -39,7 +39,7 @@
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                    <td class="govuk-table__cell">@Model.Data.RunClassificationId</td>
+                                    <td class="govuk-table__cell">@Model.Data.RunId</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
@@ -55,7 +55,7 @@
                         <h2 class="govuk-heading-m">Downloads</h2>
                         <p class="govuk-body">Download files related to this calculation run.</p>
 
-                        <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                        <button type="submit" id="downloadResultFileBtn" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                             Results file
                         </button>
 
@@ -64,17 +64,16 @@
 
                         <div class="govuk-radios" data-module="govuk-radios">
                             <div class="govuk-radios__item">
-                                @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputClassify", new { @class = "govuk-radios__input", id = "initialRun" })
-
-                                <label class="govuk-label govuk-radios__label" for="initialRun">
-                                    <strong>Classify</strong><br>
+                                @Html.RadioButtonFor(model => model.SelectedCalcRunOption, CommonEnums.CalculationRunOption.OutputClassify, new { @class = "govuk-radios__input", id = "outputClassify" })
+                                <label class="govuk-label govuk-radios__label" for="outputClassify">
+                                    <strong>Classify</strong><br />
                                     <p class="govuk-body-s" style="margin-bottom: 0;">Choose a classification to process this calculation run</p>
                                 </label>
                             </div>
                             <div class="govuk-radios__item">
-                                @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputDelete", new { @class = "govuk-radios__input", id = "interimRecalculationRun" })
-                                <label class="govuk-label govuk-radios__label" for="interimRecalculationRun">
-                                    <strong>Delete</strong><br>
+                                @Html.RadioButtonFor(model => model.SelectedCalcRunOption, CommonEnums.CalculationRunOption.OutputDelete, new { @class = "govuk-radios__input", id = "outputDelete" })
+                                <label class="govuk-label govuk-radios__label" for="outputDelete">
+                                    <strong>Delete</strong><br />
                                     <p class="govuk-body-s" style="margin-bottom: 0;">Remove this calculation run if it's no longer needed</p>
                                 </label>
                             </div>
@@ -83,10 +82,13 @@
                 </div>
 
                 <div class="govuk-button-group">
-                    <button class="govuk-button" data-module="govuk-button">
-                        Continue
-                    </button>
-                    <a class="govuk-link" asp-action="Index" asp-controller="Dashboard">@ActionLinkLabels.ReturnToDashBoard</a>
+                    <div class="govuk-button-group">
+                        <button type="Submit" class="govuk-button" data-module="govuk-button">
+                            Continue
+                        </button>
+                    </div>
+
+                    <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
                 </div>
             }
         </div>
