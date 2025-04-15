@@ -68,9 +68,16 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var financialYear = this.HttpContext.Session.GetString(SessionConstants.FinancialYear);
             var parameterConfigValue = this.Configuration.GetSection(configSection).GetValue<string>("ParameterYear");
+            string? parameterYear;
 
-            var parameterYear = this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear)
-                ? financialYear ?? parameterConfigValue : parameterConfigValue;
+            if (this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear))
+            {
+                parameterYear = financialYear ?? parameterConfigValue;
+            }
+            else
+            {
+                parameterYear = parameterConfigValue;
+            }
 
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
