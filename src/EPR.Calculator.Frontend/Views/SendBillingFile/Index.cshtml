@@ -2,52 +2,55 @@
 @using EPR.Calculator.Frontend.Constants;
 @model SendBillingFileViewModel;
 
-
-@{ 
-    Layout = "_Layout";
+@{
+    var backLinkModel = new BackLinkPartialViewModel
+            {
+                BackLink = Model.BackLink,
+                CurrentUser = Model.CurrentUser,
+                RunId = Model.RunId
+            };
 }
-
-<partial name="_BackLinkPartial" model="(@Model.BackLink, @Model.CurrentUser)" />
-
+<partial name="_BackLinkPartialNew" model="backLinkModel" />
 <div class="govuk-width-container ">
 
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                &nbsp; &nbsp; <br>
-               @using(Html.BeginForm("","",FormMethod.Post))
-               {
-                    @Html.AntiForgeryToken()
-                    <div class="govuk-form-group">
-                        <fieldset class="govuk-fieldset">
-                            <div class="govuk-form-group">
-                                <fieldset class="govuk-fieldset">
-                                    <legend></legend>
-                                    <span class="govuk-caption-l">@Model.CalcRunName</span>
-                                    <h1 class="govuk-heading-l">@Model.SendBillFileHeading</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <br />
+            @using (Html.BeginForm(ActionNames.Submit, ControllerNames.SendBillingFile, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("RunId", Model.RunId)
 
-                                    <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
-                                    <h3 class="govuk-body-m">@Model.ConfirmationContent</h3>
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset">
+                        <div class="govuk-form-group">
+                            <fieldset class="govuk-fieldset">
+                                <legend></legend>
+                                <span class="govuk-caption-l">@Model.CalcRunName</span>
+                                <h1 class="govuk-heading-l">@Model.SendBillFileHeading</h1>
 
-                                    <div class="govuk-warning-text">
-                                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                                        <strong class="govuk-warning-text__text">
-                                            <span class="govuk-visually-hidden">Warning</span>
-                                            @Model.WarningContent
-                                        </strong>
-                                    </div>
-                                </fieldset>
-                            </div>                         
+                                <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
+                                <h3 class="govuk-body-m">@Model.ConfirmationContent</h3>
 
-                            <div class="govuk-button-group">
-                                <a href="#" class="govuk-button show-continue" style="display: inline;">
+                                <div class="govuk-warning-text">
+                                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                                    <strong class="govuk-warning-text__text">
+                                        <span class="govuk-visually-hidden">Warning</span>
+                                        @Model.WarningContent
+                                    </strong>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div class="govuk-button-group">
+                            <button type="submit" class="govuk-button" data-module="govuk-button">
                                 @ActionLinkLabels.SendBillingFile
-                                </a>
-
-                            <a class="govuk-link" asp-action="Index" asp-controller="Dashboard" >@ActionLinkLabels.ReturnToDashBoard</a>
-                            </div>
-                        </fieldset>
-                    </div>
-               }
-            </div>
+                            </button>
+                            <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
+                        </div>
+                    </fieldset>
+                </div>
+            }
         </div>
+    </div>
 </div>

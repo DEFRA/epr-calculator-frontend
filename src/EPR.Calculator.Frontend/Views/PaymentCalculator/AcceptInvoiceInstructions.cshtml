@@ -1,4 +1,5 @@
-﻿@model EPR.Calculator.Frontend.ViewModels.AcceptInvoiceInstructionsViewModel
+﻿@using EPR.Calculator.Frontend.Constants
+@model EPR.Calculator.Frontend.ViewModels.AcceptInvoiceInstructionsViewModel
 
 @{
     ViewData["Title"] = "Accept all invoice instructions";
@@ -11,7 +12,7 @@
     <div class="govuk-grid-column-two-thirds">
         <br />
 
-        @using (Html.BeginForm("AcceptInvoiceInstructions", "PaymentCalculator", FormMethod.Post))
+        @using (Html.BeginForm("AcceptInvoiceInstructions", ControllerNames.PaymentCalculator, FormMethod.Post))
         {
             @Html.AntiForgeryToken()
             @Html.HiddenFor(m => m.ReturnUrl)
@@ -23,7 +24,7 @@
 
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                         <span class="govuk-caption-l">@Model.CalculationRunTitle</span>
-                        <h1 class="govuk-heading-l">Accept all invoice instructions</h1>
+                        <h1 id="acceptance-hint" class="govuk-heading-l">Accept all invoice instructions</h1>
                     </legend>
 
                     <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible" />
