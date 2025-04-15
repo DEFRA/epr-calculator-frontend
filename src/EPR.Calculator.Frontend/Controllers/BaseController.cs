@@ -66,18 +66,9 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">Returns error if financial year is null or empty.</exception>
         protected string GetFinancialYear(string configSection)
         {
-            var financialYear = this.HttpContext.Session.GetString(SessionConstants.FinancialYear);
-            var parameterConfigValue = this.Configuration.GetSection(configSection).GetValue<string>("ParameterYear");
-            string? parameterYear;
-
-            if (this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear))
-            {
-                parameterYear = financialYear ?? parameterConfigValue;
-            }
-            else
-            {
-                parameterYear = parameterConfigValue;
-            }
+            var parameterYear = this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear)
+                 ? this.HttpContext.Session.GetString(SessionConstants.FinancialYear)
+                 : this.Configuration.GetSection(configSection).GetValue<string>("ParameterYear");
 
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
