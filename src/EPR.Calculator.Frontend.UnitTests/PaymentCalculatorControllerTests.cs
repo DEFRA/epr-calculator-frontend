@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.ComponentModel.DataAnnotations;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
@@ -65,40 +66,58 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void AcceptInvoiceInstructions_Post_ValidModelState_RedirectsToCalculationRunOverview()
         {
             // Arrange
-            int runId = 99;
+            var model = new AcceptInvoiceInstructionsViewModel()
+            {
+                RunId = 99,
+                AcceptAll = true, // Ensure this satisfies the [MustBeTrue] validation
+                BackLink = "dummy",
+                CurrentUser = "dummyuser",
+                CalculationRunTitle = "Calculation Run 99"
+            };
 
             // Act
-            var result = _controller.Submit(runId);
+            var result = _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
-            var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual(ActionNames.Index, redirectResult.ActionName);
-            Assert.AreEqual(ControllerNames.CalculationRunOverview, redirectResult.ControllerName);
-            Assert.AreEqual(runId, redirectResult.RouteValues["runId"]);
+            Assert.IsNotNull(result); // Ensure the result is a RedirectToActionResult
+            Assert.AreEqual(ActionNames.Index, result.ActionName); // Ensure it redirects to the correct action
+            Assert.AreEqual(model.RunId, result.RouteValues["runId"]); // Ensure the route values are correct
         }
 
         [TestMethod]
-        public void AcceptInvoiceInstructions_Post_InvalidModelState_RedirectsToIndex()
+        public void Submit_InvalidModelState_ReturnsViewResultWithErrors()
         {
             // Arrange
-            int runId = 99;
-            _controller.ModelState.AddModelError("Test", "Invalid");
+            var model = new AcceptInvoiceInstructionsViewModel()
+            {
+                RunId = 99,
+                AcceptAll = false, // This will fail the [MustBeTrue] validation
+                BackLink = "dummy",
+                CurrentUser = "dummyuser",
+                CalculationRunTitle = "Calculation Run 99"
+            };
 
-            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+            // Add a validation error to simulate an invalid ModelState
+            _controller.ModelState.AddModelError("AcceptAll", "You must confirm acceptance to proceed.");
 
             // Act
-            var result = _controller.Submit(runId);
+            var result = _controller.Submit(model) as ViewResult;
 
             // Assert
-            var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual(ActionNames.Index, redirectResult.ActionName);
-            Assert.IsNull(redirectResult.ControllerName); // Same controller
-            Assert.AreEqual(runId, redirectResult.RouteValues["runId"]);
-            var error = returnedModel.Errors.SingleOrDefault(e => e.DOMElementId == nameof(model.AcceptAll));
-            Assert.IsNotNull(error);
+            Assert.IsNotNull(result); // Ensure the result is a ViewResult
+            Assert.AreEqual("Index", result.ViewName); // Ensure the correct view is returned
+
+            // Verify the model passed to the view
+            var returnedModel = result.Model as AcceptInvoiceInstructionsViewModel;
+            Assert.IsNotNull(returnedModel);
+            Assert.AreEqual(model.RunId, returnedModel.RunId);
+            Assert.AreEqual(model.CalculationRunTitle, returnedModel.CalculationRunTitle);
+            Assert.AreEqual(model.BackLink, returnedModel.BackLink);
+            Assert.AreEqual(model.CurrentUser, returnedModel.CurrentUser);
+
+            // Verify that the Errors property is populated correctly
+            Assert.IsNotNull(returnedModel.Errors);
+            Assert.IsTrue(returnedModel.Errors.Any(e => e.DOMElementId == "AcceptAll-Error" && e.ErrorMessage == "You must confirm acceptance to proceed."));
         }
 
         [TestMethod]

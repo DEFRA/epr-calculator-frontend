@@ -1,63 +1,82 @@
 ﻿@using EPR.Calculator.Frontend.Constants
+@using EPR.Calculator.Frontend.Helpers
 @using EPR.Calculator.Frontend.ViewModels
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model EPR.Calculator.Frontend.ViewModels.AcceptInvoiceInstructionsViewModel
 
 @{
-    var backLinkModel = new BackLinkPartialViewModel
-            {
-                BackLink = Model.BackLink,
-                CurrentUser = Model.CurrentUser,
-                RunId = Model.RunId
-            };
+	var backLinkModel = new BackLinkPartialViewModel
+			{
+				BackLink = Model.BackLink,
+				CurrentUser = Model.CurrentUser,
+				RunId = Model.RunId
+			};
 }
 <partial name="_BackLinkPartialNew" model="backLinkModel" />
+
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <br />
+	<div class="govuk-grid-column-two-thirds">
+		<br />
 
-        @using (Html.BeginForm(ActionNames.Submit, ControllerNames.PaymentCalculator, FormMethod.Post))
-        {
-            @Html.AntiForgeryToken()
-            @Html.Hidden("RunId", Model.RunId)
-            @Html.HiddenFor(m => m.ReturnUrl)
-            @Html.HiddenFor(m => m.CalculationRunTitle)
-            @Html.HiddenFor(m => m.CurrentUser)
+		@using (Html.BeginForm(ActionNames.Submit, ControllerNames.PaymentCalculator, FormMethod.Post))
+		{
+			@Html.AntiForgeryToken()
+			@Html.HiddenFor(m => m.BackLink)
+			@Html.HiddenFor(m => m.CalculationRunTitle)
+			@Html.HiddenFor(m => m.CurrentUser)
+			@Html.HiddenFor(m => m.RunId)
 
-            <div class="govuk-form-group">
-                <fieldset class="govuk-fieldset" aria-describedby="acceptance-hint">
 
-                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                        <span class="govuk-caption-l">@Model.CalculationRunTitle</span>
-                        <h1 class="govuk-heading-l">Accept all billing instructions</h1>
-                    </legend>
+			@if (Model.Errors.Any())
+			{
+				<partial name="_ErrorBannerPartial" model="Model.Errors" />
+			}
 
-                    <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible" />
+			<fieldset class="govuk-fieldset" aria-describedby="acceptance-hint">
 
-                    <p class="govuk-body">
-                        The results file contains billing instructions. You must accept all instructions before generating a draft billing file.
-                    </p>
+				<legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+					<span class="govuk-caption-l">@Model.CalculationRunTitle</span>
+					<h1 class="govuk-heading-l">Accept all billing instructions</h1>
+				</legend>
 
-                    <h2 class="govuk-heading-m">Confirm acceptance</h2>
+				<hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible" />
 
-                    <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-                        <div class="govuk-checkboxes__item">
-                            <input type="hidden" name="AcceptAll" value="false" />
-                            @Html.CheckBoxFor(m => m.AcceptAll, new { @class = "govuk-checkboxes__input", id = "AcceptAll" })
-                            <label class="govuk-label govuk-checkboxes__label" for="AcceptAll">
-                                I confirm that I have accepted all billing instructions in the results file.
-                            </label>
-                        </div>
-                    </div>
-                </fieldset>
-            </div>
+				<p class="govuk-body">
+					The results file contains billing instructions. You must accept all instructions before generating a draft billing file.
+				</p>
 
-            <div class="govuk-button-group">
-                <button type="submit" class="govuk-button" data-module="govuk-button">
-                    Accept and generate draft billing file
-                </button>
+				<div class="govuk-form-group @(Model.Errors.HasError(nameof(Model.AcceptAll)) ? "govuk-form-group--error" : "")">
+					<h2 class="govuk-heading-m">Confirm acceptance</h2>
 
-                <a class="govuk-link" href="@Model.ReturnUrl">Return to previous step</a>
-            </div>
-        }
-    </div>
+					@if (Model.Errors.Any())
+					{
+						@foreach (var error in Model.Errors)
+						{
+							<p id="@error.DOMElementId" class="govuk-error-message">
+								<span class="govuk-visually-hidden">Error:</span> @error.ErrorMessage
+							</p>
+						}
+					}
+
+					<div class="govuk-checkboxes" data-module="govuk-checkboxes">
+						<div class="govuk-checkboxes__item">
+							@Html.CheckBoxFor(m => m.AcceptAll, new { @class = "govuk-checkboxes__input" })
+							<label class="govuk-label govuk-checkboxes__label" for="AcceptAll">
+								I confirm that I accept all billing instructions in the results file.
+							</label>
+						</div>
+					</div>
+				</div>
+			</fieldset>
+
+
+			<div class="govuk-button-group">
+				<button type="submit" class="govuk-button" data-module="govuk-button">
+					Accept and generate draft billing file
+				</button>
+
+				<a class="govuk-link" href="@Model.BackLink">Return to previous step</a>
+			</div>
+		}
+	</div>
 </div>

@@ -1,4 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Extensions;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.UnitTests.Extensions
@@ -12,7 +13,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Extensions
             // Arrange
             var errors = new List<ErrorViewModel>
             {
-                new ErrorViewModel { DOMElementId = "AcceptAll", ErrorMessage = "Error message" }
+                new ErrorViewModel { DOMElementId = "AcceptAll-Error", ErrorMessage = "Error message" }
             };
 
             // Act

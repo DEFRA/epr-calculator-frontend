@@ -19,7 +19,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpGet]
-        [Route("{runId}")]
+        [Route("{runId:int}")]
         public IActionResult Index(int runId)
         {
             var model = new AcceptInvoiceInstructionsViewModel
@@ -36,30 +36,16 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Submit(int runId)
+        public IActionResult Submit(AcceptInvoiceInstructionsViewModel model)
         {
-            if (!this.ModelState.IsValid)
+            if (this.ModelState.IsValid)
             {
-                return RedirectToAction(ActionNames.Index, new { runId });
+                return RedirectToAction(ActionNames.Index, new { model.RunId });
             }
 
-            var model = new AcceptInvoiceInstructionsViewModel()
-            {
-                RunId = runId,
-                AcceptAll = false,
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                CalculationRunTitle = "Calculation Run 99",
-                BackLink = ControllerNames.ClassifyRunConfirmation,
-            };
-            model.Errors.Add(new ErrorViewModel
-            {
-                DOMElementId = "AcceptAll",
-                ErrorMessage = "You must confirm acceptance to proceed.",
-            });
+            model.Errors = ErrorModelHelper.GetErrors(this.ModelState);
 
-            model.Errors = ModelStateHelper.GetErrors(this.ModelState);
-
-            return this.View(model);
+            return this.View("Index", model);
         }
 
         /// <summary>
