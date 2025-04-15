@@ -54,5 +54,10 @@
         /// Error message for unknown user.
         /// </summary>
         public const string UnknownUser = "Unknown User";
+
+        /// <summary>
+        /// Error message for when user doesn't accept all invoice instructions.
+        /// </summary>
+        public const string AcceptAllInstructionsNotChecked = "Confirm that you have accepted all billing instructions before continuing.";
     }
 }

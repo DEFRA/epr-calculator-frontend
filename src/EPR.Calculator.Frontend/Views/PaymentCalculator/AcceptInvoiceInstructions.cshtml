@@ -20,7 +20,7 @@
             @Html.HiddenFor(m => m.CalculationRunTitle)
             @Html.HiddenFor(m => m.CurrentUser)
 
-			@if (Model.Errors.HasError(nameof(Model.AcceptAll)))
+            @* 			@if (Model.Errors.HasError(nameof(Model.AcceptAll)))
             {
 	            <div class="govuk-error-summary" data-module="govuk-error-summary">
 		            <div role="alert">
@@ -36,6 +36,11 @@
 			            </div>
 		            </div>
 	            </div>
+            } *@
+
+			@if (Model.Errors.Any())
+            {
+				<partial name="_ErrorBannerPartial" model="Model.Errors" />
             }
 
             <fieldset class="govuk-fieldset" aria-describedby="acceptance-hint">
