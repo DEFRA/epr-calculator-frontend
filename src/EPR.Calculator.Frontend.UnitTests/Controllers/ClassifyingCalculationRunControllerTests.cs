@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using Moq;
+using System.Net.Http;
+using System.Security.Claims;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
@@ -38,13 +40,18 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                    _mockClientFactory.Object,
                    _mockLogger.Object,
                    _mockTokenAcquisition.Object,
-                   _mockTelemetryClient)
+                   _mockTelemetryClient);
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
             {
-                // Setting the mocked HttpContext for the controller
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = _mockHttpContext.Object
-                }
+                new Claim(ClaimTypes.Name, "Test User")
+            }));
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
             };
         }
 
@@ -53,8 +60,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             int runId = 1;
-            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
 
             // Act
             var result = _controller.Index(runId) as ViewResult;
@@ -78,15 +83,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 ClassifyRunType = ClassifyRunType.InitialRun
             };
 
-            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
-
             _controller.ModelState.AddModelError("TestError", "Test error message");
 
             // Act
             var result = _controller.Submit(model) as ViewResult;
 
-              // Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
             var viewModel = result.Model as ClassifyCalculationRunScenerio1ViewModel;
@@ -110,9 +112,63 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
-            Assert.AreEqual("ClassifyRunConfirmation", result.ControllerName);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, result.ControllerName);
             Assert.AreEqual(runId, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public void Submit_InvalidModel_ReturnsViewResult_WithErrors()
+        {
+            // Arrange
+            var model = new ClassifyCalculationRunScenerio1SubmitViewModel { RunId = 1 };
+            _controller.ModelState.AddModelError("ClassifyRunType", "Required");
+
+            // Act
+            var result = _controller.Submit(model) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Model, typeof(ClassifyCalculationRunScenerio1ViewModel));
+            Assert.IsTrue(_controller.ModelState.ErrorCount > 0);
+        }
+
+        [TestMethod]
+        public void Submit_ValidModel_RedirectsToConfirmation()
+        {
+            // Arrange
+            var model = new ClassifyCalculationRunScenerio1SubmitViewModel
+            {
+                RunId = 1,
+                ClassifyRunType = ClassifyRunType.InitialRun
+            };
+
+            // Act
+            var result = _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, result.ControllerName);
+        }
+
+        [TestMethod]
+        public void Submit_ExceptionThrown_RedirectsToError()
+        {
+            var result = _controller.Submit(null) as RedirectToActionResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.StandardErrorController, result.ControllerName);
+            _mockLogger.Verify(
+                x =>
+           x.Log(
+               LogLevel.Error,
+               It.IsAny<EventId>(),
+               It.Is<It.IsAnyType>((v, t) => true), // We can't match internal LogState
+               It.IsAny<Exception>(),
+               (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                Times.AtLeastOnce);
         }
     }
 }
