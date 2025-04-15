@@ -10,7 +10,9 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public required string BillingFileSentBy { get; set; }
 
-        public string? SelectedCalcRunOption { get; set; }
+        public required string SelectedCalcRunOption { get; set; }
+
+        public required string BackLink { get; set; }
 
         public required CalculatorRunStatusUpdateDto CalculatorRunStatus { get; init; }
     }

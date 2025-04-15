@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Helpers;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 BillingFileRunBy = "Steve Jones",
                 BillingFileSentBy = "Steve Jones",
                 SelectedCalcRunOption = "Initial run",
+                BackLink = ControllerNames.Dashboard,
                 CalculatorRunStatus = new CalculatorRunStatusUpdateDto
                 {
                     RunId = 240008,
