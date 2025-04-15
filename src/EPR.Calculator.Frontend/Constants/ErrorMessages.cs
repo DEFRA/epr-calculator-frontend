@@ -6,6 +6,11 @@
     public static class ErrorMessages
     {
         /// <summary>
+        /// Error Title.
+        /// </summary>
+        public const string ErrorSummaryTitle = "There is a problem";
+
+        /// <summary>
         /// Error message for calculation run name not provided.
         /// </summary>
         public const string CalculationRunNameEmpty = "Enter a name for this calculation";
@@ -59,5 +64,10 @@
         /// Error message for when user doesn't accept all invoice instructions.
         /// </summary>
         public const string AcceptAllInstructionsNotChecked = "Confirm that you have accepted all billing instructions before continuing.";
+
+        /// <summary>
+        /// Error message for classify run type option not selected.
+        /// </summary>
+        public const string ClassifyRunTypeNotSelected = "Select a classification before confirming.";
     }
 }

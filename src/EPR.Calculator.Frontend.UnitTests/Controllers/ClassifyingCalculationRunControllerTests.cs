@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -71,15 +72,26 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             int runId = 1;
+            ClassifyCalculationRunScenerio1SubmitViewModel model = new ClassifyCalculationRunScenerio1SubmitViewModel
+            {
+                RunId = runId,
+                ClassifyRunType = ClassifyRunType.InitialRun
+            };
+
+            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
+            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+
             _controller.ModelState.AddModelError("TestError", "Test error message");
 
             // Act
-            var result = _controller.Submit(runId) as RedirectToActionResult;
+            var result = _controller.Submit(model) as ViewResult;
 
-            // Assert
+              // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
-            Assert.AreEqual(runId, result.RouteValues["runId"]);
+            Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
+            var viewModel = result.Model as ClassifyCalculationRunScenerio1ViewModel;
+            Assert.IsNotNull(viewModel);
+            Assert.AreEqual(runId, viewModel.CalculatorRunStatus.RunId);
         }
 
         [TestMethod]
@@ -87,9 +99,14 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             int runId = 1;
+            ClassifyCalculationRunScenerio1SubmitViewModel model = new ClassifyCalculationRunScenerio1SubmitViewModel
+            {
+                RunId = runId,
+                ClassifyRunType = ClassifyRunType.InitialRun
+            };
 
             // Act
-            var result = _controller.Submit(runId) as RedirectToActionResult;
+            var result = _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);

@@ -30,37 +30,75 @@ namespace EPR.Calculator.Frontend.Controllers
             this.logger = logger;
         }
 
+        /// </summary>
+        /// <param name="runId"> runId.</param>
+        /// <returns>The index view.</returns>
         [Route("{runId}")]
+        [HttpGet]
         public IActionResult Index(int runId)
         {
-            var classifyCalculationRunViewModel = new ClassifyCalculationRunScenerio1ViewModel
+            try
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                CalculatorRunStatus = new CalculatorRunStatusUpdateDto
+                var classifyCalculationRunViewModel = new ClassifyCalculationRunScenerio1ViewModel
                 {
-                    RunId = runId,
-                    ClassificationId = 240008,
-                    CalcName = "Calculation Run 99",
-                    CreatedDate = "01 May 2024",
-                    CreatedTime = "12:09",
-                    FinancialYear = "2024-25",
-                },
-                BackLink = ControllerNames.CalculationRunDetails,
-            };
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    CalculatorRunStatus = new CalculatorRunStatusUpdateDto
+                    {
+                        RunId = runId,
+                        ClassificationId = 240008,
+                        CalcName = "Calculation Run 99",
+                        CreatedDate = "01 May 2024",
+                        CreatedTime = "12:09",
+                        FinancialYear = "2024-25",
+                    },
+                    BackLink = ControllerNames.CalculationRunDetails,
+                };
 
-            return this.View(ClassifyingCalculationRunIndexView, classifyCalculationRunViewModel);
+                return this.View(ClassifyingCalculationRunIndexView, classifyCalculationRunViewModel);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "An error occurred while processing the request.");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
         }
 
+        [Route("Submit")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Submit(int runId)
+        public IActionResult Submit(ClassifyCalculationRunScenerio1SubmitViewModel model)
         {
-            if (!this.ModelState.IsValid)
+            try
             {
-                return RedirectToAction(ActionNames.Index, new { runId });
-            }
+                if (!this.ModelState.IsValid)
+                {
+                    var classifyCalculationRunViewModel = new ClassifyCalculationRunScenerio1ViewModel
+                    {
+                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                        CalculatorRunStatus = new CalculatorRunStatusUpdateDto
+                        {
+                            RunId = model.RunId,
+                            ClassificationId = 240008,
+                            CalcName = "Calculation Run 99",
+                            CreatedDate = "01 May 2024",
+                            CreatedTime = "12:09",
+                            FinancialYear = "2024-25",
+                        },
+                        BackLink = ControllerNames.CalculationRunDetails,
+                    };
 
-            return RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = runId });
+                    classifyCalculationRunViewModel.Errors = ErrorModelHelper.GetErrors(this.ModelState);
+
+                    return this.View(ClassifyingCalculationRunIndexView, classifyCalculationRunViewModel);
+                }
+
+                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.RunId });
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "An error occurred while processing the request.");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
         }
     }
 }
