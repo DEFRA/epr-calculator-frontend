@@ -4,7 +4,7 @@
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var BackLink = CommonConstants.DashBoard;
+    var BackLink = "DashBoard";
 }
 <partial name="_BackLinkPartial" model="(BackLink, @Model.CurrentUser)" />
 <div class="govuk-width-container ">
