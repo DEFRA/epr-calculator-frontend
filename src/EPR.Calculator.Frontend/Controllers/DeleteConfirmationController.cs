@@ -3,21 +3,24 @@ using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DeleteConfirmationController"/> class.
     /// </summary>
-    public class DeleteConfirmationController : Controller
+    [Route("[controller]")]
+    public class DeleteConfirmationController : BaseController
     {
-        /// <summary>
-        /// Displays the delete confirmation screen.
-        /// </summary>
-        /// <param name="runId">The ID of the calculation run.</param>
-        /// <param name="calcName">The calculation name.</param>
-        /// <returns>The delete success view.</returns>
+        public DeleteConfirmationController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
+        {
+        }
+
+        [Authorize(Roles = "SASuperUser")]
         public IActionResult Index(int runId, string calcName)
         {
             var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
