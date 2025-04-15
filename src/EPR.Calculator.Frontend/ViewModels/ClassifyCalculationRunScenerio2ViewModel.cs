@@ -7,8 +7,7 @@ namespace EPR.Calculator.Frontend.ViewModels
     /// <summary>
     /// classify calculation run scenerio1 view model.
     /// </summary>
-    [ExcludeFromCodeCoverage]
-    public record ClassifyCalculationRunScenerio1ViewModel : ViewModelCommonData
+    public record ClassifyCalculationRunScenerio2ViewModel : ViewModelCommonData
     {
         /// <summary>
         /// Gets or sets the errors.
@@ -19,5 +18,10 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets the data for the run status update.
         /// </summary>
         public required CalculatorRunStatusUpdateDto CalculatorRunStatus { get; init; }
+
+        /// <summary>
+        /// Gets or sets the selected calculation run option.
+        /// </summary>
+        public string? SelectedCalcRunOption { get; set; }
     }
 }
