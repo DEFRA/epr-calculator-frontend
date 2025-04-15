@@ -1,4 +1,5 @@
 ﻿@using EPR.Calculator.Frontend.Extensions
+@using EPR.Calculator.Frontend.Constants
 @model EPR.Calculator.Frontend.ViewModels.AcceptInvoiceInstructionsViewModel
 
 @{
@@ -6,23 +7,13 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-three-quarters">
-        <p></p>
-    </div>
-    <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
-        <div class="account-info">
-            <span class="your-name" id="bannerUserName">@Model.CurrentUser</span>
-            <a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
-        </div>
-    </div>
-</div>
+<partial name="_CurrentUserPartial" model="@Model.CurrentUser" />
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <br />
 
-        @using (Html.BeginForm("AcceptInvoiceInstructions", "PaymentCalculator", FormMethod.Post))
+        @using (Html.BeginForm("AcceptInvoiceInstructions", ControllerNames.PaymentCalculator, FormMethod.Post))
         {
             @Html.AntiForgeryToken()
             @Html.HiddenFor(m => m.ReturnUrl)
@@ -50,7 +41,7 @@
             <fieldset class="govuk-fieldset" aria-describedby="acceptance-hint">
 	            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
 		            <span class="govuk-caption-l">@Model.CalculationRunTitle</span>
-		            <h1 class="govuk-heading-l">Accept all invoice instructions</h1>
+		            <h1 class="acceptance-hint">Accept all invoice instructions</h1>
 	            </legend>
 
 	            <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible"/>

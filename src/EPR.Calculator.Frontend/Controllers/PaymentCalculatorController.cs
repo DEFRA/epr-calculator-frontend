@@ -2,40 +2,46 @@
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="PaymentCalculatorController"/> class.
+    /// Controller for handling payment calculations.
     /// </summary>
-    [Authorize(Roles = "SASuperUser")]
-    [Route("PaymentCalculator")]
-    public class PaymentCalculatorController : Controller
+    [Route("[controller]")]
+    public class PaymentCalculatorController : BaseController
     {
+        public PaymentCalculatorController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
+        {
+        }
+
         [HttpGet]
-        [Route("AcceptInvoiceInstructions")]
-        public IActionResult AcceptInvoiceInstructions()
+        [Route("{runId}")]
+        public IActionResult Index(int runId)
         {
             var model = new AcceptInvoiceInstructionsViewModel
             {
+                RunId = runId,
                 AcceptAll = false,
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                CalculationRunTitle = "Calculation run 99",
+                CalculationRunTitle = "Calculation Run 99",
+                BackLink = ControllerNames.ClassifyRunConfirmation,
             };
 
             return this.View(model);
         }
 
         [HttpPost]
-        [Route("AcceptInvoiceInstructions")]
         [ValidateAntiForgeryToken]
-        public IActionResult AcceptInvoiceInstructions(AcceptInvoiceInstructionsViewModel model)
+        public IActionResult Submit(int runId)
         {
-            if (model.AcceptAll)
+            if (!this.ModelState.IsValid)
             {
-                return this.RedirectToAction("Overview"); // dummy return url I confirm that I have accepted all billing instructions in the results file.
+                return RedirectToAction(ActionNames.Index, new { runId });
             }
 
             model.Errors.Add(new ErrorViewModel
@@ -53,7 +59,6 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("BillingFileSuccess")]
         public IActionResult BillingFileSuccess()
         {
-            // Create the view model
             var model = new BillingFileSuccessViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
@@ -62,11 +67,10 @@ namespace EPR.Calculator.Frontend.Controllers
                     Title = ConfirmationMessages.BillingFileSuccessTitle,
                     Body = ConfirmationMessages.BillingFileSuccessBody,
                     AdditionalParagraphs = ConfirmationMessages.BillingFileSuccessAdditionalParagraphs,
-                    RedirectController = CommonConstants.DashBoard,
-                }
+                    RedirectController = ControllerNames.Dashboard,
+                },
             };
 
-            // Return the view
             return this.View(ViewNames.BillingConfirmationSuccess, model);
         }
     }

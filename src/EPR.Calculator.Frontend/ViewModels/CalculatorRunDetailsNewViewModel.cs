@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Models;
 using System.Diagnostics.CodeAnalysis;
+using static EPR.Calculator.Frontend.Constants.CommonEnums;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
@@ -10,19 +11,9 @@ namespace EPR.Calculator.Frontend.ViewModels
     public record CalculatorRunDetailsNewViewModel : ViewModelCommonData
     {
         /// <summary>
-        /// Gets or sets the title of the page.
-        /// </summary>
-        public string Title { get; set; } = "Index";
-
-        /// <summary>
-        /// Gets or sets the title of the Back Link.
-        /// </summary>
-        public string BackLink { get; set; } = "Dashboard";
-
-        /// <summary>
         /// Gets the data for the run status update.
         /// </summary>
-        public required CalculatorRunDto Data { get; init; }
+        public CalculatorRunDto Data { get; init; }
 
         /// <summary>
         /// Gets or sets download result URL.
@@ -42,6 +33,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets or sets the selected calculation run option.
         /// </summary>
-        public string? SelectedCalcRunOption { get; set; }
+        public CalculationRunOption? SelectedCalcRunOption { get; set; }
     }
 }
