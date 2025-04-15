@@ -356,14 +356,16 @@ namespace EPR.Calculator.Frontend.UnitTests
                 CalculationName = "UniqueCalculation",
             };
 
-            var mockHttpContext = new Mock<HttpContext>();
-            var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
-
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
             _controller.ControllerContext = new ControllerContext
             {
-                HttpContext = mockHttpContext.Object
+                HttpContext = context
             };
 
             // Mock the first API call to return NotFound
@@ -436,14 +438,16 @@ namespace EPR.Calculator.Frontend.UnitTests
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "TestRun",
             };
-            var mockHttpContext = new Mock<HttpContext>();
-            var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
-
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
             _controller.ControllerContext = new ControllerContext
             {
-                HttpContext = mockHttpContext.Object
+                HttpContext = context
             };
 
             // Mock the first API call to return NotFound

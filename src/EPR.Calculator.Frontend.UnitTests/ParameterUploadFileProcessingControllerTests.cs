@@ -90,12 +90,21 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockTokenAcquisition
                 .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
                 .ReturnsAsync("somevalue");
+
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
             // Create controller with the mocked factory
             var controller = new ParameterUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient())
             {
-                TempData = tempData
+                TempData = tempData,
             };
-            controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
+            controller.ControllerContext = new ControllerContext { HttpContext = context };
 
             var fileUploadFileName = "SchemeParameters.csv";
 
@@ -118,7 +127,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
-            controller.ControllerContext.HttpContext = httpContextMock.Object;
+            controller.ControllerContext.HttpContext = context;
 
             // Act
             var viewModel = new ParameterRefreshViewModel()

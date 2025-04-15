@@ -175,10 +175,18 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             // Arrange
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
-            controller.ControllerContext.HttpContext = MockHttpContext.Object;
+            controller.ControllerContext.HttpContext = context;
 
             // Act
 
