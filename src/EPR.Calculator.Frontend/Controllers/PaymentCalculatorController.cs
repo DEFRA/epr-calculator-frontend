@@ -3,7 +3,6 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 
@@ -44,11 +43,22 @@ namespace EPR.Calculator.Frontend.Controllers
                 return RedirectToAction(ActionNames.Index, new { runId });
             }
 
+            var model = new AcceptInvoiceInstructionsViewModel()
+            {
+                RunId = runId,
+                AcceptAll = false,
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CalculationRunTitle = "Calculation Run 99",
+                BackLink = ControllerNames.ClassifyRunConfirmation,
+            };
             model.Errors.Add(new ErrorViewModel
             {
                 DOMElementId = "AcceptAll",
                 ErrorMessage = "You must confirm acceptance to proceed.",
             });
+
+            model.Errors = ModelStateHelper.GetErrors(this.ModelState);
+
             return this.View(model);
         }
 
