@@ -101,9 +101,10 @@ namespace EPR.Calculator.Frontend.Controllers
             if (errors != null)
             {
                 errors.DOMElementId = ViewControlNames.FileUpload;
+                return new LapcapUploadViewModel { Errors = new List<ErrorViewModel> { errors } };
             }
 
-            return new LapcapUploadViewModel { Errors = new List<ErrorViewModel> { errors } };
+            return new LapcapUploadViewModel { Errors = new List<ErrorViewModel>() };
         }
     }
 }

@@ -15,7 +15,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets or sets the data for the calculator run status update.
         /// </summary>
-        public CalculatorRunStatusUpdateDto CalculatorRunStatus { get; set; }
+        public CalculatorRunStatusUpdateDto? CalculatorRunStatus { get; set; }
 
         [Required(ErrorMessage = ErrorMessages.ClassifyRunTypeNotSelected)]
         public ClassifyRunType? ClassifyRunType { get; set; }
