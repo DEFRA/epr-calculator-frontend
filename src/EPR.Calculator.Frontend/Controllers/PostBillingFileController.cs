@@ -18,7 +18,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 BillingFileRunBy = "Steve Jones",
                 BillingFileSentBy = "Steve Jones",
                 SelectedCalcRunOption = "Initial run",
-                BackLink = ControllerNames.Dashboard,
                 CalculatorRunStatus = new CalculatorRunStatusUpdateDto
                 {
                     RunId = 240008,
