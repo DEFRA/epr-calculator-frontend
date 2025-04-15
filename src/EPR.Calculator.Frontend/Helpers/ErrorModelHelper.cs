@@ -9,6 +9,15 @@ namespace EPR.Calculator.Frontend.Helpers
     /// </summary>
     public static class ErrorModelHelper
     {
+        public static List<ErrorViewModel> GetErrors(ModelStateDictionary modelState)
+        {
+            return modelState.Where(x => x.Value!.Errors.Count > 0)
+                .SelectMany(x => x.Value!.Errors
+                .Select(e => ErrorModelHelper.CreateErrorViewModel(
+                    $"{x.Key}-Error", e.ErrorMessage)))
+                .ToList();
+        }
+
         /// <summary>
         /// Create Error View Model.
         /// </summary>
@@ -22,15 +31,6 @@ namespace EPR.Calculator.Frontend.Helpers
                 DOMElementId = domElementId,
                 ErrorMessage = errorMessage,
             };
-        }
-
-        public static List<ErrorViewModel> GetErrors(ModelStateDictionary modelState)
-        {
-            return modelState.Where(x => x.Value!.Errors.Count > 0)
-                .SelectMany(x => x.Value!.Errors
-                .Select(e => ErrorModelHelper.CreateErrorViewModel(
-                    $"{x.Key}-Error", e.ErrorMessage)))
-                .ToList();
         }
     }
 }
