@@ -1,5 +1,4 @@
-﻿using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Helpers;
+﻿using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +7,7 @@ namespace EPR.Calculator.Frontend.Controllers
 {
     public class PostBillingFileController : Controller
     {
+        [HttpGet]
         public IActionResult Index()
         {
             var billingFileViewModel = new PostBillingFileViewModel

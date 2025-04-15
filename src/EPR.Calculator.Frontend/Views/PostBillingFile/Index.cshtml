@@ -5,9 +5,7 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
 <partial name="_BackLinkPartial" model="(CommonConstants.DashBoard, @Model.CurrentUser)" />
-
 <div class="govuk-width-container ">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
@@ -63,7 +61,7 @@
                         </div>
 
                         <div class="govuk-button-group">
-                            <a class="govuk-link" href="calculate-packaging-payments-2">Return to dashboard</a>
+                            <a href="@Url.Action(ActionNames.Index, ControllerNames.Dashboard)" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
                         </div>
 
                     </fieldset>
