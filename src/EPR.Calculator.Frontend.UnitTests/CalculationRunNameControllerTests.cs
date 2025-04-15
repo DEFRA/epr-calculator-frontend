@@ -6,6 +6,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
+using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.Validators;
 using EPR.Calculator.Frontend.ViewModels;
 using FluentValidation.TestHelper;
@@ -647,15 +648,19 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
                              .Returns(mockHttpClient1)
                              .Returns(mockHttpClient2);
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
 
-            var mockHttpContext = new Mock<HttpContext>();
-            var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
 
             _controller.ControllerContext = new ControllerContext
             {
-                HttpContext = mockHttpContext.Object
+                HttpContext = context
             };
 
             var result = await _controller.RunCalculator(calculationRunModel);
@@ -704,14 +709,19 @@ namespace EPR.Calculator.Frontend.UnitTests
                              .Returns(mockHttpClient1)
                              .Returns(mockHttpClient2);
 
-            var mockHttpContext = new Mock<HttpContext>();
-            var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
 
             _controller.ControllerContext = new ControllerContext
             {
-                HttpContext = mockHttpContext.Object
+                HttpContext = context
             };
 
             var result = await _controller.RunCalculator(calculationRunModel);
