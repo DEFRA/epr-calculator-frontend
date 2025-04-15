@@ -30,11 +30,11 @@ namespace EPR.Calculator.Frontend.Helpers
         public static List<ErrorViewModel> GetErrors(ModelStateDictionary modelState)
         {
             return modelState.Where(x => x.Value!.Errors.Count > 0)
-                                                                    .SelectMany(x => x.Value!.Errors
-                                                                        .Select(e => ErrorModelHelper.CreateErrorViewModel(
-                                                                            $"{x.Key}-Error",
-                                                                            e.ErrorMessage))
-                                                                    ).ToList();
+                                                            .SelectMany(x => x.Value!.Errors
+                                                                .Select(e => ErrorModelHelper.CreateErrorViewModel(
+                                                                    $"{x.Key}-Error",
+                                                                    e.ErrorMessage)))
+                                                            .ToList();
         }
     }
 }

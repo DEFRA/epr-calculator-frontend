@@ -12,7 +12,6 @@ namespace EPR.Calculator.Frontend.ViewModels
     [ExcludeFromCodeCoverage]
     public record ClassifyCalculationRunScenerio1ViewModel : ViewModelCommonData
     {
-
         /// <summary>
         /// Gets or sets the data for the calculator run status update.
         /// </summary>

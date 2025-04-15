@@ -93,7 +93,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.RunId });
-            }
+            }   
             catch (Exception ex)
             {
                 this.logger.LogError(ex, "An error occurred while processing the request.");
