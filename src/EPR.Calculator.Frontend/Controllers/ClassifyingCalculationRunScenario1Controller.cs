@@ -87,13 +87,13 @@ namespace EPR.Calculator.Frontend.Controllers
                         BackLink = ControllerNames.CalculationRunDetails,
                     };
 
-                    classifyCalculationRunViewModel.Errors = ModelStateHelper.GetErrors(this.ModelState);
+                    classifyCalculationRunViewModel.Errors = ErrorModelHelper.GetErrors(this.ModelState);
 
                     return this.View(ClassifyingCalculationRunIndexView, classifyCalculationRunViewModel);
                 }
 
                 return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.RunId });
-            }   
+            }
             catch (Exception ex)
             {
                 this.logger.LogError(ex, "An error occurred while processing the request.");
