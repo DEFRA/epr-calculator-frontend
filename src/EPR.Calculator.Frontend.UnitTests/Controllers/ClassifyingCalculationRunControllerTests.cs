@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Security.Claims;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
@@ -10,8 +11,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using Moq;
-using System.Net.Http;
-using System.Security.Claims;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
