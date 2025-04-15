@@ -178,14 +178,18 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
-            controller.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+            controller.ControllerContext = new ControllerContext { HttpContext = context };
 
-            var mockHttpContext = new Mock<HttpContext>();
-            var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
             controller.ControllerContext = new ControllerContext
             {
-                HttpContext = mockHttpContext.Object
+                HttpContext = context
             };
 
             var viewModel = new ParameterRefreshViewModel()
