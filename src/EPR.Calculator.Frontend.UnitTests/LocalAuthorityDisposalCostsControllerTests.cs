@@ -56,8 +56,16 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
 
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            controller.ControllerContext.HttpContext = context;
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -93,10 +101,18 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
 
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
             controller.ControllerContext = new ControllerContext
             {
-                HttpContext = mockHttpContext.Object
+                HttpContext = context
             };
 
             var result = controller.Index() as ViewResult;
