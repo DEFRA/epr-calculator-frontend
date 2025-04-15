@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
+using System.Security.Principal;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -57,7 +59,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
 
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            controller.ControllerContext.HttpContext = GetContext();
 
             var result = controller.Index() as ViewResult;
             Assert.IsNotNull(result);
@@ -82,9 +84,6 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
 
-            var mockHttpContext = new Mock<HttpContext>();
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
-
             // Mock IHttpClientFactory
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
             mockHttpClientFactory
@@ -96,7 +95,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
             controller.ControllerContext = new ControllerContext
             {
-                HttpContext = mockHttpContext.Object
+                HttpContext = GetContext()
             };
 
             var result = controller.Index() as ViewResult;
@@ -178,7 +177,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             // Arrange
             var controller = new LocalAuthorityDisposalCostsController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
-            controller.ControllerContext.HttpContext = MockHttpContext.Object;
+            controller.ControllerContext.HttpContext = GetContext();
 
             // Act
 
@@ -220,6 +219,23 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
+        private static DefaultHttpContext GetContext()
+        {
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString("accessToken", "something");
+            mockHttpSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+            return context;
         }
     }
 }
