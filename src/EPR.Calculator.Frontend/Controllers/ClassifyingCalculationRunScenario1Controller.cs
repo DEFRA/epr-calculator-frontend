@@ -18,15 +18,11 @@ namespace EPR.Calculator.Frontend.Controllers
     public class ClassifyingCalculationRunScenario1Controller : BaseController
     {
         private const string ClassifyingCalculationRunIndexView = ViewNames.ClassifyingCalculationRunScenario1Index;
-        private readonly IConfiguration configuration;
-        private readonly IHttpClientFactory clientFactory;
         private readonly ILogger<ClassifyingCalculationRunScenario1Controller> logger;
 
         public ClassifyingCalculationRunScenario1Controller(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyingCalculationRunScenario1Controller> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
             : base(configuration, tokenAcquisition, telemetryClient)
         {
-            this.configuration = configuration;
-            this.clientFactory = clientFactory;
             this.logger = logger;
         }
 
