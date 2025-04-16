@@ -43,8 +43,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 return RedirectToAction(ActionNames.Index, new { model.RunId });
             }
 
-            // model.Errors = ErrorModelHelper.GetErrors(this.ModelState);
-
             return this.View("Index", model);
         }
 

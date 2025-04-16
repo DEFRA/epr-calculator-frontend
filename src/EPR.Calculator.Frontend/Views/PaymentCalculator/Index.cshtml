@@ -1,5 +1,4 @@
 ﻿@using EPR.Calculator.Frontend.Constants
-@using EPR.Calculator.Frontend.Helpers
 @using EPR.Calculator.Frontend.ViewModels
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model EPR.Calculator.Frontend.ViewModels.AcceptInvoiceInstructionsViewModel
@@ -26,12 +25,6 @@
 			@Html.HiddenFor(m => m.CurrentUser)
 			@Html.HiddenFor(m => m.RunId)
 
-
-			@* @if (Model.Errors.Any())
-			{
-				<partial name="_ErrorBannerPartial" model="Model.Errors" />
-			} *@
-
 			<partial name="_ValidationSummaryPartial" />
 
 			<fieldset class="govuk-fieldset" aria-describedby="acceptance-hint">
@@ -50,15 +43,6 @@
 				<div class="govuk-form-group @(ViewData.ModelState[nameof(Model.AcceptAll)]?.Errors.Any() == true ? "govuk-form-group--error" : "")">
 					<h2 class="govuk-heading-m">Confirm acceptance</h2>
 
-					@* @if (Model.Errors.Any())
-					{
-						@foreach (var error in Model.Errors)
-						{
-							<p id="@error.DOMElementId" class="govuk-error-message">
-								<span class="govuk-visually-hidden">Error:</span> @error.ErrorMessage
-							</p>
-						}
-					} *@
 
 					@Html.ValidationMessageFor(model => model.AcceptAll, "", new { @class = "govuk-error-message" })
 
