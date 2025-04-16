@@ -6,9 +6,9 @@ using EPR.Calculator.Frontend.ViewModels;
 namespace EPR.Calculator.Frontend.UnitTests.ViewModels
 {
     [TestClass]
-    public class ClassifyCalculationRunScenerio1SubmitViewModelTests
+    public class ClassifyCalculationRunScenerio1ViewModelTests
     {
-        private ClassifyCalculationRunScenerio1SubmitViewModel _testClass;
+        private ClassifyCalculationRunScenerio1ViewModel _testClass;
 
         private IFixture Fixture { get; set; }
 
@@ -16,7 +16,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         public void SetUp()
         {
             Fixture = new Fixture().Customize(new AutoMoqCustomization());
-            _testClass = Fixture.Create<ClassifyCalculationRunScenerio1SubmitViewModel>();
+            _testClass = Fixture.Create<ClassifyCalculationRunScenerio1ViewModel>();
         }
 
         [TestMethod]
