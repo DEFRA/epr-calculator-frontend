@@ -1,0 +1,30 @@
+﻿@{
+    var errors = ViewData.ModelState
+        .Where(kvp => kvp.Value?.Errors?.Count > 0)
+        .Select(kvp => new
+        {
+            Field = kvp.Key,
+            Message = kvp.Value?.Errors.First().ErrorMessage
+        }).ToList();
+}
+
+@if (errors.Any())
+{
+    <div class="govuk-error-summary" data-module="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabindex="-1">
+        <h2 class="govuk-error-summary__title" id="error-summary-title">
+            There is a problem
+        </h2>
+        <div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+                @foreach (var error in errors)
+                {
+                    <li>
+                        <a href="#@error.Field">
+                            @error.Message
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}
