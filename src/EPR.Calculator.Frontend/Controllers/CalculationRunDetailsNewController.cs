@@ -95,6 +95,16 @@ namespace EPR.Calculator.Frontend.Controllers
             return calculatorRun;
         }
 
+        private static bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
+        {
+            if (calculatorRun.RunClassificationId == (int)RunClassification.UNCLASSIFIED)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         private CalculatorRunDetailsNewViewModel CreateViewModel(int runId, CalculatorRunDto calculatorRun)
         {
             var viewModel = new CalculatorRunDetailsNewViewModel
@@ -125,16 +135,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
             viewModel.DownloadErrorURL = $"/DownloadFileError/{viewModel.Data.RunId}";
             viewModel.DownloadTimeout = _configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
-        }
-
-        private static bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
-        {
-            if (calculatorRun.RunClassificationId == (int)RunClassification.UNCLASSIFIED)
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 }
