@@ -15,5 +15,7 @@
         public const string PaycalAppName = "PaycalFrontend";
 
         public const string FinancialYear = "FinancialYear";
+
+        public const string RunParameterYear = "RunParameterYear";
     }
 }
