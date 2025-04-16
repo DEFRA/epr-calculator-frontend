@@ -12,12 +12,12 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller for handling payment calculations.
     /// </summary>
     [Route("[controller]")]
-    public class PaymentCalculatorController : BaseController
+    public class PaymentCalculatorController(
+        IConfiguration configuration,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient)
+        : BaseController(configuration, tokenAcquisition, telemetryClient)
     {
-        public PaymentCalculatorController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
-        {
-        }
-
         [HttpGet]
         [Route("{runId:int}")]
         public IActionResult Index(int runId)
@@ -43,7 +43,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 return RedirectToAction(ActionNames.Index, new { model.RunId });
             }
 
-            model.Errors = ErrorModelHelper.GetErrors(this.ModelState);
+            // model.Errors = ErrorModelHelper.GetErrors(this.ModelState);
 
             return this.View("Index", model);
         }

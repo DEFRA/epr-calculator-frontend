@@ -27,10 +27,12 @@
 			@Html.HiddenFor(m => m.RunId)
 
 
-			@if (Model.Errors.Any())
+			@* @if (Model.Errors.Any())
 			{
 				<partial name="_ErrorBannerPartial" model="Model.Errors" />
-			}
+			} *@
+
+			<partial name="_ValidationSummaryPartial" />
 
 			<fieldset class="govuk-fieldset" aria-describedby="acceptance-hint">
 
@@ -45,10 +47,10 @@
 					The results file contains billing instructions. You must accept all instructions before generating a draft billing file.
 				</p>
 
-				<div class="govuk-form-group @(Model.Errors.HasError(nameof(Model.AcceptAll)) ? "govuk-form-group--error" : "")">
+				<div class="govuk-form-group @(ViewData.ModelState[nameof(Model.AcceptAll)]?.Errors.Any() == true ? "govuk-form-group--error" : "")">
 					<h2 class="govuk-heading-m">Confirm acceptance</h2>
 
-					@if (Model.Errors.Any())
+					@* @if (Model.Errors.Any())
 					{
 						@foreach (var error in Model.Errors)
 						{
@@ -56,7 +58,9 @@
 								<span class="govuk-visually-hidden">Error:</span> @error.ErrorMessage
 							</p>
 						}
-					}
+					} *@
+
+					@Html.ValidationMessageFor(model => model.AcceptAll, "", new { @class = "govuk-error-message" })
 
 					<div class="govuk-checkboxes" data-module="govuk-checkboxes">
 						<div class="govuk-checkboxes__item">
