@@ -1,4 +1,4 @@
-﻿namespace EPR.Calculator.Frontend.Enums
+﻿namespace EPR.Calculator.Frontend.ViewModels.Enums
 {
     public enum ClassifyRunType
     {

@@ -14,13 +14,13 @@
     <partial name="_BackLinkPartialNew" model="backLinkModel" />
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <span class="govuk-caption-xl">@Model.CalculatorRunStatusData.CalcName </span><br>
+            <span class="govuk-caption-xl">@Model.CalculatorRunStatusData.CalcName </span><br />
             <h1 class="govuk-heading-xl">Are you sure you want to delete this calculation run?</h1>
-            <br>
+            <br />
             <label class="govuk-label">
                 Only delete this calculation run if you no longer need it or have completed another successful run.
             </label>
-            <br>
+            <br />
             @using (Html.BeginForm(ActionNames.DeleteConfirmationSuccess, ControllerNames.CalculationRunDelete, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()

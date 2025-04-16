@@ -1,8 +1,8 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
-using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
+using EPR.Calculator.Frontend.ViewModels.Enums;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

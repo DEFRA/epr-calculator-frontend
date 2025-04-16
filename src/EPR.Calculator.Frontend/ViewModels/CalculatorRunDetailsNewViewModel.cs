@@ -1,5 +1,5 @@
-﻿using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels.Enums;
 using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.ViewModels

@@ -1,9 +1,9 @@
 ﻿using System.Security.Claims;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
-using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
+using EPR.Calculator.Frontend.ViewModels.Enums;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -68,7 +68,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
             var viewModel = result.Model as ClassifyCalculationRunScenerio1ViewModel;
             Assert.IsNotNull(viewModel);
-            Assert.AreEqual(runId, viewModel.CalculatorRunStatus.RunId);
+            Assert.AreEqual(runId, viewModel.RunId);
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             int runId = 1;
-            ClassifyCalculationRunScenerio1SubmitViewModel model = new ClassifyCalculationRunScenerio1SubmitViewModel
+            ClassifyCalculationRunScenerio1ViewModel model = new ClassifyCalculationRunScenerio1ViewModel
             {
                 RunId = runId,
                 ClassifyRunType = ClassifyRunType.InitialRun
@@ -92,7 +92,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
             var viewModel = result.Model as ClassifyCalculationRunScenerio1ViewModel;
             Assert.IsNotNull(viewModel);
-            Assert.AreEqual(runId, viewModel.CalculatorRunStatus.RunId);
+            Assert.AreEqual(runId, viewModel.RunId);
         }
 
         [TestMethod]
@@ -100,7 +100,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             int runId = 1;
-            ClassifyCalculationRunScenerio1SubmitViewModel model = new ClassifyCalculationRunScenerio1SubmitViewModel
+            ClassifyCalculationRunScenerio1ViewModel model = new ClassifyCalculationRunScenerio1ViewModel
             {
                 RunId = runId,
                 ClassifyRunType = ClassifyRunType.InitialRun
@@ -120,7 +120,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public void Submit_InvalidModel_ReturnsViewResult_WithErrors()
         {
             // Arrange
-            var model = new ClassifyCalculationRunScenerio1SubmitViewModel { RunId = 1 };
+            var model = new ClassifyCalculationRunScenerio1ViewModel { RunId = 1 };
             _controller.ModelState.AddModelError("ClassifyRunType", "Required");
 
             // Act
@@ -136,7 +136,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public void Submit_ValidModel_RedirectsToConfirmation()
         {
             // Arrange
-            var model = new ClassifyCalculationRunScenerio1SubmitViewModel
+            var model = new ClassifyCalculationRunScenerio1ViewModel
             {
                 RunId = 1,
                 ClassifyRunType = ClassifyRunType.InitialRun

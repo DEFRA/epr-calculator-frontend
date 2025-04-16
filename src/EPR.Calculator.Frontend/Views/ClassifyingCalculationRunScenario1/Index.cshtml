@@ -1,85 +1,90 @@
 ﻿@using EPR.Calculator.Frontend.Constants
-@using EPR.Calculator.Frontend.Enums;
 @using EPR.Calculator.Frontend.ViewModels
+@using EPR.Calculator.Frontend.ViewModels.Enums
 @model EPR.Calculator.Frontend.ViewModels.ClassifyCalculationRunScenerio1ViewModel
 
 @{
-     var backLinkModel = new BackLinkPartialViewModel
-         {
-             BackLink = Model.BackLink,
-             CurrentUser = Model.CurrentUser,
-             RunId = Model.CalculatorRunStatus.RunId
-         };
-    var errors = Model.Errors;
+    var backLinkModel = new BackLinkPartialViewModel
+            {
+                BackLink = Model.BackLink,
+                CurrentUser = Model.CurrentUser,
+                RunId = Model.RunId
+            };    
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
 <partial name="_BackLinkPartialNew" model="backLinkModel" />
+
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
-    @if (errors != null)
-    {
-        <partial name="_ErrorBannerPartial" model="errors" />
-    }
+
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.ClassifyingCalculationRun, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-                @Html.Hidden("RunId", Model.CalculatorRunStatus.RunId)
+                @Html.Hidden("RunId", Model.RunId)
                 @Html.HiddenFor(m => m.CurrentUser)
+
+                <partial name="_ValidationSummaryPartial" />
 
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
                         <legend></legend>
-                        <span id="approval-code-hint" class="govuk-caption-l">@Model.CalculatorRunStatus.CalcName</span>
+                        <span id="approval-code-hint" class="govuk-caption-l">@Model.RunName</span>
                         <h1 class="govuk-heading-l">Classify calculation run</h1>
 
                         <table class="govuk-table" aria-describedby="table-description">
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@Model.CalculatorRunStatus.FinancialYear</td>
+                                    <td class="govuk-table__cell">@Model.FinancialYear</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                    <td class="govuk-table__cell">@Model.CalculatorRunStatus.RunId</td>
+                                    <td class="govuk-table__cell">@Model.RunId</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@Model.CalculatorRunStatus.CreatedDate at @Model.CalculatorRunStatus.CreatedTime</td>
+                                    <td class="govuk-table__cell">@Model.CreatedAt.ToString("dd MMM yyyy") at @Model.CreatedAt.ToString("HH:mm")</td>
                                 </tr>
                             </tbody>
                         </table>
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--invisible">
 
-                        <div class="govuk-radios @(errors != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")" data-module="govuk-radios">
-                            @if (errors != null && errors.Any())
-                            {
-                                @foreach (var error in errors)
-                                {
-                                    <p id="@error.DOMElementId" class="govuk-error-message">
-                                        <span class="govuk-visually-hidden">Error:</span> @error.ErrorMessage
-                                    </p>
-                                }
-                            }
-                            <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="initialRun" name="ClassifyRunType" type="radio" value="@ClassifyRunType.InitialRun">
-                                <label class="govuk-label govuk-radios__label" for="initialRun">
-                                    <strong>Initial run</strong><br>
-                                    <p class="govuk-body-s" style="margin-bottom: 0;">The first official mandatory run of the financial year, used as the baseline for all future recalculations. This run generates an initial billing file for invoicing.</p>
-                                </label>
-                            </div>
-                            <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="testRun" name="ClassifyRunType" type="radio" value="@ClassifyRunType.TestRun">
-                                <label class="govuk-label govuk-radios__label" for="testRun">
-                                    <strong>Test run</strong><br>
-                                    <p class="govuk-body-s" style="margin-bottom: 0;">An unofficial run to view the calculation results without generating a billing file for invoicing.</p>
-                                </label>
-                            </div>
-                            
+
+
+                        <div class="govuk-form-group @(ViewData.ModelState[nameof(Model.ClassifyRunType)]?.Errors.Any() == true ? "govuk-form-group--error" : "")">
+                            <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint" id=@nameof(Model.ClassifyRunType)>
+                                <legend class="govuk-label govuk-fieldset__legend govuk-fieldset__legend--l"></legend>                                    
+
+                                @Html.ValidationMessageFor(model => model.ClassifyRunType, "", new { @class = "govuk-error-message" })
+
+                                <div class="govuk-radios" data-module="govuk-radios">
+                                    <div class="govuk-radios__item">
+                                        @Html.RadioButtonFor(model => model.ClassifyRunType, ClassifyRunType.InitialRun, new { @class = "govuk-radios__input", id = "ClassifyRunType_InitialRun" })
+                                        <label class="govuk-label govuk-radios__label" for="ClassifyRunType_InitialRun">
+                                            <strong>Initial run</strong><br />
+                                            <p class="govuk-body-s" style="margin-bottom: 0;">
+                                                The first official mandatory run of the financial year, used as the baseline for all future recalculations. This run generates an initial billing file for invoicing.
+                                            </p>
+                                        </label>
+                                    </div>
+
+                                    <div class="govuk-radios__item">
+                                        @Html.RadioButtonFor(model => model.ClassifyRunType, ClassifyRunType.TestRun, new { @class = "govuk-radios__input", id = "ClassifyRunType_TestRun" })
+                                        <label class="govuk-label govuk-radios__label" for="ClassifyRunType_TestRun">
+                                            <strong>Test run</strong><br />
+                                            <p class="govuk-body-s" style="margin-bottom: 0;">
+                                                An unofficial run to view the calculation results without generating a billing file for invoicing.
+                                            </p>
+                                        </label>
+                                    </div>
+                                </div>                               
+                            </fieldset>
                         </div>
                     </fieldset>
-                    <br>
+                    <br />
+
                     <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
                         <div class="govuk-notification-banner__header">
                             <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
@@ -88,15 +93,15 @@
                         </div>
                         <div class="govuk-notification-banner__content">
                             <p class="govuk-body-s">
-                                <strong>Interim recalculation run</strong><br>
+                                <strong>Interim recalculation run</strong><br />
                                 An optional run, only available after the initial run.
                             </p>
                             <p class="govuk-body-s">
-                                <strong>Final recalculation run</strong><br>
+                                <strong>Final recalculation run</strong><br />
                                 An optional run, only available if no other final recalculation or later run has been classified this year.
                             </p>
                             <p class="govuk-body-s">
-                                <strong>Final run</strong><br>
+                                <strong>Final run</strong><br />
                                 A mandatory run, only available if no other final run or later run has been classified this year.
                             </p>
                         </div>
