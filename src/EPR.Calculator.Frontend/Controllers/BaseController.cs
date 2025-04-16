@@ -83,14 +83,6 @@ namespace EPR.Calculator.Frontend.Controllers
             return parameterYear;
         }
 
-        private async Task<HttpClient> GetHttpClient()
-        {
-            var client = this.ClientFactory.CreateClient();
-            var accessToken = await this.AcquireToken();
-            client.DefaultRequestHeaders.Add("Authorization", accessToken);
-            return client;
-        }
-
         protected async Task<HttpResponseMessage> CallApi(
             HttpMethod httpMethod,
             Uri apiUrl,
@@ -116,6 +108,20 @@ namespace EPR.Calculator.Frontend.Controllers
             return await client.SendAsync(request);
         }
 
+        private async Task<HttpClient> GetHttpClient()
+        {
+            var client = this.ClientFactory.CreateClient();
+            var accessToken = await this.AcquireToken();
+            client.DefaultRequestHeaders.Add("Authorization", accessToken);
+            return client;
+        }
+
+        /// <summary>
+        /// Retrieves the API URL from the specified configuration section and key.
+        /// </summary>
+        protected Uri GetApiUrl(string configSection, string configKey)
+            => new Uri(this.GetConfigSetting(configSection, configKey));
+
         /// <summary>
         /// Retrieves a configuration setting from the specified section and key.
         /// </summary>
@@ -133,11 +139,5 @@ namespace EPR.Calculator.Frontend.Controllers
 
             return value;
         }
-
-        /// <summary>
-        /// Retrieves the API URL from the specified configuration section and key.
-        /// </summary>
-        protected Uri GetApiUrl(string configSection, string configKey)
-            => new Uri(this.GetConfigSetting(configSection, configKey));
     }
 }

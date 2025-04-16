@@ -201,7 +201,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return await this.CallApi(HttpMethod.Put, apiUrl, string.Empty, args);
         }
 
-        protected async Task<HttpResponseMessage> GetCalculatorRunAsync(int runId)
+        private async Task<HttpResponseMessage> GetCalculatorRunAsync(int runId)
         {
             var apiUrl = this.GetApiUrl(
                 ConfigSection.DashboardCalculatorRun,
