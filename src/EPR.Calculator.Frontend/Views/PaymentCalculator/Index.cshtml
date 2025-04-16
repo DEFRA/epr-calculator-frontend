@@ -43,7 +43,6 @@
 				<div class="govuk-form-group @(ViewData.ModelState[nameof(Model.AcceptAll)]?.Errors.Any() == true ? "govuk-form-group--error" : "")">
 					<h2 class="govuk-heading-m">Confirm acceptance</h2>
 
-
 					@Html.ValidationMessageFor(model => model.AcceptAll, "", new { @class = "govuk-error-message" })
 
 					<div class="govuk-checkboxes" data-module="govuk-checkboxes">
