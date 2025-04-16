@@ -55,7 +55,7 @@
                _configuration,
                _mockTokenAcquisition.Object,
                _telemetryClient,
-               Fixture.Create<IHttpClientFactory>())
+               new Mock<IHttpClientFactory>().Object)
             {
                 ControllerContext = new ControllerContext
                 {

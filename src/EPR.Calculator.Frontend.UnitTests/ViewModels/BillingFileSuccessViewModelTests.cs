@@ -41,6 +41,7 @@
             {
                 ConfirmationViewModel = this.TestClass.ConfirmationViewModel,
                 CurrentUser = this.TestClass.CurrentUser,
+                BackLink = this.TestClass.BackLink,
             };
             var different = Fixture.Create<BillingFileSuccessViewModel>();
 
