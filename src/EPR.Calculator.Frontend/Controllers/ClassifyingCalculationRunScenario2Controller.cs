@@ -25,7 +25,6 @@ namespace EPR.Calculator.Frontend.Controllers
         IHttpClientFactory clientFactory)
         : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-
         /// <summary>
         /// Displays the index view for classifying calculation runs.
         /// </summary>
