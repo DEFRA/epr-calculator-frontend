@@ -35,7 +35,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             _controller = new ClassifyingCalculationRunScenario1Controller(
                    _configuration,
                    _mockClientFactory.Object,
-                   _mockLogger.Object,
                    _mockTokenAcquisition.Object,
                    _mockTelemetryClient)
             {
