@@ -23,7 +23,6 @@ namespace EPR.Calculator.Frontend.Controllers
     public class ClassifyingCalculationRunScenario1Controller(
         IConfiguration configuration,
         IHttpClientFactory clientFactory,
-        ILogger<ClassifyingCalculationRunScenario1Controller> logger,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient)
         : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
