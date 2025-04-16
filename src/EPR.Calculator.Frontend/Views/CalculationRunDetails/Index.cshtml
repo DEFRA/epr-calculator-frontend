@@ -1,5 +1,6 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels
 @using Microsoft.AspNetCore.Http
+@using System.Web
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunStatusUpdateViewModel
 @{
@@ -22,14 +23,14 @@
                     </a>
                 </div>
                 <h2 class="gem-c-attachment__title govuk-body">
-                    <a href="javascript:void(0)" 
-                        onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');" 
-                        class="govuk-link" 
-                        target="_self">Download</a>
-                        <br />
+                    <a href="javascript:void(0)"
+                       onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.AccessToken))');"
+                       class="govuk-link"
+                       target="_self">Download</a>
+                    <br />
                     ID: @Model.Data.RunId
                 </h2>
-                <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.Data.CreatedDate<br>@Model.Data.CreatedTime</p>               
+                <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.Data.CreatedDate<br>@Model.Data.CreatedTime</p>
             </section>
         </div>
         <div class="govuk-grid-column-two-thirds">

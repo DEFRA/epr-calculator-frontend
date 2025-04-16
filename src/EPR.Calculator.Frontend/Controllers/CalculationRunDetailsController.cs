@@ -45,6 +45,8 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                var accessToken = await this.AcquireToken();
+
                 var getCalculationDetailsResponse = await this.GetCalculationDetailsAsync(runId);
 
                 if (!getCalculationDetailsResponse.IsSuccessStatusCode)
@@ -82,6 +84,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         CreatedDate = calculatorRun.CreatedAt.ToString("dd MMM yyyy"),
                         CreatedTime = calculatorRun.CreatedAt.ToString("HH:mm"),
                     },
+                    AccessToken = accessToken,
                 };
 
                 this.SetDownloadParameters(statusUpdateViewModel);

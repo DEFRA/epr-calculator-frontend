@@ -32,5 +32,10 @@ namespace EPR.Calculator.Frontend.ViewModels
         public int? DownloadTimeout { get; set; }
 
         public ErrorViewModel Errors { get; set; }
+
+        /// <summary>
+        /// Gets or sets access token.
+        /// </summary>
+        public string AccessToken { get; set; }
     }
 }
