@@ -6,25 +6,15 @@
 }
 
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-three-quarters">
-            <p></p>
-        </div>
-        <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
-            <div class="account-info">
-                <span class="your-name" id="bannerUserName">@Model.CurrentUser</span>
-                <a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
-            </div>
-        </div>
-    </div>
+	<partial name="_CurrentUserPartial" model="@Model.CurrentUser" />
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <br>
             <h1 class="govuk-heading-xl">You have successfully deleted this calculation</h1>
-            <span class="govuk-caption-xl">@Model.Data.CalcName</span><br>
+            <span class="govuk-caption-xl">@Model.Data.CalcName</span><br />
             <p class="govuk-body">ID: @Model.Data.RunId</p>
             <hr>
-            <br>
+            <br />
             @using (Html.BeginForm("Index", "Dashboard", FormMethod.Post))
             {
                 @Html.AntiForgeryToken()

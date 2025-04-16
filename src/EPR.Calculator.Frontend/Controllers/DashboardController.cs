@@ -1,18 +1,16 @@
-﻿using Microsoft.ApplicationInsights.DataContracts;
+﻿using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    using EPR.Calculator.Frontend.Common.Constants;
-    using EPR.Calculator.Frontend.Constants;
-    using EPR.Calculator.Frontend.Helpers;
-    using EPR.Calculator.Frontend.Models;
-    using EPR.Calculator.Frontend.ViewModels;
-    using Microsoft.ApplicationInsights;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Identity.Web;
-    using Newtonsoft.Json;
-
     /// <summary>
     /// Controller for handling the dashboard.
     /// </summary>
@@ -23,7 +21,6 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
     /// <param name="tokenAcquisition">The token acquisition service.</param>
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
-    [Authorize(Roles = "SASuperUser")]
     [Route("/")]
     public class DashboardController(
         IConfiguration configuration,
@@ -41,7 +38,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// An <see cref="IActionResult"/> that renders the Dashboard Index view with the calculation runs data,
         /// or redirects to the Standard Error page if an error occurs.
         /// </returns>
-        [Authorize(Roles = "SASuperUser")]
         public async Task<IActionResult> Index()
         {
             try
@@ -67,7 +63,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="financialYear">The financial year to filter the calculation runs.</param>
         /// <returns>The list of calculation runs.</returns>
-        [Authorize(Roles = "SASuperUser")]
         [Route("Dashboard/GetCalculations")]
         public async Task<IActionResult> GetCalculations(string financialYear)
         {

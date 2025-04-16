@@ -8,7 +8,6 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
@@ -25,7 +24,6 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="clientFactory">The factory for creating HTTP clients.</param>
     /// <param name="tokenAcquisition">The token acquisition service.</param>
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
-    [Authorize(Roles = "SASuperUser")]
     public class DefaultParametersController(
         IConfiguration configuration,
         IHttpClientFactory clientFactory,
@@ -39,7 +37,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>
         /// An <see cref="IActionResult"/> that renders the view with the retrieved data or redirects to an error page.
         /// </returns>
-        [Authorize(Roles = "SASuperUser")]
         [Route("ViewDefaultParameters")]
         public async Task<IActionResult> Index()
         {

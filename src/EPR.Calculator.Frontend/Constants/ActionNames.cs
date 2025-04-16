@@ -21,6 +21,11 @@
         public const string Index = "Index";
 
         /// <summary>
+        /// Submit action.
+        /// </summary>
+        public const string Submit = "Submit";
+
+        /// <summary>
         /// Confirmation Success action.
         /// </summary>
         public const string ConfirmationSuccess = "ConfirmationSuccess";
@@ -28,6 +33,11 @@
         /// <summary>
         /// Delete Confirmation Success action.
         /// </summary>
-        public const string DeleteConfirmation = "DeleteConfirmation";
+        public const string DeleteConfirmationSuccess = "DeleteConfirmationSuccess";
+
+        /// <summary>
+        /// Billing File Success action.
+        /// </summary>
+        public const string BillingFileSuccess = "BillingFileSuccess";
     }
 }

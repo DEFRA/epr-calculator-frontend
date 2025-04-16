@@ -1,16 +1,2 @@
-﻿@using EPR.Calculator.Frontend.Models;
-@{
-    Layout = "_Layout";
-
-    var model = new ConfirmationViewModel
-            {
-                Title = "You have successfully updated",
-                Body = "The default parameters",
-                AdditionalParagraphs = ["All calculations will automatically use the new parameters, unless they are manually changed."],
-                RedirectController = "DefaultParameters",
-                SubmitText = "View new default parameters"
-            };
-}
-
-<partial name="_ConfirmationPartial" model="model" />
-
+﻿@model EPR.Calculator.Frontend.Models.ConfirmationViewModel;
+<partial name="_ConfirmationPartial" model=Model />

@@ -2,44 +2,50 @@
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="PaymentCalculatorController"/> class.
+    /// Controller for handling payment calculations.
     /// </summary>
-    [Authorize(Roles = "SASuperUser")]
-    [Route("PaymentCalculator")]
-    public class PaymentCalculatorController : Controller
+    [Route("[controller]")]
+    public class PaymentCalculatorController(
+        IConfiguration configuration,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient,
+        IHttpClientFactory httpClientFactory)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
     {
         [HttpGet]
-        [Route("accept-invoice-instructions")]
-        public IActionResult AcceptInvoiceInstructions()
+        [Route("{runId}")]
+        public IActionResult Index(int runId)
         {
             var model = new AcceptInvoiceInstructionsViewModel
             {
+                RunId = runId,
                 AcceptAll = false,
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                CalculationRunTitle = "Calculation run 99",
+                CalculationRunTitle = "Calculation Run 99",
+                BackLink = ControllerNames.ClassifyRunConfirmation,
             };
 
             return this.View(model);
         }
 
         [HttpPost]
-        [Route("accept-invoice-instructions")]
         [ValidateAntiForgeryToken]
-        public IActionResult AcceptInvoiceInstructions(AcceptInvoiceInstructionsViewModel model)
+        public IActionResult Submit(int runId)
         {
-            if (model.AcceptAll)
+            if (!this.ModelState.IsValid)
             {
-                return this.RedirectToAction("Overview"); // dummy return url
+                return RedirectToAction(ActionNames.Index, new { runId });
             }
 
-            this.ModelState.AddModelError("AcceptAll", "You must confirm acceptance to proceed.");
-            return this.View(model);
+            return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId });
         }
 
         /// <summary>
@@ -49,7 +55,6 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("BillingFileSuccess")]
         public IActionResult BillingFileSuccess()
         {
-            // Create the view model
             var model = new BillingFileSuccessViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
@@ -58,11 +63,10 @@ namespace EPR.Calculator.Frontend.Controllers
                     Title = ConfirmationMessages.BillingFileSuccessTitle,
                     Body = ConfirmationMessages.BillingFileSuccessBody,
                     AdditionalParagraphs = ConfirmationMessages.BillingFileSuccessAdditionalParagraphs,
-                    RedirectController = CommonConstants.DashBoard,
+                    RedirectController = ControllerNames.Dashboard,
                 },
             };
 
-            // Return the view
             return this.View(ViewNames.BillingConfirmationSuccess, model);
         }
     }
