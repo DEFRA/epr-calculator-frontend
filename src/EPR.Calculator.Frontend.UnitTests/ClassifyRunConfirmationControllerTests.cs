@@ -101,6 +101,38 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(model);
         }
 
+        [TestMethod]
+        public void Submit_RedirectsToIndex_WhenModelStateIsInvalid()
+        {
+            // Arrange
+            int runId = 1;
+            _controller.ModelState.AddModelError("Error", "Invalid model state");
+
+            // Act
+            var result = _controller.Submit(runId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(runId, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public void Submit_RedirectsToPaymentCalculatorIndex_WhenModelStateIsValid()
+        {
+            // Arrange
+            int runId = 1;
+
+            // Act
+            var result = _controller.Submit(runId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.PaymentCalculator, result.ControllerName);
+            Assert.AreEqual(runId, result.RouteValues["runId"]);
+        }
+
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();

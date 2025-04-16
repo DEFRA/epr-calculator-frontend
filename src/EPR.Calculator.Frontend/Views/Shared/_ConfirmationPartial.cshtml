@@ -27,8 +27,8 @@
                     @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
                     {
                         <a href="@Url.Action(ActionNames.Index, @Model.RedirectController)" class="govuk-button" type="submit">@Model.SubmitText</a>
-                    }
-                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
+                    }                    
+                    <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
                 </div>
             </div>
         </div>

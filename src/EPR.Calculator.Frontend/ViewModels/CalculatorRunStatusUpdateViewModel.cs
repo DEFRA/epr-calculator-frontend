@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Models;
 using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.ViewModels
@@ -31,7 +32,5 @@ namespace EPR.Calculator.Frontend.ViewModels
         public int? DownloadTimeout { get; set; }
 
         public ErrorViewModel Errors { get; set; }
-
-        public string BackLink { get; set; } = "Dashboard";
     }
 }
