@@ -55,6 +55,7 @@
 
                         <div class="govuk-form-group @(ViewData.ModelState[nameof(Model.ClassifyRunType)]?.Errors.Any() == true ? "govuk-form-group--error" : "")">
                             <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint" id=@nameof(Model.ClassifyRunType)>
+                                <legend class="govuk-label govuk-fieldset__legend govuk-fieldset__legend--l"></legend>                                    
 
                                 @Html.ValidationMessageFor(model => model.ClassifyRunType, "", new { @class = "govuk-error-message" })
 
