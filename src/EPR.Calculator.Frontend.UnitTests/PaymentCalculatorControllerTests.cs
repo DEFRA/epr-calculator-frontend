@@ -115,9 +115,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(model.BackLink, returnedModel.BackLink);
             Assert.AreEqual(model.CurrentUser, returnedModel.CurrentUser);
 
-            // Verify that the Errors property is populated correctly
-            Assert.IsNotNull(returnedModel.Errors);
-            Assert.IsTrue(returnedModel.Errors.Any(e => e.DOMElementId == "AcceptAll-Error" && e.ErrorMessage == "You must confirm acceptance to proceed."));
+            // Verify the ModelState contains the expected error
+            Assert.IsTrue(_controller.ModelState.ContainsKey("AcceptAll"));
+            var modelStateEntry = _controller.ModelState["AcceptAll"];
+            Assert.IsNotNull(modelStateEntry);
+            Assert.IsTrue(modelStateEntry.Errors.Any(e => e.ErrorMessage == "You must confirm acceptance to proceed."));
         }
 
         [TestMethod]
