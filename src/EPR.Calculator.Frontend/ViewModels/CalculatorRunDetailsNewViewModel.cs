@@ -1,6 +1,6 @@
-﻿using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Models;
 using System.Diagnostics.CodeAnalysis;
-using static EPR.Calculator.Frontend.Constants.CommonEnums;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {

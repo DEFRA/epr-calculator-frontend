@@ -18,15 +18,11 @@ namespace EPR.Calculator.Frontend.Controllers
     public class ClassifyingCalculationRunScenario1Controller : BaseController
     {
         private const string ClassifyingCalculationRunIndexView = ViewNames.ClassifyingCalculationRunScenario1Index;
-        private readonly IConfiguration configuration;
-        private readonly IHttpClientFactory clientFactory;
         private readonly ILogger<ClassifyingCalculationRunScenario1Controller> logger;
 
         public ClassifyingCalculationRunScenario1Controller(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyingCalculationRunScenario1Controller> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
             : base(configuration, tokenAcquisition, telemetryClient)
         {
-            this.configuration = configuration;
-            this.clientFactory = clientFactory;
             this.logger = logger;
         }
 
@@ -97,7 +93,7 @@ namespace EPR.Calculator.Frontend.Controllers
             catch (Exception ex)
             {
                 this.logger.LogError(ex, "An error occurred while processing the request.");
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, ControllerNames.StandardErrorController);
             }
         }
     }

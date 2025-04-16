@@ -1,12 +1,14 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
     /// <summary>
     /// classify calculation run scenerio1 view model.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public record ClassifyCalculationRunScenerio1SubmitViewModel
     {
         /// <summary>
