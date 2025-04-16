@@ -108,6 +108,12 @@ namespace EPR.Calculator.Frontend.Controllers
             return await client.SendAsync(request);
         }
 
+        /// <summary>
+        /// Retrieves the API URL from the specified configuration section and key.
+        /// </summary>
+        protected Uri GetApiUrl(string configSection, string configKey)
+            => new Uri(this.GetConfigSetting(configSection, configKey));
+
         private async Task<HttpClient> GetHttpClient()
         {
             var client = this.ClientFactory.CreateClient();
@@ -115,12 +121,6 @@ namespace EPR.Calculator.Frontend.Controllers
             client.DefaultRequestHeaders.Add("Authorization", accessToken);
             return client;
         }
-
-        /// <summary>
-        /// Retrieves the API URL from the specified configuration section and key.
-        /// </summary>
-        protected Uri GetApiUrl(string configSection, string configKey)
-            => new Uri(this.GetConfigSetting(configSection, configKey));
 
         /// <summary>
         /// Retrieves a configuration setting from the specified section and key.
