@@ -23,8 +23,6 @@ namespace EPR.Calculator.Frontend.Controllers
         IHttpClientFactory httpClientFactory)
         : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
     {
-        private readonly IConfiguration _configuration = configuration;
-
         [Route("{runId}")]
         public Task<IActionResult> Index(int runId)
         {
@@ -81,14 +79,14 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private void SetDownloadParameters(CalculatorRunOverviewViewModel viewModel)
         {
-            var baseApiUrl = _configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
+            var baseApiUrl = this.Configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
             viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.Data.RunId}");
 
-            var draftedBillingApiUrl = _configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadDraftBillingApi}");
+            var draftedBillingApiUrl = this.Configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadDraftBillingApi}");
             viewModel.DownloadDraftBillingURL = new Uri($"{draftedBillingApiUrl}/{viewModel.Data.RunId}");
 
             viewModel.DownloadErrorURL = $"/DownloadFileError/{viewModel.Data.RunId}";
-            viewModel.DownloadTimeout = _configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
+            viewModel.DownloadTimeout = this.Configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
         }
     }
 }

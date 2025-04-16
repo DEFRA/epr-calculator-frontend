@@ -29,7 +29,6 @@ namespace EPR.Calculator.Frontend.Controllers
         : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
         private const string ClassifyingCalculationRunIndexView = ViewNames.ClassifyingCalculationRunScenario1Index;
-        private readonly ILogger<ClassifyingCalculationRunScenario1Controller> logger = logger;
 
         [Route("{runId}")]
         public IActionResult Index(int runId)
