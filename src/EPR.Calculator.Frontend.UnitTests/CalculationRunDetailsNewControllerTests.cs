@@ -209,7 +209,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunDetailsErrorPage, result.ViewName);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsNewErrorPage, result.ViewName);
         }
     }
 }

@@ -80,18 +80,36 @@ namespace EPR.Calculator.Frontend.Controllers
         private static CalculatorRunDto GetCalculationRunDetails(int runId)
         {
             // Get the calculation run details from the API
+            var calculatorRuns = new List<CalculatorRunDto>();
+
             CalculatorRunDto calculatorRunDto = new()
             {
-                RunId = runId,
+                RunId = 1,
                 FinancialYear = "2024-25",
                 FileExtension = "xlsx",
                 RunClassificationStatus = "Draft",
                 RunName = "Calculation Run 99",
-                RunClassificationId = 240008,
+                RunClassificationId = 3,
                 CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
                 CreatedBy = "Steve Jones",
             };
-            var calculatorRun = calculatorRunDto;
+
+            CalculatorRunDto calculatorRunUnclassifiedDto = new()
+            {
+                RunId = 2,
+                FinancialYear = "2024-25",
+                FileExtension = "xlsx",
+                RunClassificationStatus = "Unclassified",
+                RunName = "Calculation Run 99",
+                RunClassificationId = 5,
+                CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
+                CreatedBy = "Steve Jones",
+            };
+
+            calculatorRuns.Add(calculatorRunDto);
+            calculatorRuns.Add(calculatorRunUnclassifiedDto);
+            var calculatorRun = calculatorRuns.Where(x => x.RunId == runId).FirstOrDefault();
+
             return calculatorRun;
         }
 
