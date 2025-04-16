@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
-using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.ViewModels;
+using EPR.Calculator.Frontend.ViewModels.Enums;
 
 namespace EPR.Calculator.Frontend.UnitTests.ViewModels
 {

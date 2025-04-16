@@ -1,6 +1,6 @@
 ﻿@using EPR.Calculator.Frontend.Constants
-@using EPR.Calculator.Frontend.Enums;
 @using EPR.Calculator.Frontend.ViewModels
+@using EPR.Calculator.Frontend.ViewModels.Enums
 @model EPR.Calculator.Frontend.ViewModels.ClassifyCalculationRunScenerio1ViewModel
 
 @{
@@ -78,26 +78,11 @@
                                             </p>
                                         </label>
                                     </div>
-                                </div>
-
-                                @*  <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="initialRun" name="ClassifyRunType" type="radio" value="@ClassifyRunType.InitialRun">
-                                    <label class="govuk-label govuk-radios__label" for="initialRun">
-                                        <strong>Initial run</strong><br>
-                                        <p class="govuk-body-s" style="margin-bottom: 0;">The first official mandatory run of the financial year, used as the baseline for all future recalculations. This run generates an initial billing file for invoicing.</p>
-                                    </label>
-                                </div>
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="testRun" name="ClassifyRunType" type="radio" value="@ClassifyRunType.TestRun">
-                                    <label class="govuk-label govuk-radios__label" for="testRun">
-                                        <strong>Test run</strong><br>
-                                        <p class="govuk-body-s" style="margin-bottom: 0;">An unofficial run to view the calculation results without generating a billing file for invoicing.</p>
-                                    </label>
-                                </div> *@
+                                </div>                               
                             </fieldset>
                         </div>
                     </fieldset>
-                    <br>
+                    <br />
 
                     <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
                         <div class="govuk-notification-banner__header">
@@ -107,15 +92,15 @@
                         </div>
                         <div class="govuk-notification-banner__content">
                             <p class="govuk-body-s">
-                                <strong>Interim recalculation run</strong><br>
+                                <strong>Interim recalculation run</strong><br />
                                 An optional run, only available after the initial run.
                             </p>
                             <p class="govuk-body-s">
-                                <strong>Final recalculation run</strong><br>
+                                <strong>Final recalculation run</strong><br />
                                 An optional run, only available if no other final recalculation or later run has been classified this year.
                             </p>
                             <p class="govuk-body-s">
-                                <strong>Final run</strong><br>
+                                <strong>Final run</strong><br />
                                 A mandatory run, only available if no other final run or later run has been classified this year.
                             </p>
                         </div>
