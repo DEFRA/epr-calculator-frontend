@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -36,6 +37,18 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult Index(int runId)
         {
             CalculatorRunDto calculatorRun = GetCalculationRunDetails(runId);
+
+            if (calculatorRun == null)
+            {
+                throw new ArgumentNullException($"Calculator with run id {runId} not found");
+            }
+            else if (!IsRunEligibleForDisplay(calculatorRun))
+            {
+                return this.View(ViewNames.CalculationRunDetailsNewErrorPage, new ViewModelCommonData
+                {
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                });
+            }
 
             var viewModel = CreateViewModel(runId, calculatorRun);
 
@@ -112,6 +125,16 @@ namespace EPR.Calculator.Frontend.Controllers
 
             viewModel.DownloadErrorURL = $"/DownloadFileError/{viewModel.Data.RunId}";
             viewModel.DownloadTimeout = _configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
+        }
+
+        private static bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
+        {
+            if (calculatorRun.RunClassificationId == (int)RunClassification.UNCLASSIFIED)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
