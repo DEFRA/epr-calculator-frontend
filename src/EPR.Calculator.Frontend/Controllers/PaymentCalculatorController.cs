@@ -13,12 +13,13 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller for handling payment calculations.
     /// </summary>
     [Route("[controller]")]
-    public class PaymentCalculatorController : BaseController
+    public class PaymentCalculatorController(
+        IConfiguration configuration,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient,
+        IHttpClientFactory httpClientFactory)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
     {
-        public PaymentCalculatorController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
-        {
-        }
-
         [HttpGet]
         [Route("{runId}")]
         public IActionResult Index(int runId)

@@ -12,29 +12,19 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="CalculationRunDeleteController"/> class.
     /// </summary>
+    /// <param name="configuration">The configuration settings.</param>
+    /// <param name="clientFactory">The HTTP client factory.</param>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="tokenAcquisition">The token acquisition service.</param>
+    /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     [Route("[controller]")]
-    public class CalculationRunDeleteController : BaseController
+    public class CalculationRunDeleteController(
+        IConfiguration configuration,
+        IHttpClientFactory clientFactory,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        private readonly IConfiguration configuration;
-        private readonly IHttpClientFactory clientFactory;
-        private readonly ILogger<CalculationRunDeleteController> logger;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CalculationRunDeleteController"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration settings.</param>
-        /// <param name="clientFactory">The HTTP client factory.</param>
-        /// <param name="logger">The logger instance.</param>
-        /// <param name="tokenAcquisition">The token acquisition service.</param>
-        /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
-        public CalculationRunDeleteController(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<CalculationRunDeleteController> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
-        {
-            this.configuration = configuration;
-            this.clientFactory = clientFactory;
-            this.logger = logger;
-        }
-
         /// <summary>
         /// Displays the calculate run delete confirmation screen.
         /// </summary>

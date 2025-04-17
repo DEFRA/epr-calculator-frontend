@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Configuration;
+using System.Net;
 using EPR.Calculator.Frontend.Common;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
@@ -16,26 +17,20 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Controller for handling default parameter settings.
     /// </summary>
-    public class DefaultParametersController : BaseController
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="DefaultParametersController"/> class.
+    /// </remarks>
+    /// <param name="configuration">The configuration settings for the application.</param>
+    /// <param name="clientFactory">The factory for creating HTTP clients.</param>
+    /// <param name="tokenAcquisition">The token acquisition service.</param>
+    /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
+    public class DefaultParametersController(
+        IConfiguration configuration,
+        IHttpClientFactory clientFactory,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        /// <summary>
-        /// The factory for creating HTTP clients.
-        /// </summary>
-        private readonly IHttpClientFactory clientFactory;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DefaultParametersController"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration settings for the application.</param>
-        /// <param name="clientFactory">The factory for creating HTTP clients.</param>
-        /// <param name="tokenAcquisition">The token acquisition service.</param>
-        /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
-        public DefaultParametersController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
-        {
-            this.clientFactory = clientFactory;
-        }
-
         /// <summary>
         /// Handles the Index action for retrieving and displaying default scheme parameters.
         /// </summary>
@@ -47,22 +42,9 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var parameterSettingsApi = this.Configuration.GetSection(ConfigSection.ParameterSettings).GetSection(ConfigSection.DefaultParameterSettingsApi).Value;
-
-                if (string.IsNullOrWhiteSpace(parameterSettingsApi))
-                {
-                    throw new ArgumentNullException(parameterSettingsApi, "ParameterSettingsApi is null. Check the configuration settings for default parameters");
-                }
-
-                var client = this.clientFactory.CreateClient();
-                client.BaseAddress = new Uri(parameterSettingsApi);
-                var accessToken = await this.AcquireToken();
-                client.DefaultRequestHeaders.Add("Authorization", accessToken);
-
                 var parameterYear = this.GetFinancialYear(ConfigSection.ParameterSettings);
 
-                var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, parameterYear));
-                var response = await client.GetAsync(uri);
+                var response = await this.GetDefaultParametersAsync(parameterYear);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -123,6 +105,14 @@ namespace EPR.Calculator.Frontend.Controllers
         private static bool IsExcludedFromPrefixDisplay(ParameterType parameterType)
         {
             return parameterType == ParameterType.LateReportingTonnage || parameterType == ParameterType.BadDebtProvision;
+        }
+
+        private async Task<HttpResponseMessage> GetDefaultParametersAsync(string parameterYear)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.ParameterSettings,
+                ConfigSection.DefaultParameterSettingsApi);
+            return await this.CallApi(HttpMethod.Get, apiUrl, parameterYear, null);
         }
     }
 }

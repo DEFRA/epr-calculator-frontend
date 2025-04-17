@@ -1,13 +1,24 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using EPR.Calculator.Frontend.ViewModels;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.Models
 {
     /// <summary>
     /// Data Transfer Object (DTO) for creating lapcap parameter settings.
     /// </summary>
-    [ExcludeFromCodeCoverage]
-    public class CreateLapcapDataDto
+    public record CreateLapcapDataDto
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateLapcapDataDto"/> class.
+        /// </summary>
+        [SetsRequiredMembers]
+        public CreateLapcapDataDto(LapcapRefreshViewModel original, string parameterYear)
+        {
+            this.LapcapDataTemplateValues = original.LapcapTemplateValue;
+            this.LapcapFileName = original.FileName;
+            this.ParameterYear = parameterYear;
+        }
+
         /// <summary>
         /// Gets or sets the parameter year.
         /// </summary>

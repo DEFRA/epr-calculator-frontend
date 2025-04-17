@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using AutoFixture;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
@@ -23,8 +24,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         private CalculationRunOverviewController _controller;
         private Mock<HttpContext> _mockHttpContext;
 
-        [TestInitialize]
-        public void Setup()
+        public CalculationRunOverviewControllerTests()
         {
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _mockLogger = new Mock<ILogger<CalculationRunOverviewController>>();
@@ -37,7 +37,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                    _mockHttpClientFactory.Object,
                    _mockLogger.Object,
                    _mockTokenAcquisition.Object,
-                   _telemetryClient)
+                   _telemetryClient,
+                   new Mock<IHttpClientFactory>().Object)
             {
                 // Setting the mocked HttpContext for the controller
                 ControllerContext = new ControllerContext
