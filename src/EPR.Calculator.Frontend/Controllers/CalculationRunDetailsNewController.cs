@@ -4,13 +4,10 @@ using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using EPR.Calculator.Frontend.ViewModels.Enums;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using Newtonsoft.Json;
-using System.Reflection;
-using static EPR.Calculator.Frontend.Constants.CommonEnums;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -57,17 +54,17 @@ namespace EPR.Calculator.Frontend.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Submit(CalculatorRunDetailsNewViewModel model)
         {
-            if (model.SelectedCalcRunOption == null || model.SelectedCalcRunOption == CommonEnums.CalculationRunOption.None)
+            if (model.SelectedCalcRunOption == null || model.SelectedCalcRunOption == CalculationRunOption.None)
             {
                 return RedirectToAction("Index", new { model.Data.RunId });
             }
 
             switch (model.SelectedCalcRunOption)
             {
-                case CommonEnums.CalculationRunOption.OutputClassify:
+                case CalculationRunOption.OutputClassify:
                     return RedirectToAction(ActionNames.Index, ControllerNames.ClassifyingCalculationRun, new { model.Data.RunId });
 
-                case CommonEnums.CalculationRunOption.OutputDelete:
+                case CalculationRunOption.OutputDelete:
                     return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { model.Data.RunId });
 
                 default:
