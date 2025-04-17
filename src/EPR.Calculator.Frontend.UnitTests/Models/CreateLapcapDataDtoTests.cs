@@ -21,7 +21,6 @@
                 LapcapTemplateValue = TestClass.LapcapDataTemplateValues,
             };
             this.ParameterYear = TestClass.ParameterYear;
-
         }
 
         private CreateLapcapDataDto TestClass { get; init; }
