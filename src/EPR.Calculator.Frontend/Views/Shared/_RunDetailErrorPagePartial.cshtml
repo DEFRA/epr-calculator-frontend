@@ -1,15 +1,16 @@
-﻿@model ErrorViewModel
+﻿@using EPR.Calculator.Frontend.ViewModels
+@model CalculatorRunDetailsNewViewModel;
 
 <div class="govuk-error-summary" data-module="govuk-error-summary">
     <div role="alert">
-        <span class="govuk-caption-l">Calculation run 99</span>
+        <span class="govuk-caption-l">@Model.Data.RunName</span>
         <h2 class="govuk-heading-l">
             The calculator could not complete the run.
         </h2>
         <div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
                 <li>
-                    <p>@Model.ErrorMessage</p>
+                    <p>@Model.Errors.ErrorMessage</p>
                 </li>
             </ul>
         </div>
