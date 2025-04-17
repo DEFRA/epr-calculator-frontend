@@ -27,7 +27,7 @@
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
 
-            var testValue = fixture.Create<ErrorViewModel>();
+            var testValue = fixture.Create<List<ErrorViewModel>>();
 
             // Act
             TestClass.Errors = testValue;

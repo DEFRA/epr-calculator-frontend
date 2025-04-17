@@ -78,7 +78,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (lapcapFileErrors.ErrorMessage is not null)
             {
-                lapcapUploadViewModel.Errors = lapcapFileErrors;
+                lapcapUploadViewModel.Errors = new List<ErrorViewModel> { lapcapFileErrors };
                 return this.View(
                     ViewNames.LocalAuthorityUploadFileErrorIndex,
                     lapcapUploadViewModel);

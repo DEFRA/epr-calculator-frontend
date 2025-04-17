@@ -17,5 +17,7 @@
         public const string SendBillingFile = "SendBillingFile";
 
         public const string CalculationRunDelete = "CalculationRunDelete";
+
+        public const string StandardErrorController = "StandardErrorController";
     }
 }

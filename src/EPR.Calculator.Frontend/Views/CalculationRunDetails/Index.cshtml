@@ -29,7 +29,7 @@
                         <br />
                     ID: @Model.Data.RunId
                 </h2>
-                <p class="gem-c-attachment__metadata govuk-body">CSV<br>@Model.Data.CreatedDate<br>@Model.Data.CreatedTime</p>               
+                <p class="gem-c-attachment__metadata govuk-body">CSV<br />@Model.Data.CreatedDate<br />@Model.Data.CreatedTime</p>               
             </section>
         </div>
         <div class="govuk-grid-column-two-thirds">
@@ -48,7 +48,7 @@
                         <input type="hidden" asp-for="@Model.Data.CreatedDate" name="createdDate" />
                         <input type="hidden" asp-for="@Model.Data.CreatedTime" name="createdTime" />
                     </div>
-                    <br>
+                    <br />
                     @if (Model.Errors != null)
                     {
                         <p id="file-calc-error" class="govuk-error-message">
