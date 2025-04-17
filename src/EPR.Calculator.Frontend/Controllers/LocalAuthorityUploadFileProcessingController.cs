@@ -33,7 +33,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var response = this.PostLapcapDataAsync(new CreateLapcapDataDto(
                     lapcapRefreshViewModel,
-                    this.GetFinancialYear("LapcapSettings")));
+                    this.GetFinancialYear(ConfigSection.LapcapSettings)));
 
                 response.Wait();
 
