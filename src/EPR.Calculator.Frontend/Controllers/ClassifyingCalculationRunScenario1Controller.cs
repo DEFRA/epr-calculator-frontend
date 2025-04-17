@@ -38,7 +38,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 CalculatorRunDto calculatorRun = GetCalculationRunDetails(runId);
 
-                var viewModel = CreateViewModel(runId, calculatorRun);
+                var viewModel = this.CreateViewModel(runId, calculatorRun);
 
                 return this.View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
             }
@@ -59,7 +59,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (!this.ModelState.IsValid)
                 {
                     var calculatorRun = GetCalculationRunDetails(model.RunId);
-                    var viewModel = CreateViewModel(model.RunId, calculatorRun);
+                    var viewModel = this.CreateViewModel(model.RunId, calculatorRun);
 
                     return View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
                 }
@@ -95,7 +95,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var viewModel = new ClassifyCalculationRunScenerio1ViewModel
             {
-                CurrentUser = CommonUtil.GetUserName(HttpContext),
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 RunId = runId,
                 RunName = calculatorRun.RunName,
                 CreatedAt = calculatorRun.CreatedAt,

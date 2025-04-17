@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
 using EPR.Calculator.Frontend.ViewModels.Enums;
@@ -73,7 +74,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
+                Data = new CalculatorRunDto()
                 {
                     RunId = runId,
                     RunName = "Test Run",
@@ -98,7 +99,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
+                Data = new CalculatorRunDto()
                 {
                     RunId = runId,
                     RunName = "Test Run",
@@ -120,7 +121,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
+                Data = new CalculatorRunDto()
                 {
                     RunId = 1,
                     RunName = "Test Run",
@@ -143,7 +144,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
+                Data = new CalculatorRunDto()
                 {
                     RunId = 1,
                     RunName = "Test Run",
@@ -165,7 +166,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
+                Data = new CalculatorRunDto()
                 {
                     RunId = 1,
                     RunName = "Test Run",

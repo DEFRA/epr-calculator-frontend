@@ -8,6 +8,9 @@ namespace EPR.Calculator.Frontend.Models
     /// </summary>
     public record CreateLapcapDataDto
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateLapcapDataDto"/> class.
+        /// </summary>
         [SetsRequiredMembers]
         public CreateLapcapDataDto(LapcapRefreshViewModel original, string parameterYear)
         {
