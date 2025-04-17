@@ -131,7 +131,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 throw new ConfigurationErrorsException(
                     $"{configSection}:{configKey} is null or empty. Please check the configuration settings. " +
-                    $"${ConfigSection.CalculationRunSettings}");
+                    $"{ConfigSection.CalculationRunSettings}");
             }
 
             return value;

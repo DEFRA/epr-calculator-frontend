@@ -6,8 +6,7 @@ namespace EPR.Calculator.Frontend.Models
     /// <summary>
     /// Data Transfer Object (DTO) for creating lapcap parameter settings.
     /// </summary>
-    [ExcludeFromCodeCoverage]
-    public class CreateLapcapDataDto
+    public record CreateLapcapDataDto
     {
         [SetsRequiredMembers]
         public CreateLapcapDataDto(LapcapRefreshViewModel original, string parameterYear)
