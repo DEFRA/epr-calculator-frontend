@@ -1,10 +1,7 @@
-﻿@using EPR.Calculator.Frontend.ViewModels
-@model LocalAuthorityViewModel
+﻿@model LocalAuthorityViewModel
 
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-
     var BackLinkValue = "Dashboard";
     var EffectiveFromDate = @Model.ByCountry?.FirstOrDefault()?.FirstOrDefault()?.EffectiveFrom;
 }
