@@ -20,9 +20,9 @@
                 @Html.AntiForgeryToken()
                 @Html.Hidden("RunId", Model.Data.RunId)
                 <div class="govuk-form-group">
-                    <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
+                    <fieldset class="govuk-fieldset" >
                         <div class="govuk-form-group">
-                            <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
+                            <fieldset class="govuk-fieldset" >
                                 <legend class="govuk-caption-l">
                                     @Model.Data.RunName
                                 </legend>
@@ -30,7 +30,7 @@
 
                                 <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
 
-                                <table class="govuk-table" aria-describedby="table-description">
+                                <table class="govuk-table">
                                     <caption class="govuk-visually-hidden">
                                         Details of the calculation run including financial year, calculation ID, run date, and created by.
                                     </caption>
