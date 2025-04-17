@@ -8,11 +8,6 @@ namespace EPR.Calculator.Frontend.ViewModels
     public record LapcapUploadViewModel : ViewModelCommonData
     {
         /// <summary>
-        /// Gets or Sets the error view model.
-        /// </summary>
-        public ErrorViewModel? Errors { get; set; }
-
-        /// <summary>
         /// Gets or Sets the lapcap errors.
         /// </summary>
         public List<CreateLapcapDataErrorDto>? LapcapErrors { get; set; }

@@ -1,4 +1,4 @@
-﻿@model ErrorViewModel
+﻿@model List<ErrorViewModel>
 
 <div class="govuk-error-summary" data-module="govuk-error-summary">
     <div role="alert">
@@ -7,9 +7,12 @@
         </h2>
         <div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
-                <li>
-                    <a href="#@{@Model.DOMElementId}">@Model.ErrorMessage</a>
-                </li>
+                @foreach (var error in Model)
+                {
+                    <li>
+                        <a href="#@error.DOMElementId">@error.ErrorMessage</a>
+                    </li>
+                }
             </ul>
         </div>
     </div>

@@ -53,6 +53,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <returns>Billing file sent page.</returns>
         [Route("BillingFileSuccess")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult BillingFileSuccess()
         {
             var model = new BillingFileSuccessViewModel
