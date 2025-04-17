@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Reflection;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Exceptions;
 using EPR.Calculator.Frontend.HealthCheck;
 using EPR.Calculator.Frontend.Validators;
@@ -61,6 +62,8 @@ if (environmentName != EPR.Calculator.Frontend.Constants.Environment.Local.ToLow
 builder.Services.AddHttpClient();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
 
 var app = builder.Build();
 
