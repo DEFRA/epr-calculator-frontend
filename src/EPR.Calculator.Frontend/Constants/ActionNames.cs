@@ -39,5 +39,10 @@
         /// Billing File Success action.
         /// </summary>
         public const string BillingFileSuccess = "BillingFileSuccess";
+
+        /// <summary>
+        /// Signout action.
+        /// </summary>
+        public const string Signout = "Signout";
     }
 }
