@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Text;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
@@ -327,6 +329,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             // Arrange
             var configValue = "This value comes from the config.";
+            this.TestClass.ControllerContext.HttpContext = GetContext();
             this.Configuration
                 .GetSection("LapcapSettings")["ParameterYear"] = configValue;
             this.Configuration
@@ -354,6 +357,22 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Assert
             Assert.AreEqual((result as RedirectToActionResult).ControllerName, "StandardError");
+        }
+
+        private static DefaultHttpContext GetContext()
+        {
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString("accessToken", "something");
+
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+            return context;
         }
     }
 }
