@@ -34,5 +34,10 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets the selected calculation run option.
         /// </summary>
         public CalculationRunOption? SelectedCalcRunOption { get; set; }
+
+        /// <summary>
+        /// Gets or Sets the error view model.
+        /// </summary>
+        public ErrorViewModel? Errors { get; set; }
     }
 }

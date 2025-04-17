@@ -1,0 +1,17 @@
+﻿@model ErrorViewModel
+
+<div class="govuk-error-summary" data-module="govuk-error-summary">
+    <div role="alert">
+        <span class="govuk-caption-l">Calculation run 99</span>
+        <h2 class="govuk-heading-l">
+            The calculator could not complete the run.
+        </h2>
+        <div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+                <li>
+                    <p>@Model.ErrorMessage</p>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

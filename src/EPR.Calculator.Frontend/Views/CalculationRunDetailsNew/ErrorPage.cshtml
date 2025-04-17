@@ -1,8 +1,9 @@
 ﻿﻿@using EPR.Calculator.Frontend.Constants
 @using EPR.Calculator.Frontend.ViewModels
-@model ViewModelCommonData;
+@model CalculatorRunDetailsNewViewModel;
 @{
     Layout = "_Layout";
+    var errors = Model.Errors;
 }
 
 <partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
@@ -10,22 +11,10 @@
 
     <div class="govuk-grid-column-full">
 
-        <div class="govuk-error-summary" data-module="govuk-error-summary">
-            <div role="alert">
-                <span class="govuk-caption-l">Calculation run 99</span>
-                <h2 class="govuk-heading-l">
-                    The calculator could not complete the run.
-                </h2>
-                <div class="govuk-error-summary__body">
-                    <ul class="govuk-list govuk-error-summary__list">
-                        <li>
-                            <p>The calculation was unsuccessful</p>
-                        </li>
-
-                    </ul>
-                </div>
-            </div>
-        </div>
+        @if (errors != null)
+        {
+            <partial name="_RunDetailErrorPagePartial" model="errors" />
+        }
 
         <h2 class="govuk-heading-m">What you can do</h2>
 
@@ -54,7 +43,7 @@
 
         <p class="govuk-body">You can delete this run if you have completed another successful calculation.</p>
         <div class="govuk-button-group">
-            <a href="@Url.Action("Index", "CalculationRunDelete", new { runId = 2 })" class="govuk-button govuk-button--warning" type="submit">@ActionLinkLabels.DeleteRun</a>
+            <a href="@Url.Action("Index", "CalculationRunDelete", new { runId = Model.Data.RunId })" class="govuk-button govuk-button--warning" type="submit">@ActionLinkLabels.DeleteRun</a>
             <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
         </div>
 

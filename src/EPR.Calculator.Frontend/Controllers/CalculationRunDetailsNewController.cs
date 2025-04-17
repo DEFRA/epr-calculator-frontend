@@ -38,21 +38,19 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             CalculatorRunDto calculatorRun = GetCalculationRunDetails(runId);
 
+            var viewModel = this.CreateViewModel(runId, calculatorRun);
+
             if (calculatorRun == null)
             {
                 throw new ArgumentNullException($"Calculator with run id {runId} not found");
             }
             else if (!IsRunEligibleForDisplay(calculatorRun))
             {
-                return this.View(ViewNames.CalculationRunDetailsNewErrorPage, new ViewModelCommonData
-                {
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                });
+                viewModel.Errors = new ErrorViewModel { ErrorMessage = CommonConstants.RunDetailError };
+                return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
             }
 
-            var viewModel = CreateViewModel(runId, calculatorRun);
-
-            return View(ViewNames.CalculationRunDetailsNewIndex, viewModel);
+            return this.View(ViewNames.CalculationRunDetailsNewIndex, viewModel);
         }
 
         [HttpPost]
@@ -94,7 +92,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 CreatedBy = "Steve Jones",
             };
 
-            CalculatorRunDto calculatorRunUnclassifiedDto = new()
+            CalculatorRunDto calculatorRunErrorDto = new()
             {
                 RunId = 190508,
                 FinancialYear = "2024-25",
@@ -107,7 +105,7 @@ namespace EPR.Calculator.Frontend.Controllers
             };
 
             calculatorRuns.Add(calculatorRunDto);
-            calculatorRuns.Add(calculatorRunUnclassifiedDto);
+            calculatorRuns.Add(calculatorRunErrorDto);
             var calculatorRun = calculatorRuns.Where(x => x.RunId == runId).FirstOrDefault();
 
             return calculatorRun;
