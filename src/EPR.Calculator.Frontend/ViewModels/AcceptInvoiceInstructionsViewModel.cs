@@ -6,11 +6,6 @@ namespace EPR.Calculator.Frontend.ViewModels
 {
     public record AcceptInvoiceInstructionsViewModel : ViewModelCommonData
     {
-        public AcceptInvoiceInstructionsViewModel()
-        {
-            this.Errors = new List<ErrorViewModel>();
-        }
-
         public int RunId { get; set; }
 
         public string CalculationRunTitle { get; set; } = string.Empty;
