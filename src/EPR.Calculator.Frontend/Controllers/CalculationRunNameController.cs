@@ -150,10 +150,19 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown</exception>
         private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
         {
+            var year = this.Configuration
+                .GetSection(ConfigSection.CalculationRunSettings)
+                .GetValue<string>(ConfigSection.RunParameterYear);
+
+            if (string.IsNullOrEmpty(year))
+            {
+                throw new ArgumentNullException(year, "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
+            }
+
             var runParms = new CreateCalculatorRunDto
             {
                 CalculatorRunName = calculatorRunName,
-                FinancialYear = this.GetFinancialYear(ConfigSection.CalculationRunSettings),
+                FinancialYear = year,
                 CreatedBy = CommonUtil.GetUserName(this.HttpContext),
             };
 
