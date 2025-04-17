@@ -61,6 +61,11 @@
         public const string UnknownUser = "Unknown User";
 
         /// <summary>
+        /// Error message for when user doesn't accept all invoice instructions.
+        /// </summary>
+        public const string AcceptAllInstructionsNotChecked = "Confirm that you have accepted all billing instructions before continuing.";
+
+        /// <summary>
         /// Error message for classify run type option not selected.
         /// </summary>
         public const string ClassifyRunTypeNotSelected = "Select a classification before confirming.";
