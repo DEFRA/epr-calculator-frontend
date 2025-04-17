@@ -38,10 +38,12 @@ else
     <div class="@(errors != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")">
         @if (errors != null)
         {
-
-            <p id="file-upload-1-error" class="govuk-error-message">
-                <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
-            </p>
+            @foreach (var error in errors)
+            {
+                <p id="@error.DOMElementId" class="govuk-error-message">
+                    <span class="govuk-visually-hidden">Error:</span> @error.ErrorMessage
+                </p>
+            }
         }
 
         <input class="govuk-file-upload form-control" id="file-upload-1" name="fileUpload" validation-class="govuk-input-error" validation-for="file-upload-1" type="file">
