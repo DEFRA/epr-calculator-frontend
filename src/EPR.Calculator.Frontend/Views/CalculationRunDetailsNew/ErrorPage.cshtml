@@ -53,15 +53,10 @@
         <h2 class="govuk-heading-m">If you no longer need this run</h2>
 
         <p class="govuk-body">You can delete this run if you have completed another successful calculation.</p>
+        <div class="govuk-button-group">
+            <a href="@Url.Action("Index", "CalculationRunDelete", new { runId = 2 })" class="govuk-button govuk-button--warning" type="submit">@ActionLinkLabels.DeleteRun</a>
+            <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
+        </div>
 
-        <form action="" method="post" novalidate="">
-
-            <input type="hidden" name="answers-checked" value="true">
-            <div class="govuk-button-group">
-                <a href="@Url.Action("Index", "CalculationRunDelete", new { runId = 2 })" class="govuk-button govuk-button--warning" type="submit">@ActionLinkLabels.DeleteRun</a>
-                <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
-            </div>
-
-        </form>
     </div>
 </div>
