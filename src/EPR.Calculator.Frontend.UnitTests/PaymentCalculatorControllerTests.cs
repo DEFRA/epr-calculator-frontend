@@ -85,41 +85,35 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void Submit_InvalidModelState_ReturnsViewResultWithErrors()
+        public void Submit_InvalidModelState_RedirectsToIndex()
         {
             // Arrange
-            var model = new AcceptInvoiceInstructionsViewModel()
-            {
-                RunId = 99,
-                AcceptAll = false, // This will fail the [MustBeTrue] validation
-                BackLink = "dummy",
-                CurrentUser = "dummyuser",
-                CalculationRunTitle = "Calculation Run 99"
-            };
-
-            // Add a validation error to simulate an invalid ModelState
-            _controller.ModelState.AddModelError("AcceptAll", "You must confirm acceptance to proceed.");
+            var model = new AcceptInvoiceInstructionsViewModel { RunId = 1 };
+            _controller.ModelState.AddModelError("AcceptAll", "Required");
 
             // Act
-            var result = _controller.Submit(model) as ViewResult;
+            var result = _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
-            Assert.IsNotNull(result); // Ensure the result is a ViewResult
-            Assert.AreEqual("Index", result.ViewName); // Ensure the correct view is returned
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual(model.RunId, result.RouteValues["RunId"]);
+        }
 
-            // Verify the model passed to the view
-            var returnedModel = result.Model as AcceptInvoiceInstructionsViewModel;
-            Assert.IsNotNull(returnedModel);
-            Assert.AreEqual(model.RunId, returnedModel.RunId);
-            Assert.AreEqual(model.CalculationRunTitle, returnedModel.CalculationRunTitle);
-            Assert.AreEqual(model.BackLink, returnedModel.BackLink);
-            Assert.AreEqual(model.CurrentUser, returnedModel.CurrentUser);
+        [TestMethod]
+        public void Submit_ValidModelState_RedirectsToCalculationRunOverview()
+        {
+            // Arrange
+            var model = new AcceptInvoiceInstructionsViewModel { RunId = 1, AcceptAll = true };
 
-            // Verify the ModelState contains the expected error
-            Assert.IsTrue(_controller.ModelState.ContainsKey("AcceptAll"));
-            var modelStateEntry = _controller.ModelState["AcceptAll"];
-            Assert.IsNotNull(modelStateEntry);
-            Assert.IsTrue(modelStateEntry.Errors.Any(e => e.ErrorMessage == "You must confirm acceptance to proceed."));
+            // Act
+            var result = _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("CalculationRunOverview", result.ControllerName);
+            Assert.AreEqual(model.RunId, result.RouteValues["RunId"]);
         }
 
         [TestMethod]
