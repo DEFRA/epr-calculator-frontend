@@ -40,7 +40,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                return this.View("Index", model);
+                return this.View(ViewNames.PaymentCalculatorIndex, model);
             }
 
             return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunOverview, new { model.RunId });

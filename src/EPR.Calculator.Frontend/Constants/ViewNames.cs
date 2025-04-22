@@ -128,6 +128,11 @@
         /// <summary>
         /// Payment Calculator Billing Confirmation index page view.
         /// </summary>
+        public const string PaymentCalculatorIndex = "~/Views/PaymentCalculator/Index.cshtml";
+
+        /// <summary>
+        /// Payment Calculator Billing Confirmation index page view.
+        /// </summary>
         public const string BillingConfirmationSuccess = "~/Views/PaymentCalculator/BillingConfirmation.cshtml";
 
         /// <summary>
