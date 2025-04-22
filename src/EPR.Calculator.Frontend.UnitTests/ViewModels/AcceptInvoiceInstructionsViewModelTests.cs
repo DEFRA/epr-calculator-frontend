@@ -42,9 +42,9 @@
         {
             var value = "/home/return";
 
-            _testClass.ReturnUrl = value;
+            _testClass.BackLink = value;
 
-            Assert.AreEqual(value, _testClass.ReturnUrl);
+            Assert.AreEqual(value, _testClass.BackLink);
         }
     }
 }

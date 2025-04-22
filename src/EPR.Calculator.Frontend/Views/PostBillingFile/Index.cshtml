@@ -1,0 +1,74 @@
+﻿@using EPR.Calculator.Frontend.ViewModels;
+@using EPR.Calculator.Frontend.Constants;
+@model PostBillingFileViewModel;
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<partial name="_BackLinkPartial" model="(@Model.BackLink, @Model.CurrentUser)" />
+<div class="govuk-width-container ">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+               @using(Html.BeginForm("","",FormMethod.Post))
+               {
+                    @Html.AntiForgeryToken()
+                    <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset">
+                        <legend></legend>
+                        <span class="govuk-caption-l">@Model.CalculatorRunStatus.CalcName</span>
+                        <h1 class="govuk-heading-l">Calculation run details</h1>
+                        <table class="govuk-table">
+                            <caption class="govuk-visually-hidden">Details of the calculation run</caption>
+                            <tbody class="govuk-table__body">
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Financial year</th>
+                                    <td class="govuk-table__cell">@Model.CalculatorRunStatus.FinancialYear</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Classification</th>
+                                    <td class="govuk-table__cell">Initial run</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Calculation ID</th>
+                                    <td class="govuk-table__cell">240008</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Run date and time</th>
+                                    <td class="govuk-table__cell">@Model.CalculatorRunStatus.CreatedDate at @Model.CalculatorRunStatus.CreatedTime</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Billing file sent</th>
+                                    <td class="govuk-table__cell">@Model.BillingFileSentDate</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Run by</th>
+                                    <td class="govuk-table__cell">@Model.BillingFileRunBy</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Sent by</th>
+                                    <td class="govuk-table__cell">@Model.BillingFileSentBy</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2 class="govuk-heading-m">Downloads</h2>
+
+                        <p class="govuk-body">Download files related to this calculation run.</p>
+                        <div class="govuk-button-group">
+                            <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                                Results file
+                            </button>
+                            <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                                Billing file
+                            </button>
+                        </div>
+
+                        <div class="govuk-button-group">
+                            <a href="@Url.Action(ActionNames.Index, ControllerNames.Dashboard)" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
+                        </div>
+
+                    </fieldset>
+                    </div>
+               }
+            </div>
+        </div>
+</div>

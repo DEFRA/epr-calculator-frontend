@@ -3,7 +3,6 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 
@@ -21,7 +20,7 @@ namespace EPR.Calculator.Frontend.Controllers
         : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
     {
         [HttpGet]
-        [Route("{runId}")]
+        [Route("{runId:int}")]
         public IActionResult Index(int runId)
         {
             var model = new AcceptInvoiceInstructionsViewModel
@@ -38,14 +37,14 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Submit(int runId)
+        public IActionResult Submit(AcceptInvoiceInstructionsViewModel model)
         {
-            if (!this.ModelState.IsValid)
+            if (this.ModelState.IsValid)
             {
-                return RedirectToAction(ActionNames.Index, new { runId });
+                return RedirectToAction(ActionNames.Index, new { model.RunId });
             }
 
-            return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId });
+            return this.View("Index", model);
         }
 
         /// <summary>
