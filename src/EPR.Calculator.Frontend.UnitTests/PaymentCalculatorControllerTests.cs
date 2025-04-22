@@ -96,7 +96,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.ViewName);
+            Assert.AreEqual(ViewNames.PaymentCalculatorIndex, result.ViewName);
         }
 
         [TestMethod]
