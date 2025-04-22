@@ -140,6 +140,10 @@
         /// </summary>
         public const string CalculationRunOverviewIndex = "~/Views/CalculationRunOverview/Index.cshtml";
 
+        /// <summary>
+        /// classifying calculation run controller scenario2 index page view.
+        /// </summary>
+        public const string ClassifyingCalculationRunScenario2Index = "~/Views/ClassifyingCalculationRunScenario2/Index.cshtml";
 
         /// <summary>
         /// classifying calculation run controller scenario4 index page view.
