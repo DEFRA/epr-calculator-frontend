@@ -92,12 +92,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller.ModelState.AddModelError("AcceptAll", "Required");
 
             // Act
-            var result = _controller.Submit(model) as RedirectToActionResult;
+            var result = _controller.Submit(model) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(model.RunId, result.RouteValues["RunId"]);
+            Assert.AreEqual(ActionNames.Index, result.ViewName);
         }
 
         [TestMethod]
