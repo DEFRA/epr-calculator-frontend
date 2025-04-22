@@ -24,25 +24,25 @@
                     <table class="govuk-table">
                         <caption class="govuk-visually-hidden" id="table-description-Detail-Calculation">Details of the calculation run</caption>
                         <tbody class="govuk-table__body">
-                            <tr class="govuk-table__row">
-                                <th scope="row" class="govuk-table__header">Financial year</th>
-                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.FinancialYear</td>
+                            <tr id="trFinancialYear" class="govuk-table__row">
+                                <th scope="row" id="thFinancialYear" class="govuk-table__header">Financial year</th>
+                                <td id="tdFinancialYear" class="govuk-table__cell">@Model.CalculatorRunStatus.FinancialYear</td>
                             </tr>
-                            <tr class="govuk-table__row">
-                                <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.RunId</td>
+                            <tr id="trCalcRunId" class="govuk-table__row">
+                                <th scope="row" id="thCalcRunId" class="govuk-table__header">Calculation ID</th>
+                                <td id="tdCalcRunId" class="govuk-table__cell">@Model.CalculatorRunStatus.RunId</td>
                             </tr>
-                            <tr class="govuk-table__row">
-                                <th scope="row" class="govuk-table__header">Run date and time</th>
-                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.CreatedDate at @Model.CalculatorRunStatus.CreatedTime</td>
+                            <tr id="trRunDatetime" class="govuk-table__row">
+                                <th scope="row" id="thRunDatetime" class="govuk-table__header">Run date and time</th>
+                                <td id="tdRunDatetime" class="govuk-table__cell">@Model.CalculatorRunStatus.CreatedDate at @Model.CalculatorRunStatus.CreatedTime</td>
                             </tr>
                         </tbody>
                     </table>
-                    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--invisible">
+                    <hr id="hrInvisible" class="govuk-section-break govuk-section-break--m govuk-section-break--invisible">
                     <div class="govuk-radios" data-module="govuk-radios">
 
                         <div class="govuk-radios__item">
-                            @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputInitialRun", new { @class = "govuk-radios__input", id = "interimRecalculationRunClassifyFinal" })
+                            @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputInitialRunClassifyFinal", new { @class = "govuk-radios__input", id = "interimRecalculationRunClassifyFinal" })
                             <label class="govuk-label govuk-radios__label" for="interimRecalculationRunClassifyFinal">
                                 <strong>Interim recalculation run</strong><br />
                                 <p class="govuk-body-s govuk-!-margin-bottom-0">An official, optional run that can happen any time after the initial run, including after final runs. It can be run multiple times and generate a billing file. It can be used to process late or updated producer data.
@@ -50,7 +50,7 @@
                         </div>
 
                         <div class="govuk-radios__item">
-                            @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputTestRun", new { @class = "govuk-radios__input", id = "testRunClassifyFinal" })
+                            @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputTestRunClassifyFinal", new { @class = "govuk-radios__input", id = "testRunClassifyFinal" })
                             <label class="govuk-label govuk-radios__label" for="testRunClassifyFinal">
                                 <strong>Test run</strong><br />
                                 <p class="govuk-body-s govuk-!-margin-bottom-0">An unofficial run to view the calculation results without generating a billing file for invoicing.</p>
@@ -60,22 +60,22 @@
                     </div>
                 </fieldset>
                 <br />
-                <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
-                    <div class="govuk-notification-banner__header">
-                        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                <div id="divNotification" class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title-classify-final" data-module="govuk-notification-banner">
+                    <div id="divNotificationHeader" class="govuk-notification-banner__header">
+                        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title-classify-final">
                             Important
                         </h2>
                     </div>
-                    <div class="govuk-notification-banner__content">
-                        <p class="govuk-body-s">
+                    <div id="divNotificationContent" class="govuk-notification-banner__content">
+                        <p id="pNotificationContent" class="govuk-body-s">
                             <strong>Initial run</strong><br />
                             Already classified for financial year 2024-25 on 1 May 2024
                         </p>
-                        <p class="govuk-body-s">
+                        <p id="pNotificationContentReclacRun" class="govuk-body-s">
                             <strong>Final recalculation run</strong><br />
                             Not available after final run.
                         </p>
-                        <p class="govuk-body-s">
+                        <p id="pNotificationContentFinalRun" class="govuk-body-s">
                             <strong>Final run</strong><br />
                             Already classified for financial year 2024-25 on 31 March 2025
                         </p>
