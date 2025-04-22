@@ -19,5 +19,7 @@
         public const string CalculationRunDelete = "CalculationRunDelete";
 
         public const string StandardErrorController = "StandardErrorController";
+
+        public const string Account = "Account";
     }
 }

@@ -1,4 +1,5 @@
-﻿@model BackLinkPartialViewModel
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model BackLinkPartialViewModel
 
 <div class="govuk-grid-row">
 
@@ -6,10 +7,10 @@
         <a href="@Url.Content($"~/{Model.BackLink}/{Model.RunId}")" class="govuk-back-link">Back</a>
     </div>
     <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
-        <div class="epr-!-account-info">
-            <span class="your-name" id="bannerUserName">@Model.CurrentUser</span>
-            <a asp-controller="Account" asp-action="Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
-        </div>
+	    <div class="epr-!-account-info">
+		    <span class="your-name" id="bannerUserName">@Model.CurrentUser</span>
+            <a asp-controller="@ControllerNames.Account" asp-action="@ActionNames.Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
+	    </div>
     </div>
 
 </div>
