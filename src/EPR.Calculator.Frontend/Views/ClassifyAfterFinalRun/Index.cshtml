@@ -18,11 +18,11 @@
             <div class="govuk-form-group">
                 <fieldset class="govuk-fieldset">
                     <legend></legend>
-                    <span id="approval-code-hint" class="govuk-caption-l">@Model.CalculatorRunStatus.CalcName</span>
+                    <span id="approval-code-hint-final-run" class="govuk-caption-l">@Model.CalculatorRunStatus.CalcName</span>
                     <h1 class="govuk-heading-l">Classify calculation run</h1>
 
                     <table class="govuk-table">
-                        <caption class="govuk-visually-hidden" id="table-description">Details of the calculation run</caption>
+                        <caption class="govuk-visually-hidden" id="table-description-Detail-Calculation">Details of the calculation run</caption>
                         <tbody class="govuk-table__body">
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Financial year</th>
@@ -42,16 +42,16 @@
                     <div class="govuk-radios" data-module="govuk-radios">
 
                         <div class="govuk-radios__item">
-                            @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputInitialRun", new { @class = "govuk-radios__input", id = "interimRecalculationRun" })
-                            <label class="govuk-label govuk-radios__label" for="interimRecalculationRun">
+                            @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputInitialRun", new { @class = "govuk-radios__input", id = "interimRecalculationRunClassifyFinal" })
+                            <label class="govuk-label govuk-radios__label" for="interimRecalculationRunClassifyFinal">
                                 <strong>Interim recalculation run</strong><br />
                                 <p class="govuk-body-s govuk-!-margin-bottom-0">An official, optional run that can happen any time after the initial run, including after final runs. It can be run multiple times and generate a billing file. It can be used to process late or updated producer data.
                             </label>
                         </div>
 
                         <div class="govuk-radios__item">
-                            @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputTestRun", new { @class = "govuk-radios__input", id = "testRun" })
-                            <label class="govuk-label govuk-radios__label" for="testRun">
+                            @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputTestRun", new { @class = "govuk-radios__input", id = "testRunClassifyFinal" })
+                            <label class="govuk-label govuk-radios__label" for="testRunClassifyFinal">
                                 <strong>Test run</strong><br />
                                 <p class="govuk-body-s govuk-!-margin-bottom-0">An unofficial run to view the calculation results without generating a billing file for invoicing.</p>
                             </label>
