@@ -2,6 +2,7 @@
 @using EPR.Calculator.Frontend.ViewModels
 @using EPR.Calculator.Frontend.ViewModels.Enums
 @using Microsoft.AspNetCore.Http
+@using EPR.Calculator.Frontend.Helpers
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunDetailsNewViewModel
 @{
@@ -66,11 +67,11 @@
 
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
-
-
-                        <div class="govuk-form-group @(ViewData.ModelState[nameof(Model.SelectedCalcRunOption)]?.Errors.Any() == true ? "govuk-form-group--error" : "")">
-                            <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint" id=@nameof(Model.SelectedCalcRunOption)>
-                                <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">What do you want to do next?</legend>
+                        <div class="govuk-form-group @(ViewData.HasErrorFor(nameof(Model.SelectedCalcRunOption)) ? "govuk-form-group--error" : "")">
+                            <fieldset class="govuk-fieldset" aria-describedby="SelectedCalcRunOption-hint" id="SelectedCalcRunOption">
+                                <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                    What do you want to do next?
+                                </legend>
 
                                 @Html.ValidationMessageFor(model => model.SelectedCalcRunOption, "", new { @class = "govuk-error-message" })
 
