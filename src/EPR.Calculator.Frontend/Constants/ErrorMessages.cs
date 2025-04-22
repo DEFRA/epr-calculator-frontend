@@ -69,5 +69,10 @@
         /// Error message for classify run type option not selected.
         /// </summary>
         public const string ClassifyRunTypeNotSelected = "Select a classification before confirming.";
+
+        /// <summary>
+        /// Error message for error in run.
+        /// </summary>
+        public const string RunDetailError = "The calculation was unsuccessful";
     }
 }

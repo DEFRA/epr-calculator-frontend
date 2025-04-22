@@ -11,6 +11,5 @@
         public const string TimeZone = "GMT Standard Time";
         public const string DateFormat = "dd MMM yyyy";
         public const string TimeFormat = "H:mm";
-        public const string RunDetailError = "The calculation was unsuccessful";
     }
 }
