@@ -2,7 +2,7 @@
 @model CalculatorRunDetailsNewViewModel;
 
 @{
-    var errors = ViewData.ModelState[Model.Data.RunName]?.Errors;
+    var errorMessage = ViewData.ModelState[Model.Data.RunName]?.Errors.FirstOrDefault()?.ErrorMessage;
 }
 
 <div class="govuk-error-summary" data-module="govuk-error-summary">
@@ -13,12 +13,9 @@
         </h2>
         <div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
-                @foreach (var error in errors)
-                {
-                    <li>
-                        <p>@error.ErrorMessage</p>
-                    </li>
-                }
+                <li>
+                    <p>@errorMessage</p>
+                </li>
             </ul>
         </div>
     </div>
