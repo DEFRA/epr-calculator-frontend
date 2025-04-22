@@ -13,7 +13,7 @@
 
         @if (ViewData.ModelState[Model.Data.RunName]?.Errors.Any() == true)
         {
-            <partial name="_RunDetailErrorPagePartial" model=Model />
+            @await Html.PartialAsync("_RunDetailErrorPagePartial", Model)
         }
 
         <h2 class="govuk-heading-m">What you can do</h2>
