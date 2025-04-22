@@ -1,4 +1,4 @@
-using EPR.Calculator.Frontend.Helpers;
+﻿using EPR.Calculator.Frontend.Helpers;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
