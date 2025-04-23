@@ -3,13 +3,10 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using EPR.Calculator.Frontend.ViewModels.Enums;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using Newtonsoft.Json;
-using System.Reflection;
-using static EPR.Calculator.Frontend.Constants.CommonEnums;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -46,21 +43,24 @@ namespace EPR.Calculator.Frontend.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Submit(CalculatorRunDetailsNewViewModel model)
         {
-            if (model.SelectedCalcRunOption == null || model.SelectedCalcRunOption == CommonEnums.CalculationRunOption.None)
+            if (!this.ModelState.IsValid)
             {
-                return RedirectToAction("Index", new { model.Data.RunId });
+                var calculatorRun = GetCalculationRunDetails(model.RunId);
+                var viewModel = CreateViewModel(model.RunId, calculatorRun);
+
+                return View(ViewNames.CalculationRunDetailsNewIndex, viewModel);
             }
 
             switch (model.SelectedCalcRunOption)
             {
-                case CommonEnums.CalculationRunOption.OutputClassify:
-                    return RedirectToAction(ActionNames.Index, ControllerNames.ClassifyingCalculationRun, new { model.Data.RunId });
+                case CalculationRunOption.OutputClassify:
+                    return RedirectToAction(ActionNames.Index, ControllerNames.ClassifyingCalculationRun, new { model.RunId });
 
-                case CommonEnums.CalculationRunOption.OutputDelete:
-                    return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { model.Data.RunId });
+                case CalculationRunOption.OutputDelete:
+                    return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { model.RunId });
 
                 default:
-                    return RedirectToAction(ActionNames.Index, new { model.Data.RunId });
+                    return RedirectToAction(ActionNames.Index, new { model.RunId });
             }
         }
 
@@ -87,17 +87,11 @@ namespace EPR.Calculator.Frontend.Controllers
             var viewModel = new CalculatorRunDetailsNewViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(HttpContext),
-                Data = new CalculatorRunDto
-                {
-                    RunId = runId,
-                    RunClassificationId = calculatorRun.RunClassificationId,
-                    RunName = calculatorRun.RunName,
-                    CreatedAt = calculatorRun.CreatedAt,
-                    CreatedBy = calculatorRun.CreatedBy,
-                    FinancialYear = calculatorRun.FinancialYear,
-                    FileExtension = calculatorRun.FileExtension,
-                    RunClassificationStatus = calculatorRun.RunClassificationStatus,
-                },
+                RunId = runId,
+                RunName = calculatorRun.RunName,
+                CreatedAt = calculatorRun.CreatedAt,
+                CreatedBy = calculatorRun.CreatedBy,
+                FinancialYear = calculatorRun.FinancialYear,
             };
 
             SetDownloadParameters(viewModel);
@@ -108,9 +102,9 @@ namespace EPR.Calculator.Frontend.Controllers
         private void SetDownloadParameters(CalculatorRunDetailsNewViewModel viewModel)
         {
             var baseApiUrl = _configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
-            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.Data.RunId}");
+            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.RunId}");
 
-            viewModel.DownloadErrorURL = $"/DownloadFileError/{viewModel.Data.RunId}";
+            viewModel.DownloadErrorURL = $"/DownloadFileError/{viewModel.RunId}";
             viewModel.DownloadTimeout = _configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
         }
     }

@@ -1,6 +1,9 @@
-﻿using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using static EPR.Calculator.Frontend.Constants.CommonEnums;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
@@ -11,9 +14,36 @@ namespace EPR.Calculator.Frontend.ViewModels
     public record CalculatorRunDetailsNewViewModel : ViewModelCommonData
     {
         /// <summary>
-        /// Gets the data for the run status update.
+        /// Gets or sets the ID of the calculation run.
         /// </summary>
-        public CalculatorRunDto Data { get; init; }
+        [Required]
+        public int RunId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the option for the calculation run.
+        /// </summary>
+        [Required(ErrorMessage = ErrorMessages.CalcRunOptionNotSelected)]
+        public CalculationRunOption? SelectedCalcRunOption { get; set; }
+
+        /// <summary>
+        /// Gets or sets the created by user.
+        /// </summary>
+        public string? CreatedBy { get; set; }
+
+        /// <summary>
+        /// Gets or sets the date and time when the calculation run was created.
+        /// </summary>
+        public DateTime CreatedAt { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Run name.
+        /// </summary>
+        public string? RunName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the financial year.
+        /// </summary>
+        public string? FinancialYear { get; set; }
 
         /// <summary>
         /// Gets or sets download result URL.
@@ -29,10 +59,5 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets download Timeout.
         /// </summary>
         public int? DownloadTimeout { get; set; }
-
-        /// <summary>
-        /// Gets or sets the selected calculation run option.
-        /// </summary>
-        public CalculationRunOption? SelectedCalcRunOption { get; set; }
     }
 }
