@@ -41,13 +41,18 @@ namespace EPR.Calculator.Frontend.UnitTests
                    _mockHttpClientFactory.Object,
                    _mockLogger.Object,
                    _mockTokenAcquisition.Object,
-                   _telemetryClient)
+                   _telemetryClient);
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
             {
-                // Setting the mocked HttpContext for the controller
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = _mockHttpContext.Object
-                }
+                new Claim(ClaimTypes.Name, "Test User")
+            }));
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
             };
         }
 
@@ -55,9 +60,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void Index_ValidRunId_ReturnsViewResult()
         {
             int runId = 240008;
-
-            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
 
             var result = _controller.Index(runId);
 
@@ -76,20 +78,20 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
-                {
-                    RunId = runId,
-                    RunName = "Test Run",
-                },
+                RunId = runId,
+                RunName = "Test Run",
                 SelectedCalcRunOption = null
             };
 
             // Act
-            var result = _controller.Submit(model) as RedirectToActionResult;
+            var result = _controller.Submit(model) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsNewIndex, result.ViewName);
+            var viewModel = result.Model as CalculatorRunDetailsNewViewModel;
+            Assert.IsNotNull(viewModel);
+            Assert.AreEqual(model.RunId, viewModel.RunId);
         }
 
         [TestMethod]
@@ -101,11 +103,8 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
-                {
-                    RunId = runId,
-                    RunName = "Test Run",
-                },
+                RunId = runId,
+                RunName = "Test Run",
                 SelectedCalcRunOption = selectedOption
             };
 
@@ -123,11 +122,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
-                {
-                    RunId = 240008,
-                    RunName = "Test Run",
-                },
+                RunId = 240008,
+                RunName = "Test Run",
                 SelectedCalcRunOption = CalculationRunOption.OutputClassify
             };
 
@@ -146,11 +142,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
-                {
-                    RunId = 240008,
-                    RunName = "Test Run",
-                },
+                RunId = 240008,
+                RunName = "Test Run",
                 SelectedCalcRunOption = CalculationRunOption.OutputDelete
             };
             // Act
@@ -168,11 +161,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
-                {
-                    RunId = 240008,
-                    RunName = "Test Run",
-                },
+                RunId = 240008,
+                RunName = "Test Run",
                 SelectedCalcRunOption = (CalculationRunOption)999
             };
 
