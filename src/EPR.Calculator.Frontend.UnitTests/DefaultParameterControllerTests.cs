@@ -55,10 +55,15 @@ namespace EPR.Calculator.Frontend.UnitTests
                 mockTokenAcquisition.Object,
                 new TelemetryClient());
 
-            var mockContext = new Mock<HttpContext>();
-            mockContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
-            mockContext.Setup(c => c.Session).Returns(TestMockUtils.BuildMockSession(Fixture).Object);
-            controller.ControllerContext.HttpContext = mockContext.Object;
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+            controller.ControllerContext.HttpContext = context;
 
             var result = await controller.Index() as ViewResult;
 
@@ -95,9 +100,6 @@ namespace EPR.Calculator.Frontend.UnitTests
                 });
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            var mockHttpContext = new Mock<HttpContext>();
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
-            mockHttpContext.Setup(c => c.Session).Returns(TestMockUtils.BuildMockSession(Fixture).Object);
             // Mock IHttpClientFactory
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
             mockHttpClientFactory
@@ -107,10 +109,15 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
 
-            controller.ControllerContext = new ControllerContext
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
+            var context = new DefaultHttpContext()
             {
-                HttpContext = mockHttpContext.Object
+                Session = mockSession
             };
+            controller.ControllerContext.HttpContext = context;
 
             var result = await controller.Index() as ViewResult;
             var defaultParametersViewModel = result.Model as DefaultParametersViewModel;
