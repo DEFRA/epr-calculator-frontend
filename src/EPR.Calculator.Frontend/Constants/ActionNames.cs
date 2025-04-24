@@ -44,5 +44,15 @@
         /// Signout action.
         /// </summary>
         public const string Signout = "Signout";
+
+        /// <summary>
+        /// Calculation Run Details.
+        /// </summary>
+        public const string ViewCalculationRunDetails = "/ViewCalculationRunDetails/{0}";
+
+        /// <summary>
+        /// Calculation Run New Details.
+        /// </summary>
+        public const string ViewCalculationRunNewDetails = "/CalculationRunDetailsNew/{0}";
     }
 }
