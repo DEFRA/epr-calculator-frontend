@@ -20,7 +20,7 @@
         /// </summary>
         public static readonly List<string> BillingFileSuccessAdditionalParagraphs =
         [
-            "The FSS will process the billing file based on the invoice instructions you accepted.",
+            "The FSS will process the billing file based on the billing instructions you accepted.",
                 "You can return to the dashboard to review calculation runs or start a new run."
         ];
     }
