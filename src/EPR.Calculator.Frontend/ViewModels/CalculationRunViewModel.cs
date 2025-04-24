@@ -74,8 +74,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets a value indicating whether gets or sets the calculation run new details link.
         /// </summary>
-        public string TurnOnFeatureUrl =>
-        string.Format(ActionNames.ViewCalculationRunNewDetails, this.Id);
+        public string TurnOnFeatureUrl => DashboardHelper.GetTurnOnFeatureUrl(this.Status, this.Id);
 
         private static string GetFormattedCreatedAt(DateTime createdAt)
         {

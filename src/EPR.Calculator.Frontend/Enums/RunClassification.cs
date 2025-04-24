@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.ComponentModel;
+using System.Runtime.Serialization;
 
 namespace EPR.Calculator.Frontend.Enums
 {
@@ -23,5 +24,8 @@ namespace EPR.Calculator.Frontend.Enums
 
         [EnumMember(Value = "DELETED")]
         DELETED = 6,
+
+        [EnumMember(Value = "INITIAL RUN COMPLETED")]
+        INITIALRUNCOMPLETED = 7,
     }
 }

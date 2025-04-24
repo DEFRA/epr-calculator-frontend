@@ -11,5 +11,6 @@ namespace EPR.Calculator.Frontend.Constants
         public const string Unclassified = "UNCLASSIFIED";
         public const string Error = "ERROR";
         public const string Deleted = "DELETED";
+        public const string InitialRunCompleted = "INITIAL RUN COMPLETED";
     }
 }
