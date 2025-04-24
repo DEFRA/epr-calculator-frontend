@@ -43,7 +43,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             else if (!IsRunEligibleForDisplay(calculatorRun))
             {
-                viewModel.Errors = [new() { ErrorMessage = CommonConstants.RunDetailError }];
+                this.ModelState.AddModelError(viewModel.RunName, ErrorMessages.RunDetailError);
                 return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
             }
 
