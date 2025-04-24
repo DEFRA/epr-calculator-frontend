@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -34,9 +35,19 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             CalculatorRunDto calculatorRun = GetCalculationRunDetails(runId);
 
-            var viewModel = CreateViewModel(runId, calculatorRun);
+            var viewModel = this.CreateViewModel(runId, calculatorRun);
 
-            return View(ViewNames.CalculationRunDetailsNewIndex, viewModel);
+            if (calculatorRun == null)
+            {
+                throw new ArgumentNullException($"Calculator with run id {runId} not found");
+            }
+            else if (!IsRunEligibleForDisplay(calculatorRun))
+            {
+                viewModel.Errors = [new() { ErrorMessage = CommonConstants.RunDetailError }];
+                return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
+            }
+
+            return this.View(ViewNames.CalculationRunDetailsNewIndex, viewModel);
         }
 
         [HttpPost]
@@ -67,19 +78,47 @@ namespace EPR.Calculator.Frontend.Controllers
         private static CalculatorRunDto GetCalculationRunDetails(int runId)
         {
             // Get the calculation run details from the API
+            var calculatorRuns = new List<CalculatorRunDto>();
+
             CalculatorRunDto calculatorRunDto = new()
             {
-                RunId = runId,
+                RunId = 240008,
                 FinancialYear = "2024-25",
                 FileExtension = "xlsx",
-                RunClassificationStatus = "Draft",
+                RunClassificationStatus = "Unclassified",
                 RunName = "Calculation Run 99",
-                RunClassificationId = 240008,
+                RunClassificationId = 3,
                 CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
                 CreatedBy = "Steve Jones",
             };
-            var calculatorRun = calculatorRunDto;
+
+            CalculatorRunDto calculatorRunErrorDto = new()
+            {
+                RunId = 190508,
+                FinancialYear = "2024-25",
+                FileExtension = "xlsx",
+                RunClassificationStatus = "Error",
+                RunName = "Calculation Run 99",
+                RunClassificationId = 5,
+                CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
+                CreatedBy = "Steve Jones",
+            };
+
+            calculatorRuns.Add(calculatorRunDto);
+            calculatorRuns.Add(calculatorRunErrorDto);
+            var calculatorRun = calculatorRuns.Where(x => x.RunId == runId).FirstOrDefault();
+
             return calculatorRun;
+        }
+
+        private static bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
+        {
+            if (calculatorRun.RunClassificationId == (int)RunClassification.UNCLASSIFIED)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private CalculatorRunDetailsNewViewModel CreateViewModel(int runId, CalculatorRunDto calculatorRun)
