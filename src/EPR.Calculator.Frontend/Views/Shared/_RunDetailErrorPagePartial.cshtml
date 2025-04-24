@@ -13,9 +13,12 @@
         </h2>
         <div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
-                <li>
+                @foreach (var error in Model.Errors)
+                {
+                    <li>
                     <p>@errorMessage</p>
-                </li>
+                    </li>
+                }
             </ul>
         </div>
     </div>
