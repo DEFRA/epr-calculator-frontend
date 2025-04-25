@@ -74,5 +74,10 @@
         /// Error message for calculation Run option not selected.
         /// </summary>
         public const string CalcRunOptionNotSelected = "Select an option before continuing.";
+
+        /// <summary>
+        /// Error message for error in run.
+        /// </summary>
+        public const string RunDetailError = "The calculation was unsuccessful";
     }
 }
