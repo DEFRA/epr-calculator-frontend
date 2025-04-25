@@ -1,6 +1,10 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels
 @model CalculatorRunDetailsNewViewModel;
 
+@{
+    var errorMessage = ViewData.ModelState[Model.RunName]?.Errors.FirstOrDefault()?.ErrorMessage;
+}
+
 <div class="govuk-error-summary" data-module="govuk-error-summary">
     <div role="alert">
         <span class="govuk-caption-l">@Model.RunName</span>
@@ -12,7 +16,7 @@
                 @foreach (var error in Model.Errors)
                 {
                     <li>
-                        <p>@error.ErrorMessage</p>
+                    <p>@errorMessage</p>
                     </li>
                 }
             </ul>
