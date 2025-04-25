@@ -74,5 +74,20 @@
             // Assert
             Assert.AreEqual(expectedUrl, result);
         }
+
+        [TestMethod]
+        public void GetTurnOnFeatureUrl_StatusIsInitialRunCompleted_ReturnsDashboardUrl()
+        {
+            // Arrange
+            var status = CalculationRunStatus.InitialRunCompleted;
+            var id = 2;
+            var expectedUrl = ControllerNames.PostBillingFile;
+
+            // Act
+            var result = DashboardHelper.GetTurnOnFeatureUrl(status, id);
+
+            // Assert
+            Assert.AreEqual(expectedUrl, result);
+        }
     }
 }
