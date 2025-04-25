@@ -154,5 +154,10 @@
         /// classifying calculation run controller scenario4 index page view.
         /// </summary>
         public const string ClassifyAfterFinalRunIndex = "~/Views/ClassifyAfterFinalRun/Index.cshtml";
+
+        /// <summary>
+        /// Calculator run details new error page view.
+        /// </summary>
+        public const string CalculationRunDetailsNewErrorPage = "~/Views/CalculationRunDetailsNew/ErrorPage.cshtml";
     }
 }
