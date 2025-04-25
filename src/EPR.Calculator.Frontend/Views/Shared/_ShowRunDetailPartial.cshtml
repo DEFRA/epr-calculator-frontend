@@ -2,33 +2,35 @@
 @model CalculationRunViewModel
 
 <div class="govuk-summary-list__row">
-    <dt class="govuk-summary-list__key">
-        <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
-            @if (Model.ShowRunDetailLink)
-            {
-                <feature name="EnableMVPJourney">
-                    <a href="@Model.TurnOnFeatureUrl" class="govuk-link govuk-link--no-visited-state">
-                        @Model.Name
-                    </a>
-                </feature>
-                <feature name="EnableMVPJourney" negate="true">
-                    <a href="@Model.TurnOffFeatureUrl" class="govuk-link govuk-link--no-visited-state">
-                        @Model.Name
-                    </a>
-                </feature>
-            }
-            else
-            {
-                @Model.Name
-            }
-        </h3>
+    <dl>
+        <dt class="govuk-summary-list__key">
+            <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
+                @if (Model.ShowRunDetailLink)
+                {
+                    <feature name="EnableMVPJourney">
+                        <a href="@Model.TurnOnFeatureUrl" class="govuk-link govuk-link--no-visited-state">
+                            @Model.Name
+                        </a>
+                    </feature>
+                    <feature name="EnableMVPJourney" negate="true">
+                        <a href="@Model.TurnOffFeatureUrl" class="govuk-link govuk-link--no-visited-state">
+                            @Model.Name
+                        </a>
+                    </feature>
+                }
+                else
+                {
+                    @Model.Name
+                }
+            </h3>
 
-        <p class="govuk-body">
-            Calculation ID: @Model.Id<br />
-            Date: @Model.CreatedAt<br />
-            Run by: @Model.CreatedBy
-        </p>
-    </dt>
+            <p class="govuk-body">
+                Calculation ID: @Model.Id<br />
+                Date: @Model.CreatedAt<br />
+                Run by: @Model.CreatedBy
+            </p>
+        </dt>
+    </dl>
 
     <dd class="govuk-summary-list__actions">
         @if (Model.Status == "RUNNING" || Model.Status == "ERROR")
