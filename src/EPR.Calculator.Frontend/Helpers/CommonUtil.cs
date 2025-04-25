@@ -57,5 +57,18 @@ namespace EPR.Calculator.Frontend.Helpers
             var britishZone = TimeZoneInfo.FindSystemTimeZoneById(CommonConstants.TimeZone);
             return TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Utc, britishZone);
         }
+
+        /// <summary>
+        /// Get formatted billing download filename from calculator run id and run name.
+        /// </summary>
+        /// <param name="runId">Calculator run id.</param>
+        /// <param name="runName">Calculator run name.</param>
+        /// <param name="dateTime">Date Time.</param>
+        /// <returns>filename as a string.</returns>
+        public static string GetBillingDownloadFileName(int runId, string runName, DateTime dateTime)
+        {
+            var datePart = dateTime.ToString("yyyyMMdd");
+            return $"{runId}-{runName}_Billing File_{datePart}.csv";
+        }
     }
 }

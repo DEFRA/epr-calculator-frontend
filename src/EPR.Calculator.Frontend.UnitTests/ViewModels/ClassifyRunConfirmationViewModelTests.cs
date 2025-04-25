@@ -75,5 +75,20 @@
             // Assert
             Assert.AreEqual(testValue, _testClass.DownloadTimeout);
         }
+
+        [TestMethod]
+        public void CanSetAndGetDownloadFileName()
+        {
+            // Arrange
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+
+            var testValue = fixture.Create<string>();
+
+            // Act
+            _testClass.DownloadBillingFileName = testValue;
+
+            // Assert
+            Assert.AreEqual(testValue, _testClass.DownloadBillingFileName);
+        }
     }
 }

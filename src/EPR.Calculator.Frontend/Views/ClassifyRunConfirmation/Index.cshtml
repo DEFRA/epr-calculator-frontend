@@ -56,8 +56,12 @@
                         <p class="govuk-body">Download files related to this calculation run.</p>
 
                         <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
-                                onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
+                                onclick="downloadFile('@Model.DownloadResultURL', '', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
                             Results file
+                        </button>
+                        <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
+                                onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadBillingFileName', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
+                            Draft billing file
                         </button>
 
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
