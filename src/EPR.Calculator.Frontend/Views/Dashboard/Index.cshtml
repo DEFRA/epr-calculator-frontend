@@ -17,13 +17,8 @@
 
 <div class="govuk-grid-row dashboard-page">
     <div class="govuk-grid-column-full">
-        <feature name="ShowFinancialYear">
-            <h1 class="govuk-heading-xl govuk-!-margin-bottom-1">Calculate packaging payments</h1>
-            <p class="govuk-hint govuk-!-margin-top-1 govuk-!-margin-bottom-6">Set up and run packaging payment calculations, and view past runs by financial year.</p>
-        </feature>
-        <feature name="ShowFinancialYear" negate="true">
-            <h1 class="govuk-heading-xl">Calculate packaging payments</h1>
-        </feature>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-1">Calculate packaging payments</h1>
+        <p class="govuk-hint govuk-!-margin-top-1 govuk-!-margin-bottom-6">Set up and run packaging payment calculations, and view past runs by financial year.</p>
         <div class="govuk-grid-row tile-group">
             <div class="govuk-grid-column-one-third tile">
                 <a href="/ViewDefaultParameters" class="govuk-link govuk-link--no-visited-state">
@@ -47,25 +42,18 @@
 
         <div class="govuk-grid-row header-container">
             <div class="govuk-grid-column-two-third caption-text">
-                <feature name="ShowFinancialYear">
-                    <h2 class="govuk-heading-l govuk-!-margin-top-3 govuk-!-margin-bottom-0">Calculation runs</h2>
-                    <p class="govuk-body-s">View and select a calculation run. You can also filter by financial year to find previous runs.</p>
-                </feature>
-                <feature name="ShowFinancialYear" negate="true">
-                    <h2 class="govuk-heading-l govuk-!-margin-top-3">Calculations made in this financial year</h2>
-                </feature>
+                <h2 class="govuk-heading-l govuk-!-margin-top-3 govuk-!-margin-bottom-0">Calculation runs</h2>
+                <p class="govuk-body-s">View and select a calculation run. You can also filter by financial year to find previous runs.</p>
             </div>
-            <feature name="ShowFinancialYear">
-                <div class="govuk-grid-column-one-third filter-container">
-                    <div class="govuk-form-group">
-                        <label class="govuk-label" for="financial-year-list">
-                            Select a financial year
-                        </label>
-                        <select class="govuk-select" id="financial-year-list" name="financial-year-list">
-                        </select>
-                    </div>
+            <div class="govuk-grid-column-one-third filter-container">
+                <div class="govuk-form-group">
+                    <label class="govuk-label" for="financial-year-list">
+                        Select a financial year
+                    </label>
+                    <select class="govuk-select" id="financial-year-list" name="financial-year-list">
+                    </select>
                 </div>
-            </feature>
+            </div>
         </div>
         <div id="calculation-runs">
             @await Html.PartialAsync("_CalculationRunsPartial", Model.Calculations)
