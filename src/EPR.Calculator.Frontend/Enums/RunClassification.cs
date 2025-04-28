@@ -16,7 +16,7 @@ namespace EPR.Calculator.Frontend.Enums
         UNCLASSIFIED = 3,
 
         [EnumMember(Value = "TEST RUN")]
-        TESTRUN = 4,
+        TEST_RUN = 4,
 
         [EnumMember(Value = "ERROR")]
         ERROR = 5,
@@ -25,18 +25,18 @@ namespace EPR.Calculator.Frontend.Enums
         DELETED = 6,
 
         [EnumMember(Value = "INITIAL RUN COMPLETED")]
-        INITIALRUNCOMPLETED = 7,
+        INITIAL_RUN_COMPLETED = 7,
 
         [EnumMember(Value = "INITIAL RUN")]
-        INITIALRUN = 8,
+        INITIAL_RUN = 8,
 
         [EnumMember(Value = "INTERIM RE-CALCULATION RUN")]
-        INTERIMRECALCULATIONRUN = 9,
+        INTERIM_RECALCULATION_RUN = 9,
 
         [EnumMember(Value = "FINAL RUN")]
-        FINALRUN = 10,
+        FINAL_RUN = 10,
 
         [EnumMember(Value = "FINAL RE-CALCULATION RUN")]
-        FINALRECALCULATIONRUN = 11,
+        FINAL_RECALCULATION_RUN = 11,
     }
 }
