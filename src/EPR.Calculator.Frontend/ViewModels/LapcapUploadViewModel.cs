@@ -21,5 +21,10 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or Sets the lapcap data template value.
         /// </summary>
         public List<LapcapDataTemplateValueDto>? LapcapDataTemplateValue { get; set; }
+
+        /// <summary>
+        /// Gets or sets the errors.
+        /// </summary>
+        public List<ErrorViewModel>? Errors { get; set; }
     }
 }

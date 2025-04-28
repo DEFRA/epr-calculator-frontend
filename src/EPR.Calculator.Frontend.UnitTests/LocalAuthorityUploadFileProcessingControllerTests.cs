@@ -87,6 +87,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpContext = new DefaultHttpContext();
             var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             mockTokenAcquisition
                 .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
@@ -96,7 +104,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
-            controller.ControllerContext = new ControllerContext { HttpContext = MockHttpContext.Object };
+            controller.ControllerContext = new ControllerContext { HttpContext = context };
 
             var fileUploadFileName = "LocalAuthorityData.csv";
 
@@ -119,7 +127,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
-            controller.ControllerContext.HttpContext = httpContextMock.Object;
+            controller.ControllerContext.HttpContext = context;
 
             // Act
             var viewModel = new LapcapRefreshViewModel()
@@ -165,14 +173,24 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockTokenAcquisition
                 .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
                 .ReturnsAsync("somevalue");
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
             var controller = new LocalAuthorityUploadFileProcessingController(TestMockUtils.BuildConfiguration(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient())
             {
-                TempData = tempData
+                TempData = tempData,
+            };
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = context
             };
 
             var mockHttpContext = new Mock<HttpContext>();
-            var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            mockHttpContext.Setup(s => s.Session).Returns(mockSession);
             mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
             controller.ControllerContext.HttpContext = mockHttpContext.Object;
 

@@ -61,7 +61,7 @@
         public const string UnknownUser = "Unknown User";
 
         /// <summary>
-        /// Error message for when user doesn't accept all invoice instructions.
+        /// Error message for when user doesn't accept all billing instructions.
         /// </summary>
         public const string AcceptAllInstructionsNotChecked = "Confirm that you have accepted all billing instructions before continuing.";
 
@@ -69,5 +69,15 @@
         /// Error message for classify run type option not selected.
         /// </summary>
         public const string ClassifyRunTypeNotSelected = "Select a classification before confirming.";
+
+        /// <summary>
+        /// Error message for calculation Run option not selected.
+        /// </summary>
+        public const string CalcRunOptionNotSelected = "Select an option before continuing.";
+
+        /// <summary>
+        /// Error message for error in run.
+        /// </summary>
+        public const string RunDetailError = "The calculation was unsuccessful";
     }
 }

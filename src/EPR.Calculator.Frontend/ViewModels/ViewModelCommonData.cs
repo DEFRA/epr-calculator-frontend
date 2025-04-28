@@ -21,10 +21,5 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets the title of the Back Link.
         /// </summary>
         public string BackLink { get; set; } = ControllerNames.Dashboard;
-
-        /// <summary>
-        /// Gets or sets the errors.
-        /// </summary>
-        public List<ErrorViewModel>? Errors { get; set; }
     }
 }

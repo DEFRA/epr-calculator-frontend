@@ -39,12 +39,12 @@ namespace EPR.Calculator.Frontend.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Submit(AcceptInvoiceInstructionsViewModel model)
         {
-            if (this.ModelState.IsValid)
+            if (!this.ModelState.IsValid)
             {
-                return RedirectToAction(ActionNames.Index, new { model.RunId });
+                return this.View(ViewNames.PaymentCalculatorIndex, model);
             }
 
-            return this.View("Index", model);
+            return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunOverview, new { model.RunId });
         }
 
         /// <summary>
@@ -52,8 +52,6 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <returns>Billing file sent page.</returns>
         [Route("BillingFileSuccess")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult BillingFileSuccess()
         {
             var model = new BillingFileSuccessViewModel
