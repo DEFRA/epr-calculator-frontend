@@ -82,7 +82,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             CalculatorRunDto calculatorRunDto = new()
             {
-                RunId = 240008,
+                RunId = runId,
                 FinancialYear = "2024-25",
                 FileExtension = "xlsx",
                 RunClassificationStatus = "Unclassified",
@@ -92,23 +92,22 @@ namespace EPR.Calculator.Frontend.Controllers
                 CreatedBy = "Steve Jones",
             };
 
-            CalculatorRunDto calculatorRunErrorDto = new()
+            if (runId == 190508)
             {
-                RunId = 190508,
-                FinancialYear = "2024-25",
-                FileExtension = "xlsx",
-                RunClassificationStatus = "Error",
-                RunName = "Calculation Run 99",
-                RunClassificationId = 5,
-                CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
-                CreatedBy = "Steve Jones",
-            };
+                return new()
+                {
+                    RunId = 190508,
+                    FinancialYear = "2024-25",
+                    FileExtension = "xlsx",
+                    RunClassificationStatus = "Error",
+                    RunName = "Calculation Run 99",
+                    RunClassificationId = 5,
+                    CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
+                    CreatedBy = "Steve Jones",
+                };
+            }
 
-            calculatorRuns.Add(calculatorRunDto);
-            calculatorRuns.Add(calculatorRunErrorDto);
-            var calculatorRun = calculatorRuns.Where(x => x.RunId == runId).FirstOrDefault();
-
-            return calculatorRun;
+            return calculatorRunDto;
         }
 
         private static bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
