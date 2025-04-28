@@ -202,7 +202,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
                 new CalculationRun { Id = 9, CalculatorRunClassificationId = Enums.RunClassification.TEST_RUN, Name = "Local Authority data check 2", CreatedAt = DateTime.Parse("06/06/2025 11:20:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
                 new CalculationRun { Id = 10, CalculatorRunClassificationId = Enums.RunClassification.TEST_RUN, Name = "Local Authority data check", CreatedAt = DateTime.Parse("02/06/2025 12:02:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
                 new CalculationRun { Id = 11, CalculatorRunClassificationId = Enums.RunClassification.ERROR, Name = "Fee adjustment check", CreatedAt = DateTime.Parse("01/06/2025 09:12:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
-                new CalculationRun { Id = 12, CalculatorRunClassificationId = Enums.RunClassification.ERROR, Name = "Deleted Run", CreatedAt = DateTime.Parse("01/06/2025 09:12:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" }
+                new CalculationRun { Id = 12, CalculatorRunClassificationId = Enums.RunClassification.DELETED, Name = "Deleted Run", CreatedAt = DateTime.Parse("01/06/2025 09:12:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" }
             ]);
 
             return calculationRuns;
