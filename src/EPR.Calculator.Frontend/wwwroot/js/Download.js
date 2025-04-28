@@ -1,5 +1,5 @@
 ﻿function downloadFile(url, fileName, errorAction, event, timeout, token) {
-    event.preventDefault();
+    event.preventDefault();    
     $.ajax({
         url: url,
         method: 'GET',
@@ -51,17 +51,3 @@
 function isEmpty(value) {
     return (value == null || (typeof value === "string" && value.trim().length === 0));
 }
-
-console.log(isEmpty("cat")); // false
-console.log(isEmpty(1)); // false
-console.log(isEmpty([])); // false
-console.log(isEmpty({})); // false
-console.log(isEmpty(false)); // false
-console.log(isEmpty(0)); // false
-console.log(isEmpty(-0)); // false
-console.log(isEmpty(NaN)); // false
-
-console.log(isEmpty("")); // true
-console.log(isEmpty("    ")); // true
-console.log(isEmpty(null)); // true
-console.log(isEmpty(undefined)); // true
