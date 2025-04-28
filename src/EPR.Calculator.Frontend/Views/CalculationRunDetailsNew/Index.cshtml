@@ -1,5 +1,6 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels.Enums
 @using Microsoft.AspNetCore.Http
+@using EPR.Calculator.Frontend.Helpers
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunDetailsNewViewModel
 @{
@@ -16,13 +17,17 @@
             {
                 @Html.AntiForgeryToken()
 
-                @Html.Hidden("Data.RunId", Model.Data.RunId)
+                @Html.Hidden("RunId", Model.RunId)
+                @Html.HiddenFor(m => m.CurrentUser)
+
+                <partial name="_ValidationSummaryPartial" />
+
                 <div class="govuk-form-group">
-                    <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
+                    <fieldset class="govuk-fieldset">
                         <legend class="govuk-caption-l">
-                            @Model.Data.RunName
+                            @Model.RunName
                         </legend>
-                        <h1 id="approval-code-hint" class="govuk-heading-l">Calculation run details</h1>
+                        <h1 class="govuk-heading-l">Calculation run details</h1>
                         <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
                         <h3 class="govuk-body-m">Download the results file to review the calculation run offline. When you are ready, return to classify or delete it.</h3>
 
@@ -33,19 +38,19 @@
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@Model.Data.FinancialYear</td>
+                                    <td class="govuk-table__cell">@Model.FinancialYear</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                    <td class="govuk-table__cell">@Model.Data.RunId</td>
+                                    <td class="govuk-table__cell">@Model.RunId</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@Model.Data.CreatedAt.ToString("dd MMM yyyy") at @Model.Data.CreatedAt.ToString("HH:mm")</td>
+                                    <td class="govuk-table__cell">@Model.CreatedAt.ToString("dd MMM yyyy") at @Model.CreatedAt.ToString("HH:mm")</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run by</th>
-                                    <td class="govuk-table__cell">@Model.Data.CreatedBy</td>
+                                    <td class="govuk-table__cell">@Model.CreatedBy</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -58,33 +63,40 @@
                         </button>
 
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-                        <h2 class="govuk-heading-m">What do you want to do next?</h2>
 
-                        <div class="govuk-radios" data-module="govuk-radios">
-                            <div class="govuk-radios__item">
-                                @Html.RadioButtonFor(model => model.SelectedCalcRunOption, CalculationRunOption.OutputClassify, new { @class = "govuk-radios__input", id = "outputClassify" })
-                                <label class="govuk-label govuk-radios__label" for="outputClassify">
-                                    <strong>Classify</strong><br />
-                                    <p class="govuk-body-s" style="margin-bottom: 0;">Choose a classification to process this calculation run</p>
-                                </label>
-                            </div>
-                            <div class="govuk-radios__item">
-                                @Html.RadioButtonFor(model => model.SelectedCalcRunOption, CalculationRunOption.OutputDelete, new { @class = "govuk-radios__input", id = "outputDelete" })
-                                <label class="govuk-label govuk-radios__label" for="outputDelete">
-                                    <strong>Delete</strong><br />
-                                    <p class="govuk-body-s" style="margin-bottom: 0;">Remove this calculation run if it's no longer needed</p>
-                                </label>
-                            </div>
+                        <div class="govuk-form-group @(ViewData.HasErrorFor(nameof(Model.SelectedCalcRunOption)) ? "govuk-form-group--error" : "")">
+                            <fieldset class="govuk-fieldset" id="SelectedCalcRunOption">
+                                <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                    What do you want to do next?
+                                </legend>
+
+                                @Html.ValidationMessageFor(model => model.SelectedCalcRunOption, "", new { @class = "govuk-error-message" })
+
+                                <div class="govuk-radios" data-module="govuk-radios">
+                                    <div class="govuk-radios__item">
+                                        @Html.RadioButtonFor(model => model.SelectedCalcRunOption, CalculationRunOption.OutputClassify, new { @class = "govuk-radios__input", id = "SelectedCalcRunOptionClassify" })
+                                        <label class="govuk-label govuk-radios__label" for="SelectedCalcRunOptionClassify">
+                                            <strong>Classify</strong><br />
+                                            <p class="govuk-body-s" style="margin-bottom: 0;">Choose a classification to process this calculation run</p>
+                                        </label>
+                                    </div>
+                                    <div class="govuk-radios__item">
+                                        @Html.RadioButtonFor(model => model.SelectedCalcRunOption, CalculationRunOption.OutputDelete, new { @class = "govuk-radios__input", id = "SelectedCalcRunOptionDelete" })
+                                        <label class="govuk-label govuk-radios__label" for="SelectedCalcRunOptionDelete">
+                                            <strong>Delete</strong><br />
+                                            <p class="govuk-body-s" style="margin-bottom: 0;">Remove this calculation run if it's no longer needed</p>
+                                        </label>
+                                    </div>
+                                </div>
+                            </fieldset>
                         </div>
                     </fieldset>
                 </div>
 
-                <div class="govuk-button-group">
-                    <div class="govuk-button-group">
+                <div class="govuk-button-group">                   
                         <button type="Submit" class="govuk-button" data-module="govuk-button">
                             Continue
-                        </button>
-                    </div>
+                        </button>                    
 
                     <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
                 </div>

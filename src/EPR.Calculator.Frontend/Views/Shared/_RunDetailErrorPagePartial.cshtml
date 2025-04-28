@@ -1,0 +1,24 @@
+﻿@using EPR.Calculator.Frontend.ViewModels
+@model CalculatorRunDetailsNewViewModel;
+
+@{
+    var errorMessage = ViewData.ModelState[Model.RunName]?.Errors.FirstOrDefault()?.ErrorMessage;
+}
+
+<div class="govuk-error-summary" data-module="govuk-error-summary">
+    <div role="alert">
+        <span class="govuk-caption-l">@Model.RunName</span>
+        <h2 class="govuk-heading-l">
+            The calculator could not complete the run.
+        </h2>
+        <div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+
+                <li>
+                    <p>@errorMessage</p>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</div>

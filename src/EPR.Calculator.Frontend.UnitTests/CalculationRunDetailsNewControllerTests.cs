@@ -1,5 +1,8 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Security.Claims;
+using System.Security.Principal;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
 using EPR.Calculator.Frontend.ViewModels.Enums;
@@ -38,23 +41,25 @@ namespace EPR.Calculator.Frontend.UnitTests
                    _mockHttpClientFactory.Object,
                    _mockLogger.Object,
                    _mockTokenAcquisition.Object,
-                   _telemetryClient)
+                   _telemetryClient);
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
             {
-                // Setting the mocked HttpContext for the controller
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = _mockHttpContext.Object
-                }
+                new Claim(ClaimTypes.Name, "Test User")
+            }));
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
             };
         }
 
         [TestMethod]
         public void Index_ValidRunId_ReturnsViewResult()
         {
-            int runId = 1;
-
-            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+            int runId = 240008;
 
             var result = _controller.Index(runId);
 
@@ -68,41 +73,38 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void Submit_InvalidModelState_ReturnsRedirectToAction()
         {
             // Arrange
-            int runId = 1;
+            int runId = 240008;
             _controller.ModelState.AddModelError("Error", "Model error");
 
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
-                {
-                    RunId = runId,
-                    RunName = "Test Run",
-                },
+                RunId = runId,
+                RunName = "Test Run",
                 SelectedCalcRunOption = null
             };
 
             // Act
-            var result = _controller.Submit(model) as RedirectToActionResult;
+            var result = _controller.Submit(model) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsNewIndex, result.ViewName);
+            var viewModel = result.Model as CalculatorRunDetailsNewViewModel;
+            Assert.IsNotNull(viewModel);
+            Assert.AreEqual(model.RunId, viewModel.RunId);
         }
 
         [TestMethod]
         public void Submit_ValidModelState_RedirectsToCorrectAction()
         {
             // Arrange
-            int runId = 1;
+            int runId = 240008;
             var selectedOption = CalculationRunOption.OutputClassify;
 
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
-                {
-                    RunId = runId,
-                    RunName = "Test Run",
-                },
+                RunId = runId,
+                RunName = "Test Run",
                 SelectedCalcRunOption = selectedOption
             };
 
@@ -120,11 +122,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
-                {
-                    RunId = 1,
-                    RunName = "Test Run",
-                },
+                RunId = 240008,
+                RunName = "Test Run",
                 SelectedCalcRunOption = CalculationRunOption.OutputClassify
             };
 
@@ -135,7 +134,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.ClassifyingCalculationRun, result.ControllerName);
-            Assert.AreEqual(1, result.RouteValues["runId"]);
+            Assert.AreEqual(240008, result.RouteValues["runId"]);
         }
 
         [TestMethod]
@@ -143,11 +142,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
-                {
-                    RunId = 1,
-                    RunName = "Test Run",
-                },
+                RunId = 240008,
+                RunName = "Test Run",
                 SelectedCalcRunOption = CalculationRunOption.OutputDelete
             };
             // Act
@@ -157,7 +153,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.CalculationRunDelete, result.ControllerName);
-            Assert.AreEqual(1, result.RouteValues["runId"]);
+            Assert.AreEqual(240008, result.RouteValues["runId"]);
         }
 
         [TestMethod]
@@ -165,11 +161,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                Data = new Models.CalculatorRunDto()
-                {
-                    RunId = 1,
-                    RunName = "Test Run",
-                },
+                RunId = 240008,
+                RunName = "Test Run",
                 SelectedCalcRunOption = (CalculationRunOption)999
             };
 
@@ -179,7 +172,34 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(1, result.RouteValues["runId"]);
+            Assert.AreEqual(240008, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public void Index_WhenRunIsNotEligible_ReturnsErrorView()
+        {
+            // Arrange
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+            };
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = context
+            };
+
+            int runId = 190508;
+            var run = new CalculatorRunDto { RunClassificationId = 5 };
+
+            // Act
+            var result = _controller.Index(runId) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsNewErrorPage, result.ViewName);
         }
     }
 }

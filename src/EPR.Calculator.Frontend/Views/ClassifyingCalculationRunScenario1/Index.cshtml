@@ -1,13 +1,12 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels.Enums
 @model ClassifyCalculationRunScenerio1ViewModel
-
 @{
     var backLinkModel = new BackLinkPartialViewModel
             {
                 BackLink = Model.BackLink,
                 CurrentUser = Model.CurrentUser,
                 RunId = Model.RunId
-            };    
+            };
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
@@ -31,7 +30,10 @@
                         <span id="approval-code-hint" class="govuk-caption-l">@Model.RunName</span>
                         <h1 class="govuk-heading-l">Classify calculation run</h1>
 
-                        <table class="govuk-table" aria-describedby="table-description">
+                        <table class="govuk-table" aria-describedby="table-description-calc">
+                            <caption id="table-description-calc" class="govuk-visually-hidden">
+                                Details of the calculation run including financial year, calculation ID, run date, and time.
+                            </caption>
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
@@ -49,11 +51,9 @@
                         </table>
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--invisible">
 
-
-
-                        <div class="govuk-form-group @(ViewData.ModelState[nameof(Model.ClassifyRunType)]?.Errors.Any() == true ? "govuk-form-group--error" : "")">
+                        <div class="govuk-form-group @(ViewData.HasErrorFor(nameof(Model.ClassifyRunType)) ? "govuk-form-group--error" : "")">
                             <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint" id=@nameof(Model.ClassifyRunType)>
-                                <legend class="govuk-label govuk-fieldset__legend govuk-fieldset__legend--l"></legend>                                    
+                                <legend class="govuk-label govuk-fieldset__legend govuk-fieldset__legend--l"></legend>
 
                                 @Html.ValidationMessageFor(model => model.ClassifyRunType, "", new { @class = "govuk-error-message" })
 
@@ -77,7 +77,7 @@
                                             </p>
                                         </label>
                                     </div>
-                                </div>                               
+                                </div>
                             </fieldset>
                         </div>
                     </fieldset>
@@ -108,7 +108,7 @@
                         <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
                         <strong class="govuk-warning-text__text">
                             <span class="govuk-visually-hidden">Warning</span>
-                            You cannot reclassify a run after the billing file has been issued. Once classified, any previous unclassified runs can no longer be classified.
+                            You cannot remove a run's classification after the billing file has been issued. Once classified, any previous unclassified runs can no longer be classified.
                         </strong>
                     </div>
                 </div>
