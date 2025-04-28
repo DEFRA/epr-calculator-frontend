@@ -26,10 +26,5 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets download Timeout.
         /// </summary>
         public int? DownloadTimeout { get; set; }
-
-        /// <summary>
-        /// Gets or sets download billing file name.
-        /// </summary>
-        public string? DownloadBillingFileName { get; set; }
     }
 }

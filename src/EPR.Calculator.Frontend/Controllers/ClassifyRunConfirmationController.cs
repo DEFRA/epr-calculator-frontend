@@ -3,7 +3,6 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 
@@ -28,8 +27,6 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var runName = "Calculation Run 99";
-
                 var statusUpdateViewModel = new ClassifyRunConfirmationViewModel
                 {
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
@@ -37,7 +34,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     {
                         RunId = runId,
                         RunClassificationId = 240008,
-                        RunName = runName,
+                        RunName = "Calculation Run 99",
                         CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
                         FileExtension = ".csv",
                         RunClassificationStatus = "3",
@@ -45,7 +42,6 @@ namespace EPR.Calculator.Frontend.Controllers
                         Classification = "Initial run",
                     },
                     BackLink = ControllerNames.ClassifyingCalculationRun,
-                    DownloadBillingFileName = CommonUtil.GetBillingDownloadFileName(runId, runName, DateTime.Now),
                 };
 
                 return this.View(ViewNames.ClassifyRunConfirmationIndex, statusUpdateViewModel);

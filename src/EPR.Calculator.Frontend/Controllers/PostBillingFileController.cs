@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.AspNetCore.Razor.Language.TagHelperMetadata;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -11,6 +12,9 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpGet]
         public IActionResult Index()
         {
+            var runId = 240008;
+            var runName = "Calculation Run 99";
+
             var billingFileViewModel = new PostBillingFileViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
@@ -20,13 +24,15 @@ namespace EPR.Calculator.Frontend.Controllers
                 SelectedCalcRunOption = "Initial run",
                 CalculatorRunStatus = new CalculatorRunStatusUpdateDto
                 {
-                    RunId = 240008,
+                    RunId = runId,
                     ClassificationId = 3,
                     CalcName = "Calculation run 99",
                     CreatedDate = "01 May 2024",
                     CreatedTime = "12:09",
                     FinancialYear = "2024-25",
                 },
+
+                DownloadBillingFileName = CommonUtil.GetBillingDownloadFileName(runId, runName, DateTime.Now),
             };
 
             return this.View(billingFileViewModel);
