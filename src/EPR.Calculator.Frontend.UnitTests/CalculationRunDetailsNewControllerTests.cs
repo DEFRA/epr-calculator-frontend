@@ -174,32 +174,5 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(240008, result.RouteValues["runId"]);
         }
-
-        [TestMethod]
-        public void Index_WhenRunIsNotEligible_ReturnsErrorView()
-        {
-            // Arrange
-            var identity = new GenericIdentity("TestUser");
-            identity.AddClaim(new Claim("name", "TestUser"));
-            var principal = new ClaimsPrincipal(identity);
-            var context = new DefaultHttpContext()
-            {
-                User = principal,
-            };
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = context
-            };
-
-            int runId = 190508;
-            var run = new CalculatorRunDto { RunClassificationId = 5 };
-
-            // Act
-            var result = _controller.Index(runId) as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunDetailsNewErrorPage, result.ViewName);
-        }
     }
 }

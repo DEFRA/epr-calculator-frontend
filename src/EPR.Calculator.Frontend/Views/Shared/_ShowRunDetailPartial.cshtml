@@ -30,12 +30,9 @@
         </p>
     </dt>
 
-    <dd class="govuk-summary-list__actions">
-        @if (Model.Status == "RUNNING" || Model.Status == "ERROR")
-        {
+    <dd class="govuk-summary-list__actions">      
             <strong class="@Model.TagStyle">
                 @Model.Status
-            </strong>
-        }
+            </strong>    
     </dd>
 </div>

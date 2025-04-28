@@ -1,27 +1,74 @@
-﻿using System.Runtime.Serialization;
+﻿using System.ComponentModel;
+using System.Runtime.Serialization;
 
 namespace EPR.Calculator.Frontend.Enums
 {
     public enum RunClassification
     {
-        None = 0,
+        /// <summary>
+        /// In the Queue.
+        /// </summary>
+        [Description("IN THE QUEUE")]
+        INTHEQUEUE = 1,
 
-        [EnumMember(Value = "IN THE QUEUE")]
-        QUEUE = 1,
-
-        [EnumMember(Value = "RUNNING")]
+        /// <summary>
+        /// Running.
+        /// </summary>
+        [Description("RUNNING")]
         RUNNING = 2,
 
-        [EnumMember(Value = "UNCLASSIFIED")]
+        /// <summary>
+        /// Unclassified.
+        /// </summary>
+        [Description("UNCLASSIFIED")]
         UNCLASSIFIED = 3,
 
-        [EnumMember(Value = "PLAY")]
-        PLAY = 4,
+        /// <summary>
+        /// Play.
+        /// </summary>
+        [Description("TEST RUN")]
+        TEST_RUN = 4,
 
-        [EnumMember(Value = "ERROR")]
+        /// <summary>
+        /// Error.
+        /// </summary>
+        [Description("ERROR")]
         ERROR = 5,
 
-        [EnumMember(Value = "DELETED")]
+        /// <summary>
+        /// Deleted.
+        /// </summary>
+        [Description("DELETED")]
         DELETED = 6,
+
+        /// <summary>
+        /// INITIAL RUN COMPLETED.
+        /// </summary>
+        [Description("INITIAL RUN COMPLETED")]
+        INITIAL_RUN_COMPLETED = 7,
+
+        /// <summary>
+        /// INITIAL RUN.
+        /// </summary>
+        [Description("INITIAL RUN")]
+        INITIAL_RUN = 8,
+
+        /// <summary>
+        /// INTERIM RE-CALCULATION RUN.
+        /// </summary>
+        [Description("INTERIM RE-CALCULATION RUN")]
+        INTERIM_RECALCULATION_RUN = 9,
+
+        /// <summary>
+        /// FINAL RUN.
+        /// </summary>
+        [Description("FINAL RUN")]
+        FINAL_RUN = 10,
+
+        /// <summary>
+        /// FINAL RE-CALCULATION RUN.
+        /// </summary>
+        [Description("FINAL RE-CALCULATION RUN")]
+        FINAL_RECALCULATION_RUN = 11,
     }
 }

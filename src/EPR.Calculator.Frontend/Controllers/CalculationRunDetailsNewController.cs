@@ -41,7 +41,8 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 throw new ArgumentNullException($"Calculator with run id {runId} not found");
             }
-            else if (!IsRunEligibleForDisplay(calculatorRun))
+
+            if (!IsRunEligibleForDisplay(calculatorRun))
             {
                 this.ModelState.AddModelError(viewModel.RunName, ErrorMessages.RunDetailError);
                 return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
@@ -82,7 +83,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             CalculatorRunDto calculatorRunDto = new()
             {
-                RunId = 240008,
+                RunId = runId,
                 FinancialYear = "2024-25",
                 FileExtension = "xlsx",
                 RunClassificationStatus = "Unclassified",
@@ -94,7 +95,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             CalculatorRunDto calculatorRunErrorDto = new()
             {
-                RunId = 190508,
+                RunId = 23,
                 FinancialYear = "2024-25",
                 FileExtension = "xlsx",
                 RunClassificationStatus = "Error",
