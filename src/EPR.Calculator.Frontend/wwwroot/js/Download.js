@@ -16,6 +16,7 @@
                 // Get the Content-Disposition header
                 const contentDisposition = xhr.getResponseHeader('Content-Disposition');               
 
+                // if custom param name is empty or null then use extracted filename
                 if (isEmpty(fileName)) {
 
                     // Regular expression to match the filename and filename* parameters
@@ -31,7 +32,7 @@
                 const url = window.URL.createObjectURL(data);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = fileName || 'downloaded_file'; // Use extracted filename or a default name
+                a.download = fileName || 'downloaded_file'; // Use custom file name as param or extracted filename or a default name
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
