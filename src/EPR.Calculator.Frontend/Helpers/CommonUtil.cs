@@ -68,7 +68,7 @@ namespace EPR.Calculator.Frontend.Helpers
         public static string GetBillingDownloadFileName(int runId, string runName, DateTime dateTime)
         {
             var datePart = dateTime.ToString("yyyyMMdd");
-            return $"{runId}-{runName}_Billing File_{datePart}.csv";
+            return $"{runId}-{runName}_{CommonConstants.BillingFileNamePart}_{datePart}.csv";
         }
     }
 }

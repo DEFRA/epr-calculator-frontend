@@ -13,26 +13,14 @@
         },
         success: function (data, status, xhr) {
             try {
-                // Get the Content-Disposition header
-                const contentDisposition = xhr.getResponseHeader('Content-Disposition');               
-
-                // if custom param name is empty or null then use extracted filename
-                if (isEmpty(fileName)) {
-
-                    // Regular expression to match the filename and filename* parameters
-                    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-
-                    let matches = filenameRegex.exec(contentDisposition);
-                    if (matches?.[1]) {
-                        fileName = matches[1].replace(/['"]/g, '');
-                    }
-                }
+                          
+                var downloadfileName = getFileNameFromContentDispositionIfEmpty(fileName);                
 
                 // Create a download link
                 const url = window.URL.createObjectURL(data);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = fileName || 'downloaded_file'; // Use custom file name as param or extracted filename or a default name
+                a.download = downloadfileName || 'downloaded_file'; // Use custom file name as param or extracted filename or a default name
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
@@ -50,4 +38,25 @@
 
 function isEmpty(value) {
     return (value == null || (typeof value === "string" && value.trim().length === 0));
+}
+
+function getFileNameFromContentDispositionIfEmpty(fileName) {
+
+    // if custom param name is empty or null then use extracted filename
+
+    if (fileName == null || (typeof fileName === "string" && fileName.trim().length === 0)) {
+
+        // Get the Content-Disposition header
+        const contentDisposition = xhr.getResponseHeader('Content-Disposition');
+
+        // Regular expression to match the filename and filename* parameters
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+
+        let matches = filenameRegex.exec(contentDisposition);
+        if (matches?.[1]) {
+            fileName = matches[1].replace(/['"]/g, '');
+        }
+    }
+    
+    return fileName;   
 }
