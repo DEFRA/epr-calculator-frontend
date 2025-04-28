@@ -77,9 +77,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private static CalculatorRunDto GetCalculationRunDetails(int runId)
         {
-            // Get the calculation run details from the API
-            var calculatorRuns = new List<CalculatorRunDto>();
-
             CalculatorRunDto calculatorRunDto = new()
             {
                 RunId = runId,
