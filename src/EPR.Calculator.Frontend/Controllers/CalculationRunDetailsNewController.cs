@@ -77,18 +77,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private static CalculatorRunDto GetCalculationRunDetails(int runId)
         {
-            CalculatorRunDto calculatorRunDto = new()
-            {
-                RunId = runId,
-                FinancialYear = "2024-25",
-                FileExtension = "xlsx",
-                RunClassificationStatus = "Unclassified",
-                RunName = "Calculation Run 99",
-                RunClassificationId = 3,
-                CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
-                CreatedBy = "Steve Jones",
-            };
-
             if (runId == 190508)
             {
                 return new()
@@ -104,7 +92,17 @@ namespace EPR.Calculator.Frontend.Controllers
                 };
             }
 
-            return calculatorRunDto;
+            return new()
+            {
+                RunId = runId,
+                FinancialYear = "2024-25",
+                FileExtension = "xlsx",
+                RunClassificationStatus = "Unclassified",
+                RunName = "Calculation Run 99",
+                RunClassificationId = 3,
+                CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
+                CreatedBy = "Steve Jones",
+            };
         }
 
         private static bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
