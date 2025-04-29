@@ -87,11 +87,9 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private string Transform(ParameterRefreshViewModel parameterRefreshViewModel)
         {
-            var parameterYear = this.GetFinancialYear(ConfigSection.ParameterSettings);
-
             var parameterSetting = new CreateDefaultParameterSettingDto
             {
-                ParameterYear = parameterYear,
+                ParameterYear = this.GetFinancialYear(),
                 SchemeParameterTemplateValues = parameterRefreshViewModel.ParameterTemplateValue,
                 ParameterFileName = parameterRefreshViewModel.FileName,
             };

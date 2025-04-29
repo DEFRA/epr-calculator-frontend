@@ -85,11 +85,9 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private string Transform(LapcapRefreshViewModel lapcapRefreshViewModel)
         {
-            string parameterYear = this.GetFinancialYear("LapcapSettings");
-
             var lapcapData = new CreateLapcapDataDto
             {
-                ParameterYear = parameterYear,
+                ParameterYear = this.GetFinancialYear(),
                 LapcapDataTemplateValues = lapcapRefreshViewModel.LapcapTemplateValue,
                 LapcapFileName = lapcapRefreshViewModel.FileName,
             };

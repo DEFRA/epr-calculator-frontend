@@ -59,9 +59,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 var accessToken = await this.AcquireToken();
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
 
-                var parameterYear = this.GetFinancialYear(ConfigSection.ParameterSettings);
-
-                var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, parameterYear));
+                var uri = new Uri(string.Format("{0}/{1}", parameterSettingsApi, this.GetFinancialYear()));
                 var response = await client.GetAsync(uri);
 
                 if (response.IsSuccessStatusCode)

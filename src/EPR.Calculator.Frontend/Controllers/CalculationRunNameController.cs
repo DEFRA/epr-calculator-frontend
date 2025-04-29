@@ -168,7 +168,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var calculatorRunApi = this.GetCalculatorRunApi();
 
-            var year = this.GetFinancialYear(ConfigSection.CalculationRunSettings);
+            var year = this.GetFinancialYear();
 
             if (string.IsNullOrEmpty(year))
             {

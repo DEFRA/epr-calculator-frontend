@@ -61,10 +61,9 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <summary>
         /// Returns the financial year from session if feature enabled, else from config.
         /// </summary>
-        /// <param name="configSection">The configuration section.</param>
         /// <returns>Returns the financial year.</returns>
         /// <exception cref="ArgumentNullException">Returns error if financial year is null or empty.</exception>
-        protected string GetFinancialYear(string configSection)
+        protected string GetFinancialYear()
         {
             var parameterYear = this.HttpContext.Session.GetString(SessionConstants.FinancialYear);
 

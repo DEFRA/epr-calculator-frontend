@@ -66,7 +66,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var lapcapRunApi = this.Configuration.GetSection(ConfigSection.LapcapSettings).GetSection(ConfigSection.LapcapSettingsApi).Value;
 
-                var year = this.GetFinancialYear(ConfigSection.LapcapSettings);
+                var year = this.GetFinancialYear();
 
                 if (string.IsNullOrWhiteSpace(year) || string.IsNullOrWhiteSpace(lapcapRunApi))
                 {
