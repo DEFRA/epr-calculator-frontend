@@ -82,7 +82,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             CalculatorRunDto calculatorRunDto = new()
             {
-                RunId = 240008,
+                RunId = runId,
                 FinancialYear = "2024-25",
                 FileExtension = "xlsx",
                 RunClassificationStatus = "Unclassified",
