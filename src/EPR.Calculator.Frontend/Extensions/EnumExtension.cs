@@ -11,7 +11,9 @@ namespace EPR.Calculator.Frontend.Extensions
         {
             var memberInfo = enumValue.GetType().GetMember(enumValue.ToString()).FirstOrDefault();
             if (memberInfo == null)
+            {
                 return enumValue.ToString();
+            }
 
             // Check for DisplayAttribute
             var displayAttribute = memberInfo.GetCustomAttribute<DisplayAttribute>();
