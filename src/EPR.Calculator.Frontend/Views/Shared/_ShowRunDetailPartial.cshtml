@@ -34,9 +34,12 @@
         </dt>
     </dl>
 
-    <dd class="govuk-summary-list__actions" style="text-align: center;">
-        <strong class="@Model.TagStyle">
-            @Model.Status.GetDisplayName()
-        </strong>
-    </dd>
+    @if (Model.Status != RunClassification.UNCLASSIFIED)
+    {
+        <dd class="govuk-summary-list__actions" style="text-align: center;">
+            <strong class="@Model.TagStyle">
+                @Model.Status.GetDisplayName()
+            </strong>
+        </dd>
+    }
 </div>

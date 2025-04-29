@@ -15,7 +15,7 @@ namespace EPR.Calculator.Frontend.Enums
         [EnumMember(Value = "RUNNING")]
         RUNNING = 2,
 
-        [Description("UNCLASSIFIED")]
+        [Description("READY FOR CLASSIFICATION")]
         [EnumMember(Value = "UNCLASSIFIED")]
         UNCLASSIFIED = 3,
 
@@ -39,15 +39,15 @@ namespace EPR.Calculator.Frontend.Enums
         [EnumMember(Value = "INITIAL RUN")]
         INITIAL_RUN = 8,
 
-        [Description("INTERIM RE-CALCULATION RUN")]
+        [Description("INTERIM RECALCULATION RUN CLASSIFIED")]
         [EnumMember(Value = "INTERIM RE-CALCULATION RUN")]
         INTERIM_RECALCULATION_RUN = 9,
 
-        [Description("FINAL RUN")]
+        [Description("FINAL RUN CLASSIFIED")]
         [EnumMember(Value = "FINAL RUN")]
         FINAL_RUN = 10,
 
-        [Description("FINAL RE-CALCULATION RUN")]
+        [Description("FINAL RECALCULATION RUN CLASSIFIED")]
         [EnumMember(Value = "FINAL RE-CALCULATION RUN")]
         FINAL_RECALCULATION_RUN = 11,
     }
