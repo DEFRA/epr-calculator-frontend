@@ -174,5 +174,43 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(240008, result.RouteValues["runId"]);
         }
+
+        [TestMethod]
+        public void GetCalculationRunDetails_ShouldReturnCorrectRunDetails_WhenRunIdIs190508()
+        {
+            // Arrange
+            int runId = 190508;
+
+            // Act
+            var result = _controller.Index(runId) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsNewErrorPage, result.ViewName);
+        }
+
+        [TestMethod]
+        public void GetCalculationRunDetails_ShouldReturnDefaultRunDetails_WhenRunIdIsNot190508()
+        {
+            // Arrange
+            int runId = 12345;
+
+            // Act
+            var result = _controller.Index(runId) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsNewIndex, result.ViewName);
+        }
+
+        [TestMethod]
+        public void Index_ShouldThrowException_WhenRunDetailsNotFound()
+        {
+            // Arrange
+            int runId = 0; // Invalid runId
+
+            // Act & Assert
+            Assert.ThrowsException<ArgumentNullException>(() => _controller.Index(runId));
+        }
     }
 }
