@@ -43,7 +43,7 @@
                     <div class="govuk-radios__item">
                         @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputInitialRun", new { @class = "govuk-radios__input", id = "interimRecalculationRun" })
                         <label class="govuk-label govuk-radios__label" for="interimRecalculationRun">
-                            <strong>Interim recalculation run</strong><br>
+                            <strong>Interim recalculation run</strong><br />
                             <p class="govuk-body-s govuk-!-margin-bottom-0">An official, optional run that can happen any time after the initial run, including after final runs. It can be run multiple times and generate a billing file. It can be used to process late or updated producer data.</p>
                         </label>
                     </div>
@@ -51,7 +51,7 @@
                     <div class="govuk-radios__item">
                         @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputFinalRun", new { @class = "govuk-radios__input", id = "finalRun" })                           
                         <label class="govuk-label govuk-radios__label" for="finalRun">
-                            <strong>Final run</strong><br>
+                            <strong>Final run</strong><br />
                             <p class="govuk-body-s govuk-!-margin-bottom-0">An official, mandatory run at the end of the financial year that can produce a billing file for invoicing. Corrections after this must use the interim recalculation classification.</p>
                         </label>
                     </div>
@@ -59,14 +59,14 @@
                     <div class="govuk-radios__item">
                         @Html.RadioButtonFor(model => model.SelectedCalcRunOption, "outputTestRun", new { @class = "govuk-radios__input", id = "testRun" })
                         <label class="govuk-label govuk-radios__label" for="testRun">
-                            <strong>Test run</strong><br>
+                            <strong>Test run</strong><br />
                             <p class="govuk-body-s govuk-!-margin-bottom-0">An unofficial run to view the calculation results without generating a billing file for invoicing.</p>
                         </label>
                     </div>
 
                 </div>
             </fieldset>
-            <br>
+            <br />
             <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
                 <div class="govuk-notification-banner__header">
                     <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
@@ -75,11 +75,11 @@
                 </div>
                 <div class="govuk-notification-banner__content">
                     <p class="govuk-body-s">
-                        <strong>Initial run</strong><br>
+                        <strong>Initial run</strong><br />
                         Already classified for financial year 2024-25 on 1 May 2024
                     </p>
                     <p class="govuk-body-s">
-                        <strong>Final recalculation run</strong><br>
+                        <strong>Final recalculation run</strong><br />
                         Already classified for financial year 2024-25 on 1 December 2024
                     </p>
                 </div>

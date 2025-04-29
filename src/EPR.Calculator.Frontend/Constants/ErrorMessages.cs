@@ -6,6 +6,11 @@
     public static class ErrorMessages
     {
         /// <summary>
+        /// Error Title.
+        /// </summary>
+        public const string ErrorSummaryTitle = "There is a problem";
+
+        /// <summary>
         /// Error message for calculation run name not provided.
         /// </summary>
         public const string CalculationRunNameEmpty = "Enter a name for this calculation";
@@ -54,5 +59,25 @@
         /// Error message for unknown user.
         /// </summary>
         public const string UnknownUser = "Unknown User";
+
+        /// <summary>
+        /// Error message for when user doesn't accept all billing instructions.
+        /// </summary>
+        public const string AcceptAllInstructionsNotChecked = "Confirm that you have accepted all billing instructions before continuing.";
+
+        /// <summary>
+        /// Error message for classify run type option not selected.
+        /// </summary>
+        public const string ClassifyRunTypeNotSelected = "Select a classification before confirming.";
+
+        /// <summary>
+        /// Error message for calculation Run option not selected.
+        /// </summary>
+        public const string CalcRunOptionNotSelected = "Select an option before continuing.";
+
+        /// <summary>
+        /// Error message for error in run.
+        /// </summary>
+        public const string RunDetailError = "The calculation was unsuccessful";
     }
 }

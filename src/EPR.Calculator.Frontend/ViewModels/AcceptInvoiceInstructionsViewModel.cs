@@ -1,4 +1,6 @@
-﻿using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Validators;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
@@ -8,8 +10,7 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public string CalculationRunTitle { get; set; } = string.Empty;
 
+        [MustBeTrue(ErrorMessage = ErrorMessages.AcceptAllInstructionsNotChecked)]
         public bool AcceptAll { get; set; }
-
-        public string ReturnUrl { get; set; } = string.Empty;
     }
 }

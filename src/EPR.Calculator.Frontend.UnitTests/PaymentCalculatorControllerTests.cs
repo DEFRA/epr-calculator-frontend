@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.ComponentModel.DataAnnotations;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
@@ -65,38 +66,53 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void AcceptInvoiceInstructions_Post_ValidModelState_RedirectsToCalculationRunOverview()
         {
             // Arrange
-            int runId = 99;
+            var model = new AcceptInvoiceInstructionsViewModel()
+            {
+                RunId = 99,
+                AcceptAll = true, // Ensure this satisfies the [MustBeTrue] validation
+                BackLink = "dummy",
+                CurrentUser = "dummyuser",
+                CalculationRunTitle = "Calculation Run 99"
+            };
 
             // Act
-            var result = _controller.Submit(runId);
+            var result = _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
-            var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual(ActionNames.Index, redirectResult.ActionName);
-            Assert.AreEqual(ControllerNames.CalculationRunOverview, redirectResult.ControllerName);
-            Assert.AreEqual(runId, redirectResult.RouteValues["runId"]);
+            Assert.IsNotNull(result); // Ensure the result is a RedirectToActionResult
+            Assert.AreEqual(ActionNames.Index, result.ActionName); // Ensure it redirects to the correct action
+            Assert.AreEqual(model.RunId, result.RouteValues["runId"]); // Ensure the route values are correct
         }
 
         [TestMethod]
-        public void AcceptInvoiceInstructions_Post_InvalidModelState_RedirectsToIndex()
+        public void Submit_InvalidModelState_RedirectsToIndex()
         {
             // Arrange
-            int runId = 99;
-            _controller.ModelState.AddModelError("Test", "Invalid");
-
-            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+            var model = new AcceptInvoiceInstructionsViewModel { RunId = 1 };
+            _controller.ModelState.AddModelError("AcceptAll", "Required");
 
             // Act
-            var result = _controller.Submit(runId);
+            var result = _controller.Submit(model) as ViewResult;
 
             // Assert
-            var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual(ActionNames.Index, redirectResult.ActionName);
-            Assert.IsNull(redirectResult.ControllerName); // Same controller
-            Assert.AreEqual(runId, redirectResult.RouteValues["runId"]);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.PaymentCalculatorIndex, result.ViewName);
+        }
+
+        [TestMethod]
+        public void Submit_ValidModelState_RedirectsToCalculationRunOverview()
+        {
+            // Arrange
+            var model = new AcceptInvoiceInstructionsViewModel { RunId = 1, AcceptAll = true };
+
+            // Act
+            var result = _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.CalculationRunOverview, result.ControllerName);
+            Assert.AreEqual(model.RunId, result.RouteValues["RunId"]);
         }
 
         [TestMethod]

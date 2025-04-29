@@ -1,5 +1,7 @@
 ﻿@using EPR.Calculator.Frontend.Constants
 @using EPR.Calculator.Frontend.ViewModels
+@using EPR.Calculator.Frontend.ViewModels.Enums
+@using EPR.Calculator.Frontend.Helpers
 @model EPR.Calculator.Frontend.ViewModels.ClassifyCalculationRunScenerio1ViewModel
 
 @{
@@ -7,67 +9,84 @@
             {
                 BackLink = Model.BackLink,
                 CurrentUser = Model.CurrentUser,
-                RunId = Model.CalculatorRunStatus.RunId
+                RunId = Model.RunId
             };
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
-
 <partial name="_BackLinkPartialNew" model="backLinkModel" />
+
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.ClassifyingCalculationRun, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-                @Html.Hidden("RunId", Model.CalculatorRunStatus.RunId)
+                @Html.Hidden("RunId", Model.RunId)
+                @Html.HiddenFor(m => m.CurrentUser)
+
+                <partial name="_ValidationSummaryPartial" />
 
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
                         <legend></legend>
-                        <span id="approval-code-hint" class="govuk-caption-l">@Model.CalculatorRunStatus.CalcName</span>
+                        <span id="approval-code-hint" class="govuk-caption-l">@Model.RunName</span>
                         <h1 class="govuk-heading-l">Classify calculation run</h1>
 
-                        <table class="govuk-table" aria-describedby="table-description">
+                        <table class="govuk-table" aria-describedby="table-description-calc">
+                            <caption id="table-description-calc" class="govuk-visually-hidden">
+                                Details of the calculation run including financial year, calculation ID, run date, and time.
+                            </caption>
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@Model.CalculatorRunStatus.FinancialYear</td>
+                                    <td class="govuk-table__cell">@Model.FinancialYear</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                    <td class="govuk-table__cell">@Model.CalculatorRunStatus.RunId</td>
+                                    <td class="govuk-table__cell">@Model.RunId</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@Model.CalculatorRunStatus.CreatedDate at @Model.CalculatorRunStatus.CreatedTime</td>
+                                    <td class="govuk-table__cell">@Model.CreatedAt.ToString("dd MMM yyyy") at @Model.CreatedAt.ToString("HH:mm")</td>
                                 </tr>
                             </tbody>
                         </table>
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--invisible">
 
-                        <div class="govuk-radios" data-module="govuk-radios">
+                        <div class="govuk-form-group @(ViewData.HasErrorFor(nameof(Model.ClassifyRunType)) ? "govuk-form-group--error" : "")">
+                            <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint" id=@nameof(Model.ClassifyRunType)>
+                                <legend class="govuk-label govuk-fieldset__legend govuk-fieldset__legend--l"></legend>
 
-                            <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="initialRun" name="calcRun" type="radio" value="outputInitialRun">
-                                <label class="govuk-label govuk-radios__label" for="initialRun">
-                                    <strong>Initial run</strong><br />
-                                    <p class="govuk-body-s" style="margin-bottom: 0;">The first official mandatory run of the financial year, used as the baseline for all future recalculations. This run generates an initial billing file for invoicing.</p>
-                                </label>
-                            </div>
+                                @Html.ValidationMessageFor(model => model.ClassifyRunType, "", new { @class = "govuk-error-message" })
 
+                                <div class="govuk-radios" data-module="govuk-radios">
+                                    <div class="govuk-radios__item">
+                                        @Html.RadioButtonFor(model => model.ClassifyRunType, ClassifyRunType.InitialRun, new { @class = "govuk-radios__input", id = "ClassifyRunType_InitialRun" })
+                                        <label class="govuk-label govuk-radios__label" for="ClassifyRunType_InitialRun">
+                                            <strong>Initial run</strong><br />
+                                            <p class="govuk-body-s" style="margin-bottom: 0;">
+                                                The first official mandatory run of the financial year, used as the baseline for all future recalculations. This run generates an initial billing file for invoicing.
+                                            </p>
+                                        </label>
+                                    </div>
 
-                            <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="testRun" name="calcRun" type="radio" value="outputTestRun">
-                                <label class="govuk-label govuk-radios__label" for="testRun">
-                                    <strong>Test run</strong><br />
-                                    <p class="govuk-body-s" style="margin-bottom: 0;">An unofficial run to view the calculation results without generating a billing file for invoicing.</p>
-                                </label>
-                            </div>
-
+                                    <div class="govuk-radios__item">
+                                        @Html.RadioButtonFor(model => model.ClassifyRunType, ClassifyRunType.TestRun, new { @class = "govuk-radios__input", id = "ClassifyRunType_TestRun" })
+                                        <label class="govuk-label govuk-radios__label" for="ClassifyRunType_TestRun">
+                                            <strong>Test run</strong><br />
+                                            <p class="govuk-body-s" style="margin-bottom: 0;">
+                                                An unofficial run to view the calculation results without generating a billing file for invoicing.
+                                            </p>
+                                        </label>
+                                    </div>
+                                </div>
+                            </fieldset>
                         </div>
                     </fieldset>
                     <br />
+
                     <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
                         <div class="govuk-notification-banner__header">
                             <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
@@ -93,7 +112,7 @@
                         <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
                         <strong class="govuk-warning-text__text">
                             <span class="govuk-visually-hidden">Warning</span>
-                            You cannot reclassify a run after the billing file has been issued. Once classified, any previous unclassified runs can no longer be classified.
+                            You cannot remove a run's classification after the billing file has been issued. Once classified, any previous unclassified runs can no longer be classified.
                         </strong>
                     </div>
                 </div>
