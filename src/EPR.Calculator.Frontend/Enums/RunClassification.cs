@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace EPR.Calculator.Frontend.Enums
