@@ -34,12 +34,12 @@
         </dt>
     </dl>
 
-    <dd class="govuk-summary-list__actions" style="text-align: center;">
-        @if (Model.Status != RunClassification.UNCLASSIFIED)
-        {
+    @if (Model.Status != RunClassification.UNCLASSIFIED)
+    {
+        <dd class="govuk-summary-list__actions" style="text-align: center;">
             <strong class="@Model.TagStyle">
                 @Model.Status.GetDisplayName()
             </strong>
-        }
-    </dd>
+        </dd>
+    }
 </div>

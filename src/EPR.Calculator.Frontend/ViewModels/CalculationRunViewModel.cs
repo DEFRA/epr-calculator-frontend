@@ -2,9 +2,11 @@
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
+    [ExcludeFromCodeCoverage]
     /// <summary>
     /// View model to hold the calculation runs.
     /// </summary>
