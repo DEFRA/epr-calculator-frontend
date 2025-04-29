@@ -84,13 +84,14 @@ namespace EPR.Calculator.Frontend.ViewModels
         private static string GetStatusTagStyle(RunClassification status) => status switch
         {
             RunClassification.RUNNING => "govuk-tag govuk-tag--green",
+            RunClassification.INITIAL_RUN => "govuk-tag govuk-tag--green",
             RunClassification.ERROR => "govuk-tag govuk-tag--red",
             RunClassification.UNCLASSIFIED => "govuk-tag govuk-tag--grey",
             _ => "govuk-tag",
         };
 
         private static bool ShouldShowRunDetailLink(RunClassification status) =>
-             status != RunClassification.INTHEQUEUE && status != RunClassification.RUNNING;
+             status != RunClassification.QUEUE && status != RunClassification.RUNNING;
 
         private static bool ShouldShowErrorLink(RunClassification status) =>
             status == RunClassification.ERROR;

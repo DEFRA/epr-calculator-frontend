@@ -378,7 +378,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Arrange
             var calculationRuns = new List<CalculationRun>
             {
-                new CalculationRun { Id = 1, CalculatorRunClassificationId = RunClassification.INTHEQUEUE, Name = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 1, CalculatorRunClassificationId = RunClassification.QUEUE, Name = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
                 new CalculationRun { Id = 2, CalculatorRunClassificationId = RunClassification.UNCLASSIFIED, Name = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
                 new CalculationRun { Id = 3, CalculatorRunClassificationId = RunClassification.TEST_RUN, Name = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
                 new CalculationRun { Id = 5, CalculatorRunClassificationId = RunClassification.ERROR, Name = "Test 5", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
@@ -400,7 +400,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Assert
             Assert.AreEqual(4, dashboardRunData.Count);
-            Assert.AreEqual(RunClassification.INTHEQUEUE, dashboardRunData.First().Status);
+            Assert.AreEqual(RunClassification.QUEUE, dashboardRunData.First().Status);
             Assert.AreEqual(RunClassification.UNCLASSIFIED, dashboardRunData[1].Status);
             Assert.AreEqual(RunClassification.TEST_RUN, dashboardRunData[2].Status);
             Assert.AreEqual(RunClassification.ERROR, dashboardRunData.Last().Status); // Default value
@@ -412,7 +412,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var calculationRuns = new List<CalculationRun>
             {
                 new CalculationRun { Id = 5, CalculatorRunClassificationId = RunClassification.ERROR, Name = "Test Run", CreatedAt = DateTime.Parse("30/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
-                new CalculationRun { Id = 10, CalculatorRunClassificationId = RunClassification.INTHEQUEUE, Name = "Test 5", CreatedAt = DateTime.Parse("30/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 10, CalculatorRunClassificationId = RunClassification.QUEUE, Name = "Test 5", CreatedAt = DateTime.Parse("30/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
             };
 
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();

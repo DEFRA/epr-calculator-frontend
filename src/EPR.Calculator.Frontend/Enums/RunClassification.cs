@@ -1,55 +1,54 @@
 ﻿using System.ComponentModel;
+using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace EPR.Calculator.Frontend.Enums
 {
     public enum RunClassification
     {
-        /// <summary>
-        /// In the Queue.
-        /// </summary>
-        [Description("IN THE QUEUE")]
-        INTHEQUEUE = 1,
+        None = 0,
 
-        /// <summary>
-        /// Running.
-        /// </summary>
+        [Description("In the Queue")]
+        [EnumMember(Value = "IN THE QUEUE")]
+        QUEUE = 1,
+
         [Description("RUNNING")]
+        [EnumMember(Value = "RUNNING")]
         RUNNING = 2,
 
-        /// <summary>
-        /// Unclassified.
-        /// </summary>
         [Description("UNCLASSIFIED")]
+        [EnumMember(Value = "UNCLASSIFIED")]
         UNCLASSIFIED = 3,
 
+        [Description("TEST RUN")]
         [EnumMember(Value = "TEST RUN")]
         TEST_RUN = 4,
 
-        /// <summary>
-        /// Error.
-        /// </summary>
         [Description("ERROR")]
+        [EnumMember(Value = "ERROR")]
         ERROR = 5,
 
-        /// <summary>
-        /// Deleted.
-        /// </summary>
         [Description("DELETED")]
+        [EnumMember(Value = "DELETED")]
         DELETED = 6,
 
+        [Description("INITIAL RUN COMPLETED")]
         [EnumMember(Value = "INITIAL RUN COMPLETED")]
         INITIAL_RUN_COMPLETED = 7,
 
+        [Description("INITIAL RUN CLASSIFIED")]
         [EnumMember(Value = "INITIAL RUN")]
         INITIAL_RUN = 8,
 
+        [Description("INTERIM RE-CALCULATION RUN")]
         [EnumMember(Value = "INTERIM RE-CALCULATION RUN")]
         INTERIM_RECALCULATION_RUN = 9,
 
+        [Description("FINAL RUN")]
         [EnumMember(Value = "FINAL RUN")]
         FINAL_RUN = 10,
 
+        [Description("FINAL RE-CALCULATION RUN")]
         [EnumMember(Value = "FINAL RE-CALCULATION RUN")]
         FINAL_RECALCULATION_RUN = 11,
     }

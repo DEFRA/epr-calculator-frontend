@@ -191,7 +191,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
             var calculationRuns = new List<CalculationRun>();
 
             calculationRuns.AddRange([
-                new CalculationRun { Id = 1, CalculatorRunClassificationId = Enums.RunClassification.INTHEQUEUE, Name = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 1, CalculatorRunClassificationId = Enums.RunClassification.QUEUE, Name = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
                 new CalculationRun { Id = 2, CalculatorRunClassificationId = Enums.RunClassification.RUNNING, Name = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
                 new CalculationRun { Id = 3, CalculatorRunClassificationId = Enums.RunClassification.UNCLASSIFIED, Name = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
                 new CalculationRun { Id = 4, CalculatorRunClassificationId = Enums.RunClassification.TEST_RUN, Name = "June check", CreatedAt = DateTime.Parse("11/06/2025 09:14:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
