@@ -22,7 +22,7 @@ namespace EPR.Calculator.Frontend.Helpers
             {
                 var displayRuns = calculationRuns.Where(x =>
                     x.CalculatorRunClassificationId != (int)RunClassification.DELETED &&
-                    x.CalculatorRunClassificationId != (int)RunClassification.PLAY &&
+                    x.CalculatorRunClassificationId != (int)RunClassification.TEST_RUN &&
                     x.CalculatorRunClassificationId != (int)RunClassification.QUEUE);
                 foreach (var calculationRun in displayRuns)
                 {
