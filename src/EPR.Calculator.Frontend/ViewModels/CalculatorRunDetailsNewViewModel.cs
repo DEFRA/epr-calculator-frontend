@@ -26,24 +26,9 @@ namespace EPR.Calculator.Frontend.ViewModels
         public CalculationRunOption? SelectedCalcRunOption { get; set; }
 
         /// <summary>
-        /// Gets or sets the created by user.
+        /// gets or sets calculator run details.
         /// </summary>
-        public string? CreatedBy { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time when the calculation run was created.
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Run name.
-        /// </summary>
-        public string? RunName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the financial year.
-        /// </summary>
-        public string? FinancialYear { get; set; }
+        public CalculatorRunDetailsViewModel CalculatorRunDetails { get; set; }
 
         /// <summary>
         /// Gets or sets download result URL.

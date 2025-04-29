@@ -1,11 +1,10 @@
 ﻿using System.Configuration;
 using System.Text;
+using System.Text.Json;
 using EPR.Calculator.Frontend.Common;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
-using System.Text.Json;
-using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Mvc;
@@ -113,6 +112,20 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         protected Uri GetApiUrl(string configSection, string configKey)
             => new Uri(this.GetConfigSetting(configSection, configKey));
+
+        protected async Task<CalculatorRunDetailsViewModel> GetCalculatorRundetails(int runId)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.CalculationRunSettings,
+                ConfigSection.CalculationRunNameApi);
+
+            var response = await this.CallApi(HttpMethod.Get, apiUrl, runId.ToString(), null);
+
+            var content = await response.Content.ReadAsStringAsync();
+            var details = JsonSerializer.Deserialize<CalculatorRunDetailsViewModel>(content);
+
+            return details ?? new CalculatorRunDetailsViewModel();
+        }
 
         private async Task<HttpClient> GetHttpClient()
         {
