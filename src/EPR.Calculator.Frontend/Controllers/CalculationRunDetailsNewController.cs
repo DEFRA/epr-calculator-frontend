@@ -77,10 +77,22 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private static CalculatorRunDto GetCalculationRunDetails(int runId)
         {
-            // Get the calculation run details from the API
-            var calculatorRuns = new List<CalculatorRunDto>();
+            if (runId == 190508)
+            {
+                return new()
+                {
+                    RunId = 190508,
+                    FinancialYear = "2024-25",
+                    FileExtension = "xlsx",
+                    RunClassificationStatus = "Error",
+                    RunName = "Calculation Run 99",
+                    RunClassificationId = 5,
+                    CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
+                    CreatedBy = "Steve Jones",
+                };
+            }
 
-            CalculatorRunDto calculatorRunDto = new()
+            return new()
             {
                 RunId = runId,
                 FinancialYear = "2024-25",
@@ -91,24 +103,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
                 CreatedBy = "Steve Jones",
             };
-
-            CalculatorRunDto calculatorRunErrorDto = new()
-            {
-                RunId = 190508,
-                FinancialYear = "2024-25",
-                FileExtension = "xlsx",
-                RunClassificationStatus = "Error",
-                RunName = "Calculation Run 99",
-                RunClassificationId = 5,
-                CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
-                CreatedBy = "Steve Jones",
-            };
-
-            calculatorRuns.Add(calculatorRunDto);
-            calculatorRuns.Add(calculatorRunErrorDto);
-            var calculatorRun = calculatorRuns.Where(x => x.RunId == runId).FirstOrDefault();
-
-            return calculatorRun;
         }
 
         private static bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
