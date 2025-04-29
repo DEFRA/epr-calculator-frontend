@@ -69,7 +69,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
-                throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings.");
+                throw new ArgumentNullException(parameterYear, "No financial year was found in the session.");
             }
 
             return parameterYear;
