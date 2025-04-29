@@ -85,8 +85,8 @@ namespace EPR.Calculator.Frontend.ViewModels
         {
             RunClassification.RUNNING => "govuk-tag govuk-tag--green",
             RunClassification.INITIAL_RUN => "govuk-tag govuk-tag--green",
+            RunClassification.INITIAL_RUN_COMPLETED => "govuk-tag govuk-tag--purple",
             RunClassification.ERROR => "govuk-tag govuk-tag--red",
-            RunClassification.UNCLASSIFIED => "govuk-tag govuk-tag--grey",
             _ => "govuk-tag",
         };
 
