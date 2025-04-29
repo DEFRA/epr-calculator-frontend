@@ -23,10 +23,7 @@ namespace EPR.Calculator.Frontend.Enums
         [Description("UNCLASSIFIED")]
         UNCLASSIFIED = 3,
 
-        /// <summary>
-        /// Play.
-        /// </summary>
-        [Description("TEST RUN")]
+        [EnumMember(Value = "TEST RUN")]
         TEST_RUN = 4,
 
         /// <summary>
@@ -41,34 +38,19 @@ namespace EPR.Calculator.Frontend.Enums
         [Description("DELETED")]
         DELETED = 6,
 
-        /// <summary>
-        /// INITIAL RUN COMPLETED.
-        /// </summary>
-        [Description("INITIAL RUN COMPLETED")]
+        [EnumMember(Value = "INITIAL RUN COMPLETED")]
         INITIAL_RUN_COMPLETED = 7,
 
-        /// <summary>
-        /// INITIAL RUN.
-        /// </summary>
-        [Description("INITIAL RUN")]
+        [EnumMember(Value = "INITIAL RUN")]
         INITIAL_RUN = 8,
 
-        /// <summary>
-        /// INTERIM RE-CALCULATION RUN.
-        /// </summary>
-        [Description("INTERIM RE-CALCULATION RUN")]
+        [EnumMember(Value = "INTERIM RE-CALCULATION RUN")]
         INTERIM_RECALCULATION_RUN = 9,
 
-        /// <summary>
-        /// FINAL RUN.
-        /// </summary>
-        [Description("FINAL RUN")]
+        [EnumMember(Value = "FINAL RUN")]
         FINAL_RUN = 10,
 
-        /// <summary>
-        /// FINAL RE-CALCULATION RUN.
-        /// </summary>
-        [Description("FINAL RE-CALCULATION RUN")]
+        [EnumMember(Value = "FINAL RE-CALCULATION RUN")]
         FINAL_RECALCULATION_RUN = 11,
     }
 }
