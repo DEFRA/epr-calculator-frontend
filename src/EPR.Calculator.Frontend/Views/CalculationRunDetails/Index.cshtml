@@ -23,7 +23,7 @@
                 </div>
                 <h2 class="gem-c-attachment__title govuk-body">
                     <a href="javascript:void(0)" 
-                        onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');" 
+                        onclick="downloadFile('@Model.DownloadResultURL','', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');" 
                         class="govuk-link" 
                         target="_self">Download</a>
                         <br />

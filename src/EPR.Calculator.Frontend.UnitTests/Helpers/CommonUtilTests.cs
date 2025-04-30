@@ -1,13 +1,19 @@
-﻿namespace EPR.Calculator.Frontend.UnitTests.Helpers
-{
-    using System;
-    using EPR.Calculator.Frontend.Constants;
-    using EPR.Calculator.Frontend.Helpers;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using AutoFixture;
+using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 
+namespace EPR.Calculator.Frontend.UnitTests.Helpers
+{
     [TestClass]
     public class CommonUtilTests
     {
+        public CommonUtilTests()
+        {
+            this.Fixture = new Fixture();
+        }
+
+        private Fixture Fixture { get; init; }
+
         [TestMethod]
         public void CanCallGetDateTime()
         {
@@ -23,6 +29,18 @@
 
             // Assert
             Assert.AreEqual(expectedDate, result);
+        }
+
+        [TestMethod]
+        public void GetBillingDownloadFileNameTest()
+        {
+            int runId = this.Fixture.Create<int>();
+            var runName = this.Fixture.Create<string>();
+            var dateTime = DateTime.UtcNow;
+            var dateTimePart = dateTime.ToString("yyyyMMdd");
+
+            var resultString = CommonUtil.GetBillingDownloadFileName(runId, runName, dateTime);
+            Assert.AreEqual($"{runId}-{runName}_Billing File_{dateTimePart}.csv", resultString);
         }
     }
 }
