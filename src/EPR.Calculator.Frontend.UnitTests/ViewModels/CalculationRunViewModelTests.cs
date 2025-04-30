@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 
@@ -95,7 +96,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
 
-            var testValue = fixture.Create<string>();
+            var testValue = fixture.Create<RunClassification>();
 
             // Act
             _testClass.Status = testValue;

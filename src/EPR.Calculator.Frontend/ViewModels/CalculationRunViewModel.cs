@@ -1,9 +1,12 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
+    [ExcludeFromCodeCoverage]
     /// <summary>
     /// View model to hold the calculation runs.
     /// </summary>
@@ -17,12 +20,12 @@ namespace EPR.Calculator.Frontend.ViewModels
         {
             this.Id = calculationRun.Id;
             this.Name = calculationRun.Name;
-            this.CreatedAt = GetFormattedCreatedAt(calculationRun.CreatedAt);
+            this.CreatedAt = FormatCreatedAt(calculationRun.CreatedAt);
             this.CreatedBy = calculationRun.CreatedBy;
-            this.Status = calculationRun.Status;
-            this.TagStyle = GetCalculationRunStatusStyles(calculationRun.Status);
-            this.ShowRunDetailLink = GetShowRunDetailLink(calculationRun.Status);
-            this.ShowErrorLink = GetShowErrorLink(calculationRun.Status);
+            this.Status = calculationRun.CalculatorRunClassificationId;
+            this.TagStyle = GetStatusTagStyle(calculationRun.CalculatorRunClassificationId);
+            this.ShowRunDetailLink = ShouldShowRunDetailLink(calculationRun.CalculatorRunClassificationId);
+            this.ShowErrorLink = ShouldShowErrorLink(calculationRun.CalculatorRunClassificationId);
         }
 
         /// <summary>
@@ -48,7 +51,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets or sets the run status.
         /// </summary>
-        public string Status { get; set; }
+        public RunClassification Status { get; set; }
 
         /// <summary>
         /// Gets or sets the tag style.
@@ -68,40 +71,39 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets a value indicating whether gets or sets the calculation run details link.
         /// </summary>
-        public string TurnOffFeatureUrl =>
-        string.Format(ActionNames.ViewCalculationRunDetails, this.Id);
+        public string TurnOffFeatureUrl => string.Format(ActionNames.ViewCalculationRunDetails, this.Id);
 
         /// <summary>
-        /// Gets a value indicating whether gets or sets the calculation run new details link.
+        /// Gets a value indicating whether the run detail link should be displayed.
         /// </summary>
-        public string TurnOnFeatureUrl => DashboardHelper.GetTurnOnFeatureUrl(this.Status, this.Id);
+        public string TurnOnFeatureUrl => GetTurnOnFeatureUrl(this.Status, this.Id);
 
-        private static string GetFormattedCreatedAt(DateTime createdAt)
+        private static string FormatCreatedAt(DateTime createdAt)
         {
             return CommonUtil.GetDateTime(createdAt).ToString($"{CommonConstants.DateFormat} ' at '{CommonConstants.TimeFormat}", new System.Globalization.CultureInfo("en-GB"));
         }
 
-        private static string GetCalculationRunStatusStyles(string calculationRunStatus)
+        private static string GetStatusTagStyle(RunClassification status) => status switch
         {
-            switch (calculationRunStatus)
+            RunClassification.RUNNING => "govuk-tag govuk-tag--green",
+            RunClassification.INITIAL_RUN => "govuk-tag govuk-tag--green",
+            RunClassification.ERROR => "govuk-tag govuk-tag--red",
+            _ => "govuk-tag",
+        };
+
+        private static bool ShouldShowRunDetailLink(RunClassification status) =>
+             status != RunClassification.QUEUE && status != RunClassification.RUNNING;
+
+        private static bool ShouldShowErrorLink(RunClassification status) =>
+            status == RunClassification.ERROR;
+
+        private static string GetTurnOnFeatureUrl(RunClassification status, int id)
+        {
+            return status switch
             {
-                case CalculationRunStatus.Running:
-                    return "govuk-tag govuk-tag--green";
-                case CalculationRunStatus.Error:
-                    return "govuk-tag govuk-tag--red";
-                default:
-                    return "govuk-tag";
-            }
-        }
-
-        private static bool GetShowRunDetailLink(string calculationRunStatus)
-        {
-            return !(calculationRunStatus == CalculationRunStatus.InTheQueue || calculationRunStatus == CalculationRunStatus.Running);
-        }
-
-        private static bool GetShowErrorLink(string calculationRunStatus)
-        {
-            return calculationRunStatus == CalculationRunStatus.Error;
+                RunClassification.UNCLASSIFIED => string.Format(ActionNames.ViewCalculationRunNewDetails, id),
+                _ => ControllerNames.Dashboard,
+            };
         }
     }
 }

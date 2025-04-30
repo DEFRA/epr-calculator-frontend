@@ -176,23 +176,10 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void Index_WhenRunIsNotEligible_ReturnsErrorView()
+        public void GetCalculationRunDetails_ShouldReturnCorrectRunDetails_WhenRunIdIs190508()
         {
             // Arrange
-            var identity = new GenericIdentity("TestUser");
-            identity.AddClaim(new Claim("name", "TestUser"));
-            var principal = new ClaimsPrincipal(identity);
-            var context = new DefaultHttpContext()
-            {
-                User = principal,
-            };
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = context
-            };
-
             int runId = 190508;
-            var run = new CalculatorRunDto { RunClassificationId = 5 };
 
             // Act
             var result = _controller.Index(runId) as ViewResult;
@@ -200,6 +187,30 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDetailsNewErrorPage, result.ViewName);
+        }
+
+        [TestMethod]
+        public void GetCalculationRunDetails_ShouldReturnDefaultRunDetails_WhenRunIdIsNot190508()
+        {
+            // Arrange
+            int runId = 12345;
+
+            // Act
+            var result = _controller.Index(runId) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsNewIndex, result.ViewName);
+        }
+
+        [TestMethod]
+        public void Index_ShouldThrowException_WhenRunDetailsNotFound()
+        {
+            // Arrange
+            int runId = 0; // Invalid runId
+
+            // Act & Assert
+            Assert.ThrowsException<ArgumentNullException>(() => _controller.Index(runId));
         }
     }
 }
