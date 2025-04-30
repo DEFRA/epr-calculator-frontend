@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Enums;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using System.Reflection;
@@ -38,6 +39,21 @@ namespace EPR.Calculator.Frontend.Helpers
             }
 
             return dashboardRunData;
+        }
+
+        /// <summary>
+        /// Turn on feature urls based on classification status.
+        /// </summary>
+        /// <param name="status">classification status.</param>
+        /// <param name="id">run id.</param>
+        /// <returns>calculation run url.</returns>
+        public static string GetTurnOnFeatureUrl(string status, int id)
+        {
+            return status switch
+            {
+                CalculationRunStatus.Unclassified => string.Format(ActionNames.ViewCalculationRunNewDetails, id),
+                _ => ControllerNames.Dashboard,
+            };
         }
     }
 }

@@ -65,9 +65,20 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// </summary>
         public bool ShowErrorLink { get; set; }
 
+        /// <summary>
+        /// Gets a value indicating whether gets or sets the calculation run details link.
+        /// </summary>
+        public string TurnOffFeatureUrl =>
+        string.Format(ActionNames.ViewCalculationRunDetails, this.Id);
+
+        /// <summary>
+        /// Gets a value indicating whether gets or sets the calculation run new details link.
+        /// </summary>
+        public string TurnOnFeatureUrl => DashboardHelper.GetTurnOnFeatureUrl(this.Status, this.Id);
+
         private static string GetFormattedCreatedAt(DateTime createdAt)
         {
-          return CommonUtil.GetDateTime(createdAt).ToString($"{CommonConstants.DateFormat} ' at '{CommonConstants.TimeFormat}", new System.Globalization.CultureInfo("en-GB"));
+            return CommonUtil.GetDateTime(createdAt).ToString($"{CommonConstants.DateFormat} ' at '{CommonConstants.TimeFormat}", new System.Globalization.CultureInfo("en-GB"));
         }
 
         private static string GetCalculationRunStatusStyles(string calculationRunStatus)
