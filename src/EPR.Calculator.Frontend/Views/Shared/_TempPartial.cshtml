@@ -1,0 +1,38 @@
+﻿@using EPR.Calculator.Frontend.ViewModels
+@model CalculationRunViewModel
+
+<div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">
+        <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
+            @if (Model.ShowRunDetailLink)
+            {
+                // Logic to check Feature Off
+                <feature name="ShowFinancialYear">
+                    <a href="@Model.FeatureOnLink" class="govuk-link govuk-link--no-visited-state">@Model.Name</a>
+                </feature>
+                <feature name="ShowFinancialYear" negate="true">
+                    <a href="@Model.FeatureOnLink" class="govuk-link govuk-link--no-visited-state">@Model.Name</a>
+                </feature>
+            }
+            else
+            {
+                @Model.Name
+            }
+        </h3>
+        <p class="govuk-body">
+            Calculation ID: @Model.Id
+            <br />
+            Date: @Model.CreatedAt
+            <br />
+            Run by: @Model.CreatedBy
+        </p>
+    </dt>
+    <dd class="govuk-summary-list__actions">
+        @if (Model.Status is "RUNNING" or "ERROR")
+        {
+            <strong class="@Model.TagStyle">
+                @Model.Status
+            </strong>
+        }
+    </dd>
+</div>
