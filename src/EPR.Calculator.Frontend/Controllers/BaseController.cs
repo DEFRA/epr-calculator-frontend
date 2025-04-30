@@ -12,6 +12,7 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using System.Linq.Expressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -118,14 +119,19 @@ namespace EPR.Calculator.Frontend.Controllers
 
         protected async Task<CalculatorRunDetailsViewModel> GetCalculatorRundetails(int runId)
         {
-            var apiUrl = this.GetApiUrl(
-                ConfigSection.CalculationRunSettings,
-                ConfigSection.CalculationRunNameApi);
+            var details = new CalculatorRunDetailsViewModel();
+            try
+            {
+                var apiUrl = this.GetApiUrl(
+                    ConfigSection.CalculationRunSettings,
+                    ConfigSection.CalculationRunDetailsApi);
 
-            var response = await this.CallApi(HttpMethod.Get, apiUrl, runId.ToString(), null);
+                var response = await this.CallApi(HttpMethod.Get, apiUrl, runId.ToString(), null);
 
-            var content = await response.Content.ReadAsStringAsync();
-            var details = JsonSerializer.Deserialize<CalculatorRunDetailsViewModel>(content);
+                var content = response.Content.ReadFromJsonAsync<CalculatorRunDetailsViewModel>();
+                details = content.Result;
+            }
+            catch (Exception ex) { }
 
             return details ?? new CalculatorRunDetailsViewModel();
         }

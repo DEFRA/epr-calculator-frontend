@@ -57,11 +57,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void Index_ValidRunId_ReturnsViewResult()
+        public async Task Index_ValidRunId_ReturnsViewResult()
         {
             int runId = 240008;
 
-            var result = _controller.Index(runId);
+            var result = await _controller.Index(runId);
 
             Assert.IsInstanceOfType(result, typeof(ViewResult));
             var viewResult = result as ViewResult;
@@ -70,7 +70,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void Submit_InvalidModelState_ReturnsRedirectToAction()
+        public async Task Submit_InvalidModelState_ReturnsRedirectToAction()
         {
             // Arrange
             int runId = 240008;
@@ -78,13 +78,16 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var model = new CalculatorRunDetailsNewViewModel()
             {
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel()
+            {
                 RunId = runId,
-                RunName = "Test Run",
+                RunName = "Test Run"
+            },
                 SelectedCalcRunOption = null
             };
 
             // Act
-            var result = _controller.Submit(model) as ViewResult;
+            var result = await _controller.Submit(model) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -95,7 +98,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void Submit_ValidModelState_RedirectsToCorrectAction()
+        public async Task Submit_ValidModelState_RedirectsToCorrectAction()
         {
             // Arrange
             int runId = 240008;
@@ -103,13 +106,16 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                RunId = runId,
-                RunName = "Test Run",
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel()
+                {
+                    RunId = runId,
+                    RunName = "Test Run"
+                },
                 SelectedCalcRunOption = selectedOption
             };
 
             // Act
-            var result = _controller.Submit(model) as RedirectToActionResult;
+            var result = await _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -118,17 +124,20 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void Submit_ValidModelState_OutputClassify_ReturnsRedirectToAction()
+        public async Task Submit_ValidModelState_OutputClassify_ReturnsRedirectToAction()
         {
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                RunId = 240008,
-                RunName = "Test Run",
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel()
+                {
+                    RunId = 240008,
+                    RunName = "Test Run"
+                },
                 SelectedCalcRunOption = CalculationRunOption.OutputClassify
             };
 
             // Act
-            var result = _controller.Submit(model) as RedirectToActionResult;
+            var result = await _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -138,16 +147,19 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void Submit_ValidModelState_OutputDelete_ReturnsRedirectToAction()
+        public async void Submit_ValidModelState_OutputDelete_ReturnsRedirectToAction()
         {
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                RunId = 240008,
-                RunName = "Test Run",
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel()
+                {
+                    RunId = 240008,
+                    RunName = "Test Run"
+                },
                 SelectedCalcRunOption = CalculationRunOption.OutputDelete
             };
             // Act
-            var result = _controller.Submit(model) as RedirectToActionResult;
+            var result = await _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -157,17 +169,20 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void Submit_ValidModelState_Default_ReturnsRedirectToAction()
+        public async void Submit_ValidModelState_Default_ReturnsRedirectToAction()
         {
             var model = new CalculatorRunDetailsNewViewModel()
             {
-                RunId = 240008,
-                RunName = "Test Run",
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel()
+                {
+                    RunId = 240008,
+                    RunName = "Test Run"
+                },
                 SelectedCalcRunOption = (CalculationRunOption)999
             };
 
             // Act
-            var result = _controller.Submit(model) as RedirectToActionResult;
+            var result = await _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -176,7 +191,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void Index_WhenRunIsNotEligible_ReturnsErrorView()
+        public async void Index_WhenRunIsNotEligible_ReturnsErrorView()
         {
             // Arrange
             var identity = new GenericIdentity("TestUser");
@@ -195,7 +210,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var run = new CalculatorRunDto { RunClassificationId = 5 };
 
             // Act
-            var result = _controller.Index(runId) as ViewResult;
+            var result = await _controller.Index(runId) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
