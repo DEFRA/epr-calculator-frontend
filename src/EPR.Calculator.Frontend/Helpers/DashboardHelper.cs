@@ -23,20 +23,5 @@ namespace EPR.Calculator.Frontend.Helpers
          .Select(calculationRun => new CalculationRunViewModel(calculationRun))
          .ToList();
         }
-
-        /// <summary>
-        /// Turn on feature urls based on classification status.
-        /// </summary>
-        /// <param name="status">classification status.</param>
-        /// <param name="id">run id.</param>
-        /// <returns>calculation run url.</returns>
-        public static string GetTurnOnFeatureUrl(string status, int id)
-        {
-            return status switch
-            {
-                CalculationRunStatus.Unclassified => string.Format(ActionNames.ViewCalculationRunNewDetails, id),
-                _ => ControllerNames.Dashboard,
-            };
-        }
     }
 }
