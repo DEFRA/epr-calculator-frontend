@@ -33,13 +33,16 @@
             </p>
         </dt>
     </dl>
+    @{
+        bool isKnownStatus = Enum.IsDefined(typeof(RunClassification), (int)Model.Status);
+    }
 
-    @if (Model.Status != RunClassification.UNCLASSIFIED)
-        {
+    @if (isKnownStatus && Model.Status != RunClassification.UNCLASSIFIED && Model.Status != RunClassification.None)
+    {
         <dd class="govuk-summary-list__actions" style="text-align: center;">
             <strong class="@Model.TagStyle">
                 @Model.Status.GetDisplayName()
             </strong>
         </dd>
-        }
+    }
 </div>
