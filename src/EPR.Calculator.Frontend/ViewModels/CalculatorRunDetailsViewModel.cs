@@ -8,7 +8,7 @@
 
         public string RunName { get; set; }
 
-        public DateTime? CreatedBy { get; set; }
+        public string CreatedBy { get; set; }
 
         public int RunClassificationId { get; set; }
 

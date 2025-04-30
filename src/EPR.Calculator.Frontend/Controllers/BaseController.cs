@@ -128,8 +128,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var response = await this.CallApi(HttpMethod.Get, apiUrl, runId.ToString(), null);
 
-                var content = response.Content.ReadFromJsonAsync<CalculatorRunDetailsViewModel>();
-                details = content.Result;
+                var content = response.Content.ReadFromJsonAsync<CalculatorRunDetailsViewModel>().Result;
+                details = content;
             }
             catch (Exception ex) { }
 
