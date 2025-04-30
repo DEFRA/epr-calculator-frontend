@@ -111,7 +111,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                var deserializedRuns = JsonConvert.DeserializeObject<List<CalculationRun>>(response.Content.ReadAsStringAsync().Result);
+                var content = await response.Content.ReadAsStringAsync();
+                var deserializedRuns = JsonConvert.DeserializeObject<List<CalculationRun>>(content);
 
                 // Ensure deserializedRuns is not null
                 var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
