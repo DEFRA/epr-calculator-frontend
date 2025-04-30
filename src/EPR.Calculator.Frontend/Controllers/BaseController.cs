@@ -1,16 +1,13 @@
 ﻿using System.Configuration;
 using System.Text;
-using EPR.Calculator.Frontend.Common;
+using System.Text.Json;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
-using System.Text.Json;
-using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Helpers;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using EPR.Calculator.Frontend.Helpers;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
