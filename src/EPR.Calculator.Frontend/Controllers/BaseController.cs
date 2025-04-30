@@ -10,6 +10,7 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using EPR.Calculator.Frontend.Helpers;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -74,7 +75,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
-                throw new ArgumentNullException(parameterYear, "No financial year was found in the session.");
+                parameterYear = CommonUtil.GetFinancialYear(DateTime.Now);
             }
 
             return parameterYear;

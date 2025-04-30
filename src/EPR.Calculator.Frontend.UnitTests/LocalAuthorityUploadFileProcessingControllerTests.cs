@@ -3,6 +3,7 @@ using System.Text;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -307,20 +308,20 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task Index_RedirectToErrorWhenNoFinancialYearInSession()
+        public async Task Index_DefaultToCurrentYeaWhenNoFinancialYearInSession()
         {
-            // Arrange
-            var configValue = "This value comes from the config.";
-            this.Configuration
-                .GetSection("LapcapSettings")["ParameterYear"] = configValue;
-            this.Configuration
-                .GetSection("FeatureManagement")["ShowFinancialYear"] = true.ToString();
+            var currentYear = CommonUtil.GetFinancialYear(DateTime.Now);
 
             // Act
             var result = await TestClass.Index(new LapcapRefreshViewModel());
 
             // Assert
-            Assert.AreEqual("StandardError", (result as RedirectToActionResult).ControllerName);
+            this.MockMessageHandler.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(m =>
+                    m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{currentYear}\"")),
+                ItExpr.IsAny<CancellationToken>());
         }
     }
 }
