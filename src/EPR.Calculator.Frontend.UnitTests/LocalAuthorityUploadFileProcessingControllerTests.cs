@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Text;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
@@ -308,7 +310,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task Index_DefaultToCurrentYeaWhenNoFinancialYearInSession()
+        public async Task Index_DefaultToCurrentYearWhenNoFinancialYearInSession()
         {
             var currentYear = CommonUtil.GetFinancialYear(DateTime.Now);
 
@@ -316,6 +318,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await TestClass.Index(new LapcapRefreshViewModel());
 
             // Assert
+            Assert.IsFalse(this.MockSesion.Object.Keys.Contains(SessionConstants.FinancialYear));
             this.MockMessageHandler.Protected().Verify(
                 "SendAsync",
                 Times.Once(),

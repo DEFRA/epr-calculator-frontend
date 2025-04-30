@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
+using System.Security.Principal;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -89,9 +91,6 @@ namespace EPR.Calculator.Frontend.UnitTests
                 });
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            var mockHttpContext = new Mock<HttpContext>();
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
 
             // Mock IHttpClientFactory
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
