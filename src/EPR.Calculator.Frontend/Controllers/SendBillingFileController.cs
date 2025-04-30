@@ -12,13 +12,13 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller for sending billing files.
     /// </summary>
     [Route("[controller]")]
-    public class SendBillingFileController : BaseController
+    public class SendBillingFileController(
+        IConfiguration configuration,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient,
+        IHttpClientFactory httpClientFactory)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
     {
-        public SendBillingFileController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
-        {
-        }
-
         [Route("{runId}")]
         public IActionResult Index(int runId)
         {

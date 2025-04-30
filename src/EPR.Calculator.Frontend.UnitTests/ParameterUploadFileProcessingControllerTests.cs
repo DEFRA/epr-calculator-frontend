@@ -132,7 +132,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Act
             var viewModel = new ParameterRefreshViewModel()
             {
-                ParameterTemplateValue = MockData.GetSchemeParameterTemplateValues().ToList(),
+                ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
                 FileName = "Test Name",
             };
 
@@ -194,7 +194,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var viewModel = new ParameterRefreshViewModel()
             {
-                ParameterTemplateValue = MockData.GetSchemeParameterTemplateValues().ToList(),
+                ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
                 FileName = "Test Name",
             };
 
@@ -233,7 +233,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 mockTokenAcquisition.Object, new TelemetryClient());
             var viewModel = new ParameterRefreshViewModel()
             {
-                ParameterTemplateValue = MockData.GetSchemeParameterTemplateValues().ToList(),
+                ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
                 FileName = "Test Name",
             };
 
@@ -273,7 +273,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var viewModel = new ParameterRefreshViewModel()
             {
-                ParameterTemplateValue = MockData.GetSchemeParameterTemplateValues().ToList(),
+                ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
                 FileName = "Test Name",
             };
 
@@ -302,7 +302,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var expectedTimesCalled = featureFlagEnabled ? Times.Never() : Times.Once();
 
             // Act
-            var result = await TestClass.Index(new ParameterRefreshViewModel());
+            var result = await TestClass.Index(Fixture.Create<ParameterRefreshViewModel>());
 
             // Assert
             this.MockMessageHandler.Protected().Verify(
@@ -332,7 +332,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var expectedTimesCalled = featureFlagEnabled ? Times.Once() : Times.Never();
 
             // Act
-            var result = await TestClass.Index(new ParameterRefreshViewModel());
+            var result = await TestClass.Index(Fixture.Create<ParameterRefreshViewModel>());
 
             // Assert
             this.MockMessageHandler.Protected().Verify(
