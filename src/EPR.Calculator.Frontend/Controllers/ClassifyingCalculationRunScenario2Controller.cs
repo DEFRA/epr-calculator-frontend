@@ -11,20 +11,20 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="ClassifyingCalculationRunScenario2Controller"/> class.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="ClassifyingCalculationRunScenario2Controller"/> class.
+    /// </remarks>
+    /// <param name="configuration">The configuration settings.</param>
+    /// <param name="tokenAcquisition">token acquisition.</param>
+    /// <param name="telemetryClient">telemetry client.</param>
     [Route("[controller]")]
-    public class ClassifyingCalculationRunScenario2Controller : BaseController
+    public class ClassifyingCalculationRunScenario2Controller(
+        IConfiguration configuration,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient,
+        IHttpClientFactory clientFactory)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ClassifyingCalculationRunScenario2Controller"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration settings.</param>
-        /// <param name="tokenAcquisition">token acquisition.</param>
-        /// <param name="telemetryClient">telemetry client.</param>
-        public ClassifyingCalculationRunScenario2Controller(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
-        {
-        }
-
         /// <summary>
         /// Displays the index view for classifying calculation runs.
         /// </summary>

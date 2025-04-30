@@ -14,12 +14,13 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Initializes a new instance of the <see cref="DeleteConfirmationController"/> class.
     /// </summary>
     [Route("[controller]")]
-    public class DeleteConfirmationController : BaseController
+    public class DeleteConfirmationController(
+        IConfiguration configuration,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient,
+        IHttpClientFactory httpClientFactory)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
     {
-        public DeleteConfirmationController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient) : base(configuration, tokenAcquisition, telemetryClient)
-        {
-        }
-
         [Authorize(Roles = "SASuperUser")]
         public IActionResult Index(int runId, string calcName)
         {

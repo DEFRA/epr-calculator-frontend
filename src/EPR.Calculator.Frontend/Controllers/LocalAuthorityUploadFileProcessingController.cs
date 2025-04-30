@@ -5,54 +5,35 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-    public class LocalAuthorityUploadFileProcessingController : BaseController
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LocalAuthorityUploadFileProcessingController"/> class.
+    /// </summary>
+    /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
+    /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
+    /// <param name="tokenAcquisition">The token acquisition service.</param>
+    /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
+    public class LocalAuthorityUploadFileProcessingController(
+        IConfiguration configuration,
+        IHttpClientFactory clientFactory,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        private readonly IHttpClientFactory clientFactory;
-        private readonly TelemetryClient _telemetryClient;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LocalAuthorityUploadFileProcessingController"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
-        /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        /// <param name="tokenAcquisition">The token acquisition service.</param>
-        /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
-        public LocalAuthorityUploadFileProcessingController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
-        {
-            this.clientFactory = clientFactory;
-            this._telemetryClient = telemetryClient;
-        }
-
-        public string? FileName { get; set; }
-
         [HttpPost]
         public async Task<IActionResult> Index([FromBody] LapcapRefreshViewModel lapcapRefreshViewModel)
         {
             try
             {
-                var lapcapSettingsApi = this.GetLapcapSettingsApi();
-                var client = this.clientFactory.CreateClient();
-                client.BaseAddress = new Uri(lapcapSettingsApi);
-                var accessToken = await this.AcquireToken();
-                client.DefaultRequestHeaders.Add("Authorization", accessToken);
-
-                this._telemetryClient.TrackTrace($"1.Lapcap File Name before Transform :{lapcapRefreshViewModel.FileName}");
-
-                var payload = this.Transform(lapcapRefreshViewModel);
-
-                var content = new StringContent(payload, System.Text.Encoding.UTF8, StaticHelpers.MediaType);
-
-                var request = new HttpRequestMessage(HttpMethod.Post, new Uri(lapcapSettingsApi));
-                request.Content = content;
-
-                var response = client.SendAsync(request);
+                var response = this.PostLapcapDataAsync(new CreateLapcapDataDto(
+                    lapcapRefreshViewModel,
+                    this.GetFinancialYear(ConfigSection.LapcapSettings)));
 
                 response.Wait();
 
@@ -61,8 +42,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.Ok(response.Result);
                 }
 
-                this._telemetryClient.TrackTrace($"2.File name before BadRequest :{lapcapRefreshViewModel.FileName}");
-                this._telemetryClient.TrackTrace($"3.Reason for BadRequest :{response.Result.Content.ReadAsStringAsync().Result}");
+                this.TelemetryClient.TrackTrace($"2.File name before BadRequest :{lapcapRefreshViewModel.FileName}");
+                this.TelemetryClient.TrackTrace($"3.Reason for BadRequest :{response.Result.Content.ReadAsStringAsync().Result}");
                 return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
             }
             catch (Exception)
@@ -71,32 +52,17 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private string GetLapcapSettingsApi()
+        /// <summary>
+        /// Calls the "postDefaultParameterSettings" POST endpoint.
+        /// </summary>
+        /// <param name="dto">The data transfer object to serialise and use as the body of the request.</param>
+        /// <returns>The response message returned by the endpoint.</returns>
+        private async Task<HttpResponseMessage> PostLapcapDataAsync(CreateLapcapDataDto dto)
         {
-            var lapcapSettingsApi = this.Configuration.GetSection("LapcapSettings").GetSection("LapcapSettingsApi").Value;
-
-            if (string.IsNullOrWhiteSpace(lapcapSettingsApi))
-            {
-                throw new ArgumentNullException(lapcapSettingsApi, "LapcapSettingsApi is null. Check the configuration settings for local authority");
-            }
-
-            return lapcapSettingsApi;
-        }
-
-        private string Transform(LapcapRefreshViewModel lapcapRefreshViewModel)
-        {
-            string parameterYear = this.GetFinancialYear("LapcapSettings");
-
-            var lapcapData = new CreateLapcapDataDto
-            {
-                ParameterYear = parameterYear,
-                LapcapDataTemplateValues = lapcapRefreshViewModel.LapcapTemplateValue,
-                LapcapFileName = lapcapRefreshViewModel.FileName,
-            };
-
-            this._telemetryClient.TrackTrace($"4.File Name in Transform :{lapcapRefreshViewModel.FileName}");
-
-            return JsonConvert.SerializeObject(lapcapData);
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.LapcapSettings,
+                ConfigSection.LapcapSettingsApi);
+            return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, dto);
         }
     }
 }

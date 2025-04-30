@@ -15,8 +15,9 @@ namespace EPR.Calculator.Frontend.Controllers
     public class PaymentCalculatorController(
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,
-        TelemetryClient telemetryClient)
-        : BaseController(configuration, tokenAcquisition, telemetryClient)
+        TelemetryClient telemetryClient,
+        IHttpClientFactory httpClientFactory)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
     {
         [HttpGet]
         [Route("{runId:int}")]
