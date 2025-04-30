@@ -354,7 +354,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await TestClass.Index(new LapcapRefreshViewModel());
 
             // Assert
-            Assert.AreEqual((result as RedirectToActionResult).ControllerName, "StandardError");
+            Assert.AreEqual("StandardError", (result as RedirectToActionResult).ControllerName);
         }
 
         [TestMethod]
@@ -371,7 +371,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await TestClass.Index(new LapcapRefreshViewModel());
 
             // Assert
-            Assert.AreEqual((result as RedirectToActionResult).ControllerName, "StandardError");
+            Assert.AreEqual("StandardError", (result as RedirectToActionResult).ControllerName);
         }
     }
 }

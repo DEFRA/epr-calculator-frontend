@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using AutoFixture;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
@@ -20,8 +21,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         private SendBillingFileController _controller;
         private Mock<HttpContext> _mockHttpContext;
 
-        [TestInitialize]
-        public void Setup()
+        public SendBillingFileControllerTests()
         {
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _telemetryClient = new TelemetryClient();
@@ -30,7 +30,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             _controller = new SendBillingFileController(
                    _configuration,
                    _mockTokenAcquisition.Object,
-                   _telemetryClient)
+                   _telemetryClient,
+                   new Mock<IHttpClientFactory>().Object)
             {
                 // Setting the mocked HttpContext for the controller
                 ControllerContext = new ControllerContext

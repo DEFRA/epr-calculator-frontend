@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
@@ -21,8 +22,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         private PaymentCalculatorController _controller;
         private Mock<HttpContext> _mockHttpContext;
 
-        [TestInitialize]
-        public void Setup()
+        public PaymentCalculatorControllerTests()
         {
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _telemetryClient = new TelemetryClient();
@@ -31,7 +31,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new PaymentCalculatorController(
                    _configuration,
                    _mockTokenAcquisition.Object,
-                   _telemetryClient)
+                   _telemetryClient,
+                   new Mock<IHttpClientFactory>().Object)
             {
                 // Setting the mocked HttpContext for the controller
                 ControllerContext = new ControllerContext
