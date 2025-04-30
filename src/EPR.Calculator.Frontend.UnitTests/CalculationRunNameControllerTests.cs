@@ -734,15 +734,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", redirectResult.ViewName);
         }
 
-        [TestMethod]
-        public void GetCalculatorRunParametersTest()
-        {
-            var blankConfig = ConfigurationItems.GetConfigurationValuesWithEmptyStrings();
-            var controller = new CalculationRunNameController(blankConfig, mockClientFactory.Object, mockLogger.Object,
-                mockTokenAcquisition.Object, new TelemetryClient());
-            Assert.ThrowsException<ConfigurationErrorsException>(() => controller.GetCalculatorRunParameters());
-        }
-
         private void MockHttpClientWithResponse()
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();

@@ -2,6 +2,9 @@
 {
     public class CalculatorRunParamsDto
     {
-        public string? FinancialYear { get; set; }
+        public required string FinancialYear { get; init; }
+
+        public static explicit operator CalculatorRunParamsDto(string financialYear)
+            => new CalculatorRunParamsDto { FinancialYear = financialYear };
     }
 }
