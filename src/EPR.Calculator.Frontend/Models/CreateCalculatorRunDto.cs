@@ -2,13 +2,12 @@
 
 namespace EPR.Calculator.Frontend.Models
 {
-    [ExcludeFromCodeCoverage]
-    public class CreateCalculatorRunDto
+    public record CreateCalculatorRunDto
     {
-        public required string CalculatorRunName { get; set; }
+        public required string CalculatorRunName { get; init; }
 
-        public required string FinancialYear { get; set; }
+        public required string FinancialYear { get; init; }
 
-        public required string CreatedBy { get; set; }
+        public required string CreatedBy { get; init; }
     }
 }

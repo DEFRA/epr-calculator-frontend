@@ -14,16 +14,21 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Controller for handling classifying calculation run scenario 1.
     /// </summary>
+    /// <param name="configuration">The configuration settings.</param>
+    /// <param name="clientFactory">The HTTP client factory.</param>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="tokenAcquisition">token acquisition.</param>
+    /// <param name="telemetryClient">telemetry client.</param>
     [Route("[controller]")]
-    public class ClassifyingCalculationRunScenario1Controller : BaseController
+    public class ClassifyingCalculationRunScenario1Controller(
+        IConfiguration configuration,
+        IHttpClientFactory clientFactory,
+        ILogger<ClassifyingCalculationRunScenario1Controller> logger,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        private readonly ILogger<ClassifyingCalculationRunScenario1Controller> logger;
-
-        public ClassifyingCalculationRunScenario1Controller(IConfiguration configuration, IHttpClientFactory clientFactory, ILogger<ClassifyingCalculationRunScenario1Controller> logger, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
-        {
-            this.logger = logger;
-        }
+        private readonly ILogger<ClassifyingCalculationRunScenario1Controller> logger = logger;
 
         [Route("{runId}")]
         [HttpGet]
@@ -33,7 +38,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 CalculatorRunDto calculatorRun = GetCalculationRunDetails(runId);
 
-                var viewModel = CreateViewModel(runId, calculatorRun);
+                var viewModel = this.CreateViewModel(runId, calculatorRun);
 
                 return this.View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
             }
@@ -54,7 +59,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (!this.ModelState.IsValid)
                 {
                     var calculatorRun = GetCalculationRunDetails(model.RunId);
-                    var viewModel = CreateViewModel(model.RunId, calculatorRun);
+                    var viewModel = this.CreateViewModel(model.RunId, calculatorRun);
 
                     return View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
                 }
@@ -90,7 +95,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var viewModel = new ClassifyCalculationRunScenerio1ViewModel
             {
-                CurrentUser = CommonUtil.GetUserName(HttpContext),
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 RunId = runId,
                 RunName = calculatorRun.RunName,
                 CreatedAt = calculatorRun.CreatedAt,

@@ -15,23 +15,17 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="LocalAuthorityDisposalCostsController"/> class.
     /// </summary>
-    public class LocalAuthorityDisposalCostsController : BaseController
+    /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
+    /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
+    /// <param name="tokenAcquisition">The token acquisition service.</param>
+    /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
+    public class LocalAuthorityDisposalCostsController(
+        IConfiguration configuration,
+        IHttpClientFactory clientFactory,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        private readonly IHttpClientFactory clientFactory;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LocalAuthorityDisposalCostsController"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
-        /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        /// <param name="tokenAcquisition">The token acquisition service.</param>
-        /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
-        public LocalAuthorityDisposalCostsController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
-        {
-            this.clientFactory = clientFactory;
-        }
-
         /// <summary>
         /// Sends an HTTP POST request to the Local Authority Disposal Costs API with the specified parameters.
         /// </summary>
@@ -68,12 +62,12 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var year = this.GetFinancialYear();
 
-                if (string.IsNullOrWhiteSpace(year) || string.IsNullOrWhiteSpace(lapcapRunApi))
+                if (string.IsNullOrWhiteSpace(year))
                 {
-                    throw new ConfigurationErrorsException("LapcapSettings or RunParameterYear missing");
+                    throw new ConfigurationErrorsException("RunParameterYear missing");
                 }
 
-                var response = this.GetHttpRequest(lapcapRunApi, year, this.clientFactory);
+                var response = this.GetLapcapDataAsync(year);
 
                 if (response.Result.IsSuccessStatusCode)
                 {
@@ -111,6 +105,14 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+        }
+
+        private async Task<HttpResponseMessage> GetLapcapDataAsync(string parameterYear)
+        {
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.LapcapSettings,
+                ConfigSection.LapcapSettingsApi);
+            return await this.CallApi(HttpMethod.Get, apiUrl, parameterYear, null);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Controllers;
+﻿using AutoFixture;
+using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -19,8 +20,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         private DeleteConfirmationController _controller;
         private Mock<HttpContext> _mockHttpContext;
 
-        [TestInitialize]
-        public void Setup()
+        public DeleteConfirmationControllerTests()
         {
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _telemetryClient = new TelemetryClient();
@@ -29,7 +29,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new DeleteConfirmationController(
                    _configuration,
                    _mockTokenAcquisition.Object,
-                   _telemetryClient)
+                   _telemetryClient,
+                   new Mock<IHttpClientFactory>().Object)
             {
                 // Setting the mocked HttpContext for the controller
                 ControllerContext = new ControllerContext
