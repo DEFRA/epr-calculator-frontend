@@ -37,11 +37,12 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var viewModel = this.CreateViewModel(runId, calculatorRun);
 
-            if (calculatorRun == null)
+            if (calculatorRun == null || runId == 0)
             {
                 throw new ArgumentNullException($"Calculator with run id {runId} not found");
             }
-            else if (!IsRunEligibleForDisplay(calculatorRun))
+
+            if (!IsRunEligibleForDisplay(calculatorRun))
             {
                 this.ModelState.AddModelError(viewModel.RunName, ErrorMessages.RunDetailError);
                 return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
