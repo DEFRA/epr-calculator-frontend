@@ -378,10 +378,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Arrange
             var calculationRuns = new List<CalculationRun>
             {
-                new CalculationRun { Id = 1, CalculatorRunClassificationId = 1, Name = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.InTheQueue, Financial_Year = "2024-25" },
-                new CalculationRun { Id = 2, CalculatorRunClassificationId = 2, Name = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Running, Financial_Year = "2024-25" },
-                new CalculationRun { Id = 3, CalculatorRunClassificationId = 3, Name = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Unclassified, Financial_Year = "2024-25" },
-                new CalculationRun { Id = 5, CalculatorRunClassificationId = 5, Name = "Test 5", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Error, Financial_Year = "2024-25" },
+                new CalculationRun { Id = 1, CalculatorRunClassificationId = RunClassification.QUEUE, Name = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 2, CalculatorRunClassificationId = RunClassification.UNCLASSIFIED, Name = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 3, CalculatorRunClassificationId = RunClassification.TEST_RUN, Name = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 5, CalculatorRunClassificationId = RunClassification.ERROR, Name = "Test 5", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
             };
 
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
@@ -392,12 +392,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 foreach (var calculationRun in calculationRuns)
                 {
-                    var classification_val = runClassifications.FirstOrDefault(c => (int)c == calculationRun.CalculatorRunClassificationId);
-                    var member = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classification_val.ToString());
-
-                    var attribute = member?.GetCustomAttribute<EnumMemberAttribute>(false);
-
-                    calculationRun.Status = attribute?.Value ?? string.Empty; // Use a default value if attribute or value is null
+                    var classification_val = runClassifications.FirstOrDefault(c => c == calculationRun.CalculatorRunClassificationId);
 
                     dashboardRunData.Add(new CalculationRunViewModel(calculationRun));
                 }
@@ -405,10 +400,46 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Assert
             Assert.AreEqual(4, dashboardRunData.Count);
-            Assert.AreEqual(CalculationRunStatus.InTheQueue, dashboardRunData.First().Status);
-            Assert.AreEqual(CalculationRunStatus.Running, dashboardRunData[1].Status);
-            Assert.AreEqual(CalculationRunStatus.Unclassified, dashboardRunData[2].Status);
-            Assert.AreEqual(CalculationRunStatus.Error, dashboardRunData.Last().Status); // Default value
+            Assert.AreEqual(RunClassification.QUEUE, dashboardRunData.First().Status);
+            Assert.AreEqual(RunClassification.UNCLASSIFIED, dashboardRunData[1].Status);
+            Assert.AreEqual(RunClassification.TEST_RUN, dashboardRunData[2].Status);
+            Assert.AreEqual(RunClassification.ERROR, dashboardRunData.Last().Status); // Default value
+        }
+
+        [TestMethod]
+        public void Should_Classify_CalculationRuns_And_Handle_InitialRun()
+        {
+            // Arrange
+            var calculationRuns = new List<CalculationRun>
+            {
+                new CalculationRun { Id = 1, CalculatorRunClassificationId = RunClassification.QUEUE, Name = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 2, CalculatorRunClassificationId = RunClassification.UNCLASSIFIED, Name = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 3, CalculatorRunClassificationId = RunClassification.TEST_RUN, Name = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 4, CalculatorRunClassificationId = RunClassification.INITIAL_RUN, Name = "Test 4", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 5, CalculatorRunClassificationId = RunClassification.ERROR, Name = "Test 5", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+            };
+
+            var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
+            var dashboardRunData = new List<CalculationRunViewModel>();
+
+            // Act
+            if (calculationRuns.Count > 0)
+            {
+                foreach (var calculationRun in calculationRuns)
+                {
+                    var classification_val = runClassifications.FirstOrDefault(c => c == calculationRun.CalculatorRunClassificationId);
+
+                    dashboardRunData.Add(new CalculationRunViewModel(calculationRun));
+                }
+            }
+
+            // Assert
+            Assert.AreEqual(5, dashboardRunData.Count);
+            Assert.AreEqual(RunClassification.QUEUE, dashboardRunData.First().Status);
+            Assert.AreEqual(RunClassification.UNCLASSIFIED, dashboardRunData[1].Status);
+            Assert.AreEqual(RunClassification.TEST_RUN, dashboardRunData[2].Status);
+            Assert.AreEqual(RunClassification.ERROR, dashboardRunData.Last().Status);
+            Assert.AreEqual(RunClassification.INITIAL_RUN, dashboardRunData[3].Status); // Initial Run
         }
 
         [TestMethod]
@@ -416,8 +447,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var calculationRuns = new List<CalculationRun>
             {
-                new CalculationRun { Id = 5, CalculatorRunClassificationId = 5, Name = "Test Run", CreatedAt = DateTime.Parse("30/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Error, Financial_Year = "2024-25" },
-                new CalculationRun { Id = 10, CalculatorRunClassificationId = 1, Name = "Test 5", CreatedAt = DateTime.Parse("30/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.InTheQueue, Financial_Year = "2024-25" },
+                new CalculationRun { Id = 5, CalculatorRunClassificationId = RunClassification.ERROR, Name = "Test Run", CreatedAt = DateTime.Parse("30/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 10, CalculatorRunClassificationId = RunClassification.QUEUE, Name = "Test 5", CreatedAt = DateTime.Parse("30/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
             };
 
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
@@ -459,7 +490,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.IsNotNull(model);
             Assert.AreEqual(1, model.Calculations.Count());
-            Assert.AreEqual(CalculationRunStatus.Error, model.Calculations.First().Status);
+            Assert.AreEqual(RunClassification.ERROR, model.Calculations.First().Status);
             Assert.IsTrue(model.Calculations.First().ShowErrorLink);
         }
 
