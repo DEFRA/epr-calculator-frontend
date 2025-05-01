@@ -200,6 +200,65 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ViewNames.CalculationRunDetailsNewErrorPage, result.ViewName);
         }
 
+        [TestMethod]
+        public async void Submit_ValidModelState_OutputClassify_ReturnsRedirectToAction()
+        {
+            var model = new CalculatorRunDetailsNewViewModel()
+            {
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel()
+                {
+                    RunId = 240008,
+                    RunName = "Test Run"
+                },
+                SelectedCalcRunOption = CalculationRunOption.OutputClassify
+            };
+
+            // Act
+            var result = await _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.ClassifyingCalculationRun, result.ControllerName);
+            Assert.AreEqual(240008, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public async void Submit_ValidModelState_OutputDelete_ReturnsRedirectToAction()
+        {
+            var model = new CalculatorRunDetailsNewViewModel()
+            {
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel()
+                {
+                    RunId = 240008,
+                    RunName = "Test Run"
+                },
+                SelectedCalcRunOption = CalculationRunOption.OutputDelete
+            };
+            // Act
+            var result = await _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.CalculationRunDelete, result.ControllerName);
+            Assert.AreEqual(240008, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public async void GetCalculationRunDetails_ShouldReturnDefaultRunDetails_WhenRunIdIsNot190508()
+        {
+            // Arrange
+            int runId = 12345;
+
+            // Act
+            var result = await _controller.Index(runId) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsNewIndex, result.ViewName);
+        }
+
         private static IConfiguration GetConfigurationValues()
         {
             string projectPath = AppDomain.CurrentDomain.BaseDirectory.Split(Separator, StringSplitOptions.None)[0];
