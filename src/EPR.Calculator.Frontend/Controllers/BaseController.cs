@@ -114,7 +114,7 @@ namespace EPR.Calculator.Frontend.Controllers
         protected Uri GetApiUrl(string configSection, string configKey)
             => new Uri(this.GetConfigSetting(configSection, configKey));
 
-        public async Task<CalculatorRunDetailsViewModel?> GetCalculatorRundetails(int runId)
+        protected async Task<CalculatorRunDetailsViewModel?> GetCalculatorRundetails(int runId)
         {
             var runDetails = new CalculatorRunDetailsViewModel();
             var apiUrl = this.GetApiUrl(
