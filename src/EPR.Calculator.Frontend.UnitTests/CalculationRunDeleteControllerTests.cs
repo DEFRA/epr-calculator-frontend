@@ -47,7 +47,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             int runId = this.Fixture.Create<int>();
 
             var controller = new CalculationRunDeleteController(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, _mockTelemetryClient);
+                new Mock<ITokenAcquisition>().Object, _mockTelemetryClient);
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
             // Act
@@ -65,7 +65,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             // Arrange
             var controller = new CalculationRunDeleteController(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, _mockTelemetryClient);
+                new Mock<ITokenAcquisition>().Object, _mockTelemetryClient);
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
             // Act

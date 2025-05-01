@@ -20,8 +20,13 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="configuration">The configuration settings.</param>
         /// <param name="tokenAcquisition">token acquisition.</param>
         /// <param name="telemetryClient">telemetry client.</param>
-        public ClassifyAfterFinalRunController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
+        /// <param name="httpClientFactory">An <see cref="IHttpClientFactory"/> for sending API requests.</param>
+        public ClassifyAfterFinalRunController(
+            IConfiguration configuration,
+            ITokenAcquisition tokenAcquisition,
+            TelemetryClient telemetryClient,
+            IHttpClientFactory httpClientFactory)
+            : base(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
         {
         }
 

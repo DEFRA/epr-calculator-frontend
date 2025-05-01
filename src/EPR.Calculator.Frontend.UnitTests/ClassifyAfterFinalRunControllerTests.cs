@@ -52,7 +52,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new ClassifyAfterFinalRunController(
                _configuration,
                _mockTokenAcquisition.Object,
-               _telemetryClient)
+               _telemetryClient,
+               _mockHttpClientFactory.Object)
             {
                 ControllerContext = new ControllerContext
                 {

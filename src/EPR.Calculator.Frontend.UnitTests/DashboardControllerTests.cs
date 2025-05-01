@@ -407,6 +407,42 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
+        public void Should_Classify_CalculationRuns_And_Handle_InitialRun()
+        {
+            // Arrange
+            var calculationRuns = new List<CalculationRun>
+            {
+                new CalculationRun { Id = 1, CalculatorRunClassificationId = RunClassification.QUEUE, Name = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 2, CalculatorRunClassificationId = RunClassification.UNCLASSIFIED, Name = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 3, CalculatorRunClassificationId = RunClassification.TEST_RUN, Name = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 4, CalculatorRunClassificationId = RunClassification.INITIAL_RUN, Name = "Test 4", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 5, CalculatorRunClassificationId = RunClassification.ERROR, Name = "Test 5", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+            };
+
+            var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
+            var dashboardRunData = new List<CalculationRunViewModel>();
+
+            // Act
+            if (calculationRuns.Count > 0)
+            {
+                foreach (var calculationRun in calculationRuns)
+                {
+                    var classification_val = runClassifications.FirstOrDefault(c => c == calculationRun.CalculatorRunClassificationId);
+
+                    dashboardRunData.Add(new CalculationRunViewModel(calculationRun));
+                }
+            }
+
+            // Assert
+            Assert.AreEqual(5, dashboardRunData.Count);
+            Assert.AreEqual(RunClassification.QUEUE, dashboardRunData.First().Status);
+            Assert.AreEqual(RunClassification.UNCLASSIFIED, dashboardRunData[1].Status);
+            Assert.AreEqual(RunClassification.TEST_RUN, dashboardRunData[2].Status);
+            Assert.AreEqual(RunClassification.ERROR, dashboardRunData.Last().Status);
+            Assert.AreEqual(RunClassification.INITIAL_RUN, dashboardRunData[3].Status); // Initial Run
+        }
+
+        [TestMethod]
         public async Task Index_ShowsErrorLink_WhenStatusIsError()
         {
             var calculationRuns = new List<CalculationRun>
