@@ -61,9 +61,9 @@ namespace EPR.Calculator.Frontend.Controllers
 
             return model.SelectedCalcRunOption switch
             {
-                CalculationRunOption.OutputClassify => this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyingCalculationRun, new { model.RunId }),
-                CalculationRunOption.OutputDelete => this.RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { model.RunId }),
-                _ => this.RedirectToAction(ActionNames.Index, new { model.RunId }),
+                CalculationRunOption.OutputClassify => this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyingCalculationRun, new { model.CalculatorRunDetails.RunId }),
+                CalculationRunOption.OutputDelete => this.RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { model.CalculatorRunDetails.RunId }),
+                _ => this.RedirectToAction(ActionNames.Index, new { model.CalculatorRunDetails.RunId }),
             };
         }
 
