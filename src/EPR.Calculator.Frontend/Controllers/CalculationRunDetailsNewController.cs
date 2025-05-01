@@ -37,7 +37,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (viewModel.CalculatorRunDetails == null)
             {
-                throw new ArgumentNullException($"Calculator with run id {runId} not found");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
             else if (!IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
             {
@@ -80,7 +80,9 @@ namespace EPR.Calculator.Frontend.Controllers
         private async Task<CalculatorRunDetailsNewViewModel> CreateViewModel(int runId)
         {
             var viewModel = new CalculatorRunDetailsNewViewModel();
-            viewModel.CalculatorRunDetails = await this.GetCalculatorRundetails(runId);
+
+            var runDetails = await this.GetCalculatorRundetails(runId);
+            viewModel.CalculatorRunDetails = runDetails.RunId == 0 ? null : runDetails;
 
             this.SetDownloadParameters(viewModel);
 
