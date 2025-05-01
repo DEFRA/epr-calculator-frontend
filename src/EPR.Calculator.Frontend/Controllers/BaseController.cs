@@ -4,15 +4,11 @@ using System.Text.Json;
 using EPR.Calculator.Frontend.Common;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
-using System.Text.Json;
-using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using System.Linq.Expressions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
