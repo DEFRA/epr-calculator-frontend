@@ -22,7 +22,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// gets or sets calculator run details.
         /// </summary>
-        public CalculatorRunDetailsViewModel? CalculatorRunDetails { get; set; }
+        public CalculatorRunDetailsViewModel CalculatorRunDetails { get; set; }
 
         /// <summary>
         /// Gets or sets download result URL.

@@ -45,6 +45,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockTelemetryClient = new TelemetryClient();
             _mockMessageHandler = new Mock<HttpMessageHandler>();
 
+            var mockSession = new MockHttpSession();
+            _mockHttpContext.Setup(s => s.Session).Returns(mockSession);
+            _mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            _mockTokenAcquisition
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
+            mockSession.SetString("accessToken", "something");
+
             _controller = new CalculationRunDetailsNewController(
                        _configuration,
                        _mockClientFactory.Object,
