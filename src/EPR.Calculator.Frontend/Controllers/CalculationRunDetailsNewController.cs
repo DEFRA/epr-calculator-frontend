@@ -54,7 +54,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                var viewModel = await this.CreateViewModel(model.RunId);
+                var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
 
                 return this.View(ViewNames.CalculationRunDetailsNewIndex, viewModel);
             }
@@ -79,12 +79,18 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<CalculatorRunDetailsNewViewModel> CreateViewModel(int runId)
         {
-            var viewModel = new CalculatorRunDetailsNewViewModel();
+            var viewModel = new CalculatorRunDetailsNewViewModel()
+            {
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
+            };
 
             var runDetails = await this.GetCalculatorRundetails(runId);
-            viewModel.CalculatorRunDetails = runDetails.RunId == 0 ? null : runDetails;
-
-            this.SetDownloadParameters(viewModel);
+            if (runDetails != null && runDetails?.RunId != 0)
+            {
+                viewModel.CalculatorRunDetails = runDetails;
+                this.SetDownloadParameters(viewModel);
+            }
 
             return viewModel;
         }
@@ -92,9 +98,9 @@ namespace EPR.Calculator.Frontend.Controllers
         private void SetDownloadParameters(CalculatorRunDetailsNewViewModel viewModel)
         {
             var baseApiUrl = _configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
-            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.RunId}");
+            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.CalculatorRunDetails.RunId}");
 
-            viewModel.DownloadErrorURL = $"/DownloadFileError/{viewModel.RunId}";
+            viewModel.DownloadErrorURL = $"/DownloadFileError/{viewModel.CalculatorRunDetails.RunId}";
             viewModel.DownloadTimeout = _configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
         }
     }

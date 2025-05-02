@@ -245,7 +245,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ViewNames.CalculationRunDetailsNewIndex, result.ViewName);
             var viewModel = result.Model as CalculatorRunDetailsNewViewModel;
             Assert.IsNotNull(viewModel);
-            Assert.AreEqual(model.RunId, viewModel.RunId);
+            Assert.AreEqual(model.CalculatorRunDetails.RunId, viewModel.CalculatorRunDetails.RunId);
         }
 
         [TestMethod]

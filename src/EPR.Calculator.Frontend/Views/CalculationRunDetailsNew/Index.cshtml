@@ -17,7 +17,7 @@
             {
                 @Html.AntiForgeryToken()
 
-                @Html.Hidden("RunId", Model.RunId)
+                @Html.HiddenFor(m => m.CalculatorRunDetails.RunId)
                 @Html.HiddenFor(m => m.CurrentUser)
 
                 <partial name="_ValidationSummaryPartial" />
