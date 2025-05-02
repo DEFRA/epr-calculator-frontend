@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -98,6 +99,49 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
+            var viewModel = result.Model as ClassifyCalculationRunScenerio1ViewModel;
+            Assert.IsNotNull(viewModel);
+            Assert.AreEqual(runId, viewModel.CalculatorRunDetails.RunId);
+        }
+
+        [TestMethod]
+        public async Task IsRunEligibleForDisplay_ShouldReturnFalse_WhenRunClassificationIsUnclassified()
+        {
+            // Setup
+            _mockMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.IsAny<HttpRequestMessage>(),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.OK,
+                       Content = new StringContent(JsonConvert.SerializeObject(MockData.GetRunningCalculatorRun())),
+                   });
+            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
+
+            _controller = new ClassifyingCalculationRunScenario1Controller(
+                _configuration,
+                _mockClientFactory.Object,
+                _mockLogger.Object,
+                _mockTokenAcquisition.Object,
+                _mockTelemetryClient);
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
+            // Arrange
+            int runId = 1;
+
+            // Act
+            var result = await _controller.Index(runId) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsNewErrorPage, result.ViewName);
             var viewModel = result.Model as ClassifyCalculationRunScenerio1ViewModel;
             Assert.IsNotNull(viewModel);
             Assert.AreEqual(runId, viewModel.CalculatorRunDetails.RunId);

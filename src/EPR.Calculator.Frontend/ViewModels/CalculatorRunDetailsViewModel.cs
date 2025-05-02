@@ -1,7 +1,10 @@
-﻿namespace EPR.Calculator.Frontend.ViewModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace EPR.Calculator.Frontend.ViewModels
 {
-    public class CalculatorRunDetailsViewModel
+    public record CalculatorRunDetailsViewModel
     {
+        [Required]
         public int RunId { get; set; }
 
         public DateTime CreatedAt { get; set; }
