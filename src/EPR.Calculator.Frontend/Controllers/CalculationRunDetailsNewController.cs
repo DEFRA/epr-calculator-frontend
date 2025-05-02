@@ -35,7 +35,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var viewModel = await this.CreateViewModel(runId);
 
-            if (viewModel.CalculatorRunDetails == null)
+            if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }

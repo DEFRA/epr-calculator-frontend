@@ -44,6 +44,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockSession = new Mock<ISession>();
             _mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
             _mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
 
             _controller = new CalculationRunDetailsNewController(
                    _configuration,
@@ -82,6 +83,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
                 mockTokenAcquisition.Object, new TelemetryClient());
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
             var viewModel = new ParameterRefreshViewModel()
             {
                 ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
@@ -119,6 +125,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
                 mockTokenAcquisition.Object, new TelemetryClient());
+
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
             var viewModel = new ParameterRefreshViewModel()
             {
                 ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
@@ -187,6 +199,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
                 mockTokenAcquisition.Object, new TelemetryClient());
+
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
             var viewModel = new ParameterRefreshViewModel()
             {
                 ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
@@ -235,6 +253,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
                 mockTokenAcquisition.Object, new TelemetryClient());
+
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
             controller.ModelState.AddModelError("Error", "Model error");
 
             // Act
