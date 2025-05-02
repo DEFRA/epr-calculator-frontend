@@ -79,11 +79,10 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<CalculatorRunDetailsNewViewModel> CreateViewModel(int runId)
         {
-            var viewModel = new CalculatorRunDetailsNewViewModel();
+            var viewModel = new CalculatorRunDetailsNewViewModel() { CurrentUser = CommonUtil.GetUserName(HttpContext) };
 
             var runDetails = await this.GetCalculatorRundetails(runId);
             viewModel.CalculatorRunDetails = runDetails.RunId == 0 ? null : runDetails;
-
             this.SetDownloadParameters(viewModel);
 
             return viewModel;
