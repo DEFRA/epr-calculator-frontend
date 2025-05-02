@@ -17,7 +17,7 @@
             {
                 @Html.AntiForgeryToken()
 
-                @Html.HiddenFor(m => m.CalculatorRunDetails.RunId)
+                @Html.HiddenFor(m => m.CalculatorRunDetails!.RunId)
                 @Html.HiddenFor(m => m.CurrentUser)
 
                 <partial name="_ValidationSummaryPartial" />
@@ -25,7 +25,7 @@
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset">
                         <legend class="govuk-caption-l">
-                            @Model.CalculatorRunDetails.RunName
+                            @Model.CalculatorRunDetails!.RunName
                         </legend>
                         <h1 class="govuk-heading-l">Calculation run details</h1>
                         <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">

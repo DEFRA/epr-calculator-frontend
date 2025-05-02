@@ -1,7 +1,9 @@
-﻿using System.Security.Claims;
+﻿using System.Net;
+using System.Security.Claims;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
+using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using EPR.Calculator.Frontend.ViewModels.Enums;
 using Microsoft.ApplicationInsights;
@@ -11,6 +13,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using Moq;
+using Moq.Protected;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
@@ -23,91 +27,153 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private TelemetryClient _mockTelemetryClient;
         private ClassifyingCalculationRunScenario1Controller _controller;
+        private Mock<HttpMessageHandler> _mockMessageHandler;
         private Mock<HttpContext> _mockHttpContext;
 
         [TestInitialize]
         public void Setup()
         {
+            _mockHttpContext = new Mock<HttpContext>();
             _mockClientFactory = new Mock<IHttpClientFactory>();
             _mockLogger = new Mock<ILogger<ClassifyingCalculationRunScenario1Controller>>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
-            _mockHttpContext = new Mock<HttpContext>();
+            _mockMessageHandler = new Mock<HttpMessageHandler>();
 
             _controller = new ClassifyingCalculationRunScenario1Controller(
-                   _configuration,
-                   _mockClientFactory.Object,
-                   _mockLogger.Object,
-                   _mockTokenAcquisition.Object,
-                   _mockTelemetryClient);
+                       _configuration,
+                       _mockClientFactory.Object,
+                       _mockLogger.Object,
+                       _mockTokenAcquisition.Object,
+                       _mockTelemetryClient);
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.Name, "Test User")
-            }));
+            _mockHttpContext.Setup(context => context.User)
+               .Returns(new ClaimsPrincipal(new ClaimsIdentity(
+           [
+               new Claim(ClaimTypes.Name, "Test User")
+           ])));
 
             // Setting the mocked HttpContext for the controller
             _controller.ControllerContext = new ControllerContext
             {
-                HttpContext = httpContext
+                HttpContext = _mockHttpContext.Object
             };
         }
 
         [TestMethod]
-        public void Index_ReturnsViewResult_WithValidViewModel()
+        public async Task Index_ReturnsViewResult_WithValidViewModel()
         {
+            // Setup
+            _mockMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.IsAny<HttpRequestMessage>(),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.OK,
+                       Content = new StringContent(JsonConvert.SerializeObject(MockData.GetCalculatorRun())),
+                   });
+            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
+
+            _controller = new ClassifyingCalculationRunScenario1Controller(
+                _configuration,
+                _mockClientFactory.Object,
+                _mockLogger.Object,
+                _mockTokenAcquisition.Object,
+                _mockTelemetryClient);
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
             // Arrange
             int runId = 1;
 
             // Act
-            var result = _controller.Index(runId) as ViewResult;
+            var result = await _controller.Index(runId) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
             var viewModel = result.Model as ClassifyCalculationRunScenerio1ViewModel;
             Assert.IsNotNull(viewModel);
-            Assert.AreEqual(runId, viewModel.RunId);
+            Assert.AreEqual(runId, viewModel.CalculatorRunDetails.RunId);
         }
 
         [TestMethod]
-        public void Submit_RedirectsToIndex_WhenModelStateIsInvalid()
+        public async Task Submit_RedirectsToIndex_WhenModelStateIsInvalid()
         {
+            // Setup
+            _mockMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.IsAny<HttpRequestMessage>(),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.OK,
+                       Content = new StringContent(JsonConvert.SerializeObject(MockData.GetCalculatorRun())),
+                   });
+            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
+
+            _controller = new ClassifyingCalculationRunScenario1Controller(
+                _configuration,
+                _mockClientFactory.Object,
+                _mockLogger.Object,
+                _mockTokenAcquisition.Object,
+                _mockTelemetryClient);
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
             // Arrange
             int runId = 1;
             ClassifyCalculationRunScenerio1ViewModel model = new ClassifyCalculationRunScenerio1ViewModel
             {
-                RunId = runId,
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel
+                {
+                    RunId = runId,
+                    RunName = "Test Run"
+                },
                 ClassifyRunType = ClassifyRunType.InitialRun
             };
 
             _controller.ModelState.AddModelError("TestError", "Test error message");
 
             // Act
-            var result = _controller.Submit(model) as ViewResult;
+            var result = await _controller.Submit(model) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
             var viewModel = result.Model as ClassifyCalculationRunScenerio1ViewModel;
             Assert.IsNotNull(viewModel);
-            Assert.AreEqual(runId, viewModel.RunId);
+            Assert.AreEqual(runId, viewModel.CalculatorRunDetails.RunId);
         }
 
         [TestMethod]
-        public void Submit_RedirectsToClassifyRunConfirmation_WhenModelStateIsValid()
+        public async Task Submit_RedirectsToClassifyRunConfirmation_WhenModelStateIsValid()
         {
             // Arrange
             int runId = 1;
             ClassifyCalculationRunScenerio1ViewModel model = new ClassifyCalculationRunScenerio1ViewModel
             {
-                RunId = runId,
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel
+                {
+                    RunId = runId,
+                    RunName = "Test Run"
+                },
                 ClassifyRunType = ClassifyRunType.InitialRun
             };
 
             // Act
-            var result = _controller.Submit(model) as RedirectToActionResult;
+            var result = await _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -117,14 +183,40 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public void Submit_InvalidModel_ReturnsViewResult_WithErrors()
+        public async Task Submit_InvalidModel_ReturnsViewResult_WithErrors()
         {
+            // Setup
+            _mockMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.IsAny<HttpRequestMessage>(),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.OK,
+                       Content = new StringContent(JsonConvert.SerializeObject(MockData.GetCalculatorRun())),
+                   });
+            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
+
+            _controller = new ClassifyingCalculationRunScenario1Controller(
+                _configuration,
+                _mockClientFactory.Object,
+                _mockLogger.Object,
+                _mockTokenAcquisition.Object,
+                _mockTelemetryClient);
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
             // Arrange
-            var model = new ClassifyCalculationRunScenerio1ViewModel { RunId = 1 };
+            var model = new ClassifyCalculationRunScenerio1ViewModel { CalculatorRunDetails = new CalculatorRunDetailsViewModel { RunId = 1, RunName = "Test Run" } };
             _controller.ModelState.AddModelError("ClassifyRunType", "Required");
 
             // Act
-            var result = _controller.Submit(model) as ViewResult;
+            var result = await _controller.Submit(model) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -133,17 +225,21 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public void Submit_ValidModel_RedirectsToConfirmation()
+        public async Task Submit_ValidModel_RedirectsToConfirmation()
         {
             // Arrange
             var model = new ClassifyCalculationRunScenerio1ViewModel
             {
-                RunId = 1,
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel
+                {
+                    RunId = 1,
+                    RunName = "Test Run"
+                },
                 ClassifyRunType = ClassifyRunType.InitialRun
             };
 
             // Act
-            var result = _controller.Submit(model) as RedirectToActionResult;
+            var result = await _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -152,9 +248,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public void Submit_ExceptionThrown_RedirectsToError()
+        public async Task Submit_ExceptionThrown_RedirectsToError()
         {
-            var result = _controller.Submit(null) as RedirectToActionResult;
+            var result = await _controller.Submit(null) as RedirectToActionResult;
 
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
