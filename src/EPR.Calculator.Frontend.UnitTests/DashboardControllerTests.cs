@@ -495,6 +495,56 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
+        public async Task Index_ShowInitialRunCompleted_WhenStatusInitialRunCompleted()
+        {
+            var calculationRuns = new List<CalculationRun>
+            {
+                new CalculationRun { Id = 10, CalculatorRunClassificationId = RunClassification.INITIAL_RUN_COMPLETED, Name = "Test 6", CreatedAt = DateTime.Parse("30/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+            };
+
+            var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
+
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = System.Net.HttpStatusCode.OK,
+                    Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(calculationRuns))
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
+
+            mockAuthorizationHeaderProvider
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
+                    null, null))
+                .ReturnsAsync("somevalue");
+            var mockClient = new TelemetryClient();
+            // Act
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
+                mockAuthorizationHeaderProvider.Object, mockClient);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            var result = await controller.Index() as ViewResult;
+            var model = result?.Model as DashboardViewModel;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(model);
+            Assert.AreEqual(1, model.Calculations.Count());
+            Assert.AreEqual(RunClassification.INITIAL_RUN_COMPLETED, model.Calculations.First().Status);
+        }
+
+        [TestMethod]
         public void Index_ShowDetailedError_WhenExceptionIsThrown()
         {
             // Arrange
