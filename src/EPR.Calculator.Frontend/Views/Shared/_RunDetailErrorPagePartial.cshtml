@@ -2,7 +2,7 @@
 @model CalculatorRunDetailsNewViewModel;
 
 @{
-    var errorMessage = ViewData.ModelState[Model.CalculatorRunDetails.RunName]?.Errors.FirstOrDefault()?.ErrorMessage;
+    var errorMessage = ViewData.ModelState[Model.CalculatorRunDetails!.RunName!]?.Errors.FirstOrDefault()?.ErrorMessage;
 }
 
 <div class="govuk-error-summary" data-module="govuk-error-summary">

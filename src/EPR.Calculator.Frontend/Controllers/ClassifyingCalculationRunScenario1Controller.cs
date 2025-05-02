@@ -43,7 +43,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             else if (!IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
             {
-                this.ModelState.AddModelError(viewModel.CalculatorRunDetails.RunName, ErrorMessages.RunDetailError);
+                this.ModelState.AddModelError(viewModel.CalculatorRunDetails!.RunName!, ErrorMessages.RunDetailError);
                 return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
             }
 
@@ -59,13 +59,12 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 if (!this.ModelState.IsValid)
                 {
-                    var calculatorRun = GetCalculationRunDetails(model.CalculatorRunDetails.RunId);
-                    var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
+                    var viewModel = await this.CreateViewModel(model.CalculatorRunDetails!.RunId);
 
                     return View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
                 }
 
-                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
+                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails!.RunId });
             }
             catch (Exception ex)
             {
@@ -84,24 +83,6 @@ namespace EPR.Calculator.Frontend.Controllers
             return false;
         }
 
-        private static CalculatorRunDto GetCalculationRunDetails(int runId)
-        {
-            // Get the calculation run details from the API
-            CalculatorRunDto calculatorRunDto = new()
-            {
-                RunId = runId,
-                FinancialYear = "2024-25",
-                FileExtension = "xlsx",
-                RunClassificationStatus = "Draft",
-                RunName = "Calculation Run 99",
-                RunClassificationId = 240008,
-                CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
-                CreatedBy = "Steve Jones",
-            };
-            var calculatorRun = calculatorRunDto;
-            return calculatorRun;
-        }
-
         private async Task<ClassifyCalculationRunScenerio1ViewModel> CreateViewModel(int runId)
         {
             var viewModel = new ClassifyCalculationRunScenerio1ViewModel()
@@ -112,7 +93,7 @@ namespace EPR.Calculator.Frontend.Controllers
             };
 
             var runDetails = await this.GetCalculatorRundetails(runId);
-            if (runDetails != null && runDetails?.RunId != 0)
+            if (runDetails != null && runDetails!.RunId != 0)
             {
                 viewModel.CalculatorRunDetails = runDetails;
             }

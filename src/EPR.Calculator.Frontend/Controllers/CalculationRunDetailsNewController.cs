@@ -61,7 +61,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             return model.SelectedCalcRunOption switch
             {
-                CalculationRunOption.OutputClassify => this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyingCalculationRun, new { model.CalculatorRunDetails.RunId }),
+                CalculationRunOption.OutputClassify => this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyingCalculationRun, new { model.CalculatorRunDetails!.RunId }),
                 CalculationRunOption.OutputDelete => this.RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { model.CalculatorRunDetails!.RunId }),
                 _ => this.RedirectToAction(ActionNames.Index, new { model.CalculatorRunDetails!.RunId }),
             };
@@ -86,7 +86,7 @@ namespace EPR.Calculator.Frontend.Controllers
             };
 
             var runDetails = await this.GetCalculatorRundetails(runId);
-            if (runDetails != null && runDetails?.RunId != 0)
+            if (runDetails != null && runDetails!.RunId != 0)
             {
                 viewModel.CalculatorRunDetails = runDetails;
                 this.SetDownloadParameters(viewModel);

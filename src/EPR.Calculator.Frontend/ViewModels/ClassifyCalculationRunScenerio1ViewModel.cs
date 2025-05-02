@@ -15,7 +15,8 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// gets or sets calculator run details.
         /// </summary>
-        public CalculatorRunDetailsViewModel? CalculatorRunDetails { get; set; }
+        [Required]
+        public CalculatorRunDetailsViewModel CalculatorRunDetails { get; set; }
 
         /// <summary>
         /// Gets or sets the calssify run type.
