@@ -22,6 +22,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// gets or sets calculator run details.
         /// </summary>
+        [Required]
         public CalculatorRunDetailsViewModel CalculatorRunDetails { get; set; }
 
         /// <summary>
