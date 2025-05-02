@@ -43,7 +43,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             else if (!IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
             {
-                this.ModelState.AddModelError(viewModel.CalculatorRunDetails!.RunName!, ErrorMessages.RunDetailError);
+                this.ModelState.AddModelError(viewModel.CalculatorRunDetails.RunName!, ErrorMessages.RunDetailError);
                 return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
             }
 
@@ -59,12 +59,12 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 if (!this.ModelState.IsValid)
                 {
-                    var viewModel = await this.CreateViewModel(model.CalculatorRunDetails!.RunId);
+                    var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
 
                     return View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
                 }
 
-                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails!.RunId });
+                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
             }
             catch (Exception ex)
             {
@@ -75,12 +75,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
         {
-            if (calculatorRunDetails.RunClassificationId == (int)RunClassification.UNCLASSIFIED)
-            {
-                return true;
-            }
-
-            return false;
+            return calculatorRunDetails.RunClassificationId == (int)RunClassification.UNCLASSIFIED;
         }
 
         private async Task<ClassifyCalculationRunScenerio1ViewModel> CreateViewModel(int runId)
