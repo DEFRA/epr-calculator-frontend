@@ -25,7 +25,7 @@
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset">
                         <legend class="govuk-caption-l">
-                            @Model.RunName
+                            @Model.CalculatorRunDetails.RunName
                         </legend>
                         <h1 class="govuk-heading-l">Calculation run details</h1>
                         <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
@@ -38,19 +38,19 @@
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@Model.FinancialYear</td>
+                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.FinancialYear</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                    <td class="govuk-table__cell">@Model.RunId</td>
+                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.RunId</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@Model.CreatedAt.ToString("dd MMM yyyy") at @Model.CreatedAt.ToString("HH:mm")</td>
+                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.CreatedAt.ToString("dd MMM yyyy") at @Model.CalculatorRunDetails.CreatedAt.ToString("HH:mm")</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run by</th>
-                                    <td class="govuk-table__cell">@Model.CreatedBy</td>
+                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.CreatedBy</td>
                                 </tr>
                             </tbody>
                         </table>
