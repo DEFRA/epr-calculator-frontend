@@ -11,7 +11,7 @@
 
     <div class="govuk-grid-column-full">
 
-        @if (ViewData.ModelState[Model.RunName]?.Errors.Any() == true)
+        @if (ViewData.ModelState[Model.CalculatorRunDetails.RunName]?.Errors.Any() == true)
         {
             @await Html.PartialAsync("_RunDetailErrorPagePartial", Model)
         }
@@ -43,7 +43,7 @@
 
         <p class="govuk-body">You can delete this run if you have completed another successful calculation.</p>
         <div class="govuk-button-group">
-            <a href="@Url.Action("Index", "CalculationRunDelete", new { runId = Model.RunId })" class="govuk-button govuk-button--warning" type="submit">@ActionLinkLabels.DeleteRun</a>
+            <a href="@Url.Action("Index", "CalculationRunDelete", new { runId = Model.CalculatorRunDetails.RunId })" class="govuk-button govuk-button--warning" type="submit">@ActionLinkLabels.DeleteRun</a>
             <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
         </div>
 
