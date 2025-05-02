@@ -118,8 +118,8 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var runDetails = new CalculatorRunDetailsViewModel();
             var apiUrl = this.GetApiUrl(
-                    ConfigSection.CalculationRunSettings,
-                    ConfigSection.CalculationRunDetailsApi);
+                    ConfigSection.DashboardCalculatorRun,
+                    ConfigSection.DashboardCalculatorRunApi);
 
             var response = await this.CallApi(HttpMethod.Get, apiUrl, runId.ToString(), null);
 
