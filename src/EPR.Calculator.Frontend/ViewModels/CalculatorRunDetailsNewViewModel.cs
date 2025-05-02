@@ -14,6 +14,12 @@ namespace EPR.Calculator.Frontend.ViewModels
     public record CalculatorRunDetailsNewViewModel : ViewModelCommonData
     {
         /// <summary>
+        /// Gets or sets the ID of the calculation run.
+        /// </summary>
+        [Required]
+        public int RunId { get; set; }
+
+        /// <summary>
         /// Gets or sets the option for the calculation run.
         /// </summary>
         [Required(ErrorMessage = ErrorMessages.CalcRunOptionNotSelected)]
@@ -22,7 +28,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// gets or sets calculator run details.
         /// </summary>
-        public CalculatorRunDetailsViewModel? CalculatorRunDetails { get; set; }
+        public CalculatorRunDetailsViewModel CalculatorRunDetails { get; set; }
 
         /// <summary>
         /// Gets or sets download result URL.
