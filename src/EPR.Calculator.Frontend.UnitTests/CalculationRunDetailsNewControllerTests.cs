@@ -41,9 +41,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             _telemetryClient = new TelemetryClient();
             _mockHttpContext = new Mock<HttpContext>();
 
-            var mockSession = new Mock<ISession>();
-            _mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
+            var mockSession = new MockHttpSession();
+            _mockHttpContext.Setup(s => s.Session).Returns(mockSession);
             _mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            _mockTokenAcquisition
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
+            mockSession.SetString("accessToken", "something");
 
             _controller = new CalculationRunDetailsNewController(
                    _configuration,
@@ -74,21 +78,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                     });
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
+            _mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                     .Returns(httpClient);
             var config = GetConfigurationValues();
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
-                mockTokenAcquisition.Object, new TelemetryClient());
-            var viewModel = new ParameterRefreshViewModel()
-            {
-                ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
-                FileName = "Test Name",
-            };
-
-            var task = controller.Index(10);
+            var task = _controller.Index(10);
             task.Wait();
             var result = task.Result as ViewResult;
             Assert.IsNotNull(result);
@@ -111,21 +106,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                     });
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
+            _mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                     .Returns(httpClient);
-            var config = GetConfigurationValues();
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
-                mockTokenAcquisition.Object, new TelemetryClient());
-            var viewModel = new ParameterRefreshViewModel()
-            {
-                ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
-                FileName = "Test Name",
-            };
-
-            var task = controller.Index(10);
+            var task = _controller.Index(10);
             task.Wait();
             var result = task.Result as RedirectToActionResult;
             Assert.IsNotNull(result);
@@ -178,22 +162,11 @@ namespace EPR.Calculator.Frontend.UnitTests
                     });
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
+            _mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                     .Returns(httpClient);
-            var config = GetConfigurationValues();
-            config.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value = string.Empty;
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
-                mockTokenAcquisition.Object, new TelemetryClient());
-            var viewModel = new ParameterRefreshViewModel()
-            {
-                ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
-                FileName = "Test Name",
-            };
 
-            var task = controller.Index(10);
+            var task = _controller.Index(10);
             task.Wait();
             var result = task.Result as ViewResult;
             Assert.IsNotNull(result);
@@ -211,7 +184,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                     RunId = 1,
                     RunName = "Test Run"
                 },
-                SelectedCalcRunOption = null
+                SelectedCalcRunOption = null,
+                RunId = 1,
             };
 
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -227,25 +201,20 @@ namespace EPR.Calculator.Frontend.UnitTests
                     });
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
+            _mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                     .Returns(httpClient);
-            var config = GetConfigurationValues();
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
-                mockTokenAcquisition.Object, new TelemetryClient());
-            controller.ModelState.AddModelError("Error", "Model error");
+            _controller.ModelState.AddModelError("Error", "Model error");
 
             // Act
-            var result = await controller.Submit(model) as ViewResult;
+            var result = await _controller.Submit(model) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDetailsNewIndex, result.ViewName);
             var viewModel = result.Model as CalculatorRunDetailsNewViewModel;
             Assert.IsNotNull(viewModel);
-            Assert.AreEqual(model.RunId, viewModel.RunId);
+            Assert.AreEqual(model.RunId, viewModel.CalculatorRunDetails.RunId);
         }
 
         [TestMethod]
