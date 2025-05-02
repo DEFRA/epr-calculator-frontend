@@ -41,7 +41,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             else if (!IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
             {
-                this.ModelState.AddModelError(viewModel.CalculatorRunDetails.RunName, ErrorMessages.RunDetailError);
+                this.ModelState.AddModelError(viewModel.CalculatorRunDetails!.RunName!, ErrorMessages.RunDetailError);
                 return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
             }
 
@@ -54,7 +54,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
+                var viewModel = await this.CreateViewModel(model.CalculatorRunDetails!.RunId);
 
                 return this.View(ViewNames.CalculationRunDetailsNewIndex, viewModel);
             }
@@ -62,8 +62,8 @@ namespace EPR.Calculator.Frontend.Controllers
             return model.SelectedCalcRunOption switch
             {
                 CalculationRunOption.OutputClassify => this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyingCalculationRun, new { model.CalculatorRunDetails.RunId }),
-                CalculationRunOption.OutputDelete => this.RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { model.CalculatorRunDetails.RunId }),
-                _ => this.RedirectToAction(ActionNames.Index, new { model.CalculatorRunDetails.RunId }),
+                CalculationRunOption.OutputDelete => this.RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { model.CalculatorRunDetails!.RunId }),
+                _ => this.RedirectToAction(ActionNames.Index, new { model.CalculatorRunDetails!.RunId }),
             };
         }
 
@@ -98,7 +98,7 @@ namespace EPR.Calculator.Frontend.Controllers
         private void SetDownloadParameters(CalculatorRunDetailsNewViewModel viewModel)
         {
             var baseApiUrl = _configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
-            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.CalculatorRunDetails.RunId}");
+            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.CalculatorRunDetails!.RunId}");
 
             viewModel.DownloadErrorURL = $"/DownloadFileError/{viewModel.CalculatorRunDetails.RunId}";
             viewModel.DownloadTimeout = _configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");

@@ -94,7 +94,6 @@ namespace EPR.Calculator.Frontend.UnitTests
                 HttpContext = _mockHttpContext.Object
             };
 
-
             // Act
             var result = await _controller.Index(10) as ViewResult;
 
