@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using Moq;
+using Moq.Protected;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
@@ -25,14 +27,23 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         private ClassifyingCalculationRunScenario1Controller _controller;
         private Mock<HttpContext> _mockHttpContext;
 
-        [TestInitialize]
-        public void Setup()
+        public ClassifyingCalculationRunControllerTests()
         {
-            _mockClientFactory = new Mock<IHttpClientFactory>();
+            this.Fixture = new Fixture();
+            this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler();
+            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(this.MockMessageHandler.Object);
+
             _mockLogger = new Mock<ILogger<ClassifyingCalculationRunScenario1Controller>>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
             _mockHttpContext = new Mock<HttpContext>();
+            _mockHttpContext.Setup(context => context.Session)
+                .Returns(TestMockUtils.BuildMockSession(this.Fixture).Object);
+            _mockHttpContext.Setup(context => context.User)
+                .Returns(new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim(ClaimTypes.Name, "Test User")
+            ])));
 
             _controller = new ClassifyingCalculationRunScenario1Controller(
                    _configuration,
@@ -41,18 +52,16 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                    _mockTokenAcquisition.Object,
                    _mockTelemetryClient);
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.Name, "Test User")
-            }));
-
             // Setting the mocked HttpContext for the controller
             _controller.ControllerContext = new ControllerContext
             {
-                HttpContext = httpContext
+                HttpContext = this._mockHttpContext.Object
             };
         }
+
+        private Fixture Fixture { get; init; }
+
+        private Mock<HttpMessageHandler> MockMessageHandler { get; init; }
 
         [TestMethod]
         public void Index_ReturnsViewResult_WithValidViewModel()
@@ -72,7 +81,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public void Submit_RedirectsToIndex_WhenModelStateIsInvalid()
+        public async Task Submit_RedirectsToIndex_WhenModelStateIsInvalid()
         {
             // Arrange
             int runId = 1;
@@ -85,7 +94,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             _controller.ModelState.AddModelError("TestError", "Test error message");
 
             // Act
-            var result = _controller.Submit(model) as ViewResult;
+            var result = await _controller.Submit(model) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -96,10 +105,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public void Submit_RedirectsToClassifyRunConfirmation_WhenModelStateIsValid()
+        public async Task Submit_RedirectsToClassifyRunConfirmation_WhenSubmitSuccessful()
         {
             // Arrange
-            int runId = 1;
+            int runId = Fixture.Create<int>();
             ClassifyCalculationRunScenerio1ViewModel model = new ClassifyCalculationRunScenerio1ViewModel
             {
                 RunId = runId,
@@ -107,24 +116,31 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             };
 
             // Act
-            var result = _controller.Submit(model) as RedirectToActionResult;
+            var result = await _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, result.ControllerName);
             Assert.AreEqual(runId, result.RouteValues["runId"]);
+            this.MockMessageHandler.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(m =>
+                    m.Content.ReadAsStringAsync().Result.Contains(
+                        $"\"RunId\":{runId},\"ClassificationId\":{(int)ClassifyRunType.InitialRun}")),
+                ItExpr.IsAny<CancellationToken>());
         }
 
         [TestMethod]
-        public void Submit_InvalidModel_ReturnsViewResult_WithErrors()
+        public async Task Submit_InvalidModel_ReturnsViewResult_WithErrors()
         {
             // Arrange
             var model = new ClassifyCalculationRunScenerio1ViewModel { RunId = 1 };
             _controller.ModelState.AddModelError("ClassifyRunType", "Required");
 
             // Act
-            var result = _controller.Submit(model) as ViewResult;
+            var result = await _controller.Submit(model) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -133,7 +149,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public void Submit_ValidModel_RedirectsToConfirmation()
+        public async Task Submit_ValidModel_RedirectsToConfirmation()
         {
             // Arrange
             var model = new ClassifyCalculationRunScenerio1ViewModel
@@ -143,7 +159,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             };
 
             // Act
-            var result = _controller.Submit(model) as RedirectToActionResult;
+            var result = await _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -152,9 +168,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public void Submit_ExceptionThrown_RedirectsToError()
+        public async Task Submit_ExceptionThrown_RedirectsToError()
         {
-            var result = _controller.Submit(null) as RedirectToActionResult;
+            var result = await _controller.Submit(null) as RedirectToActionResult;
 
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);

@@ -42,6 +42,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets the calssify run type.
         /// </summary>
         [Required(ErrorMessage = ErrorMessages.ClassifyRunTypeNotSelected)]
-        public ClassifyRunType? ClassifyRunType { get; set; }
+        public ClassifyRunType ClassifyRunType { get; set; }
     }
 }

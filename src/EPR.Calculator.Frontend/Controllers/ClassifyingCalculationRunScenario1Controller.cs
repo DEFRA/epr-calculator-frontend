@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -52,7 +53,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("Submit")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Submit(ClassifyCalculationRunScenerio1ViewModel model)
+        public async Task<IActionResult> Submit(ClassifyCalculationRunScenerio1ViewModel model)
         {
             try
             {
@@ -61,8 +62,21 @@ namespace EPR.Calculator.Frontend.Controllers
                     var calculatorRun = GetCalculationRunDetails(model.RunId);
                     var viewModel = this.CreateViewModel(model.RunId, calculatorRun);
 
-                    return View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
+                    return this.View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
                 }
+
+                var apiUrl = this.GetApiUrl(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.DashboardCalculatorRunV2);
+                await this.CallApi(
+                    HttpMethod.Put,
+                    apiUrl,
+                    string.Empty,
+                    new ClassificationDto
+                {
+                    RunId = model.RunId,
+                    ClassificationId = (int)model.ClassifyRunType,
+                });
 
                 return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.RunId });
             }
