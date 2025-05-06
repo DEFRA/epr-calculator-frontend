@@ -77,7 +77,7 @@ namespace EPR.Calculator.Frontend.Controllers
             };
             if (csvErrors.ErrorMessage is not null)
             {
-                uploadViewModel.Errors = new List<ErrorViewModel> { csvErrors! };
+                uploadViewModel.Errors = csvErrors;
                 return this.View(ViewNames.ParameterUploadFileErrorIndex, uploadViewModel);
             }
 
