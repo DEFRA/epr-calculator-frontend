@@ -53,7 +53,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("Submit")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Submit(ClassifyCalculationRunScenerio1ViewModel model)
+        public async Task<IActionResult> Submit(SetRunClassificationViewModel model)
         {
             try
             {
@@ -105,9 +105,9 @@ namespace EPR.Calculator.Frontend.Controllers
             return calculatorRun;
         }
 
-        private ClassifyCalculationRunScenerio1ViewModel CreateViewModel(int runId, CalculatorRunDto calculatorRun)
+        private SetRunClassificationViewModel CreateViewModel(int runId, CalculatorRunDto calculatorRun)
         {
-            var viewModel = new ClassifyCalculationRunScenerio1ViewModel
+            var viewModel = new SetRunClassificationViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 RunId = runId,

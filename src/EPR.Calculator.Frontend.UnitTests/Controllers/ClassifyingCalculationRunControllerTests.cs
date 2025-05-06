@@ -75,7 +75,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
-            var viewModel = result.Model as ClassifyCalculationRunScenerio1ViewModel;
+            var viewModel = result.Model as SetRunClassificationViewModel;
             Assert.IsNotNull(viewModel);
             Assert.AreEqual(runId, viewModel.RunId);
         }
@@ -85,7 +85,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             int runId = 1;
-            ClassifyCalculationRunScenerio1ViewModel model = new ClassifyCalculationRunScenerio1ViewModel
+            SetRunClassificationViewModel model = new SetRunClassificationViewModel
             {
                 RunId = runId,
                 ClassifyRunType = ClassifyRunType.InitialRun
@@ -99,7 +99,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
-            var viewModel = result.Model as ClassifyCalculationRunScenerio1ViewModel;
+            var viewModel = result.Model as SetRunClassificationViewModel;
             Assert.IsNotNull(viewModel);
             Assert.AreEqual(runId, viewModel.RunId);
         }
@@ -109,7 +109,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             int runId = Fixture.Create<int>();
-            ClassifyCalculationRunScenerio1ViewModel model = new ClassifyCalculationRunScenerio1ViewModel
+            SetRunClassificationViewModel model = new SetRunClassificationViewModel
             {
                 RunId = runId,
                 ClassifyRunType = ClassifyRunType.InitialRun
@@ -136,7 +136,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_InvalidModel_ReturnsViewResult_WithErrors()
         {
             // Arrange
-            var model = new ClassifyCalculationRunScenerio1ViewModel { RunId = 1 };
+            var model = new SetRunClassificationViewModel { RunId = 1 };
             _controller.ModelState.AddModelError("ClassifyRunType", "Required");
 
             // Act
@@ -144,7 +144,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result.Model, typeof(ClassifyCalculationRunScenerio1ViewModel));
+            Assert.IsInstanceOfType(result.Model, typeof(SetRunClassificationViewModel));
             Assert.IsTrue(_controller.ModelState.ErrorCount > 0);
         }
 
@@ -152,7 +152,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_ValidModel_RedirectsToConfirmation()
         {
             // Arrange
-            var model = new ClassifyCalculationRunScenerio1ViewModel
+            var model = new SetRunClassificationViewModel
             {
                 RunId = 1,
                 ClassifyRunType = ClassifyRunType.InitialRun
