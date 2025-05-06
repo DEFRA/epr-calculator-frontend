@@ -1,8 +1,11 @@
 ﻿using System.Configuration;
+using System.Net;
 using System.Text;
 using System.Text.Json;
+using EPR.Calculator.Frontend.Common;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.ViewModels;
 using EPR.Calculator.Frontend.Helpers;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
@@ -108,6 +111,24 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         protected Uri GetApiUrl(string configSection, string configKey)
             => new Uri(this.GetConfigSetting(configSection, configKey));
+
+        protected async Task<CalculatorRunDetailsViewModel?> GetCalculatorRundetails(int runId)
+        {
+            var runDetails = new CalculatorRunDetailsViewModel();
+            var apiUrl = this.GetApiUrl(
+                    ConfigSection.DashboardCalculatorRun,
+                    ConfigSection.DashboardCalculatorRunApi);
+
+            var response = await this.CallApi(HttpMethod.Get, apiUrl, runId.ToString(), null);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                 runDetails = response.Content.ReadFromJsonAsync<CalculatorRunDetailsViewModel>().Result;
+                 return runDetails;
+            }
+
+            return runDetails;
+        }
 
         private async Task<HttpClient> GetHttpClient()
         {

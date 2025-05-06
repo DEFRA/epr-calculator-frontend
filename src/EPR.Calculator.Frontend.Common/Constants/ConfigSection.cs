@@ -86,5 +86,7 @@
         /// The key for the feature management section.
         /// </summary>
         public const string FeatureManagement = "FeatureManagement";
+
+        public const string CalculationRunDetailsApi = "CalculationRunDetailsApi";
     }
 }
