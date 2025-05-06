@@ -21,10 +21,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
     {
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
         private Mock<IHttpClientFactory> _mockClientFactory;
-        private Mock<ILogger<ClassifyingCalculationRunScenario1Controller>> _mockLogger;
+        private Mock<ILogger<SetRunClassificationController>> _mockLogger;
         private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private TelemetryClient _mockTelemetryClient;
-        private ClassifyingCalculationRunScenario1Controller _controller;
+        private SetRunClassificationController _controller;
         private Mock<HttpContext> _mockHttpContext;
 
         public ClassifyingCalculationRunControllerTests()
@@ -33,7 +33,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler();
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(this.MockMessageHandler.Object);
 
-            _mockLogger = new Mock<ILogger<ClassifyingCalculationRunScenario1Controller>>();
+            _mockLogger = new Mock<ILogger<SetRunClassificationController>>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
             _mockHttpContext = new Mock<HttpContext>();
@@ -45,7 +45,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 new Claim(ClaimTypes.Name, "Test User")
             ])));
 
-            _controller = new ClassifyingCalculationRunScenario1Controller(
+            _controller = new SetRunClassificationController(
                    _configuration,
                    _mockClientFactory.Object,
                    _mockLogger.Object,
