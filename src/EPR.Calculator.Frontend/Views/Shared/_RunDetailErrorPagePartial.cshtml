@@ -2,12 +2,12 @@
 @model CalculatorRunDetailsNewViewModel;
 
 @{
-    var errorMessage = ViewData.ModelState[Model.RunName]?.Errors.FirstOrDefault()?.ErrorMessage;
+    var errorMessage = ViewData.ModelState[Model.CalculatorRunDetails.RunName]?.Errors.FirstOrDefault()?.ErrorMessage;
 }
 
 <div class="govuk-error-summary" data-module="govuk-error-summary">
     <div role="alert">
-        <span class="govuk-caption-l">@Model.RunName</span>
+        <span class="govuk-caption-l">@Model.CalculatorRunDetails.RunName</span>
         <h2 class="govuk-heading-l">
             The calculator could not complete the run.
         </h2>

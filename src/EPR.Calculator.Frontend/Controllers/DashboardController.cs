@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
@@ -44,8 +45,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 this.IsShowDetailedError();
 
-                var financialYear = CommonUtil.GetFinancialYear(DateTime.Now);
-                return await this.GoToDashboardView(financialYear);
+                return await this.GoToDashboardView(this.GetFinancialYear());
             }
             catch (Exception)
             {

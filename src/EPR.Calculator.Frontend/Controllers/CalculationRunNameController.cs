@@ -150,9 +150,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown</exception>
         private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
         {
-            var year = this.Configuration
-                .GetSection(ConfigSection.CalculationRunSettings)
-                .GetValue<string>(ConfigSection.RunParameterYear);
+            var year = this.GetFinancialYear();
 
             if (string.IsNullOrEmpty(year))
             {

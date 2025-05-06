@@ -1,11 +1,12 @@
 ﻿using System.Configuration;
+using System.Net;
 using System.Text;
+using System.Text.Json;
 using EPR.Calculator.Frontend.Common;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
-using System.Text.Json;
-using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Mvc;
@@ -66,18 +67,15 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <summary>
         /// Returns the financial year from session if feature enabled, else from config.
         /// </summary>
-        /// <param name="configSection">The configuration section.</param>
         /// <returns>Returns the financial year.</returns>
         /// <exception cref="ArgumentNullException">Returns error if financial year is null or empty.</exception>
-        protected string GetFinancialYear(string configSection)
+        protected string GetFinancialYear()
         {
-            var parameterYear = this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear)
-                ? this.HttpContext.Session.GetString(SessionConstants.FinancialYear)
-                : this.Configuration.GetSection(configSection).GetValue<string>("ParameterYear");
+            var parameterYear = this.HttpContext.Session.GetString(SessionConstants.FinancialYear);
 
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
-                throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings.");
+                parameterYear = CommonUtil.GetFinancialYear(DateTime.Now);
             }
 
             return parameterYear;
@@ -113,6 +111,24 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         protected Uri GetApiUrl(string configSection, string configKey)
             => new Uri(this.GetConfigSetting(configSection, configKey));
+
+        protected async Task<CalculatorRunDetailsViewModel?> GetCalculatorRundetails(int runId)
+        {
+            var runDetails = new CalculatorRunDetailsViewModel();
+            var apiUrl = this.GetApiUrl(
+                    ConfigSection.DashboardCalculatorRun,
+                    ConfigSection.DashboardCalculatorRunApi);
+
+            var response = await this.CallApi(HttpMethod.Get, apiUrl, runId.ToString(), null);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                 runDetails = response.Content.ReadFromJsonAsync<CalculatorRunDetailsViewModel>().Result;
+                 return runDetails;
+            }
+
+            return runDetails;
+        }
 
         private async Task<HttpClient> GetHttpClient()
         {

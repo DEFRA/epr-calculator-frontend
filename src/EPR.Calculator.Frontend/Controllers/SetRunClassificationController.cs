@@ -21,15 +21,15 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="tokenAcquisition">token acquisition.</param>
     /// <param name="telemetryClient">telemetry client.</param>
     [Route("[controller]")]
-    public class ClassifyingCalculationRunScenario1Controller(
+    public class SetRunClassificationController(
         IConfiguration configuration,
         IHttpClientFactory clientFactory,
-        ILogger<ClassifyingCalculationRunScenario1Controller> logger,
+        ILogger<SetRunClassificationController> logger,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient)
         : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        private readonly ILogger<ClassifyingCalculationRunScenario1Controller> logger = logger;
+        private readonly ILogger<SetRunClassificationController> logger = logger;
 
         [Route("{runId}")]
         [HttpGet]
