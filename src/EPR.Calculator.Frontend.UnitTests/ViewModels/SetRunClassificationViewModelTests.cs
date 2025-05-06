@@ -6,7 +6,7 @@ using EPR.Calculator.Frontend.ViewModels.Enums;
 namespace EPR.Calculator.Frontend.UnitTests.ViewModels
 {
     [TestClass]
-    public class ClassifyCalculationRunScenerio1ViewModelTests
+    public class SetRunClassificationViewModelTests
     {
         private SetRunClassificationViewModel _testClass;
 
