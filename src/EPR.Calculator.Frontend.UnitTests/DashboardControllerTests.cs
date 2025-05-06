@@ -156,6 +156,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var principal = new ClaimsPrincipal(identity);
             var mockHttpSession = new MockHttpSession();
             mockHttpSession.SetString("accessToken", "something");
+            mockHttpSession.SetString(SessionConstants.FinancialYear, "2024-25");
 
             var context = new DefaultHttpContext()
             {
@@ -202,6 +203,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var principal = new ClaimsPrincipal(identity);
             var mockHttpSession = new MockHttpSession();
             mockHttpSession.SetString("accessToken", "something");
+            mockHttpSession.SetString(SessionConstants.FinancialYear, "2024-25");
 
             var context = new DefaultHttpContext()
             {
@@ -608,14 +610,27 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
 
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
             configuration["ShowDetailedError"] = "true";
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
                 mockAuthorizationHeaderProvider.Object, new TelemetryClient());
 
+            var context = new DefaultHttpContext()
+            {
+                Session = mockHttpSession
+            };
+
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = context
+            };
+
             var task = controller.Index();
             // Assert
             AggregateException ex = Assert.ThrowsException<AggregateException>(task.Wait);
-            Assert.AreEqual("One or more errors occurred. (No account or login hint passed)", ex.Message);
+            Assert.AreEqual("One or more errors occurred. (The given key 'accessToken' was not present in the dictionary.)", ex.Message);
         }
 
         [TestMethod]

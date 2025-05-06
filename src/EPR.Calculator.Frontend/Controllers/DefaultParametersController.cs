@@ -42,7 +42,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var parameterYear = this.GetFinancialYear(ConfigSection.ParameterSettings);
+                var parameterYear = this.GetFinancialYear();
 
                 var response = await this.GetDefaultParametersAsync(parameterYear);
 

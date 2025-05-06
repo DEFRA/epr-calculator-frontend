@@ -90,11 +90,11 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private void SetDownloadParameters(CalculatorRunDetailsNewViewModel viewModel)
         {
-            var baseApiUrl = _configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
-            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.RunId}");
+            var baseApiUrl = this._configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
+            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.CalculatorRunDetails?.RunId}");
 
-            viewModel.DownloadErrorURL = $"/DownloadFileError/{viewModel.RunId}";
-            viewModel.DownloadTimeout = _configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
+            viewModel.DownloadErrorURL = $"/DownloadFileError/{viewModel.CalculatorRunDetails?.RunId}";
+            viewModel.DownloadTimeout = this._configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
         }
     }
 }
