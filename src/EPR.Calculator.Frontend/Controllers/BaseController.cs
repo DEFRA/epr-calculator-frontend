@@ -5,6 +5,7 @@ using System.Text.Json;
 using EPR.Calculator.Frontend.Common;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
@@ -66,18 +67,15 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <summary>
         /// Returns the financial year from session if feature enabled, else from config.
         /// </summary>
-        /// <param name="configSection">The configuration section.</param>
         /// <returns>Returns the financial year.</returns>
         /// <exception cref="ArgumentNullException">Returns error if financial year is null or empty.</exception>
-        protected string GetFinancialYear(string configSection)
+        protected string GetFinancialYear()
         {
-            var parameterYear = this.Configuration.IsFeatureEnabled(FeatureFlags.ShowFinancialYear)
-                ? this.HttpContext.Session.GetString(SessionConstants.FinancialYear)
-                : this.Configuration.GetSection(configSection).GetValue<string>("ParameterYear");
+            var parameterYear = this.HttpContext.Session.GetString(SessionConstants.FinancialYear);
 
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
-                throw new ArgumentNullException(parameterYear, "ParameterYear is null. Check the configuration settings.");
+                parameterYear = CommonUtil.GetFinancialYear(DateTime.Now);
             }
 
             return parameterYear;
