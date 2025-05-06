@@ -7,10 +7,12 @@
 <div class="@(@defaultError != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")">
     @if (@defaultError != null)
     {
-
-        <p id="file-upload-1-error" class="govuk-error-message">
-            <span class="govuk-visually-hidden">Error:</span> @defaultError.ErrorMessage
+        @foreach (var error in defaultError)
+        {
+            <p id="file-upload-1-error" class="govuk-error-message">
+                <span class="govuk-visually-hidden">Error:</span> @error.ErrorMessage
         </p>
+        }
     }
     <input class="govuk-file-upload form-control" id="file-upload-1" name="fileUpload" type="file">
 </div>

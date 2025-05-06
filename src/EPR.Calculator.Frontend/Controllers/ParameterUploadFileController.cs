@@ -97,7 +97,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             this.ModelState.Clear();
-            return new ParameterUploadViewModel { Errors = errors };
+            return new ParameterUploadViewModel { Errors = new List<ErrorViewModel> { errors! } };
         }
 
         private string GetViewName(IFormFile fileUpload)
