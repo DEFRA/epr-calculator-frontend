@@ -74,7 +74,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
+            Assert.AreEqual(ViewNames.SetRunClassificationIndex, result.ViewName);
             var viewModel = result.Model as SetRunClassificationViewModel;
             Assert.IsNotNull(viewModel);
             Assert.AreEqual(runId, viewModel.RunId);
@@ -98,7 +98,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
+            Assert.AreEqual(ViewNames.SetRunClassificationIndex, result.ViewName);
             var viewModel = result.Model as SetRunClassificationViewModel;
             Assert.IsNotNull(viewModel);
             Assert.AreEqual(runId, viewModel.RunId);

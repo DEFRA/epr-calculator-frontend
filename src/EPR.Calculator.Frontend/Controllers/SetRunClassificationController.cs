@@ -41,7 +41,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var viewModel = this.CreateViewModel(runId, calculatorRun);
 
-                return this.View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
+                return this.View(ViewNames.SetRunClassificationIndex, viewModel);
             }
             catch (Exception ex)
             {
@@ -62,7 +62,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     var calculatorRun = GetCalculationRunDetails(model.RunId);
                     var viewModel = this.CreateViewModel(model.RunId, calculatorRun);
 
-                    return this.View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
+                    return this.View(ViewNames.SetRunClassificationIndex, viewModel);
                 }
 
                 var apiUrl = this.GetApiUrl(
