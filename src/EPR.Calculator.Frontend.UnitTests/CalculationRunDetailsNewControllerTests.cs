@@ -1,7 +1,9 @@
 ﻿using System.Net;
+using System.Security.Claims;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -23,11 +25,12 @@ namespace EPR.Calculator.Frontend.UnitTests
     {
         private static readonly string[] Separator = new string[] { @"bin\" };
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
-        private Mock<IHttpClientFactory> _mockHttpClientFactory;
+        private Mock<IHttpClientFactory> _mockClientFactory;
         private Mock<ILogger<CalculationRunDetailsNewController>> _mockLogger;
         private Mock<ITokenAcquisition> _mockTokenAcquisition;
-        private TelemetryClient _telemetryClient;
+        private TelemetryClient _mockTelemetryClient;
         private CalculationRunDetailsNewController _controller;
+        private Mock<HttpMessageHandler> _mockMessageHandler;
         private Mock<HttpContext> _mockHttpContext;
 
         private Fixture Fixture { get; } = new Fixture();
@@ -35,11 +38,12 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestInitialize]
         public void Setup()
         {
-            _mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            _mockHttpContext = new Mock<HttpContext>();
+            _mockClientFactory = new Mock<IHttpClientFactory>();
             _mockLogger = new Mock<ILogger<CalculationRunDetailsNewController>>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            _telemetryClient = new TelemetryClient();
-            _mockHttpContext = new Mock<HttpContext>();
+            _mockTelemetryClient = new TelemetryClient();
+            _mockMessageHandler = new Mock<HttpMessageHandler>();
 
             var mockSession = new MockHttpSession();
             _mockHttpContext.Setup(s => s.Session).Returns(mockSession);
@@ -50,12 +54,19 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockSession.SetString("accessToken", "something");
 
             _controller = new CalculationRunDetailsNewController(
-                   _configuration,
-                   _mockHttpClientFactory.Object,
-                   _mockLogger.Object,
-                   _mockTokenAcquisition.Object,
-                   _telemetryClient);
+                       _configuration,
+                       _mockClientFactory.Object,
+                       _mockLogger.Object,
+                       _mockTokenAcquisition.Object,
+                       _mockTelemetryClient);
 
+            _mockHttpContext.Setup(context => context.User)
+               .Returns(new ClaimsPrincipal(new ClaimsIdentity(
+           [
+               new Claim(ClaimTypes.Name, "Test User")
+           ])));
+
+            // Setting the mocked HttpContext for the controller
             _controller.ControllerContext = new ControllerContext
             {
                 HttpContext = _mockHttpContext.Object
@@ -65,27 +76,36 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task Index_ValidRunId_ReturnsViewResult()
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                    {
-                        StatusCode = HttpStatusCode.OK,
-                        Content = new StringContent(JsonConvert.SerializeObject(MockData.GetCalculatorRun())),
-                    });
+            // Setup
+            _mockMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.IsAny<HttpRequestMessage>(),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.OK,
+                       Content = new StringContent(JsonConvert.SerializeObject(MockData.GetCalculatorRun())),
+                   });
+            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                    .Returns(httpClient);
-            var config = GetConfigurationValues();
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var task = _controller.Index(10);
-            task.Wait();
-            var result = task.Result as ViewResult;
+            _controller = new CalculationRunDetailsNewController(
+                _configuration,
+                _mockClientFactory.Object,
+                _mockLogger.Object,
+                _mockTokenAcquisition.Object,
+                _mockTelemetryClient);
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
+            // Act
+            var result = await _controller.Index(10) as ViewResult;
+
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDetailsNewIndex, result.ViewName);
         }
@@ -93,28 +113,42 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task Index_InvalidModelState_ReturnsRedirectToAction()
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                    {
-                        StatusCode = HttpStatusCode.NotFound,
-                        Content = new StringContent(string.Empty),
-                    });
+            // Setup
+            _mockMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.IsAny<HttpRequestMessage>(),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.NotFound,
+                       Content = new StringContent(string.Empty),
+                   });
+            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                    .Returns(httpClient);
-            var task = _controller.Index(10);
-            task.Wait();
-            var result = task.Result as RedirectToActionResult;
+            _controller = new CalculationRunDetailsNewController(
+                _configuration,
+                _mockClientFactory.Object,
+                _mockLogger.Object,
+                _mockTokenAcquisition.Object,
+                _mockTelemetryClient);
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
+            // Arrange
+            var runId = 10;
+
+            // Act
+            var result = await _controller.Index(runId) as RedirectToActionResult;
+
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
         }
 
         [TestMethod]
@@ -162,11 +196,28 @@ namespace EPR.Calculator.Frontend.UnitTests
                     });
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockHttpClientFactory
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                     .Returns(httpClient);
+            var config = GetConfigurationValues();
+            config.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value = string.Empty;
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
+                mockTokenAcquisition.Object, new TelemetryClient());
 
-            var task = _controller.Index(10);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
+            var viewModel = new ParameterRefreshViewModel()
+            {
+                ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
+                FileName = "Test Name",
+            };
+
+            var task = controller.Index(10);
             task.Wait();
             var result = task.Result as ViewResult;
             Assert.IsNotNull(result);
@@ -184,8 +235,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                     RunId = 1,
                     RunName = "Test Run"
                 },
-                SelectedCalcRunOption = null,
-                RunId = 1,
+                SelectedCalcRunOption = null
             };
 
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -201,20 +251,31 @@ namespace EPR.Calculator.Frontend.UnitTests
                     });
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockHttpClientFactory
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                     .Returns(httpClient);
-            _controller.ModelState.AddModelError("Error", "Model error");
+            var config = GetConfigurationValues();
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
+                mockTokenAcquisition.Object, new TelemetryClient());
+
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
+            controller.ModelState.AddModelError("Error", "Model error");
 
             // Act
-            var result = await _controller.Submit(model) as ViewResult;
+            var result = await controller.Submit(model) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDetailsNewIndex, result.ViewName);
             var viewModel = result.Model as CalculatorRunDetailsNewViewModel;
             Assert.IsNotNull(viewModel);
-            Assert.AreEqual(model.RunId, viewModel.CalculatorRunDetails.RunId);
+            Assert.AreEqual(model.CalculatorRunDetails.RunId, viewModel.CalculatorRunDetails.RunId);
         }
 
         [TestMethod]
