@@ -197,7 +197,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var apiUrl = this.GetApiUrl(
                 ConfigSection.DashboardCalculatorRun,
                 ConfigSection.DashboardCalculatorRunApi);
-            var args = (runId, (int)classification);
+            var args = new CalculatorRunStatusUpdateDto() { RunId = runId, ClassificationId = (int)classification };
             return await this.CallApi(HttpMethod.Put, apiUrl, string.Empty, args);
         }
 
