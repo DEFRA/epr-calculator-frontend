@@ -26,10 +26,10 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             var testValue = Fixture.Create<int>();
 
             // Act
-            _testClass.RunId = testValue;
+            _testClass.CalculatorRunDetails.RunId = testValue;
 
             // Assert
-            Assert.AreEqual(testValue, _testClass.RunId);
+            Assert.AreEqual(testValue, _testClass.CalculatorRunDetails.RunId);
         }
 
         [TestMethod]
