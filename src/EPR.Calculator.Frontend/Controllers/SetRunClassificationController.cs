@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -33,21 +34,21 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [Route("{runId}")]
         [HttpGet]
-        public IActionResult Index(int runId)
+        public async Task<IActionResult> Index(int runId)
         {
-            try
-            {
-                CalculatorRunDto calculatorRun = GetCalculationRunDetails(runId);
+            var viewModel = await this.CreateViewModel(runId);
 
-                var viewModel = this.CreateViewModel(runId, calculatorRun);
-
-                return this.View(ViewNames.SetRunClassificationIndex, viewModel);
-            }
-            catch (Exception ex)
+            if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0)
             {
-                this.logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+            else if (!IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
+            {
+                this.ModelState.AddModelError(viewModel.CalculatorRunDetails.RunName!, ErrorMessages.RunDetailError);
+                return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
+            }
+
+            return this.View(ViewNames.SetRunClassificationIndex, viewModel);
         }
 
         [Route("Submit")]
@@ -59,8 +60,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 if (!this.ModelState.IsValid)
                 {
-                    var calculatorRun = GetCalculationRunDetails(model.RunId);
-                    var viewModel = this.CreateViewModel(model.RunId, calculatorRun);
+                    var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
 
                     return this.View(ViewNames.SetRunClassificationIndex, viewModel);
                 }
@@ -74,11 +74,11 @@ namespace EPR.Calculator.Frontend.Controllers
                     string.Empty,
                     new ClassificationDto
                 {
-                    RunId = model.RunId,
+                    RunId = model.CalculatorRunDetails.RunId,
                     ClassificationId = (int)model.ClassifyRunType,
                 });
 
-                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.RunId });
+                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
             }
             catch (Exception ex)
             {
@@ -87,36 +87,25 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private static CalculatorRunDto GetCalculationRunDetails(int runId)
+        private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
         {
-            // Get the calculation run details from the API
-            CalculatorRunDto calculatorRunDto = new()
-            {
-                RunId = runId,
-                FinancialYear = "2024-25",
-                FileExtension = "xlsx",
-                RunClassificationStatus = "Draft",
-                RunName = "Calculation Run 99",
-                RunClassificationId = 240008,
-                CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
-                CreatedBy = "Steve Jones",
-            };
-            var calculatorRun = calculatorRunDto;
-            return calculatorRun;
+            return calculatorRunDetails.RunClassificationId == (int)RunClassification.UNCLASSIFIED;
         }
 
-        private SetRunClassificationViewModel CreateViewModel(int runId, CalculatorRunDto calculatorRun)
+        private async Task<SetRunClassificationViewModel> CreateViewModel(int runId)
         {
-            var viewModel = new SetRunClassificationViewModel
+            var viewModel = new SetRunClassificationViewModel()
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                RunId = runId,
-                RunName = calculatorRun.RunName,
-                CreatedAt = calculatorRun.CreatedAt,
-                CreatedBy = calculatorRun.CreatedBy,
-                FinancialYear = calculatorRun.FinancialYear,
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
                 BackLink = ControllerNames.CalculationRunDetails,
             };
+
+            var runDetails = await this.GetCalculatorRundetails(runId);
+            if (runDetails != null && runDetails!.RunId != 0)
+            {
+                viewModel.CalculatorRunDetails = runDetails;
+            }
 
             return viewModel;
         }
