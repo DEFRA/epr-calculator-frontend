@@ -1,4 +1,6 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels
+@using EPR.Calculator.Frontend.Enums
+@using EPR.Calculator.Frontend.Extensions
 @model CalculationRunViewModel
 
 <div class="govuk-summary-list__row">
@@ -31,13 +33,17 @@
             </p>
         </dt>
     </dl>
+    @{
+        bool isKnownStatus = Enum.IsDefined(typeof(RunClassification), (int)Model.Status);
+    }
 
-    <dd class="govuk-summary-list__actions">
-        @if (Model.Status == "RUNNING" || Model.Status == "ERROR")
-        {
+    @if (isKnownStatus && Model.Status != RunClassification.UNCLASSIFIED && Model.Status != RunClassification.None)
+    {
+        <dd class="govuk-summary-list__actions" style="text-align: center;">
             <strong class="@Model.TagStyle">
-                @Model.Status
+                @Model.Status.GetDisplayName()
             </strong>
         }
-    </dd>
+        </dd>
+    }
 </div>

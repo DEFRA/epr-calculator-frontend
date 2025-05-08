@@ -1,5 +1,4 @@
-﻿@using EPR.Calculator.Frontend.ViewModels;
-@model ParameterUploadViewModel;
+﻿@model ParameterUploadViewModel;
 
 @{
     ViewData["Title"] = "Run the service administrator calculator - Upload CSV Error";
@@ -20,7 +19,7 @@
 
         @if (defaultError != null)
         {
-            <partial name="_ErrorBannerPartial" model="defaultError" />
+            <partial name="_ValidationErrorBannerPartial" model="defaultError" />
         }
 
         @if (errors != null)

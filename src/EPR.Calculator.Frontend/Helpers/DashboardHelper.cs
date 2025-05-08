@@ -16,29 +16,12 @@ namespace EPR.Calculator.Frontend.Helpers
         /// <returns>A list of <see cref="CalculationRunViewModel"/> objects containing the processed data.</returns>
         public static List<CalculationRunViewModel> GetCalulationRunsData(List<CalculationRun> calculationRuns)
         {
-            var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
-            var dashboardRunData = new List<CalculationRunViewModel>();
-
-            if (calculationRuns.Count > 0)
-            {
-                var displayRuns = calculationRuns.Where(x =>
-                    x.CalculatorRunClassificationId != (int)RunClassification.DELETED &&
-                    x.CalculatorRunClassificationId != (int)RunClassification.PLAY &&
-                    x.CalculatorRunClassificationId != (int)RunClassification.QUEUE);
-                foreach (var calculationRun in displayRuns)
-                {
-                    var classificationVal = runClassifications.Find(c => (int)c == calculationRun.CalculatorRunClassificationId);
-                    var member = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classificationVal.ToString());
-
-                    var attribute = member?.GetCustomAttribute<EnumMemberAttribute>(false);
-
-                    calculationRun.Status = attribute?.Value ?? string.Empty; // Use a default value if attribute or value is null
-
-                    dashboardRunData.Add(new CalculationRunViewModel(calculationRun));
-                }
-            }
-
-            return dashboardRunData;
+            return calculationRuns
+         .Where(x => x.CalculatorRunClassificationId != RunClassification.DELETED &&
+                     x.CalculatorRunClassificationId != RunClassification.TEST_RUN &&
+                     x.CalculatorRunClassificationId != RunClassification.QUEUE)
+         .Select(calculationRun => new CalculationRunViewModel(calculationRun))
+         .ToList();
         }
 
         /// <summary>

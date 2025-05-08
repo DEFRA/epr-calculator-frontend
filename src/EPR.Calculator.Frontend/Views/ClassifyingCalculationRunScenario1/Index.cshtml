@@ -1,16 +1,17 @@
-﻿@using EPR.Calculator.Frontend.Constants
-@using EPR.Calculator.Frontend.ViewModels
-@using EPR.Calculator.Frontend.ViewModels.Enums
+﻿@using EPR.Calculator.Frontend.ViewModels.Enums
 @using EPR.Calculator.Frontend.Helpers
-@model EPR.Calculator.Frontend.ViewModels.ClassifyCalculationRunScenerio1ViewModel
-
+@model ClassifyCalculationRunScenerio1ViewModel
 @{
+    var calcDetails = Model.CalculatorRunDetails;
+
     var backLinkModel = new BackLinkPartialViewModel
             {
                 BackLink = Model.BackLink,
                 CurrentUser = Model.CurrentUser,
-                RunId = Model.RunId
+                RunId = calcDetails.RunId
             };
+
+  
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
@@ -23,7 +24,7 @@
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.ClassifyingCalculationRun, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-                @Html.Hidden("RunId", Model.RunId)
+                @Html.HiddenFor(m => m.CalculatorRunDetails.RunId)
                 @Html.HiddenFor(m => m.CurrentUser)
 
                 <partial name="_ValidationSummaryPartial" />
@@ -31,7 +32,7 @@
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
                         <legend></legend>
-                        <span id="approval-code-hint" class="govuk-caption-l">@Model.RunName</span>
+                        <span id="approval-code-hint" class="govuk-caption-l">@calcDetails.RunName</span>
                         <h1 class="govuk-heading-l">Classify calculation run</h1>
 
                         <table class="govuk-table" aria-describedby="table-description-calc">
@@ -41,15 +42,15 @@
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@Model.FinancialYear</td>
+                                    <td class="govuk-table__cell">@calcDetails.FinancialYear</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                    <td class="govuk-table__cell">@Model.RunId</td>
+                                    <td class="govuk-table__cell">@calcDetails.RunId</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@Model.CreatedAt.ToString("dd MMM yyyy") at @Model.CreatedAt.ToString("HH:mm")</td>
+                                    <td class="govuk-table__cell">@calcDetails.CreatedAt.ToString("dd MMM yyyy") at @calcDetails.CreatedAt.ToString("HH:mm")</td>
                                 </tr>
                             </tbody>
                         </table>

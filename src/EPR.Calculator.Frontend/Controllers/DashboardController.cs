@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
@@ -14,26 +15,21 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Controller for handling the dashboard.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="DashboardController"/> class.
+    /// </remarks>
+    /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
+    /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
+    /// <param name="tokenAcquisition">The token acquisition service.</param>
+    /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     [Route("/")]
-    public class DashboardController : BaseController
+    public class DashboardController(
+        IConfiguration configuration,
+        IHttpClientFactory clientFactory,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        private readonly IConfiguration configuration;
-        private readonly IHttpClientFactory clientFactory;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DashboardController"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
-        /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        /// <param name="tokenAcquisition">The token acquisition service.</param>
-        /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
-        public DashboardController(IConfiguration configuration, IHttpClientFactory clientFactory, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient)
-        {
-            this.configuration = configuration;
-            this.clientFactory = clientFactory;
-        }
-
         private bool ShowDetailedError { get; set; }
 
         /// <summary>
@@ -49,8 +45,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 this.IsShowDetailedError();
 
-                var financialYear = CommonUtil.GetFinancialYear(DateTime.Now);
-                return await this.GoToDashboardView(financialYear);
+                return await this.GoToDashboardView(this.GetFinancialYear());
             }
             catch (Exception)
             {
@@ -90,7 +85,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private void IsShowDetailedError()
         {
-            var showDetailedError = this.configuration.GetValue(typeof(bool), CommonConstants.ShowDetailedError);
+            var showDetailedError = this.Configuration.GetValue(typeof(bool), CommonConstants.ShowDetailedError);
             if (showDetailedError != null)
             {
                 this.ShowDetailedError = (bool)showDetailedError;
@@ -103,30 +98,21 @@ namespace EPR.Calculator.Frontend.Controllers
 
             this.HttpContext.Session.SetString(SessionConstants.FinancialYear, financialYear);
 
-            var dashboardCalculatorRunApi = this.configuration.GetSection(ConfigSection.DashboardCalculatorRun)
-                .GetSection(ConfigSection.DashboardCalculatorRunApi)
-                .Value;
-
-            if (dashboardCalculatorRunApi == null)
-            {
-                throw new ArgumentNullException(dashboardCalculatorRunApi);
-            }
-
-            using var response =
-                await this.GetHttpRequest(financialYear, dashboardCalculatorRunApi, this.clientFactory, accessToken);
-
             var dashboardViewModel = new DashboardViewModel
             {
                 AccessToken = accessToken,
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 FinancialYear = financialYear,
-                FinancialYearListApi = this.configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
+                FinancialYearListApi = this.Configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
                 Calculations = null,
             };
 
+            using var response = await this.PostCalculatorRunsAsync(financialYear);
+
             if (response.IsSuccessStatusCode)
             {
-                var deserializedRuns = JsonConvert.DeserializeObject<List<CalculationRun>>(response.Content.ReadAsStringAsync().Result);
+                var content = await response.Content.ReadAsStringAsync();
+                var deserializedRuns = JsonConvert.DeserializeObject<List<CalculationRun>>(content);
 
                 // Ensure deserializedRuns is not null
                 var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
@@ -140,37 +126,22 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
-        /// Sends an HTTP POST request to the Dashboard Calculator Run API with the specified parameters.
+        /// Calls the "calculatorRuns" POST endpoint.
         /// </summary>
-        /// <param name="dashboardCalculatorRunApi">The configuration object to retrieve API URL and parameters.</param>
-        /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        /// <param name="accessToken">token generated</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
-        private async Task<HttpResponseMessage> GetHttpRequest(
-            string year,
-            string dashboardCalculatorRunApi,
-            IHttpClientFactory clientFactory,
-            string accessToken)
+        /// <returns>The response message returned by the endpoint.</returns>
+        private async Task<HttpResponseMessage> PostCalculatorRunsAsync(string financialYear)
         {
-            var client = clientFactory.CreateClient();
-            client.BaseAddress = new Uri(dashboardCalculatorRunApi);
-            client.DefaultRequestHeaders.Add("Authorization", accessToken);
-
-            this.TelemetryClient.TrackTrace(
-                $"client.DefaultRequestHeaders.Authorization is {client.DefaultRequestHeaders.Authorization}",
-                SeverityLevel.Information);
-
-            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(dashboardCalculatorRunApi));
-            var runParms = new CalculatorRunParamsDto
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.DashboardCalculatorRunApi);
+            if (string.IsNullOrEmpty(financialYear))
             {
-                FinancialYear = year,
-            };
-            var content = new StringContent(JsonConvert.SerializeObject(runParms), System.Text.Encoding.UTF8, StaticHelpers.MediaType);
-            request.Content = content;
-            var response = await client.SendAsync(request);
-            this.TelemetryClient.TrackTrace($"Response is {response.StatusCode}", SeverityLevel.Warning);
-            return response;
+                throw new ArgumentNullException(
+                    financialYear,
+                    "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
+            }
+
+            return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, (CalculatorRunParamsDto)financialYear);
         }
     }
 }

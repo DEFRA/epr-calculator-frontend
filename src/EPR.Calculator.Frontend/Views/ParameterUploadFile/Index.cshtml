@@ -1,12 +1,8 @@
-﻿@using EPR.Calculator.Frontend.Constants;
-@using EPR.Calculator.Frontend.ViewModels;
-@model ParameterUploadViewModel;
+﻿@model ParameterUploadViewModel;
 
 @{
-    Layout = "_Layout";
     var errors = Model.Errors;
     var BackLink = "DefaultParameters";
-  
 }
 
 <partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
@@ -14,7 +10,7 @@
 
 @if (errors != null)
 {
-    <partial name="_ErrorBannerPartial" model="errors" />
+    <partial name="_ValidationErrorBannerPartial" model="errors" />
 }
 @if (errors != null)
 {
@@ -45,7 +41,6 @@ else
     <div class="@(errors != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")">
         @if (errors != null)
         {
-           
             <p id="file-upload-1-error" class="govuk-error-message">
                 <span class="govuk-visually-hidden">Error:</span> @errors.ErrorMessage
         </p>

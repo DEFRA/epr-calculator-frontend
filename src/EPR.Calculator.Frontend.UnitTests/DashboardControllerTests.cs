@@ -156,6 +156,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var principal = new ClaimsPrincipal(identity);
             var mockHttpSession = new MockHttpSession();
             mockHttpSession.SetString("accessToken", "something");
+            mockHttpSession.SetString(SessionConstants.FinancialYear, "2024-25");
 
             var context = new DefaultHttpContext()
             {
@@ -202,6 +203,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var principal = new ClaimsPrincipal(identity);
             var mockHttpSession = new MockHttpSession();
             mockHttpSession.SetString("accessToken", "something");
+            mockHttpSession.SetString(SessionConstants.FinancialYear, "2024-25");
 
             var context = new DefaultHttpContext()
             {
@@ -378,10 +380,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Arrange
             var calculationRuns = new List<CalculationRun>
             {
-                new CalculationRun { Id = 1, CalculatorRunClassificationId = 1, Name = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.InTheQueue, Financial_Year = "2024-25" },
-                new CalculationRun { Id = 2, CalculatorRunClassificationId = 2, Name = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Running, Financial_Year = "2024-25" },
-                new CalculationRun { Id = 3, CalculatorRunClassificationId = 3, Name = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Unclassified, Financial_Year = "2024-25" },
-                new CalculationRun { Id = 5, CalculatorRunClassificationId = 5, Name = "Test 5", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Error, Financial_Year = "2024-25" },
+                new CalculationRun { Id = 1, CalculatorRunClassificationId = RunClassification.QUEUE, Name = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 2, CalculatorRunClassificationId = RunClassification.UNCLASSIFIED, Name = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 3, CalculatorRunClassificationId = RunClassification.TEST_RUN, Name = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 5, CalculatorRunClassificationId = RunClassification.ERROR, Name = "Test 5", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
             };
 
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
@@ -392,12 +394,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 foreach (var calculationRun in calculationRuns)
                 {
-                    var classification_val = runClassifications.FirstOrDefault(c => (int)c == calculationRun.CalculatorRunClassificationId);
-                    var member = typeof(RunClassification).GetTypeInfo().DeclaredMembers.SingleOrDefault(x => x.Name == classification_val.ToString());
-
-                    var attribute = member?.GetCustomAttribute<EnumMemberAttribute>(false);
-
-                    calculationRun.Status = attribute?.Value ?? string.Empty; // Use a default value if attribute or value is null
+                    var classification_val = runClassifications.FirstOrDefault(c => c == calculationRun.CalculatorRunClassificationId);
 
                     dashboardRunData.Add(new CalculationRunViewModel(calculationRun));
                 }
@@ -405,10 +402,46 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Assert
             Assert.AreEqual(4, dashboardRunData.Count);
-            Assert.AreEqual(CalculationRunStatus.InTheQueue, dashboardRunData.First().Status);
-            Assert.AreEqual(CalculationRunStatus.Running, dashboardRunData[1].Status);
-            Assert.AreEqual(CalculationRunStatus.Unclassified, dashboardRunData[2].Status);
-            Assert.AreEqual(CalculationRunStatus.Error, dashboardRunData.Last().Status); // Default value
+            Assert.AreEqual(RunClassification.QUEUE, dashboardRunData.First().Status);
+            Assert.AreEqual(RunClassification.UNCLASSIFIED, dashboardRunData[1].Status);
+            Assert.AreEqual(RunClassification.TEST_RUN, dashboardRunData[2].Status);
+            Assert.AreEqual(RunClassification.ERROR, dashboardRunData.Last().Status); // Default value
+        }
+
+        [TestMethod]
+        public void Should_Classify_CalculationRuns_And_Handle_InitialRun()
+        {
+            // Arrange
+            var calculationRuns = new List<CalculationRun>
+            {
+                new CalculationRun { Id = 1, CalculatorRunClassificationId = RunClassification.QUEUE, Name = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 2, CalculatorRunClassificationId = RunClassification.UNCLASSIFIED, Name = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 3, CalculatorRunClassificationId = RunClassification.TEST_RUN, Name = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 4, CalculatorRunClassificationId = RunClassification.INITIAL_RUN, Name = "Test 4", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 5, CalculatorRunClassificationId = RunClassification.ERROR, Name = "Test 5", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+            };
+
+            var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
+            var dashboardRunData = new List<CalculationRunViewModel>();
+
+            // Act
+            if (calculationRuns.Count > 0)
+            {
+                foreach (var calculationRun in calculationRuns)
+                {
+                    var classification_val = runClassifications.FirstOrDefault(c => c == calculationRun.CalculatorRunClassificationId);
+
+                    dashboardRunData.Add(new CalculationRunViewModel(calculationRun));
+                }
+            }
+
+            // Assert
+            Assert.AreEqual(5, dashboardRunData.Count);
+            Assert.AreEqual(RunClassification.QUEUE, dashboardRunData.First().Status);
+            Assert.AreEqual(RunClassification.UNCLASSIFIED, dashboardRunData[1].Status);
+            Assert.AreEqual(RunClassification.TEST_RUN, dashboardRunData[2].Status);
+            Assert.AreEqual(RunClassification.ERROR, dashboardRunData.Last().Status);
+            Assert.AreEqual(RunClassification.INITIAL_RUN, dashboardRunData[3].Status); // Initial Run
         }
 
         [TestMethod]
@@ -416,8 +449,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             var calculationRuns = new List<CalculationRun>
             {
-                new CalculationRun { Id = 5, CalculatorRunClassificationId = 5, Name = "Test Run", CreatedAt = DateTime.Parse("30/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.Error, Financial_Year = "2024-25" },
-                new CalculationRun { Id = 10, CalculatorRunClassificationId = 1, Name = "Test 5", CreatedAt = DateTime.Parse("30/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Status = CalculationRunStatus.InTheQueue, Financial_Year = "2024-25" },
+                new CalculationRun { Id = 5, CalculatorRunClassificationId = RunClassification.ERROR, Name = "Test Run", CreatedAt = DateTime.Parse("30/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun { Id = 10, CalculatorRunClassificationId = RunClassification.QUEUE, Name = "Test 5", CreatedAt = DateTime.Parse("30/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
             };
 
             var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
@@ -459,8 +492,58 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.IsNotNull(model);
             Assert.AreEqual(1, model.Calculations.Count());
-            Assert.AreEqual(CalculationRunStatus.Error, model.Calculations.First().Status);
+            Assert.AreEqual(RunClassification.ERROR, model.Calculations.First().Status);
             Assert.IsTrue(model.Calculations.First().ShowErrorLink);
+        }
+
+        [TestMethod]
+        public async Task Index_ShowInitialRunCompleted_WhenStatusInitialRunCompleted()
+        {
+            var calculationRuns = new List<CalculationRun>
+            {
+                new CalculationRun { Id = 10, CalculatorRunClassificationId = RunClassification.INITIAL_RUN_COMPLETED, Name = "Test 6", CreatedAt = DateTime.Parse("30/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+            };
+
+            var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
+
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = System.Net.HttpStatusCode.OK,
+                    Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(calculationRuns))
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
+
+            mockAuthorizationHeaderProvider
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
+                    null, null))
+                .ReturnsAsync("somevalue");
+            var mockClient = new TelemetryClient();
+            // Act
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
+                mockAuthorizationHeaderProvider.Object, mockClient);
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            var result = await controller.Index() as ViewResult;
+            var model = result?.Model as DashboardViewModel;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(model);
+            Assert.AreEqual(1, model.Calculations.Count());
+            Assert.AreEqual(RunClassification.INITIAL_RUN_COMPLETED, model.Calculations.First().Status);
         }
 
         [TestMethod]
@@ -527,14 +610,27 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
 
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
             configuration["ShowDetailedError"] = "true";
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
                 mockAuthorizationHeaderProvider.Object, new TelemetryClient());
 
+            var context = new DefaultHttpContext()
+            {
+                Session = mockHttpSession
+            };
+
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = context
+            };
+
             var task = controller.Index();
             // Assert
             AggregateException ex = Assert.ThrowsException<AggregateException>(task.Wait);
-            Assert.AreEqual("One or more errors occurred. (No account or login hint passed)", ex.Message);
+            Assert.AreEqual("One or more errors occurred. (The given key 'accessToken' was not present in the dictionary.)", ex.Message);
         }
 
         [TestMethod]

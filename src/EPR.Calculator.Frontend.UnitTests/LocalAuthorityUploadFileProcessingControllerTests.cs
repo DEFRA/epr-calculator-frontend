@@ -1,8 +1,11 @@
 ﻿using System.Net;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Text;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -286,37 +289,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        [DataRow(true)]
-        [DataRow(false)]
-        public async Task Index_SendDateFromConfigWhenFeatureFlagDisabled(bool featureFlagEnabled)
-        {
-            // Arrange
-            var configValue = "This value comes from the config.";
-            this.Configuration
-                .GetSection("LapcapSettings")["ParameterYear"] = configValue;
-            this.Configuration
-                .GetSection("FeatureManagement")["ShowFinancialYear"] = featureFlagEnabled.ToString();
-            this.MockSesion.Object.Set(
-                SessionConstants.FinancialYear,
-                Encoding.UTF8.GetBytes("This value comes from the session."));
-            var expectedTimesCalled = featureFlagEnabled ? Times.Never() : Times.Once();
-
-            // Act
-            var result = await TestClass.Index(new LapcapRefreshViewModel());
-
-            // Assert
-            this.MockMessageHandler.Protected().Verify(
-                "SendAsync",
-                expectedTimesCalled,
-                ItExpr.Is<HttpRequestMessage>(m =>
-                    m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{configValue}\"")),
-                ItExpr.IsAny<CancellationToken>());
-        }
-
-        [TestMethod]
-        [DataRow(true)]
-        [DataRow(false)]
-        public async Task Index_SendDateFromSessionWhenFeatureFlagEnabled(bool featureFlagEnabled)
+        public async Task Index_SendDateFromSession()
         {
             // Arrange
             var sessionMessage = "This value comes from the session.";
@@ -324,54 +297,34 @@ namespace EPR.Calculator.Frontend.UnitTests
                 SessionConstants.FinancialYear,
                 Encoding.UTF8.GetBytes(sessionMessage));
 
-            this.Configuration
-                .GetSection("FeatureManagement")["ShowFinancialYear"] = featureFlagEnabled.ToString();
-            var expectedTimesCalled = featureFlagEnabled ? Times.Once() : Times.Never();
-
             // Act
             var result = await TestClass.Index(new LapcapRefreshViewModel());
 
             // Assert
             this.MockMessageHandler.Protected().Verify(
                 "SendAsync",
-                expectedTimesCalled,
+                Times.Once(),
                 ItExpr.Is<HttpRequestMessage>(m =>
                     m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{sessionMessage}\"")),
                 ItExpr.IsAny<CancellationToken>());
         }
 
         [TestMethod]
-        public async Task Index_RedirectToErrorWhenNoFinancialYearInSession()
+        public async Task Index_DefaultToCurrentYearWhenNoFinancialYearInSession()
         {
-            // Arrange
-            var configValue = "This value comes from the config.";
-            this.Configuration
-                .GetSection("LapcapSettings")["ParameterYear"] = configValue;
-            this.Configuration
-                .GetSection("FeatureManagement")["ShowFinancialYear"] = true.ToString();
+            var currentYear = CommonUtil.GetFinancialYear(DateTime.Now);
 
             // Act
             var result = await TestClass.Index(new LapcapRefreshViewModel());
 
             // Assert
-            Assert.AreEqual((result as RedirectToActionResult).ControllerName, "StandardError");
-        }
-
-        [TestMethod]
-        public async Task Index_RedirectToErrorWhenNoFinancialYearInEitherSessionOrConfig()
-        {
-            // Arrange
-            var configValue = "This value comes from the config.";
-            this.Configuration
-                .GetSection("LapcapSettings")["ParameterYear"] = null;
-            this.Configuration
-                .GetSection("FeatureManagement")["ShowFinancialYear"] = true.ToString();
-
-            // Act
-            var result = await TestClass.Index(new LapcapRefreshViewModel());
-
-            // Assert
-            Assert.AreEqual((result as RedirectToActionResult).ControllerName, "StandardError");
+            Assert.IsFalse(this.MockSesion.Object.Keys.Contains(SessionConstants.FinancialYear));
+            this.MockMessageHandler.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(m =>
+                    m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{currentYear}\"")),
+                ItExpr.IsAny<CancellationToken>());
         }
     }
 }

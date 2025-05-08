@@ -1,13 +1,11 @@
-﻿@using EPR.Calculator.Frontend.Constants
-@using EPR.Calculator.Frontend.ViewModels
-@using EPR.Calculator.Frontend.ViewModels.Enums
+﻿@using EPR.Calculator.Frontend.ViewModels.Enums
 @using Microsoft.AspNetCore.Http
 @using EPR.Calculator.Frontend.Helpers
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunDetailsNewViewModel
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    var calcDetails = Model.CalculatorRunDetails;
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -20,7 +18,7 @@
             {
                 @Html.AntiForgeryToken()
 
-                @Html.Hidden("RunId", Model.RunId)
+                @Html.HiddenFor(m => m.CalculatorRunDetails.RunId)
                 @Html.HiddenFor(m => m.CurrentUser)
 
                 <partial name="_ValidationSummaryPartial" />
@@ -28,7 +26,7 @@
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset">
                         <legend class="govuk-caption-l">
-                            @Model.RunName
+                            @calcDetails.RunName
                         </legend>
                         <h1 class="govuk-heading-l">Calculation run details</h1>
                         <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
@@ -41,19 +39,19 @@
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@Model.FinancialYear</td>
+                                    <td class="govuk-table__cell">@calcDetails.FinancialYear</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                    <td class="govuk-table__cell">@Model.RunId</td>
+                                    <td class="govuk-table__cell">@calcDetails.RunId</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@Model.CreatedAt.ToString("dd MMM yyyy") at @Model.CreatedAt.ToString("HH:mm")</td>
+                                    <td class="govuk-table__cell">@calcDetails.CreatedAt.ToString("dd MMM yyyy") at @calcDetails.CreatedAt.ToString("HH:mm")</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run by</th>
-                                    <td class="govuk-table__cell">@Model.CreatedBy</td>
+                                    <td class="govuk-table__cell">@calcDetails.CreatedBy</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -61,7 +59,8 @@
                         <h2 class="govuk-heading-m">Downloads</h2>
                         <p class="govuk-body">Download files related to this calculation run.</p>
 
-                        <button type="submit" id="downloadResultFileBtn" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                        <button type="button" id="downloadResultFileBtn" class="govuk-button govuk-button--secondary" data-module="govuk-button" 
+                                onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
                             Results file
                         </button>
 

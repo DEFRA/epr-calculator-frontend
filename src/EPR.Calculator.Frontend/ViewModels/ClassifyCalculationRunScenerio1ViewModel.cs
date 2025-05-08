@@ -13,30 +13,9 @@ namespace EPR.Calculator.Frontend.ViewModels
     public record ClassifyCalculationRunScenerio1ViewModel : ViewModelCommonData
     {
         /// <summary>
-        /// Gets or sets the calculator run id.
+        /// gets or sets calculator run details.
         /// </summary>
-        [Required]
-        public int RunId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the created by user.
-        /// </summary>
-        public string? CreatedBy { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time when the calculation run was created.
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Run name.
-        /// </summary>
-        public string? RunName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the financial year.
-        /// </summary>
-        public string? FinancialYear { get; set; }
+        public required CalculatorRunDetailsViewModel CalculatorRunDetails { get; set; }
 
         /// <summary>
         /// Gets or sets the calssify run type.

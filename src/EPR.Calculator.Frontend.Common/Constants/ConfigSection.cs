@@ -87,9 +87,6 @@
         /// </summary>
         public const string FeatureManagement = "FeatureManagement";
 
-        /// <summary>
-        /// The key for the show financial year section.
-        /// </summary>
-        public const string ShowFinancialYear = "ShowFinancialYear";
+        public const string CalculationRunDetailsApi = "CalculationRunDetailsApi";
     }
 }
