@@ -46,19 +46,12 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("DownloadFileErrorNew/{runId}")]
         public IActionResult IndexNew(int runId, string calcName, string createdDate, string createdTime)
         {
-            var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
+            var commonDataModel = new ViewModelCommonData
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                Data = new CalculatorRunStatusUpdateDto
-                {
-                    RunId = runId,
-                    ClassificationId = (int)RunClassification.DELETED,
-                    CalcName = calcName,
-                    CreatedDate = createdDate,
-                    CreatedTime = createdTime,
-                },
             };
-            return this.View(ViewNames.DownloadFileErrorIndexNew, statusUpdateViewModel);
+
+            return this.View(ViewNames.DownloadFileErrorIndexNew, commonDataModel);
         }
     }
 }

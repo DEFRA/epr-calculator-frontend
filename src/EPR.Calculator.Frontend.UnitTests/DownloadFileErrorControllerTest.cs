@@ -62,14 +62,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result, "Result should not be null.");
             Assert.AreEqual(ViewNames.DownloadFileErrorIndexNew, result.ViewName, "View name should match.");
 
-            var model = result.Model as CalculatorRunStatusUpdateViewModel;
+            var model = result.Model as ViewModelCommonData;
             Assert.IsNotNull(model, "Model should not be null.");
             Assert.AreEqual("TestUser", model.CurrentUser, "CurrentUser should match.");
-            Assert.AreEqual(runId, model.Data.RunId, "RunId should match.");
-            Assert.AreEqual((int)RunClassification.DELETED, model.Data.ClassificationId, "ClassificationId should match.");
-            Assert.AreEqual(calcName, model.Data.CalcName, "CalcName should match.");
-            Assert.AreEqual(createdDate, model.Data.CreatedDate, "CreatedDate should match.");
-            Assert.AreEqual(createdTime, model.Data.CreatedTime, "CreatedTime should match.");
         }
     }
 }
