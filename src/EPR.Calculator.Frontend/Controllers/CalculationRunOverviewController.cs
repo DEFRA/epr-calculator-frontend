@@ -85,7 +85,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var draftedBillingApiUrl = this.Configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadDraftBillingApi}");
             viewModel.DownloadDraftBillingURL = new Uri($"{draftedBillingApiUrl}/{viewModel.Data.RunId}");
 
-            viewModel.DownloadErrorURL = $"/DownloadFileError/{viewModel.Data.RunId}";
+            viewModel.DownloadErrorURL = $"/DownloadFileErrorNew/{viewModel.Data.RunId}";
             viewModel.DownloadTimeout = this.Configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
         }
     }
