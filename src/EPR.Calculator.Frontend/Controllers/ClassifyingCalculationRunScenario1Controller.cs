@@ -1,5 +1,7 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -8,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
+using System.Configuration;
 using System.Reflection;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -36,6 +39,14 @@ namespace EPR.Calculator.Frontend.Controllers
         public async Task<IActionResult> Index(int runId)
         {
             var viewModel = await this.CreateViewModel(runId);
+            var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId= runId,  FinancialYear = this.GetFinancialYear() });
+            if (!classifications.IsSuccessStatusCode)
+            {
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, ControllerNames.StandardErrorController);
+            }
+
+            viewModel.Classifications = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(classifications.Content.ReadAsStringAsync().Result);
+            this.GetStatusDescriptions(viewModel);
 
             if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0)
             {
@@ -80,6 +91,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<ClassifyCalculationRunScenerio1ViewModel> CreateViewModel(int runId)
         {
+
             var viewModel = new ClassifyCalculationRunScenerio1ViewModel()
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
@@ -94,6 +106,37 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return viewModel;
+        }
+
+
+        private async Task<HttpResponseMessage> GetClassfications(CalcFinancialYearRequestDto dto)
+        {
+            var apiUrl = this.GetApiUrl(
+               ConfigSection.CalculationRunSettings,
+               ConfigSection.ClassificationByFinancialYearApi);
+            return await this.CallApi(
+                HttpMethod.Get,
+                apiUrl,
+                $"RundId={dto.RunId}&FinancialYear={dto.FinancialYear}",
+                null);
+        }
+
+        private void GetStatusDescriptions(ClassifyCalculationRunScenerio1ViewModel model)
+        {
+            foreach (var classification in model.Classifications.Classifications)
+            {
+                classification.Description = GetStatusDescription(classification.Status);
+            }
+        }
+
+        private string GetStatusDescription(string classification) {
+
+            return classification switch
+            {
+              //   => CommonConstants.InitialRunDescription,
+                //RunClassification.TEST_RUN.Get => CommonConstants.TestRunDescription,
+                _ => string.Empty,
+            };
         }
     }
 }

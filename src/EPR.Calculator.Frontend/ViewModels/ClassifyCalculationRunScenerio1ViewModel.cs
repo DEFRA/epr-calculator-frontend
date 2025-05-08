@@ -22,5 +22,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// </summary>
         [Required(ErrorMessage = ErrorMessages.ClassifyRunTypeNotSelected)]
         public ClassifyRunType? ClassifyRunType { get; set; }
+
+        public FinancialYearClassificationResponseDto Classifications { get; set; }
     }
 }

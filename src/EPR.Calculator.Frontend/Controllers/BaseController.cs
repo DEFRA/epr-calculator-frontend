@@ -1,4 +1,5 @@
 ﻿using System.Configuration;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -90,6 +91,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var argsString = !string.IsNullOrEmpty(argument)
                 ? $"/{argument}"
                 : string.Empty;
+            argsString = !argument.Contains("&") ? argsString : $"?{argument}";
             var contentString = JsonSerializer.Serialize(body);
             var request = new HttpRequestMessage(
                 httpMethod,
