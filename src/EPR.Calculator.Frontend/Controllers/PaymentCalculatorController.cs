@@ -67,13 +67,13 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (response.StatusCode != HttpStatusCode.Accepted)
                 {
                     this.TelemetryClient.TrackTrace($"Billing file generation failed for RunId {model.RunId}. StatusCode: {response.StatusCode}, Reason: {response.ReasonPhrase}");
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
             }
             catch (Exception ex)
             {
                 this.TelemetryClient.TrackException(ex);
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
             return this.RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunOverview, new { model.RunId });
