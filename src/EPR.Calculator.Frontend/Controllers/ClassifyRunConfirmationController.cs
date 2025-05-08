@@ -27,10 +27,10 @@ namespace EPR.Calculator.Frontend.Controllers
         ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
         : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        private readonly ILogger<ClassifyRunConfirmationController> logger = logger;
+        private readonly ILogger<ClassifyRunConfirmationController> _logger = logger;
         private readonly IConfiguration _configuration = configuration;
 
-        [Route("{runId}")]
+        [HttpGet("{runId}")]
         public async Task<IActionResult> Index(int runId)
         {
             var viewModel = await this.CreateViewModel(runId);
@@ -73,14 +73,10 @@ namespace EPR.Calculator.Frontend.Controllers
             if (runDetails != null && runDetails!.RunId != 0)
             {
                 viewModel.CalculatorRunDetails = runDetails;
+                this.SetDownloadParameters(viewModel);
             }
 
             return viewModel;
-        }
-
-        private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
-        {
-            return calculatorRunDetails.RunClassificationId == RunClassification.UNCLASSIFIED;
         }
 
         private void SetDownloadParameters(ClassifyRunConfirmationViewModel viewModel)
@@ -90,6 +86,11 @@ namespace EPR.Calculator.Frontend.Controllers
 
             viewModel.DownloadErrorURL = $"/DownloadFileErrorNew/{viewModel.CalculatorRunDetails.RunId}";
             viewModel.DownloadTimeout = this._configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
+        }
+
+        private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
+        {
+            return calculatorRunDetails.RunClassificationId == RunClassification.UNCLASSIFIED;
         }
     }
 }
