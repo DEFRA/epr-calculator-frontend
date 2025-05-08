@@ -69,7 +69,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
         {
-            if (calculatorRunDetails.RunClassificationId == (int)RunClassification.UNCLASSIFIED)
+            if (calculatorRunDetails.RunClassificationId == RunClassification.UNCLASSIFIED)
             {
                 return true;
             }

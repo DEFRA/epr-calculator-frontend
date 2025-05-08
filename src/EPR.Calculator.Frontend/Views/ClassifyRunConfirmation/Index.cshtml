@@ -1,11 +1,12 @@
 ﻿@inject IHttpContextAccessor HttpContextAccessor
+@using EPR.Calculator.Frontend.Extensions
 @model ClassifyRunConfirmationViewModel
 @{
     var backLinkModel = new BackLinkPartialViewModel
             {
                 BackLink = Model.BackLink,
                 CurrentUser = Model.CurrentUser,
-                RunId = Model.Data.RunId
+                RunId = Model.CalculatorRunDetails.RunId
             };
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -18,12 +19,12 @@
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.ClassifyRunConfirmation, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-                @Html.Hidden("RunId", Model.Data.RunId)
+                @Html.Hidden("RunId", Model.CalculatorRunDetails.RunId)
 
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset">
                         <legend></legend>
-                        <span class="govuk-caption-l">@Model.Data.RunName</span>
+                        <span class="govuk-caption-l">@Model.CalculatorRunDetails.RunName</span>
                         <h1 class="govuk-heading-l">Calculation run details</h1>
 
                         <table class="govuk-table" aria-describedby="table-description">
@@ -33,19 +34,19 @@
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@Model.Data.FinancialYear</td>
+                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.FinancialYear</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Classification</th>
-                                    <td class="govuk-table__cell">@Model.Data.Classification</td>
+                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.RunClassificationId.GetDisplayName()</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                    <td class="govuk-table__cell">@Model.Data.RunId</td>
+                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.RunId</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@Model.Data.CreatedAt.ToString("dd MMM yyyy") at @Model.Data.CreatedAt.ToString("HH:mm")</td>
+                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.CreatedAt.ToString("dd MMM yyyy") at @Model.CalculatorRunDetails.CreatedAt.ToString("HH:mm")</td>
                                 </tr>
                             </tbody>
                         </table>
