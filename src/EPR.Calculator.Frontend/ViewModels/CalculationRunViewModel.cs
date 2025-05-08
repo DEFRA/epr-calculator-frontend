@@ -103,6 +103,7 @@ namespace EPR.Calculator.Frontend.ViewModels
             return status switch
             {
                 RunClassification.UNCLASSIFIED => string.Format(ActionNames.ViewCalculationRunNewDetails, id),
+                RunClassification.INITIAL_RUN_COMPLETED => $"{nameof(ControllerNames.PostBillingFile)}",
                 _ => ControllerNames.Dashboard,
             };
         }

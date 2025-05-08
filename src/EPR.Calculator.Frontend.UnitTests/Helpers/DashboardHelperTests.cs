@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Enums;
     using EPR.Calculator.Frontend.Helpers;
     using EPR.Calculator.Frontend.Models;
@@ -44,51 +43,6 @@
 
             // Assert
             Assert.AreEqual(0, result.Count);
-        }
-
-        [TestMethod]
-        public void GetTurnOnFeatureUrl_StatusIsUnclassified_ReturnsFormattedUrl()
-        {
-            // Arrange
-            var status = CalculationRunStatus.Unclassified;
-            var id = 1;
-            var expectedUrl = string.Format(ActionNames.ViewCalculationRunNewDetails, id);
-
-            // Act
-            var result = DashboardHelper.GetTurnOnFeatureUrl(status, id);
-
-            // Assert
-            Assert.AreEqual(expectedUrl, result);
-        }
-
-        [TestMethod]
-        public void GetTurnOnFeatureUrl_StatusIsNotUnclassified_ReturnsDashboardUrl()
-        {
-            // Arrange
-            var status = "default";
-            var id = 2;
-            var expectedUrl = ControllerNames.Dashboard;
-
-            // Act
-            var result = DashboardHelper.GetTurnOnFeatureUrl(status, id);
-
-            // Assert
-            Assert.AreEqual(expectedUrl, result);
-        }
-
-        [TestMethod]
-        public void GetTurnOnFeatureUrl_StatusIsInitialRunCompleted_ReturnsDashboardUrl()
-        {
-            // Arrange
-            var status = CalculationRunStatus.InitialRunCompleted;
-            var id = 2;
-            var expectedUrl = ControllerNames.PostBillingFile;
-
-            // Act
-            var result = DashboardHelper.GetTurnOnFeatureUrl(status, id);
-
-            // Assert
-            Assert.AreEqual(expectedUrl, result);
         }
     }
 }

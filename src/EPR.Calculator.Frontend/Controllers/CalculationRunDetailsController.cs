@@ -164,7 +164,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private static bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRun)
         {
-            if ((calculatorRun.RunClassificationId == (int)RunClassification.UNCLASSIFIED) || calculatorRun.RunClassificationId == (int)RunClassification.INITIALRUNCOMPLETED)
+            if ((calculatorRun.RunClassificationId == (int)RunClassification.UNCLASSIFIED) || calculatorRun.RunClassificationId == (int)RunClassification.INITIAL_RUN_COMPLETED)
             {
                 return true;
             }
