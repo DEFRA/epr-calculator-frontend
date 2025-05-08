@@ -1,5 +1,6 @@
 ﻿@inject IHttpContextAccessor HttpContextAccessor
 @using EPR.Calculator.Frontend.Extensions
+@using EPR.Calculator.Frontend.Helpers
 @model ClassifyRunConfirmationViewModel
 @{
     var backLinkModel = new BackLinkPartialViewModel
@@ -46,7 +47,7 @@
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.CreatedAt.ToString("dd MMM yyyy") at @Model.CalculatorRunDetails.CreatedAt.ToString("HH:mm")</td>
+                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.CreatedAt.ToUKDateTimeDisplay()</td>
                                 </tr>
                             </tbody>
                         </table>
