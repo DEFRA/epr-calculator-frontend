@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Security.Claims;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -22,83 +23,127 @@ namespace EPR.Calculator.Frontend.UnitTests
     public class ClassifyRunConfirmationControllerTests
     {
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
-        private Mock<IHttpClientFactory> _mockHttpClientFactory;
+        private Mock<IHttpClientFactory> _mockClientFactory;
         private Mock<ILogger<ClassifyRunConfirmationController>> _mockLogger;
         private Mock<ITokenAcquisition> _mockTokenAcquisition;
-        private TelemetryClient _telemetryClient;
-        private Mock<HttpContext> _mockHttpContext;
+        private TelemetryClient _mockTelemetryClient;
         private ClassifyRunConfirmationController _controller;
+        private Mock<HttpMessageHandler> _mockMessageHandler;
+        private Mock<HttpContext> _mockHttpContext;
 
         public ClassifyRunConfirmationControllerTests()
         {
-            this.Fixture = new Fixture();
-            this.MockHttpContext = new Mock<HttpContext>();
-            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
-
-            _mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            _mockHttpContext = new Mock<HttpContext>();
+            _mockClientFactory = new Mock<IHttpClientFactory>();
             _mockLogger = new Mock<ILogger<ClassifyRunConfirmationController>>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            _telemetryClient = new TelemetryClient();
-            _mockHttpContext = new Mock<HttpContext>();
-        }
+            _mockTelemetryClient = new TelemetryClient();
+            _mockMessageHandler = new Mock<HttpMessageHandler>();
 
-        private Fixture Fixture { get; }
-
-        private Mock<HttpContext> MockHttpContext { get; }
-
-        [TestInitialize]
-        public void Setup()
-        {
             _controller = new ClassifyRunConfirmationController(
-               _configuration,
-               _mockHttpClientFactory.Object,
-               _mockLogger.Object,
-               _mockTokenAcquisition.Object,
-               _telemetryClient)
+                       _configuration,
+                       _mockClientFactory.Object,
+                       _mockLogger.Object,
+                       _mockTokenAcquisition.Object,
+                       _mockTelemetryClient);
+
+            _mockHttpContext.Setup(context => context.User)
+               .Returns(new ClaimsPrincipal(new ClaimsIdentity(
+           [
+               new Claim(ClaimTypes.Name, "Test User")
+           ])));
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
             {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = _mockHttpContext.Object
-                }
+                HttpContext = _mockHttpContext.Object
             };
         }
 
         [TestMethod]
-        public async Task IndexAsync_ReturnsRedirect_WhenApiCallFails()
+        public async Task Index_ReturnsViewResult_WithValidViewModel()
         {
+            // Setup
+            _mockMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.IsAny<HttpRequestMessage>(),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.OK,
+                       Content = new StringContent(JsonConvert.SerializeObject(MockData.GetCalculatorRun())),
+                   });
+            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
+
+            _controller = new ClassifyRunConfirmationController(
+                _configuration,
+                _mockClientFactory.Object,
+                _mockLogger.Object,
+                _mockTokenAcquisition.Object,
+                _mockTelemetryClient);
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
             // Arrange
-            var runId = 1;
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.BadRequest, string.Empty);
+            int runId = 1;
 
             // Act
-            var result = _controller.Index(runId);
+            var result = await _controller.Index(runId) as ViewResult;
 
             // Assert
-            var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.ClassifyRunConfirmationIndex, result.ViewName);
+            var viewModel = result.Model as ClassifyRunConfirmationViewModel;
+            Assert.IsNotNull(viewModel);
+            Assert.AreEqual(runId, viewModel.CalculatorRunDetails.RunId);
         }
 
         [TestMethod]
-        public async Task IndexAsync_ReturnsView_WhenRunExists()
+        public async Task IsRunEligibleForDisplay_ShouldReturnFalse_WhenRunClassificationIsUnclassified()
         {
+            // Setup
+            _mockMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.IsAny<HttpRequestMessage>(),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.OK,
+                       Content = new StringContent(JsonConvert.SerializeObject(MockData.GetRunningCalculatorRun())),
+                   });
+            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
+
+            _controller = new ClassifyRunConfirmationController(
+                _configuration,
+                _mockClientFactory.Object,
+                _mockLogger.Object,
+                _mockTokenAcquisition.Object,
+                _mockTelemetryClient);
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
             // Arrange
-            CalculatorRunDto calculatorRunDto = MockData.GetCalculatorRun();
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, calculatorRunDto);
-            var client = new HttpClient(mockHttpMessageHandler.Object);
-            _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(client);
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+            int runId = 1;
 
             // Act
-            var result = _controller.Index(calculatorRunDto.RunId);
+            var result = await _controller.Index(runId) as ViewResult;
 
             // Assert
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-            Assert.AreEqual(ViewNames.ClassifyRunConfirmationIndex, viewResult.ViewName);
-
-            var model = viewResult.Model as ClassifyRunConfirmationViewModel;
-            Assert.IsNotNull(model);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsNewErrorPage, result.ViewName);
+            var viewModel = result.Model as ClassifyRunConfirmationViewModel;
+            Assert.IsNotNull(viewModel);
+            Assert.AreEqual(runId, viewModel.CalculatorRunDetails.RunId);
         }
 
         [TestMethod]
