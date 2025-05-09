@@ -1,17 +1,14 @@
 ﻿using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
-using System.Configuration;
-using System.Reflection;
+using System.Globalization;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -39,14 +36,10 @@ namespace EPR.Calculator.Frontend.Controllers
         public async Task<IActionResult> Index(int runId)
         {
             var viewModel = await this.CreateViewModel(runId);
-            var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId= runId,  FinancialYear = this.GetFinancialYear() });
-            if (!classifications.IsSuccessStatusCode)
+            if (!await SetClassfications(runId, viewModel))
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, ControllerNames.StandardErrorController);
             }
-
-            viewModel.Classifications = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(classifications.Content.ReadAsStringAsync().Result);
-            this.GetStatusDescriptions(viewModel);
 
             if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0)
             {
@@ -61,6 +54,19 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
         }
 
+        private async Task<bool> SetClassfications(int runId, ClassifyCalculationRunScenerio1ViewModel viewModel)
+        {
+            var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = this.GetFinancialYear() });
+            if (!classifications.IsSuccessStatusCode)
+            {
+                return false;
+            }
+
+            viewModel.Classifications = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(classifications.Content.ReadAsStringAsync().Result);
+            this.SetStatusDescriptions(viewModel);
+            return true;
+        }
+
         [Route("Submit")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -71,6 +77,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (!this.ModelState.IsValid)
                 {
                     var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
+                    await this.SetClassfications(model.CalculatorRunDetails.RunId, viewModel);
 
                     return View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
                 }
@@ -121,20 +128,22 @@ namespace EPR.Calculator.Frontend.Controllers
                 null);
         }
 
-        private void GetStatusDescriptions(ClassifyCalculationRunScenerio1ViewModel model)
+        private void SetStatusDescriptions(ClassifyCalculationRunScenerio1ViewModel model)
         {
+            TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
             foreach (var classification in model.Classifications.Classifications)
             {
-                classification.Description = GetStatusDescription(classification.Status);
+                classification.Description = GetStatusDescription(classification.Id);
+                classification.Status = myTI.ToTitleCase(classification.Status.ToLower());
             }
         }
 
-        private string GetStatusDescription(string classification) {
-
-            return classification switch
+        private string GetStatusDescription(int classificationId)
+        {
+            return classificationId switch
             {
-              //   => CommonConstants.InitialRunDescription,
-                //RunClassification.TEST_RUN.Get => CommonConstants.TestRunDescription,
+               (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunDescription,
+                (int)RunClassification.TEST_RUN => CommonConstants.TestRunDescription,
                 _ => string.Empty,
             };
         }
