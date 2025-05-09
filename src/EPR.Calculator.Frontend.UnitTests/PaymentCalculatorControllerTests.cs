@@ -1,15 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Configuration;
+using System.Net;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
+using EPR.Calculator.Frontend.UnitTests.Mocks;
+using EPR.Calculator.Frontend.Validators;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using Moq;
+using Moq.Protected;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -21,10 +27,15 @@ namespace EPR.Calculator.Frontend.UnitTests
         private TelemetryClient _telemetryClient;
         private PaymentCalculatorController _controller;
         private Mock<HttpContext> _mockHttpContext;
+        private Mock<IHttpClientFactory> _mockClientFactory;
 
         public PaymentCalculatorControllerTests()
         {
+            _mockClientFactory = new Mock<IHttpClientFactory>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            _mockTokenAcquisition
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
             _telemetryClient = new TelemetryClient();
             _mockHttpContext = new Mock<HttpContext>();
 
@@ -32,7 +43,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                    _configuration,
                    _mockTokenAcquisition.Object,
                    _telemetryClient,
-                   new Mock<IHttpClientFactory>().Object)
+                   _mockClientFactory.Object)
             {
                 // Setting the mocked HttpContext for the controller
                 ControllerContext = new ControllerContext
@@ -64,36 +75,14 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void AcceptInvoiceInstructions_Post_ValidModelState_RedirectsToCalculationRunOverview()
-        {
-            // Arrange
-            var model = new AcceptInvoiceInstructionsViewModel()
-            {
-                RunId = 99,
-                AcceptAll = true, // Ensure this satisfies the [MustBeTrue] validation
-                BackLink = "dummy",
-                CurrentUser = "dummyuser",
-                CalculationRunTitle = "Calculation Run 99"
-            };
-
-            // Act
-            var result = _controller.Submit(model) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result); // Ensure the result is a RedirectToActionResult
-            Assert.AreEqual(ActionNames.Index, result.ActionName); // Ensure it redirects to the correct action
-            Assert.AreEqual(model.RunId, result.RouteValues["runId"]); // Ensure the route values are correct
-        }
-
-        [TestMethod]
-        public void Submit_InvalidModelState_RedirectsToIndex()
+        public async Task Submit_InvalidModelState_RedirectsToIndex()
         {
             // Arrange
             var model = new AcceptInvoiceInstructionsViewModel { RunId = 1 };
             _controller.ModelState.AddModelError("AcceptAll", "Required");
 
             // Act
-            var result = _controller.Submit(model) as ViewResult;
+            var result = await _controller.Submit(model) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -101,19 +90,86 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void Submit_ValidModelState_RedirectsToCalculationRunOverview()
+        public async Task Submit_ApiResponseAccepted_RedirectsToOverview()
         {
             // Arrange
-            var model = new AcceptInvoiceInstructionsViewModel { RunId = 1, AcceptAll = true };
+            AcceptInvoiceInstructionsViewModel model;
+            Mock<HttpMessageHandler> mockHttpMessageHandler;
+            MockHttpMessageHandler(out model, out mockHttpMessageHandler);
 
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Accepted));
+            var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            _mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
+                            .Returns(mockHttpClient);
             // Act
-            var result = _controller.Submit(model) as RedirectToActionResult;
+            var result = await _controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.CalculationRunOverview, result.ControllerName);
             Assert.AreEqual(model.RunId, result.RouteValues["RunId"]);
+        }
+
+        [TestMethod]
+        public async Task Submit_ApiReturnsError_RedirectsToError()
+        {
+            // Arrange
+            AcceptInvoiceInstructionsViewModel model;
+            Mock<HttpMessageHandler> mockHttpMessageHandler;
+            MockHttpMessageHandler(out model, out mockHttpMessageHandler);
+
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.UnprocessableContent));
+            var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            _mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
+                            .Returns(mockHttpClient);
+            // Act
+            var result = await _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+        }
+
+        [TestMethod]
+        public async Task Submit_ApiThrowsException_RedirectsToError()
+        {
+            // Arrange
+            AcceptInvoiceInstructionsViewModel model;
+            Mock<HttpMessageHandler> mockHttpMessageHandler;
+            MockHttpMessageHandler(out model, out mockHttpMessageHandler);
+
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ThrowsAsync(new HttpRequestException("API failure"));
+            var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            _mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
+                            .Returns(mockHttpClient);
+            // Act
+            var result = await _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
         }
 
         [TestMethod]
@@ -150,6 +206,23 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ConfirmationMessages.BillingFileSuccessBody, confirmationModel.Body);
             CollectionAssert.AreEqual(ConfirmationMessages.BillingFileSuccessAdditionalParagraphs, confirmationModel.AdditionalParagraphs);
             Assert.AreEqual(ControllerNames.Dashboard, confirmationModel.RedirectController);
+        }
+
+        private void MockHttpMessageHandler(out AcceptInvoiceInstructionsViewModel model, out Mock<HttpMessageHandler> mockHttpMessageHandler)
+        {
+            model = new AcceptInvoiceInstructionsViewModel { RunId = 123 };
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = context
+            };
+
+            mockHttpMessageHandler = new Mock<HttpMessageHandler>();
         }
     }
 }
