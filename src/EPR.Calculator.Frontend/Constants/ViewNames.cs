@@ -111,6 +111,11 @@
         public const string DownloadFileErrorIndex = "~/Views/DownloadFileError/Index.cshtml";
 
         /// <summary>
+        /// Download file error index page view.
+        /// </summary>
+        public const string DownloadFileErrorIndexNew = "~/Views/DownloadFileError/IndexNew.cshtml";
+
+        /// <summary>
         /// Calculator run delete confirmation page view.
         /// </summary>
         public const string CalculationRunDeleteIndex = "~/Views/CalculationRunDelete/Index.cshtml";
