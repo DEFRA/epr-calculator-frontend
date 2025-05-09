@@ -62,7 +62,8 @@
 
                                 <p class="govuk-body">Download files related to this calculation run.</p>
                                 <div class="govuk-button-group">
-                                    <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                                    <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
+                                            onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
                                         Results file
                                     </button>
                                     <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
