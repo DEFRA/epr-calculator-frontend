@@ -20,7 +20,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         {
             this.Id = calculationRun.Id;
             this.Name = calculationRun.Name;
-            this.CreatedAt = FormatCreatedAt(calculationRun.CreatedAt);
+            this.CreatedAt = calculationRun.CreatedAt;
             this.CreatedBy = calculationRun.CreatedBy;
             this.Status = calculationRun.CalculatorRunClassificationId;
             this.TagStyle = GetStatusTagStyle(calculationRun.CalculatorRunClassificationId);
@@ -41,7 +41,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets or sets the run created timestamp.
         /// </summary>
-        public string CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         /// <summary>
         /// Gets or sets the run created by user.
@@ -77,11 +77,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets a value indicating whether the run detail link should be displayed.
         /// </summary>
         public string TurnOnFeatureUrl => GetTurnOnFeatureUrl(this.Status, this.Id);
-
-        private static string FormatCreatedAt(DateTime createdAt)
-        {
-            return CommonUtil.GetDateTime(createdAt).ToString($"{CommonConstants.DateFormat} ' at '{CommonConstants.TimeFormat}", new System.Globalization.CultureInfo("en-GB"));
-        }
 
         private static string GetStatusTagStyle(RunClassification status) => status switch
         {

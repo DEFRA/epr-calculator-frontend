@@ -1,5 +1,6 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels.Enums
 @using EPR.Calculator.Frontend.Helpers
+@using EPR.Calculator.Frontend.Extensions
 @model ClassifyCalculationRunScenerio1ViewModel
 @{
     var calcDetails = Model.CalculatorRunDetails;
@@ -50,7 +51,7 @@
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@calcDetails.CreatedAt.ToString("dd MMM yyyy") at @calcDetails.CreatedAt.ToString("HH:mm")</td>
+                                    <td class="govuk-table__cell">@calcDetails.CreatedAt.ToUKDateTimeDisplay()</td>
                                 </tr>
                             </tbody>
                         </table>
