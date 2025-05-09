@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
@@ -156,7 +157,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     RunId = runId,
                     RunName = "Test Run"
                 },
-                ClassifyRunType = ClassifyRunType.InitialRun.ToString()
+                ClassifyRunType = (int)RunClassification.INITIAL_RUN
             };
 
             _controller.ModelState.AddModelError("TestError", "Test error message");
@@ -184,7 +185,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     RunId = runId,
                     RunName = "Test Run"
                 },
-                ClassifyRunType = ClassifyRunType.InitialRun.ToString()
+                ClassifyRunType = (int)RunClassification.INITIAL_RUN
             };
 
             // Act
@@ -224,7 +225,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     RunId = 1,
                     RunName = "Test Run"
                 },
-                ClassifyRunType = nameof(ClassifyRunType.InitialRun)
+                ClassifyRunType = (int)RunClassification.INITIAL_RUN
             };
 
             // Act

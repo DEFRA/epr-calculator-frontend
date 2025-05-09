@@ -64,10 +64,10 @@
                                 @Html.ValidationMessageFor(model => model.ClassifyRunType, "", new { @class = "govuk-error-message" })
 
                                 <div class="govuk-radios" data-module="govuk-radios">
-                                    @foreach ( var classfication in Model.Classifications.Classifications.OrderBy(t=>t.Status))
+                                    @foreach (var classfication in Model.financialYearClassifications.Classifications.OrderBy(t => t.Status))
                                     {
                                     <div class="govuk-radios__item">                                            
-                                            @Html.RadioButtonFor(model => model.ClassifyRunType, classfication.Status, new { @class = "govuk-radios__input", id = classfication.Status })
+                                            @Html.RadioButtonFor(model => model.ClassifyRunType, classfication.Id, new { @class = "govuk-radios__input", id = classfication.Status })
                                         <label class="govuk-label govuk-radios__label" for="@classfication.Status">
                                                 <strong>@classfication.Status</strong><br />
                                             <p class="govuk-body-s" style="margin-bottom: 0;">

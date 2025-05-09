@@ -116,7 +116,7 @@ namespace EPR.Calculator.Frontend.Controllers
         private void SetStatusDescriptions(ClassifyCalculationRunScenerio1ViewModel model)
         {
             TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
-            foreach (var classification in model.Classifications.Classifications)
+            foreach (var classification in model.financialYearClassifications.Classifications)
             {
                 classification.Description = GetStatusDescription(classification.Id);
                 classification.Status = myTI.ToTitleCase(classification.Status.ToLower());
@@ -141,7 +141,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 return false;
             }
 
-            viewModel.Classifications = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(classifications.Content.ReadAsStringAsync().Result);
+            viewModel.financialYearClassifications = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(classifications.Content.ReadAsStringAsync().Result);
             this.SetStatusDescriptions(viewModel);
             return true;
         }
