@@ -11,13 +11,13 @@
     public class ClassifyRunConfirmationViewModelTests
     {
         private ClassifyRunConfirmationViewModel _testClass;
-        private CalculatorRunDto _data;
+        private CalculatorRunDetailsViewModel _data;
 
         [TestInitialize]
         public void SetUp()
         {
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
-            _data = fixture.Create<CalculatorRunDto>();
+            _data = fixture.Create<CalculatorRunDetailsViewModel>();
             _testClass = fixture.Create<ClassifyRunConfirmationViewModel>();
         }
 
@@ -25,7 +25,7 @@
         public void CanInitialize()
         {
             // Act
-            var instance = new ClassifyRunConfirmationViewModel { Data = _data };
+            var instance = new ClassifyRunConfirmationViewModel { CalculatorRunDetails = _data };
 
             // Assert
             Assert.IsNotNull(instance);

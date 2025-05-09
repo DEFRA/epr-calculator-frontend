@@ -1,4 +1,6 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -12,9 +14,6 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Initializes a new instance of the <see cref="ClassifyRunConfirmationController"/> class.
     /// </summary>
-    /// <remarks>
-    /// Initializes a new instance of the <see cref="ClassifyRunConfirmationController"/> class.
-    /// </remarks>
     /// <param name="configuration">The configuration settings.</param>
     /// <param name="clientFactory">The HTTP client factory.</param>
     /// <param name="logger">The logger instance.</param>
@@ -29,6 +28,7 @@ namespace EPR.Calculator.Frontend.Controllers
         : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
         private readonly ILogger<ClassifyRunConfirmationController> logger = logger;
+        private readonly IConfiguration _configuration = configuration;
 
         [Route("{runId}")]
         public IActionResult Index(int runId)
@@ -38,19 +38,18 @@ namespace EPR.Calculator.Frontend.Controllers
                 var statusUpdateViewModel = new ClassifyRunConfirmationViewModel
                 {
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    Data = new CalculatorRunDto
+                    CalculatorRunDetails = new CalculatorRunDetailsViewModel
                     {
                         RunId = runId,
-                        RunClassificationId = 240008,
+                        RunClassificationId = RunClassification.INITIAL_RUN,
                         RunName = "Calculation Run 99",
                         CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
-                        FileExtension = ".csv",
                         RunClassificationStatus = "3",
                         FinancialYear = "2024-25",
-                        Classification = "Initial run",
                     },
                     BackLink = ControllerNames.ClassifyingCalculationRun,
                 };
+                this.SetDownloadParameters(statusUpdateViewModel);
 
                 return this.View(ViewNames.ClassifyRunConfirmationIndex, statusUpdateViewModel);
             }
@@ -71,6 +70,15 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return RedirectToAction(ActionNames.Index, ControllerNames.PaymentCalculator, new { runId = runId });
+        }
+
+        private void SetDownloadParameters(ClassifyRunConfirmationViewModel viewModel)
+        {
+            var baseApiUrl = this._configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
+            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.CalculatorRunDetails.RunId}");
+
+            viewModel.DownloadErrorURL = $"/DownloadFileErrorNew/{viewModel.CalculatorRunDetails.RunId}";
+            viewModel.DownloadTimeout = this._configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
         }
     }
 }
