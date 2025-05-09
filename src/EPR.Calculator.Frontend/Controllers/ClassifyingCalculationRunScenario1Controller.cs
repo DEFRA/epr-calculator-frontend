@@ -54,19 +54,6 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
         }
 
-        private async Task<bool> SetClassfications(int runId, ClassifyCalculationRunScenerio1ViewModel viewModel)
-        {
-            var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = this.GetFinancialYear() });
-            if (!classifications.IsSuccessStatusCode)
-            {
-                return false;
-            }
-
-            viewModel.Classifications = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(classifications.Content.ReadAsStringAsync().Result);
-            this.SetStatusDescriptions(viewModel);
-            return true;
-        }
-
         [Route("Submit")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -144,6 +131,19 @@ namespace EPR.Calculator.Frontend.Controllers
                 (int)RunClassification.TEST_RUN => CommonConstants.TestRunDescription,
                 _ => string.Empty,
             };
+        }
+
+        private async Task<bool> SetClassfications(int runId, ClassifyCalculationRunScenerio1ViewModel viewModel)
+        {
+            var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = this.GetFinancialYear() });
+            if (!classifications.IsSuccessStatusCode)
+            {
+                return false;
+            }
+
+            viewModel.Classifications = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(classifications.Content.ReadAsStringAsync().Result);
+            this.SetStatusDescriptions(viewModel);
+            return true;
         }
     }
 }
