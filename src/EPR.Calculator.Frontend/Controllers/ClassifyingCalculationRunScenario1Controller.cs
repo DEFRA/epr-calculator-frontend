@@ -98,7 +98,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<ClassifyCalculationRunScenerio1ViewModel> CreateViewModel(int runId)
         {
-
             var viewModel = new ClassifyCalculationRunScenerio1ViewModel()
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
@@ -114,7 +113,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
             return viewModel;
         }
-
 
         private async Task<HttpResponseMessage> GetClassfications(CalcFinancialYearRequestDto dto)
         {
