@@ -26,7 +26,7 @@
             {
                 @Html.AntiForgeryToken()
                 @Html.HiddenFor(m => m.CalculatorRunDetails.RunId)
-                @Html.HiddenFor(m => m.CurrentUser)              
+                @Html.HiddenFor(m => m.CurrentUser) 
 
                 <partial name="_ValidationSummaryPartial" />
 
@@ -66,8 +66,7 @@
                                 <div class="govuk-radios" data-module="govuk-radios">
                                     @foreach ( var classfication in Model.Classifications.Classifications.OrderBy(t=>t.Status))
                                     {
-                                    <div class="govuk-radios__item">
-                                            @* <input class="govuk-radios__input" id="@classfication.Status" type="radio" asp-for="@Model.ClassifyRunType" value="@classfication.Status" /> *@
+                                    <div class="govuk-radios__item">                                            
                                             @Html.RadioButtonFor(model => model.ClassifyRunType, classfication.Status, new { @class = "govuk-radios__input", id = classfication.Status })
                                         <label class="govuk-label govuk-radios__label" for="@classfication.Status">
                                                 <strong>@classfication.Status</strong><br />
