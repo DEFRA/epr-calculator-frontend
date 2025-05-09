@@ -12,5 +12,7 @@
         public const string DateFormat = "dd MMM yyyy";
         public const string TimeFormat = "H:mm";
         public const string RunDetailError = "The calculation was unsuccessful";
+        public const string InitialRunDescription = "The first official mandatory run of the financial year, used as the baseline for all future recalculations. This run generates an initial billing file for invoicing.";
+        public const string TestRunDescription = "An unofficial run to view the calculation results without generating a billing file for invoicing.";
     }
 }

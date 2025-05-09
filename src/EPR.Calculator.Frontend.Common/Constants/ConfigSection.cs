@@ -87,6 +87,6 @@
         /// </summary>
         public const string FeatureManagement = "FeatureManagement";
 
-        public const string CalculationRunDetailsApi = "CalculationRunDetailsApi";
+        public const string ClassificationByFinancialYearApi = "ClassificationByFinancialYearApi";
     }
 }
