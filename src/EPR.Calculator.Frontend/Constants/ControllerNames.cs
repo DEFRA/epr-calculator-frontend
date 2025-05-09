@@ -6,7 +6,7 @@
 
         public const string CalculationRunDetails = "CalculationRunDetailsNew";
 
-        public const string ClassifyingCalculationRun = "ClassifyingCalculationRunScenario1";
+        public const string ClassifyingCalculationRun = "SetRunClassification";
 
         public const string ClassifyRunConfirmation = "ClassifyRunConfirmation";
 

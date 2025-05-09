@@ -143,7 +143,7 @@
         /// <summary>
         /// classifying calculation run controller scenario1 index page view.
         /// </summary>
-        public const string ClassifyingCalculationRunScenario1Index = "~/Views/ClassifyingCalculationRunScenario1/Index.cshtml";
+        public const string SetRunClassificationIndex = "~/Views/SetRunClassification/Index.cshtml";
 
         /// <summary>
         /// Calculation Run Classification confirmation page view.
