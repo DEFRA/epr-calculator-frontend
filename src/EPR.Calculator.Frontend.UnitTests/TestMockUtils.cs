@@ -37,7 +37,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             return mockHttpClientFactory;
         }
 
-        public static Mock<HttpMessageHandler> BuildMockMessageHandler()
+        public static Mock<HttpMessageHandler> BuildMockMessageHandler(HttpStatusCode returnCode)
         {
             // Mock HttpMessageHandler
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -49,7 +49,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage
                 {
-                    StatusCode = HttpStatusCode.Created,
+                    StatusCode = returnCode,
                     Content = new StringContent("response content"),
                 });
             return mockHttpMessageHandler;

@@ -34,7 +34,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public ClassifyingCalculationRunControllerTests()
         {
             this.Fixture = new Fixture();
-            this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler();
+            this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Created);
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(this.MockMessageHandler.Object);
 
             _mockLogger = new Mock<ILogger<SetRunClassificationController>>();
@@ -71,7 +71,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
         private Fixture Fixture { get; init; }
 
-        private Mock<HttpMessageHandler> MockMessageHandler { get; init; }
+        private Mock<HttpMessageHandler> MockMessageHandler { get; set; }
 
         [TestMethod]
         public async Task Index_ReturnsViewResult_WithValidViewModel()
@@ -314,6 +314,52 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_ExceptionThrown_RedirectsToError()
         {
             var result = await _controller.Submit(null) as RedirectToActionResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.StandardErrorController, result.ControllerName);
+            _mockLogger.Verify(
+                x =>
+           x.Log(
+               LogLevel.Error,
+               It.IsAny<EventId>(),
+               It.Is<It.IsAnyType>((v, t) => true), // We can't match internal LogState
+               It.IsAny<Exception>(),
+               (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                Times.AtLeastOnce);
+        }
+
+        [TestMethod]
+        public async Task Submit_Http500_RedirectsToError()
+        {
+            // Arrange
+            this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.InternalServerError);
+            this.MockMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.IsAny<HttpRequestMessage>(),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.InternalServerError,
+                       Content = new StringContent(JsonConvert.SerializeObject(MockData.GetCalculatorRun())),
+                   });
+            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(this.MockMessageHandler.Object);
+
+            _controller = new SetRunClassificationController(
+                _configuration,
+                _mockClientFactory.Object,
+                _mockLogger.Object,
+                _mockTokenAcquisition.Object,
+                _mockTelemetryClient);
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
+            var result = await _controller.Submit(Fixture.Create<SetRunClassificationViewModel>()) as RedirectToActionResult;
 
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
