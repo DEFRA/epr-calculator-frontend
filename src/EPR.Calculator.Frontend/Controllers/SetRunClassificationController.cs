@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
+using System.Net;
 using System.Reflection;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -68,7 +69,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 var apiUrl = this.GetApiUrl(
                 ConfigSection.DashboardCalculatorRun,
                 ConfigSection.DashboardCalculatorRunV2);
-                await this.CallApi(
+                var result = await this.CallApi(
                     HttpMethod.Put,
                     apiUrl,
                     string.Empty,
@@ -78,7 +79,15 @@ namespace EPR.Calculator.Frontend.Controllers
                     ClassificationId = (int)model.ClassifyRunType,
                 });
 
-                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
+                if (result.StatusCode == HttpStatusCode.Created)
+                {
+                    return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
+                }
+                else
+                {
+                    this.logger.LogError("API did not return successful.");
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, ControllerNames.StandardErrorController);
+                }
             }
             catch (Exception ex)
             {
