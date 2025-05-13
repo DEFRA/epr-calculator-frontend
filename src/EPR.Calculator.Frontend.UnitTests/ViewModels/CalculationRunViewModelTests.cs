@@ -66,7 +66,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
 
-            var testValue = fixture.Create<string>();
+            var testValue = fixture.Create<DateTime>();
 
             // Act
             _testClass.CreatedAt = testValue;

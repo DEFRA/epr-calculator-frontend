@@ -28,7 +28,7 @@
 
             <p class="govuk-body">
                 Calculation ID: @Model.Id<br />
-                Date: @Model.CreatedAt<br />
+                Date: @Model.CreatedAt.ToUKDateTimeDisplay()<br />
                 Run by: @Model.CreatedBy
             </p>
         </dt>

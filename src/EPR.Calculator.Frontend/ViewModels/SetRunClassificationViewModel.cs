@@ -10,7 +10,7 @@ namespace EPR.Calculator.Frontend.ViewModels
     /// classify calculation run scenerio1 view model.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public record ClassifyCalculationRunScenerio1ViewModel : ViewModelCommonData
+    public record SetRunClassificationViewModel : ViewModelCommonData
     {
         /// <summary>
         /// gets or sets calculator run details.
@@ -21,6 +21,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets the calssify run type.
         /// </summary>
         [Required(ErrorMessage = ErrorMessages.ClassifyRunTypeNotSelected)]
-        public ClassifyRunType? ClassifyRunType { get; set; }
+        public ClassifyRunType ClassifyRunType { get; set; }
     }
 }
