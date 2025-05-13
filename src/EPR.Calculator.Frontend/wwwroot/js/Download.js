@@ -1,4 +1,5 @@
 ﻿function downloadFile(url, errorAction, event, timeout, token, isDraftFile = false) {
+    var draftFile = isDraftFile;
     event.preventDefault();
     $.ajax({
         url: url,
@@ -11,7 +12,7 @@
             let bearerToken = "Bearer " + token;
             xhr.setRequestHeader("Authorization", bearerToken);
         },
-        success: function (data, status, xhr, isDraftFile) {
+        success: function (data, status, xhr) {
             try {
                 // Get the Content-Disposition header
                 const contentDisposition = xhr.getResponseHeader('Content-Disposition');
@@ -24,7 +25,7 @@
               if (matches?.[1]) {
                     filename = matches[1].replace(/['"]/g, '');
                 }
-                if (isDraftFile) { filename.replace('Results File','Draft Billing File') }
+                if (draftFile) { filename = filename.replace('Results File', 'Draft Billing File') }
 
                 // Create a download link
                 const url = window.URL.createObjectURL(data);
