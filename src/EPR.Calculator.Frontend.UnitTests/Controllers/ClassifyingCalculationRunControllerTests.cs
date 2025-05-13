@@ -34,7 +34,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public ClassifyingCalculationRunControllerTests()
         {
             this.Fixture = new Fixture();
-            this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler();
+            this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Accepted, new StringContent("response content"));
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(this.MockMessageHandler.Object);
 
             _mockLogger = new Mock<ILogger<SetRunClassificationController>>();

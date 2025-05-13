@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -37,7 +38,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             return mockHttpClientFactory;
         }
 
-        public static Mock<HttpMessageHandler> BuildMockMessageHandler()
+        public static Mock<HttpMessageHandler> BuildMockMessageHandler(HttpStatusCode statusCode, object content)
         {
             // Mock HttpMessageHandler
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -49,8 +50,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage
                 {
-                    StatusCode = HttpStatusCode.Created,
-                    Content = new StringContent("response content"),
+                    StatusCode = statusCode,
+                    Content = new StringContent(JsonConvert.SerializeObject(content))
                 });
             return mockHttpMessageHandler;
         }
