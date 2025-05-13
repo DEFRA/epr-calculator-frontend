@@ -11,7 +11,7 @@ namespace EPR.Calculator.Frontend.ViewModels
     /// classify calculation run scenerio1 view model.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public record ClassifyCalculationRunScenerio1ViewModel : ViewModelCommonData
+    public record SetRunClassificationViewModel : ViewModelCommonData
     {
         /// <summary>
         /// gets or sets calculator run details.

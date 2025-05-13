@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Security.Claims;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
@@ -23,18 +24,18 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
     public class ClassifyingCalculationRunControllerTests
     {
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
+        private Mock<IHttpClientFactory> _mockClientFactory;
+        private Mock<ILogger<SetRunClassificationController>> _mockLogger;
         private Mock<IHttpClientFactory> _mockHttpClientFactory;
         private Mock<ILogger<ClassifyingCalculationRunScenario1Controller>> _mockLogger;
         private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private TelemetryClient _mockTelemetryClient;
-        private ClassifyingCalculationRunScenario1Controller _controller;
-        private Mock<HttpMessageHandler> _mockMessageHandler;
+        private SetRunClassificationController _controller;
         private Mock<HttpContext> _mockHttpContext;
         private Mock<HttpMessageHandler> _mockHttpMessageHandler;
         private HttpClient httpClient;
 
-        [TestInitialize]
-        public void Setup()
+        public ClassifyingCalculationRunControllerTests()
         {
             _mockHttpContext = new Mock<HttpContext>();
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
@@ -76,6 +77,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Setting the mocked HttpContext for the controller
             _controller.ControllerContext = new ControllerContext { HttpContext = context };
         }
+
+        private Fixture Fixture { get; init; }
+
+        private Mock<HttpMessageHandler> MockMessageHandler { get; init; }
 
         [TestMethod]
         public async Task Index_ReturnsViewResult_WithValidViewModel()
@@ -122,8 +127,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
-            var viewModel = result.Model as ClassifyCalculationRunScenerio1ViewModel;
+            Assert.AreEqual(ViewNames.SetRunClassificationIndex, result.ViewName);
+            var viewModel = result.Model as SetRunClassificationViewModel;
             Assert.IsNotNull(viewModel);
             Assert.AreEqual(runId, viewModel.CalculatorRunDetails.RunId);
         }
@@ -140,7 +145,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDetailsNewErrorPage, result.ViewName);
-            var viewModel = result.Model as ClassifyCalculationRunScenerio1ViewModel;
+            var viewModel = result.Model as SetRunClassificationViewModel;
             Assert.IsNotNull(viewModel);
             Assert.AreEqual(runId, viewModel.CalculatorRunDetails.RunId);
         }
@@ -150,7 +155,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             int runId = 1;
-            ClassifyCalculationRunScenerio1ViewModel model = new ClassifyCalculationRunScenerio1ViewModel
+            SetRunClassificationViewModel model = new SetRunClassificationViewModel
             {
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel
                 {
@@ -167,18 +172,18 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.ClassifyingCalculationRunScenario1Index, result.ViewName);
-            var viewModel = result.Model as ClassifyCalculationRunScenerio1ViewModel;
+            Assert.AreEqual(ViewNames.SetRunClassificationIndex, result.ViewName);
+            var viewModel = result.Model as SetRunClassificationViewModel;
             Assert.IsNotNull(viewModel);
             Assert.AreEqual(runId, viewModel.CalculatorRunDetails.RunId);
         }
 
         [TestMethod]
-        public async Task Submit_RedirectsToClassifyRunConfirmation_WhenModelStateIsValid()
+        public async Task Submit_RedirectsToClassifyRunConfirmation_WhenSubmitSuccessful()
         {
             // Arrange
-            int runId = 1;
-            ClassifyCalculationRunScenerio1ViewModel model = new ClassifyCalculationRunScenerio1ViewModel
+            int runId = Fixture.Create<int>();
+            SetRunClassificationViewModel model = new SetRunClassificationViewModel
             {
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel
                 {
@@ -196,13 +201,20 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, result.ControllerName);
             Assert.AreEqual(runId, result.RouteValues["runId"]);
+            this.MockMessageHandler.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(m =>
+                    m.Content.ReadAsStringAsync().Result.Contains(
+                        $"\"RunId\":{runId},\"ClassificationId\":{(int)ClassifyRunType.InitialRun}")),
+                ItExpr.IsAny<CancellationToken>());
         }
 
         [TestMethod]
         public async Task Submit_InvalidModel_ReturnsViewResult_WithErrors()
         {
             // Arrange
-            var model = new ClassifyCalculationRunScenerio1ViewModel { CalculatorRunDetails = new CalculatorRunDetailsViewModel { RunId = 1, RunName = "Test Run" } };
+            var model = new SetRunClassificationViewModel { CalculatorRunDetails = new CalculatorRunDetailsViewModel { RunId = 1, RunName = "Test Run" } };
             _controller.ModelState.AddModelError("ClassifyRunType", "Required");
 
             // Act
@@ -210,7 +222,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result.Model, typeof(ClassifyCalculationRunScenerio1ViewModel));
+            Assert.IsInstanceOfType(result.Model, typeof(SetRunClassificationViewModel));
             Assert.IsTrue(_controller.ModelState.ErrorCount > 0);
         }
 
@@ -218,7 +230,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_ValidModel_RedirectsToConfirmation()
         {
             // Arrange
-            var model = new ClassifyCalculationRunScenerio1ViewModel
+            var model = new SetRunClassificationViewModel
             {
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel
                 {
