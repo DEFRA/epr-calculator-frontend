@@ -36,12 +36,16 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0)
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                return RedirectToAction(
+                    ActionNames.StandardErrorIndex,
+                    CommonUtil.GetControllerName(typeof(StandardErrorController))
+                );
             }
-            else if (!IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
+
+            if (!IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
             {
-                this.ModelState.AddModelError(viewModel.CalculatorRunDetails.RunName!, ErrorMessages.RunDetailError);
-                return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
+                ModelState.AddModelError(viewModel.CalculatorRunDetails.RunName!, ErrorMessages.RunDetailError);
+                return View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
             }
 
             return this.View(ViewNames.ClassifyRunConfirmationIndex, viewModel);
