@@ -137,14 +137,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             int runId = 1;
 
             // Act
-            var result = await _controller.Index(runId) as ViewResult;
+            var result = await _controller.Index(runId);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunDetailsNewErrorPage, result.ViewName);
-            var viewModel = result.Model as ClassifyRunConfirmationViewModel;
-            Assert.IsNotNull(viewModel);
-            Assert.AreEqual(runId, viewModel.CalculatorRunDetails.RunId);
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
         }
 
         [TestMethod]

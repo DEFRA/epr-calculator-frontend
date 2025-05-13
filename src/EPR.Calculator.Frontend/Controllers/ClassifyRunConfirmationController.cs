@@ -34,17 +34,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var viewModel = await this.CreateViewModel(runId);
 
-            if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0)
+            if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0 || !IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
             {
                 return RedirectToAction(
                     ActionNames.StandardErrorIndex,
                     CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
-
-            if (!IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
-            {
-                ModelState.AddModelError(viewModel.CalculatorRunDetails.RunName!, ErrorMessages.RunDetailError);
-                return View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
             }
 
             return this.View(ViewNames.ClassifyRunConfirmationIndex, viewModel);
