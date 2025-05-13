@@ -35,23 +35,31 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int runId)
         {
-            var viewModel = await this.CreateViewModel(runId);
-            if (!await SetClassfications(runId, viewModel))
+            try
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, ControllerNames.StandardErrorController);
-            }
+                var viewModel = await this.CreateViewModel(runId);
+                if (!await SetClassfications(runId, viewModel))
+                {
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                }
 
-            if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0)
+                if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0)
+                {
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                }
+                else if (!IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
+                {
+                    this.ModelState.AddModelError(viewModel.CalculatorRunDetails.RunName!, ErrorMessages.RunDetailError);
+                    return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
+                }
+
+                return this.View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
+            }
+            catch (Exception ex)
             {
+                this.logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-            else if (!IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
-            {
-                this.ModelState.AddModelError(viewModel.CalculatorRunDetails.RunName!, ErrorMessages.RunDetailError);
-                return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
-            }
-
-            return this.View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
         }
 
         [Route("Submit")]
@@ -74,7 +82,7 @@ namespace EPR.Calculator.Frontend.Controllers
             catch (Exception ex)
             {
                 this.logger.LogError(ex, "An error occurred while processing the request.");
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, ControllerNames.StandardErrorController);
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
 

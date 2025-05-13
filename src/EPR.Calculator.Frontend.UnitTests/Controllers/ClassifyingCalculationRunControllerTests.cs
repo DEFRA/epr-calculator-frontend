@@ -244,7 +244,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(ControllerNames.StandardErrorController, result.ControllerName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
             _mockLogger.Verify(
                 x =>
            x.Log(
@@ -325,7 +325,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(ControllerNames.StandardErrorController, result.ControllerName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
         }
 
         [TestMethod]
