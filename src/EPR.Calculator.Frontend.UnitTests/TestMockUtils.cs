@@ -38,21 +38,41 @@ namespace EPR.Calculator.Frontend.UnitTests
             return mockHttpClientFactory;
         }
 
-        public static Mock<HttpMessageHandler> BuildMockMessageHandler(HttpStatusCode statusCode, object content)
+        public static Mock<HttpMessageHandler> BuildMockMessageHandler(
+                                                                        HttpStatusCode? statusCode = null,
+                                                                        object content = null,
+                                                                        bool shouldThrowException = false,
+                                                                        Exception exceptionToThrow = null)
         {
             // Mock HttpMessageHandler
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
+            if (shouldThrowException)
+            {
+                mockHttpMessageHandler
+                    .Protected()
+                    .Setup<Task<HttpResponseMessage>>(
+                        "SendAsync",
+                        ItExpr.IsAny<HttpRequestMessage>(),
+                        ItExpr.IsAny<CancellationToken>())
+                    .ThrowsAsync(exceptionToThrow ?? new HttpRequestException("API failure"));
+            }
+            else
+            {
+                var responseMessage = new HttpResponseMessage
                 {
-                    StatusCode = statusCode,
-                    Content = new StringContent(JsonConvert.SerializeObject(content))
-                });
+                    StatusCode = statusCode ?? HttpStatusCode.OK,
+                    Content = new StringContent(JsonConvert.SerializeObject(content ?? new object()))
+                };
+
+                mockHttpMessageHandler
+                    .Protected()
+                    .Setup<Task<HttpResponseMessage>>(
+                        "SendAsync",
+                        ItExpr.IsAny<HttpRequestMessage>(),
+                        ItExpr.IsAny<CancellationToken>())
+                    .ReturnsAsync(responseMessage);
+            }
+
             return mockHttpMessageHandler;
         }
 

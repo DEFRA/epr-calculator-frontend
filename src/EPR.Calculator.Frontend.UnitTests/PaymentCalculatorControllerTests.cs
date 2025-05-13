@@ -119,11 +119,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task Submit_ApiResponseAccepted_RedirectsToOverview()
         {
             // Arrange
-            AcceptInvoiceInstructionsViewModel model;
-            Mock<HttpMessageHandler> mockHttpMessageHandler;
-            MockHttpMessageHandler(out model, out mockHttpMessageHandler);
-
-            mockHttpMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Accepted, model);
+            var model = new AcceptInvoiceInstructionsViewModel { RunId = 123 };
+            var mockHttpMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Accepted, model);
 
             var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
 
@@ -143,17 +140,9 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task Submit_ApiReturnsError_RedirectsToError()
         {
             // Arrange
-            AcceptInvoiceInstructionsViewModel model;
-            Mock<HttpMessageHandler> mockHttpMessageHandler;
-            MockHttpMessageHandler(out model, out mockHttpMessageHandler);
+            var model = new AcceptInvoiceInstructionsViewModel { RunId = 123 };
+            var mockHttpMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.UnprocessableContent, model);
 
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.UnprocessableContent));
             var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
 
             _mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
@@ -170,17 +159,9 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task Submit_ApiThrowsException_RedirectsToError()
         {
             // Arrange
-            AcceptInvoiceInstructionsViewModel model;
-            Mock<HttpMessageHandler> mockHttpMessageHandler;
-            MockHttpMessageHandler(out model, out mockHttpMessageHandler);
+            var model = new AcceptInvoiceInstructionsViewModel { RunId = 123 };
+            var mockHttpMessageHandler = TestMockUtils.BuildMockMessageHandler(shouldThrowException: true);
 
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ThrowsAsync(new HttpRequestException("API failure"));
             var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
 
             _mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
