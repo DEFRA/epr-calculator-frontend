@@ -27,7 +27,6 @@ namespace EPR.Calculator.Frontend.Controllers
         ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
         : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        private readonly ILogger<ClassifyRunConfirmationController> _logger = logger;
         private readonly IConfiguration _configuration = configuration;
 
         [HttpGet("{runId}")]
