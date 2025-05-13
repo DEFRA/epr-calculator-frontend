@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -21,15 +22,15 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="tokenAcquisition">token acquisition.</param>
     /// <param name="telemetryClient">telemetry client.</param>
     [Route("[controller]")]
-    public class ClassifyingCalculationRunScenario1Controller(
+    public class SetRunClassificationController(
         IConfiguration configuration,
         IHttpClientFactory clientFactory,
-        ILogger<ClassifyingCalculationRunScenario1Controller> logger,
+        ILogger<SetRunClassificationController> logger,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient)
         : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        private readonly ILogger<ClassifyingCalculationRunScenario1Controller> logger = logger;
+        private readonly ILogger<SetRunClassificationController> logger = logger;
 
         [Route("{runId}")]
         [HttpGet]
@@ -47,13 +48,13 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
             }
 
-            return this.View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
+            return this.View(ViewNames.SetRunClassificationIndex, viewModel);
         }
 
         [Route("Submit")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Submit(ClassifyCalculationRunScenerio1ViewModel model)
+        public async Task<IActionResult> Submit(SetRunClassificationViewModel model)
         {
             try
             {
@@ -61,8 +62,21 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
 
-                    return View(ViewNames.ClassifyingCalculationRunScenario1Index, viewModel);
+                    return this.View(ViewNames.SetRunClassificationIndex, viewModel);
                 }
+
+                var apiUrl = this.GetApiUrl(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.DashboardCalculatorRunV2);
+                await this.CallApi(
+                    HttpMethod.Put,
+                    apiUrl,
+                    string.Empty,
+                    new ClassificationDto
+                {
+                    RunId = model.CalculatorRunDetails.RunId,
+                    ClassificationId = (int)model.ClassifyRunType,
+                });
 
                 return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
             }
@@ -78,9 +92,9 @@ namespace EPR.Calculator.Frontend.Controllers
             return calculatorRunDetails.RunClassificationId == RunClassification.UNCLASSIFIED;
         }
 
-        private async Task<ClassifyCalculationRunScenerio1ViewModel> CreateViewModel(int runId)
+        private async Task<SetRunClassificationViewModel> CreateViewModel(int runId)
         {
-            var viewModel = new ClassifyCalculationRunScenerio1ViewModel()
+            var viewModel = new SetRunClassificationViewModel()
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
