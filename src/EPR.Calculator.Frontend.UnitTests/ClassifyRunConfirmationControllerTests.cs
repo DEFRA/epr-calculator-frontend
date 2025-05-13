@@ -180,7 +180,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Assert
             var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);            
+            Assert.IsNotNull(redirectResult);
             Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
         }
 
