@@ -4,6 +4,7 @@ using System.Net;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.Validators;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -54,15 +56,22 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void Index_ReturnsViewResult_WithAcceptInvoiceInstructionsViewModel()
+        public async Task Index_ReturnsViewResult_WithAcceptInvoiceInstructionsViewModel()
         {
             // Arrange
             int runId = 1;
             // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
             _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
 
+            // Arrange
+            CalculatorRunDto calculatorRunDto = MockData.GetCalculatorRun();
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, calculatorRunDto);
+            var client = new HttpClient(mockHttpMessageHandler.Object);
+            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(client);
+            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+
             // Act
-            var result = _controller.Index(runId) as ViewResult;
+            var result = await _controller.Index(runId) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -70,7 +79,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var model = result.Model as AcceptInvoiceInstructionsViewModel;
             Assert.AreEqual(runId, model.RunId);
             Assert.IsFalse(model.AcceptAll);
-            Assert.AreEqual("Calculation Run 99", model.CalculationRunTitle);
+            Assert.AreEqual("Test Run", model.CalculationRunTitle);
             Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, model.BackLink);
         }
 
@@ -206,6 +215,24 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ConfirmationMessages.BillingFileSuccessBody, confirmationModel.Body);
             CollectionAssert.AreEqual(ConfirmationMessages.BillingFileSuccessAdditionalParagraphs, confirmationModel.AdditionalParagraphs);
             Assert.AreEqual(ControllerNames.Dashboard, confirmationModel.RedirectController);
+        }
+
+        private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)
+        {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = statusCode,
+                    Content = new StringContent(JsonConvert.SerializeObject(content))
+                });
+
+            return mockHttpMessageHandler;
         }
 
         private void MockHttpMessageHandler(out AcceptInvoiceInstructionsViewModel model, out Mock<HttpMessageHandler> mockHttpMessageHandler)

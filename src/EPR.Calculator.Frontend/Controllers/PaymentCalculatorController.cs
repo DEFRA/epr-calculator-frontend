@@ -21,20 +21,26 @@ namespace EPR.Calculator.Frontend.Controllers
         IHttpClientFactory httpClientFactory)
         : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
     {
+        /// <summary>
+        /// The main action method that handles the request to display the AcceptInvoiceInstructionsViewModel view.
+        /// </summary>
+        /// <param name="runId">The identifier of the calculation run.</param>
+        /// <returns>An IActionResult representing the view with the populated model.</returns>
         [HttpGet]
         [Route("{runId:int}")]
-        public IActionResult Index(int runId)
+        public async Task<IActionResult> Index(int runId)
         {
-            var model = new AcceptInvoiceInstructionsViewModel
-            {
-                RunId = runId,
-                AcceptAll = false,
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                CalculationRunTitle = "Calculation Run 99",
-                BackLink = ControllerNames.ClassifyRunConfirmation,
-            };
+            var acceptInvoiceInstructionsViewModel = this.InitializeAcceptInvoiceInstructionsViewModel();
 
-            return this.View(model);
+            var runDetails = await this.GetCalculatorRundetails(runId);
+
+            if (runDetails != null && runDetails!.RunId != 0)
+            {
+                acceptInvoiceInstructionsViewModel.RunId = runId;
+                acceptInvoiceInstructionsViewModel.CalculationRunTitle = runDetails.RunName;
+            }
+
+            return this.View(acceptInvoiceInstructionsViewModel);
         }
 
         /// <summary>
@@ -99,6 +105,20 @@ namespace EPR.Calculator.Frontend.Controllers
             };
 
             return this.View(ViewNames.BillingConfirmationSuccess, model);
+        }
+
+        /// <summary>
+        /// Initializes and returns a new AcceptInvoiceInstructionsViewModel with default values.
+        /// </summary>
+        /// <returns>An initialized AcceptInvoiceInstructionsViewModel instance.</returns>
+        private AcceptInvoiceInstructionsViewModel InitializeAcceptInvoiceInstructionsViewModel()
+        {
+            return new AcceptInvoiceInstructionsViewModel
+            {
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                BackLink = ControllerNames.ClassifyRunConfirmation,
+                AcceptAll = false,
+            };
         }
     }
 }
