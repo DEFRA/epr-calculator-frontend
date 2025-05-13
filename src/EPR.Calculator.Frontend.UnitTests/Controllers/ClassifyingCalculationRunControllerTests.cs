@@ -4,6 +4,7 @@ using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -317,7 +318,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(ControllerNames.StandardErrorController, result.ControllerName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
             _mockLogger.Verify(
                 x =>
            x.Log(
@@ -363,7 +364,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(ControllerNames.StandardErrorController, result.ControllerName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
             _mockLogger.Verify(
                 x =>
            x.Log(
