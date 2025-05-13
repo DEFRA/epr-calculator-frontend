@@ -2,7 +2,7 @@
 {
     public enum ClassifyRunType
     {
-        InitialRun,
-        TestRun,
+        TestRun = 4,
+        InitialRun = 8,
     }
 }
