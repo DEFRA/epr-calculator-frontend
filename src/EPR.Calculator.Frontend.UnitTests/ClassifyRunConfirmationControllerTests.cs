@@ -10,6 +10,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Documents.SystemFunctions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
@@ -144,6 +145,43 @@ namespace EPR.Calculator.Frontend.UnitTests
             var viewModel = result.Model as ClassifyRunConfirmationViewModel;
             Assert.IsNotNull(viewModel);
             Assert.AreEqual(runId, viewModel.CalculatorRunDetails.RunId);
+        }
+
+        [TestMethod]
+        public async Task Index_WhenCalculatorRunDetailsIsNullOrRunIdIsZero_RedirectsToStandardError()
+        {
+            // Setup
+            _mockMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.IsAny<HttpRequestMessage>(),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.NotFound,
+                       Content = null,
+                   });
+            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
+
+            _controller = new ClassifyRunConfirmationController(
+                _configuration,
+                _mockClientFactory.Object,
+                _mockLogger.Object,
+                _mockTokenAcquisition.Object,
+                _mockTelemetryClient);
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+            // Act
+            var result = await _controller.Index(123);
+
+            // Assert
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);            
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
         }
 
         [TestMethod]
