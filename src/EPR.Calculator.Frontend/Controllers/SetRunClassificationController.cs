@@ -134,7 +134,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 null);
         }
 
-        private void SetStatusDescriptions(ClassifyCalculationRunScenerio1ViewModel model)
+        private void SetStatusDescriptions(SetRunClassificationViewModel model)
         {
             TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
             foreach (var classification in model.FinancialYearClassifications.Classifications)
@@ -154,7 +154,7 @@ namespace EPR.Calculator.Frontend.Controllers
             };
         }
 
-        private async Task<bool> SetClassfications(int runId, ClassifyCalculationRunScenerio1ViewModel viewModel)
+        private async Task<bool> SetClassfications(int runId, SetRunClassificationViewModel viewModel)
         {
             var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = this.GetFinancialYear() });
             if (!classifications.IsSuccessStatusCode)

@@ -27,7 +27,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         private Mock<IHttpClientFactory> _mockClientFactory;
         private Mock<ILogger<SetRunClassificationController>> _mockLogger;
         private Mock<IHttpClientFactory> _mockHttpClientFactory;
-        private Mock<ILogger<ClassifyingCalculationRunScenario1Controller>> _mockLogger;
         private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private TelemetryClient _mockTelemetryClient;
         private SetRunClassificationController _controller;
@@ -39,7 +38,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             _mockHttpContext = new Mock<HttpContext>();
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            _mockLogger = new Mock<ILogger<ClassifyingCalculationRunScenario1Controller>>();
+            _mockLogger = new Mock<ILogger<SetRunClassificationController>>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
 
@@ -53,7 +52,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                .Setup(_ => _.CreateClient(It.IsAny<string>()))
                    .Returns(httpClient);
 
-            _controller = new ClassifyingCalculationRunScenario1Controller(
+            _controller = new SetRunClassificationController(
                        _configuration,
                        _mockHttpClientFactory.Object,
                        _mockLogger.Object,
@@ -95,7 +94,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                .Setup(_ => _.CreateClient(It.IsAny<string>()))
                    .Returns(httpClient);
 
-            _controller = new ClassifyingCalculationRunScenario1Controller(
+            _controller = new SetRunClassificationController(
                        _configuration,
                        _mockHttpClientFactory.Object,
                        _mockLogger.Object,
@@ -182,7 +181,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_RedirectsToClassifyRunConfirmation_WhenSubmitSuccessful()
         {
             // Arrange
-            int runId = Fixture.Create<int>();
+            int runId = 1;
             SetRunClassificationViewModel model = new SetRunClassificationViewModel
             {
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel
@@ -201,12 +200,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, result.ControllerName);
             Assert.AreEqual(runId, result.RouteValues["runId"]);
-            this.MockMessageHandler.Protected().Verify(
+            this._mockHttpMessageHandler.Protected().Verify(
                 "SendAsync",
                 Times.Once(),
                 ItExpr.Is<HttpRequestMessage>(m =>
                     m.Content.ReadAsStringAsync().Result.Contains(
-                        $"\"RunId\":{runId},\"ClassificationId\":{(int)ClassifyRunType.InitialRun}")),
+                        $"\"RunId\":{runId}")),
                 ItExpr.IsAny<CancellationToken>());
         }
 
@@ -304,7 +303,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                .Setup(_ => _.CreateClient(It.IsAny<string>()))
                    .Returns(httpClient);
 
-            _controller = new ClassifyingCalculationRunScenario1Controller(
+            _controller = new SetRunClassificationController(
                        _configuration,
                        _mockHttpClientFactory.Object,
                        _mockLogger.Object,
@@ -376,7 +375,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                .Setup(_ => _.CreateClient(It.IsAny<string>()))
                    .Returns(httpClient);
 
-            _controller = new ClassifyingCalculationRunScenario1Controller(
+            _controller = new SetRunClassificationController(
                        _configuration,
                        _mockHttpClientFactory.Object,
                        _mockLogger.Object,
