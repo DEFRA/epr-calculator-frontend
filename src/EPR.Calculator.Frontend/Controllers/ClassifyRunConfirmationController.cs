@@ -58,7 +58,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
         {
-            return calculatorRunDetails.RunClassificationId == RunClassification.UNCLASSIFIED;
+            return calculatorRunDetails.RunClassificationId == RunClassification.INITIAL_RUN;
         }
 
         private async Task<ClassifyRunConfirmationViewModel> CreateViewModel(int runId)
