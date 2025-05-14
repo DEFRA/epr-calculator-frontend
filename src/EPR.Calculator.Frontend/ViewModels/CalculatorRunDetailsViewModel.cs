@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
-    [ExcludeFromCodeCoverage]
     public record CalculatorRunDetailsViewModel
     {
         [Required]
