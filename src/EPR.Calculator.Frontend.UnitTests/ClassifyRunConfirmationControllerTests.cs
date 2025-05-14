@@ -73,7 +73,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
                    {
                        StatusCode = HttpStatusCode.OK,
-                       Content = new StringContent(JsonConvert.SerializeObject(MockData.GetCalculatorRun())),
+                       Content = new StringContent(JsonConvert.SerializeObject(MockData.GetCalculatorRunWithInitialRun())),
                    });
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
