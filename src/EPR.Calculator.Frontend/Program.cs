@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using EPR.Calculator.Frontend.Components;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Exceptions;
 using EPR.Calculator.Frontend.HealthCheck;
@@ -7,10 +8,12 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var environmentName = builder.Environment.EnvironmentName?.ToLower() ?? string.Empty;
@@ -44,6 +47,9 @@ builder.Services.AddFeatureManagement();
 
 builder.Services.AddHealthChecks();
 
+builder.Services.AddServerSideBlazor();
+builder.Services.AddMudServices();
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(builder.Configuration.GetValue<int>("SessionTimeOut"));
@@ -64,6 +70,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
+StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
 
 var app = builder.Build();
 
@@ -87,9 +94,13 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.MapRazorPages();
+// add the hub (you won't actually use it, but it's necessary)
+app.MapBlazorHub();
+
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
+    pattern: "{controller=BlazoreGrid}/{action=Index}/{id?}");
 
 app.MapHealthChecks("/admin/health", HealthCheckOptionsBuilder.Build()).AllowAnonymous();
 

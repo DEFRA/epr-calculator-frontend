@@ -1,0 +1,91 @@
+﻿@using System.Net.Http.Json
+@using System.Text.Json.Serialization;
+@using System.Net.Http
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+
+@* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
+
+@* Needed for dialogs *@
+<MudDialogProvider />
+
+@* Needed for snackbars *@
+<MudSnackbarProvider />
+
+<style type="text/css">
+     .mud-table-head .header-centered th {
+         text-align: center;
+         font-size: 1.2em;
+     }
+
+    .mud-table-foot .bold-text .mud-table-cell {
+        font-weight: 500;
+    }
+</style>
+
+<MudTable Items="@OrgProducers.Take(10)" MultiSelection="true" @bind-SelectedItems="selectedItems" Hover="true" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true"
+          CustomHeader="true" CustomFooter="true" HeaderClass="table-head-bordered" FooterClass="table-foot-bordered">
+    <HeaderContent>
+        <MudTHeadRow IgnoreCheckbox="true" Class="header-centered">
+            <MudTh colspan="6">Producer details</MudTh>
+        </MudTHeadRow>        
+        <MudTHeadRow Checkable="true">
+            <MudTh>Organisationname</MudTh>
+            <MudTh>Organisation ID</MudTh>
+            <MudTh>Billing instruction</MudTh>
+            <MudTh>Invoice amount</MudTh>
+            <MudTh>Status</MudTh>
+        </MudTHeadRow>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Organisation name">@context.OrganisationName</MudTd>
+        <MudTd DataLabel="Organisation ID">@context.OrganisationID</MudTd>
+        <MudTd DataLabel="Billing instruction">@context.BillingInstructions</MudTd>
+        <MudTd DataLabel="Invoice amount" HideSmall="_hidePosition">@context.InvoiceAmount</MudTd>
+        <MudTd DataLabel="Status">@context.Status</MudTd>
+    </RowTemplate>
+    <FooterContent>        
+        <MudTFootRow Checkable="true">
+            <MudTd colspan="5">Selected: @selectedItems.Count</MudTd>
+        </MudTFootRow>
+    </FooterContent>
+</MudTable>
+@code {
+    private bool _hidePosition;
+    private List<OrgProducerData> OrgProducers = new List<OrgProducerData>();
+    private HashSet<OrgProducerData> selectedItems = new HashSet<OrgProducerData>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        OrgProducers = new List<OrgProducerData>();
+        var count = 8;
+
+        for(int i= 0; i<count; i++)
+        {
+            OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = i.ToString() , BillingInstructions = "DELTA", InvoiceAmount = "£100.000", Status = "ACCEPTED" });
+        }
+
+        OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count+1).ToString(), BillingInstructions = "CANCEL BILL", InvoiceAmount = "£100.000", Status = "REJECTED" });
+        OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count+2).ToString(), BillingInstructions = "INITIAL", InvoiceAmount = "£100.000", Status = "PENDING" });
+
+    }
+    class ElementComparer : IEqualityComparer<OrgProducerData>
+    {
+        public bool Equals(OrgProducerData a, OrgProducerData b) => a?.OrganisationID == b?.OrganisationID;
+        public int GetHashCode(OrgProducerData x) => HashCode.Combine(x?.OrganisationID);
+    }
+
+    public record OrgProducerData
+    {
+        public string OrganisationName { get; set; }
+        public string OrganisationID { get; set; }
+        public string BillingInstructions { get; set; }
+        public string InvoiceAmount { get; set; }
+        public string Status { get; set; }
+    }
+}
