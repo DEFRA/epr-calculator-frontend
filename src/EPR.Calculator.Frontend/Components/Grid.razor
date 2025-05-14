@@ -45,9 +45,9 @@
     <RowTemplate>
         <MudTd DataLabel="Organisation name">@context.OrganisationName</MudTd>
         <MudTd DataLabel="Organisation ID">@context.OrganisationID</MudTd>
-        <MudTd DataLabel="Billing instruction">@context.BillingInstructions</MudTd>
+        <MudTd DataLabel="Billing instruction"><MudHighlighter Class="govuk-tag govuk-tag--light-blue" Text="@context.BillingInstructions" HighlightedText="@context.BillingInstructions" /></MudTd>
         <MudTd DataLabel="Invoice amount" HideSmall="_hidePosition">@context.InvoiceAmount</MudTd>
-        <MudTd DataLabel="Status">@context.Status</MudTd>
+        <MudTd DataLabel="Status"><MudHighlighter Class="govuk-tag govuk-tag--green" Text="@context.Status" HighlightedText="@context.Status" /></MudTd>
     </RowTemplate>
     <FooterContent>        
         <MudTFootRow Checkable="true">
@@ -63,9 +63,9 @@
     protected override async Task OnInitializedAsync()
     {
         OrgProducers = new List<OrgProducerData>();
-        var count = 8;
+        var count = 9;
 
-        for(int i= 0; i<count; i++)
+        for(int i= 1; i<count; i++)
         {
             OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = i.ToString() , BillingInstructions = "DELTA", InvoiceAmount = "£100.000", Status = "ACCEPTED" });
         }
