@@ -85,7 +85,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
                 else
                 {
-                    this.logger.LogError("API did not return successful.");
+                    var message = $"API did not return successful ({result.StatusCode}).";
+                    this.logger.LogError(message);
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
             }
