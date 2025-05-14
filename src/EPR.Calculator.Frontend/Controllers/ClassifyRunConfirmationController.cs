@@ -27,37 +27,21 @@ namespace EPR.Calculator.Frontend.Controllers
         ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
         : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        private readonly ILogger<ClassifyRunConfirmationController> logger = logger;
         private readonly IConfiguration _configuration = configuration;
 
-        [Route("{runId}")]
-        public IActionResult Index(int runId)
+        [HttpGet("{runId}")]
+        public async Task<IActionResult> Index(int runId)
         {
-            try
-            {
-                var statusUpdateViewModel = new ClassifyRunConfirmationViewModel
-                {
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    CalculatorRunDetails = new CalculatorRunDetailsViewModel
-                    {
-                        RunId = runId,
-                        RunClassificationId = RunClassification.INITIAL_RUN,
-                        RunName = "Calculation Run 99",
-                        CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
-                        RunClassificationStatus = "3",
-                        FinancialYear = "2024-25",
-                    },
-                    BackLink = ControllerNames.ClassifyingCalculationRun,
-                };
-                this.SetDownloadParameters(statusUpdateViewModel);
+            var viewModel = await this.CreateViewModel(runId);
 
-                return this.View(ViewNames.ClassifyRunConfirmationIndex, statusUpdateViewModel);
-            }
-            catch (Exception ex)
+            if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0 || !IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
             {
-                this.logger.LogError(ex, "An error occurred while processing the request.");
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                return RedirectToAction(
+                    ActionNames.StandardErrorIndex,
+                    CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+
+            return this.View(ViewNames.ClassifyRunConfirmationIndex, viewModel);
         }
 
         [HttpPost]
@@ -66,10 +50,34 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                return RedirectToAction(ActionNames.Index, new { runId });
+                return this.RedirectToAction(ActionNames.Index, new { runId });
             }
 
             return RedirectToAction(ActionNames.Index, ControllerNames.PaymentCalculator, new { runId = runId });
+        }
+
+        private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
+        {
+            return calculatorRunDetails.RunClassificationId == RunClassification.INITIAL_RUN;
+        }
+
+        private async Task<ClassifyRunConfirmationViewModel> CreateViewModel(int runId)
+        {
+            var viewModel = new ClassifyRunConfirmationViewModel()
+            {
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
+                BackLink = ControllerNames.CalculationRunDetails,
+            };
+
+            var runDetails = await this.GetCalculatorRundetails(runId);
+            if (runDetails != null && runDetails!.RunId != 0)
+            {
+                viewModel.CalculatorRunDetails = runDetails;
+                this.SetDownloadParameters(viewModel);
+            }
+
+            return viewModel;
         }
 
         private void SetDownloadParameters(ClassifyRunConfirmationViewModel viewModel)
