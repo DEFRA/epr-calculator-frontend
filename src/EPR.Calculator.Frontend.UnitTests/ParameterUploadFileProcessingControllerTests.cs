@@ -33,7 +33,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             this.Configuration
                 .GetSection("ParameterSettings")["ParameterYear"] = this.Fixture.Create<string>();
 
-            this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler();
+            this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Accepted, new StringContent("response content"));
             Mock<IHttpClientFactory> mockHttpClientFactory = TestMockUtils.BuildMockHttpClientFactory(
                 this.MockMessageHandler.Object);
             this.TestClass = new ParameterUploadFileProcessingController(
