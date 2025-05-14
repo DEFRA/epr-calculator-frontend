@@ -53,6 +53,16 @@
         /// <summary>
         /// Calculation Run New Details.
         /// </summary>
-        public const string ViewCalculationRunNewDetails = "/CalculationRunDetailsNew/{0}";
+        public const string CalculationRunNewDetails = "/CalculationRunDetailsNew/{0}";
+
+        /// <summary>
+        /// Classify Run Confirmation.
+        /// </summary>
+        public const string ClassifyRunConfirmation = "/ClassifyRunConfirmation/{0}";
+
+        /// <summary>
+        /// Calculation Run Overview.
+        /// </summary>
+        public const string CalculationRunOverview = "/CalculationRunOverview/{0}";
     }
 }
