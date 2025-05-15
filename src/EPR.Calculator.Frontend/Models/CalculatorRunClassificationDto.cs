@@ -1,8 +1,8 @@
 ﻿namespace EPR.Calculator.Frontend.Models
 {
-    public record CalculatorRunClassificationDto
+    public class CalculatorRunClassificationDto
     {
-        public int Id { get; init; }
+        public int Id { get; set; }
 
         public string Status { get; set; }
 
