@@ -392,12 +392,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                        _mockTokenAcquisition.Object,
                        _mockTelemetryClient);
 
-           // _mockHttpContext.Setup(context => context.User)
-           //    .Returns(new ClaimsPrincipal(new ClaimsIdentity(
-           // [
-           //    new Claim(ClaimTypes.Name, "Test User")
-           // ])));
-
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
             mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
