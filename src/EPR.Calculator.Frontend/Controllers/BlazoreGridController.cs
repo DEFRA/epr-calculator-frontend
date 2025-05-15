@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -17,18 +18,5 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             return Json(new { message = "Success" });
         }
-    }
-
-    public record OrgProducerData
-    {
-        public string OrganisationName { get; set; }
-
-        public string OrganisationID { get; set; }
-
-        public string BillingInstructions { get; set; }
-
-        public string InvoiceAmount { get; set; }
-
-        public string Status { get; set; }
     }
 }
