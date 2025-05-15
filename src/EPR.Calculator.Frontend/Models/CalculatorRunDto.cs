@@ -14,7 +14,7 @@ namespace EPR.Calculator.Frontend.Models
 
         public string FileExtension { get; set; }
 
-        public DateTime? UpdatedBy { get; set; }
+        public string UpdatedBy { get; set; }
 
         public DateTime? UpdatedAt { get; set; }
 
