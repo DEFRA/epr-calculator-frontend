@@ -71,6 +71,7 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
 StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
+builder.Services.AddScoped(s => new HttpClient { BaseAddress = new Uri(builder.Configuration.GetValue<string>("BaseUri")) });
 
 var app = builder.Build();
 
@@ -97,6 +98,7 @@ app.UseAuthorization();
 app.MapRazorPages();
 // add the hub (you won't actually use it, but it's necessary)
 app.MapBlazorHub();
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",

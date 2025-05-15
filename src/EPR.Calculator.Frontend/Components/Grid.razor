@@ -16,7 +16,7 @@
 <MudDialogProvider />
 
 @* Needed for snackbars *@
-<MudSnackbarProvider />
+<MudSnackbarProvider > <Router AppAssembly="@typeof(App).Assembly"></Router> </MudSnackbarProvider>
 
 <style type="text/css">
      .mud-table-head .header-centered th {
@@ -28,9 +28,9 @@
         font-weight: 500;
     }
 </style>
-<MudForm @ref="form" OnValidSubmit="HandleSubmit" >
+<MudForm  Model="OrgProducers" @ref="form" OnValidSubmit="HandleSubmit" >
 
-<MudTable @ref="_orgtableRef" Items="@OrgProducers" MultiSelection="true" @bind-SelectedItems="selectedItems" Hover="true" Breakpoint="Breakpoint.Sm" Striped="false" Bordered="true"
+ <MudTable @ref="_orgtableRef" Items="@OrgProducers" MultiSelection="true" @bind-SelectedItems="selectedItems" Hover="true" Breakpoint="Breakpoint.Sm" Striped="false" Bordered="true"
           CustomHeader="true" CustomFooter="true" HeaderClass="table-head-bordered" FooterClass="table-foot-bordered">
     <HeaderContent>
         <MudTHeadRow IgnoreCheckbox="true" Class="header-centered">
@@ -54,13 +54,10 @@
     <FooterContent>        
         <MudTFootRow Checkable="true">
             <MudTd colspan="5">Selected: @selectedItems.Count</MudTd>
-        </MudTFootRow>
-        <MudTFootRow  Checkable="false">
-            <MudTd colspan="5"><MudCheckBox @bind-Value="PageSelectionState">Select only current page items</MudCheckBox> </MudTd>
-        </MudTFootRow>
+        </MudTFootRow>       
     </FooterContent>
     <PagerContent>
-        <MudTablePager PageSizeOptions="new int[] { 20, 40, 60, 100, int.MaxValue }"
+        <MudTablePager PageSizeOptions="new int[] { 10, 50, 100, int.MaxValue }"
                        RowsPerPageString="@rowsPerPageString"
                        InfoFormat="@infoFormat"
                        AllItemsText="@allItemsText"
@@ -69,11 +66,14 @@
                        HidePageNumber="@hidePageNumber"
                        HidePagination="@hidePagination" />
     </PagerContent>
-</MudTable>
-
-@* <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" FullWidth="false" Color="Color.Primary">Submit</MudButton> *@
+</MudTable> 
+<MudCheckBox @bind-Value="PageSelectionState">Select all records on this page</MudCheckBox>
+<div Class="align-start">
+<MudButton ButtonType="ButtonType.Submit" Size="Size.Medium" OnClick="@(()=>HandleSubmit())" Class="govuk-button" style="width:10%;margin-top :20px;" Variant="Variant.Filled" FullWidth="false" Color="Color.Primary">Submit</MudButton>
+<MudButton ButtonType="ButtonType.Reset" Size="Size.Medium" OnClick="@(()=>HandleReset())" Class="govuk-button" style="width:10%;margin-top :20px;" Variant="Variant.Filled" FullWidth="false" Color="Color.Secondary">Clear</MudButton>
+</div>
 </MudForm>
-@* <MudSwitch @bind-Value="PageSelection" Color="Color.Primary">Select All only current page</MudSwitch> *@
+
 @code {
     private bool _hidePosition;
     private List<OrgProducerData> OrgProducers = new List<OrgProducerData>();
@@ -88,11 +88,13 @@
     private MudTable<OrgProducerData> _orgtableRef;
     private MudForm form;
     private string ResponseMessage;
+    private string name;
+    private EditContext? editContext;
 
     protected override async Task OnInitializedAsync()
     {
         OrgProducers = new List<OrgProducerData>();
-        var count = 90;
+        var count = 7000;
 
         for(int i= 1; i<count; i++)
         {
@@ -164,7 +166,8 @@
 
     private async Task HandleSubmit()
     {
-        var response = await Http.PostAsJsonAsync("blazoreGrid/submit", selectedItems);
+        Console.WriteLine(name);
+        var response = await Http.PostAsJsonAsync("blazoreGrid/submit", selectedItems.ToList());
         if (response.IsSuccessStatusCode)
         {
             var json = await response.Content.ReadAsStringAsync();
@@ -173,6 +176,18 @@
         {
             ResponseMessage = "Form failed to Submit";
         }
-    }    
+
+        Console.WriteLine(ResponseMessage);
+    }  
+
+    private async Task HandleFailure()
+    {
+        Console.WriteLine("failed");
+    }
+
+    private async Task HandleReset()
+    {
+        selectedItems.Clear();
+    }
 
 }
