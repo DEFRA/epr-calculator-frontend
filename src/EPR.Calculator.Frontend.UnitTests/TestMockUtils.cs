@@ -39,10 +39,10 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         public static Mock<HttpMessageHandler> BuildMockMessageHandler(
-                                                                        HttpStatusCode? statusCode = null,
-                                                                        object content = null,
-                                                                        bool shouldThrowException = false,
-                                                                        Exception exceptionToThrow = null)
+            HttpStatusCode? statusCode = null,
+            object content = null,
+            bool shouldThrowException = false,
+            Exception exceptionToThrow = null)
         {
             // Mock HttpMessageHandler
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();

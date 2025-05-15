@@ -1,4 +1,6 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
+﻿using System.Globalization;
+using System.Net;
+using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
@@ -8,7 +10,6 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
-using System.Globalization;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -80,7 +81,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 var apiUrl = this.GetApiUrl(
                 ConfigSection.DashboardCalculatorRun,
                 ConfigSection.DashboardCalculatorRunV2);
-                await this.CallApi(
+                var result = await this.CallApi(
                     HttpMethod.Put,
                     apiUrl,
                     string.Empty,
@@ -90,7 +91,16 @@ namespace EPR.Calculator.Frontend.Controllers
                     ClassificationId = (int)model.ClassifyRunType,
                 });
 
-                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
+                if (result.StatusCode == HttpStatusCode.Created)
+                {
+                    return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
+                }
+                else
+                {
+                    var message = $"API did not return successful ({result.StatusCode}).";
+                    this.logger.LogError(message);
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                }
             }
             catch (Exception ex)
             {
