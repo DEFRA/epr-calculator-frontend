@@ -106,5 +106,6 @@
         /// The key for the billing file api within the billing file settings section.
         /// </summary>
         public const string BillingFileApi = "BillingFileApi";
+        public const string ClassificationByFinancialYearApi = "ClassificationByFinancialYearApi";
     }
 }
