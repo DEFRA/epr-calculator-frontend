@@ -1,4 +1,6 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
+﻿using System.Globalization;
+using System.Net;
+using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
@@ -8,9 +10,6 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
-using System.Net;
-using System.Reflection;
-using System.Globalization;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
