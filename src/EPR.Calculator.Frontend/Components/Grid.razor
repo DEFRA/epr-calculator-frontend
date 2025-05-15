@@ -6,6 +6,7 @@
 @using Microsoft.JSInterop
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
+@inject HttpClient Http;
 
 @* Required *@
 <MudThemeProvider />
@@ -27,8 +28,9 @@
         font-weight: 500;
     }
 </style>
+<MudForm @ref="form" OnValidSubmit="HandleSubmit" >
 
-<MudTable Items="@OrgProducers.Take(10)" MultiSelection="true" @bind-SelectedItems="selectedItems" Hover="true" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true"
+<MudTable @ref="_orgtableRef" Items="@OrgProducers" MultiSelection="true" @bind-SelectedItems="selectedItems" Hover="true" Breakpoint="Breakpoint.Sm" Striped="false" Bordered="true"
           CustomHeader="true" CustomFooter="true" HeaderClass="table-head-bordered" FooterClass="table-foot-bordered">
     <HeaderContent>
         <MudTHeadRow IgnoreCheckbox="true" Class="header-centered">
@@ -53,17 +55,44 @@
         <MudTFootRow Checkable="true">
             <MudTd colspan="5">Selected: @selectedItems.Count</MudTd>
         </MudTFootRow>
+        <MudTFootRow  Checkable="false">
+            <MudTd colspan="5"><MudCheckBox @bind-Value="PageSelectionState">Select only current page items</MudCheckBox> </MudTd>
+        </MudTFootRow>
     </FooterContent>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[] { 20, 40, 60, 100, int.MaxValue }"
+                       RowsPerPageString="@rowsPerPageString"
+                       InfoFormat="@infoFormat"
+                       AllItemsText="@allItemsText"
+                       HorizontalAlignment="@horizontalAlignment"
+                       HideRowsPerPage="@hideRowsPerPage"
+                       HidePageNumber="@hidePageNumber"
+                       HidePagination="@hidePagination" />
+    </PagerContent>
 </MudTable>
+
+<MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">Submit</MudButton>
+</MudForm>
+@* <MudSwitch @bind-Value="PageSelection" Color="Color.Primary">Select All only current page</MudSwitch> *@
 @code {
     private bool _hidePosition;
     private List<OrgProducerData> OrgProducers = new List<OrgProducerData>();
     private HashSet<OrgProducerData> selectedItems = new HashSet<OrgProducerData>();
+    private HorizontalAlignment horizontalAlignment = HorizontalAlignment.Right;
+    private bool hidePageNumber;
+    private bool hidePagination;
+    private bool hideRowsPerPage;
+    private string rowsPerPageString = "Rows per page:";
+    private string infoFormat = "{first_item}-{last_item} of {all_items}";
+    private string allItemsText = "All";
+    private MudTable<OrgProducerData> _orgtableRef;
+    private MudForm form;
+    private string ResponseMessage;
 
     protected override async Task OnInitializedAsync()
     {
         OrgProducers = new List<OrgProducerData>();
-        var count = 9;
+        var count = 90;
 
         for(int i= 1; i<count; i++)
         {
@@ -88,4 +117,62 @@
         public string InvoiceAmount { get; set; }
         public string Status { get; set; }
     }
+
+    private IEnumerable<OrgProducerData> GetVisiblePageItems()
+    {       
+        return _orgtableRef.FilteredItems.Skip(_orgtableRef.CurrentPage * _orgtableRef.RowsPerPage).Take(_orgtableRef.RowsPerPage);
+    }
+
+    private void SelectPage()
+    {
+        if (_orgtableRef == null) return;
+        var pageItems = GetVisiblePageItems();
+        foreach (var item in pageItems)
+            selectedItems.Add(item);
+    }
+    private void DeselectPage()
+    {
+        if (_orgtableRef == null) return;
+        var pageItems = GetVisiblePageItems();
+        foreach (var item in pageItems)
+            selectedItems.Remove(item);
+    }
+    private bool? PageSelectionState
+    {
+        get
+        {
+            if (_orgtableRef == null) return false;
+            var pageItems = GetVisiblePageItems();
+            if (pageItems.All(item => selectedItems.Contains(item)))
+                return true; // All items are selected
+            if (pageItems.Any(item => selectedItems.Contains(item)))
+                return null; // Some items are selected (indeterminate)
+            return false; // No items are selected
+        }
+        set
+        {
+            if (value == true || value == null)
+            {
+                SelectPage();
+            }
+            else if (value == false)
+            {
+                DeselectPage();
+            }
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        var response = await Http.PostAsJsonAsync("blazoreGrid/submit", selectedItems);
+        if (response.IsSuccessStatusCode)
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            ResponseMessage = json;
+        } else
+        {
+            ResponseMessage = "Form failed to Submit";
+        }
+    }    
+
 }
