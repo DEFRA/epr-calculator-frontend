@@ -22,7 +22,6 @@ namespace EPR.Calculator.Frontend.Controllers
         public CalculationRunDetailsNewController(
             IConfiguration configuration,
             IHttpClientFactory clientFactory,
-            ILogger<CalculationRunDetailsNewController> logger,
             ITokenAcquisition tokenAcquisition,
             TelemetryClient telemetryClient)
             : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
