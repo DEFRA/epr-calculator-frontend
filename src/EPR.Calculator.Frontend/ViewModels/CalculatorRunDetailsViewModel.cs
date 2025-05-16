@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using EPR.Calculator.Frontend.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
-    [ExcludeFromCodeCoverage]
     public record CalculatorRunDetailsViewModel
     {
         [Required]
@@ -15,7 +15,7 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public string? CreatedBy { get; set; }
 
-        public int? RunClassificationId { get; set; }
+        public RunClassification RunClassificationId { get; set; }
 
         public string? RunClassificationStatus { get; set; }
 

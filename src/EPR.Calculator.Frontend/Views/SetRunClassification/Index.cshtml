@@ -1,6 +1,7 @@
 ﻿@using EPR.Calculator.Frontend.ViewModels.Enums
 @using EPR.Calculator.Frontend.Helpers
-@model ClassifyCalculationRunScenerio1ViewModel
+@using EPR.Calculator.Frontend.Extensions
+@model SetRunClassificationViewModel
 @{
     var calcDetails = Model.CalculatorRunDetails;
 
@@ -25,7 +26,7 @@
             {
                 @Html.AntiForgeryToken()
                 @Html.HiddenFor(m => m.CalculatorRunDetails.RunId)
-                @Html.HiddenFor(m => m.CurrentUser)
+                @Html.HiddenFor(m => m.CurrentUser) 
 
                 <partial name="_ValidationSummaryPartial" />
 
@@ -50,7 +51,7 @@
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@calcDetails.CreatedAt.ToString("dd MMM yyyy") at @calcDetails.CreatedAt.ToString("HH:mm")</td>
+                                    <td class="govuk-table__cell">@calcDetails.CreatedAt.ToUKDateTimeDisplay()</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -63,25 +64,18 @@
                                 @Html.ValidationMessageFor(model => model.ClassifyRunType, "", new { @class = "govuk-error-message" })
 
                                 <div class="govuk-radios" data-module="govuk-radios">
-                                    <div class="govuk-radios__item">
-                                        @Html.RadioButtonFor(model => model.ClassifyRunType, ClassifyRunType.InitialRun, new { @class = "govuk-radios__input", id = "ClassifyRunType_InitialRun" })
-                                        <label class="govuk-label govuk-radios__label" for="ClassifyRunType_InitialRun">
-                                            <strong>Initial run</strong><br />
+                                    @foreach (var classfication in Model.FinancialYearClassifications.Classifications.OrderBy(t => t.Status))
+                                    {
+                                    <div class="govuk-radios__item">                                            
+                                            @Html.RadioButtonFor(model => model.ClassifyRunType, classfication.Id, new { @class = "govuk-radios__input", id = classfication.Status })
+                                        <label class="govuk-label govuk-radios__label" for="@classfication.Status">
+                                                <strong>@classfication.Status</strong><br />
                                             <p class="govuk-body-s" style="margin-bottom: 0;">
-                                                The first official mandatory run of the financial year, used as the baseline for all future recalculations. This run generates an initial billing file for invoicing.
+                                                    @classfication.Description
                                             </p>
                                         </label>
-                                    </div>
-
-                                    <div class="govuk-radios__item">
-                                        @Html.RadioButtonFor(model => model.ClassifyRunType, ClassifyRunType.TestRun, new { @class = "govuk-radios__input", id = "ClassifyRunType_TestRun" })
-                                        <label class="govuk-label govuk-radios__label" for="ClassifyRunType_TestRun">
-                                            <strong>Test run</strong><br />
-                                            <p class="govuk-body-s" style="margin-bottom: 0;">
-                                                An unofficial run to view the calculation results without generating a billing file for invoicing.
-                                            </p>
-                                        </label>
-                                    </div>
+                                    </div>   
+                                    }
                                 </div>
                             </fieldset>
                         </div>

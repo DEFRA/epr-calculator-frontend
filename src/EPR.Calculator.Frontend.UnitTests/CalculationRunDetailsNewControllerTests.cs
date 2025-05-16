@@ -56,7 +56,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new CalculationRunDetailsNewController(
                        _configuration,
                        _mockClientFactory.Object,
-                       _mockLogger.Object,
                        _mockTokenAcquisition.Object,
                        _mockTelemetryClient);
 
@@ -92,7 +91,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new CalculationRunDetailsNewController(
                 _configuration,
                 _mockClientFactory.Object,
-                _mockLogger.Object,
                 _mockTokenAcquisition.Object,
                 _mockTelemetryClient);
 
@@ -129,7 +127,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new CalculationRunDetailsNewController(
                 _configuration,
                 _mockClientFactory.Object,
-                _mockLogger.Object,
                 _mockTokenAcquisition.Object,
                 _mockTelemetryClient);
 
@@ -203,7 +200,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var config = GetConfigurationValues();
             config.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value = string.Empty;
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
+            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object,
                 mockTokenAcquisition.Object, new TelemetryClient());
 
             controller.ControllerContext = new ControllerContext
@@ -257,7 +254,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                     .Returns(httpClient);
             var config = GetConfigurationValues();
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
+            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object,
                 mockTokenAcquisition.Object, new TelemetryClient());
 
             controller.ControllerContext = new ControllerContext
@@ -311,7 +308,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                     .Returns(httpClient);
             var config = GetConfigurationValues();
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
+            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object,
                 mockTokenAcquisition.Object, new TelemetryClient());
             // Act
             var result = await _controller.Submit(model) as RedirectToActionResult;
@@ -356,7 +353,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                     .Returns(httpClient);
             var config = GetConfigurationValues();
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
+            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object,
                 mockTokenAcquisition.Object, new TelemetryClient());
             // Act
             var result = await _controller.Submit(model) as RedirectToActionResult;
@@ -401,7 +398,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                     .Returns(httpClient);
             var config = GetConfigurationValues();
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object, _mockLogger.Object,
+            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object,
                 mockTokenAcquisition.Object, new TelemetryClient());
             // Act
             var result = await _controller.Submit(model) as RedirectToActionResult;

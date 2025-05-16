@@ -1,4 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels.Enums;
 using System.ComponentModel.DataAnnotations;
@@ -10,7 +11,7 @@ namespace EPR.Calculator.Frontend.ViewModels
     /// classify calculation run scenerio1 view model.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public record ClassifyCalculationRunScenerio1ViewModel : ViewModelCommonData
+    public record SetRunClassificationViewModel : ViewModelCommonData
     {
         /// <summary>
         /// gets or sets calculator run details.
@@ -21,6 +22,8 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets the calssify run type.
         /// </summary>
         [Required(ErrorMessage = ErrorMessages.ClassifyRunTypeNotSelected)]
-        public ClassifyRunType? ClassifyRunType { get; set; }
+        public int? ClassifyRunType { get; set; }
+
+        public FinancialYearClassificationResponseDto? FinancialYearClassifications { get; set; }
     }
 }

@@ -15,6 +15,11 @@
         /// </summary>
         public const string DashboardCalculatorRunApi = "DashboardCalculatorRunApi";
 
+        /// <summary>
+        /// The configuration section for dashboard calculator run settings.
+        /// ///.</summary>
+        public const string DashboardCalculatorRunV2 = "DashboardCalculatorRunApiV2";
+
         public const string FinancialYearListApi = "FinancialYearListApi";
 
         /// <summary>
@@ -58,6 +63,11 @@
         public const string CalculationRunSettings = "CalculationRunSettings";
 
         /// <summary>
+        /// The configuration section for billing file settings section.
+        /// </summary>
+        public const string BillingFileSettings = "BillingFileSettings";
+
+        /// <summary>
         /// The key for the calculation run name api within the calculation run name settings section.
         /// </summary>
         public const string CalculationRunNameApi = "CalculationRunNameApi";
@@ -87,6 +97,15 @@
         /// </summary>
         public const string FeatureManagement = "FeatureManagement";
 
+        /// <summary>
+        /// The key for the calculation run details api within the calculation run details settings section.
+        /// </summary>
         public const string CalculationRunDetailsApi = "CalculationRunDetailsApi";
+
+        /// <summary>
+        /// The key for the billing file api within the billing file settings section.
+        /// </summary>
+        public const string BillingFileApi = "BillingFileApi";
+        public const string ClassificationByFinancialYearApi = "ClassificationByFinancialYearApi";
     }
 }

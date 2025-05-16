@@ -111,6 +111,11 @@
         public const string DownloadFileErrorIndex = "~/Views/DownloadFileError/Index.cshtml";
 
         /// <summary>
+        /// Download file error index page view.
+        /// </summary>
+        public const string DownloadFileErrorIndexNew = "~/Views/DownloadFileError/IndexNew.cshtml";
+
+        /// <summary>
         /// Calculator run delete confirmation page view.
         /// </summary>
         public const string CalculationRunDeleteIndex = "~/Views/CalculationRunDelete/Index.cshtml";
@@ -138,7 +143,7 @@
         /// <summary>
         /// classifying calculation run controller scenario1 index page view.
         /// </summary>
-        public const string ClassifyingCalculationRunScenario1Index = "~/Views/ClassifyingCalculationRunScenario1/Index.cshtml";
+        public const string SetRunClassificationIndex = "~/Views/SetRunClassification/Index.cshtml";
 
         /// <summary>
         /// Calculation Run Classification confirmation page view.

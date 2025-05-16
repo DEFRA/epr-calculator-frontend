@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Http
+@using EPR.Calculator.Frontend.Extensions
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunOverviewViewModel
 @{
@@ -49,7 +50,7 @@
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Run date and time</th>
-                                            <td class="govuk-table__cell">1 May 2024 at 12:09</td>
+                                            <td class="govuk-table__cell">@Model.Data.CreatedAt.ToUKDateTimeDisplay()</td>
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Run by</th>
@@ -61,10 +62,11 @@
 
                                 <p class="govuk-body">Download files related to this calculation run.</p>
                                 <div class="govuk-button-group">
-                                    <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                                    <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
+                                            onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
                                         Results file
                                     </button>
-                                    <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                                    <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")',true);">
                                         Draft billing file
                                     </button>
                                 </div>
