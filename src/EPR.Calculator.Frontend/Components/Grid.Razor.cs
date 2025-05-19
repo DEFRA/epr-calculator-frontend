@@ -33,20 +33,25 @@ namespace EPR.Calculator.Frontend.Components
 
             OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 1).ToString(), BillingInstructions = "CANCEL BILL", InvoiceAmount = "£100.000", Status = "REJECTED" });
             OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 2).ToString(), BillingInstructions = "INITIAL", InvoiceAmount = "£100.000", Status = "PENDING" });
-
         }
+
         class ElementComparer : IEqualityComparer<OrgProducerData>
         {
             public bool Equals(OrgProducerData a, OrgProducerData b) => a?.OrganisationID == b?.OrganisationID;
+
             public int GetHashCode(OrgProducerData x) => HashCode.Combine(x?.OrganisationID);
         }
 
         public record OrgProducerData
         {
             public string OrganisationName { get; set; }
+
             public string OrganisationID { get; set; }
+
             public string BillingInstructions { get; set; }
+
             public string InvoiceAmount { get; set; }
+
             public string Status { get; set; }
         }
 
@@ -62,6 +67,7 @@ namespace EPR.Calculator.Frontend.Components
             foreach (var item in pageItems)
                 selectedItems.Add(item);
         }
+
         private void DeselectPage()
         {
             if (_orgtableRef == null) return;
@@ -69,6 +75,7 @@ namespace EPR.Calculator.Frontend.Components
             foreach (var item in pageItems)
                 selectedItems.Remove(item);
         }
+
         private bool? PageSelectionState
         {
             get
@@ -81,6 +88,7 @@ namespace EPR.Calculator.Frontend.Components
                     return null; // Some items are selected (indeterminate)
                 return false; // No items are selected
             }
+
             set
             {
                 if (value == true || value == null)
@@ -120,6 +128,5 @@ namespace EPR.Calculator.Frontend.Components
         {
             selectedItems.Clear();
         }
-
     }
 }
