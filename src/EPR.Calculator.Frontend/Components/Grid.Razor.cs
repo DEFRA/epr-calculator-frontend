@@ -21,60 +21,6 @@ namespace EPR.Calculator.Frontend.Components
         private string name;
         private EditContext? editContext;
 
-        protected override async Task OnInitializedAsync()
-        {
-            this.orgProducers = new List<OrgProducerData>();
-            var count = 7000;
-
-            for (int i = 1; i < count; i++)
-            {
-                this.orgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = i.ToString(), BillingInstructions = "DELTA", InvoiceAmount = "£100.000", Status = "ACCEPTED" });
-            }
-
-            this.orgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 1).ToString(), BillingInstructions = "CANCEL BILL", InvoiceAmount = "£100.000", Status = "REJECTED" });
-            this.orgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 2).ToString(), BillingInstructions = "INITIAL", InvoiceAmount = "£100.000", Status = "PENDING" });
-        }
-
-        public class ElementComparer : IEqualityComparer<OrgProducerData>
-        {
-            public bool Equals(OrgProducerData a, OrgProducerData b) => a?.OrganisationID == b?.OrganisationID;
-
-            public int GetHashCode(OrgProducerData x) => HashCode.Combine(x?.OrganisationID);
-        }
-
-        private IEnumerable<OrgProducerData> GetVisiblePageItems()
-        {
-            return this._orgtableRef.FilteredItems.Skip(this._orgtableRef.CurrentPage * _orgtableRef.RowsPerPage).Take(_orgtableRef.RowsPerPage);
-        }
-
-        private void SelectPage()
-        {
-            if (this._orgtableRef == null)
-            {
-                return;
-            }
-
-            var pageItems = this.GetVisiblePageItems();
-            foreach (var item in pageItems)
-            {
-                this.selectedItems.Add(item);
-            }
-        }
-
-        private void DeselectPage()
-        {
-            if (this._orgtableRef == null)
-            {
-                return;
-            }
-
-            var pageItems = this.GetVisiblePageItems();
-            foreach (var item in pageItems)
-            {
-                this.selectedItems.Remove(item);
-            }
-        }
-
         private bool? PageSelectionState
         {
             get
@@ -111,6 +57,53 @@ namespace EPR.Calculator.Frontend.Components
             }
         }
 
+        protected override async Task OnInitializedAsync()
+        {
+            this.orgProducers = new List<OrgProducerData>();
+            var count = 7000;
+
+            for (int i = 1; i < count; i++)
+            {
+                this.orgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = i.ToString(), BillingInstructions = "DELTA", InvoiceAmount = "£100.000", Status = "ACCEPTED" });
+            }
+
+            this.orgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 1).ToString(), BillingInstructions = "CANCEL BILL", InvoiceAmount = "£100.000", Status = "REJECTED" });
+            this.orgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 2).ToString(), BillingInstructions = "INITIAL", InvoiceAmount = "£100.000", Status = "PENDING" });
+        }
+
+        private IEnumerable<OrgProducerData> GetVisiblePageItems()
+        {
+            return this._orgtableRef.FilteredItems.Skip(this._orgtableRef.CurrentPage * _orgtableRef.RowsPerPage).Take(_orgtableRef.RowsPerPage);
+        }
+
+        private void SelectPage()
+        {
+            if (this._orgtableRef == null)
+            {
+                return;
+            }
+
+            var pageItems = this.GetVisiblePageItems();
+            foreach (var item in pageItems)
+            {
+                this.selectedItems.Add(item);
+            }
+        }
+
+        private void DeselectPage()
+        {
+            if (this._orgtableRef == null)
+            {
+                return;
+            }
+
+            var pageItems = this.GetVisiblePageItems();
+            foreach (var item in pageItems)
+            {
+                this.selectedItems.Remove(item);
+            }
+        }
+
         private async Task HandleSubmit()
         {
             Console.WriteLine(this.name);
@@ -131,6 +124,13 @@ namespace EPR.Calculator.Frontend.Components
         private void HandleReset()
         {
             this.selectedItems.Clear();
+        }
+
+        public class ElementComparer : IEqualityComparer<OrgProducerData>
+        {
+            public bool Equals(OrgProducerData a, OrgProducerData b) => a?.OrganisationID == b?.OrganisationID;
+
+            public int GetHashCode(OrgProducerData x) => HashCode.Combine(x?.OrganisationID);
         }
 
         public record OrgProducerData

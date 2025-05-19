@@ -20,9 +20,9 @@
         font-weight: 500;
     }
 </style>
-<MudForm  Model="OrgProducers" @ref="form" OnValidSubmit="HandleSubmit" >
+<MudForm  Model="orgProducers" @ref="form" OnValidSubmit="HandleSubmit" >
 
- <MudTable @ref="_orgtableRef" Items="@OrgProducers" MultiSelection="true" @bind-SelectedItems="selectedItems" Hover="true" Breakpoint="Breakpoint.Sm" Striped="false" Bordered="true"
+ <MudTable @ref="_orgtableRef" Items="@orgProducers" MultiSelection="true" @bind-SelectedItems="selectedItems" Hover="true" Breakpoint="Breakpoint.Sm" Striped="false" Bordered="true"
           CustomHeader="true" CustomFooter="true" HeaderClass="table-head-bordered" FooterClass="table-foot-bordered">
     <HeaderContent>
         <MudTHeadRow IgnoreCheckbox="true" Class="header-centered">
