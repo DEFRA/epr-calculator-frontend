@@ -5,76 +5,76 @@ namespace EPR.Calculator.Frontend.Models
     /// <summary>
     /// Data transfer object for post billing file of a calculator run.
     /// </summary>
-    public class CalculatorRunPostBillingFileDto
+    public record CalculatorRunPostBillingFileDto
     {
         /// <summary>
-        /// Gets or sets the unique identifier of the calculator run.
+        /// Gets the unique identifier of the calculator run.
         /// </summary>
-        public int RunId { get; set; }
+        public int RunId { get; init; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the calculator run.
+        /// Gets the unique identifier of the calculator run.
         /// </summary>
-        public int ClassificationId { get; set; }
+        public int ClassificationId { get; init; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the calculator name.
+        /// Gets the unique identifier of the calculator name.
         /// </summary>
-        public string? CalcName { get; set; }
+        public string? CalcName { get; init; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the created at.
+        /// Gets the unique identifier of the created at.
         /// </summary>
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; init; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the created by.
+        /// Gets the unique identifier of the created by.
         /// </summary>
-        public string? CreatedBy { get; set; }
+        public string? CreatedBy { get; init; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the financial year.
+        /// Gets the unique identifier of the financial year.
         /// </summary>
-        public string? FinancialYear { get; set; }
+        public string? FinancialYear { get; init; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the run classification id.
+        /// Gets the unique identifier of the run classification id.
         /// </summary>
-        public RunClassification RunClassificationId { get; set; }
+        public RunClassification RunClassificationId { get; init; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the billing file id.
+        /// Gets the unique identifier of the billing file id.
         /// </summary>
-        public int? BillingFileId { get; set; }
+        public int? BillingFileId { get; init; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the billing csv file name.
+        /// Gets the unique identifier of the billing csv file name.
         /// </summary>
-        public string? BillingCsvFileName { get; set; }
+        public string? BillingCsvFileName { get; init; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the billing json file name.
+        /// Gets the unique identifier of the billing json file name.
         /// </summary>
-        public string? BillingJsonFileName { get; set; }
+        public string? BillingJsonFileName { get; init; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the billing file created by.
+        /// Gets the unique identifier of the billing file created by.
         /// </summary>
-        public string? BillingFileCreatedBy { get; set; }
+        public string? BillingFileCreatedBy { get; init; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the billing file authorised by.
+        /// Gets the unique identifier of the billing file authorised by.
         /// </summary>
-        public string? BillingFileAuthorisedBy { get; set; }
+        public string? BillingFileAuthorisedBy { get; init; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the billing file created date.
+        /// Gets the unique identifier of the billing file created date.
         /// </summary>
-        public DateTime? BillingFileCreatedDate { get; set; }
+        public DateTime? BillingFileCreatedDate { get; init; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the billing file authorised date.
+        /// Gets the unique identifier of the billing file authorised date.
         /// </summary>
-        public DateTime? BillingFileAuthorisedDate { get; set; }
+        public DateTime? BillingFileAuthorisedDate { get; init; }
     }
 }
