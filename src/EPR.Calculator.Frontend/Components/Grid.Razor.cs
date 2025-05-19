@@ -6,7 +6,7 @@ namespace EPR.Calculator.Frontend.Components
     public partial class Grid
     {
         private bool _hidePosition;
-        private List<OrgProducerData> OrgProducers = new List<OrgProducerData>();
+        private List<OrgProducerData> orgProducers = new List<OrgProducerData>();
         private HashSet<OrgProducerData> selectedItems = new HashSet<OrgProducerData>();
         private HorizontalAlignment horizontalAlignment = HorizontalAlignment.Right;
         private bool hidePageNumber;
@@ -23,16 +23,16 @@ namespace EPR.Calculator.Frontend.Components
 
         protected override async Task OnInitializedAsync()
         {
-            this.OrgProducers = new List<OrgProducerData>();
+            this.orgProducers = new List<OrgProducerData>();
             var count = 7000;
 
             for (int i = 1; i < count; i++)
             {
-                this.OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = i.ToString(), BillingInstructions = "DELTA", InvoiceAmount = "£100.000", Status = "ACCEPTED" });
+                this.orgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = i.ToString(), BillingInstructions = "DELTA", InvoiceAmount = "£100.000", Status = "ACCEPTED" });
             }
 
-            this.OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 1).ToString(), BillingInstructions = "CANCEL BILL", InvoiceAmount = "£100.000", Status = "REJECTED" });
-            this.OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 2).ToString(), BillingInstructions = "INITIAL", InvoiceAmount = "£100.000", Status = "PENDING" });
+            this.orgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 1).ToString(), BillingInstructions = "CANCEL BILL", InvoiceAmount = "£100.000", Status = "REJECTED" });
+            this.orgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 2).ToString(), BillingInstructions = "INITIAL", InvoiceAmount = "£100.000", Status = "PENDING" });
         }
 
         public class ElementComparer : IEqualityComparer<OrgProducerData>
