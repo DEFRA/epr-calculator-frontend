@@ -23,16 +23,16 @@ namespace EPR.Calculator.Frontend.Components
 
         protected override async Task OnInitializedAsync()
         {
-            OrgProducers = new List<OrgProducerData>();
+            this.OrgProducers = new List<OrgProducerData>();
             var count = 7000;
 
             for (int i = 1; i < count; i++)
             {
-                OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = i.ToString(), BillingInstructions = "DELTA", InvoiceAmount = "£100.000", Status = "ACCEPTED" });
+                this.OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = i.ToString(), BillingInstructions = "DELTA", InvoiceAmount = "£100.000", Status = "ACCEPTED" });
             }
 
-            OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 1).ToString(), BillingInstructions = "CANCEL BILL", InvoiceAmount = "£100.000", Status = "REJECTED" });
-            OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 2).ToString(), BillingInstructions = "INITIAL", InvoiceAmount = "£100.000", Status = "PENDING" });
+            this.OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 1).ToString(), BillingInstructions = "CANCEL BILL", InvoiceAmount = "£100.000", Status = "REJECTED" });
+            this.OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 2).ToString(), BillingInstructions = "INITIAL", InvoiceAmount = "£100.000", Status = "PENDING" });
         }
 
         class ElementComparer : IEqualityComparer<OrgProducerData>
@@ -57,35 +57,57 @@ namespace EPR.Calculator.Frontend.Components
 
         private IEnumerable<OrgProducerData> GetVisiblePageItems()
         {
-            return _orgtableRef.FilteredItems.Skip(_orgtableRef.CurrentPage * _orgtableRef.RowsPerPage).Take(_orgtableRef.RowsPerPage);
+            return this._orgtableRef.FilteredItems.Skip(this._orgtableRef.CurrentPage * _orgtableRef.RowsPerPage).Take(_orgtableRef.RowsPerPage);
         }
 
         private void SelectPage()
         {
-            if (_orgtableRef == null) return;
-            var pageItems = GetVisiblePageItems();
+            if (this._orgtableRef == null)
+            {
+                return;
+            }
+
+            var pageItems = this.GetVisiblePageItems();
             foreach (var item in pageItems)
-                selectedItems.Add(item);
+            {
+                this.selectedItems.Add(item);
+            }
         }
 
         private void DeselectPage()
         {
-            if (_orgtableRef == null) return;
-            var pageItems = GetVisiblePageItems();
+            if (this._orgtableRef == null)
+            {
+                return;
+            }
+
+            var pageItems = this.GetVisiblePageItems();
             foreach (var item in pageItems)
-                selectedItems.Remove(item);
+            {
+                this.selectedItems.Remove(item);
+            }
         }
 
         private bool? PageSelectionState
         {
             get
             {
-                if (_orgtableRef == null) return false;
-                var pageItems = GetVisiblePageItems();
-                if (pageItems.All(item => selectedItems.Contains(item)))
+                if (this._orgtableRef == null)
+                {
+                    return false;
+                }
+
+                var pageItems = this.GetVisiblePageItems();
+                if (pageItems.All(item => this.selectedItems.Contains(item)))
+                {
                     return true; // All items are selected
-                if (pageItems.Any(item => selectedItems.Contains(item)))
+                }
+
+                if (pageItems.Any(item => this.selectedItems.Contains(item)))
+                {
                     return null; // Some items are selected (indeterminate)
+                }
+
                 return false; // No items are selected
             }
 
@@ -93,40 +115,35 @@ namespace EPR.Calculator.Frontend.Components
             {
                 if (value == true || value == null)
                 {
-                    SelectPage();
+                    this.SelectPage();
                 }
                 else if (value == false)
                 {
-                    DeselectPage();
+                    this.DeselectPage();
                 }
             }
         }
 
         private async Task HandleSubmit()
         {
-            Console.WriteLine(name);
-            var response = await Http.PostAsJsonAsync("blazoreGrid/submit", selectedItems.ToList());
+            Console.WriteLine(this.name);
+            var response = await this.Http.PostAsJsonAsync("blazoreGrid/submit", this.selectedItems.ToList());
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
-                ResponseMessage = json;
+                this.ResponseMessage = json;
             }
             else
             {
-                ResponseMessage = "Form failed to Submit";
+                this.ResponseMessage = "Form failed to Submit";
             }
 
-            Console.WriteLine(ResponseMessage);
+            Console.WriteLine(this.ResponseMessage);
         }
 
-        private async Task HandleFailure()
+        private void HandleReset()
         {
-            Console.WriteLine("failed");
-        }
-
-        private async Task HandleReset()
-        {
-            selectedItems.Clear();
+            this.selectedItems.Clear();
         }
     }
 }
