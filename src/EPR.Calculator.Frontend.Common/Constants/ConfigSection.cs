@@ -20,6 +20,11 @@
         /// ///.</summary>
         public const string DashboardCalculatorRunV2 = "DashboardCalculatorRunApiV2";
 
+        /// <summary>
+        /// The configuration section for calculator run settings.
+        /// ///.</summary>
+        public const string CalculationRunApiV2 = "CalculationRunApiV2";
+
         public const string FinancialYearListApi = "FinancialYearListApi";
 
         /// <summary>

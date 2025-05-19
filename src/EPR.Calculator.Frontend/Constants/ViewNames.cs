@@ -164,5 +164,10 @@
         /// Calculator run details new error page view.
         /// </summary>
         public const string CalculationRunDetailsNewErrorPage = "~/Views/CalculationRunDetailsNew/ErrorPage.cshtml";
+
+        /// <summary>
+        /// post billing file index controller index new page view.
+        /// </summary>
+        public const string PostBillingFileIndex = "~/Views/PostBillingFile/Index.cshtml";
     }
 }
