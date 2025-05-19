@@ -64,5 +64,10 @@
         /// Calculation Run Overview.
         /// </summary>
         public const string CalculationRunOverview = "/CalculationRunOverview/{0}";
+
+        /// <summary>
+        /// Post Billing File Controller.
+        /// </summary>
+        public const string PostBillingFile = "/PostBillingFile/{0}";
     }
 }
