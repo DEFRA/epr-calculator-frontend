@@ -17,7 +17,7 @@ namespace EPR.Calculator.Frontend.Components
         private string allItemsText = "All";
         private MudTable<OrgProducerData> _orgtableRef;
         private MudForm form;
-        private string ResponseMessage;
+        private string responseMessage;
         private string name;
         private EditContext? editContext;
 
@@ -35,24 +35,11 @@ namespace EPR.Calculator.Frontend.Components
             this.OrgProducers.Add(new OrgProducerData() { OrganisationName = "Acme org Ltd", OrganisationID = (count + 2).ToString(), BillingInstructions = "INITIAL", InvoiceAmount = "£100.000", Status = "PENDING" });
         }
 
-        class ElementComparer : IEqualityComparer<OrgProducerData>
+        public class ElementComparer : IEqualityComparer<OrgProducerData>
         {
             public bool Equals(OrgProducerData a, OrgProducerData b) => a?.OrganisationID == b?.OrganisationID;
 
             public int GetHashCode(OrgProducerData x) => HashCode.Combine(x?.OrganisationID);
-        }
-
-        public record OrgProducerData
-        {
-            public string OrganisationName { get; set; }
-
-            public string OrganisationID { get; set; }
-
-            public string BillingInstructions { get; set; }
-
-            public string InvoiceAmount { get; set; }
-
-            public string Status { get; set; }
         }
 
         private IEnumerable<OrgProducerData> GetVisiblePageItems()
@@ -131,19 +118,32 @@ namespace EPR.Calculator.Frontend.Components
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
-                this.ResponseMessage = json;
+                this.responseMessage = json;
             }
             else
             {
-                this.ResponseMessage = "Form failed to Submit";
+                this.responseMessage = "Form failed to Submit";
             }
 
-            Console.WriteLine(this.ResponseMessage);
+            Console.WriteLine(this.responseMessage);
         }
 
         private void HandleReset()
         {
             this.selectedItems.Clear();
+        }
+
+        public record OrgProducerData
+        {
+            public string OrganisationName { get; set; }
+
+            public string OrganisationID { get; set; }
+
+            public string BillingInstructions { get; set; }
+
+            public string InvoiceAmount { get; set; }
+
+            public string Status { get; set; }
         }
     }
 }
