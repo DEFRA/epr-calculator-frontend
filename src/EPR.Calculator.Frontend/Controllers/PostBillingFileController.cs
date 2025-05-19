@@ -39,6 +39,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
+            this.SetDownloadParameters(viewModel);
+
             return this.View(ViewNames.PostBillingFileIndex, viewModel);
         }
 
@@ -68,7 +70,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 viewModel.CalculatorRunStatus = runDetails;
             }
 
-            this.SetDownloadParameters(viewModel);
             return viewModel;
         }
 
@@ -84,8 +85,8 @@ namespace EPR.Calculator.Frontend.Controllers
             int timeoutValue = int.TryParse(timeout, out timeoutValue) ? timeoutValue : 0;
             statusUpdateViewModel.DownloadTimeout = timeoutValue;
 
-            statusUpdateViewModel.DownloadResultURL = new Uri($"{downloadResultApi}/{statusUpdateViewModel.CalculatorRunStatus?.RunId}", UriKind.Absolute);
-            statusUpdateViewModel.DownloadErrorURL = $"/DownloadFileError/{statusUpdateViewModel.CalculatorRunStatus?.RunId}";
+            statusUpdateViewModel.DownloadResultURL = new Uri($"{downloadResultApi}/{statusUpdateViewModel.CalculatorRunStatus.RunId}", UriKind.Absolute);
+            statusUpdateViewModel.DownloadErrorURL = $"/DownloadFileError/{statusUpdateViewModel.CalculatorRunStatus.RunId}";
         }
     }
 }
