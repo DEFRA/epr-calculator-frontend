@@ -26,6 +26,7 @@ namespace EPR.Calculator.Frontend.ViewModels
             this.TagStyle = GetStatusTagStyle(calculationRun.CalculatorRunClassificationId);
             this.ShowRunDetailLink = ShouldShowRunDetailLink(calculationRun.CalculatorRunClassificationId);
             this.ShowErrorLink = ShouldShowErrorLink(calculationRun.CalculatorRunClassificationId);
+            this.HasBillingFileGenerated = calculationRun.HasBillingFileGenerated;
         }
 
         /// <summary>
@@ -69,6 +70,11 @@ namespace EPR.Calculator.Frontend.ViewModels
         public bool ShowErrorLink { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether gets or sets the has billing file generated.
+        /// </summary>
+        public bool HasBillingFileGenerated { get; set; }
+
+        /// <summary>
         /// Gets a value indicating whether gets or sets the calculation run details link.
         /// </summary>
         public string TurnOffFeatureUrl => string.Format(ActionNames.ViewCalculationRunDetails, this.Id);
@@ -76,7 +82,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets a value indicating whether the run detail link should be displayed.
         /// </summary>
-        public string TurnOnFeatureUrl => GetTurnOnFeatureUrl(this.Status, this.Id);
+        public string TurnOnFeatureUrl => GetTurnOnFeatureUrl(this.Status, this.Id, this.HasBillingFileGenerated);
 
         private static string GetStatusTagStyle(RunClassification status) => status switch
         {
@@ -93,11 +99,13 @@ namespace EPR.Calculator.Frontend.ViewModels
         private static bool ShouldShowErrorLink(RunClassification status) =>
             status == RunClassification.ERROR;
 
-        private static string GetTurnOnFeatureUrl(RunClassification status, int id)
+        private static string GetTurnOnFeatureUrl(RunClassification status, int id, bool hasBillingFileGenerated)
         {
             return status switch
             {
-                RunClassification.UNCLASSIFIED => string.Format(ActionNames.ViewCalculationRunNewDetails, id),
+                RunClassification.UNCLASSIFIED => string.Format(ActionNames.CalculationRunNewDetails, id),
+                RunClassification.INITIAL_RUN when !hasBillingFileGenerated => string.Format(ActionNames.ClassifyRunConfirmation, id),
+                RunClassification.INITIAL_RUN when hasBillingFileGenerated => string.Format(ActionNames.CalculationRunOverview, id),
                 _ => ControllerNames.Dashboard,
             };
         }

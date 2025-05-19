@@ -1,4 +1,5 @@
 ﻿using System.Configuration;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -91,6 +92,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var argsString = !string.IsNullOrEmpty(argument)
                 ? $"/{argument}"
                 : string.Empty;
+            argsString = !argument.Contains("&") ? argsString : $"?{argument}";
             var contentString = JsonSerializer.Serialize(body);
             var request = new HttpRequestMessage(
                 httpMethod,
@@ -158,7 +160,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var client = this.ClientFactory.CreateClient();
             var accessToken = await this.AcquireToken();
-            client.DefaultRequestHeaders.Add("Authorization", accessToken);
+            if (client.DefaultRequestHeaders is not null && !client.DefaultRequestHeaders.Contains("Authorization"))
+            {
+                client.DefaultRequestHeaders.Add("Authorization", accessToken);
+            }
+
             return client;
         }
 

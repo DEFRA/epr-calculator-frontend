@@ -418,6 +418,57 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual("StandardError", result.ControllerName);
         }
 
+        [TestMethod]
+        public async Task IndexAsync_ReturnsView_WhenApiCallIsSuccessfulForInitialRun()
+        {
+            // Arrange
+            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetInitialRunCalculatorRun());
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            var mockClient = new TelemetryClient();
+
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString("accessToken", "something");
+
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+
+            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
+                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, mockClient);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = context
+            };
+            controller.ControllerContext.HttpContext.Request.Scheme = "https";
+            controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
+            int runId = 1;
+            string calcName = "Test Run";
+
+            // Act
+            var result = await controller.IndexAsync(runId) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsIndex, result.ViewName);
+            var model = result.Model as CalculatorRunStatusUpdateViewModel;
+            Assert.IsNotNull(model);
+            Assert.AreEqual(runId, model.Data.RunId);
+            Assert.AreEqual((int)RunClassification.INITIAL_RUN, model.Data.ClassificationId);
+            Assert.AreEqual(calcName, model.Data.CalcName);
+            Assert.AreEqual(new Uri("http://localhost:5055/v1/DownloadResult/1"), model.DownloadResultURL);
+            Assert.AreEqual("/DownloadFileError/1", model.DownloadErrorURL);
+            Assert.AreEqual(30000, model.DownloadTimeout);
+            Assert.AreEqual("12:09", model.Data.CreatedTime);
+            Assert.AreEqual("21 Jun 2024", model.Data.CreatedDate);
+        }
+
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
