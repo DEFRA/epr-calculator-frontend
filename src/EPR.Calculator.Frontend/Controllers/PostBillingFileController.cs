@@ -10,7 +10,6 @@ using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-
     /// <summary>
     /// Controller for handling post billing file details.
     /// </summary>
