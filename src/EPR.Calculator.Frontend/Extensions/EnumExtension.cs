@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 
@@ -26,7 +27,7 @@ namespace EPR.Calculator.Frontend.Extensions
             var descriptionAttribute = memberInfo.GetCustomAttribute<DescriptionAttribute>();
             if (!string.IsNullOrEmpty(descriptionAttribute?.Description))
             {
-                return descriptionAttribute.Description!;
+                return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(descriptionAttribute.Description!.ToLower());
             }
 
             // Check for EnumMemberAttribute

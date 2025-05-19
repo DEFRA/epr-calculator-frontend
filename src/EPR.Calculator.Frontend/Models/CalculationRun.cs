@@ -17,5 +17,7 @@ namespace EPR.Calculator.Frontend.Models
         public required string CreatedBy { get; set; }
 
         public DateTime CreatedAt { get; set; }
+
+        public bool HasBillingFileGenerated { get; set; }
     }
 }

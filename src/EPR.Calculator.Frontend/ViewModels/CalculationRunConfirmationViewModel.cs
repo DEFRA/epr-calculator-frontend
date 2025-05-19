@@ -5,7 +5,6 @@
     /// <summary>
     /// The view model for the create calculation run confirmation page.
     /// </summary>
-    [ExcludeFromCodeCoverage]
     public record CalculationRunConfirmationViewModel
     {
         /// <summary>
