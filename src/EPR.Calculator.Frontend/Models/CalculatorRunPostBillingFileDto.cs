@@ -18,9 +18,9 @@ namespace EPR.Calculator.Frontend.Models
         public int ClassificationId { get; init; }
 
         /// <summary>
-        /// Gets the unique identifier of the calculator name.
+        /// Gets the unique identifier of the run name.
         /// </summary>
-        public string CalcName { get; init; }
+        public string RunName { get; init; }
 
         /// <summary>
         /// Gets the unique identifier of the created at.
