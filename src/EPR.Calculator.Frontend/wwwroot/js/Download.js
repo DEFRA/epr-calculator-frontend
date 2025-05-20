@@ -1,4 +1,4 @@
-﻿function downloadFile(url, errorAction, event, timeout, token, isDraftFile = false) {
+﻿function downloadFile(url, errorAction, event, timeout, token, isDraftFile = false, isBillingFile = false) {
     var draftFile = isDraftFile;
     event.preventDefault();
     $.ajax({
@@ -22,10 +22,11 @@
 
                 let filename = '';
                 let matches = filenameRegex.exec(contentDisposition);
-              if (matches?.[1]) {
+                if (matches?.[1]) {
                     filename = matches[1].replace(/['"]/g, '');
                 }
                 if (draftFile) { filename = filename.replace('Results File', 'Draft Billing File') }
+                if (isBillingFile) { filename = filename.replace('Results File', 'Billing File') }
 
                 // Create a download link
                 const url = window.URL.createObjectURL(data);
@@ -36,13 +37,12 @@
                 a.click();
                 window.URL.revokeObjectURL(url);
             }
-            catch (error)
-            {
+            catch (error) {
                 window.location.href = errorAction;
-            }            
+            }
         },
         error: function (error) {
             window.location.href = errorAction;
         }
-    });  
+    });
 }
