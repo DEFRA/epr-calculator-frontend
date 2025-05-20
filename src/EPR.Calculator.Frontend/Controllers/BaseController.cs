@@ -7,6 +7,7 @@ using EPR.Calculator.Frontend.Common;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
@@ -127,6 +128,29 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                  runDetails = response.Content.ReadFromJsonAsync<CalculatorRunDetailsViewModel>().Result;
                  return runDetails;
+            }
+
+            return runDetails;
+        }
+
+        /// <summary>
+        /// Retrieves the calculation run with billing details.
+        /// </summary>
+        /// <param name="runId">run id.</param>
+        /// <returns>calculator run post billing file data transfer objet.</returns>
+        protected async Task<CalculatorRunPostBillingFileDto?> GetCalculatorRunWithBillingdetails(int runId)
+        {
+            var runDetails = new CalculatorRunPostBillingFileDto();
+            var apiUrl = this.GetApiUrl(
+                    ConfigSection.CalculationRunSettings,
+                    ConfigSection.CalculationRunApiV2);
+
+            var response = await this.CallApi(HttpMethod.Get, apiUrl, runId.ToString(), null);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                runDetails = response.Content.ReadFromJsonAsync<CalculatorRunPostBillingFileDto>().Result;
+                return runDetails;
             }
 
             return runDetails;
