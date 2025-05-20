@@ -14,7 +14,7 @@
             <div class="govuk-form-group">
                 <fieldset class="govuk-fieldset">
                     <legend></legend>
-                    <span class="govuk-caption-l">@Model.CalculatorRunStatus.CalcName</span>
+                    <span class="govuk-caption-l">@Model.CalculatorRunStatus.RunName</span>
                     <h1 class="govuk-heading-l">Calculation run details</h1>
                     <table class="govuk-table">
                         <caption class="govuk-visually-hidden">Details of the calculation run</caption>
@@ -25,11 +25,11 @@
                             </tr>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Classification</th>
-                                <td class="govuk-table__cell">Initial run</td>
+                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.RunClassificationId.GetDisplayName()</td>
                             </tr>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                <td class="govuk-table__cell">240008</td>
+                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.RunId</td>
                             </tr>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Run date and time</th>
