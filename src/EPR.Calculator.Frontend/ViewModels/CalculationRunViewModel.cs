@@ -106,6 +106,7 @@ namespace EPR.Calculator.Frontend.ViewModels
                 RunClassification.UNCLASSIFIED => string.Format(ActionNames.CalculationRunNewDetails, id),
                 RunClassification.INITIAL_RUN when !hasBillingFileGenerated => string.Format(ActionNames.ClassifyRunConfirmation, id),
                 RunClassification.INITIAL_RUN when hasBillingFileGenerated => string.Format(ActionNames.CalculationRunOverview, id),
+                RunClassification.INITIAL_RUN_COMPLETED => $"{nameof(ControllerNames.PostBillingFile)}",
                 _ => ControllerNames.Dashboard,
             };
         }

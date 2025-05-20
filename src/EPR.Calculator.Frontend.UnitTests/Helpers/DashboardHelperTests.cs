@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Enums;
     using EPR.Calculator.Frontend.Helpers;
     using EPR.Calculator.Frontend.Models;
