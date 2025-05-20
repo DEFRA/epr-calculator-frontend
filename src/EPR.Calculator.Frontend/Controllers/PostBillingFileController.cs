@@ -66,26 +66,19 @@ namespace EPR.Calculator.Frontend.Controllers
             if (runDetails != null && runDetails!.RunId > 0)
             {
                 viewModel.CalculatorRunStatus = runDetails;
+                this.SetDownloadParameters(viewModel);
             }
 
-            this.SetDownloadParameters(viewModel);
             return viewModel;
         }
 
-        private void SetDownloadParameters(PostBillingFileViewModel statusUpdateViewModel)
+        private void SetDownloadParameters(PostBillingFileViewModel viewModel)
         {
-            var downloadResultApi = this.Configuration
-                          .GetSection(ConfigSection.CalculationRunSettings)
-                          .GetValue<string>(ConfigSection.DownloadResultApi);
+            var baseApiUrl = this.Configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
+            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.CalculatorRunStatus!.RunId}");
 
-            string? timeout = this.Configuration
-                  .GetSection(ConfigSection.CalculationRunSettings)
-                  .GetValue<string>(ConfigSection.DownloadResultTimeoutInMilliSeconds);
-            int timeoutValue = int.TryParse(timeout, out timeoutValue) ? timeoutValue : 0;
-            statusUpdateViewModel.DownloadTimeout = timeoutValue;
-
-            statusUpdateViewModel.DownloadResultURL = new Uri($"{downloadResultApi}/{statusUpdateViewModel.CalculatorRunStatus?.RunId}", UriKind.Absolute);
-            statusUpdateViewModel.DownloadErrorURL = $"/DownloadFileError/{statusUpdateViewModel.CalculatorRunStatus?.RunId}";
+            viewModel.DownloadErrorURL = $"/DownloadFileErrorNew/{viewModel.CalculatorRunStatus.RunId}";
+            viewModel.DownloadTimeout = this.Configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
         }
     }
 }
