@@ -3,18 +3,18 @@ using System.ComponentModel;
 
 namespace EPR.Calculator.Frontend.Models
 {
-    public class Organisation
+    public record Organisation
     {
-        public int Id { get; set; }
+        public int Id { get; init; }
 
-        public string? OrganisationName { get; set; }
+        public string? OrganisationName { get; init; }
 
-        public int OrganisationId { get; set; }
+        public int OrganisationId { get; init; }
 
-        public BillingInstruction? BillingInstruction { get; set; }
+        public BillingInstruction? BillingInstruction { get; init; }
 
-        public double InvoiceAmount { get; set; }
+        public double InvoiceAmount { get; init; }
 
-        public BillingStatus? Status { get; set; }
+        public BillingStatus? Status { get; init; }
     }
 }

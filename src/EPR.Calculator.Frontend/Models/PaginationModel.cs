@@ -1,22 +1,22 @@
 ﻿namespace EPR.Calculator.Frontend.Models
 {
-    public class PaginatedTableViewModel
+    public record PaginatedTableViewModel
     {
-        public IEnumerable<object> Records { get; set; }
+        public IEnumerable<object> Records { get; init; }
 
-        public string Caption { get; set; }
+        public string Caption { get; init; }
 
-        public string FormAction { get; set; }
+        public string FormAction { get; init; }
 
-        public int CurrentPage { get; set; }
+        public int CurrentPage { get; init; }
 
-        public int PageSize { get; set; }
+        public int PageSize { get; init; }
 
-        public int TotalRecords { get; set; }
+        public int TotalRecords { get; init; }
 
-        public string BaseUrl { get; set; }
+        public string BaseUrl { get; init; }
 
-        public IEnumerable<int> PageSizeOptions { get; set; } = new[] { 10, 25, 50 };
+        public IEnumerable<int> PageSizeOptions { get; init; } = new[] { 10, 25, 50 };
 
         public int TotalPages => (int)Math.Ceiling((double)TotalRecords / PageSize);
     }
