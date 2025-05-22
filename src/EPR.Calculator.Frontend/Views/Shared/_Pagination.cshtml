@@ -1,0 +1,94 @@
+﻿@model PaginatedTableViewModel
+
+@{
+    int currentPage = Model.CurrentPage;
+    int totalPages = Model.TotalPages;
+    int pageSize = Model.PageSize;
+
+    int blockSize = 3;
+    int blockStart = ((currentPage - 1) / blockSize) * blockSize + 1;
+    int blockEnd = Math.Min(blockStart + blockSize - 1, totalPages);
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
+
+    <!-- Left side: pagination numbers + next -->
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <ul class="govuk-pagination__list">
+            @* Previous *@
+            @if (currentPage > 1)
+            {
+                <li class="govuk-pagination__item govuk-pagination__item--prev">
+                    <a class="govuk-link govuk-pagination__link" href="?page=@(currentPage - 1)&pageSize=@pageSize" rel="prev" aria-label="Previous page">
+                        Previous
+                    </a>
+                </li>
+            }
+
+            @* Sliding window of 3 page numbers *@
+            @for (int i = blockStart; i <= blockEnd; i++)
+            {
+                <li class="govuk-pagination__item @(currentPage == i ? "govuk-pagination__item--current" : "")" @(currentPage == i ? "aria-current=\"page\"" : "")>
+                    @if (currentPage == i)
+                    {
+                        @i
+                    }
+                    else
+                    {
+                        <a class="govuk-link govuk-pagination__link" href="?page=@i&pageSize=@pageSize">@i</a>
+                    }
+                </li>
+            }
+
+            @* Ellipsis and last page *@
+            @if (blockEnd < totalPages - 1)
+            {
+                <li class="govuk-pagination__item">...</li>
+                <li class="govuk-pagination__item">
+                    <a class="govuk-link govuk-pagination__link" href="?page=@totalPages&pageSize=@pageSize">@totalPages</a>
+                </li>
+            }
+            else if (blockEnd == totalPages - 1)
+            {
+                <li class="govuk-pagination__item">
+                    <a class="govuk-link govuk-pagination__link" href="?page=@totalPages&pageSize=@pageSize">@totalPages</a>
+                </li>
+            }
+
+            @* Next *@
+            @if (currentPage < totalPages)
+            {
+                <li class="govuk-pagination__item govuk-pagination__item--next">
+                    <a class="govuk-link govuk-pagination__link" href="?page=@(currentPage + 1)&pageSize=@pageSize" rel="next" aria-label="Next page">
+                        Next →
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <!-- Right side: items per page -->
+    <div>
+        <span class="govuk-body govuk-!-font-weight-bold" style="margin-right: 10px;">Items per page:</span>
+        <ul class="govuk-pagination__list" style="display: inline-flex; list-style: none; padding-left: 0;">
+            @foreach (var size in new[] { 10, 50, 100 })
+            {
+                if (Model.PageSize == size)
+                {
+                    <li class="govuk-pagination__item" style="margin-right: 10px;">
+                        <strong>@size</strong>
+                    </li>
+                }
+                else
+                {
+                    <li class="govuk-pagination__item">
+                        <a class="govuk-link govuk-pagination__link govuk-link--no-visited-state" href="?page=1&pageSize=@size" aria-label="Page 6">
+                            @size
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+</div>
+

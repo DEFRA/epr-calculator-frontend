@@ -1,0 +1,67 @@
+﻿@using EPR.Calculator.Frontend.Enums
+@using EPR.Calculator.Frontend.Extensions
+@model PaginatedTableViewModel
+
+@using (Html.BeginForm(ActionNames.ProcessSelection, null, FormMethod.Post))
+{
+    <h2 class="govuk-heading-m">@Model.Caption</h2>
+    <table class="govuk-table">
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header" style="width: 60px;"></th>
+                <th scope="col" class="govuk-table__header" style="width: 170px;">Organisation name</th>
+                <th scope="col" class="govuk-table__header" style="width: 160px;">Organisation ID</th>
+                <th scope="col" class="govuk-table__header" style="width: 160px;">Billing instruction</th>
+                <th scope="col" class="govuk-table__header" style="width: 140px;">Invoice amount</th>
+                <th scope="col" class="govuk-table__header" style="width: 140px;">Status</th>
+            </tr>
+        </thead>
+
+        <tbody class="govuk-table__body">
+            @foreach (var org in Model.Records.Cast<Organisation>())
+            {
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">
+                        <input type="checkbox"
+                               name="SelectedIds"
+                               value="@org.Id"
+                        @(org.Status == BillingStatus.Noaction ? "disabled" : "")
+                               style="width:34px; height:34px; cursor: pointer; border: 1px solid #000;">
+                    </td>
+                    <td class="govuk-table__cell">@org.OrganisationName</td>
+                    <td class="govuk-table__cell">@org.OrganisationId</td>
+                    <td class="govuk-table__cell" style="width: 60px; text-align: left; padding: 10px 20px 10px 0px; vertical-align: middle;">
+                        <strong class="govuk-tag govuk-tag--blue">@org.BillingInstruction!.GetDisplayName().ToUpper()</strong>
+                    </td>
+
+                    <td class="govuk-table__cell">@org.InvoiceAmount.ToString("C")</td>
+                    <td class="govuk-table__cell">
+                        <strong class="govuk-tag @GetStatusClass(org.Status)">
+                            @org.Status!.GetDisplayName().ToUpper()
+                        </strong>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@Html.Partial("_Pagination", Model)
+
+@functions {
+    public string GetStatusClass(BillingStatus? status)
+    {
+        switch (status)
+        {
+            case BillingStatus.Pending:
+                return "govuk-tag--yellow grey";
+            case BillingStatus.Accepted:
+                return "govuk-tag--green";
+            case BillingStatus.Rejected:
+                return "govuk-tag--red";
+            case BillingStatus.Noaction:
+            default:
+                return "govuk-tag--grey";
+        }
+    }
+}
