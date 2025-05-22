@@ -1,6 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
@@ -27,11 +28,9 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 Records = pagedOrgs.Cast<object>(),
                 Caption = "Billing Instructions",
-                FormAction = Url.Action(ActionNames.ProcessSelection),
                 CurrentPage = page,
                 PageSize = pageSize,
                 TotalRecords = allOrgs.Count,
-                BaseUrl = Url.Action(ActionNames.Index, ControllerNames.Organisation),
             };
 
             return this.View(viewModel);

@@ -71,7 +71,7 @@
     <div>
         <span class="govuk-body govuk-!-font-weight-bold" style="margin-right: 10px;">Items per page:</span>
         <ul class="govuk-pagination__list" style="display: inline-flex; list-style: none; padding-left: 0;">
-            @foreach (var size in new[] { 10, 50, 100 })
+            @foreach (var size in Model.PageSizeOptions)
             {
                 if (Model.PageSize == size)
                 {

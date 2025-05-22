@@ -1,4 +1,4 @@
-﻿namespace EPR.Calculator.Frontend.Models
+﻿namespace EPR.Calculator.Frontend.ViewModels
 {
     public record PaginatedTableViewModel
     {
@@ -6,15 +6,11 @@
 
         public string Caption { get; init; }
 
-        public string FormAction { get; init; }
-
         public int CurrentPage { get; init; }
 
         public int PageSize { get; init; }
 
         public int TotalRecords { get; init; }
-
-        public string BaseUrl { get; init; }
 
         public IEnumerable<int> PageSizeOptions { get; init; } = new[] { 10, 25, 50 };
 
