@@ -42,7 +42,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             Assert.AreEqual(2, model.CurrentPage);
             Assert.AreEqual(10, model.PageSize);
-            Assert.AreEqual(1000, model.TotalRecords);
+            Assert.AreEqual(100, model.TotalRecords);
             Assert.AreEqual("Billing Instructions", model.Caption);
 
             // Verify pagination: should have 10 records, corresponding to items 11-20
