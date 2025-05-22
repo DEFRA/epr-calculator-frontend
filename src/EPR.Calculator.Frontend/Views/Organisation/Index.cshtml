@@ -46,7 +46,7 @@
     </table>
 }
 
-@Html.Partial("_Pagination", Model)
+<partial name="_Pagination" model="Model" />
 
 @functions {
     public string GetStatusClass(BillingStatus? status)
