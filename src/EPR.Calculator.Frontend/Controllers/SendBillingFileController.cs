@@ -55,11 +55,11 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.RedirectToAction(ActionNames.BillingFileSuccess, ControllerNames.PaymentCalculator);
                 }
 
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
             catch (Exception)
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
 

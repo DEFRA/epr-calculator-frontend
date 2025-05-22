@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -136,7 +137,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var redirect = result as RedirectToActionResult;
             Assert.IsNotNull(redirect);
             Assert.AreEqual(ActionNames.StandardErrorIndex, redirect.ActionName);
-            Assert.AreEqual("StandardError", redirect.ControllerName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), redirect.ControllerName);
         }
 
         [TestMethod]
@@ -167,7 +168,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var redirect = result as RedirectToActionResult;
             Assert.IsNotNull(redirect);
             Assert.AreEqual(ActionNames.StandardErrorIndex, redirect.ActionName);
-            Assert.AreEqual("StandardError", redirect.ControllerName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), redirect.ControllerName);
         }
 
         private static Mock<IHttpClientFactory> GetMockHttpClientFactoryWithResponse(HttpStatusCode code)
