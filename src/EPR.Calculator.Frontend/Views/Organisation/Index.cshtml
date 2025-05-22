@@ -4,7 +4,28 @@
 
 @using (Html.BeginForm(ActionNames.ProcessSelection, null, FormMethod.Post))
 {
+    <!-- Updated header showing total records -->
+    <div>
+        <!-- Results table start -->
+        <table class="govuk-table" id="submission-table">
+            <thead class="govuk-table__head">
+                <tr>
+                    <td class="govuk-table__cell" style="width: 420px; text-align:left; padding: 10px 20px 10px 0px; border-bottom:0px;">
+                        0 records
+                        selected
+                    </td>
+                    <td class="govuk-table__cell" style="width: 60px; text-align: left; padding: 10px 0px 10px 20px; vertical-align: middle; border-bottom:0px;">
+                        <strong>@Model.StartRecord - @Model.EndRecord of @Model.TotalRecords</strong>
+                    </td>
+                </tr>
+            </thead>
+        </table>
+        <!-- Results table end -->
+    </div>
+
     <h2 class="govuk-heading-m">@Model.Caption</h2>
+
+    <!-- Table with the Data -->
     <table class="govuk-table">
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
@@ -21,21 +42,21 @@
             @foreach (var org in Model.Records.Cast<Organisation>())
             {
                 <tr class="govuk-table__row">
-                    <td class="govuk-table__cell">
+                    <td class="govuk-table__cell govuk-!-text-align-center">
                         <input type="checkbox"
                                name="SelectedIds"
                                value="@org.Id"
                         @(org.Status == BillingStatus.Noaction ? "disabled" : "")
                                style="width:34px; height:34px; cursor: pointer; border: 1px solid #000;">
                     </td>
-                    <td class="govuk-table__cell">@org.OrganisationName</td>
-                    <td class="govuk-table__cell">@org.OrganisationId</td>
-                    <td class="govuk-table__cell" style="width: 60px; text-align: left; padding: 10px 20px 10px 0px; vertical-align: middle;">
+                    <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">@org.OrganisationName</td>
+                    <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">@org.OrganisationId</td>
+                    <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">
                         <strong class="govuk-tag govuk-tag--blue">@org.BillingInstruction!.GetDisplayName().ToUpper()</strong>
                     </td>
 
-                    <td class="govuk-table__cell">@org.InvoiceAmount.ToString("C")</td>
-                    <td class="govuk-table__cell">
+                    <td class="govuk-table__cell govuk-!-text-align-center">@org.InvoiceAmount.ToString("C")</td>
+                    <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">
                         <strong class="govuk-tag @GetStatusClass(org.Status)">
                             @org.Status!.GetDisplayName().ToUpper()
                         </strong>
@@ -44,10 +65,11 @@
             }
         </tbody>
     </table>
+    <!-- End Table -->
 }
-
+<!-- Record Pagination -->
 <partial name="_Pagination" model="Model" />
-
+<!-- End Record Pagination -->
 @functions {
     public string GetStatusClass(BillingStatus? status)
     {

@@ -15,5 +15,9 @@
         public IEnumerable<int> PageSizeOptions { get; init; } = new[] { 10, 25, 50 };
 
         public int TotalPages => (int)Math.Ceiling((double)TotalRecords / PageSize);
+
+        public int StartRecord { get; init; }
+
+        public int EndRecord { get; init; }
     }
 }

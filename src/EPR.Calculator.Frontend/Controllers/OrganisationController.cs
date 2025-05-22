@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using System.Drawing.Printing;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -31,6 +32,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 CurrentPage = page,
                 PageSize = pageSize,
                 TotalRecords = allOrgs.Count,
+                StartRecord = ((page - 1) * pageSize) + 1,
+                EndRecord = Math.Min(page * pageSize, allOrgs.Count),
             };
 
             return this.View(viewModel);
@@ -43,7 +46,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         private List<Organisation> GetOrganisations() =>
-     Enumerable.Range(1, 1000).Select(i => new Organisation
+     Enumerable.Range(1, 100).Select(i => new Organisation
      {
          Id = i,
          OrganisationName = $"Acme org Ltd {i}",
