@@ -126,7 +126,55 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public async Task Submit_ApiNotAccepted_RedirectsToStandardErrorIndex()
+        public async Task Submit_ApiReturnsUnprocessableContent_RedirectsToStandardErrorIndex()
+        {
+            // Arrange
+            var failedCode = HttpStatusCode.UnprocessableContent;
+
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = failedCode
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            var controller = new SendBillingFileController(
+                   _configuration,
+                   _mockTokenAcquisition.Object,
+                   _telemetryClient,
+                   mockHttpClientFactory.Object)
+            {
+                // Setting the mocked HttpContext for the controller
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = _mockHttpContext.Object
+                }
+            };
+
+            // Act
+            var result = await _controller.Submit(1);
+
+            // Assert
+            var redirect = result as RedirectToActionResult;
+            Assert.IsNotNull(redirect);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirect.ActionName);
+            Assert.AreEqual("StandardError", redirect.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task Submit_ApiException_RedirectsToStandardErrorIndex()
         {
             // Arrange
             var failedCode = HttpStatusCode.BadRequest;
