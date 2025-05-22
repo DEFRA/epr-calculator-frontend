@@ -50,7 +50,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var response = await this.PrepareBillingFileSendToFSSAsync(runId);
 
-                if (response.IsSuccessStatusCode && response.StatusCode == HttpStatusCode.Accepted)
+                if (response.StatusCode == HttpStatusCode.Accepted)
                 {
                     return this.RedirectToAction(ActionNames.BillingFileSuccess, ControllerNames.PaymentCalculator);
                 }
