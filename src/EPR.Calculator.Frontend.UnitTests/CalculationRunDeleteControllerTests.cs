@@ -119,7 +119,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         /// <summary>
-        /// Tests that the DeleteConfirmationSuccess method redirects to the error 
+        /// Tests that the DeleteConfirmationSuccess method redirects to the error
         /// page when the API throws an exception.
         /// </summary>
         /// <returns>A <see cref="Task"/>.</returns>
