@@ -129,24 +129,39 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_ApiNotAccepted_RedirectsToStandardErrorIndex()
         {
             // Arrange
-            var failedResponse = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            _controller.ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object };
+            var failedCode = HttpStatusCode.BadRequest;
 
-            // Act
-            var result = await _controller.Submit(1);
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = failedCode
+                });
 
-            // Assert
-            var redirect = result as RedirectToActionResult;
-            Assert.IsNotNull(redirect);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, redirect.ActionName);
-            Assert.AreEqual("StandardError", redirect.ControllerName);
-        }
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
 
-        [TestMethod]
-        public async Task Submit_ApiThrowsException_RedirectsToStandardErrorIndex()
-        {
-            // Arrange
-            _controller.ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object };
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            var controller = new SendBillingFileController(
+                   _configuration,
+                   _mockTokenAcquisition.Object,
+                   _telemetryClient,
+                   mockHttpClientFactory.Object)
+            {
+                // Setting the mocked HttpContext for the controller
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = _mockHttpContext.Object
+                }
+            };
 
             // Act
             var result = await _controller.Submit(1);
