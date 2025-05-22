@@ -83,24 +83,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Arrange
             var acceptedCode = HttpStatusCode.Accepted;
 
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = acceptedCode
-                });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
+            var mockHttpClientFactory = GetMockHttpClientFactoryWithResponse(acceptedCode);
 
             var controller = new SendBillingFileController(
                    _configuration,
@@ -129,26 +112,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_ApiReturnsUnprocessableContent_RedirectsToStandardErrorIndex()
         {
             // Arrange
-            var failedCode = HttpStatusCode.UnprocessableContent;
+            var unprocessableCode = HttpStatusCode.UnprocessableContent;
 
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = failedCode
-                });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
+            var mockHttpClientFactory = GetMockHttpClientFactoryWithResponse(unprocessableCode);
 
             var controller = new SendBillingFileController(
                    _configuration,
@@ -179,24 +145,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Arrange
             var failedCode = HttpStatusCode.BadRequest;
 
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = failedCode
-                });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
+            var mockHttpClientFactory = GetMockHttpClientFactoryWithResponse(failedCode);
 
             var controller = new SendBillingFileController(
                    _configuration,
@@ -219,6 +168,30 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(redirect);
             Assert.AreEqual(ActionNames.StandardErrorIndex, redirect.ActionName);
             Assert.AreEqual("StandardError", redirect.ControllerName);
+        }
+
+        private static Mock<IHttpClientFactory> GetMockHttpClientFactoryWithResponse(HttpStatusCode code)
+        {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = code
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            return mockHttpClientFactory;
         }
     }
 }
