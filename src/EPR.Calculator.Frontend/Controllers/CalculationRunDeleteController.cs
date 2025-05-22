@@ -65,31 +65,24 @@ namespace EPR.Calculator.Frontend.Controllers
             var apiUrl = this.GetApiUrl(
                 ConfigSection.DashboardCalculatorRun,
                 ConfigSection.DashboardCalculatorRunV2);
-            try
-            {
-                var result = await this.CallApi(
-                    HttpMethod.Put,
-                    apiUrl,
-                    string.Empty,
-                    new ClassificationDto
-                    {
-                        RunId = model.RunId,
-                        ClassificationId = (int)RunClassification.DELETED,
-                    });
 
-                if (result.StatusCode == HttpStatusCode.Created)
+            var result = await this.CallApi(
+                HttpMethod.Put,
+                apiUrl,
+                string.Empty,
+                new ClassificationDto
                 {
-                    return this.View(ViewNames.CalculationRunDeleteConfirmationSuccess, model: currentUser);
-                }
-                else
-                {
-                    this.TelemetryClient.TrackTrace($"API did not return successful ({result.StatusCode}).");
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                }
-            }
-            catch (Exception ex)
+                    RunId = model.RunId,
+                    ClassificationId = (int)RunClassification.DELETED,
+                });
+
+            if (result.StatusCode == HttpStatusCode.Created)
             {
-                this.TelemetryClient.TrackException(ex);
+                return this.View(ViewNames.CalculationRunDeleteConfirmationSuccess, model: currentUser);
+            }
+            else
+            {
+                this.TelemetryClient.TrackTrace($"API did not return successful ({result.StatusCode}).");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }

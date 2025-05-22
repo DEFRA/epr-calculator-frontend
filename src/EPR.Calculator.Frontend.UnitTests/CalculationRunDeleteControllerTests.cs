@@ -117,36 +117,5 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
         }
-
-        /// <summary>
-        /// Tests that the DeleteConfirmationSuccess method redirects to the error
-        /// page when the API throws an exception.
-        /// </summary>
-        /// <returns>A <see cref="Task"/>.</returns>
-        [TestMethod]
-        public async Task DeleteConfirmationSuccess_RedirectToErrorWhenApiThrowsException()
-        {
-            // Arrange
-            var messageHandler = TestMockUtils.BuildMockMessageHandler(shouldThrowException: true).Object;
-
-            var controller = new CalculationRunDeleteController(
-                this.Configuration,
-                TestMockUtils.BuildMockHttpClientFactory(messageHandler).Object,
-                new Mock<ITokenAcquisition>().Object,
-                new TelemetryClient());
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
-            var model = new CalculatorRunDetailsViewModel
-            {
-                RunId = this.Fixture.Create<int>(),
-                RunName = this.Fixture.Create<string>(),
-            };
-
-            // Act
-            var result = await controller.DeleteConfirmationSuccess(model) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsInstanceOfType<RedirectToActionResult>(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-        }
     }
 }
