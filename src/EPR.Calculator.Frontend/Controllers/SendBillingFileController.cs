@@ -52,7 +52,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (response.StatusCode == HttpStatusCode.Accepted)
                 {
-                    return this.RedirectToAction(ActionNames.BillingFileSuccess, ControllerNames.PaymentCalculator);
+                    return this.RedirectToAction(ActionNames.BillingFileSuccess, CommonUtil.GetControllerName(typeof(PaymentCalculatorController)));
                 }
 
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
@@ -74,9 +74,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 ConfigSection.CalculationRunSettings,
                 ConfigSection.PrepareBillingFileSendToFSS);
 
-            var fullApiUrl = new Uri($"{apiUrl.AbsoluteUri.TrimEnd('/')}/{runId}");
-
-            return await this.CallApi(HttpMethod.Post, fullApiUrl, string.Empty, null);
+            return await this.CallApi(HttpMethod.Post, apiUrl, runId.ToString(), null);
         }
     }
 }
