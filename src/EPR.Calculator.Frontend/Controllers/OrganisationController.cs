@@ -23,7 +23,7 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult Index(PaginationRequestViewModel request)
         {
             // Get the List of Organisation data
-            var allOrgs = this.GetOrganisations();
+            var allOrgs = GetOrganisations();
 
             var pagedOrgs = allOrgs.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).ToList();
 
@@ -47,7 +47,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.RedirectToAction("Index");
         }
 
-        private List<Organisation> GetOrganisations() =>
+        private static List<Organisation> GetOrganisations() =>
      Enumerable.Range(1, 100).Select(i => new Organisation
      {
          Id = i,

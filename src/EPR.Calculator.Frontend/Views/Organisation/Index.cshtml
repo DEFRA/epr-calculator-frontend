@@ -4,19 +4,22 @@
 
 @using (Html.BeginForm(ActionNames.ProcessSelection, null, FormMethod.Post))
 {
-    <!-- Updated header showing total records -->
+    <!-- Header showing total records -->
     <div>
         <!-- Results table start -->
-        <table class="govuk-table" id="submission-table">
+        <table class="govuk-table" id="submission-table" aria-describedby="table-description">
+            <caption id="table-description" class="govuk-visually-hidden">
+                Details of the total records.
+            </caption>
             <thead class="govuk-table__head">
                 <tr>
-                    <td class="govuk-table__cell" style="width: 420px; text-align:left; padding: 10px 20px 10px 0px; border-bottom:0px;">
+                    <th class="govuk-table__cell" style="width: 420px; text-align:left; padding: 10px 20px 10px 0px; border-bottom:0px;">
                         0 records
                         selected
-                    </td>
-                    <td class="govuk-table__cell" style="width: 60px; text-align: left; padding: 10px 0px 10px 20px; vertical-align: middle; border-bottom:0px;">
+                    </th>
+                    <th class="govuk-table__cell" style="width: 60px; text-align: left; padding: 10px 0px 10px 20px; vertical-align: middle; border-bottom:0px;">
                         <strong>@Model.StartRecord - @Model.EndRecord of @Model.TotalRecords</strong>
-                    </td>
+                    </th>
                 </tr>
             </thead>
         </table>
@@ -26,7 +29,10 @@
     <h2 class="govuk-heading-m">@Model.Caption</h2>
 
     <!-- Table with the Data -->
-    <table class="govuk-table">
+    <table class="govuk-table" aria-describedby="table-description">
+        <caption id="table-description" class="govuk-visually-hidden">
+            Details of the Organisations and Billing status.
+        </caption>
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
                 <th scope="col" class="govuk-table__header" style="width: 60px;"></th>
@@ -69,20 +75,3 @@
 <!-- Record Pagination -->
 <partial name="_Pagination" model="Model" />
 <!-- End Record Pagination -->
-@functions {
-    public string GetStatusClass(BillingStatus? status)
-    {
-        switch (status)
-        {
-            case BillingStatus.Pending:
-                return "govuk-tag--yellow grey";
-            case BillingStatus.Accepted:
-                return "govuk-tag--green";
-            case BillingStatus.Rejected:
-                return "govuk-tag--red";
-            case BillingStatus.Noaction:
-            default:
-                return "govuk-tag--grey";
-        }
-    }
-}

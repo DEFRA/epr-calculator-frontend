@@ -4,7 +4,7 @@
     {
         public IEnumerable<object> Records { get; init; }
 
-        public string Caption { get; init; }
+        public string? Caption { get; init; }
 
         public int CurrentPage { get; init; }
 
