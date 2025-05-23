@@ -69,5 +69,10 @@
         /// Post Billing File Controller.
         /// </summary>
         public const string PostBillingFile = "/PostBillingFile/{0}";
+
+        /// <summary>
+        /// ProcessSelection.
+        /// </summary>
+        public const string ProcessSelection = "ProcessSelection";
     }
 }

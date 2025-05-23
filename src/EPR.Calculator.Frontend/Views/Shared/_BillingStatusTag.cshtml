@@ -1,0 +1,24 @@
+﻿@model EPR.Calculator.Frontend.Enums.BillingStatus?
+@using EPR.Calculator.Frontend.Extensions
+
+@functions {
+    public string GetStatusClass(EPR.Calculator.Frontend.Enums.BillingStatus? status)
+    {
+        switch (status)
+        {
+            case EPR.Calculator.Frontend.Enums.BillingStatus.Pending:
+                return "govuk-tag--yellow grey";
+            case EPR.Calculator.Frontend.Enums.BillingStatus.Accepted:
+                return "govuk-tag--green";
+            case EPR.Calculator.Frontend.Enums.BillingStatus.Rejected:
+                return "govuk-tag--red";
+            case EPR.Calculator.Frontend.Enums.BillingStatus.Noaction:
+            default:
+                return "govuk-tag--grey";
+        }
+    }
+}
+
+<strong class="govuk-tag @GetStatusClass(Model)">
+    @Model?.GetDisplayName().ToUpper()
+</strong>

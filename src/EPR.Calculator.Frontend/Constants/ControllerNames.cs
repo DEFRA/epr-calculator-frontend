@@ -21,5 +21,7 @@
         public const string StandardErrorController = "StandardErrorController";
 
         public const string Account = "Account";
+
+        public const string Organisation = "Organisation";
     }
 }
