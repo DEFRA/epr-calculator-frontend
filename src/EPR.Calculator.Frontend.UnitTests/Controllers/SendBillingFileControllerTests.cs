@@ -131,7 +131,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             };
 
             // Act
-            var result = await _controller.Submit(1);
+            var result = await controller.Submit(1);
 
             // Assert
             var redirect = result as RedirectToActionResult;
