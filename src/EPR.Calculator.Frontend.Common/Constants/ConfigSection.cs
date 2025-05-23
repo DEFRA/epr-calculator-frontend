@@ -112,5 +112,10 @@
         /// </summary>
         public const string BillingFileApi = "BillingFileApi";
         public const string ClassificationByFinancialYearApi = "ClassificationByFinancialYearApi";
+
+        /// <summary>
+        /// The key for the prepare billing file send to fss endpoint file settings section.
+        /// </summary>
+        public const string PrepareBillingFileSendToFSS = "PrepareBillingFileSendToFSS";
     }
 }

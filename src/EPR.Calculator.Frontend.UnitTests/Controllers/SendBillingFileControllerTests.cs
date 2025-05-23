@@ -1,6 +1,7 @@
-﻿using AutoFixture;
+﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using Moq;
+using Moq.Protected;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
@@ -61,34 +63,147 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public void Submit_ModelStateInvalid_RedirectsToIndex()
+        public async Task Submit_ModelStateInvalid_RedirectsToIndex()
         {
             // Arrange
-            _controller.ModelState.AddModelError("Error", "Model state is invalid");
-            int runId = 1;
+            _controller.ModelState.AddModelError("Error", "Invalid");
 
             // Act
-            var result = _controller.Submit(runId) as RedirectToActionResult;
+            var result = await _controller.Submit(1);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(runId, result.RouteValues["runId"]);
+            var redirect = result as RedirectToActionResult;
+            Assert.IsNotNull(redirect);
+            Assert.AreEqual(ActionNames.Index, redirect.ActionName);
+            Assert.AreEqual(1, redirect.RouteValues["runId"]);
         }
 
         [TestMethod]
-        public void Submit_ModelStateValid_RedirectsToBillingFileSuccess()
+        public async Task Submit_ApiAccepted_RedirectsToBillingFileSuccess()
         {
             // Arrange
-            int runId = 1;
+            var acceptedCode = HttpStatusCode.Accepted;
+
+            var mockHttpClientFactory = GetMockHttpClientFactoryWithResponse(acceptedCode);
+
+            var controller = new SendBillingFileController(
+                   _configuration,
+                   _mockTokenAcquisition.Object,
+                   _telemetryClient,
+                   mockHttpClientFactory.Object)
+            {
+                // Setting the mocked HttpContext for the controller
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = _mockHttpContext.Object
+                }
+            };
 
             // Act
-            var result = _controller.Submit(runId) as RedirectToActionResult;
+            var result = await controller.Submit(1);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.BillingFileSuccess, result.ActionName);
-            Assert.AreEqual(ControllerNames.PaymentCalculator, result.ControllerName);
+            var redirect = result as RedirectToActionResult;
+            Assert.IsNotNull(redirect);
+            Assert.AreEqual(ActionNames.BillingFileSuccess, redirect.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(PaymentCalculatorController)), redirect.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task Submit_ApiReturnsUnprocessableContent_RedirectsToStandardErrorIndex()
+        {
+            // Arrange
+            var unprocessableCode = HttpStatusCode.UnprocessableContent;
+
+            var mockHttpClientFactory = GetMockHttpClientFactoryWithResponse(unprocessableCode);
+
+            var controller = new SendBillingFileController(
+                   _configuration,
+                   _mockTokenAcquisition.Object,
+                   _telemetryClient,
+                   mockHttpClientFactory.Object)
+            {
+                // Setting the mocked HttpContext for the controller
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = _mockHttpContext.Object
+                }
+            };
+
+            // Act
+            var result = await controller.Submit(1);
+
+            // Assert
+            var redirect = result as RedirectToActionResult;
+            Assert.IsNotNull(redirect);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirect.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), redirect.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task Submit_ApiException_RedirectsToStandardErrorIndex()
+        {
+            // Arrange
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ThrowsAsync(new HttpRequestException("Simulated exception"));
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            var controller = new SendBillingFileController(
+                _configuration,
+                _mockTokenAcquisition.Object,
+                _telemetryClient,
+                mockHttpClientFactory.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = _mockHttpContext.Object
+                }
+            };
+
+            // Act
+            var result = await controller.Submit(1);
+
+            // Assert
+            var redirect = result as RedirectToActionResult;
+            Assert.IsNotNull(redirect);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirect.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), redirect.ControllerName);
+        }
+
+        private static Mock<IHttpClientFactory> GetMockHttpClientFactoryWithResponse(HttpStatusCode code)
+        {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                   .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = code
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            return mockHttpClientFactory;
         }
     }
 }
