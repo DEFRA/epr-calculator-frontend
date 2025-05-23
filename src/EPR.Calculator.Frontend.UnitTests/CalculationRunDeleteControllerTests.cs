@@ -37,7 +37,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         private Mock<IHttpClientFactory> MockClientFactory { get; init; }
 
         [TestMethod]
-        public void CalculationRunDelete_Success_View_Test()
+        public async Task CalculationRunDelete_Success_View_Test()
         {
             // Arrange
             int runId = this.Fixture.Create<int>();
@@ -50,7 +50,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
             // Act
-            var result = controller.Index(runId) as ViewResult;
+            var result = await controller.Index(runId) as ViewResult;
 
             // Assert
             var resultModel = result.Model as CalculationRunDeleteViewModel;
@@ -80,13 +80,19 @@ namespace EPR.Calculator.Frontend.UnitTests
                 RunName = this.Fixture.Create<string>(),
             };
 
+            var viewModel = new CalculatorRunDetailsNewViewModel()
+            {
+                CurrentUser = this.Fixture.Create<string>(),
+                CalculatorRunDetails = model,
+            };
+
             // Act
             var result = await controller.DeleteConfirmationSuccess(model) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDeleteConfirmationSuccess, result.ViewName);
-            Assert.IsTrue(typeof(string) == result.Model.GetType());
+            Assert.IsTrue(typeof(CalculatorRunDetailsNewViewModel) == result.Model.GetType());
         }
 
         /// <summary>
