@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Controllers;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -32,8 +33,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         [TestMethod]
         public void Index_ReturnsViewResult_WithCorrectPagination()
         {
+            PaginationRequestViewModel viewModelRequest = new PaginationRequestViewModel() { Page = 2, PageSize = 10 };
+
             // Act
-            var result = _controller.Index(page: 2, pageSize: 10) as ViewResult;
+            var result = _controller.Index(viewModelRequest) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result, "Expected a ViewResult");
@@ -64,7 +67,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
         }
     }
 }

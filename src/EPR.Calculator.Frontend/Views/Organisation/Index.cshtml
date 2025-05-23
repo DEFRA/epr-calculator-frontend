@@ -52,14 +52,13 @@
                     <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">@org.OrganisationName</td>
                     <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">@org.OrganisationId</td>
                     <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">
-                        <strong class="govuk-tag govuk-tag--blue">@org.BillingInstruction!.GetDisplayName().ToUpper()</strong>
+                        <partial name="_BillingInstructionTag" model="org.BillingInstruction" />
                     </td>
-
-                    <td class="govuk-table__cell govuk-!-text-align-center">@org.InvoiceAmount.ToString("C")</td>
+                    <td class="govuk-table__cell govuk-!-text-align-center">
+                        <partial name="_InvoiceAmountCell" model="org.InvoiceAmount" />
+                    </td>
                     <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">
-                        <strong class="govuk-tag @GetStatusClass(org.Status)">
-                            @org.Status!.GetDisplayName().ToUpper()
-                        </strong>
+                        <partial name="_BillingStatusTag" model="org.Status" />
                     </td>
                 </tr>
             }

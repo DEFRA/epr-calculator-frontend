@@ -19,7 +19,7 @@
             @if (currentPage > 1)
             {
                 <li class="govuk-pagination__item govuk-pagination__item--prev">
-                    <a class="govuk-link govuk-pagination__link" href="?page=@(currentPage - 1)&pageSize=@pageSize" rel="prev" aria-label="Previous page">
+                    <a class="govuk-link govuk-pagination__link" href="@Url.Action("Index", new { Page = currentPage - 1, PageSize = pageSize })" rel="prev" aria-label="Previous page">
                         Previous
                     </a>
                 </li>
@@ -35,7 +35,7 @@
                     }
                     else
                     {
-                        <a class="govuk-link govuk-pagination__link" href="?page=@i&pageSize=@pageSize">@i</a>
+                        <a class="govuk-link govuk-pagination__link" href="@Url.Action("Index", new { Page = i, PageSize = pageSize })">@i</a>
                     }
                 </li>
             }
@@ -45,13 +45,13 @@
             {
                 <li class="govuk-pagination__item">...</li>
                 <li class="govuk-pagination__item">
-                    <a class="govuk-link govuk-pagination__link" href="?page=@totalPages&pageSize=@pageSize">@totalPages</a>
+                    <a class="govuk-link govuk-pagination__link" href="@Url.Action("Index", new { Page = totalPages, PageSize = pageSize })">@totalPages</a>
                 </li>
             }
             else if (blockEnd == totalPages - 1)
             {
                 <li class="govuk-pagination__item">
-                    <a class="govuk-link govuk-pagination__link" href="?page=@totalPages&pageSize=@pageSize">@totalPages</a>
+                    <a class="govuk-link govuk-pagination__link" href="@Url.Action("Index", new { Page = totalPages, PageSize = pageSize })">@totalPages</a>
                 </li>
             }
 
@@ -59,7 +59,7 @@
             @if (currentPage < totalPages)
             {
                 <li class="govuk-pagination__item govuk-pagination__item--next">
-                    <a class="govuk-link govuk-pagination__link" href="?page=@(currentPage + 1)&pageSize=@pageSize" rel="next" aria-label="Next page">
+                    <a class="govuk-link govuk-pagination__link" href="@Url.Action("Index", new { Page = currentPage + 1, PageSize = pageSize })" rel="next" aria-label="Next page">
                         Next →
                     </a>
                 </li>
@@ -69,20 +69,20 @@
 
     <!-- Right side: items per page -->
     <div>
-        <span class="govuk-body govuk-!-font-weight-bold" style="margin-right: 10px;">Items per page:</span>
+        <span class="govuk-body govuk-!-font-weight-bold" style="margin-right: 5px;">Items per page:</span>
         <ul class="govuk-pagination__list" style="display: inline-flex; list-style: none; padding-left: 0;">
             @foreach (var size in Model.PageSizeOptions)
             {
                 if (Model.PageSize == size)
                 {
-                    <li class="govuk-pagination__item" style="margin-right: 10px;">
+                    <li class="govuk-pagination__item">
                         <strong>@size</strong>
                     </li>
                 }
                 else
                 {
                     <li class="govuk-pagination__item">
-                        <a class="govuk-link govuk-pagination__link govuk-link--no-visited-state" href="?page=1&pageSize=@size" aria-label="Page 6">
+                        <a class="govuk-link govuk-pagination__link govuk-link--no-visited-state" href="@Url.Action("Index", new { Page = 1, PageSize = size })" aria-label="Page 6">
                             @size
                         </a>
                     </li>

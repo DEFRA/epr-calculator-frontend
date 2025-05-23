@@ -20,20 +20,22 @@ namespace EPR.Calculator.Frontend.Controllers
         {
         }
 
-        public IActionResult Index(int page = 1, int pageSize = 10)
+        public IActionResult Index(PaginationRequestViewModel request)
         {
+            // Get the List of Organisation data
             var allOrgs = this.GetOrganisations();
-            var pagedOrgs = allOrgs.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var pagedOrgs = allOrgs.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).ToList();
 
             var viewModel = new PaginatedTableViewModel
             {
                 Records = pagedOrgs.Cast<object>(),
                 Caption = "Billing Instructions",
-                CurrentPage = page,
-                PageSize = pageSize,
+                CurrentPage = request.Page,
+                PageSize = request.PageSize,
                 TotalRecords = allOrgs.Count,
-                StartRecord = ((page - 1) * pageSize) + 1,
-                EndRecord = Math.Min(page * pageSize, allOrgs.Count),
+                StartRecord = ((request.Page - 1) * request.PageSize) + 1,
+                EndRecord = Math.Min(request.Page * request.PageSize, allOrgs.Count),
             };
 
             return this.View(viewModel);
