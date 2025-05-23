@@ -106,7 +106,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var redirect = result as RedirectToActionResult;
             Assert.IsNotNull(redirect);
             Assert.AreEqual(ActionNames.BillingFileSuccess, redirect.ActionName);
-            Assert.AreEqual(ControllerNames.PaymentCalculator, redirect.ControllerName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(PaymentCalculatorController)), redirect.ControllerName);
         }
 
         [TestMethod]
