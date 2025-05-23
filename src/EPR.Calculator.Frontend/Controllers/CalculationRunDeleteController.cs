@@ -1,11 +1,15 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Classification;
 using Microsoft.Identity.Web;
+using System.Net;
+using System.Reflection;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -54,10 +58,33 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The delete confirmation success view.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmationSuccess()
+        public async Task<IActionResult> DeleteConfirmationSuccess(CalculatorRunDetailsViewModel model)
         {
             var currentUser = CommonUtil.GetUserName(this.HttpContext);
-            return this.View(ViewNames.CalculationRunDeleteConfirmationSuccess, model: currentUser);
+
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.DashboardCalculatorRunV2);
+
+            var result = await this.CallApi(
+                HttpMethod.Put,
+                apiUrl,
+                string.Empty,
+                new ClassificationDto
+                {
+                    RunId = model.RunId,
+                    ClassificationId = (int)RunClassification.DELETED,
+                });
+
+            if (result.StatusCode == HttpStatusCode.Created)
+            {
+                return this.View(ViewNames.CalculationRunDeleteConfirmationSuccess, model: currentUser);
+            }
+            else
+            {
+                this.TelemetryClient.TrackTrace($"API did not return successful ({result.StatusCode}).");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
         }
     }
 }
