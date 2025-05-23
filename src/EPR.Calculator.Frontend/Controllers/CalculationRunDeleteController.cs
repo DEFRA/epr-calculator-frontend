@@ -35,12 +35,13 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="runId">The ID of the calculation run.</param>
         /// <returns>The delete confirmation view.</returns>
         [Route("{runId}")]
-        public IActionResult Index(int runId)
+        public async Task<IActionResult> Index(int runId)
         {
+            var runDetails = await this.GetCalculatorRundetails(runId);
             var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
             {
                 RunId = runId,
-                CalcName = "Calculation Run 99",
+                CalcName = runDetails?.RunName,
                 ClassificationId = (int)RunClassification.DELETED,
             };
             var calculationRunDeleteViewModel = new CalculationRunDeleteViewModel
@@ -60,7 +61,11 @@ namespace EPR.Calculator.Frontend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmationSuccess(CalculatorRunDetailsViewModel model)
         {
-            var currentUser = CommonUtil.GetUserName(this.HttpContext);
+            var viewModel = new CalculatorRunDetailsNewViewModel()
+            {
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CalculatorRunDetails = model,
+            };
 
             var apiUrl = this.GetApiUrl(
                 ConfigSection.DashboardCalculatorRun,
@@ -78,7 +83,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (result.StatusCode == HttpStatusCode.Created)
             {
-                return this.View(ViewNames.CalculationRunDeleteConfirmationSuccess, model: currentUser);
+                return this.View(ViewNames.CalculationRunDeleteConfirmationSuccess, viewModel);
             }
             else
             {

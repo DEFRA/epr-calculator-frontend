@@ -28,7 +28,7 @@
                     <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
                 </div>
                 @Html.Hidden("RunId", Model.CalculatorRunStatusData.RunId)
-                @Html.AntiForgeryToken()
+                @Html.Hidden("RunName", Model.CalculatorRunStatusData.CalcName)
             }
         </div>
     </div>

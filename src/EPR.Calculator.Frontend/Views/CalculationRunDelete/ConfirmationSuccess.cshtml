@@ -1,14 +1,14 @@
-﻿@model string
+﻿@model CalculatorRunDetailsNewViewModel
 @{
     ViewData["Title"] = "Confirmation Success";
 }
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
-    <partial name="_CurrentUserPartial" model="(Model)" />
+    <partial name="_CurrentUserPartial" model="@Model.CurrentUser" />
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <div class="govuk-panel govuk-panel--confirmation">
                 <h1 class="govuk-panel__title">
-                    You have deleted this calculation run
+                    You have deleted calculation run @Model.CalculatorRunDetails.RunName
                 </h1>
             </div>
             <br />
