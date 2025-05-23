@@ -34,6 +34,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="runId">The ID of the calculation run.</param>
         /// <returns>The delete confirmation view.</returns>
+        [Route("{runId}")]
         public async Task<IActionResult> Index(int runId)
         {
             var runDetails = await this.GetCalculatorRundetails(runId);
