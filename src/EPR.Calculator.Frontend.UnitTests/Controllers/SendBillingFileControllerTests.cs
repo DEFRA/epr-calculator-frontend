@@ -144,17 +144,28 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_ApiException_RedirectsToStandardErrorIndex()
         {
             // Arrange
-            var failedCode = HttpStatusCode.BadRequest;
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ThrowsAsync(new HttpRequestException("Simulated exception"));
 
-            var mockHttpClientFactory = GetMockHttpClientFactoryWithResponse(failedCode);
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
 
             var controller = new SendBillingFileController(
-                   _configuration,
-                   _mockTokenAcquisition.Object,
-                   _telemetryClient,
-                   mockHttpClientFactory.Object)
+                _configuration,
+                _mockTokenAcquisition.Object,
+                _telemetryClient,
+                mockHttpClientFactory.Object)
             {
-                // Setting the mocked HttpContext for the controller
                 ControllerContext = new ControllerContext
                 {
                     HttpContext = _mockHttpContext.Object
