@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Azure;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
@@ -55,10 +56,13 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.RedirectToAction(ActionNames.BillingFileSuccess, CommonUtil.GetControllerName(typeof(PaymentCalculatorController)));
                 }
 
+                this.TelemetryClient.TrackTrace($"1.Request (send billing file) not accepted response code:{response.StatusCode}");
+                this.TelemetryClient.TrackTrace($"2.Request (send billing file) not accepted response message:{response.Content}");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                this.TelemetryClient.TrackException(e);
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
