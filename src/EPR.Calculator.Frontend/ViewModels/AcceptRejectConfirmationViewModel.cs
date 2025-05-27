@@ -6,12 +6,12 @@
     public record AcceptRejectConfirmationViewModel : ViewModelCommonData
     {
         /// <summary>
-        /// Gets or sets the run id.
-        public int RunId { get; set; }
+        /// Gets the run id.
+        public int RunId { get; init; }
 
         /// <summary>
-        /// Gets or sets the calculation run title.
+        /// Gets the calculation run title.
         /// </summary>
-        public string CalculationRunTitle { get; set; } = string.Empty;
+        public string CalculationRunTitle { get; init; } = string.Empty;
     }
 }
