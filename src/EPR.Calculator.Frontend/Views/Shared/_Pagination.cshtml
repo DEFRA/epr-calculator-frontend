@@ -48,7 +48,7 @@
             @* Pages in the block *@
             @for (int i = blockStart; i <= blockEnd; i++)
             {
-                <li class="govuk-pagination__item @(currentPage == i ? "govuk-pagination__item--current" : "")" @(currentPage == i ? "aria-current=\"page\"" : "")>
+                <li class="govuk-pagination__item @(currentPage == i ? "govuk-pagination__item--current" : "")" @(currentPage == i ? "aria-current=\"page\"" : "") style="text-decoration: underline;">
                     @if (currentPage == i)
                     {
                         @i
