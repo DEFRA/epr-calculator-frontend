@@ -8,6 +8,11 @@
     int blockSize = 3;
     int blockStart = ((currentPage - 1) / blockSize) * blockSize + 1;
     int blockEnd = Math.Min(blockStart + blockSize - 1, totalPages);
+    int visiblePages = blockEnd - blockStart + 1;
+    if (visiblePages < blockSize)
+    {
+        blockStart = Math.Max(1, blockEnd - blockSize + 1);
+    }
 }
 
 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
@@ -15,20 +20,35 @@
     <!-- Left side: pagination numbers + next -->
     <div style="display: flex; align-items: center; gap: 10px;">
         <ul class="govuk-pagination__list">
-            @* Previous *@
+            @* Previous link *@
             @if (currentPage > 1)
             {
                 <li class="govuk-pagination__item govuk-pagination__item--prev">
                     <a class="govuk-link govuk-pagination__link" href="@Url.Action("Index", new { Page = currentPage - 1, PageSize = pageSize })" rel="prev" aria-label="Previous page">
-                        Previous
+                        <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" width="15" height="13" viewBox="0 0 15 13" aria-hidden="true" focusable="false">
+                            <path d="M6.893 0 8.307 1.414 4.014 5.707H17v2H4.1l4.185 3.977-1.377 1.449L0.164 6.727 6.893 0z" />
+                        </svg>
+                        <strong class="govuk-pagination__link-title">Previous</strong>
                     </a>
                 </li>
             }
 
-            @* Sliding window of 3 page numbers *@
+            @* Ellipsis before block if needed *@
+            @if (blockStart > 1)
+            {
+                <li class="govuk-pagination__item">
+                    <a class="govuk-link govuk-pagination__link" href="@Url.Action("Index", new { Page = 1, PageSize = pageSize })">1</a>
+                </li>
+                @if (blockStart > 2)  // show ellipsis only if gap > 1 page
+                {
+                    <li class="govuk-pagination__item">…</li>
+                }
+            }
+
+            @* Pages in the block *@
             @for (int i = blockStart; i <= blockEnd; i++)
             {
-                <li class="govuk-pagination__item @(currentPage == i ? "govuk-pagination__item--current" : "")" @(currentPage == i ? "aria-current=\"page\"" : "")>
+                <li class="govuk-pagination__item @(currentPage == i ? "govuk-pagination__item--current" : "")" @(currentPage == i ? "aria-current=\"page\"" : "") style="text-decoration: underline;">
                     @if (currentPage == i)
                     {
                         @i
@@ -40,27 +60,27 @@
                 </li>
             }
 
-            @* Ellipsis and last page *@
-            @if (blockEnd < totalPages - 1)
+            @* Ellipsis and last page if needed *@
+            @if (blockEnd < totalPages)
             {
-                <li class="govuk-pagination__item">...</li>
-                <li class="govuk-pagination__item">
-                    <a class="govuk-link govuk-pagination__link" href="@Url.Action("Index", new { Page = totalPages, PageSize = pageSize })">@totalPages</a>
-                </li>
-            }
-            else if (blockEnd == totalPages - 1)
-            {
+                if (blockEnd < totalPages - 1)
+                {
+                    <li class="govuk-pagination__item">…</li>
+                }
                 <li class="govuk-pagination__item">
                     <a class="govuk-link govuk-pagination__link" href="@Url.Action("Index", new { Page = totalPages, PageSize = pageSize })">@totalPages</a>
                 </li>
             }
 
-            @* Next *@
+            @* Next link *@
             @if (currentPage < totalPages)
             {
                 <li class="govuk-pagination__item govuk-pagination__item--next">
                     <a class="govuk-link govuk-pagination__link" href="@Url.Action("Index", new { Page = currentPage + 1, PageSize = pageSize })" rel="next" aria-label="Next page">
-                        Next →
+                        <strong class="govuk-pagination__link-title">Next</strong>
+                        <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                            <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
+                        </svg>
                     </a>
                 </li>
             }
@@ -69,7 +89,7 @@
 
     <!-- Right side: items per page -->
     <div>
-        <span class="govuk-body govuk-!-font-weight-bold" style="margin-right: 5px;">Items per page:</span>
+        <strong class="govuk-body govuk-!-font-weight-bold" style="margin-right: 5px;">Items per page:</strong>
         <ul class="govuk-pagination__list" style="display: inline-flex; list-style: none; padding-left: 0;">
             @foreach (var size in Model.PageSizeOptions)
             {
