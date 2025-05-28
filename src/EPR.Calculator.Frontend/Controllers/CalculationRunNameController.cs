@@ -110,7 +110,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                     if (!response.IsSuccessStatusCode || response.StatusCode != HttpStatusCode.Accepted)
                     {
-                        return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                        return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                     }
                 }
 
@@ -118,7 +118,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception)
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
 
