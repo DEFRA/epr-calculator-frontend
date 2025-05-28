@@ -27,7 +27,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var billingFileViewModel = new SendBillingFileViewModel()
             {
                 RunId = runId,
-                CalcRunName = "Calculation Run 99",
+                CalcRunName = $"Calculation Run {runId}",
                 ConfirmationContent = CommonConstants.ConfirmationContent,
                 SendBillFileHeading = CommonConstants.SendBillingFile,
                 WarningContent = CommonConstants.WarningContent,
@@ -57,7 +57,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 this.TelemetryClient.TrackTrace($"1.Request (send billing file) not accepted response code:{response.StatusCode}");
-                this.TelemetryClient.TrackTrace($"2.Request (send billing file) not accepted response message:{response.Content}");
+                var contentString = await response.Content.ReadAsStringAsync();
+                this.TelemetryClient.TrackTrace($"2.Request (send billing file) not accepted response message:{contentString}");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
             catch (Exception e)
