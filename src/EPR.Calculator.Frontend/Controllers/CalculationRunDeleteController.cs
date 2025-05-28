@@ -1,11 +1,15 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Classification;
 using Microsoft.Identity.Web;
+using System.Net;
+using System.Reflection;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -31,12 +35,13 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="runId">The ID of the calculation run.</param>
         /// <returns>The delete confirmation view.</returns>
         [Route("{runId}")]
-        public IActionResult Index(int runId)
+        public async Task<IActionResult> Index(int runId)
         {
+            var runDetails = await this.GetCalculatorRundetails(runId);
             var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
             {
                 RunId = runId,
-                CalcName = "Calculation Run 99",
+                CalcName = runDetails?.RunName,
                 ClassificationId = (int)RunClassification.DELETED,
             };
             var calculationRunDeleteViewModel = new CalculationRunDeleteViewModel
@@ -54,10 +59,37 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The delete confirmation success view.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmationSuccess()
+        public async Task<IActionResult> DeleteConfirmationSuccess(CalculatorRunDetailsViewModel model)
         {
-            var currentUser = CommonUtil.GetUserName(this.HttpContext);
-            return this.View(ViewNames.CalculationRunDeleteConfirmationSuccess, model: currentUser);
+            var viewModel = new CalculatorRunDetailsNewViewModel()
+            {
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CalculatorRunDetails = model,
+            };
+
+            var apiUrl = this.GetApiUrl(
+                ConfigSection.DashboardCalculatorRun,
+                ConfigSection.DashboardCalculatorRunV2);
+
+            var result = await this.CallApi(
+                HttpMethod.Put,
+                apiUrl,
+                string.Empty,
+                new ClassificationDto
+                {
+                    RunId = model.RunId,
+                    ClassificationId = (int)RunClassification.DELETED,
+                });
+
+            if (result.StatusCode == HttpStatusCode.Created)
+            {
+                return this.View(ViewNames.CalculationRunDeleteConfirmationSuccess, viewModel);
+            }
+            else
+            {
+                this.TelemetryClient.TrackTrace($"API did not return successful ({result.StatusCode}).");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
         }
     }
 }
