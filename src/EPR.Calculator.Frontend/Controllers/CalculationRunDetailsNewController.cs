@@ -38,7 +38,8 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-            else if (!IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
+
+            if (viewModel.CalculatorRunDetails.RunClassificationId == RunClassification.ERROR)
             {
                 this.ModelState.AddModelError(viewModel.CalculatorRunDetails.RunName!, ErrorMessages.RunDetailError);
                 return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
@@ -64,16 +65,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 CalculationRunOption.OutputDelete => this.RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { model.CalculatorRunDetails.RunId }),
                 _ => this.RedirectToAction(ActionNames.Index, new { model.CalculatorRunDetails.RunId }),
             };
-        }
-
-        private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
-        {
-            if (calculatorRunDetails.RunClassificationId == RunClassification.UNCLASSIFIED)
-            {
-                return true;
-            }
-
-            return false;
         }
 
         private async Task<CalculatorRunDetailsNewViewModel> CreateViewModel(int runId)
