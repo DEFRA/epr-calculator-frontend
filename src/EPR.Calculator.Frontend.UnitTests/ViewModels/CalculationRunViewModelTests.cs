@@ -169,6 +169,24 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         }
 
         [TestMethod]
+        public void GetTurnOnFeatureUrl_ShouldReturnErrorPage_WhenRunClassificationStatusIsError()
+        {
+            _calculationRun = new CalculationRun
+            {
+                Id = 1,
+                Name = "Test1",
+                Financial_Year = "2024-25",
+                CreatedBy = "TestUser",
+                CalculatorRunClassificationId = RunClassification.ERROR,
+                HasBillingFileGenerated = false
+            };
+            _testClass = new CalculationRunViewModel(_calculationRun);
+            Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
+
+            Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/CalculationRunDetailsNew/{_calculationRun.Id}");
+        }
+
+        [TestMethod]
         public void GetTurnOnFeatureUrl_ShouldReturnCalculationRunOverview_WhenInitialRunAndBillingFileGeneratedTrue()
         {
             // Assert
