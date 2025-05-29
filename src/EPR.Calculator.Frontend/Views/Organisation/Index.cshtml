@@ -2,7 +2,7 @@
 @using EPR.Calculator.Frontend.Extensions
 @model PaginatedTableViewModel
 
-<main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+<div class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content">
     <h1 class="govuk-visually-hidden">Select organisations to process</h1>
     @using (Html.BeginForm(ActionNames.ProcessSelection, null, FormMethod.Post))
     {
@@ -77,4 +77,4 @@
     <!-- Record Pagination -->
     <partial name="_Pagination" model="Model" />
     <!-- End Record Pagination -->
-</main>
+</div>
