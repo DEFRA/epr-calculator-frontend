@@ -22,12 +22,18 @@ namespace EPR.Calculator.Frontend.Controllers
         : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
     {
         [Route("{runId}")]
-        public IActionResult Index(int runId)
+        public async Task<IActionResult> Index(int runId)
         {
+            var runDetails = await this.GetCalculatorRundetails(runId);
+            if (runDetails == null || runDetails.RunName == null)
+            {
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
+
             var billingFileViewModel = new SendBillingFileViewModel()
             {
                 RunId = runId,
-                CalcRunName = $"Calculation Run {runId}",
+                CalcRunName = runDetails.RunName,
                 ConfirmationContent = CommonConstants.ConfirmationContent,
                 SendBillFileHeading = CommonConstants.SendBillingFile,
                 WarningContent = CommonConstants.WarningContent,
