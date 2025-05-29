@@ -41,25 +41,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public async Task CanCallIndex()
-        {
-            int runId = 99;
-
-            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
-
-            var result = await _controller.Index(runId);
-
-            // Assert
-            Assert.IsNotNull(result);
-
-            Assert.IsInstanceOfType(result, typeof(ViewResult));
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-            Assert.IsInstanceOfType(viewResult.Model, typeof(SendBillingFileViewModel));
-        }
-
-        [TestMethod]
         public async Task Index_WithValidRunDetails_ReturnsViewWithViewModel()
         {
             // Arrange
