@@ -218,6 +218,53 @@ namespace EPR.Calculator.Frontend.UnitTests
             task.Wait();
             var result = task.Result as ViewResult;
             Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.CalculationRunDetailsNewIndex, result.ViewName);
+        }
+
+        [TestMethod]
+        public async Task Submit_ErrorClassificationState_OutputClassify_ReturnsRedirectToAction()
+        {
+            var calcRunDto = MockData.GetCalculatorRun();
+            calcRunDto.RunClassificationId = 5;
+
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(JsonConvert.SerializeObject(calcRunDto)),
+                    });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                    .Returns(httpClient);
+            var config = GetConfigurationValues();
+            config.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value = string.Empty;
+            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var controller = new CalculationRunDetailsNewController(config, mockHttpClientFactory.Object,
+                mockTokenAcquisition.Object, new TelemetryClient());
+
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
+            var viewModel = new ParameterRefreshViewModel()
+            {
+                ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
+                FileName = "Test Name",
+            };
+
+            var task = controller.Index(10);
+            task.Wait();
+            var result = task.Result as ViewResult;
+            Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDetailsNewErrorPage, result.ViewName);
         }
 
