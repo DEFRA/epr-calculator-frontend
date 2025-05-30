@@ -2,76 +2,79 @@
 @using EPR.Calculator.Frontend.Extensions
 @model PaginatedTableViewModel
 
-@using (Html.BeginForm(ActionNames.ProcessSelection, null, FormMethod.Post))
-{
-    <!-- Header showing total records -->
-    <div>
-        <!-- Results table start -->
-        <table class="govuk-table" id="submission-table" aria-describedby="table-description">
+<div class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content">
+    <h1 class="govuk-visually-hidden">Select organisations to process</h1>
+    @using (Html.BeginForm(ActionNames.ProcessSelection, null, FormMethod.Post))
+    {
+        <!-- Header showing total records -->
+        <div>
+            <!-- Results table start -->
+            <table class="govuk-table" id="submission-table" aria-describedby="table-description">
+                <caption id="table-description" class="govuk-visually-hidden">
+                    Details of the total records.
+                </caption>
+                <thead class="govuk-table__head">
+                    <tr>
+                        <th class="govuk-table__cell" style="width: 420px; text-align:left; padding: 10px 20px 10px 0px; border-bottom:0px;">
+                            <strong>0 records selected</strong>
+                        </th>
+                        <th class="govuk-table__cell" style="width: 60px; text-align: left; padding: 10px 0px 10px 20px; vertical-align: middle; border-bottom:0px;">
+                            <strong>@Model.StartRecord - @Model.EndRecord of @Model.TotalRecords</strong>
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+            <!-- Results table end -->
+        </div>
+
+        <h2 class="govuk-heading-m">@Model.Caption</h2>
+
+        <!-- Table with the Data -->
+        <table class="govuk-table" aria-describedby="table-description">
             <caption id="table-description" class="govuk-visually-hidden">
-                Details of the total records.
+                Details of the Organisations and Billing status.
             </caption>
             <thead class="govuk-table__head">
-                <tr>
-                    <th class="govuk-table__cell" style="width: 420px; text-align:left; padding: 10px 20px 10px 0px; border-bottom:0px;">
-                        <strong>0 records selected</strong>
-                    </th>
-                    <th class="govuk-table__cell" style="width: 60px; text-align: left; padding: 10px 0px 10px 20px; vertical-align: middle; border-bottom:0px;">
-                        <strong>@Model.StartRecord - @Model.EndRecord of @Model.TotalRecords</strong>
-                    </th>
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header" style="width: 60px;"> <span class="govuk-visually-hidden">Select</span></th>
+                    <th scope="col" class="govuk-table__header" style="width: 170px;">Organisation name</th>
+                    <th scope="col" class="govuk-table__header" style="width: 160px;">Organisation ID</th>
+                    <th scope="col" class="govuk-table__header" style="width: 160px;">Billing instruction</th>
+                    <th scope="col" class="govuk-table__header" style="width: 140px;">Invoice amount</th>
+                    <th scope="col" class="govuk-table__header" style="width: 140px;">Status</th>
                 </tr>
             </thead>
+
+            <tbody class="govuk-table__body">
+                @foreach (var org in Model.Records.Cast<Organisation>())
+                {
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell govuk-!-text-align-center">
+                            <input type="checkbox"
+                                   name="SelectedIds"
+                                   value="@org.Id"
+                                   aria-labelledby="checkbox-label-@org.Id"
+                            @(org.Status == BillingStatus.Noaction ? "disabled" : "")
+                                   style="width:34px; height:34px; cursor: pointer; border: 1px solid #000;">
+                        </td>
+                        <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;" id="checkbox-label-@org.Id">@org.OrganisationName</td>
+                        <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">@org.OrganisationId</td>
+                        <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">
+                            <partial name="_BillingInstructionTag" model="org.BillingInstruction" />
+                        </td>
+                        <td class="govuk-table__cell govuk-!-text-align-center">
+                            <partial name="_InvoiceAmountCell" model="org.InvoiceAmount" />
+                        </td>
+                        <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">
+                            <partial name="_BillingStatusTag" model="org.Status" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
         </table>
-        <!-- Results table end -->
-    </div>
-
-    <h2 class="govuk-heading-m">@Model.Caption</h2>
-
-    <!-- Table with the Data -->
-    <table class="govuk-table" aria-describedby="table-description">
-        <caption id="table-description" class="govuk-visually-hidden">
-            Details of the Organisations and Billing status.
-        </caption>
-        <thead class="govuk-table__head">
-            <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header" style="width: 60px;"> <span class="govuk-visually-hidden">Select</span></th>
-                <th scope="col" class="govuk-table__header" style="width: 170px;">Organisation name</th>
-                <th scope="col" class="govuk-table__header" style="width: 160px;">Organisation ID</th>
-                <th scope="col" class="govuk-table__header" style="width: 160px;">Billing instruction</th>
-                <th scope="col" class="govuk-table__header" style="width: 140px;">Invoice amount</th>
-                <th scope="col" class="govuk-table__header" style="width: 140px;">Status</th>
-            </tr>
-        </thead>
-
-        <tbody class="govuk-table__body">
-            @foreach (var org in Model.Records.Cast<Organisation>())
-            {
-                <tr class="govuk-table__row">
-                    <td class="govuk-table__cell govuk-!-text-align-center">
-                        <input type="checkbox"
-                               name="SelectedIds"
-                               value="@org.Id"
-                               aria-labelledby="checkbox-label-@org.Id"
-                        @(org.Status == BillingStatus.Noaction ? "disabled" : "")
-                               style="width:34px; height:34px; cursor: pointer; border: 1px solid #000;">
-                    </td>
-                    <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;" id="checkbox-label-@org.Id">@org.OrganisationName</td>
-                    <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">@org.OrganisationId</td>
-                    <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">
-                        <partial name="_BillingInstructionTag" model="org.BillingInstruction" />
-                    </td>
-                    <td class="govuk-table__cell govuk-!-text-align-center">
-                        <partial name="_InvoiceAmountCell" model="org.InvoiceAmount" />
-                    </td>
-                    <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">
-                        <partial name="_BillingStatusTag" model="org.Status" />
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-    <!-- End Table -->
-}
-<!-- Record Pagination -->
-<partial name="_Pagination" model="Model" />
-<!-- End Record Pagination -->
+        <!-- End Table -->
+    }
+    <!-- Record Pagination -->
+    <partial name="_Pagination" model="Model" />
+    <!-- End Record Pagination -->
+</div>
