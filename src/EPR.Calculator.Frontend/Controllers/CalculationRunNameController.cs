@@ -80,6 +80,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     }
 
                     var response = await this.HttpPostToCalculatorRunApi(calculationName);
+                    var currentUser = CommonUtil.GetUserName(this.HttpContext);
 
                     if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
                     {
@@ -87,14 +88,25 @@ namespace EPR.Calculator.Frontend.Controllers
                             ViewNames.CalculationRunErrorIndex,
                             new CalculationRunErrorViewModel
                             {
-                                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                                CurrentUser = currentUser,
                                 ErrorMessage = await this.ExtractErrorMessageAsync(response),
+                            });
+                    }
+
+                    if (response.StatusCode == HttpStatusCode.FailedDependency)
+                    {
+                        return this.View(
+                            ViewNames.CalculationRunErrorIndex,
+                            new CalculationRunErrorViewModel
+                            {
+                                CurrentUser = currentUser,
+                                ErrorMessage = await response.Content.ReadAsStringAsync(),
                             });
                     }
 
                     if (!response.IsSuccessStatusCode || response.StatusCode != HttpStatusCode.Accepted)
                     {
-                        return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                        return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                     }
                 }
 
@@ -102,7 +114,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             catch (Exception)
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
 

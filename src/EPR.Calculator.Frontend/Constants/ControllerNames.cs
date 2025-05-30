@@ -41,6 +41,11 @@
         public const string Dashboard = "Dashboard";
 
         /// <summary>
+        /// Organisation controller.
+        /// </summary>
+        public const string Organisation = "Organisation";
+
+        /// <summary>
         /// Payment calculator controller.
         /// </summary>
         public const string PaymentCalculator = "PaymentCalculator";
