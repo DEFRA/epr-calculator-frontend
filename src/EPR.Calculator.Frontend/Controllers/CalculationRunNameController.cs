@@ -1,17 +1,13 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
+﻿using System.Net;
+using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Identity.Web;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Configuration;
-using System.Net;
-using ConfigurationException = CsvHelper.Configuration.ConfigurationException;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
