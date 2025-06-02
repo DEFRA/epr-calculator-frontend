@@ -78,9 +78,15 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.View(ViewNames.SetRunClassificationIndex, viewModel);
                 }
 
+                this.TelemetryClient.TrackTrace($"Entering into apiUrl...");
                 var apiUrl = this.GetApiUrl(
                 ConfigSection.DashboardCalculatorRun,
                 ConfigSection.DashboardCalculatorRunV2);
+                this.TelemetryClient.TrackTrace($"Key - {ConfigSection.DashboardCalculatorRun}");
+                this.TelemetryClient.TrackTrace($"Value - {ConfigSection.DashboardCalculatorRunV2}");
+                this.TelemetryClient.TrackTrace($"url - {apiUrl}");
+
+                this.TelemetryClient.TrackTrace($"Entering into CallApi...");
                 var result = await this.CallApi(
                     HttpMethod.Put,
                     apiUrl,
@@ -90,6 +96,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     RunId = model.CalculatorRunDetails.RunId,
                     ClassificationId = (int)model.ClassifyRunType,
                 });
+                this.TelemetryClient.TrackTrace($"End CallApi...");
 
                 if (result.StatusCode == HttpStatusCode.Created)
                 {

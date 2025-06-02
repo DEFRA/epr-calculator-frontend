@@ -89,6 +89,7 @@ namespace EPR.Calculator.Frontend.Controllers
             string argument,
             object? body)
         {
+            this.TelemetryClient.TrackTrace($"apiUrl in Base controller...{apiUrl}" );
             var argsString = !string.IsNullOrEmpty(argument)
                 ? $"/{argument}"
                 : string.Empty;
