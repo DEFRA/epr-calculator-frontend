@@ -97,6 +97,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     ClassificationId = (int)model.ClassifyRunType,
                 });
                 this.TelemetryClient.TrackTrace($"End CallApi...");
+                this.TelemetryClient.TrackTrace($"result...{result}");
 
                 if (result.StatusCode == HttpStatusCode.Created)
                 {
