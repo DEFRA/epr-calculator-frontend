@@ -2,6 +2,7 @@
 using System.Text;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
@@ -24,6 +25,9 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             return config;
         }
+
+        public static Mock<IHttpClientFactory> BuildMockHttpClientFactory(HttpStatusCode statusCode)
+            => BuildMockHttpClientFactory(BuildMockMessageHandler(statusCode).Object);
 
         public static Mock<IHttpClientFactory> BuildMockHttpClientFactory(HttpMessageHandler httpMessageHandler)
         {

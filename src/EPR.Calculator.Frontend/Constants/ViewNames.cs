@@ -169,5 +169,15 @@
         /// post billing file index controller index new page view.
         /// </summary>
         public const string PostBillingFileIndex = "~/Views/PostBillingFile/Index.cshtml";
+
+        /// <summary>
+        /// accept reject confirmation controller index new page view.
+        /// </summary>
+        public const string AcceptRejectConfirmationIndex = "~/Views/AcceptRejectConfirmation/Index.cshtml";
+
+        /// <summary>
+        /// Organisation index controller page view.
+        /// </summary>
+        public const string OrganisationIndex = "~/Views/Organisation/Index.cshtml";
     }
 }

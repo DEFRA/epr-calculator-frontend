@@ -674,6 +674,68 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
+        public async Task RunCalculator_ShouldRedirectToError_WhenFailedDependency()
+        {
+            var calculationRunModel = new InitiateCalculatorRunModel
+            {
+                CurrentUser = Fixture.Create<string>(),
+                CalculationName = "TestRun",
+            };
+            var errorMessage = "Default parameter settings and Lapcap data not available for the financial year 2024-2025.";
+            var httpResponse = new HttpResponseMessage(HttpStatusCode.FailedDependency)
+            {
+                Content = new StringContent($"{{ \"message\": \"{errorMessage}\" }}")
+            };
+
+            var mockHttpMessageNotFoundHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageNotFoundHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+
+            var mockHttpClient1 = new HttpClient(mockHttpMessageNotFoundHandler.Object);
+            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient1);
+
+            var mockHttpMessageUnprocessableEntityHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageUnprocessableEntityHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(httpResponse);
+
+            var mockHttpClient2 = new HttpClient(mockHttpMessageUnprocessableEntityHandler.Object);
+            mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
+                             .Returns(mockHttpClient1)
+                             .Returns(mockHttpClient2);
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = context
+            };
+
+            var result = await _controller.RunCalculator(calculationRunModel);
+
+            var redirectResult = result as ViewResult;
+            var model = redirectResult.Model as CalculationRunErrorViewModel;
+            Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", redirectResult.ViewName);
+            Assert.AreEqual("{ \"message\": \"Default parameter settings and Lapcap data not available for the financial year 2024-2025.\" }", model.ErrorMessage);
+        }
+
+        [TestMethod]
         public async Task RunCalculator_ShouldRedirectToError_WhenUnprocessableEntity_ParsingError()
         {
             var calculationRunModel = new InitiateCalculatorRunModel
