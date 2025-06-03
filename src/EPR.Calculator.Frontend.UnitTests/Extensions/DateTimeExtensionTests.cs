@@ -54,5 +54,19 @@ namespace EPR.Calculator.Frontend.UnitTests.Extensions
             string result = nullableDate.ToUKDateTimeDisplay();
             Assert.AreEqual(string.Empty, result);
         }
+
+        [TestMethod]
+        public void ToUKDateTimeDisplay_ValidUtcDateTime_ConvertsCorrectly()
+        {
+            // Arrange
+            DateTime utcDate = new DateTime(2025, 6, 3, 14, 0, 0, DateTimeKind.Utc);
+            string expectedResult = utcDate.ToUKDateTimeDisplay();
+
+            // Act
+            string result = ((DateTime?)utcDate).ToUKDateTimeDisplay();
+
+            // Assert
+            Assert.AreEqual(expectedResult, result);
+        }
     }
 }
