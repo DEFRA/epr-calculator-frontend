@@ -46,5 +46,13 @@ namespace EPR.Calculator.Frontend.UnitTests.Extensions
             // Assert
             Assert.AreEqual(expected, result);
         }
+
+        [TestMethod]
+        public void ToUKDateTimeDisplay_NullDateTime_ReturnsEmptyString()
+        {
+            DateTime? nullableDate = null;
+            string result = nullableDate.ToUKDateTimeDisplay();
+            Assert.AreEqual(string.Empty, result);
+        }
     }
 }
