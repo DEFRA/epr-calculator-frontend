@@ -33,7 +33,7 @@ namespace EPR.Calculator.Frontend.Extensions
                 return string.Empty;
             }
 
-            return dateTime.ToUKDateTimeDisplay();
+            return ((DateTime)dateTime).ToUKDateTimeDisplay();
         }
     }
 }
