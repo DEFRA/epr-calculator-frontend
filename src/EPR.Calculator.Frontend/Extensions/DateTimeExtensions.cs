@@ -20,20 +20,5 @@ namespace EPR.Calculator.Frontend.Extensions
             // Format the date and time
             return britishTime.ToString($"{CommonConstants.DateFormat} 'at' {CommonConstants.TimeFormat}");
         }
-
-        /// <summary>
-        /// Converts a UTC DateTime to a UK DateTime string format.
-        /// </summary>
-        /// <param name="dateTime">Nullable DateTime.</param>
-        /// <returns>Formatted date in string.</returns>
-        public static string ToUKDateTimeDisplay(this DateTime? dateTime)
-        {
-            if (dateTime is null)
-            {
-                return string.Empty;
-            }
-
-            return ((DateTime)dateTime).ToUKDateTimeDisplay();
-        }
     }
 }
