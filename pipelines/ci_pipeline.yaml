@@ -49,7 +49,6 @@ resources:
       name: RWD-CPR-EPR4P-ADO/epr-webapps-code-deploy-templates
       type: git
       ref: 517906
-      
 
 extends:
   template: epr-build-pipeline.yaml@CommonTemplates
