@@ -50,7 +50,6 @@ resources:
       type: git
       ref: 517906
 
-
 extends:
   template: epr-build-pipeline.yaml@CommonTemplates
   parameters:
