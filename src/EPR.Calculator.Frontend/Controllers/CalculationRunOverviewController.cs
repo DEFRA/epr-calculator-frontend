@@ -24,25 +24,15 @@ namespace EPR.Calculator.Frontend.Controllers
         : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
     {
         [Route("{runId}")]
-        public Task<IActionResult> Index(int runId)
+        public async Task<IActionResult> Index(int runId)
         {
-            // Get the calculation run details from the API
-            var calculatorRun = new CalculatorRunDto()
+            var viewModel = await this.CreateViewModel(runId);
+            if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId <= 0)
             {
-                RunId = runId,
-                FinancialYear = "2024-25",
-                FileExtension = "xlsx",
-                RunClassificationStatus = "Draft",
-                RunName = "Calculation Run 99",
-                RunClassificationId = 240008,
-                CreatedAt = new DateTime(2024, 5, 1, 12, 09, 0, DateTimeKind.Utc),
-                CreatedBy = "Steve Jones",
-            };
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
 
-            var viewModel = CreateViewModel(runId, calculatorRun);
-            SetDownloadParameters(viewModel);
-
-            return Task.FromResult<IActionResult>(View(ViewNames.CalculationRunOverviewIndex, viewModel));
+            return this.View(ViewNames.CalculationRunOverviewIndex, viewModel);
         }
 
         [HttpPost]
@@ -57,35 +47,33 @@ namespace EPR.Calculator.Frontend.Controllers
             return RedirectToAction(ActionNames.Index, ControllerNames.SendBillingFile, new { runId = runId });
         }
 
-        private CalculatorRunOverviewViewModel CreateViewModel(int runId, CalculatorRunDto calculatorRun)
+        private async Task<CalculatorRunOverviewViewModel> CreateViewModel(int runId)
         {
-            return new CalculatorRunOverviewViewModel
+            var viewModel = new CalculatorRunOverviewViewModel()
             {
-                CurrentUser = CommonUtil.GetUserName(HttpContext),
-                Data = new CalculatorRunDto
-                {
-                    RunId = runId,
-                    RunClassificationId = calculatorRun.RunClassificationId,
-                    RunName = calculatorRun.RunName,
-                    CreatedAt = calculatorRun.CreatedAt,
-                    CreatedBy = calculatorRun.CreatedBy,
-                    FinancialYear = calculatorRun.FinancialYear,
-                    FileExtension = calculatorRun.FileExtension,
-                    RunClassificationStatus = calculatorRun.RunClassificationStatus,
-                },
-                BackLink = ControllerNames.PaymentCalculator,
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
             };
+
+            var runDetails = await this.GetCalculatorRundetails(runId);
+            if (runDetails != null && runDetails!.RunId > 0)
+            {
+                viewModel.CalculatorRunDetails = runDetails;
+                this.SetDownloadParameters(viewModel);
+            }
+
+            return viewModel;
         }
 
         private void SetDownloadParameters(CalculatorRunOverviewViewModel viewModel)
         {
             var baseApiUrl = this.Configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
-            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.Data.RunId}");
+            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.CalculatorRunDetails.RunId}");
 
             var draftedBillingApiUrl = this.Configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadDraftBillingApi}");
-            viewModel.DownloadDraftBillingURL = new Uri($"{draftedBillingApiUrl}/{viewModel.Data.RunId}");
+            viewModel.DownloadDraftBillingURL = new Uri($"{draftedBillingApiUrl}/{viewModel.CalculatorRunDetails.RunId}");
 
-            viewModel.DownloadErrorURL = $"/DownloadFileErrorNew/{viewModel.Data.RunId}";
+            viewModel.DownloadErrorURL = $"/DownloadFileErrorNew/{viewModel.CalculatorRunDetails.RunId}";
             viewModel.DownloadTimeout = this.Configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
         }
     }
