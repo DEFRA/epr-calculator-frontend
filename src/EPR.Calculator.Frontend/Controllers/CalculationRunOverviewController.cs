@@ -19,9 +19,9 @@ namespace EPR.Calculator.Frontend.Controllers
         IHttpClientFactory clientFactory,
         ILogger<CalculationRunOverviewController> logger,
         ITokenAcquisition tokenAcquisition,
-        TelemetryClient telemetryClient,
-        IHttpClientFactory httpClientFactory)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
+        TelemetryClient telemetryClient
+        )
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
         [Route("{runId}")]
         public async Task<IActionResult> Index(int runId)
