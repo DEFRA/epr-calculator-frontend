@@ -31,6 +31,11 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             var viewModel = await this.CreateViewModel(runId);
+            if (viewModel.CalculatorRunDetails.RunId <= 0)
+            {
+                this.TelemetryClient.TrackTrace($"No run details found for runId: {runId}");
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
 
             return this.View(ViewNames.CalculationRunOverviewIndex, viewModel);
         }

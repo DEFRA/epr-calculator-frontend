@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -54,10 +55,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task Index_InvalidRunId_RedirectsToStandardError()
+        public async Task IndexAsync_InvalidRunId_RedirectsToStandardError()
         {
             // Arrange
             int invalidRunId = -1;
+            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
 
             // Act
             var result = await _controller.Index(invalidRunId) as RedirectToActionResult;
@@ -99,12 +101,51 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
             _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
 
-            var result = await _controller.Index(10);
+            var result = await _controller.Index(1);
 
             Assert.IsInstanceOfType(result, typeof(ViewResult));
             var viewResult = result as ViewResult;
             Assert.IsNotNull(viewResult);
             Assert.IsInstanceOfType(viewResult.Model, typeof(CalculatorRunOverviewViewModel));
+        }
+
+        [TestMethod]
+        public async Task IndexAsync_EmptyViewModel_RedirectsToStandardError()
+        {
+            // Setup
+            _mockMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.IsAny<HttpRequestMessage>(),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.OK,
+                       Content = new StringContent(JsonConvert.SerializeObject(new CalculatorRunDto())),
+                   });
+            _mockHttpClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
+
+            _controller = new CalculationRunOverviewController(
+                _configuration,
+                _mockHttpClientFactory.Object, _mockLogger.Object,
+                _mockTokenAcquisition.Object,
+                _telemetryClient);
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
+            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
+            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+
+            var result = await _controller.Index(1) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
         }
 
         [TestMethod]
