@@ -14,5 +14,11 @@
         public const string RunDetailError = "The calculation was unsuccessful";
         public const string InitialRunDescription = "The first official mandatory run of the financial year, used as the baseline for all future recalculations. This run generates an initial billing file for invoicing.";
         public const string TestRunDescription = "An unofficial run to view the calculation results without generating a billing file for invoicing.";
+
+        public const bool IsDraftFileTrue = true;
+        public const bool IsDraftFileFalse = false;
+
+        public const bool IsBillingFileTrue = true;
+        public const bool IsBillingFileFalse = false;
     }
 }

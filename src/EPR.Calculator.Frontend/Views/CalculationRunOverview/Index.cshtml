@@ -1,13 +1,15 @@
 ﻿@using Microsoft.AspNetCore.Http
 @using EPR.Calculator.Frontend.Extensions
+@using EPR.Calculator.Frontend.Constants
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunOverviewViewModel
 @{
+    var calcDetails = Model.CalculatorRunDetails;    
     var backLinkModel = new BackLinkPartialViewModel
             {
                 BackLink = Model.BackLink,
                 CurrentUser = Model.CurrentUser,
-                RunId = Model.Data.RunId
+                RunId = calcDetails.RunId
             };
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -19,13 +21,13 @@
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.CalculationRunOverview, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-                @Html.Hidden("RunId", Model.Data.RunId)
+                @Html.Hidden("RunId", Model.CalculatorRunDetails.RunId)
                 <div class="govuk-form-group">
-                    <fieldset class="govuk-fieldset" >
+                    <fieldset class="govuk-fieldset">
                         <div class="govuk-form-group">
-                            <fieldset class="govuk-fieldset" >
+                            <fieldset class="govuk-fieldset">
                                 <legend class="govuk-caption-l">
-                                    @Model.Data.RunName
+                                    @Model.CalculatorRunDetails.RunName
                                 </legend>
                                 <h1 class="govuk-heading-l">Calculation run details</h1>
 
@@ -38,23 +40,23 @@
                                     <tbody class="govuk-table__body">
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Financial year</th>
-                                            <td class="govuk-table__cell">2024-25</td>
+                                            <td class="govuk-table__cell">@calcDetails.FinancialYear</td>
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Classification</th>
-                                            <td class="govuk-table__cell">Initial run</td>
+                                            <td class="govuk-table__cell">@calcDetails.RunClassificationId.GetDisplayName()</td>
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                            <td class="govuk-table__cell">@Model.Data.RunId</td>
+                                            <td class="govuk-table__cell">@calcDetails.RunId</td>
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Run date and time</th>
-                                            <td class="govuk-table__cell">@Model.Data.CreatedAt.ToUKDateTimeDisplay()</td>
+                                            <td class="govuk-table__cell">@calcDetails.CreatedAt.ToUKDateTimeDisplay()</td>
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Run by</th>
-                                            <td class="govuk-table__cell">Steve Jones</td>
+                                            <td class="govuk-table__cell">@calcDetails.CreatedBy</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -66,7 +68,8 @@
                                             onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
                                         Results file
                                     </button>
-                                    <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")',true);">
+                                    <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
+                                            onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")','@CommonConstants.IsDraftFileTrue');">
                                         Draft billing file
                                     </button>
                                 </div>
