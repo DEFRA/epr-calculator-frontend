@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -50,6 +51,21 @@ namespace EPR.Calculator.Frontend.UnitTests
                     HttpContext = _mockHttpContext.Object
                 }
             };
+        }
+
+        [TestMethod]
+        public async Task Index_InvalidRunId_RedirectsToStandardError()
+        {
+            // Arrange
+            int invalidRunId = -1;
+
+            // Act
+            var result = await _controller.Index(invalidRunId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
         }
 
         [TestMethod]

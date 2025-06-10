@@ -25,11 +25,12 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("{runId}")]
         public async Task<IActionResult> Index(int runId)
         {
-            var viewModel = await this.CreateViewModel(runId);
-            if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId <= 0)
+            if (runId <= 0)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+
+            var viewModel = await this.CreateViewModel(runId);
 
             return this.View(ViewNames.CalculationRunOverviewIndex, viewModel);
         }
