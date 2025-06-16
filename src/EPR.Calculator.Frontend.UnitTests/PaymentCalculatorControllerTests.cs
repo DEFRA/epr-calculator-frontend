@@ -120,7 +120,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             // Arrange
             var model = new AcceptInvoiceInstructionsViewModel { RunId = 123 };
-            var mockHttpMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Accepted, model);            
+            var mockHttpMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Accepted, model);
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(mockHttpMessageHandler.Object);
 
             _controller = new PaymentCalculatorController(
