@@ -59,26 +59,13 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(ViewNames.PaymentCalculatorIndex, model);
             }
 
-            var billingFileApiUrl = this.GetApiUrl(ConfigSection.BillingFileSettings, ConfigSection.BillingFileApi);
-
-            var billingFileRequestDto = new GenerateBillingFileRequestDto
+            if (!await this.TryGenerateBillingFile(model.RunId))
             {
-                CalculatorRunId = model.RunId,
-            };
-
-            try
-            {
-                var response = await this.CallApi(HttpMethod.Post, billingFileApiUrl, string.Empty, billingFileRequestDto);
-
-                if (response.StatusCode != HttpStatusCode.Accepted)
-                {
-                    this.TelemetryClient.TrackTrace($"Billing file generation failed for RunId {model.RunId}. StatusCode: {response.StatusCode}, Reason: {response.ReasonPhrase}");
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                }
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-            catch (Exception ex)
+
+            if (!await this.TryAcceptBillingInstructions(model.RunId))
             {
-                this.TelemetryClient.TrackException(ex);
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
@@ -119,6 +106,56 @@ namespace EPR.Calculator.Frontend.Controllers
                 BackLink = ControllerNames.ClassifyRunConfirmation,
                 AcceptAll = false,
             };
+        }
+
+        private async Task<bool> TryGenerateBillingFile(int runId)
+        {
+            var billingFileApiUrl = this.GetApiUrl(ConfigSection.BillingFileSettings, ConfigSection.BillingFileApi);
+            var billingFileRequestDto = new GenerateBillingFileRequestDto
+            {
+                CalculatorRunId = runId,
+            };
+
+            try
+            {
+                var response = await this.CallApi(HttpMethod.Post, billingFileApiUrl, string.Empty, billingFileRequestDto);
+
+                if (response.StatusCode != HttpStatusCode.Accepted)
+                {
+                    this.TelemetryClient.TrackTrace($"Billing file generation failed for RunId {runId}. StatusCode: {response.StatusCode}, Reason: {response.ReasonPhrase}");
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.TelemetryClient.TrackException(ex);
+                return false;
+            }
+        }
+
+        private async Task<bool> TryAcceptBillingInstructions(int runId)
+        {
+            var instructionsAcceptApiUrl = this.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.ProducerBillingInstructionsAcceptApi);
+
+            try
+            {
+                var response = await this.CallApi(HttpMethod.Put, instructionsAcceptApiUrl, runId.ToString(), null);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    this.TelemetryClient.TrackTrace($"Billing instructions acceptance failed for RunId {runId}. StatusCode: {response.StatusCode}, Reason: {response.ReasonPhrase}");
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.TelemetryClient.TrackException(ex);
+                return false;
+            }
         }
     }
 }

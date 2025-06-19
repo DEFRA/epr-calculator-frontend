@@ -121,11 +121,19 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Arrange
             var model = new AcceptInvoiceInstructionsViewModel { RunId = 123 };
             var mockHttpMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Accepted, model);
+            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(mockHttpMessageHandler.Object);
 
-            var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _controller = new PaymentCalculatorController(
+                _configuration,
+                _mockTokenAcquisition.Object,
+                _telemetryClient,
+                _mockClientFactory.Object);
 
-            _mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
-                            .Returns(mockHttpClient);
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
             // Act
             var result = await _controller.Submit(model) as RedirectToActionResult;
 
@@ -134,6 +142,142 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.CalculationRunOverview, result.ControllerName);
             Assert.AreEqual(model.RunId, result.RouteValues["RunId"]);
+        }
+
+        [TestMethod]
+        public async Task Submit_RedirectsToError_WhenTryAcceptBillingInstructionsFails()
+        {
+            // Arrange
+            var model = new AcceptInvoiceInstructionsViewModel { RunId = 123, AcceptAll = true };
+
+            // Mock: GenerateBillingFile succeeds, AcceptBillingInstructions fails
+            var handlerAccepted = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Accepted, model);
+            var handlerFailed = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.BadRequest, model);
+
+            var httpClientAccepted = new HttpClient(handlerAccepted.Object);
+            var httpClientFailed = new HttpClient(handlerFailed.Object);
+
+            // First call: GenerateBillingFile (POST) -> Accepted
+            // Second call: AcceptBillingInstructions (PUT) -> BadRequest
+            _mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
+                .Returns(httpClientAccepted) // For TryGenerateBillingFile
+                .Returns(httpClientFailed);  // For TryAcceptBillingInstructions
+
+            _controller = new PaymentCalculatorController(
+                _configuration,
+                _mockTokenAcquisition.Object,
+                _telemetryClient,
+                _mockClientFactory.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object }
+            };
+
+            // Act
+            var result = await _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+        }
+
+        [TestMethod]
+        public async Task Submit_RedirectsToError_WhenTryGenerateBillingFileFails()
+        {
+            // Arrange
+            var model = new AcceptInvoiceInstructionsViewModel { RunId = 123, AcceptAll = true };
+
+            // Mock: GenerateBillingFile fails
+            var handlerFailed = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.BadRequest, model);
+            var httpClientFailed = new HttpClient(handlerFailed.Object);
+
+            _mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>()))
+                .Returns(httpClientFailed);
+
+            _controller = new PaymentCalculatorController(
+                _configuration,
+                _mockTokenAcquisition.Object,
+                _telemetryClient,
+                _mockClientFactory.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object }
+            };
+
+            // Act
+            var result = await _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+        }
+
+        [TestMethod]
+        public async Task Submit_RedirectsToOverview_WhenAllApiCallsSucceed()
+        {
+            // Arrange
+            var model = new AcceptInvoiceInstructionsViewModel { RunId = 123, AcceptAll = true };
+
+            // Both API calls succeed
+            var handlerAccepted = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Accepted, model);
+            var handlerSuccess = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.OK, model);
+
+            var httpClientAccepted = new HttpClient(handlerAccepted.Object);
+            var httpClientSuccess = new HttpClient(handlerSuccess.Object);
+
+            // First call: GenerateBillingFile (POST) -> Accepted
+            // Second call: AcceptBillingInstructions (PUT) -> OK
+            _mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
+                .Returns(httpClientAccepted) // For TryGenerateBillingFile
+                .Returns(httpClientSuccess); // For TryAcceptBillingInstructions
+
+            _controller = new PaymentCalculatorController(
+                _configuration,
+                _mockTokenAcquisition.Object,
+                _telemetryClient,
+                _mockClientFactory.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object }
+            };
+
+            // Act
+            var result = await _controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.CalculationRunOverview, result.ControllerName);
+            Assert.AreEqual(model.RunId, result.RouteValues["RunId"]);
+        }
+
+        [TestMethod]
+        public async Task TryAcceptBillingInstructions_ReturnsTrue_OnSuccess()
+        {
+            // Arrange
+            var runId = 123;
+            var handlerSuccess = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.OK, null);
+            var httpClientSuccess = new HttpClient(handlerSuccess.Object);
+
+            _mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>()))
+                .Returns(httpClientSuccess);
+
+            var controller = new PaymentCalculatorController(
+                _configuration,
+                _mockTokenAcquisition.Object,
+                _telemetryClient,
+                _mockClientFactory.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object }
+            };
+
+            // Use reflection to invoke the private method
+            var method = typeof(PaymentCalculatorController)
+                .GetMethod("TryAcceptBillingInstructions", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            // Act
+            var task = (Task<bool>)method.Invoke(controller, new object[] { runId });
+            var result = await task;
+
+            // Assert
+            Assert.IsTrue(result);
         }
 
         [TestMethod]

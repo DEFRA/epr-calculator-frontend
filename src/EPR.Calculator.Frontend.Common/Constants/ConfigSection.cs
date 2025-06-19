@@ -111,11 +111,20 @@
         /// The key for the billing file api within the billing file settings section.
         /// </summary>
         public const string BillingFileApi = "BillingFileApi";
+
+        /// <summary>
+        /// The key for the classification by financial year api within the calculation run settings section.
+        /// </summary>
         public const string ClassificationByFinancialYearApi = "ClassificationByFinancialYearApi";
 
         /// <summary>
         /// The key for the prepare billing file send to fss endpoint file settings section.
         /// </summary>
         public const string PrepareBillingFileSendToFSS = "PrepareBillingFileSendToFSS";
+
+        /// <summary>
+        /// The key for the prepare billing file send to fss endpoint file settings section.
+        /// </summary>
+        public const string ProducerBillingInstructionsAcceptApi = "ProducerBillingInstructionsAcceptApi";
     }
 }
