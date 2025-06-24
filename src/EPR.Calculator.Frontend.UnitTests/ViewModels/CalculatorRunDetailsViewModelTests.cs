@@ -56,7 +56,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             Assert.AreEqual(RunClassification.None, model.RunClassificationId);
             Assert.IsNull(model.RunClassificationStatus);
             Assert.IsNull(model.FinancialYear);
-            Assert.IsNull (model.IsBillingFileGenerating);
+            Assert.IsNull(model.IsBillingFileGenerating);
         }
     }
 }
