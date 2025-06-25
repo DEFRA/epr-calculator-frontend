@@ -27,7 +27,8 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
                 CreatedBy = createdBy,
                 RunClassificationId = runClassificationId,
                 RunClassificationStatus = runClassificationStatus,
-                FinancialYear = financialYear
+                FinancialYear = financialYear,
+                IsBillingFileGenerating = true,
             };
 
             // Assert
@@ -38,6 +39,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             Assert.AreEqual(runClassificationId, model.RunClassificationId);
             Assert.AreEqual(runClassificationStatus, model.RunClassificationStatus);
             Assert.AreEqual(financialYear, model.FinancialYear);
+            Assert.IsTrue(model.IsBillingFileGenerating);
         }
 
         [TestMethod]
@@ -54,6 +56,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             Assert.AreEqual(RunClassification.None, model.RunClassificationId);
             Assert.IsNull(model.RunClassificationStatus);
             Assert.IsNull(model.FinancialYear);
+            Assert.IsNull(model.IsBillingFileGenerating);
         }
     }
 }

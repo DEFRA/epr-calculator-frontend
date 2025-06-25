@@ -89,7 +89,7 @@
 
                                 <div class="govuk-button-group">
                                     <div class="govuk-button-group">
-                                        <button type="Submit" class="govuk-button" data-module="govuk-button">
+                                        <button type="Submit" @(calcDetails.IsBillingFileGenerating == true ?  "disabled" : "") class="govuk-button" data-module="govuk-button">
                                             Continue
                                         </button>
                                     </div>

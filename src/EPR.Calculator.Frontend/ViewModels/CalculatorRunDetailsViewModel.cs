@@ -20,5 +20,10 @@ namespace EPR.Calculator.Frontend.ViewModels
         public string? RunClassificationStatus { get; set; }
 
         public string? FinancialYear { get; set; }
+
+        /// <summary>
+        /// gets or sets the billing file generating flag.
+        /// </summary>
+        public bool? IsBillingFileGenerating { get; set; }
     }
 }
