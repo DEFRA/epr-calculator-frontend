@@ -1,4 +1,4 @@
-﻿function downloadFile(url, errorAction, event, timeout, token, isDraftFile = false, isBillingFile = false) {
+﻿function downloadFile(url, errorAction, event, timeout, token, isBillingFile = false) {
     var draftFile = isDraftFile;
     event.preventDefault();
     $.ajax({
@@ -24,8 +24,7 @@
                 let matches = filenameRegex.exec(contentDisposition);
                 if (matches?.[1]) {
                     filename = matches[1].replace(/['"]/g, '');
-                }
-                if (draftFile) { filename = filename.replace('Results File', 'Draft Billing File') }
+                }               
                 if (isBillingFile) { filename = filename.replace('Results File', 'Billing File') }
 
                 // Create a download link
