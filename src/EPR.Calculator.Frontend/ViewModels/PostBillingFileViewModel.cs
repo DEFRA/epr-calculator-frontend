@@ -21,7 +21,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// </summary>
         public int? DownloadTimeout { get; set; }
 
-
         /// <summary>
         /// Gets or sets download billing URL.
         /// </summary>
