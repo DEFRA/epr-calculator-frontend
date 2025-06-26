@@ -79,8 +79,8 @@ namespace EPR.Calculator.Frontend.Controllers
             var baseApiUrl = this.Configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
             viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.CalculatorRunStatus!.RunId}");
 
-            var billingApiUrl = this.Configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadBillingApi}");
-            viewModel.DownloadBillingURL = new Uri($"{billingApiUrl}/{viewModel.CalculatorRunStatus!.RunId}");
+            var billingApiUrl = this.Configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadCsvBillingApi}");
+            viewModel.DownloadCsvBillingURL = new Uri($"{billingApiUrl}/{viewModel.CalculatorRunStatus!.RunId}");
 
             viewModel.DownloadErrorURL = $"/DownloadFileErrorNew/{viewModel.CalculatorRunStatus.RunId}";
             viewModel.DownloadTimeout = this.Configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
