@@ -85,7 +85,7 @@
         /// <summary>
         /// The key for the download draft billing api within the calculation run settings section.
         /// </summary>
-        public const string DownloadDraftBillingApi = "DownloadDraftBillingApi";
+        public const string DownloadBillingApi = "DownloadBillingApi";
 
         /// <summary>
         /// The key for the download timeout within the calculation run settings section.
