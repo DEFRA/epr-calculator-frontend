@@ -22,7 +22,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets or sets download Drafted Billing File URL.
         /// </summary>
-        public Uri? DownloadDraftBillingURL { get; set; }
+        public Uri? DownloadCsvBillingURL { get; set; }
 
         /// <summary>
         /// Gets or sets download error URL.

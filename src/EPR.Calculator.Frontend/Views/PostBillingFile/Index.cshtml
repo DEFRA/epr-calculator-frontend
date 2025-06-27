@@ -57,7 +57,7 @@
                                 onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
                             Results file
                         </button>
-                        <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")',false,true);">
+                        <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" onclick="downloadFile('@Model.DownloadCsvBillingURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
                             Billing file
                         </button>
                     </div>
