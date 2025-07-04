@@ -12,6 +12,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             var viewModel = new OrganisationSelectionsViewModel();
 
             // Assert
+            Assert.AreEqual(viewModel.GetType(), typeof(OrganisationSelectionsViewModel));
             Assert.IsNotNull(viewModel.SelectedOrganisationIds, "SelectedOrganisationIds should not be null.");
             Assert.AreEqual(0, viewModel.SelectedOrganisationIds.Count, "SelectedOrganisationIds should be initialized as an empty list.");
         }

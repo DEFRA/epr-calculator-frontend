@@ -1,9 +1,10 @@
 ﻿using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 
 namespace EPR.Calculator.Frontend.UnitTests.Models
 {
     [TestClass]
-    public class CalculationRunForBillingInstructionsDTOTests
+    public class CalculationRunForBillingInstructionsDtoTests
     {
         [TestMethod]
         public void CalculationRunForBillingInstructionsDTO_ShouldInitializeProperties()
@@ -22,6 +23,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
             // Assert
             Assert.AreEqual(expectedId, dto.Id);
             Assert.AreEqual(expectedName, dto.Name);
+
+            Assert.AreEqual(dto.GetType(), typeof(CalculationRunForBillingInstructionsDto));
         }
     }
 }

@@ -4,7 +4,7 @@ using EPR.Calculator.Frontend.Models;
 namespace EPR.Calculator.Frontend.UnitTests.Models
 {
     [TestClass]
-    public class CalculationRunOrganisationBillingInstructionsDTOTests
+    public class CalculationRunOrganisationBillingInstructionsDtoTests
     {
         [TestMethod]
         public void CalculationRunOrganisationBillingInstructionsDTO_DefaultInitialization_ShouldInitializeProperties()
@@ -16,6 +16,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
             Assert.IsNotNull(dto.CalculationRun);
             Assert.IsNotNull(dto.Organisations);
             Assert.AreEqual(0, dto.Organisations.Count);
+
+            Assert.AreEqual(dto.GetType(), typeof(CalculationRunOrganisationBillingInstructionsDto));
         }
 
         [TestMethod]

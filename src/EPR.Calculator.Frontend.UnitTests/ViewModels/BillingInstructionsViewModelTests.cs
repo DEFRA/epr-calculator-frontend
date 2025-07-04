@@ -18,6 +18,8 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
 
             Assert.IsNotNull(viewModel.TablePaginationModel);
             Assert.IsInstanceOfType(viewModel.TablePaginationModel, typeof(PaginationViewModel));
+
+            Assert.AreEqual(viewModel.GetType(), typeof(BillingInstructionsViewModel));
         }
 
         [TestMethod]

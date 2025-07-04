@@ -30,7 +30,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
-            var billingData = this.GetBillingData(calculationRunId);
+            var billingData = GetBillingData(calculationRunId);
 
             var viewModel = this.MapToViewModel(billingData, request);
 
@@ -43,7 +43,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.RedirectToAction("Index", new { calculationRunId });
         }
 
-        private CalculationRunOrganisationBillingInstructionsDto GetBillingData(int calculationRunId)
+        private static CalculationRunOrganisationBillingInstructionsDto GetBillingData(int calculationRunId)
         {
             return new CalculationRunOrganisationBillingInstructionsDto
             {
@@ -80,7 +80,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     PageSize = request.PageSize,
                     TotalRecords = billingData.Organisations.Count,
                     RouteName = "BillingInstructions_Index",
-                    RouteValues = new Dictionary<string, object>
+                    RouteValues = new Dictionary<string, object?>
                     {
                          { "calculationRunId", billingData.CalculationRun.Id },
                     },

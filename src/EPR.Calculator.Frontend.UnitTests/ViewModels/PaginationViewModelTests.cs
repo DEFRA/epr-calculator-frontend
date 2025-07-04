@@ -22,6 +22,8 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
 
             // Assert
             Assert.AreEqual(expectedCaption, actualCaption);
+
+            Assert.AreEqual(viewModel.GetType(), typeof(PaginationViewModel));
         }
 
         [TestMethod]
