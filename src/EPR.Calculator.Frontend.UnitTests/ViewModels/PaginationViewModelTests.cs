@@ -88,5 +88,41 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Assert
             CollectionAssert.AreEqual(new[] { 10, 25, 50 }, pageSizeOptions.ToList());
         }
+
+        [TestMethod]
+        public void StartRecord_ShouldReturnZero_WhenTotalRecordsIsZero()
+        {
+            // Arrange
+            var viewModel = new PaginationViewModel
+            {
+                TotalRecords = 0,
+                CurrentPage = 1,
+                PageSize = 10
+            };
+
+            // Act
+            var startRecord = viewModel.StartRecord;
+
+            // Assert
+            Assert.AreEqual(0, startRecord);
+        }
+
+        [TestMethod]
+        public void StartRecord_ShouldReturnCorrectValue_WhenTotalRecordsIsGreaterThanZero()
+        {
+            // Arrange  
+            var viewModel = new PaginationViewModel
+            {
+                TotalRecords = 100,
+                CurrentPage = 2,
+                PageSize = 10
+            };
+
+            // Act
+            var startRecord = viewModel.StartRecord;
+
+            // Assert
+            Assert.AreEqual(11, startRecord);
+        }
     }
 }
