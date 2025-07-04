@@ -1,0 +1,44 @@
+﻿@using EPR.Calculator.Frontend.Enums
+@using EPR.Calculator.Frontend.Extensions
+@model BillingInstructionsViewModel
+
+<partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
+
+<div class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content">
+    <h1 class="govuk-visually-hidden">Select organisations to process</h1>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <br>
+            <span class="govuk-caption-l">@Model.CalculationRun.Name</span>
+            <h1 class="govuk-heading-l">Confirm billing instructions</h1>
+
+            <form id="filter-form">
+                <p class="govuk-body-m">
+                    These billing instructions match those in the results file. Use this screen to confirm
+                    which instructions you want to accept or reject.
+                </p>
+                <p class="govuk-body-m">Your changes are saved automatically, so you can return to this screen at any time. Once all instructions have been accepted or rejected, you’ll be able to generate a draft billing file. If you reject any instructions, you’ll need to give a reason on the next screen.</p>
+            </form>
+        </div>
+    </div>
+
+    <div class="padding: 0px 20px; clear: both;">
+        @using (Html.BeginForm(ActionNames.ProcessSelection, null, FormMethod.Post))
+        {
+            <partial name="_OrganisationTable" model="Model" />
+        }
+
+        <!-- Record Pagination -->
+        <partial name="_Pagination" model="Model.TablePaginationModel" />
+        <!-- End Record Pagination -->
+
+        <div style="clear: both;"></div>
+        <div style="margin-top: 60px;">
+            <h2 class="govuk-heading-m">Update billing instructions</h2>
+            <button class="govuk-button govuk-button--secondary" type="submit" data-module="govuk-button" id="clear-selection-btn">
+                Clear selection
+            </button>
+        </div>
+    </div>
+</div>

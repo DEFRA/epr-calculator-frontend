@@ -1,0 +1,66 @@
+﻿@using EPR.Calculator.Frontend.Enums
+@model BillingInstructionsViewModel
+
+<!-- Header showing total records -->
+<div>
+    <table class="govuk-table" id="submission-table" aria-describedby="table-description">
+        <caption id="table-description" class="govuk-visually-hidden">
+            Details of the total records.
+        </caption>
+        <thead class="govuk-table__head">
+            <tr>
+                <th class="govuk-table__cell header-left-cell">
+                    <strong>0 records selected</strong>
+                </th>
+                <th class="govuk-table__cell header-right-cell">
+                    <strong>@Model.TablePaginationModel.StartRecord - @Model.TablePaginationModel.EndRecord of @Model.TablePaginationModel.TotalRecords</strong>
+                </th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<h2 class="govuk-heading-m">@Model.TablePaginationModel.Caption</h2>
+
+<!-- Main Data Table -->
+<table class="govuk-table" aria-describedby="table-description">
+    <caption id="table-description" class="govuk-visually-hidden">
+        Details of the Organisations and Billing status.
+    </caption>
+    <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header col-select"><span class="govuk-visually-hidden">Select</span></th>
+            <th scope="col" class="govuk-table__header col-org-name">Organisation name</th>
+            <th scope="col" class="govuk-table__header col-org-id">Organisation ID</th>
+            <th scope="col" class="govuk-table__header col-billing">Billing instruction</th>
+            <th scope="col" class="govuk-table__header col-invoice">Invoice amount</th>
+            <th scope="col" class="govuk-table__header col-status">Status</th>
+        </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+        @foreach (var org in Model.TablePaginationModel.Records.Cast<Organisation>())
+        {
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell govuk-!-text-align-center">
+                    <input type="checkbox"
+                           name="SelectedIds"
+                           value="@org.Id"
+                           aria-labelledby="checkbox-label-@org.Id"
+                           class="record-checkbox"
+                    @(org.Status == BillingStatus.Noaction ? "disabled" : "")>
+                </td>
+                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle" id="checkbox-label-@org.Id">@org.OrganisationName</td>
+                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">@org.OrganisationId</td>
+                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">
+                    <partial name="_BillingInstructionTag" model="org.BillingInstruction" />
+                </td>
+                <td class="govuk-table__cell govuk-!-text-align-center">
+                    <partial name="_InvoiceAmountCell" model="org.InvoiceAmount" />
+                </td>
+                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">
+                    <partial name="_BillingStatusTag" model="org.Status" />
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

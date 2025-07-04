@@ -17,3 +17,53 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.header-left-cell {
+    width: 420px;
+    text-align: left;
+    padding: 10px 20px 10px 0;
+    border-bottom: 0;
+}
+
+.header-right-cell {
+    width: 60px;
+    text-align: left;
+    padding: 10px 0 10px 20px;
+    vertical-align: middle;
+    border-bottom: 0;
+}
+
+.col-select {
+    width: 60px;
+}
+
+.col-org-name {
+    width: 170px;
+}
+
+.col-org-id {
+    width: 160px;
+}
+
+.col-billing {
+    width: 160px;
+}
+
+.col-invoice {
+    width: 140px;
+}
+
+.col-status {
+    width: 140px;
+}
+
+.record-checkbox {
+    width: 34px;
+    height: 34px;
+    cursor: pointer;
+    border: 1px solid #000;
+}
+
+.vertical-middle {
+    vertical-align: middle;
+}
