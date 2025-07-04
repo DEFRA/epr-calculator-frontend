@@ -8,9 +8,4 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public PaginationViewModel TablePaginationModel { get; init; }
     }
-
-    public record OrganisationSelectionsViewModel
-    {
-        public List<int> SelectedOrganisationIds { get; init; } = new();
-    }
 }
