@@ -1,6 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 configMock.Object,
                 tokenAcquisitionMock.Object,
                 telemetryMock,
-                httpClientFactoryMock.Object);
+                new Mock<IApiService>().Object,
+                new Mock<ICalculatorRunDetailsService>().Object);
         }
 
         [TestMethod]

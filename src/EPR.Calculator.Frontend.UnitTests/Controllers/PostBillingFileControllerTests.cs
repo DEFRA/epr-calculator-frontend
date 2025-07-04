@@ -6,6 +6,7 @@
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Controllers;
     using EPR.Calculator.Frontend.Helpers;
+    using EPR.Calculator.Frontend.Services;
     using EPR.Calculator.Frontend.UnitTests.HelpersTest;
     using EPR.Calculator.Frontend.UnitTests.Mocks;
     using Microsoft.ApplicationInsights;
@@ -55,7 +56,8 @@
                        _configuration,
                        _mockTokenAcquisition.Object,
                        _mockTelemetryClient,
-                       _mockClientFactory.Object);
+                       new Mock<IApiService>().Object,
+                       new Mock<ICalculatorRunDetailsService>().Object);
 
             _mockHttpContext.Setup(context => context.User)
                .Returns(new ClaimsPrincipal(new ClaimsIdentity(
@@ -90,7 +92,8 @@
                        _configuration,
                        _mockTokenAcquisition.Object,
                        _mockTelemetryClient,
-                       _mockClientFactory.Object);
+                       new Mock<IApiService>().Object,
+                       new Mock<ICalculatorRunDetailsService>().Object);
 
             // Setting the mocked HttpContext for the controller
             _controller.ControllerContext = new ControllerContext
@@ -126,7 +129,8 @@
                        _configuration,
                        _mockTokenAcquisition.Object,
                        _mockTelemetryClient,
-                       _mockClientFactory.Object);
+                       new Mock<IApiService>().Object,
+                       new Mock<ICalculatorRunDetailsService>().Object);
 
             // Setting the mocked HttpContext for the controller
             _controller.ControllerContext = new ControllerContext

@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -21,10 +22,16 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     public class LocalAuthorityDisposalCostsController(
         IConfiguration configuration,
-        IHttpClientFactory clientFactory,
+        IApiService apiService,
         ITokenAcquisition tokenAcquisition,
-        TelemetryClient telemetryClient)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
+        TelemetryClient telemetryClient,
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(
+            configuration,
+            tokenAcquisition,
+            telemetryClient,
+            apiService,
+            calculatorRunDetailsService)
     {
         /// <summary>
         /// Sends an HTTP POST request to the Local Authority Disposal Costs API with the specified parameters.
@@ -109,10 +116,15 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<HttpResponseMessage> GetLapcapDataAsync(string parameterYear)
         {
-            var apiUrl = this.GetApiUrl(
+            var apiUrl = this.ApiService.GetApiUrl(
                 ConfigSection.LapcapSettings,
                 ConfigSection.LapcapSettingsApi);
-            return await this.CallApi(HttpMethod.Get, apiUrl, parameterYear, null);
+            return await this.ApiService.CallApi(
+                this.HttpContext,
+                HttpMethod.Get,
+                apiUrl,
+                parameterYear,
+                null);
         }
     }
 }

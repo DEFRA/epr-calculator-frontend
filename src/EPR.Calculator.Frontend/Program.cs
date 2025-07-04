@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Exceptions;
 using EPR.Calculator.Frontend.HealthCheck;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -64,6 +65,10 @@ builder.Services.AddHttpClient();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
+
+// Register services.
+builder.Services.AddTransient<ICalculatorRunDetailsService, CalculatorRunDetailsService>();
+builder.Services.AddTransient<IApiService, ApiService>();
 
 var app = builder.Build();
 
