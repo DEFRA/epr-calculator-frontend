@@ -1,4 +1,6 @@
-﻿namespace EPR.Calculator.Frontend.ViewModels
+﻿using EPR.Calculator.Frontend.Constants;
+
+namespace EPR.Calculator.Frontend.ViewModels
 {
     public record PaginationViewModel
     {
@@ -12,7 +14,9 @@
 
         public int TotalRecords { get; init; }
 
-        public IEnumerable<int> PageSizeOptions { get; init; } = new[] { 10, 25, 50 };
+        public IEnumerable<int> PageSizeOptions { get; init; } = CommonConstants.PageSizeOptions;
+
+        public int BlockSize { get; init; } = CommonConstants.DefaultBlockSize;
 
         public int TotalPages => (int)Math.Ceiling((double)this.TotalRecords / this.PageSize);
 

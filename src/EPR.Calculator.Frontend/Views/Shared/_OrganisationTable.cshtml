@@ -9,10 +9,10 @@
         </caption>
         <thead class="govuk-table__head">
             <tr>
-                <th class="govuk-table__cell" style="width: 420px; text-align:left; padding: 10px 20px 10px 0px; border-bottom:0px;">
+                <th class="govuk-table__cell header-left-cell">
                     <strong>0 records selected</strong>
                 </th>
-                <th class="govuk-table__cell" style="width: 60px; text-align: left; padding: 10px 0px 10px 20px; vertical-align: middle; border-bottom:0px;">
+                <th class="govuk-table__cell header-right-cell">
                     <strong>@Model.TablePaginationModel.StartRecord - @Model.TablePaginationModel.EndRecord of @Model.TablePaginationModel.TotalRecords</strong>
                 </th>
             </tr>
@@ -29,12 +29,12 @@
     </caption>
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
-            <th scope="col" class="govuk-table__header" style="width: 60px;"><span class="govuk-visually-hidden">Select</span></th>
-            <th scope="col" class="govuk-table__header" style="width: 170px;">Organisation name</th>
-            <th scope="col" class="govuk-table__header" style="width: 160px;">Organisation ID</th>
-            <th scope="col" class="govuk-table__header" style="width: 160px;">Billing instruction</th>
-            <th scope="col" class="govuk-table__header" style="width: 140px;">Invoice amount</th>
-            <th scope="col" class="govuk-table__header" style="width: 140px;">Status</th>
+            <th scope="col" class="govuk-table__header col-select"><span class="govuk-visually-hidden">Select</span></th>
+            <th scope="col" class="govuk-table__header col-org-name">Organisation name</th>
+            <th scope="col" class="govuk-table__header col-org-id">Organisation ID</th>
+            <th scope="col" class="govuk-table__header col-billing">Billing instruction</th>
+            <th scope="col" class="govuk-table__header col-invoice">Invoice amount</th>
+            <th scope="col" class="govuk-table__header col-status">Status</th>
         </tr>
     </thead>
     <tbody class="govuk-table__body">
@@ -46,18 +46,18 @@
                            name="SelectedIds"
                            value="@org.Id"
                            aria-labelledby="checkbox-label-@org.Id"
-                    @(org.Status == BillingStatus.Noaction ? "disabled" : "")
-                           style="width:34px; height:34px; cursor: pointer; border: 1px solid #000;">
+                           class="record-checkbox"
+                    @(org.Status == BillingStatus.Noaction ? "disabled" : "")>
                 </td>
-                <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;" id="checkbox-label-@org.Id">@org.OrganisationName</td>
-                <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">@org.OrganisationId</td>
-                <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">
+                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle" id="checkbox-label-@org.Id">@org.OrganisationName</td>
+                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">@org.OrganisationId</td>
+                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">
                     <partial name="_BillingInstructionTag" model="org.BillingInstruction" />
                 </td>
                 <td class="govuk-table__cell govuk-!-text-align-center">
                     <partial name="_InvoiceAmountCell" model="org.InvoiceAmount" />
                 </td>
-                <td class="govuk-table__cell govuk-!-text-align-center" style="vertical-align: middle;">
+                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">
                     <partial name="_BillingStatusTag" model="org.Status" />
                 </td>
             </tr>

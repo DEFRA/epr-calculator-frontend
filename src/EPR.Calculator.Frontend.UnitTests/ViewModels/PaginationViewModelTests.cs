@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.ViewModels;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.ViewModels;
 
 namespace EPR.Calculator.Frontend.UnitTests.ViewModels
 {
@@ -161,6 +162,19 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             Assert.AreEqual(0, viewModel.CurrentPage);
             Assert.AreEqual(0, viewModel.PageSize);
             CollectionAssert.AreEqual(ExpectedPageSizes, viewModel.PageSizeOptions.ToList());
+        }
+
+        [TestMethod]
+        public void BlockSize_ShouldBeInitializedWithDefaultValue()
+        {
+            // Arrange
+            var viewModel = new PaginationViewModel();
+
+            // Act
+            var blockSize = viewModel.BlockSize;
+
+            // Assert
+            Assert.AreEqual(CommonConstants.DefaultBlockSize, blockSize, "BlockSize should be initialized with the default value from CommonConstants.");
         }
     }
 }

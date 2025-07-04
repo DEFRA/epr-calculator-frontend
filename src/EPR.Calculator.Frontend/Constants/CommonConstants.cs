@@ -20,5 +20,8 @@
 
         public const bool IsBillingFileTrue = true;
         public const bool IsBillingFileFalse = false;
+
+        public static readonly int[] PageSizeOptions = new[] { 10, 25, 50 };
+        public const int DefaultBlockSize = 3;
     }
 }

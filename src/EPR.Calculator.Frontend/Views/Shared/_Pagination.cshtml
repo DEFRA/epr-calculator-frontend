@@ -2,7 +2,7 @@
 
 @{
     // Calculate page block display
-    const int blockSize = 3;
+    int blockSize = Model.BlockSize;
     var blockStart = ((Model.CurrentPage - 1) / blockSize) * blockSize + 1;
     var blockEnd = Math.Min(blockStart + blockSize - 1, Model.TotalPages);
 
