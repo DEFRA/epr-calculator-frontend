@@ -5,6 +5,8 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
     [TestClass]
     public class PaginationViewModelTests
     {
+        private static readonly int[] ExpectedPageSizes = { 10, 25, 50 };
+
         [TestMethod]
         public void Caption_ShouldBeInitializedCorrectly()
         {
@@ -103,7 +105,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             var pageSizeOptions = viewModel.PageSizeOptions;
 
             // Assert
-            CollectionAssert.AreEqual(new[] { 10, 25, 50 }, pageSizeOptions.ToList());
+            CollectionAssert.AreEqual(ExpectedPageSizes, pageSizeOptions.ToList());
         }
 
         [TestMethod]
@@ -156,7 +158,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             Assert.AreEqual(0, viewModel.TotalRecords);
             Assert.AreEqual(0, viewModel.CurrentPage);
             Assert.AreEqual(0, viewModel.PageSize);
-            CollectionAssert.AreEqual(new[] { 10, 25, 50 }, viewModel.PageSizeOptions.ToList());
+            CollectionAssert.AreEqual(ExpectedPageSizes, viewModel.PageSizeOptions.ToList());
         }
     }
 }

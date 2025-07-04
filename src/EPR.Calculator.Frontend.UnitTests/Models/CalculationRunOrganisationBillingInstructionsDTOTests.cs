@@ -10,7 +10,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
         public void CalculationRunOrganisationBillingInstructionsDTO_DefaultInitialization_ShouldInitializeProperties()
         {
             // Act
-            var dto = new CalculationRunOrganisationBillingInstructionsDTO();
+            var dto = new CalculationRunOrganisationBillingInstructionsDto();
 
             // Assert
             Assert.IsNotNull(dto.CalculationRun);
@@ -22,7 +22,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
         public void CalculationRunOrganisationBillingInstructionsDTO_SetProperties_ShouldRetainValues()
         {
             // Arrange
-            var calculationRun = new CalculationRunForBillingInstructionsDTO();
+            var calculationRun = new CalculationRunForBillingInstructionsDto();
             var organisations = new List<Organisation>
            {
                new Organisation
@@ -46,7 +46,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
            };
 
             // Act
-            var dto = new CalculationRunOrganisationBillingInstructionsDTO
+            var dto = new CalculationRunOrganisationBillingInstructionsDto
             {
                 CalculationRun = calculationRun,
                 Organisations = organisations

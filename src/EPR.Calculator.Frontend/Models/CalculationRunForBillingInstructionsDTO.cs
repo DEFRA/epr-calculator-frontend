@@ -1,6 +1,6 @@
 ﻿namespace EPR.Calculator.Frontend.Models
 {
-    public record CalculationRunForBillingInstructionsDTO
+    public record CalculationRunForBillingInstructionsDto
     {
         public int Id { get; init; }
 

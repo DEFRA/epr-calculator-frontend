@@ -14,15 +14,15 @@
 
         public IEnumerable<int> PageSizeOptions { get; init; } = new[] { 10, 25, 50 };
 
-        public int TotalPages => (int)Math.Ceiling((double)TotalRecords / PageSize);
+        public int TotalPages => (int)Math.Ceiling((double)this.TotalRecords / this.PageSize);
 
-        public int StartRecord => TotalRecords == 0 ? 0 : ((CurrentPage - 1) * PageSize) + 1;
+        public int StartRecord => this.TotalRecords == 0 ? 0 : ((this.CurrentPage - 1) * this.PageSize) + 1;
 
-        public int EndRecord => Math.Min(CurrentPage * PageSize, TotalRecords);
+        public int EndRecord => Math.Min(this.CurrentPage * this.PageSize, this.TotalRecords);
 
         // Route configuration
         public string RouteName { get; init; } = "index";
 
-        public Dictionary<string, object> RouteValues { get; init; } = new();
+        public Dictionary<string, object?> RouteValues { get; init; } = new();
     }
 }

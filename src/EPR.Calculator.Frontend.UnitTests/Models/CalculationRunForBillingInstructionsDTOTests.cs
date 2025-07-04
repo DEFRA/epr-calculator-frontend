@@ -13,7 +13,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
             string expectedName = "Test Name";
 
             // Act
-            var dto = new CalculationRunForBillingInstructionsDTO
+            var dto = new CalculationRunForBillingInstructionsDto
             {
                 Id = expectedId,
                 Name = expectedName

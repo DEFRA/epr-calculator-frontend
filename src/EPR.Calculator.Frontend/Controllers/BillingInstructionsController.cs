@@ -30,9 +30,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
-            var billingData = GetBillingData(calculationRunId);
+            var billingData = this.GetBillingData(calculationRunId);
 
-            var viewModel = MapToViewModel(billingData, request);
+            var viewModel = this.MapToViewModel(billingData, request);
 
             return this.View(viewModel);
         }
@@ -40,12 +40,12 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult ProcessSelection(int calculationRunId, [FromForm] OrganisationSelectionsViewModel selections)
         {
-            return RedirectToAction("Index", new { calculationRunId });
+            return this.RedirectToAction("Index", new { calculationRunId });
         }
 
-        private CalculationRunOrganisationBillingInstructionsDTO GetBillingData(int calculationRunId)
+        private CalculationRunOrganisationBillingInstructionsDto GetBillingData(int calculationRunId)
         {
-            return new CalculationRunOrganisationBillingInstructionsDTO
+            return new CalculationRunOrganisationBillingInstructionsDto
             {
                 Organisations = Enumerable.Range(1, 100).Select(i => new Organisation
                 {
@@ -56,12 +56,12 @@ namespace EPR.Calculator.Frontend.Controllers
                     InvoiceAmount = 10000.00 + (i * 20),
                     Status = (BillingStatus)(i % 4),
                 }).ToList(),
-                CalculationRun = new CalculationRunForBillingInstructionsDTO { Id = calculationRunId, Name = $"Calculation run {calculationRunId}" },
+                CalculationRun = new CalculationRunForBillingInstructionsDto { Id = calculationRunId, Name = $"Calculation run {calculationRunId}" },
             };
         }
 
         private BillingInstructionsViewModel MapToViewModel(
-            CalculationRunOrganisationBillingInstructionsDTO billingData,
+            CalculationRunOrganisationBillingInstructionsDto billingData,
             PaginationRequestViewModel request)
         {
             var pagedOrganisations = billingData.Organisations

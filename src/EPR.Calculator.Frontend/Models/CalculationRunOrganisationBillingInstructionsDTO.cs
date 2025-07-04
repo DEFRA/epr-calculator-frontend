@@ -4,9 +4,9 @@ using System.ComponentModel;
 
 namespace EPR.Calculator.Frontend.Models
 {
-    public record CalculationRunOrganisationBillingInstructionsDTO
+    public record CalculationRunOrganisationBillingInstructionsDto
     {
-        public CalculationRunForBillingInstructionsDTO CalculationRun { get; init; } = new();
+        public CalculationRunForBillingInstructionsDto CalculationRun { get; init; } = new();
 
         public ICollection<Organisation> Organisations { get; init; } = new List<Organisation>();
     }

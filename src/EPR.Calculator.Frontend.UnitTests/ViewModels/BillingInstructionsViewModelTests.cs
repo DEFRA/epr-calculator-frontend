@@ -14,10 +14,20 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
 
             // Assert
             Assert.IsNotNull(viewModel.CalculationRun);
-            Assert.IsInstanceOfType(viewModel.CalculationRun, typeof(CalculationRunForBillingInstructionsDTO));
+            Assert.IsInstanceOfType(viewModel.CalculationRun, typeof(CalculationRunForBillingInstructionsDto));
 
             Assert.IsNotNull(viewModel.TablePaginationModel);
             Assert.IsInstanceOfType(viewModel.TablePaginationModel, typeof(PaginationViewModel));
+        }
+
+        [TestMethod]
+        public void BillingInstructionsViewModel_ShouldInherit_ViewModelCommonData()
+        {
+            // Arrange & Act
+            var viewModel = new BillingInstructionsViewModel();
+
+            // Assert
+            Assert.IsInstanceOfType(viewModel, typeof(ViewModelCommonData));
         }
     }
 }
