@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -41,10 +42,11 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             _controller = new CalculationRunOverviewController(
                    _configuration,
-                   _mockHttpClientFactory.Object,
+                   new Mock<IApiService>().Object,
                    _mockLogger.Object,
                    _mockTokenAcquisition.Object,
-                   _telemetryClient)
+                   _telemetryClient,
+                   new Mock<ICalculatorRunDetailsService>().Object)
             {
                 // Setting the mocked HttpContext for the controller
                 ControllerContext = new ControllerContext
@@ -88,9 +90,11 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             _controller = new CalculationRunOverviewController(
                 _configuration,
-                _mockHttpClientFactory.Object, _mockLogger.Object,
+                new Mock<IApiService>().Object,
+                _mockLogger.Object,
                 _mockTokenAcquisition.Object,
-                _telemetryClient);
+                _telemetryClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             // Setting the mocked HttpContext for the controller
             _controller.ControllerContext = new ControllerContext
@@ -127,9 +131,11 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             _controller = new CalculationRunOverviewController(
                 _configuration,
-                _mockHttpClientFactory.Object, _mockLogger.Object,
+                new Mock<IApiService>().Object,
+                _mockLogger.Object,
                 _mockTokenAcquisition.Object,
-                _telemetryClient);
+                _telemetryClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             // Setting the mocked HttpContext for the controller
             _controller.ControllerContext = new ControllerContext

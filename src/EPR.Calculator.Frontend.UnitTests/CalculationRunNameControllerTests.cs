@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.Validators;
@@ -46,8 +47,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockTokenAcquisition
                 .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
                 .ReturnsAsync("somevalue");
-            _controller = new CalculationRunNameController(configuration, mockClientFactory.Object, mockLogger.Object,
-                mockTokenAcquisition.Object, new TelemetryClient());
+            _controller = new CalculationRunNameController(
+                configuration,
+                new Mock<IApiService>().Object,
+                mockLogger.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
             _validationRules = new CalculatorRunNameValidator();
             _tempDataMock = new Mock<ITempDataDictionary>();
 
@@ -422,8 +428,13 @@ namespace EPR.Calculator.Frontend.UnitTests
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "TestCalculation",
             };
-            _controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object,
-                mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
+            _controller = new CalculationRunNameController(
+                mockConfiguration.Object,
+                new Mock<IApiService>().Object,
+                mockLogger.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
             var redirectResult = await _controller.RunCalculator(model) as RedirectToActionResult;
             Assert.IsNotNull(redirectResult);
             Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
@@ -594,8 +605,13 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockHttpContext = new Mock<HttpContext>();
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object,
-                mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient())
+            var controller = new CalculationRunNameController(
+                mockConfiguration.Object,
+                new Mock<IApiService>().Object,
+                mockLogger.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object)
             {
                 ControllerContext = new ControllerContext
                 {

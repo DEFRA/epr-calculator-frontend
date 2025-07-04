@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -47,10 +48,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             _controller = new SetRunClassificationController(
                        _configuration,
-                       _mockHttpClientFactory.Object,
+                       new Mock<IApiService>().Object,
                        _mockLogger.Object,
                        _mockTokenAcquisition.Object,
-                       _mockTelemetryClient);
+                       _mockTelemetryClient,
+                       new Mock<ICalculatorRunDetailsService>().Object);
 
             _mockHttpContext = new Mock<HttpContext>();
             _mockHttpContext.Setup(context => context.User)
@@ -250,10 +252,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             _controller = new SetRunClassificationController(
                 _configuration,
-                _mockHttpClientFactory.Object,
+                new Mock<IApiService>().Object,
                 _mockLogger.Object,
                 _mockTokenAcquisition.Object,
-                _mockTelemetryClient);
+                _mockTelemetryClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             // Setting the mocked HttpContext for the controller
             _controller.ControllerContext = new ControllerContext
@@ -315,10 +318,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             _controller = new SetRunClassificationController(
                        _configuration,
-                       _mockHttpClientFactory.Object,
+                       new Mock<IApiService>().Object,
                        _mockLogger.Object,
                        _mockTokenAcquisition.Object,
-                       _mockTelemetryClient);
+                       _mockTelemetryClient,
+                       new Mock<ICalculatorRunDetailsService>().Object);
 
             _mockHttpContext.Setup(context => context.User)
                .Returns(new ClaimsPrincipal(new ClaimsIdentity(
@@ -387,10 +391,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             _controller = new SetRunClassificationController(
                        _configuration,
-                       _mockHttpClientFactory.Object,
+                       new Mock<IApiService>().Object,
                        _mockLogger.Object,
                        _mockTokenAcquisition.Object,
-                       _mockTelemetryClient);
+                       _mockTelemetryClient,
+                       new Mock<ICalculatorRunDetailsService>().Object);
 
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");

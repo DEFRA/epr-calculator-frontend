@@ -10,6 +10,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -68,8 +69,12 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockClient = new TelemetryClient();
 
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, mockClient);
+            var controller = new DashboardController(
+                configuration,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                mockClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
             controller.ControllerContext = new ControllerContext { HttpContext = mockContext.Object };
 
             // Act
@@ -110,8 +115,12 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockClient = new TelemetryClient();
 
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, mockClient);
+            var controller = new DashboardController(
+                configuration,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                mockClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
             controller.ControllerContext = new ControllerContext { HttpContext = mockContext.Object };
 
             // Act
@@ -148,8 +157,12 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockClient = new TelemetryClient();
 
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, mockClient);
+            var controller = new DashboardController(
+                configuration,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                mockClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var identity = new GenericIdentity("TestUser");
             identity.AddClaim(new Claim("name", "TestUser"));
@@ -195,8 +208,12 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockClient = new TelemetryClient();
 
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, mockClient);
+            var controller = new DashboardController(
+                configuration,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                mockClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var identity = new GenericIdentity("TestUser");
             identity.AddClaim(new Claim("name", "TestUser"));
@@ -233,8 +250,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, new TelemetryClient());
+            var controller = new DashboardController(
+                configuration,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var result = await controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
@@ -255,8 +276,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, new TelemetryClient());
+            var controller = new DashboardController(
+                configuration,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var result = await controller.GetCalculations("2024-25") as RedirectToActionResult;
             Assert.IsNotNull(result);
@@ -280,8 +305,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             config.GetSection(ConfigSection.DashboardCalculatorRun).Value = string.Empty;
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
             var mockClient = new TelemetryClient();
-            var controller = new DashboardController(config, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, mockClient);
+            var controller = new DashboardController(
+                config,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                mockClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var result = await controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
@@ -305,8 +334,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             config.GetSection(ConfigSection.DashboardCalculatorRun).Value = string.Empty;
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
             var mockClient = new TelemetryClient();
-            var controller = new DashboardController(config, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, mockClient);
+            var controller = new DashboardController(
+                config,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                mockClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var result = await controller.GetCalculations("2024-25") as RedirectToActionResult;
             Assert.IsNotNull(result);
@@ -329,8 +362,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, new TelemetryClient());
+            var controller = new DashboardController(
+                configuration,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             // Act
             var task = controller.Index();
@@ -359,8 +396,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, new TelemetryClient());
+            var controller = new DashboardController(
+                configuration,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             // Act
             var task = controller.GetCalculations("2024-25");
@@ -482,8 +523,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .ReturnsAsync("somevalue");
             var mockClient = new TelemetryClient();
             // Act
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, mockClient);
+            var controller = new DashboardController(
+                configuration,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                mockClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
             var result = await controller.Index() as ViewResult;
             var model = result?.Model as DashboardViewModel;
@@ -533,8 +578,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .ReturnsAsync("somevalue");
             var mockClient = new TelemetryClient();
             // Act
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, mockClient);
+            var controller = new DashboardController(
+                configuration,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                mockClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
             var result = await controller.Index() as ViewResult;
             var model = result?.Model as DashboardViewModel;
@@ -572,8 +621,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
             configuration["ShowDetailedError"] = "true";
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, new TelemetryClient());
+            var controller = new DashboardController(
+                configuration,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             // Act
             var task = controller.Index();
@@ -614,8 +667,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockHttpSession.SetString(SessionConstants.FinancialYear, "2024-25");
 
             configuration["ShowDetailedError"] = "true";
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, new TelemetryClient());
+            var controller = new DashboardController(
+                configuration,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var context = new DefaultHttpContext()
             {
@@ -664,8 +721,11 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
 
             configuration["ShowDetailedError"] = "true";
-            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, new TelemetryClient());
+            var controller = new DashboardController(configuration,
+                new Mock<IApiService>().Object,
+                mockAuthorizationHeaderProvider.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var task = controller.GetCalculations("2024-25");
             // Assert

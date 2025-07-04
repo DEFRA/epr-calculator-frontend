@@ -3,6 +3,7 @@ using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Extensions;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -51,9 +52,10 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var controller = new DefaultParametersController(
                 ConfigurationItems.GetConfigurationValues(),
-                mockHttpClientFactory.Object,
+                new Mock<IApiService>().Object,
                 mockTokenAcquisition.Object,
-                new TelemetryClient());
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
@@ -107,7 +109,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
 
-            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+            var controller = new DefaultParametersController(
+                ConfigurationItems.GetConfigurationValues(),
+                new Mock<IApiService>().Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
@@ -149,7 +156,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+            var controller = new DefaultParametersController(
+                ConfigurationItems.GetConfigurationValues(),
+                new Mock<IApiService>().Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var result = await controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);

@@ -7,6 +7,7 @@ using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -69,8 +70,13 @@ namespace EPR.Calculator.Frontend.UnitTests
                 Session = mockHttpSession
             };
 
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, mockClient);
+            var controller = new CalculationRunDetailsController(
+                _configuration,
+                new Mock<ApiService>().Object,
+                _mockLogger.Object,
+                new Mock<ITokenAcquisition>().Object,
+                mockClient,
+                new Mock<CalculatorRunDetailsService>().Object);
             controller.ControllerContext = new ControllerContext
             {
                 HttpContext = context
@@ -120,8 +126,13 @@ namespace EPR.Calculator.Frontend.UnitTests
                 Session = mockHttpSession
             };
 
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, mockClient);
+            var controller = new CalculationRunDetailsController(
+                _configuration,
+                new Mock<IApiService>().Object,
+                _mockLogger.Object,
+                new Mock<ITokenAcquisition>().Object,
+                mockClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
             controller.ControllerContext = new ControllerContext
             {
                 HttpContext = context
@@ -161,8 +172,13 @@ namespace EPR.Calculator.Frontend.UnitTests
                 Session = mockHttpSession
             };
 
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, mockClient);
+            var controller = new CalculationRunDetailsController(
+                _configuration,
+                new Mock<IApiService>().Object,
+                _mockLogger.Object,
+                new Mock<ITokenAcquisition>().Object,
+                mockClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
             controller.ControllerContext = new ControllerContext
             {
                 HttpContext = context
@@ -189,8 +205,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
+            var controller = new CalculationRunDetailsController(
+                _configuration,
+                new Mock<IApiService>().Object,
+                _mockLogger.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
             int runId = 1;
 
             // Act
@@ -210,8 +231,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
+            var controller = new CalculationRunDetailsController(
+                _configuration,
+                new Mock<IApiService>().Object,
+                _mockLogger.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var identity = new GenericIdentity("TestUser");
             identity.AddClaim(new Claim("name", "TestUser"));
@@ -256,8 +282,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
 
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
+            var controller = new CalculationRunDetailsController(
+                _configuration,
+                new Mock<IApiService>().Object,
+                _mockLogger.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
             var identity = new GenericIdentity("TestUser");
             identity.AddClaim(new Claim("name", "TestUser"));
             var principal = new ClaimsPrincipal(identity);
@@ -301,8 +332,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
 
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
+            var controller = new CalculationRunDetailsController(
+                _configuration,
+                new Mock<IApiService>().Object,
+                _mockLogger.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var identity = new GenericIdentity("TestUser");
             identity.AddClaim(new Claim("name", "TestUser"));
@@ -346,8 +382,13 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             var mockClient = new TelemetryClient();
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, mockTokenAcquisition.Object, mockClient);
+            var controller = new CalculationRunDetailsController(
+                _configuration,
+                new Mock<IApiService>().Object,
+                _mockLogger.Object,
+                mockTokenAcquisition.Object,
+                mockClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
             int runId = 1;
 
             // Act
@@ -377,8 +418,13 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockClient = new Mock<ITokenAcquisition>();
             var controller =
-                new CalculationRunDetailsController(null, null, _mockLogger.Object, mockClient.Object,
-                    new TelemetryClient());
+                new CalculationRunDetailsController(
+                    null,
+                    null,
+                    _mockLogger.Object,
+                    mockClient.Object,
+                    new TelemetryClient(),
+                    new Mock<ICalculatorRunDetailsService>().Object);
             int runId = 1;
 
             // Act
@@ -400,8 +446,13 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
 
-            var controller = new CalculationRunDetailsController(null, null, _mockLogger.Object,
-                mockTokenAcquisition.Object, new TelemetryClient());
+            var controller = new CalculationRunDetailsController(
+                null,
+                null,
+                _mockLogger.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
             int runId = 1;
             string calcName = "TestCalc";
             string calDate = "21 June 2024";
@@ -440,8 +491,13 @@ namespace EPR.Calculator.Frontend.UnitTests
                 Session = mockHttpSession
             };
 
-            var controller = new CalculationRunDetailsController(_configuration, _mockClientFactory.Object,
-                _mockLogger.Object, new Mock<ITokenAcquisition>().Object, mockClient);
+            var controller = new CalculationRunDetailsController(
+                _configuration,
+                new Mock<IApiService>().Object,
+                _mockLogger.Object,
+                new Mock<ITokenAcquisition>().Object,
+                mockClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
             controller.ControllerContext = new ControllerContext
             {
                 HttpContext = context

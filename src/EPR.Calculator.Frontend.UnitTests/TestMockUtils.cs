@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Text;
 using AutoFixture;
+using EPR.Calculator.Frontend.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Configuration;
@@ -111,6 +112,25 @@ namespace EPR.Calculator.Frontend.UnitTests
            .Callback<string>((key) => sessionStorage.Remove(key));
 
             return sessionMock;
+        }
+
+        public static Mock<IApiService> BuildMockApiService(HttpStatusCode httpStatusCode)
+        {
+            var service = new Mock<IApiService>();
+            service.Setup(s => s.GetApiUrl(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new Uri("http://test.test"));
+            service.Setup(s => s.CallApi(
+                It.IsAny<HttpContext>(),
+                It.IsAny<HttpMethod>(),
+                It.IsAny<Uri>(),
+                It.IsAny<string>(),
+                It.IsAny<object>()))
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = httpStatusCode,
+                    Content = new StringContent("{}")
+                });
+            return service;
         }
     }
 }

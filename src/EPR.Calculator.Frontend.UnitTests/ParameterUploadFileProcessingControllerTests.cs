@@ -3,6 +3,7 @@ using System.Text;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -38,9 +39,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                 this.MockMessageHandler.Object);
             this.TestClass = new ParameterUploadFileProcessingController(
                 this.Configuration,
-                mockHttpClientFactory.Object,
+                new Mock<IApiService>().Object,
                 new Mock<ITokenAcquisition>().Object,
-                new TelemetryClient())
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object)
             {
                 TempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>()),
             };
@@ -100,7 +102,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                 Session = mockSession
             };
             // Create controller with the mocked factory
-            var controller = new ParameterUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient())
+            var controller = new ParameterUploadFileProcessingController(
+                GetConfigurationValues(),
+                new Mock<IApiService>().Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<CalculatorRunDetailsService>().Object)
             {
                 TempData = tempData,
             };
@@ -174,7 +181,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockTokenAcquisition
                 .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
                 .ReturnsAsync("somevalue");
-            var controller = new ParameterUploadFileProcessingController(GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient())
+            var controller = new ParameterUploadFileProcessingController(
+                GetConfigurationValues(),
+                new Mock<IApiService>().Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<CalculatorRunDetailsService>().Object)
             {
                 TempData = tempData
             };
@@ -229,8 +241,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             var config = GetConfigurationValues();
             config.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value = string.Empty;
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new ParameterUploadFileProcessingController(config, mockHttpClientFactory.Object,
-                mockTokenAcquisition.Object, new TelemetryClient());
+            var controller = new ParameterUploadFileProcessingController(
+                config,
+                new Mock<IApiService>().Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
             var viewModel = new ParameterRefreshViewModel()
             {
                 ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
@@ -268,8 +284,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             var config = TestMockUtils.BuildConfiguration();
             config.GetSection("ParameterSettings").GetSection("ParameterYear").Value = string.Empty;
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new ParameterUploadFileProcessingController(config, mockHttpClientFactory.Object,
-                mockTokenAcquisition.Object, new TelemetryClient());
+            var controller = new ParameterUploadFileProcessingController(
+                config,
+                new Mock<IApiService>().Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var viewModel = new ParameterRefreshViewModel()
             {
