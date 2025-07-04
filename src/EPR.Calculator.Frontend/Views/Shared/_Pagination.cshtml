@@ -7,7 +7,7 @@
     var blockEnd = Math.Min(blockStart + blockSize - 1, Model.TotalPages);
 
     // Create route values with existing parameters
-    var routeValues = new Dictionary<string, object>(Model.RouteValues)
+    var routeValues = new Dictionary<string, object?>(Model.RouteValues)
             {
                 ["pageSize"] = Model.PageSize
             };           
