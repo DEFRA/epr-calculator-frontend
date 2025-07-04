@@ -6,7 +6,7 @@ namespace EPR.Calculator.Frontend.Models
 {
     public record CalculationRunOrganisationBillingInstructionsDTO
     {
-        public CalculationRunForBillingInstructionsDTO CalculationRun { get; init; }
+        public CalculationRunForBillingInstructionsDTO CalculationRun { get; init; } = new();
 
         public ICollection<Organisation> Organisations { get; init; } = new List<Organisation>();
     }

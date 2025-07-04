@@ -6,6 +6,23 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
     public class PaginationViewModelTests
     {
         [TestMethod]
+        public void Caption_ShouldBeInitializedCorrectly()
+        {
+            // Arrange
+            var expectedCaption = "Test Caption";
+            var viewModel = new PaginationViewModel
+            {
+                Caption = expectedCaption
+            };
+
+            // Act
+            var actualCaption = viewModel.Caption;
+
+            // Assert
+            Assert.AreEqual(expectedCaption, actualCaption);
+        }
+
+        [TestMethod]
         public void TotalPages_ShouldCalculateCorrectly()
         {
             // Arrange

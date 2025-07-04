@@ -4,8 +4,8 @@ namespace EPR.Calculator.Frontend.ViewModels
 {
     public record BillingInstructionsViewModel : ViewModelCommonData
     {
-        public CalculationRunForBillingInstructionsDTO CalculationRun { get; init; }
+        public CalculationRunForBillingInstructionsDTO CalculationRun { get; init; } = new();
 
-        public PaginationViewModel TablePaginationModel { get; init; }
+        public PaginationViewModel TablePaginationModel { get; init; } = new();
     }
 }
