@@ -110,7 +110,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         [TestMethod]
         public void StartRecord_ShouldReturnCorrectValue_WhenTotalRecordsIsGreaterThanZero()
         {
-            // Arrange  
+            // Arrange
             var viewModel = new PaginationViewModel
             {
                 TotalRecords = 100,
