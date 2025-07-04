@@ -7,22 +7,17 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
     public class BillingInstructionsViewModelTests
     {
         [TestMethod]
-        public void BillingInstructionsViewModel_ShouldInitializeProperties()
+        public void BillingInstructionsViewModel_ShouldInitializeWithDefaultValues()
         {
-            // Arrange
-            var calculationRun = new CalculationRunForBillingInstructionsDTO();
-            var paginationModel = new PaginationViewModel();
-
             // Act
-            var viewModel = new BillingInstructionsViewModel
-            {
-                CalculationRun = calculationRun,
-                TablePaginationModel = paginationModel
-            };
+            var viewModel = new BillingInstructionsViewModel();
 
             // Assert
-            Assert.AreEqual(calculationRun, viewModel.CalculationRun);
-            Assert.AreEqual(paginationModel, viewModel.TablePaginationModel);
+            Assert.IsNotNull(viewModel.CalculationRun);
+            Assert.IsInstanceOfType(viewModel.CalculationRun, typeof(CalculationRunForBillingInstructionsDTO));
+
+            Assert.IsNotNull(viewModel.TablePaginationModel);
+            Assert.IsInstanceOfType(viewModel.TablePaginationModel, typeof(PaginationViewModel));
         }
     }
 }

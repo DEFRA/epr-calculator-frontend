@@ -141,5 +141,22 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Assert
             Assert.AreEqual(11, startRecord);
         }
+
+        [TestMethod]
+        public void DefaultValues_ShouldBeSetCorrectly()
+        {
+            // Arrange
+            var viewModel = new PaginationViewModel();
+
+            // Assert
+            Assert.IsNotNull(viewModel.Records);
+            Assert.AreEqual(Enumerable.Empty<object>(), viewModel.Records);
+            Assert.AreEqual("index", viewModel.RouteName);
+            Assert.IsNotNull(viewModel.RouteValues);
+            Assert.AreEqual(0, viewModel.TotalRecords);
+            Assert.AreEqual(0, viewModel.CurrentPage);
+            Assert.AreEqual(0, viewModel.PageSize);
+            CollectionAssert.AreEqual(new[] { 10, 25, 50 }, viewModel.PageSizeOptions.ToList());
+        }
     }
 }

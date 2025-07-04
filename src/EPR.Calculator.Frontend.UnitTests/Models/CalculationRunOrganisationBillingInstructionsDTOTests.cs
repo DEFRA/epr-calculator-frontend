@@ -7,10 +7,22 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
     public class CalculationRunOrganisationBillingInstructionsDTOTests
     {
         [TestMethod]
-        public void CalculationRunOrganisationBillingInstructionsDTO_ShouldInitializeProperties()
+        public void CalculationRunOrganisationBillingInstructionsDTO_DefaultInitialization_ShouldInitializeProperties()
+        {
+            // Act
+            var dto = new CalculationRunOrganisationBillingInstructionsDTO();
+
+            // Assert
+            Assert.IsNotNull(dto.CalculationRun);
+            Assert.IsNotNull(dto.Organisations);
+            Assert.AreEqual(0, dto.Organisations.Count);
+        }
+
+        [TestMethod]
+        public void CalculationRunOrganisationBillingInstructionsDTO_SetProperties_ShouldRetainValues()
         {
             // Arrange
-            var calculationRun = new CalculationRunForBillingInstructionsDTO { Id = 1, Name = "Test Run" };
+            var calculationRun = new CalculationRunForBillingInstructionsDTO();
             var organisations = new List<Organisation>
            {
                new Organisation
@@ -43,6 +55,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
             // Assert
             Assert.AreEqual(calculationRun, dto.CalculationRun);
             Assert.AreEqual(organisations, dto.Organisations);
+            Assert.AreEqual(2, dto.Organisations.Count);
         }
     }
 }

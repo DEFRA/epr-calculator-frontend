@@ -9,19 +9,19 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
         public void CalculationRunForBillingInstructionsDTO_ShouldInitializeProperties()
         {
             // Arrange
-            var id = 1;
-            var name = "Test Name";
+            int expectedId = 1;
+            string expectedName = "Test Name";
 
             // Act
             var dto = new CalculationRunForBillingInstructionsDTO
             {
-                Id = id,
-                Name = name
+                Id = expectedId,
+                Name = expectedName
             };
 
             // Assert
-            Assert.AreEqual(id, dto.Id);
-            Assert.AreEqual(name, dto.Name);
+            Assert.AreEqual(expectedId, dto.Id);
+            Assert.AreEqual(expectedName, dto.Name);
         }
     }
 }
