@@ -67,19 +67,15 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (model.SelectAll)
             {
-                foreach (var organisation in model.OrganisationBillingInstructions)
+                foreach (var organisation in model.OrganisationBillingInstructions.Where(t => t.Status != BillingStatus.Noaction))
                 {
                     organisation.IsSelected = true;
                 }
             }
 
-            var model1 = new CalculationRunOrganisationBillingInstructionsDto()
-            {
-                CalculationRun = model.CalculationRun,
-                Organisations = model.OrganisationBillingInstructions,
-            };
+            var billingInstructionsDto = CreateBillingInstructionsDto(model);
 
-            var viewModel = this.MapToViewModel(model1, request);
+            var viewModel = this.MapToViewModel(billingInstructionsDto, request);
 
             return this.View("Index", viewModel);
         }
@@ -99,6 +95,15 @@ namespace EPR.Calculator.Frontend.Controllers
                     IsSelected = false,
                 }).ToList(),
                 CalculationRun = new CalculationRunForBillingInstructionsDto { Id = calculationRunId, Name = $"Calculation run {calculationRunId}" },
+            };
+        }
+
+        private static CalculationRunOrganisationBillingInstructionsDto CreateBillingInstructionsDto(BillingInstructionsViewModel model)
+        {
+            return new CalculationRunOrganisationBillingInstructionsDto
+            {
+                CalculationRun = model.CalculationRun,
+                Organisations = model.OrganisationBillingInstructions,
             };
         }
 
