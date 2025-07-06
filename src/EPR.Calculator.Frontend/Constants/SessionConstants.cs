@@ -19,6 +19,5 @@
         public const string RunParameterYear = "RunParameterYear";
 
         public const string BillingInstructionsSelectAll = "BillingInstructionsSelectAll";
-
     }
 }
