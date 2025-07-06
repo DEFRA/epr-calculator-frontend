@@ -24,6 +24,39 @@
     </div>
 
     <div class="padding: 0px 20px; clear: both;">
+        @using (Html.BeginForm(ActionNames.SelectAll, null, FormMethod.Post))
+        {
+            <div class="govuk-form-group" style="margin-bottom:20px;">
+                <fieldset class="govuk-fieldset">
+                    <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;">
+                        <div class="govuk-checkboxes__item" style="width: 300px !important;">
+                            <input class="govuk-checkboxes__input" id="status-selectall" name="status" type="checkbox" value="selectall">
+                            <label class="govuk-label govuk-checkboxes__label" for="selectall">
+                                Select all records on this page
+                            </label>
+                        </div>
+                        <div class="govuk-checkboxes__item" style="width: 300px !important;">
+                            @Html.CheckBoxFor(m => m.SelectAll, new { id = "selectAllCheckbox", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
+                            <label class="govuk-label govuk-checkboxes__label" for="status-select700">
+                                Select all @Model.OrganisationBillingInstructions.Count records
+                            </label>
+                            @for (int i = 0; i < Model.OrganisationBillingInstructions.Count; i++)
+                            {
+                                <input type="hidden" name="OrganisationBillingInstructions[@i].Id" value="@Model.OrganisationBillingInstructions.ElementAt(i).Id" />
+                                <input type="hidden" name="OrganisationBillingInstructions[@i].OrganisationName" value="@Model.OrganisationBillingInstructions.ElementAt(i).OrganisationName" />
+                                <input type="hidden" name="OrganisationBillingInstructions[@i].OrganisationId" value="@Model.OrganisationBillingInstructions.ElementAt(i).OrganisationId" />
+                                <input type="hidden" name="OrganisationBillingInstructions[@i].BillingInstruction" value="@((int)Model.OrganisationBillingInstructions.ElementAt(i).BillingInstruction)" />
+                                <input type="hidden" name="OrganisationBillingInstructions[@i].InvoiceAmount" value="@Model.OrganisationBillingInstructions.ElementAt(i).InvoiceAmount" />
+                                <input type="hidden" name="OrganisationBillingInstructions[@i].Status" value="@((int)Model.OrganisationBillingInstructions.ElementAt(i).Status)" />
+                                <input type="hidden" name="OrganisationBillingInstructions[@i].IsSelected" value="false" />
+                            }
+                            <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
+                            <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        }
         @using (Html.BeginForm(ActionNames.ProcessSelection, null, FormMethod.Post))
         {
             <partial name="_OrganisationTable" model="Model" />

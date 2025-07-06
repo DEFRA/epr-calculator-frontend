@@ -15,5 +15,7 @@ namespace EPR.Calculator.Frontend.Models
         public double InvoiceAmount { get; init; }
 
         public BillingStatus? Status { get; init; }
+
+        public bool IsSelected { get; set; }
     }
 }

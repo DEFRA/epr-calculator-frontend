@@ -34,6 +34,17 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var viewModel = this.MapToViewModel(billingData, request);
 
+            var selectAllStored = this.HttpContext.Session.GetString(SessionConstants.BillingInstructionsSelectAll);
+
+            if (bool.TryParse(selectAllStored, out var isSelectAll) && isSelectAll)
+            {
+                viewModel.SelectAll = true;
+                foreach (var organisation in billingData.Organisations)
+                {
+                    organisation.IsSelected = true;
+                }
+            }
+
             return this.View(viewModel);
         }
 
@@ -41,6 +52,36 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult ProcessSelection(int calculationRunId, [FromForm] OrganisationSelectionsViewModel selections)
         {
             return this.RedirectToAction("Index", new { calculationRunId });
+        }
+
+        /// <summary>
+        /// Handles the POST request to select all billing instructions.
+        /// </summary>
+        /// <param name="model">The view model containing billing instructions and selection state.</param>
+        /// <param name="request">Pagination parameters for the current page of billing instructions.</param>
+        /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
+        [HttpPost]
+        public ActionResult SelectAll(BillingInstructionsViewModel model, [FromQuery] PaginationRequestViewModel request)
+        {
+            this.HttpContext.Session.SetString(SessionConstants.BillingInstructionsSelectAll, model.SelectAll.ToString());
+
+            if (model.SelectAll)
+            {
+                foreach (var organisation in model.OrganisationBillingInstructions)
+                {
+                    organisation.IsSelected = true;
+                }
+            }
+
+            var model1 = new CalculationRunOrganisationBillingInstructionsDto()
+            {
+                CalculationRun = model.CalculationRun,
+                Organisations = model.OrganisationBillingInstructions,
+            };
+
+            var viewModel = this.MapToViewModel(model1, request);
+
+            return this.View("Index", viewModel);
         }
 
         private static CalculationRunOrganisationBillingInstructionsDto GetBillingData(int calculationRunId)
@@ -55,6 +96,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     BillingInstruction = (BillingInstruction)(i % 5),
                     InvoiceAmount = 10000.00 + (i * 20),
                     Status = (BillingStatus)(i % 4),
+                    IsSelected = false,
                 }).ToList(),
                 CalculationRun = new CalculationRunForBillingInstructionsDto { Id = calculationRunId, Name = $"Calculation run {calculationRunId}" },
             };
@@ -69,10 +111,13 @@ namespace EPR.Calculator.Frontend.Controllers
                .Take(request.PageSize)
                .ToList();
 
+            var isSelectAll = !billingData.Organisations.Any(s => s.IsSelected == false);
+
             var viewModel = new BillingInstructionsViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 CalculationRun = billingData.CalculationRun,
+                OrganisationBillingInstructions = billingData.Organisations,
                 TablePaginationModel = new PaginationViewModel
                 {
                     Records = pagedOrganisations,
@@ -85,6 +130,7 @@ namespace EPR.Calculator.Frontend.Controllers
                          { "calculationRunId", billingData.CalculationRun.Id },
                     },
                 },
+                SelectAll = isSelectAll,
             };
             return viewModel;
         }
