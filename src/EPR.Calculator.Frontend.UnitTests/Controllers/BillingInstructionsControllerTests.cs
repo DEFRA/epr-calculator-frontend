@@ -46,6 +46,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
             mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            mockSession.SetString(SessionConstants.BillingInstructionsSelectAll, "false");
             var context = new DefaultHttpContext()
             {
                 Session = mockSession
