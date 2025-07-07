@@ -74,5 +74,10 @@
         /// ProcessSelection.
         /// </summary>
         public const string ProcessSelection = "ProcessSelection";
+
+        /// <summary>
+        /// ClearSelection.
+        /// </summary>
+        public const string ClearSelection = "ClearSelection";
     }
 }
