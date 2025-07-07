@@ -22,7 +22,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
         }
 
-        [HttpGet("BillingInstructions/{calculationRunId}", Name = "BillingInstructions_Index")]
+        [HttpGet("BillingInstructions/{calculationRunId}", Name = RouteNames.BillingInstructions_Index)]
         public IActionResult Index([FromRoute] int calculationRunId, [FromQuery] PaginationRequestViewModel model)
         {
             if (calculationRunId <= 0)
@@ -87,7 +87,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     CurrentPage = request.Page <= 0 ? CommonConstants.DefaultPage : request.Page,
                     PageSize = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,
                     TotalRecords = billingData.Organisations.Count,
-                    RouteName = "BillingInstructions_Index",
+                    RouteName =RouteNames.BillingInstructions_Index,
                     RouteValues = new Dictionary<string, object?>
                     {
                          { "calculationRunId", billingData.CalculationRun.Id },

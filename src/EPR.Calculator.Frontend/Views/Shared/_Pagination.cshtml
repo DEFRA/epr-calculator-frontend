@@ -35,7 +35,7 @@
             @if (blockStart > 1)
             {
                 <li class="govuk-pagination__item">
-                    <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl("BillingInstructions_Index", new RouteValueDictionary(routeValues) { ["page"] = 1 })">1</a>
+                    <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(RouteNames.BillingInstructions_Index, new RouteValueDictionary(routeValues) { ["page"] = 1 })">1</a>
                 </li>
                 @if (blockStart > 2)  // show ellipsis only if gap > 1 page
                 {
