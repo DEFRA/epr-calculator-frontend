@@ -4,13 +4,13 @@ using EPR.Calculator.Frontend.ViewModels;
 namespace EPR.Calculator.Frontend.UnitTests.ViewModels
 {
     [TestClass]
-    public class BillingInstructionViewModelTests
+    public class PaginationRequestViewModelTests
     {
         [TestMethod]
-        public void BillingInstructionViewModel_DefaultValues_ShouldBeSetCorrectly()
+        public void PaginationRequestViewModel_DefaultValues_ShouldBeSetCorrectly()
         {
             // Arrange & Act
-            var viewModel = new BillingInstructionViewModel();
+            var viewModel = new PaginationRequestViewModel();
 
             // Assert
             Assert.AreEqual(CommonConstants.DefaultPage, viewModel.Page);
@@ -19,7 +19,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         }
 
         [TestMethod]
-        public void BillingInstructionViewModel_CustomValues_ShouldBeSetCorrectly()
+        public void PaginationRequestViewModel_CustomValues_ShouldBeSetCorrectly()
         {
             // Arrange
             var page = 2;
@@ -27,7 +27,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             var organisationId = 123;
 
             // Act
-            var viewModel = new BillingInstructionViewModel
+            var viewModel = new PaginationRequestViewModel
             {
                 Page = page,
                 PageSize = pageSize,

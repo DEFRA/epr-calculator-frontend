@@ -23,7 +23,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpGet("BillingInstructions/{calculationRunId}", Name = "BillingInstructions_Index")]
-        public IActionResult Index([FromRoute] int calculationRunId, [FromQuery] BillingInstructionViewModel model)
+        public IActionResult Index([FromRoute] int calculationRunId, [FromQuery] PaginationRequestViewModel model)
         {
             if (calculationRunId <= 0)
             {
@@ -70,7 +70,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private BillingInstructionsViewModel MapToViewModel(
             CalculationRunOrganisationBillingInstructionsDto billingData,
-            BillingInstructionViewModel request)
+            PaginationRequestViewModel request)
         {
             var pagedOrganisations = billingData.Organisations
                .Skip((request.Page - 1) * request.PageSize)

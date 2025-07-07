@@ -61,7 +61,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             var calculationRunId = -1;
-            var request = new BillingInstructionViewModel { Page = 1, PageSize = 10 };
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
 
             // Act
             var result = _controller.Index(calculationRunId, request) as RedirectToActionResult;
@@ -76,7 +76,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             var calculationRunId = 1;
-            var request = new BillingInstructionViewModel { Page = 1, PageSize = 10 };
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
 
             // Act
             var result = _controller.Index(calculationRunId, request) as ViewResult;
@@ -110,7 +110,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             var calculationRunId = 1;
-            var model = new BillingInstructionViewModel
+            var model = new PaginationRequestViewModel
             {
                 OrganisationId = 215150,
                 Page = 1,

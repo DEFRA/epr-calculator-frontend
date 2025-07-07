@@ -2,7 +2,7 @@
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
-    public record BillingInstructionViewModel
+    public record PaginationRequestViewModel
     {
         public int Page { get; init; } = CommonConstants.DefaultPage;
 
