@@ -74,5 +74,11 @@
         /// ProcessSelection.
         /// </summary>
         public const string ProcessSelection = "ProcessSelection";
+
+
+        /// <summary>
+        /// ProcessSelection.
+        /// </summary>
+        public const string SelectAllPage = "SelectAllPage";
     }
 }

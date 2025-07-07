@@ -17,5 +17,7 @@
         public const string FinancialYear = "FinancialYear";
 
         public const string RunParameterYear = "RunParameterYear";
+
+        public const string BillingInstructionsSelectAllPage = "BillingInstructionsSelectAllPage";
     }
 }

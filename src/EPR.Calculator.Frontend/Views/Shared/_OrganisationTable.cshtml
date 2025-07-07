@@ -46,6 +46,7 @@
                            name="SelectedIds"
                            value="@org.Id"
                            aria-labelledby="checkbox-label-@org.Id"
+                           @(org.IsSelected ? "checked":"")                           
                            class="record-checkbox"
                     @(org.Status == BillingStatus.Noaction ? "disabled" : "")>
                 </td>

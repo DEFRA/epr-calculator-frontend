@@ -24,6 +24,27 @@
     </div>
 
     <div class="padding: 0px 20px; clear: both;">
+
+
+        @using (Html.BeginForm(ActionNames.SelectAllPage, null, FormMethod.Post))
+        {
+            <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;">
+                <div class="govuk-checkboxes__item" style="width: 300px !important;">
+                    <input type="hidden" name="id" value="@Model.CalculationRun.Id" />
+                     <input type="hidden" name="pageSize" value="@Model.TablePaginationModel.PageSize" />
+                    <input type="hidden" name="page" value="@Model.TablePaginationModel.CurrentPage" />
+                   
+                    @Html.CheckBoxFor(m => m.IsSelectAllPage, new { id = "selectAllCheckbox", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
+                    <input type="hidden" name="IsSelectAllPage" value="false" />
+                    <label class="govuk-label govuk-checkboxes__label" for="selectall">
+                        Select all records on this
+                        page
+                    </label>
+                </div>
+            </div>
+        }
+
+
         @using (Html.BeginForm(ActionNames.ProcessSelection, null, FormMethod.Post))
         {
             <partial name="_OrganisationTable" model="Model" />

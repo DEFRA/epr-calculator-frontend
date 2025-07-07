@@ -7,5 +7,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         public CalculationRunForBillingInstructionsDto CalculationRun { get; init; } = new();
 
         public PaginationViewModel TablePaginationModel { get; init; } = new();
+
+        public bool IsSelectAllPage { get; set; }
     }
 }

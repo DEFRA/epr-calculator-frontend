@@ -4,10 +4,12 @@ using System.ComponentModel;
 
 namespace EPR.Calculator.Frontend.Models
 {
-    public record CalculationRunOrganisationBillingInstructionsDto
+    public class CalculationRunOrganisationBillingInstructionsDto
     {
         public CalculationRunForBillingInstructionsDto CalculationRun { get; init; } = new();
 
         public ICollection<Organisation> Organisations { get; init; } = new List<Organisation>();
+
+        public bool IsSelectAllPage { get; set; }
     }
 }

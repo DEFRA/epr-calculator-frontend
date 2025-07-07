@@ -6,9 +6,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using System.Drawing.Printing;
-using System.Reflection;
-using System.Security.Cryptography;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -22,7 +20,9 @@ namespace EPR.Calculator.Frontend.Controllers
         {
         }
 
-        [HttpGet("BillingInstructions/{calculationRunId}", Name = "BillingInstructions_Index")]
+        private CalculationRunOrganisationBillingInstructionsDto billingData { get; set; }
+
+        [HttpGet("BillingInstructions/{calculationRunId}", Name="BillingInstructions_Index")]
         public IActionResult Index([FromRoute] int calculationRunId, [FromQuery] PaginationRequestViewModel request)
         {
             if (calculationRunId <= 0)
@@ -30,9 +30,13 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
-            var billingData = GetBillingData(calculationRunId);
+            this.billingData = GetBillingData(calculationRunId);
+            
+           // var selectAllPage = this.HttpContext.Session.GetString(SessionConstants.BillingInstructionsSelectAllPage);
 
-            var viewModel = this.MapToViewModel(billingData, request);
+           // this.billingData = !(string.IsNullOrEmpty(t) || t == "null") ? JsonConvert.DeserializeObject<CalculationRunOrganisationBillingInstructionsDto>(selectAllPage) : GetBillingData(calculationRunId);
+
+            var viewModel = this.MapToViewModel(this.billingData, request);
 
             return this.View(viewModel);
         }
@@ -41,6 +45,28 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult ProcessSelection(int calculationRunId, [FromForm] OrganisationSelectionsViewModel selections)
         {
             return this.RedirectToAction("Index", new { calculationRunId });
+        }
+
+        [HttpPost]
+        public IActionResult SelectAllPage([FromForm] BillingInstructionsViewModel vm, [FromQuery] PaginationRequestViewModel request)
+        {
+            var selectAllPage = this.HttpContext.Session.GetString(SessionConstants.BillingInstructionsSelectAllPage);
+
+            this.billingData = !(string.IsNullOrEmpty(selectAllPage) || selectAllPage == "null") ? JsonConvert.DeserializeObject<CalculationRunOrganisationBillingInstructionsDto>(selectAllPage) : GetBillingData(vm.CalculationRun.Id);
+
+            var pageSize = this.Request.QueryString;
+
+            if (this.billingData.Organisations.Any())
+            {
+                this.billingData.Organisations.Skip(request.Page * request.PageSize).Take(request.PageSize).Where(t => t.Status != BillingStatus.Noaction).All(t => t.IsSelected = vm.IsSelectAllPage);
+            }
+
+            var k = JsonConvert.SerializeObject(this.billingData);
+            this.HttpContext.Session.SetString(SessionConstants.BillingInstructionsSelectAllPage, k);
+
+            var viewModel = this.MapToViewModel(billingData, request);
+
+            return RedirectToRoute("BillingInstructions_Index", new { calculationRunId = vm.CalculationRun.Id, pageSize = request.PageSize, page = request.Page });
         }
 
         private static CalculationRunOrganisationBillingInstructionsDto GetBillingData(int calculationRunId)
@@ -55,6 +81,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     BillingInstruction = (BillingInstruction)(i % 5),
                     InvoiceAmount = 10000.00 + (i * 20),
                     Status = (BillingStatus)(i % 4),
+                    IsSelected = false,
                 }).ToList(),
                 CalculationRun = new CalculationRunForBillingInstructionsDto { Id = calculationRunId, Name = $"Calculation run {calculationRunId}" },
             };
