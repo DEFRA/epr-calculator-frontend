@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -60,7 +61,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             var calculationRunId = -1;
-            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+            var request = new BillingInstructionViewModel { Page = 1, PageSize = 10 };
 
             // Act
             var result = _controller.Index(calculationRunId, request) as RedirectToActionResult;
@@ -75,7 +76,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             var calculationRunId = 1;
-            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+            var request = new BillingInstructionViewModel { Page = 1, PageSize = 10 };
 
             // Act
             var result = _controller.Index(calculationRunId, request) as ViewResult;
@@ -102,6 +103,28 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual(calculationRunId, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public void Index_WithValidOrganisationId_FiltersOrganisations()
+        {
+            // Arrange
+            var calculationRunId = 1;
+            var model = new BillingInstructionViewModel
+            {
+                OrganisationId = 215150,
+                Page = 1,
+                PageSize = 10
+            };
+
+            // Act
+            var result = _controller.Index(calculationRunId, model) as ViewResult;
+            var viewModel = result?.Model as BillingInstructionsViewModel;
+
+            // Assert
+            Assert.IsNotNull(viewModel);
+            Assert.AreEqual(1, viewModel.TablePaginationModel.Records.Count());
+            Assert.AreEqual(215150, ((Organisation)viewModel.TablePaginationModel.Records.First()).OrganisationId);
         }
     }
 }
