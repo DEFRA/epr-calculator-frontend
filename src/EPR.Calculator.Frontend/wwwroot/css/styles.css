@@ -91,3 +91,7 @@
 .calculator-run-h2 {
     overflow-wrap: break-word;
 }
+
+.center-label {
+    align-self: unset !important;
+}

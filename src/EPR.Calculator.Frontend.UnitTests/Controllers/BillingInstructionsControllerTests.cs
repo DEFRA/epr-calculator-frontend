@@ -50,7 +50,7 @@
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
             mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-            mockSession.SetString(SessionConstants.BillingInstructionsSelectAll, "false");
+            mockSession.SetString(SessionConstants.BillingInstructionsSelectAll, "True");
             var context = new DefaultHttpContext()
             {
                 Session = mockSession
@@ -107,6 +107,76 @@
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual(calculationRunId, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public void SelectAll_WhenSelectAllIsTrue_SetsSessionAndReturnsViewWithSelectAllViewModel()
+        {
+            // Arrange
+            var model = new BillingInstructionsViewModel
+            {
+                SelectAll = true,
+                CalculationRun = new CalculationRunForBillingInstructionsDto { Id = 123 }
+            };
+
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+
+            var mockSession = new MockHttpSession();
+            mockSession.SetString(SessionConstants.BillingInstructionsSelectAll, "True");
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext { HttpContext = context };
+
+            // Act
+            var result = _controller.SelectAll(model, request) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ViewName);
+
+            var viewModel = result.Model as BillingInstructionsViewModel;
+            Assert.IsNotNull(viewModel);
+            Assert.IsTrue(viewModel.SelectAll);
+
+            var session = _controller.HttpContext.Session as MockHttpSession;
+            Assert.IsNotNull(session);
+            var selectAllValue = session.GetString(SessionConstants.BillingInstructionsSelectAll);
+
+            Assert.AreEqual("True", selectAllValue);
+        }
+
+        [TestMethod]
+        public void SelectAll_WhenSelectAllIsFalse_SetsSessionAndReturnsViewWithSelectAllFalse()
+        {
+            // Arrange
+            var model = new BillingInstructionsViewModel
+            {
+                SelectAll = false,
+                CalculationRun = new CalculationRunForBillingInstructionsDto { Id = 123 }
+            };
+
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+
+            // Act
+            var result = _controller.SelectAll(model, request) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ViewName);
+
+            var viewModel = result.Model as BillingInstructionsViewModel;
+            Assert.IsNotNull(viewModel);
+            Assert.IsFalse(viewModel.SelectAll);
+
+            var session = _controller.HttpContext.Session as MockHttpSession;
+            Assert.IsNotNull(session);
+            var selectAllValue = session.GetString(SessionConstants.BillingInstructionsSelectAll);
+
+            Assert.AreEqual("False", selectAllValue);
         }
 
         [TestMethod]
