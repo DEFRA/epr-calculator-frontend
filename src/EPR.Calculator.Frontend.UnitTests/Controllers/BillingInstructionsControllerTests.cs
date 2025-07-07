@@ -6,6 +6,7 @@
     using AutoFixture.AutoMoq;
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Controllers;
+    using EPR.Calculator.Frontend.Models;
     using EPR.Calculator.Frontend.UnitTests.Mocks;
     using EPR.Calculator.Frontend.ViewModels;
     using Microsoft.ApplicationInsights;
@@ -132,7 +133,7 @@
             _controller.ControllerContext = new ControllerContext { HttpContext = context };
 
             // Act
-            var result = _controller.SelectAll(model, request) as ViewResult;
+            var result = _controller.SelectAll(model, request.PageSize, request.Page) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -162,7 +163,7 @@
             var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
 
             // Act
-            var result = _controller.SelectAll(model, request) as ViewResult;
+            var result = _controller.SelectAll(model, request.PageSize, request.Page) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);

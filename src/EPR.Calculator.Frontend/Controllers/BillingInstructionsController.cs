@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -7,9 +6,6 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using System.Drawing.Printing;
-using System.Reflection;
-using System.Security.Cryptography;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -42,7 +38,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var selectAll = this.GetSelectAllFromSession();
 
-            var viewModel = this.BuildViewModel(calculationRunId, request, selectAll);
+            var viewModel = this.BuildViewModel(calculationRunId, request, selectAll, false);
 
             return this.View(viewModel);
         }
@@ -60,11 +56,11 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="request">Pagination parameters for the current page of billing instructions.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
-        public IActionResult SelectAll(BillingInstructionsViewModel model, [FromQuery] PaginationRequestViewModel request)
+        public IActionResult SelectAll(BillingInstructionsViewModel model,int pageSize, int currentPage)
         {
             this.HttpContext.Session.SetString(SessionConstants.BillingInstructionsSelectAll, model.SelectAll.ToString());
 
-            var viewModel = this.BuildViewModel(model.CalculationRun.Id, request, model.SelectAll);
+            var viewModel = this.BuildViewModel(model.CalculationRun.Id, new PaginationRequestViewModel() { Page = currentPage, PageSize = pageSize }, model.SelectAll, model.SelectAllOnPage);
 
             return this.View("Index", viewModel);
         }
@@ -126,7 +122,7 @@ namespace EPR.Calculator.Frontend.Controllers
         private BillingInstructionsViewModel BuildViewModel(
             int calculationRunId,
             PaginationRequestViewModel request,
-            bool selectAll)
+            bool selectAll, bool selectAllonPage)
         {
             var billingData = GetBillingData(calculationRunId);
 
@@ -136,6 +132,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     organisation.IsSelected = true;
                 }
+            }
+
+            if (selectAllonPage && billingData.Organisations.Any())
+            {
+                billingData.Organisations.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).Where(t => t.Status != BillingStatus.Noaction).All(t => t.IsSelected = selectAllonPage);
             }
 
             var viewModel = this.MapToViewModel(billingData, request);
