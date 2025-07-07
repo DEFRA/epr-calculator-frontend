@@ -39,7 +39,7 @@ namespace EPR.Calculator.Frontend.Controllers
             if (bool.TryParse(selectAllStored, out var isSelectAll) && isSelectAll)
             {
                 viewModel.SelectAll = true;
-                foreach (var organisation in billingData.Organisations)
+                foreach (var organisation in billingData.Organisations.Where(t => t.Status != BillingStatus.Noaction))
                 {
                     organisation.IsSelected = true;
                 }
@@ -65,17 +65,17 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             this.HttpContext.Session.SetString(SessionConstants.BillingInstructionsSelectAll, model.SelectAll.ToString());
 
+            var billingData = GetBillingData(model.CalculationRun.Id);
+
             if (model.SelectAll)
             {
-                foreach (var organisation in model.OrganisationBillingInstructions.Where(t => t.Status != BillingStatus.Noaction))
+                foreach (var organisation in billingData.Organisations.Where(t => t.Status != BillingStatus.Noaction))
                 {
                     organisation.IsSelected = true;
                 }
             }
 
-            var billingInstructionsDto = CreateBillingInstructionsDto(model);
-
-            var viewModel = this.MapToViewModel(billingInstructionsDto, request);
+            var viewModel = this.MapToViewModel(billingData, request);
 
             return this.View("Index", viewModel);
         }
@@ -98,15 +98,6 @@ namespace EPR.Calculator.Frontend.Controllers
             };
         }
 
-        private static CalculationRunOrganisationBillingInstructionsDto CreateBillingInstructionsDto(BillingInstructionsViewModel model)
-        {
-            return new CalculationRunOrganisationBillingInstructionsDto
-            {
-                CalculationRun = model.CalculationRun,
-                Organisations = model.OrganisationBillingInstructions,
-            };
-        }
-
         private BillingInstructionsViewModel MapToViewModel(
             CalculationRunOrganisationBillingInstructionsDto billingData,
             PaginationRequestViewModel request)
@@ -116,7 +107,7 @@ namespace EPR.Calculator.Frontend.Controllers
                .Take(request.PageSize)
                .ToList();
 
-            var isSelectAll = !billingData.Organisations.Any(s => s.IsSelected == false);
+            var isSelectAll = !billingData.Organisations.Where(t => t.Status != BillingStatus.Noaction).Any(s => s.IsSelected == false);
 
             var viewModel = new BillingInstructionsViewModel
             {
