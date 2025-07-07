@@ -23,5 +23,8 @@
 
         public const int DefaultBlockSize = 3;
         public static readonly int[] PageSizeOptions = new[] { 10, 25, 50 };
+        public const int DefaultPageSize = 10;
+        public const int DefaultPage = 1;
+
     }
 }

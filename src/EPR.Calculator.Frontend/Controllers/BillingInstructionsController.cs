@@ -23,7 +23,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpGet("BillingInstructions/{calculationRunId}", Name = "BillingInstructions_Index")]
-        public IActionResult Index([FromRoute] int calculationRunId, [FromQuery] PaginationRequestViewModel request)
+        public IActionResult Index([FromRoute] int calculationRunId, [FromQuery] BillingInstructionViewModel model)
         {
             if (calculationRunId <= 0)
             {
@@ -32,7 +32,15 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var billingData = GetBillingData(calculationRunId);
 
-            var viewModel = this.MapToViewModel(billingData, request);
+            // Apply search filter
+            if (model.OrganisationId.HasValue)
+            {
+                billingData.Organisations = billingData.Organisations
+                    .Where(i => i.OrganisationId == model.OrganisationId)
+                    .ToList();
+            }
+
+            var viewModel = this.MapToViewModel(billingData, model);
 
             return this.View(viewModel);
         }
@@ -62,7 +70,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private BillingInstructionsViewModel MapToViewModel(
             CalculationRunOrganisationBillingInstructionsDto billingData,
-            PaginationRequestViewModel request)
+            BillingInstructionViewModel request)
         {
             var pagedOrganisations = billingData.Organisations
                .Skip((request.Page - 1) * request.PageSize)
@@ -76,13 +84,14 @@ namespace EPR.Calculator.Frontend.Controllers
                 TablePaginationModel = new PaginationViewModel
                 {
                     Records = pagedOrganisations,
-                    CurrentPage = request.Page,
-                    PageSize = request.PageSize,
+                    CurrentPage = request.Page <= 0 ? CommonConstants.DefaultPage : request.Page,
+                    PageSize = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,
                     TotalRecords = billingData.Organisations.Count,
                     RouteName = "BillingInstructions_Index",
                     RouteValues = new Dictionary<string, object?>
                     {
                          { "calculationRunId", billingData.CalculationRun.Id },
+                         { "organisationId", request.OrganisationId },
                     },
                 },
             };

@@ -8,6 +8,6 @@ namespace EPR.Calculator.Frontend.Models
     {
         public CalculationRunForBillingInstructionsDto CalculationRun { get; init; } = new();
 
-        public ICollection<Organisation> Organisations { get; init; } = new List<Organisation>();
+        public ICollection<Organisation> Organisations { get; set; } = new List<Organisation>();
     }
 }
