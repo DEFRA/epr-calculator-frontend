@@ -28,22 +28,24 @@
         {
             <div class="govuk-form-group" style="margin-bottom:20px;">
                 <fieldset class="govuk-fieldset">
-                    <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;">
-                        <div class="govuk-checkboxes__item" style="width: 300px !important;">
-                            <input class="govuk-checkboxes__input" id="status-selectall" name="status" type="checkbox" value="selectall">
-                            <label class="govuk-label govuk-checkboxes__label" for="selectall">
-                                Select all records on this page
-                            </label>
+                    <legend class="govuk-fieldset__legend">
+                        <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;">
+                            <div class="govuk-checkboxes__item" style="width: 300px !important;">
+                                <input class="govuk-checkboxes__input" id="status-selectall" name="status" type="checkbox" value="selectall">
+                                <label class="govuk-label govuk-checkboxes__label" for="selectall">
+                                    Select all records on this page
+                                </label>
+                            </div>
+                            <div class="govuk-checkboxes__item" style="width: 300px !important;">
+                                @Html.CheckBoxFor(m => m.SelectAll, new { @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
+                                <label class="govuk-label govuk-checkboxes__label center-label" for="status-selectAll">
+                                    Select all @Model.OrganisationBillingInstructions.Count records
+                                </label>
+                                <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
+                                <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
+                            </div>
                         </div>
-                        <div class="govuk-checkboxes__item" style="width: 300px !important;">
-                            @Html.CheckBoxFor(m => m.SelectAll, new { id = "selectAllCheckbox", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
-                            <label class="govuk-label govuk-checkboxes__label" for="status-select700">
-                                Select all @Model.OrganisationBillingInstructions.Count records
-                            </label>
-                            <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
-                            <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
-                        </div>
-                    </div>
+                    </legend>
                 </fieldset>
             </div>
         }

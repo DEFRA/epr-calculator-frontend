@@ -22,6 +22,15 @@ namespace EPR.Calculator.Frontend.Controllers
         {
         }
 
+        /// <summary>
+        /// Handles the HTTP GET request to display billing instructions for the specified calculation run.
+        /// </summary>
+        /// <param name="calculationRunId">The ID of the calculation run to retrieve billing data for.</param>
+        /// <param name="request">The pagination and filtering parameters.</param>
+        /// <returns>
+        /// An <see cref="IActionResult"/> that renders the billing instructions view,
+        /// or redirects to a standard error page if the calculation run ID is invalid.
+        /// </returns>
         [HttpGet("BillingInstructions/{calculationRunId}", Name = "BillingInstructions_Index")]
         public IActionResult Index([FromRoute] int calculationRunId, [FromQuery] PaginationRequestViewModel request)
         {
@@ -30,20 +39,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
-            var billingData = GetBillingData(calculationRunId);
+            var selectAll = this.GetSelectAllFromSession();
 
-            var viewModel = this.MapToViewModel(billingData, request);
-
-            var selectAllStored = this.HttpContext.Session.GetString(SessionConstants.BillingInstructionsSelectAll);
-
-            if (bool.TryParse(selectAllStored, out var isSelectAll) && isSelectAll)
-            {
-                viewModel.SelectAll = true;
-                foreach (var organisation in billingData.Organisations.Where(t => t.Status != BillingStatus.Noaction))
-                {
-                    organisation.IsSelected = true;
-                }
-            }
+            var viewModel = this.BuildViewModel(calculationRunId, request, selectAll);
 
             return this.View(viewModel);
         }
@@ -65,17 +63,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             this.HttpContext.Session.SetString(SessionConstants.BillingInstructionsSelectAll, model.SelectAll.ToString());
 
-            var billingData = GetBillingData(model.CalculationRun.Id);
-
-            if (model.SelectAll)
-            {
-                foreach (var organisation in billingData.Organisations.Where(t => t.Status != BillingStatus.Noaction))
-                {
-                    organisation.IsSelected = true;
-                }
-            }
-
-            var viewModel = this.MapToViewModel(billingData, request);
+            var viewModel = this.BuildViewModel(model.CalculationRun.Id, request, model.SelectAll);
 
             return this.View("Index", viewModel);
         }
@@ -107,7 +95,7 @@ namespace EPR.Calculator.Frontend.Controllers
                .Take(request.PageSize)
                .ToList();
 
-            var isSelectAll = !billingData.Organisations.Where(t => t.Status != BillingStatus.Noaction).Any(s => s.IsSelected == false);
+            var isSelectAll = !billingData.Organisations.Where(t => t.Status != BillingStatus.Noaction).Any(s => !s.IsSelected);
 
             var viewModel = new BillingInstructionsViewModel
             {
@@ -129,6 +117,39 @@ namespace EPR.Calculator.Frontend.Controllers
                 SelectAll = isSelectAll,
             };
             return viewModel;
+        }
+
+        /// <summary>
+        /// Central method to build the view model and optionally apply SelectAll logic.
+        /// </summary>
+        private BillingInstructionsViewModel BuildViewModel(
+            int calculationRunId,
+            PaginationRequestViewModel request,
+            bool selectAll)
+        {
+            var billingData = GetBillingData(calculationRunId);
+
+            if (selectAll)
+            {
+                foreach (var organisation in billingData.Organisations.Where(t => t.Status != BillingStatus.Noaction))
+                {
+                    organisation.IsSelected = true;
+                }
+            }
+
+            var viewModel = this.MapToViewModel(billingData, request);
+            viewModel.SelectAll = selectAll;
+
+            return viewModel;
+        }
+
+        /// <summary>
+        /// Helper to read SelectAll state from the session.
+        /// </summary>
+        private bool GetSelectAllFromSession()
+        {
+            var selectAllStored = this.HttpContext.Session.GetString(SessionConstants.BillingInstructionsSelectAll);
+            return bool.TryParse(selectAllStored, out var isSelectAll) && isSelectAll;
         }
     }
 }
