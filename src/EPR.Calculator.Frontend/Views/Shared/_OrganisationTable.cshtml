@@ -11,7 +11,7 @@
             <tr>
                 <th class="govuk-table__cell header-left-cell">
                     <strong>
-                        @(Model.SelectAll
+                        @(Model.OrganisationSelections.SelectAll
                             ? $"{Model.OrganisationBillingInstructions?.Count ?? 0} records selected"
                             : "0 records selected")
                     </strong>

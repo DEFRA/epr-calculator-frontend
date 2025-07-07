@@ -37,7 +37,7 @@
                                 </label>
                             </div>
                             <div class="govuk-checkboxes__item" style="width: 300px !important;">
-                                @Html.CheckBoxFor(m => m.SelectAll, new { @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
+                                @Html.CheckBoxFor(m => m.OrganisationSelections.SelectAll, new { @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
                                 <label class="govuk-label govuk-checkboxes__label center-label" for="status-selectAll">
                                     Select all @Model.OrganisationBillingInstructions.Count records
                                 </label>
