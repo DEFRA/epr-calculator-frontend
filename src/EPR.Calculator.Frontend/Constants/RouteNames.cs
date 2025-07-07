@@ -2,6 +2,6 @@
 {
     public static class RouteNames
     {
-        public const string BillingInstructions_Index = "BillingInstructions_Index";
+        public const string BillingInstructionsIndex = "BillingInstructions_Index";
     }
 }
