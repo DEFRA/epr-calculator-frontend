@@ -2,8 +2,8 @@
 using System.Text;
 using AutoFixture;
 using EPR.Calculator.Frontend.Services;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Http;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
@@ -114,7 +114,21 @@ namespace EPR.Calculator.Frontend.UnitTests
             return sessionMock;
         }
 
+        /// <summary>
+        /// Creates a mock <see cref="IApiService"/> and configures it's methods to return values.
+        /// </summary>
+        /// <param name="httpStatusCode">The HTTP status code to return in the response.</param>
+        /// <returns>A mock <see cref="IApiService"/>.</returns>
         public static Mock<IApiService> BuildMockApiService(HttpStatusCode httpStatusCode)
+            => BuildMockApiService(httpStatusCode, "{}");
+
+        /// <summary>
+        /// Creates a mock <see cref="IApiService"/> and configures it's methods to return values.
+        /// </summary>
+        /// <param name="httpStatusCode">The HTTP status code to return in the response.</param>
+        /// <param name="jsonContent">The JSON content to return in the response.</param>
+        /// <returns>A mock <see cref="IApiService"/>.</returns>
+        public static Mock<IApiService> BuildMockApiService(HttpStatusCode httpStatusCode, string jsonContent)
         {
             var service = new Mock<IApiService>();
             service.Setup(s => s.GetApiUrl(It.IsAny<string>(), It.IsAny<string>()))
@@ -128,8 +142,20 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = httpStatusCode,
-                    Content = new StringContent("{}")
+                    Content = new StringContent(jsonContent)
                 });
+            return service;
+        }
+
+        public static Mock<ICalculatorRunDetailsService> BuildMockCalculatorRunDetailsService(
+            CalculatorRunDetailsViewModel data)
+        {
+            var service = new Mock<ICalculatorRunDetailsService>();
+            service.Setup(s => s.GetCalculatorRundetailsAsync(
+                It.IsAny<HttpContext>(),
+                It.IsAny<int>()))
+                .ReturnsAsync(data);
+
             return service;
         }
     }

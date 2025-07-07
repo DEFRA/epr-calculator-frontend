@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Text.Json;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -19,7 +20,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -52,35 +52,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task IndexAsync_ReturnsView_WhenApiCallIsSuccessful()
         {
             // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetCalculatorRun());
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-
-            var mockClient = new TelemetryClient();
-
-            var identity = new GenericIdentity("TestUser");
-            identity.AddClaim(new Claim("name", "TestUser"));
-            var principal = new ClaimsPrincipal(identity);
-            var mockHttpSession = new MockHttpSession();
-            mockHttpSession.SetString("accessToken", "something");
-
-            var context = new DefaultHttpContext()
-            {
-                User = principal,
-                Session = mockHttpSession
-            };
-
-            var controller = new CalculationRunDetailsController(
-                _configuration,
-                new Mock<ApiService>().Object,
-                _mockLogger.Object,
-                new Mock<ITokenAcquisition>().Object,
-                mockClient,
-                new Mock<CalculatorRunDetailsService>().Object);
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = context
-            };
+            var controller = BuildTestClass(HttpStatusCode.OK, MockData.GetCalculatorRun());
             controller.ControllerContext.HttpContext.Request.Scheme = "https";
             controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
             int runId = 1;
@@ -108,39 +80,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task IndexAsync_ReturnsRunDetailsErrorPage_WhenRunIdStatusIsNotValid()
         {
             // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetRunningCalculatorRun());
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-
-            var mockClient = new TelemetryClient();
-
-            var identity = new GenericIdentity("TestUser");
-            identity.AddClaim(new Claim("name", "TestUser"));
-            var principal = new ClaimsPrincipal(identity);
-            var mockHttpSession = new MockHttpSession();
-            mockHttpSession.SetString("accessToken", "something");
-
-            var context = new DefaultHttpContext()
-            {
-                User = principal,
-                Session = mockHttpSession
-            };
-
-            var controller = new CalculationRunDetailsController(
-                _configuration,
-                new Mock<IApiService>().Object,
-                _mockLogger.Object,
-                new Mock<ITokenAcquisition>().Object,
-                mockClient,
-                new Mock<ICalculatorRunDetailsService>().Object);
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = context
-            };
-            controller.ControllerContext.HttpContext.Request.Scheme = "https";
-            controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
+            var controller = BuildTestClass(HttpStatusCode.OK, MockData.GetRunningCalculatorRun());
             int runId = 1;
-            string calcName = "Test Run";
 
             // Act
             var result = await controller.IndexAsync(runId) as ViewResult;
@@ -154,39 +95,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task IndexAsync_ThrowError_WhenRunIdIsNotValid()
         {
             // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, null);
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-
-            var mockClient = new TelemetryClient();
-
-            var identity = new GenericIdentity("TestUser");
-            identity.AddClaim(new Claim("name", "TestUser"));
-            var principal = new ClaimsPrincipal(identity);
-            var mockHttpSession = new MockHttpSession();
-            mockHttpSession.SetString("accessToken", "something");
-
-            var context = new DefaultHttpContext()
-            {
-                User = principal,
-                Session = mockHttpSession
-            };
-
-            var controller = new CalculationRunDetailsController(
-                _configuration,
-                new Mock<IApiService>().Object,
-                _mockLogger.Object,
-                new Mock<ITokenAcquisition>().Object,
-                mockClient,
-                new Mock<ICalculatorRunDetailsService>().Object);
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = context
-            };
-            controller.ControllerContext.HttpContext.Request.Scheme = "https";
-            controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
+            var controller = BuildTestClass(HttpStatusCode.OK, null);
             int runId = 1;
-            string calcName = "Test Run";
 
             // Act
             var result = await controller.IndexAsync(runId) as RedirectToActionResult;
@@ -201,17 +111,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task IndexAsync_RedirectsToError_WhenApiCallFails()
         {
             // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.BadRequest, MockData.GetCalculationRuns());
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsController(
-                _configuration,
-                new Mock<IApiService>().Object,
-                _mockLogger.Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object);
+            var controller = BuildTestClass(HttpStatusCode.BadRequest, null);
             int runId = 1;
 
             // Act
@@ -227,32 +127,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void DeleteCalcDetails_ReturnsView_WhenDeleteRadioIsNotChecked()
         {
             // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetCalculationRuns());
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunDetailsController(
-                _configuration,
-                new Mock<IApiService>().Object,
-                _mockLogger.Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object);
-
-            var identity = new GenericIdentity("TestUser");
-            identity.AddClaim(new Claim("name", "TestUser"));
-            var principal = new ClaimsPrincipal(identity);
-            var mockHttpSession = new MockHttpSession();
-            mockHttpSession.SetString("accessToken", "something");
-
-            var context = new DefaultHttpContext()
-            {
-                User = principal,
-                Session = mockHttpSession
-            };
-            controller.ControllerContext.HttpContext = context;
-            controller.ControllerContext.HttpContext.Request.Scheme = "https";
-            controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
+            var controller = BuildTestClass(HttpStatusCode.OK, MockData.GetCalculatorRun());
 
             int runId = 1;
             string calcName = "TestCalc";
@@ -277,32 +152,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void DeleteCalculation_ReturnsView_WhenApiCallIsUnsuccessful()
         {
             // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.RequestTimeout, MockData.GetCalculationRuns());
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-
-            var controller = new CalculationRunDetailsController(
-                _configuration,
-                new Mock<IApiService>().Object,
-                _mockLogger.Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object);
-            var identity = new GenericIdentity("TestUser");
-            identity.AddClaim(new Claim("name", "TestUser"));
-            var principal = new ClaimsPrincipal(identity);
-            var mockHttpSession = new MockHttpSession();
-            mockHttpSession.SetString("accessToken", "something");
-
-            var context = new DefaultHttpContext()
-            {
-                User = principal,
-                Session = mockHttpSession
-            };
-            controller.ControllerContext.HttpContext = context;
-            controller.ControllerContext.HttpContext.Request.Scheme = "https";
-            controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
+            var controller = BuildTestClass(HttpStatusCode.RequestTimeout, MockData.GetCalculatorRun());
 
             int runId = 1;
             string calcName = "TestCalc";
@@ -327,34 +177,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void DeleteCalculation_ReturnsView_WhenApiCallIsSuccessful()
         {
             // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.Created, MockData.GetCalculationRuns());
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-
-            var controller = new CalculationRunDetailsController(
-                _configuration,
-                new Mock<IApiService>().Object,
-                _mockLogger.Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object);
-
-            var identity = new GenericIdentity("TestUser");
-            identity.AddClaim(new Claim("name", "TestUser"));
-            var principal = new ClaimsPrincipal(identity);
-            var mockHttpSession = new MockHttpSession();
-            mockHttpSession.SetString("accessToken", "something");
-
-            var context = new DefaultHttpContext()
-            {
-                User = principal,
-                Session = mockHttpSession
-            };
-
-            controller.ControllerContext.HttpContext = context;
-            controller.ControllerContext.HttpContext.Request.Scheme = "https";
-            controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
+            var controller = BuildTestClass(HttpStatusCode.Created, MockData.GetCalculatorRun());
 
             int runId = 1;
             string calcName = "TestCalc";
@@ -376,19 +199,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task IndexAsync_GetCalculationDetailsResponseIsNull_ShouldLogErrorAndRedirect()
         {
             // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.InternalServerError, MockData.GetCalculationRuns());
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var mockClient = new TelemetryClient();
-            var controller = new CalculationRunDetailsController(
-                _configuration,
-                new Mock<IApiService>().Object,
-                _mockLogger.Object,
-                mockTokenAcquisition.Object,
-                mockClient,
-                new Mock<ICalculatorRunDetailsService>().Object);
+            var controller = BuildTestClass(HttpStatusCode.InternalServerError, null);
             int runId = 1;
 
             // Act
@@ -473,37 +284,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task IndexAsync_ReturnsView_WhenApiCallIsSuccessfulForInitialRun()
         {
             // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, MockData.GetInitialRunCalculatorRun());
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var controller = BuildTestClass(HttpStatusCode.OK, MockData.GetInitialRunCalculatorRun());
 
-            var mockClient = new TelemetryClient();
-
-            var identity = new GenericIdentity("TestUser");
-            identity.AddClaim(new Claim("name", "TestUser"));
-            var principal = new ClaimsPrincipal(identity);
-            var mockHttpSession = new MockHttpSession();
-            mockHttpSession.SetString("accessToken", "something");
-
-            var context = new DefaultHttpContext()
-            {
-                User = principal,
-                Session = mockHttpSession
-            };
-
-            var controller = new CalculationRunDetailsController(
-                _configuration,
-                new Mock<IApiService>().Object,
-                _mockLogger.Object,
-                new Mock<ITokenAcquisition>().Object,
-                mockClient,
-                new Mock<ICalculatorRunDetailsService>().Object);
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = context
-            };
-            controller.ControllerContext.HttpContext.Request.Scheme = "https";
-            controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
             int runId = 1;
             string calcName = "Test Run";
 
@@ -537,10 +319,46 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = statusCode,
-                    Content = new StringContent(JsonConvert.SerializeObject(content))
+                    Content = new StringContent(JsonSerializer.Serialize(content))
                 });
 
             return mockHttpMessageHandler;
+        }
+
+        private CalculationRunDetailsController BuildTestClass(
+            HttpStatusCode httpStatusCode,
+            CalculatorRunDto data)
+        {
+            var mockClient = new TelemetryClient();
+
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString("accessToken", "something");
+
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+
+            var jsonContent = JsonSerializer.Serialize(data);
+
+            var testClass = new CalculationRunDetailsController(
+                _configuration,
+                TestMockUtils.BuildMockApiService(httpStatusCode, jsonContent).Object,
+                _mockLogger.Object,
+                new Mock<ITokenAcquisition>().Object,
+                mockClient,
+                new Mock<ICalculatorRunDetailsService>().Object);
+            testClass.ControllerContext = new ControllerContext
+            {
+                HttpContext = context
+            };
+            testClass.ControllerContext.HttpContext.Request.Scheme = "https";
+            testClass.ControllerContext.HttpContext.Request.Host = new HostString("localhost:7163");
+            return testClass;
         }
     }
 }
