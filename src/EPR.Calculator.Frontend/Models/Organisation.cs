@@ -1,5 +1,4 @@
 ﻿using EPR.Calculator.Frontend.Enums;
-using System.ComponentModel;
 
 namespace EPR.Calculator.Frontend.Models
 {
