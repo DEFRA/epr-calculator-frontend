@@ -1,5 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
+using Humanizer;
 
 namespace EPR.Calculator.Frontend.UnitTests.ViewModels
 {
@@ -16,6 +18,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             Assert.AreEqual(CommonConstants.DefaultPage, viewModel.Page);
             Assert.AreEqual(CommonConstants.DefaultPageSize, viewModel.PageSize);
             Assert.IsNull(viewModel.OrganisationId);
+            Assert.AreEqual(viewModel.GetType(), typeof(PaginationRequestViewModel));
         }
 
         [TestMethod]
