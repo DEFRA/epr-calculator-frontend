@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using Azure.Core;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -61,7 +62,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="request">Pagination parameters for the current page of billing instructions.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
-        public ActionResult SelectAll(BillingInstructionsViewModel model, [FromQuery] PaginationRequestViewModel request)
+        public ActionResult SelectAll(BillingInstructionsViewModel model, int pageSize, int currentPage)
         {
             this.HttpContext.Session.SetString(SessionConstants.BillingInstructionsSelectAll, model.SelectAll.ToString());
 
@@ -75,8 +76,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
             }
 
-            var viewModel = this.MapToViewModel(billingData, request);
+            if (model.SelectAllOnPage && billingData.Organisations.Any())
+            {
+                billingData.Organisations.Skip((currentPage - 1) * pageSize).Take(pageSize).Where(t => t.Status != BillingStatus.Noaction).All(t => t.IsSelected = model.SelectAllOnPage);
+            }
 
+            var viewModel = this.MapToViewModel(billingData, new PaginationRequestViewModel() { Page = currentPage, PageSize = pageSize });
             return this.View("Index", viewModel);
         }
 

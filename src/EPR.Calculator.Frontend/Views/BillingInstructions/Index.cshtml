@@ -30,14 +30,16 @@
                 <fieldset class="govuk-fieldset">
                     <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;">
                         <div class="govuk-checkboxes__item" style="width: 300px !important;">
-                            <input class="govuk-checkboxes__input" id="status-selectall" name="status" type="checkbox" value="selectall">
+                            <input type="hidden" name="pageSize" value="@Model.TablePaginationModel.PageSize" />
+                            <input type="hidden" name="currentPage" value="@Model.TablePaginationModel.CurrentPage" />
+                            @Html.CheckBoxFor(m => m.SelectAllOnPage, new { id = "selectAllPageCheckbox", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
                             <label class="govuk-label govuk-checkboxes__label" for="selectall">
                                 Select all records on this page
                             </label>
                         </div>
                         <div class="govuk-checkboxes__item" style="width: 300px !important;">
                             @Html.CheckBoxFor(m => m.SelectAll, new { id = "selectAllCheckbox", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
-                            <label class="govuk-label govuk-checkboxes__label" for="status-select700">
+                            <label class="govuk-label govuk-checkboxes__label center-label" for="status-select700">
                                 Select all @Model.OrganisationBillingInstructions.Count records
                             </label>
                             <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
@@ -65,3 +67,4 @@
         </div>
     </div>
 </div>
+

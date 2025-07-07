@@ -1,17 +1,21 @@
-﻿using System.Security.Claims;
-using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Controllers;
-using EPR.Calculator.Frontend.UnitTests.Mocks;
-using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Web;
-using Moq;
-
-namespace EPR.Calculator.Frontend.UnitTests.Controllers
+﻿namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
+    using System;
+    using System.Security.Claims;
+    using AutoFixture;
+    using AutoFixture.AutoMoq;
+    using EPR.Calculator.Frontend.Constants;
+    using EPR.Calculator.Frontend.Controllers;
+    using EPR.Calculator.Frontend.UnitTests.Mocks;
+    using EPR.Calculator.Frontend.ViewModels;
+    using Microsoft.ApplicationInsights;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Identity.Web;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Moq;
+
     [TestClass]
     public class BillingInstructionsControllerTests
     {
@@ -103,6 +107,25 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual(calculationRunId, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public void CanCallSelectAll()
+        {
+            // Arrange
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var model = fixture.Create<BillingInstructionsViewModel>();
+            var pageSize = 10;
+            var currentPage = 2;
+            model.SelectAllOnPage = true;
+
+            // Act
+            var result = _controller.SelectAll(model, pageSize, currentPage) as ViewResult;
+            var vm = result.Model as BillingInstructionsViewModel;
+
+            // Assert
+            Assert.IsTrue(vm.OrganisationBillingInstructions.Any(t => t.IsSelected));
+            Assert.IsTrue(vm.OrganisationBillingInstructions.Skip(10).Take(10).Any(t => t.IsSelected));
         }
     }
 }
