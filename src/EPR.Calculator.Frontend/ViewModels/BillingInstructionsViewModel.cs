@@ -6,6 +6,10 @@ namespace EPR.Calculator.Frontend.ViewModels
     {
         public CalculationRunForBillingInstructionsDto CalculationRun { get; init; } = new();
 
+        public ICollection<Organisation> OrganisationBillingInstructions { get; init; } = [];
+
         public PaginationViewModel TablePaginationModel { get; init; } = new();
+
+        public OrganisationSelectionsViewModel OrganisationSelections { get; set; } = new();
     }
 }
