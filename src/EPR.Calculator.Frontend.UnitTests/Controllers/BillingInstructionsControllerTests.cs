@@ -96,6 +96,30 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
+        public void Index_ValidCalculationRunId_EmptySession()
+        {
+            // Arrange
+            var calculationRunId = 1;
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+
+            var mockSession = new MockHttpSession();
+            mockSession.SetString(SessionConstants.SelectedOrganisationIds, string.Empty);
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+
+            _controller.ControllerContext = new ControllerContext { HttpContext = context };
+
+            // Act
+            var result = _controller.Index(calculationRunId, request) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Model, typeof(BillingInstructionsViewModel));
+        }
+
+        [TestMethod]
         public void ProcessSelection_RedirectsToIndex()
         {
             // Arrange

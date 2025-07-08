@@ -10,6 +10,6 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public PaginationViewModel TablePaginationModel { get; init; } = new();
 
-        public OrganisationSelectionsViewModel OrganisationSelections { get; set; }
+        public OrganisationSelectionsViewModel? OrganisationSelections { get; set; }
     }
 }
