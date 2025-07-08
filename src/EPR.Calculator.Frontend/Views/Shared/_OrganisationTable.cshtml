@@ -1,6 +1,13 @@
 ﻿@using EPR.Calculator.Frontend.Enums
 @model BillingInstructionsViewModel
 
+@{
+    var selectedCount = Model.OrganisationSelections.SelectedOrganisationIds?.Count ?? 0;
+    var totalCount = Model.OrganisationBillingInstructions?.Count(t => t.Status != BillingStatus.Noaction) ?? 0;
+    var displayText = Model.OrganisationSelections.SelectAll
+    ? $"{totalCount} record{(totalCount == 1 ? "" : "s")} selected"
+    : $"{selectedCount} record{(selectedCount == 1 ? "" : "s")} selected";
+}
 <!-- Header showing total records -->
 <div>
     <table class="govuk-table" id="submission-table" aria-describedby="table-description">
@@ -10,11 +17,7 @@
         <thead class="govuk-table__head">
             <tr>
                 <th class="govuk-table__cell header-left-cell">
-                    <strong>
-                        @(Model.OrganisationSelections.SelectAll
-                            ? $"{Model.OrganisationBillingInstructions?.Count ?? 0} records selected"
-                            : "0 records selected")
-                    </strong>
+                    <strong>@displayText</strong>
                 </th>
                 <th class="govuk-table__cell header-right-cell">
                     <strong>@Model.TablePaginationModel.StartRecord - @Model.TablePaginationModel.EndRecord of @Model.TablePaginationModel.TotalRecords</strong>

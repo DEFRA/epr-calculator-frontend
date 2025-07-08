@@ -2,6 +2,11 @@
 @using EPR.Calculator.Frontend.Extensions
 @model BillingInstructionsViewModel
 
+@{
+    var selectableCount = Model.OrganisationBillingInstructions
+        .Count(t => t.Status != BillingStatus.Noaction);
+}
+
 <partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
 
 <div class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content">
@@ -37,9 +42,9 @@
                                 </label>
                             </div>
                             <div class="govuk-checkboxes__item" style="width: 300px !important;">
-                                @Html.CheckBoxFor(m => m.OrganisationSelections.SelectAll, new { @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
+                                @Html.CheckBoxFor(m => m.OrganisationSelections.SelectAll, new { name = "SelectAll", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
                                 <label class="govuk-label govuk-checkboxes__label center-label" for="status-selectAll">
-                                    Select all @Model.OrganisationBillingInstructions.Count records
+                                    Select all @selectableCount records
                                 </label>
                                 <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
                                 <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
