@@ -5,8 +5,8 @@
     var selectedCount = Model.OrganisationSelections.SelectedOrganisationIds?.Count ?? 0;
     var totalCount = Model.OrganisationBillingInstructions?.Count(t => t.Status != BillingStatus.Noaction) ?? 0;
     var displayText = (Model.OrganisationSelections.SelectAll)
-    ? $"{totalCount} record{(totalCount == 1 ? "" : "s")} selected"
-    : $"{selectedCount} record{(selectedCount == 1 ? "" : "s")} selected";
+    ? $"{totalCount} {(totalCount == 1 ? "record" : "records")} selected"
+    : $"{selectedCount} {(selectedCount == 1 ? "record" : "records")} selected";
 
 }
 <!-- Header showing total records -->

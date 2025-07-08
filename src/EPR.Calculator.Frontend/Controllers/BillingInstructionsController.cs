@@ -124,8 +124,6 @@ namespace EPR.Calculator.Frontend.Controllers
                .Take(request.PageSize)
                .ToList();
 
-            var isSelectAll = !billingData.Organisations.Where(t => t.Status != BillingStatus.Noaction).Any(s => !s.IsSelected);
-
             var viewModel = new BillingInstructionsViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
