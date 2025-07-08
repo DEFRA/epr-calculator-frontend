@@ -75,6 +75,12 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.RedirectToAction("Index", new { calculationRunId });
         }
 
+        [HttpPost]
+        public IActionResult ClearSelection(int calculationRunId, [FromForm] OrganisationSelectionsViewModel selections)
+        {
+            return this.RedirectToAction("Index", new { calculationRunId });
+        }
+
         private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(
             int calculationRunId,
             PaginationRequestViewModel request)
