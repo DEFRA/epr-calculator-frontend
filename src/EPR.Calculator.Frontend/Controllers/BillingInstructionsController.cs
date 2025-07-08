@@ -155,6 +155,10 @@ namespace EPR.Calculator.Frontend.Controllers
                 var selectedOrganisation = CreateSelectionsAndMarkOrganisations(billingData);
                 this.HttpContext.Session.SetString(SessionConstants.SelectedOrganisationIds, JsonSerializer.Serialize(selectedOrganisation));
             }
+            else
+            {
+                this.HttpContext.Session.SetString(SessionConstants.SelectedOrganisationIds, string.Empty);
+            }
 
             var viewModel = this.MapToViewModel(billingData, request);
 
