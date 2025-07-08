@@ -160,7 +160,8 @@ namespace EPR.Calculator.Frontend.Controllers
         private BillingInstructionsViewModel BuildViewModel(
             int calculationRunId,
             PaginationRequestViewModel request,
-            bool selectAll, bool selectAllonPage)
+            bool selectAll,
+            bool selectAllonPage)
         {
             var billingData = GetBillingData(calculationRunId);
             var selectedOrganisation = new OrganisationSelectionsViewModel();
@@ -171,7 +172,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             else if (selectAllonPage)
             {
-
                 var records = billingData.Organisations.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).
                                 Where(t => t.Status != BillingStatus.Noaction);
                 foreach (var item in records)
