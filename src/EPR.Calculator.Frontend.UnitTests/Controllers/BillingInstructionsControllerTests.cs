@@ -233,6 +233,7 @@
                 SelectedOrganisationIds = [],
             });
             mockSession.SetString(SessionConstants.SelectedOrganisationIds, json);
+            mockSession.SetString("IsRedirected", "true");
 
             var context = new DefaultHttpContext()
             {
