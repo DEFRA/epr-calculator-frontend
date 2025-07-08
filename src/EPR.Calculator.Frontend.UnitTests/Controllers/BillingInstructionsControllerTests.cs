@@ -1,19 +1,23 @@
-﻿using System.Security.Claims;
-using System.Text.Json;
-using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Controllers;
-using EPR.Calculator.Frontend.Models;
-using EPR.Calculator.Frontend.UnitTests.Mocks;
-using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Web;
-using Moq;
-
-namespace EPR.Calculator.Frontend.UnitTests.Controllers
+﻿namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
+    using System.Security.Claims;
+    using System.Text.Json;
+    using AutoFixture;
+    using AutoFixture.AutoMoq;
+    using Azure.Core;
+    using EPR.Calculator.Frontend.Constants;
+    using EPR.Calculator.Frontend.Controllers;
+    using EPR.Calculator.Frontend.Models;
+    using EPR.Calculator.Frontend.UnitTests.Mocks;
+    using EPR.Calculator.Frontend.ViewModels;
+    using Microsoft.ApplicationInsights;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Identity.Web;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Moq;
+
     [TestClass]
     public class BillingInstructionsControllerTests
     {
@@ -168,11 +172,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             _controller.ControllerContext = new ControllerContext { HttpContext = context };
 
             // Act
-            var result = _controller.SelectAll(model, request) as ViewResult;
+            var result = _controller.Index(model.CalculationRun.Id, new PaginationRequestViewModel() { PageSize = request.PageSize, Page = request.Page }) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ViewName);
 
             var viewModel = result.Model as BillingInstructionsViewModel;
             Assert.IsNotNull(viewModel);
@@ -195,11 +198,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
 
             // Act
-            var result = _controller.SelectAll(model, request) as ViewResult;
+            var result = _controller.Index(model.CalculationRun.Id, new PaginationRequestViewModel() { PageSize = request.PageSize, Page = request.Page }) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ViewName);
 
             var viewModel = result.Model as BillingInstructionsViewModel;
             Assert.IsNotNull(viewModel);
@@ -209,6 +211,69 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(session);
             var selectAllValue = session.GetString(SessionConstants.SelectedOrganisationIds);
             Assert.AreEqual(string.Empty, selectAllValue);
+        }
+
+        [TestMethod]
+        public void SelectAllPage_WhenSelectAllIsTrue_SetsSessionAndReturnsViewWithSelectAllViewModel()
+        {
+            // Arrange
+            var model = new BillingInstructionsViewModel
+            {
+                OrganisationSelections = new OrganisationSelectionsViewModel { SelectPage = true },
+                CalculationRun = new CalculationRunForBillingInstructionsDto { Id = 123 }
+            };
+
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+
+            var mockSession = new MockHttpSession();
+            var json = JsonSerializer.Serialize(new OrganisationSelectionsViewModel()
+            {
+                SelectAll = false,
+                SelectPage = true,
+                SelectedOrganisationIds = [],
+            });
+            mockSession.SetString(SessionConstants.SelectedOrganisationIds, json);
+            mockSession.SetString("IsRedirected", "true");
+
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext { HttpContext = context };
+
+            // Act
+            var result = _controller.Index(model.CalculationRun.Id, new PaginationRequestViewModel() { PageSize = request.PageSize, Page = request.Page }) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+
+            var viewModel = result.Model as BillingInstructionsViewModel;
+            Assert.IsNotNull(viewModel);
+            Assert.IsTrue(viewModel.OrganisationSelections.SelectPage);
+
+            var selectAllValue = mockSession.GetString(SessionConstants.SelectedOrganisationIds);
+            Assert.IsNotNull(selectAllValue);
+        }
+
+        [TestMethod]
+        public void SelectAllPage_WhenSelectAllIsFalse_ReturnsViewWithSelectAllFalse()
+        {
+            // Arrange
+            var model = new BillingInstructionsViewModel
+            {
+                OrganisationSelections = new OrganisationSelectionsViewModel { SelectPage = false },
+                CalculationRun = new CalculationRunForBillingInstructionsDto { Id = 123 }
+            };
+
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+
+            // Act
+            var result = _controller.SelectAll(model, request.PageSize, request.Page) as ActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
         }
 
         [TestMethod]

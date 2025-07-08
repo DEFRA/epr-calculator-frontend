@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using Azure.Core;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -6,6 +7,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using System.Linq;
 using System.Text.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -49,7 +51,13 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var organisationSelectionsViewModel = this.GetSelectedOrganisationsFromSession();
 
-            var viewModel = this.BuildViewModel(calculationRunId, request, organisationSelectionsViewModel.SelectAll);
+            var viewModel = this.BuildViewModel(calculationRunId, request, organisationSelectionsViewModel.SelectAll, organisationSelectionsViewModel.SelectPage);
+            if (this.HttpContext.Session.Keys.Contains("IsRedirected"))
+            {
+                organisationSelectionsViewModel.SelectPage = false;
+                this.HttpContext.Session.SetString(SessionConstants.SelectedOrganisationIds, JsonSerializer.Serialize(organisationSelectionsViewModel));
+                this.HttpContext.Session.Remove("IsRedirected");
+            }
 
             return this.View(viewModel);
         }
@@ -73,11 +81,11 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="request">Pagination parameters for the current page of billing instructions.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
-        public IActionResult SelectAll(BillingInstructionsViewModel model, [FromQuery] PaginationRequestViewModel request)
+        public IActionResult SelectAll(BillingInstructionsViewModel model, int pageSize, int currentPage)
         {
-            var viewModel = this.BuildViewModel(model.CalculationRun.Id, request, model.OrganisationSelections.SelectAll);
-
-            return this.View("Index", viewModel);
+            this.BuildViewModel(model.CalculationRun.Id, new PaginationRequestViewModel() { Page = currentPage, PageSize = pageSize }, model.OrganisationSelections.SelectAll, model.OrganisationSelections.SelectPage);
+            this.HttpContext.Session.SetString("IsRedirected", "true");
+            return this.RedirectToRoute("BillingInstructions_Index", new { calculationRunId = model.CalculationRun.Id, Page = currentPage, PageSize = pageSize });
         }
 
         private static OrganisationSelectionsViewModel CreateSelectionsAndMarkOrganisations(CalculationRunOrganisationBillingInstructionsDto billingData)
@@ -116,14 +124,13 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private BillingInstructionsViewModel MapToViewModel(
             CalculationRunOrganisationBillingInstructionsDto billingData,
-            PaginationRequestViewModel request)
+            PaginationRequestViewModel request,
+            OrganisationSelectionsViewModel organisationSelectionsViewModel)
         {
             var pagedOrganisations = billingData.Organisations
                .Skip((request.Page - 1) * request.PageSize)
                .Take(request.PageSize)
                .ToList();
-
-            var isSelectAll = !billingData.Organisations.Where(t => t.Status != BillingStatus.Noaction).Any(s => !s.IsSelected);
 
             var viewModel = new BillingInstructionsViewModel
             {
@@ -142,7 +149,7 @@ namespace EPR.Calculator.Frontend.Controllers
                          { "calculationRunId", billingData.CalculationRun.Id },
                     },
                 },
-                OrganisationSelections = new OrganisationSelectionsViewModel { SelectAll = isSelectAll },
+                OrganisationSelections = organisationSelectionsViewModel,
             };
             return viewModel;
         }
@@ -153,12 +160,27 @@ namespace EPR.Calculator.Frontend.Controllers
         private BillingInstructionsViewModel BuildViewModel(
             int calculationRunId,
             PaginationRequestViewModel request,
-            bool selectAll)
+            bool selectAll,
+            bool selectAllonPage)
         {
             var billingData = GetBillingData(calculationRunId);
+            var selectedOrganisation = new OrganisationSelectionsViewModel();
             if (selectAll)
             {
-                var selectedOrganisation = CreateSelectionsAndMarkOrganisations(billingData);
+                selectedOrganisation = CreateSelectionsAndMarkOrganisations(billingData);
+                this.HttpContext.Session.SetString(SessionConstants.SelectedOrganisationIds, JsonSerializer.Serialize(selectedOrganisation));
+            }
+            else if (selectAllonPage)
+            {
+                var records = billingData.Organisations.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).
+                                Where(t => t.Status != BillingStatus.Noaction);
+                foreach (var item in records)
+                {
+                    item.IsSelected = selectAllonPage;
+                }
+
+                selectedOrganisation.SelectedOrganisationIds.AddRange(records.Select(t => t.OrganisationId));
+                selectedOrganisation.SelectPage = selectAllonPage;
                 this.HttpContext.Session.SetString(SessionConstants.SelectedOrganisationIds, JsonSerializer.Serialize(selectedOrganisation));
             }
             else
@@ -166,7 +188,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.HttpContext.Session.SetString(SessionConstants.SelectedOrganisationIds, string.Empty);
             }
 
-            var viewModel = this.MapToViewModel(billingData, request);
+            var viewModel = this.MapToViewModel(billingData, request, selectedOrganisation);
 
             return viewModel;
         }
