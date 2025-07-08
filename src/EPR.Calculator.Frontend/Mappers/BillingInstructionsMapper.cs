@@ -1,4 +1,4 @@
-using EPR.Calculator.Frontend.Enums;
+﻿using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 
