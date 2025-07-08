@@ -6,6 +6,8 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using System.Reflection;
+using System.Text.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -125,6 +127,7 @@ namespace EPR.Calculator.Frontend.Controllers
             bool selectAll, bool selectAllonPage)
         {
             var billingData = GetBillingData(calculationRunId);
+            var selectedIds = new OrganisationSelectionsViewModel();
 
             if (selectAll)
             {
@@ -137,7 +140,11 @@ namespace EPR.Calculator.Frontend.Controllers
             if (selectAllonPage && billingData.Organisations.Any())
             {
                 billingData.Organisations.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).Where(t => t.Status != BillingStatus.Noaction).All(t => t.IsSelected = selectAllonPage);
+
+                selectedIds.SelectedOrganisationIds.AddRange(billingData.Organisations.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).Where(t => t.Status != BillingStatus.Noaction).Select(t => t.OrganisationId));
             }
+
+            this.HttpContext.Session.SetString(SessionConstants.BillingInstructionsSelectAll, JsonSerializer.Serialize(selectedIds));
 
             var viewModel = this.MapToViewModel(billingData, request);
             viewModel.SelectAll = selectAll;
