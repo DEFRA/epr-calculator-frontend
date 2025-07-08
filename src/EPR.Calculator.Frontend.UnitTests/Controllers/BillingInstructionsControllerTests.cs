@@ -211,13 +211,7 @@
             var session = _controller.HttpContext.Session as MockHttpSession;
             Assert.IsNotNull(session);
             var selectAllValue = session.GetString(SessionConstants.SelectedOrganisationIds);
-            var json = JsonSerializer.Serialize(new OrganisationSelectionsViewModel()
-            {
-                SelectAll = false,
-                SelectPage = false,
-                SelectedOrganisationIds = [],
-            });
-            Assert.AreEqual(json, selectAllValue);
+            Assert.AreEqual(string.Empty, selectAllValue);
         }
 
         [TestMethod]

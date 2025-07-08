@@ -60,6 +60,12 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.RedirectToAction("Index", new { calculationRunId });
         }
 
+        [HttpPost]
+        public IActionResult ClearSelection(int calculationRunId, [FromForm] OrganisationSelectionsViewModel selections)
+        {
+            return this.RedirectToAction("Index", new { calculationRunId });
+        }
+
         /// <summary>
         /// Handles the POST request to select all billing instructions.
         /// </summary>
@@ -156,6 +162,10 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 selectedOrganisation = CreateSelectionsAndMarkOrganisations(billingData);
                 this.HttpContext.Session.SetString(SessionConstants.SelectedOrganisationIds, JsonSerializer.Serialize(selectedOrganisation));
+            }
+            else
+            {
+                this.HttpContext.Session.SetString(SessionConstants.SelectedOrganisationIds, string.Empty);
             }
 
             if (selectAllonPage)
