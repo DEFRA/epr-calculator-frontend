@@ -4,8 +4,18 @@ using EPR.Calculator.Frontend.ViewModels;
 
 namespace EPR.Calculator.Frontend.Mappers
 {
+    /// <summary>
+    /// Provides mapping logic from billing instruction DTOs to view models, including enum and status conversions.
+    /// </summary>
     public class BillingInstructionsMapper : IBillingInstructionsMapper
     {
+        /// <summary>
+        /// Maps a <see cref="ProducerBillingInstructionsResponseDto"/> and pagination request to a <see cref="BillingInstructionsViewModel"/>.
+        /// </summary>
+        /// <param name="billingData">The billing data response DTO.</param>
+        /// <param name="request">The pagination request view model.</param>
+        /// <param name="currentUser">The current user's name.</param>
+        /// <returns>A populated <see cref="BillingInstructionsViewModel"/>.</returns>
         public BillingInstructionsViewModel MapToViewModel(
             ProducerBillingInstructionsResponseDto billingData,
             PaginationRequestViewModel request,
@@ -16,9 +26,9 @@ namespace EPR.Calculator.Frontend.Mappers
                 Id = x.ProducerId,
                 OrganisationName = x.ProducerName ?? string.Empty,
                 OrganisationId = x.ProducerId,
-                BillingInstruction = MapBillingInstruction(x.SuggestedBillingInstruction),
+                BillingInstruction = this.MapBillingInstruction(x.SuggestedBillingInstruction),
                 InvoiceAmount = x.SuggestedInvoiceAmount,
-                Status = MapBillingStatus(x.BillingInstructionAcceptReject),
+                Status = this.MapBillingStatus(x.BillingInstructionAcceptReject),
             }).ToList();
 
             return new BillingInstructionsViewModel
@@ -44,10 +54,17 @@ namespace EPR.Calculator.Frontend.Mappers
             };
         }
 
+        /// <summary>
+        /// Maps a string value to a <see cref="BillingInstruction"/> enum value.
+        /// </summary>
+        /// <param name="suggested">The suggested billing instruction as a string.</param>
+        /// <returns>The corresponding <see cref="BillingInstruction"/> enum value.</returns>
         private BillingInstruction MapBillingInstruction(string suggested)
         {
             if (string.IsNullOrWhiteSpace(suggested))
+            {
                 return BillingInstruction.Noaction;
+            }
 
             var normalized = suggested.Replace(" ", string.Empty)
                 .Replace("-", string.Empty)
@@ -61,14 +78,16 @@ namespace EPR.Calculator.Frontend.Mappers
                 "delta" => BillingInstruction.Delta,
                 "rebill" => BillingInstruction.Rebill,
                 "cancelbill" => BillingInstruction.Cancelbill,
-                _ => BillingInstruction.Noaction
+                _ => BillingInstruction.Noaction,
             };
         }
 
         private BillingStatus MapBillingStatus(string? acceptReject)
         {
             if (string.IsNullOrWhiteSpace(acceptReject))
+            {
                 return BillingStatus.Pending;
+            }
 
             var normalized = acceptReject.Replace(" ", string.Empty)
                 .Replace("-", string.Empty)
@@ -81,7 +100,7 @@ namespace EPR.Calculator.Frontend.Mappers
                 "accepted" => BillingStatus.Accepted,
                 "rejected" => BillingStatus.Rejected,
                 "pending" => BillingStatus.Pending,
-                _ => BillingStatus.Noaction
+                _ => BillingStatus.Noaction,
             };
         }
     }

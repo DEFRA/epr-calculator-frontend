@@ -12,7 +12,7 @@ using Microsoft.Identity.Web;
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
-    /// Organisation Controller.
+    /// Billing Instructions Controller.
     /// </summary>
     public class BillingInstructionsController(
         IConfiguration configuration,
@@ -22,6 +22,15 @@ namespace EPR.Calculator.Frontend.Controllers
         IBillingInstructionsMapper mapper)
         : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
+        /// <summary>
+        /// Displays the billing instructions for a given calculation run.
+        /// </summary>
+        /// <param name="calculationRunId">The unique identifier for the calculation run.</param>
+        /// <param name="request">The pagination and filter request parameters.</param>
+        /// <returns>
+        /// An <see cref="IActionResult"/> that renders the billing instructions view,
+        /// or redirects to the standard error page if the calculation run ID is invalid or an error occurs.
+        /// </returns>
         [HttpGet("BillingInstructions/{calculationRunId}", Name = "BillingInstructions_Index")]
         public async Task<IActionResult> IndexAsync([FromRoute] int calculationRunId, [FromQuery] PaginationRequestViewModel request)
         {
@@ -52,6 +61,14 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        /// <summary>
+        /// Handles the selection of organisations and redirects to the Index action for the specified calculation run.
+        /// </summary>
+        /// <param name="calculationRunId">The unique identifier for the calculation run.</param>
+        /// <param name="selections">The selected organisation IDs from the form.</param>
+        /// <returns>
+        /// An <see cref="IActionResult"/> that redirects to the Index action for the specified calculation run.
+        /// </returns>
         [HttpPost]
         public IActionResult ProcessSelection(int calculationRunId, [FromForm] OrganisationSelectionsViewModel selections)
         {
@@ -64,15 +81,12 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var apiUrl = this.GetApiUrl(ConfigSection.ProducerBillingInstructions, ConfigSection.ProducerBillingInstructionsV1);
 
-            // Build the request DTO
             var requestDto = new ProducerBillingInstructionsRequestDto
             {
                 PageNumber = request.Page,
                 PageSize = request.PageSize,
-                // TODO search query ticket not in main yet
             };
 
-            // Pass the calculationRunId as the route argument, and the DTO as the body
             var response = await this.CallApi(HttpMethod.Post, apiUrl, calculationRunId.ToString(), requestDto);
 
             if (!response.IsSuccessStatusCode)
