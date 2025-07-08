@@ -78,12 +78,12 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Handles the POST request to select all billing instructions.
         /// </summary>
         /// <param name="model">The view model containing billing instructions and selection state.</param>
-        /// <param name="pageSize">Pagination parameters for the page of billing instructions.</param>
-        /// <param name="currentPage">Pagination parameters for the current page of billing instructions.</param>
+        /// <param name="request">Pagination parameters for the current page of billing instructions.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
         public IActionResult SelectAll(BillingInstructionsViewModel model, int pageSize, int currentPage)
         {
+            this.BuildViewModel(model.CalculationRun.Id, new PaginationRequestViewModel() { Page = currentPage, PageSize = pageSize }, model.OrganisationSelections.SelectAll, model.OrganisationSelections.SelectPage);
             this.HttpContext.Session.SetString("IsRedirected", "true");
             return this.RedirectToRoute("BillingInstructions_Index", new { calculationRunId = model.CalculationRun.Id, Page = currentPage, PageSize = pageSize });
         }
@@ -171,8 +171,15 @@ namespace EPR.Calculator.Frontend.Controllers
             }
             else if (selectAllonPage)
             {
-                billingData.Organisations.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).Where(t => t.Status != BillingStatus.Noaction).All(t => t.IsSelected = selectAllonPage);
-                selectedOrganisation.SelectedOrganisationIds.AddRange(billingData.Organisations.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).Where(t => t.Status != BillingStatus.Noaction).Select(t => t.OrganisationId));
+
+                var records = billingData.Organisations.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).
+                                Where(t => t.Status != BillingStatus.Noaction);
+                foreach (var item in records)
+                {
+                    item.IsSelected = selectAllonPage;
+                }
+
+                selectedOrganisation.SelectedOrganisationIds.AddRange(records.Select(t => t.OrganisationId));
                 selectedOrganisation.SelectPage = selectAllonPage;
                 this.HttpContext.Session.SetString(SessionConstants.SelectedOrganisationIds, JsonSerializer.Serialize(selectedOrganisation));
             }
