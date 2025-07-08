@@ -43,6 +43,12 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.RedirectToAction("Index", new { calculationRunId });
         }
 
+        [HttpPost]
+        public IActionResult ClearSelection(int calculationRunId, [FromForm] OrganisationSelectionsViewModel selections)
+        {
+            return this.RedirectToAction("Index", new { calculationRunId });
+        }
+
         private static CalculationRunOrganisationBillingInstructionsDto GetBillingData(int calculationRunId)
         {
             return new CalculationRunOrganisationBillingInstructionsDto
