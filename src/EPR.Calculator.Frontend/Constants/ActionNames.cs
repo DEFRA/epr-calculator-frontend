@@ -76,6 +76,11 @@
         public const string ProcessSelection = "ProcessSelection";
 
         /// <summary>
+        /// ClearSelection.
+        /// </summary>
+        public const string ClearSelection = "ClearSelection";
+
+        /// <summary>
         /// Select All.
         /// </summary>
         public const string SelectAll = "SelectAll";
