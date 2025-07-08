@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Mappers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -21,6 +22,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         private Mock<IHttpClientFactory> _mockClientFactory;
         private BillingInstructionsController _controller;
         private Mock<HttpContext> _mockHttpContext;
+        private Mock<IBillingInstructionsMapper> _mockMapper;
 
         [TestInitialize]
         public void Setup()
@@ -29,12 +31,14 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
             _mockClientFactory = new Mock<IHttpClientFactory>();
+            _mockMapper = new Mock<IBillingInstructionsMapper>();
 
             _controller = new BillingInstructionsController(
                 _mockConfiguration.Object,
                 _mockTokenAcquisition.Object,
                 _mockTelemetryClient,
-                _mockClientFactory.Object);
+                _mockClientFactory.Object,
+                _mockMapper.Object);
 
             _mockHttpContext = new Mock<HttpContext>();
             _mockHttpContext.Setup(context => context.User)
@@ -56,14 +60,14 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public void Index_InvalidCalculationRunId_RedirectsToError()
+        public async Task Index_InvalidCalculationRunId_RedirectsToError()
         {
             // Arrange
             var calculationRunId = -1;
             var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
 
             // Act
-            var result = _controller.Index(calculationRunId, request) as RedirectToActionResult;
+            var result = await _controller.IndexAsync(calculationRunId, request) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -71,14 +75,14 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public void Index_ValidCalculationRunId_ReturnsViewResult()
+        public async Task Index_ValidCalculationRunId_ReturnsViewResult()
         {
             // Arrange
             var calculationRunId = 1;
             var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
 
             // Act
-            var result = _controller.Index(calculationRunId, request) as ViewResult;
+            var result = await _controller.IndexAsync(calculationRunId, request) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
