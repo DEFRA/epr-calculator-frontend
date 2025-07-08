@@ -78,15 +78,14 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Handles the POST request to select all billing instructions.
         /// </summary>
         /// <param name="model">The view model containing billing instructions and selection state.</param>
-        /// <param name="request">Pagination parameters for the current page of billing instructions.</param>
+        /// <param name="pageSize">Pagination parameters for the page of billing instructions.</param>
+        /// <param name="currentPage">Pagination parameters for the current page of billing instructions.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
         public IActionResult SelectAll(BillingInstructionsViewModel model, int pageSize, int currentPage)
         {
-            var viewModel = this.BuildViewModel(model.CalculationRun.Id, new PaginationRequestViewModel() { Page = currentPage, PageSize = pageSize }, model.OrganisationSelections.SelectAll, model.OrganisationSelections.SelectPage);
             this.HttpContext.Session.SetString("IsRedirected", "true");
-
-            return RedirectToRoute("BillingInstructions_Index", new { calculationRunId = model.CalculationRun.Id, Page = currentPage, PageSize = pageSize });
+            return this.RedirectToRoute("BillingInstructions_Index", new { calculationRunId = model.CalculationRun.Id, Page = currentPage, PageSize = pageSize });
         }
 
         private static OrganisationSelectionsViewModel CreateSelectionsAndMarkOrganisations(CalculationRunOrganisationBillingInstructionsDto billingData)
