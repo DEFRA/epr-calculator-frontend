@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Helpers;
@@ -33,6 +34,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
         public CalculationRunOverviewControllerTests()
         {
+            this.Fixture = new Fixture();
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _mockLogger = new Mock<ILogger<CalculationRunOverviewController>>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
@@ -56,6 +58,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
         }
 
+        private Fixture Fixture { get; init; }
+
         [TestMethod]
         public async Task IndexAsync_InvalidRunId_RedirectsToStandardError()
         {
@@ -75,26 +79,8 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task IndexAsync_ReturnsViewResult_WithValidViewModel()
         {
-            // Setup
-            _mockMessageHandler
-               .Protected()
-               .Setup<Task<HttpResponseMessage>>(
-                   "SendAsync",
-                   ItExpr.IsAny<HttpRequestMessage>(),
-                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                   {
-                       StatusCode = HttpStatusCode.OK,
-                       Content = new StringContent(JsonConvert.SerializeObject(MockData.GetCalculatorRun())),
-                   });
-            _mockHttpClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
-
-            _controller = new CalculationRunOverviewController(
-                _configuration,
-                new Mock<IApiService>().Object,
-                _mockLogger.Object,
-                _mockTokenAcquisition.Object,
-                _telemetryClient,
-                new Mock<ICalculatorRunDetailsService>().Object);
+            // Arrange
+            var controller = BuildTestClass(HttpStatusCode.OK, MockData.GetCalculatorRun());
 
             // Setting the mocked HttpContext for the controller
             _controller.ControllerContext = new ControllerContext
@@ -102,11 +88,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                 HttpContext = _mockHttpContext.Object
             };
 
-            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+            // Act
+            var result = await controller.Index(1);
 
-            var result = await _controller.Index(1);
-
+            // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
             var viewResult = result as ViewResult;
             Assert.IsNotNull(viewResult);
@@ -186,6 +171,29 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.SendBillingFile, result.ControllerName);
             Assert.AreEqual(1, result.RouteValues["runId"]);
+        }
+
+        private CalculationRunOverviewController BuildTestClass(
+           HttpStatusCode httpStatusCode,
+           CalculatorRunDto data = null,
+           CalculatorRunDetailsViewModel details = null)
+        {
+            data = data ?? MockData.GetCalculatorRun();
+            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            var mockApiService = TestMockUtils.BuildMockApiService(
+                httpStatusCode,
+                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+
+            var testClass = new CalculationRunOverviewController(
+                ConfigurationItems.GetConfigurationValues(),
+                mockApiService,
+                new Mock<ILogger<CalculationRunOverviewController>>().Object,
+                _mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
+            testClass.ControllerContext.HttpContext = new DefaultHttpContext();
+
+            return testClass;
         }
     }
 }

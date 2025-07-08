@@ -37,95 +37,37 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task LocalAuthorityDisposalCostsController_Success_View_Test()
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(JsonConvert.SerializeObject(MockData.GetLocalAuthorityDisposalCosts()))
-                });
+            // Arrange
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.OK,
+                MockData.GetLocalAuthorityDisposalCosts(),
+                null,
+                ConfigurationItems.GetConfigurationValues());
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            // Mock IHttpClientFactory
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-            var context = new DefaultHttpContext()
-            {
-                Session = mockSession
-            };
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-
-            var controller = new LocalAuthorityDisposalCostsController(
-                ConfigurationItems.GetConfigurationValues(),
-                new Mock<IApiService>().Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object);
-            controller.ControllerContext.HttpContext = context;
-
+            // Act
             var result = controller.Index() as ViewResult;
+
+            // Assert
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
         public async Task LocalAuthorityDisposalCostsController_Success_No_Data_View_Test()
         {
+            // Arrange
             var content = "No data available for the specified year.Please check the year and try again.";
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Content = new StringContent(content)
-                });
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.NotFound,
+                new StringContent(content),
+                null,
+                ConfigurationItems.GetConfigurationValues());
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            // Mock IHttpClientFactory
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-            var context = new DefaultHttpContext()
-            {
-                Session = mockSession
-            };
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-
-            var controller = new LocalAuthorityDisposalCostsController(
-                ConfigurationItems.GetConfigurationValues(),
-                new Mock<IApiService>().Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object);
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = context
-            };
-
+            // Act
             var result = controller.Index() as ViewResult;
+
+            // Assert
             Assert.IsNotNull(result);
         }
 
@@ -190,47 +132,15 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task Index_SuccessfulResponse_ReturnsViewWithGroupedData()
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(JsonConvert.SerializeObject(MockData.GetLocalAuthorityDisposalCosts()))
-                });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            // Mock IHttpClientFactory
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-
-            var context = new DefaultHttpContext()
-            {
-                Session = mockSession
-            };
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
             // Arrange
-            var controller = new LocalAuthorityDisposalCostsController(
-                ConfigurationItems.GetConfigurationValues(),
-                new Mock<IApiService>().Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object);
-            controller.ControllerContext.HttpContext = context;
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.OK,
+                MockData.GetLocalAuthorityDisposalCosts(),
+                null,
+                ConfigurationItems.GetConfigurationValues());
 
             // Act
-
             var result = controller.Index() as ViewResult;
 
             // Assert
@@ -274,6 +184,34 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
+        private LocalAuthorityDisposalCostsController BuildTestClass(
+            Fixture fixture,
+            HttpStatusCode httpStatusCode,
+            object data = null,
+            CalculatorRunDetailsViewModel details = null,
+            IConfiguration configurationItems = null)
+        {
+            data = data ?? MockData.GetCalculatorRun();
+            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
+            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            var mockApiService = TestMockUtils.BuildMockApiService(
+                httpStatusCode,
+                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+
+            var testClass = new LocalAuthorityDisposalCostsController(
+                configurationItems,
+                mockApiService,
+                new Mock<ITokenAcquisition>().Object,
+                new TelemetryClient(),
+                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
+            testClass.ControllerContext.HttpContext = new DefaultHttpContext()
+            {
+                Session = TestMockUtils.BuildMockSession(fixture).Object,
+            };
+
+            return testClass;
         }
     }
 }

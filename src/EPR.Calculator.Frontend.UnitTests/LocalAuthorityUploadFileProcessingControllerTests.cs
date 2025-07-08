@@ -1,22 +1,20 @@
 ﻿using System.Net;
-using System.Security.Claims;
-using System.Security.Principal;
 using System.Text;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
+using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Moq;
 using Moq.Protected;
 
@@ -65,90 +63,22 @@ namespace EPR.Calculator.Frontend.UnitTests
         private LocalAuthorityUploadFileProcessingController TestClass { get; init; }
 
         [TestMethod]
-        public void LocalAuthorityUploadFileProcessingController_Success_Result_Test()
+        public async Task LocalAuthorityUploadFileProcessingController_Success_Result_Test()
         {
-            // Mock HttpMessageHandler
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                    {
-                        StatusCode = HttpStatusCode.Created,
-                        Content = new StringContent("response content"),
-                    });
+            // Arrange
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.Created,
+                new StringContent("response content")).Controller;
 
-            // Create HttpClient with the mocked handler
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            // Mock IHttpClientFactory
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-
-            var httpContext = new DefaultHttpContext();
-            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-            var context = new DefaultHttpContext()
-            {
-                Session = mockSession
-            };
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            mockTokenAcquisition
-                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
-                .ReturnsAsync("somevalue");
-            // Create controller with the mocked factory
-            var controller = new LocalAuthorityUploadFileProcessingController(
-                TestMockUtils.BuildConfiguration(),
-                new Mock<IApiService>().Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object)
-            {
-                TempData = tempData
-            };
-            controller.ControllerContext = new ControllerContext { HttpContext = context };
-
-            var fileUploadFileName = "LocalAuthorityData.csv";
-
-            var sessionMock = new Mock<ISession>();
-            var sessionStorage = new Dictionary<string, byte[]>();
-
-            sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
-                       .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
-
-            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                       .Returns((string key, out byte[] value) =>
-                       {
-                           var success = sessionStorage.TryGetValue(key, out var storedValue);
-                           value = storedValue;
-                           return success;
-                       });
-
-            sessionMock.Setup(s => s.Remove(It.IsAny<string>()))
-                       .Callback<string>((key) => sessionStorage.Remove(key));
-
-            var httpContextMock = new Mock<HttpContext>();
-            httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
-            controller.ControllerContext.HttpContext = context;
-
-            // Act
             var viewModel = new LapcapRefreshViewModel()
             {
                 LapcapTemplateValue = MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(),
                 FileName = "Test Name",
             };
 
-            var task = controller.Index(viewModel);
-            task.Wait();
-            var result = task.Result as OkObjectResult;
+            // Act
+            var result = (OkObjectResult)(await controller.Index(viewModel));
 
             // Assert
             Assert.IsNotNull(result);
@@ -156,58 +86,13 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void LocalAuthorityUploadFileProcessingController_Failure_Result_Test()
+        public async Task LocalAuthorityUploadFileProcessingController_Failure_Result_Test()
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                    {
-                        StatusCode = HttpStatusCode.BadRequest,
-                        Content = new StringContent("response content"),
-                    });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-
-            var httpContext = new DefaultHttpContext();
-            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                    .Returns(httpClient);
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            mockTokenAcquisition
-                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
-                .ReturnsAsync("somevalue");
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-            var context = new DefaultHttpContext()
-            {
-                Session = mockSession
-            };
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-            var controller = new LocalAuthorityUploadFileProcessingController(
-                TestMockUtils.BuildConfiguration(),
-                new Mock<IApiService>().Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object)
-            {
-                TempData = tempData,
-            };
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = context
-            };
-
-            var mockHttpContext = new Mock<HttpContext>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession);
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
-            controller.ControllerContext.HttpContext = mockHttpContext.Object;
+            // Arrange
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.BadRequest,
+                new StringContent("response content")).Controller;
 
             var viewModel = new LapcapRefreshViewModel()
             {
@@ -215,9 +100,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                 FileName = "Test Name",
             };
 
-            var task = controller.Index(viewModel);
-            task.Wait();
-            var result = task.Result as BadRequestObjectResult;
+            // Act
+            var result = (BadRequestObjectResult)(await controller.Index(viewModel));
+
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreNotEqual(201, result.StatusCode);
         }
@@ -312,39 +198,76 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task Index_SendDateFromSession()
         {
             // Arrange
-            var sessionMessage = "This value comes from the session.";
-            this.MockSesion.Object.Set(
-                SessionConstants.FinancialYear,
-                Encoding.UTF8.GetBytes(sessionMessage));
+            var currentYear = CommonUtil.GetFinancialYear(DateTime.Now);
+            var viewModel = new LapcapRefreshViewModel();
+            var (controller, mockApiService) = BuildTestClass(
+                Fixture,
+                HttpStatusCode.OK);
 
             // Act
-            var result = await TestClass.Index(new LapcapRefreshViewModel());
+            var result = await controller.Index(new LapcapRefreshViewModel());
+            mockApiService.Verify(
+                s => s.CallApi(
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<HttpMethod>(),
+                    It.IsAny<Uri>(),
+                    It.IsAny<string>(),
+                    new CreateLapcapDataDto(new LapcapRefreshViewModel(), currentYear)),
+                Times.Once());
 
-            // Assert
-            this.MockMessageHandler.Protected().Verify(
-                "SendAsync",
-                Times.Once(),
-                ItExpr.Is<HttpRequestMessage>(m =>
-                    m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{sessionMessage}\"")),
-                ItExpr.IsAny<CancellationToken>());
         }
 
         [TestMethod]
         public async Task Index_DefaultToCurrentYearWhenNoFinancialYearInSession()
         {
             var currentYear = CommonUtil.GetFinancialYear(DateTime.Now);
+            var viewModel = new LapcapRefreshViewModel();
+
+            var (controller, mockApiService) = BuildTestClass(
+                Fixture,
+                HttpStatusCode.OK);
 
             // Act
-            var result = await TestClass.Index(new LapcapRefreshViewModel());
+            var result = await controller.Index(viewModel);
 
             // Assert
             Assert.IsFalse(this.MockSesion.Object.Keys.Contains(SessionConstants.FinancialYear));
-            this.MockMessageHandler.Protected().Verify(
-                "SendAsync",
-                Times.Once(),
-                ItExpr.Is<HttpRequestMessage>(m =>
-                    m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{currentYear}\"")),
-                ItExpr.IsAny<CancellationToken>());
+            mockApiService.Verify(
+                s => s.CallApi(
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<HttpMethod>(),
+                    It.IsAny<Uri>(),
+                    It.IsAny<string>(),
+                    new CreateLapcapDataDto(viewModel, currentYear)),
+                Times.Once());
+        }
+
+        private (LocalAuthorityUploadFileProcessingController Controller, Mock<IApiService> MockApiService) BuildTestClass(
+            Fixture fixture,
+            HttpStatusCode httpStatusCode,
+            object data = null,
+            CalculatorRunDetailsViewModel details = null,
+            IConfiguration configurationItems = null)
+        {
+            data = data ?? MockData.GetCalculatorRun();
+            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
+            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            var mockApiService = TestMockUtils.BuildMockApiService(
+                httpStatusCode,
+                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun()));
+
+            var testClass = new LocalAuthorityUploadFileProcessingController(
+                configurationItems,
+                mockApiService.Object,
+                new Mock<ITokenAcquisition>().Object,
+                new TelemetryClient(),
+                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
+            testClass.ControllerContext.HttpContext = new DefaultHttpContext()
+            {
+                Session = TestMockUtils.BuildMockSession(fixture).Object,
+            };
+
+            return (testClass, mockApiService);
         }
     }
 }
