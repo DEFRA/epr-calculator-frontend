@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -16,6 +17,16 @@ namespace EPR.Calculator.Frontend.Controllers
     /// </summary>
     public class BillingInstructionsController : BaseController
     {
+        /// <summary>
+        /// Default Selections.
+        /// </summary>
+        private static readonly OrganisationSelectionsViewModel DefaultSelections = new()
+        {
+            SelectAll = false,
+            SelectPage = false,
+            SelectedOrganisationIds = [],
+        };
+
         public BillingInstructionsController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient, IHttpClientFactory clientFactory)
             : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
         {
@@ -38,9 +49,10 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
-            var selectAll = this.GetSelectAllFromSession();
+            var organisationSelectionsViewModel = this.GetSelectedOrganisationsFromSession();
 
             var viewModel = this.BuildViewModel(calculationRunId, request, selectAll, false);
+            var viewModel = this.BuildViewModel(calculationRunId, request, organisationSelectionsViewModel.SelectAll);
 
             return this.View(viewModel);
         }
@@ -60,11 +72,25 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult SelectAll(BillingInstructionsViewModel model, int pageSize, int currentPage)
         {
-            this.HttpContext.Session.SetString(SessionConstants.BillingInstructionsSelectAll, model.SelectAll.ToString());
-
-            var viewModel = this.BuildViewModel(model.CalculationRun.Id, new PaginationRequestViewModel() { Page = currentPage, PageSize = pageSize }, model.SelectAll, model.SelectAllOnPage);
+            var viewModel = this.BuildViewModel(model.CalculationRun.Id, request, model.OrganisationSelections.SelectAll);
 
             return this.View("Index", viewModel);
+        }
+
+        private static OrganisationSelectionsViewModel CreateSelectionsAndMarkOrganisations(CalculationRunOrganisationBillingInstructionsDto billingData)
+        {
+            var selections = new OrganisationSelectionsViewModel
+            {
+                SelectAll = true,
+            };
+
+            foreach (var organisation in billingData.Organisations.Where(o => o.Status != BillingStatus.Noaction))
+            {
+                organisation.IsSelected = true;
+                selections.SelectedOrganisationIds.Add(organisation.Id);
+            }
+
+            return selections;
         }
 
         private static CalculationRunOrganisationBillingInstructionsDto GetBillingData(int calculationRunId)
@@ -113,7 +139,7 @@ namespace EPR.Calculator.Frontend.Controllers
                          { "calculationRunId", billingData.CalculationRun.Id },
                     },
                 },
-                SelectAll = isSelectAll,
+                OrganisationSelections = new OrganisationSelectionsViewModel { SelectAll = isSelectAll },
             };
             return viewModel;
         }
@@ -127,27 +153,15 @@ namespace EPR.Calculator.Frontend.Controllers
             bool selectAll, bool selectAllonPage)
         {
             var billingData = GetBillingData(calculationRunId);
-            var selectedIds = new OrganisationSelectionsViewModel();
-
             if (selectAll)
             {
-                foreach (var organisation in billingData.Organisations.Where(t => t.Status != BillingStatus.Noaction))
-                {
-                    organisation.IsSelected = true;
-                }
-            }
-
-            if (selectAllonPage && billingData.Organisations.Any())
-            {
-                billingData.Organisations.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).Where(t => t.Status != BillingStatus.Noaction).All(t => t.IsSelected = selectAllonPage);
-
-                selectedIds.SelectedOrganisationIds.AddRange(billingData.Organisations.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).Where(t => t.Status != BillingStatus.Noaction).Select(t => t.OrganisationId));
+                var selectedOrganisation = CreateSelectionsAndMarkOrganisations(billingData);
+                this.HttpContext.Session.SetString(SessionConstants.SelectedOrganisationIds, JsonSerializer.Serialize(selectedOrganisation));
             }
 
             this.HttpContext.Session.SetString(SessionConstants.BillingInstructionsSelectAll, JsonSerializer.Serialize(selectedIds));
 
             var viewModel = this.MapToViewModel(billingData, request);
-            viewModel.SelectAll = selectAll;
 
             return viewModel;
         }
@@ -155,10 +169,15 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <summary>
         /// Helper to read SelectAll state from the session.
         /// </summary>
-        private bool GetSelectAllFromSession()
+        private OrganisationSelectionsViewModel GetSelectedOrganisationsFromSession()
         {
-            var selectAllStored = this.HttpContext.Session.GetString(SessionConstants.BillingInstructionsSelectAll);
-            return bool.TryParse(selectAllStored, out var isSelectAll) && isSelectAll;
+            var selectedOrganisationIds = this.HttpContext.Session.GetString(SessionConstants.SelectedOrganisationIds);
+            if (string.IsNullOrEmpty(selectedOrganisationIds))
+            {
+                return DefaultSelections;
+            }
+
+            return JsonSerializer.Deserialize<OrganisationSelectionsViewModel>(selectedOrganisationIds) ?? DefaultSelections;
         }
     }
 }
