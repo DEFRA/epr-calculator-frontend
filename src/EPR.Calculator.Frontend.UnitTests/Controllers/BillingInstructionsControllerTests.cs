@@ -1,7 +1,7 @@
 ﻿namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
-    using System;
     using System.Security.Claims;
+    using System.Text.Json;
     using AutoFixture;
     using AutoFixture.AutoMoq;
     using EPR.Calculator.Frontend.Constants;
@@ -221,14 +221,14 @@
         }
 
         [TestMethod]
-        public void CanCallSelectAll()
+        public void SelectAllPage_WhenSetToTrue()
         {
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
             var model = fixture.Create<BillingInstructionsViewModel>();
             var pageSize = 10;
             var currentPage = 2;
-            model.SelectAllOnPage = true;
+            model.OrganisationSelections.SelectPage = true;
 
             // Act
             var result = _controller.SelectAll(model, pageSize, currentPage) as ViewResult;
@@ -237,6 +237,30 @@
             // Assert
             Assert.IsTrue(vm.OrganisationBillingInstructions.Any(t => t.IsSelected));
             Assert.IsTrue(vm.OrganisationBillingInstructions.Skip(10).Take(10).Any(t => t.IsSelected));
+        }
+
+        [TestMethod]
+        public void SelectAllPage_WhenSelectAllIsFalse_ReturnsViewWithSelectAllFalse()
+        {
+            // Arrange
+            var model = new BillingInstructionsViewModel
+            {
+                OrganisationSelections = new OrganisationSelectionsViewModel { SelectPage = false },
+                CalculationRun = new CalculationRunForBillingInstructionsDto { Id = 123 }
+            };
+
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+
+            // Act
+            var result = _controller.SelectAll(model, request.PageSize, request.Page) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ViewName);
+
+            var viewModel = result.Model as BillingInstructionsViewModel;
+            Assert.IsNotNull(viewModel);
+            Assert.IsFalse(viewModel.OrganisationSelections.SelectPage);
         }
     }
 }

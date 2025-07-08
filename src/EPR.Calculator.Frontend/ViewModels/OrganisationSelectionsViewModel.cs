@@ -6,6 +6,6 @@
 
         public bool SelectAll { get; set; }
 
-        public bool SelectPage { get; init; }
+        public bool SelectPage { get; set; }
     }
 }

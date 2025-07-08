@@ -4,9 +4,11 @@
 @{
     var selectedCount = Model.OrganisationSelections.SelectedOrganisationIds?.Count ?? 0;
     var totalCount = Model.OrganisationBillingInstructions?.Count(t => t.Status != BillingStatus.Noaction) ?? 0;
-    var displayText = Model.OrganisationSelections.SelectAll
+    var displayText = (Model.OrganisationSelections.SelectAll)
     ? $"{totalCount} record{(totalCount == 1 ? "" : "s")} selected"
     : $"{selectedCount} record{(selectedCount == 1 ? "" : "s")} selected";
+
+    var displayPageText =  $"{selectedCount} record{(selectedCount == 1 ? "" : "s")} selected";
 }
 <!-- Header showing total records -->
 <div>
