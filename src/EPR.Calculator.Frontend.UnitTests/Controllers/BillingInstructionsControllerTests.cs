@@ -210,5 +210,24 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var selectAllValue = session.GetString(SessionConstants.SelectedOrganisationIds);
             Assert.AreEqual(string.Empty, selectAllValue);
         }
+
+        [TestMethod]
+        public void ClearSelection_RedirectsToIndex()
+        {
+            // Arrange
+            var calculationRunId = 1;
+            var selections = new OrganisationSelectionsViewModel
+            {
+                SelectedOrganisationIds = new List<int> { 1, 2, 3 }
+            };
+
+            // Act
+            var result = _controller.ClearSelection(calculationRunId, selections) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual(calculationRunId, result.RouteValues["calculationRunId"]);
+        }
     }
 }
