@@ -15,5 +15,29 @@ namespace EPR.Calculator.Frontend.Extensions
             var json = session.GetString(key);
             return json == null ? default : JsonConvert.DeserializeObject<T>(json);
         }
+
+        public static bool GetBooleanFlag(this ISession session, string key)
+        {
+            ArgumentNullException.ThrowIfNull(session);
+            return session.Keys.Contains(key) &&
+                   bool.TryParse(session.GetString(key), out var result) &&
+                   result;
+        }
+
+        public static void SetBooleanFlag(this ISession session, string key, bool value)
+        {
+            ArgumentNullException.ThrowIfNull(session);
+            session.SetString(key, value.ToString());
+        }
+
+        public static void RemoveKeyIfExists(this ISession session, string key)
+        {
+            if (session == null) throw new ArgumentNullException(nameof(session));
+
+            if (session.Keys.Contains(key))
+            {
+                session.Remove(key);
+            }
+        }
     }
 }

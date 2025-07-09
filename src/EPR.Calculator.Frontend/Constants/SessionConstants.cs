@@ -19,5 +19,7 @@
         public const string RunParameterYear = "RunParameterYear";
 
         public const string IsSelectAll = "IsSelectAll";
+
+        public const string IsRedirected = "IsRedirected";
     }
 }
