@@ -58,9 +58,13 @@
         <div style="clear: both;"></div>
         <div style="margin-top: 60px;">
             <h2 class="govuk-heading-m">Update billing instructions</h2>
-            <button class="govuk-button govuk-button--secondary" type="submit" data-module="govuk-button" id="clear-selection-btn">
-                Clear selection
-            </button>
+            @using (Html.BeginForm(ActionNames.ClearSelection, "BillingInstructions", FormMethod.Post))
+            {
+                <button class="govuk-button govuk-button--secondary" asp-action="ClearSelection" asp-controller="BillingInstructions" type="submit" data-module="govuk-button" id="clear-selection-btn">
+                    Clear selection
+                </button>
+                <input type="hidden" name="CalculationRunId" value="@Model.CalculationRun.Id" />
+            }
         </div>
     </div>
 </div>
