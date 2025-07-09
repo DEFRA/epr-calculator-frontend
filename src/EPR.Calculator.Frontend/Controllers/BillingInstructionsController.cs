@@ -1,37 +1,53 @@
-﻿using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Enums;
+﻿using System.Text.Json;
+using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Mappers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using System.Drawing.Printing;
-using System.Reflection;
-using System.Security.Cryptography;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
-    /// Organisation Controller.
+    /// Billing Instructions Controller.
     /// </summary>
-    public class BillingInstructionsController : BaseController
+    public class BillingInstructionsController(
+        IConfiguration configuration,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient,
+        IHttpClientFactory clientFactory,
+        IBillingInstructionsMapper mapper)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        public BillingInstructionsController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient, IHttpClientFactory clientFactory)
-            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
-        {
-        }
-
+        /// <summary>
+        /// Displays the billing instructions for a given calculation run.
+        /// </summary>
+        /// <param name="calculationRunId">The unique identifier for the calculation run.</param>
+        /// <param name="request">The pagination and filter request parameters.</param>
+        /// <returns>
+        /// An <see cref="IActionResult"/> that renders the billing instructions view,
+        /// or redirects to the standard error page if the calculation run ID is invalid or an error occurs.
+        /// </returns>
         [HttpGet("BillingInstructions/{calculationRunId}", Name = RouteNames.BillingInstructionsIndex)]
-        public IActionResult Index([FromRoute] int calculationRunId, [FromQuery] PaginationRequestViewModel model)
+        public async Task<IActionResult> IndexAsync([FromRoute] int calculationRunId, [FromQuery] PaginationRequestViewModel request)
         {
-            if (calculationRunId <= 0)
+            try
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
+                if (calculationRunId <= 0)
+                {
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                }
 
-            var billingData = GetBillingData(calculationRunId);
+                var billingData = await this.GetBillingData(calculationRunId, request);
 
+                if (billingData == null)
+                {
+                    // Optionally log the error here using TelemetryClient or ILogger
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                }
             // Apply search filter
             if (model.OrganisationId.HasValue)
             {
@@ -42,9 +58,26 @@ namespace EPR.Calculator.Frontend.Controllers
 
             var viewModel = this.MapToViewModel(billingData, model);
 
-            return this.View(viewModel);
+                var viewModel = mapper.MapToViewModel(billingData, request, CommonUtil.GetUserName(this.HttpContext));
+
+                return this.View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                // Optionally log the exception here using TelemetryClient or ILogger
+                this.TelemetryClient.TrackException(ex);
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
         }
 
+        /// <summary>
+        /// Handles the selection of organisations and redirects to the Index action for the specified calculation run.
+        /// </summary>
+        /// <param name="calculationRunId">The unique identifier for the calculation run.</param>
+        /// <param name="selections">The selected organisation IDs from the form.</param>
+        /// <returns>
+        /// An <see cref="IActionResult"/> that redirects to the Index action for the specified calculation run.
+        /// </returns>
         [HttpPost]
         public IActionResult ProcessSelection(int calculationRunId, [FromForm] OrganisationSelectionsViewModel selections)
         {
@@ -57,52 +90,32 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.RedirectToAction("Index", new { calculationRunId });
         }
 
-        private static CalculationRunOrganisationBillingInstructionsDto GetBillingData(int calculationRunId)
-        {
-            return new CalculationRunOrganisationBillingInstructionsDto
-            {
-                Organisations = Enumerable.Range(1, 100).Select(i => new Organisation
-                {
-                    Id = i,
-                    OrganisationName = $"Acme org Ltd {i}",
-                    OrganisationId = 215148 + i,
-                    BillingInstruction = (BillingInstruction)(i % 5),
-                    InvoiceAmount = 10000.00 + (i * 20),
-                    Status = (BillingStatus)(i % 4),
-                }).ToList(),
-                CalculationRun = new CalculationRunForBillingInstructionsDto { Id = calculationRunId, Name = $"Calculation run {calculationRunId}" },
-            };
-        }
-
-        private BillingInstructionsViewModel MapToViewModel(
-            CalculationRunOrganisationBillingInstructionsDto billingData,
+        private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(
+            int calculationRunId,
             PaginationRequestViewModel request)
         {
-            var pagedOrganisations = billingData.Organisations
-               .Skip((request.Page - 1) * request.PageSize)
-               .Take(request.PageSize)
-               .ToList();
+            var apiUrl = this.GetApiUrl(ConfigSection.ProducerBillingInstructions, ConfigSection.ProducerBillingInstructionsV1);
 
-            var viewModel = new BillingInstructionsViewModel
+            var requestDto = new ProducerBillingInstructionsRequestDto
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                CalculationRun = billingData.CalculationRun,
-                TablePaginationModel = new PaginationViewModel
-                {
-                    Caption = CommonConstants.BillingTableHeader,
-                    Records = pagedOrganisations,
-                    CurrentPage = request.Page <= 0 ? CommonConstants.DefaultPage : request.Page,
-                    PageSize = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,
-                    TotalRecords = billingData.Organisations.Count,
-                    RouteName = RouteNames.BillingInstructionsIndex,
-                    RouteValues = new Dictionary<string, object?>
-                    {
-                         { "calculationRunId", billingData.CalculationRun.Id },
-                         { "organisationId", request.OrganisationId },
-                    },
-                },
+                PageNumber = request.Page,
+                PageSize = request.PageSize,
             };
-            return viewModel;
+
+            var response = await this.CallApi(HttpMethod.Post, apiUrl, calculationRunId.ToString(), requestDto);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                this.TelemetryClient.TrackTrace($"BillingInstructions API call failed. StatusCode: {response.StatusCode}");
+                var errorContent = await response.Content.ReadAsStringAsync();
+                this.TelemetryClient.TrackTrace($"BillingInstructions API error content: {errorContent}");
+                return null;
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var billingData = JsonSerializer.Deserialize<ProducerBillingInstructionsResponseDto>(json);
+
+            return billingData;
         }
     }
 }
