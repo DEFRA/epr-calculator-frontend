@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Enums;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 
@@ -45,10 +46,10 @@ namespace EPR.Calculator.Frontend.Mappers
                     CurrentPage = request.Page,
                     PageSize = request.PageSize,
                     TotalRecords = billingData.TotalRecords,
-                    RouteName = "BillingInstructions_Index",
+                    RouteName = BillingInstructionConstants.BillingInstructionsIndexRouteName,
                     RouteValues = new Dictionary<string, object?>
                     {
-                        { "calculationRunId", billingData.CalculatorRunId },
+                        { BillingInstructionConstants.CalculationRunIdKey, billingData.CalculatorRunId },
                     },
                 },
             };
@@ -71,17 +72,19 @@ namespace EPR.Calculator.Frontend.Mappers
                 .Replace("_", string.Empty)
                 .ToLowerInvariant();
 
-            return normalized switch
+            if (Enum.TryParse<BillingInstruction>(normalized, ignoreCase: true, out var result))
             {
-                "noaction" => BillingInstruction.Noaction,
-                "initial" => BillingInstruction.Initial,
-                "delta" => BillingInstruction.Delta,
-                "rebill" => BillingInstruction.Rebill,
-                "cancelbill" => BillingInstruction.Cancelbill,
-                _ => BillingInstruction.Noaction,
-            };
+                return result;
+            }
+
+            return BillingInstruction.Noaction;
         }
 
+        /// <summary>
+        /// Maps a string value to a <see cref="BillingStatus"/> enum value.
+        /// </summary>
+        /// <param name="acceptReject">The acceptReject column as a string.</param>
+        /// <returns>The corresponding <see cref="BillingStatus"/> enum value.</returns>
         private BillingStatus MapBillingStatus(string? acceptReject)
         {
             if (string.IsNullOrWhiteSpace(acceptReject))
@@ -94,14 +97,12 @@ namespace EPR.Calculator.Frontend.Mappers
                 .Replace("_", string.Empty)
                 .ToLowerInvariant();
 
-            return normalized switch
+            if (Enum.TryParse<BillingStatus>(normalized, ignoreCase: true, out var result))
             {
-                "noaction" => BillingStatus.Noaction,
-                "accepted" => BillingStatus.Accepted,
-                "rejected" => BillingStatus.Rejected,
-                "pending" => BillingStatus.Pending,
-                _ => BillingStatus.Noaction,
-            };
+                return result;
+            }
+
+            return BillingStatus.Noaction;
         }
     }
 }
