@@ -118,7 +118,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
-            Assert.AreEqual(calculationRunId, result.RouteValues["calculationRunId"]);
+            Assert.AreEqual(calculationRunId, result.RouteValues[BillingInstructionConstants.CalculationRunIdKey]);
         }
 
         [TestMethod]
@@ -342,10 +342,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     CurrentPage = request.Page,
                     PageSize = request.PageSize,
                     TotalRecords = billingData.TotalRecords,
-                    RouteName = "BillingInstructions_Index",
+                    RouteName = BillingInstructionConstants.BillingInstructionsIndexRouteName,
                     RouteValues = new Dictionary<string, object?>
                     {
-                        { "calculationRunId", calculationRunId }
+                        { BillingInstructionConstants.CalculationRunIdKey, calculationRunId }
                     }
                 }
             };
