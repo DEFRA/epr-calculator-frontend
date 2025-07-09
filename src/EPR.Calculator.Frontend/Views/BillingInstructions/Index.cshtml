@@ -3,8 +3,7 @@
 @model BillingInstructionsViewModel
 
 @{
-    var selectableCount = Model.OrganisationBillingInstructions
-        .Count(t => t.Status != BillingStatus.Noaction);
+    var selectableCount = Model.ProducerIds.Count();
 }
 
 <partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />

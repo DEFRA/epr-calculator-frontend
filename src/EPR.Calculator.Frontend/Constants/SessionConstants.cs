@@ -18,6 +18,6 @@
 
         public const string RunParameterYear = "RunParameterYear";
 
-        public const string SelectedOrganisationIds = "SelectedOrganisationIds";
+        public const string IsSelectAll = "IsSelectAll";
     }
 }

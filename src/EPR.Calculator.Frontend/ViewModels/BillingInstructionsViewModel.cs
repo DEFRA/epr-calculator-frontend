@@ -11,5 +11,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         public PaginationViewModel TablePaginationModel { get; init; } = new();
 
         public OrganisationSelectionsViewModel OrganisationSelections { get; set; } = new();
+
+        public IEnumerable<int> ProducerIds { get; init; }
     }
 }

@@ -1,13 +1,17 @@
 ﻿using Azure.Core;
+using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Mappers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -15,22 +19,15 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <summary>
     /// Organisation Controller.
     /// </summary>
-    public class BillingInstructionsController : BaseController
+    public class BillingInstructionsController(
+        IConfiguration configuration,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient,
+        IHttpClientFactory clientFactory,
+        IBillingInstructionsMapper mapper)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        /// <summary>
-        /// Default Selections.
-        /// </summary>
-        private static readonly OrganisationSelectionsViewModel DefaultSelections = new()
-        {
-            SelectAll = false,
-            SelectPage = false,
-            SelectedOrganisationIds = [],
-        };
-
-        public BillingInstructionsController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient, IHttpClientFactory clientFactory)
-            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
-        {
-        }
+        private ProducerBillingInstructionsResponseDto Billing { get; set; }
 
         /// <summary>
         /// Handles the HTTP GET request to display billing instructions for the specified calculation run.
@@ -42,24 +39,42 @@ namespace EPR.Calculator.Frontend.Controllers
         /// or redirects to a standard error page if the calculation run ID is invalid.
         /// </returns>
         [HttpGet("BillingInstructions/{calculationRunId}", Name = "BillingInstructions_Index")]
-        public IActionResult Index([FromRoute] int calculationRunId, [FromQuery] PaginationRequestViewModel request)
+        public async Task<IActionResult> IndexAsync([FromRoute] int calculationRunId, [FromQuery] PaginationRequestViewModel request)
         {
-            if (calculationRunId <= 0)
+            try
             {
+                if (calculationRunId <= 0)
+                {
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                }
+
+                var isSelectAll = false;
+                if (this.HttpContext.Session.Keys.Contains(SessionConstants.IsSelectAll))
+                {
+                    isSelectAll = bool.Parse(this.HttpContext.Session.GetString(SessionConstants.IsSelectAll));
+                }
+
+                var billingData = await this.GetBillingData(calculationRunId, request);
+                var viewModel1 = mapper.MapToViewModel(billingData, request, CommonUtil.GetUserName(this.HttpContext), isSelectAll);
+                this.HttpContext.Session.SetObject("ProducerIds", viewModel1.ProducerIds);
+
+                foreach (var item in viewModel1.OrganisationBillingInstructions)
+                {
+                    item.IsSelected = isSelectAll;
+                }
+
+                if (this.HttpContext.Session.Keys.Contains("IsRedirected"))
+                {
+                    this.HttpContext.Session.Remove("IsRedirected");
+                }
+
+                return this.View(viewModel1);
+            }
+            catch (Exception ex)
+            {
+                this.TelemetryClient.TrackException(ex);
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-
-            var organisationSelectionsViewModel = this.GetSelectedOrganisationsFromSession();
-
-            var viewModel = this.BuildViewModel(calculationRunId, request, organisationSelectionsViewModel.SelectAll, organisationSelectionsViewModel.SelectPage);
-            if (this.HttpContext.Session.Keys.Contains("IsRedirected"))
-            {
-                organisationSelectionsViewModel.SelectPage = false;
-                this.HttpContext.Session.SetString(SessionConstants.SelectedOrganisationIds, JsonSerializer.Serialize(organisationSelectionsViewModel));
-                this.HttpContext.Session.Remove("IsRedirected");
-            }
-
-            return this.View(viewModel);
         }
 
         [HttpPost]
@@ -81,130 +96,41 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="request">Pagination parameters for the current page of billing instructions.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
-        public IActionResult SelectAll(BillingInstructionsViewModel model, int pageSize, int currentPage)
+        public async Task<IActionResult> SelectAll(BillingInstructionsViewModel model, [FromQuery] PaginationRequestViewModel request)
         {
-            this.BuildViewModel(model.CalculationRun.Id, new PaginationRequestViewModel() { Page = currentPage, PageSize = pageSize }, model.OrganisationSelections.SelectAll, model.OrganisationSelections.SelectPage);
+            this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll.ToString());
             this.HttpContext.Session.SetString("IsRedirected", "true");
-            return this.RedirectToRoute("BillingInstructions_Index", new { calculationRunId = model.CalculationRun.Id, Page = currentPage, PageSize = pageSize });
+            return this.RedirectToRoute("BillingInstructions_Index", new { calculationRunId = model.CalculationRun.Id, page = request.Page, pageSize = request.PageSize });
         }
 
-        private static OrganisationSelectionsViewModel CreateSelectionsAndMarkOrganisations(CalculationRunOrganisationBillingInstructionsDto billingData)
-        {
-            var selections = new OrganisationSelectionsViewModel
-            {
-                SelectAll = true,
-            };
-
-            foreach (var organisation in billingData.Organisations.Where(o => o.Status != BillingStatus.Noaction))
-            {
-                organisation.IsSelected = true;
-                selections.SelectedOrganisationIds.Add(organisation.Id);
-            }
-
-            return selections;
-        }
-
-        private static CalculationRunOrganisationBillingInstructionsDto GetBillingData(int calculationRunId)
-        {
-            return new CalculationRunOrganisationBillingInstructionsDto
-            {
-                Organisations = Enumerable.Range(1, 100).Select(i => new Organisation
-                {
-                    Id = i,
-                    OrganisationName = $"Acme org Ltd {i}",
-                    OrganisationId = 215148 + i,
-                    BillingInstruction = (BillingInstruction)(i % 5),
-                    InvoiceAmount = 10000.00 + (i * 20),
-                    Status = (BillingStatus)(i % 4),
-                    IsSelected = false,
-                }).ToList(),
-                CalculationRun = new CalculationRunForBillingInstructionsDto { Id = calculationRunId, Name = $"Calculation run {calculationRunId}" },
-            };
-        }
-
-        private BillingInstructionsViewModel MapToViewModel(
-            CalculationRunOrganisationBillingInstructionsDto billingData,
-            PaginationRequestViewModel request,
-            OrganisationSelectionsViewModel organisationSelectionsViewModel)
-        {
-            var pagedOrganisations = billingData.Organisations
-               .Skip((request.Page - 1) * request.PageSize)
-               .Take(request.PageSize)
-               .ToList();
-
-            var viewModel = new BillingInstructionsViewModel
-            {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                CalculationRun = billingData.CalculationRun,
-                OrganisationBillingInstructions = billingData.Organisations,
-                TablePaginationModel = new PaginationViewModel
-                {
-                    Records = pagedOrganisations,
-                    CurrentPage = request.Page,
-                    PageSize = request.PageSize,
-                    TotalRecords = billingData.Organisations.Count,
-                    RouteName = "BillingInstructions_Index",
-                    RouteValues = new Dictionary<string, object?>
-                    {
-                         { "calculationRunId", billingData.CalculationRun.Id },
-                    },
-                },
-                OrganisationSelections = organisationSelectionsViewModel,
-            };
-            return viewModel;
-        }
-
-        /// <summary>
-        /// Central method to build the view model and optionally apply SelectAll logic.
-        /// </summary>
-        private BillingInstructionsViewModel BuildViewModel(
+        private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(
             int calculationRunId,
-            PaginationRequestViewModel request,
-            bool selectAll,
-            bool selectAllonPage)
+            PaginationRequestViewModel request)
         {
-            var billingData = GetBillingData(calculationRunId);
-            var selectedOrganisation = new OrganisationSelectionsViewModel();
-            if (selectAll)
-            {
-                selectedOrganisation = CreateSelectionsAndMarkOrganisations(billingData);
-                this.HttpContext.Session.SetString(SessionConstants.SelectedOrganisationIds, JsonSerializer.Serialize(selectedOrganisation));
-            }
-            else if (selectAllonPage)
-            {
-                var records = billingData.Organisations.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).
-                                Where(t => t.Status != BillingStatus.Noaction);
-                foreach (var item in records)
-                {
-                    item.IsSelected = selectAllonPage;
-                }
+            var apiUrl = this.GetApiUrl(ConfigSection.ProducerBillingInstructions, ConfigSection.ProducerBillingInstructionsV1);
 
-                selectedOrganisation.SelectedOrganisationIds.AddRange(records.Select(t => t.OrganisationId));
-                selectedOrganisation.SelectPage = selectAllonPage;
-                this.HttpContext.Session.SetString(SessionConstants.SelectedOrganisationIds, JsonSerializer.Serialize(selectedOrganisation));
-            }
-            else
+            // Build the request DTO
+            var requestDto = new ProducerBillingInstructionsRequestDto
             {
-                this.HttpContext.Session.SetString(SessionConstants.SelectedOrganisationIds, string.Empty);
+                PageNumber = request.Page,
+                PageSize = request.PageSize,
+            };
+
+            // Pass the calculationRunId as the route argument, and the DTO as the body
+            var response = await this.CallApi(HttpMethod.Post, apiUrl, calculationRunId.ToString(), requestDto);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                this.TelemetryClient.TrackTrace($"BillingInstructions API call failed. StatusCode: {response.StatusCode}");
+                var errorContent = await response.Content.ReadAsStringAsync();
+                this.TelemetryClient.TrackTrace($"BillingInstructions API error content: {errorContent}");
+                return null;
             }
 
-            var viewModel = this.MapToViewModel(billingData, request, selectedOrganisation);
+            var json = await response.Content.ReadAsStringAsync();
+            var billingData = JsonSerializer.Deserialize<ProducerBillingInstructionsResponseDto>(json);
 
-            return viewModel;
-        }
-
-        /// <summary>
-        /// Helper to read SelectAll state from the session.
-        /// </summary>
-        private OrganisationSelectionsViewModel GetSelectedOrganisationsFromSession()
-        {
-            var selectedOrganisationIds = this.HttpContext.Session.GetString(SessionConstants.SelectedOrganisationIds);
-            if (string.IsNullOrEmpty(selectedOrganisationIds))
-            {
-                return DefaultSelections;
-            }
-
-            return JsonSerializer.Deserialize<OrganisationSelectionsViewModel>(selectedOrganisationIds) ?? DefaultSelections;
+            return billingData;
         }
     }
 }
