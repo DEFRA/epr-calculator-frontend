@@ -98,15 +98,15 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="request">Pagination parameters for the current page of billing instructions.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
-        public IActionResult SelectAll(BillingInstructionsViewModel model, [FromQuery] PaginationRequestViewModel request)
+        public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize)
         {
             this.HttpContext.Session.SetBooleanFlag(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll);
             this.HttpContext.Session.SetBooleanFlag(SessionConstants.IsRedirected, true);
             return this.RedirectToRoute("BillingInstructions_Index", new
             {
                 calculationRunId = model.CalculationRun.Id,
-                page = request.Page,
-                pageSize = request.PageSize,
+                page = currentPage,
+                pageSize = pageSize,
             });
         }
 
