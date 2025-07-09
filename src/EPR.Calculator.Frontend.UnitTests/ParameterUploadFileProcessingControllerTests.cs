@@ -3,7 +3,10 @@ using System.Text;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
+using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -25,128 +28,40 @@ namespace EPR.Calculator.Frontend.UnitTests
         public ParameterUploadFileProcessingControllerTests()
         {
             this.Fixture = new Fixture();
-            this.MockSesion = TestMockUtils.BuildMockSession(this.Fixture);
-            this.MockHttpContext = new Mock<HttpContext>();
-            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
-            this.MockHttpContext.Setup(c => c.Session).Returns(this.MockSesion.Object);
 
-            this.Configuration = TestMockUtils.BuildConfiguration();
-            this.Configuration
-                .GetSection("ParameterSettings")["ParameterYear"] = this.Fixture.Create<string>();
-
-            this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Accepted, new StringContent("response content"));
-            Mock<IHttpClientFactory> mockHttpClientFactory = TestMockUtils.BuildMockHttpClientFactory(
-                this.MockMessageHandler.Object);
-            this.TestClass = new ParameterUploadFileProcessingController(
-                this.Configuration,
-                new Mock<IApiService>().Object,
-                new Mock<ITokenAcquisition>().Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object)
-            {
-                TempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>()),
-            };
-            this.TestClass.ControllerContext = new ControllerContext { HttpContext = this.MockHttpContext.Object };
+            (this.TestClass, this.MockApiService) = BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.Accepted,
+                MockData.GetCalculatorRun(),
+                null,
+                TestMockUtils.BuildConfiguration());
         }
 
         private Fixture Fixture { get; init; }
 
-        private Mock<HttpContext> MockHttpContext { get; init; }
-
-        private Mock<HttpMessageHandler> MockMessageHandler { get; init; }
-
-        private Mock<ISession> MockSesion { get; init; }
-
-        private IConfiguration Configuration { get; init; }
-
         private ParameterUploadFileProcessingController TestClass { get; init; }
 
+        private Mock<IApiService> MockApiService { get; init; }
+
         [TestMethod]
-        public void ParameterUploadFileProcessingController_Success_Result_Test()
+        public async Task ParameterUploadFileProcessingController_Success_Result_Test()
         {
-            // Mock HttpMessageHandler
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                    {
-                        StatusCode = HttpStatusCode.Created,
-                        Content = new StringContent("response content"),
-                    });
-
-            // Create HttpClient with the mocked handler
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            // Mock IHttpClientFactory
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-            var httpContext = new DefaultHttpContext();
-            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            mockTokenAcquisition
-                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
-                .ReturnsAsync("somevalue");
-
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-
-            var context = new DefaultHttpContext()
-            {
-                Session = mockSession
-            };
-            // Create controller with the mocked factory
-            var controller = new ParameterUploadFileProcessingController(
-                GetConfigurationValues(),
-                new Mock<IApiService>().Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<CalculatorRunDetailsService>().Object)
-            {
-                TempData = tempData,
-            };
-            controller.ControllerContext = new ControllerContext { HttpContext = context };
-
-            var fileUploadFileName = "SchemeParameters.csv";
-
-            var sessionMock = new Mock<ISession>();
-            var sessionStorage = new Dictionary<string, byte[]>();
-
-            sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
-                       .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
-
-            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                       .Returns((string key, out byte[] value) =>
-                       {
-                           var success = sessionStorage.TryGetValue(key, out var storedValue);
-                           value = storedValue;
-                           return success;
-                       });
-
-            sessionMock.Setup(s => s.Remove(It.IsAny<string>()))
-                       .Callback<string>((key) => sessionStorage.Remove(key));
-
-            var httpContextMock = new Mock<HttpContext>();
-            httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
-            controller.ControllerContext.HttpContext = context;
-
-            // Act
+            // Arrange
             var viewModel = new ParameterRefreshViewModel()
             {
                 ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
                 FileName = "Test Name",
             };
 
-            var task = controller.Index(viewModel);
-            task.Wait();
+            (var testClass, var mockApiService) = BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.Created,
+                MockData.GetCalculatorRun(),
+                null,
+                TestMockUtils.BuildConfiguration());
 
-            var result = task.Result as OkObjectResult;
+            // Act
+            var result = (OkObjectResult)(await testClass.Index(viewModel));
 
             // Assert
             Assert.IsNotNull(result);
@@ -154,66 +69,19 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void ParameterUploadFileProcessingController_Failure_Result_Test()
+        public async Task ParameterUploadFileProcessingController_Failure_Result_Test()
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                    {
-                        StatusCode = HttpStatusCode.BadRequest,
-                        Content = new StringContent("response content"),
-                    });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-
-            var httpContext = new DefaultHttpContext();
-            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                    .Returns(httpClient);
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            mockTokenAcquisition
-                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
-                .ReturnsAsync("somevalue");
-            var controller = new ParameterUploadFileProcessingController(
-                GetConfigurationValues(),
-                new Mock<IApiService>().Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<CalculatorRunDetailsService>().Object)
-            {
-                TempData = tempData
-            };
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-            var context = new DefaultHttpContext()
-            {
-                Session = mockSession
-            };
-            controller.ControllerContext = new ControllerContext { HttpContext = context };
-
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = context
-            };
-
+            // Arrange
             var viewModel = new ParameterRefreshViewModel()
             {
                 ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
                 FileName = "Test Name",
             };
 
-            var task = controller.Index(viewModel);
-            task.Wait();
-            var result = task.Result as BadRequestObjectResult;
+            // Act
+            var result = (BadRequestObjectResult)(await this.TestClass.Index(viewModel));
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreNotEqual(201, result.StatusCode);
         }
@@ -309,24 +177,23 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task Index_SendDateFromSession()
         {
             // Arrange
-            var sessionMessage = "This value comes from the session.";
-            this.MockSesion.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-            .Returns((string key, out byte[] value) =>
-            {
-                value = Encoding.UTF8.GetBytes(sessionMessage);
-                return true;
-            });
+            var data = Fixture.Create<ParameterRefreshViewModel>();
 
             // Act
-            var result = await TestClass.Index(Fixture.Create<ParameterRefreshViewModel>());
+            var result = await TestClass.Index(data);
 
             // Assert
-            this.MockMessageHandler.Protected().Verify(
-                "SendAsync",
-                Times.Once(),
-                ItExpr.Is<HttpRequestMessage>(m =>
-                    m.Content.ReadAsStringAsync().Result.Contains($"\"ParameterYear\":\"{sessionMessage}\"")),
-                ItExpr.IsAny<CancellationToken>());
+            this.MockApiService.Verify(
+               x => x.CallApi(
+                   TestClass.HttpContext,
+                   HttpMethod.Post,
+                   It.IsAny<Uri>(),
+                   It.IsAny<string>(),
+                   It.Is<CreateDefaultParameterSettingDto>(dto =>
+                       dto.ParameterTemplateValues.SequenceEqual(data.ParameterTemplateValues) &&
+                       dto.FileName == data.FileName &&
+                       dto.ParameterYear == CommonUtil.GetFinancialYear(DateTime.Now))),
+               Times.Once);
         }
 
         private static IConfiguration GetConfigurationValues()
@@ -338,6 +205,34 @@ namespace EPR.Calculator.Frontend.UnitTests
                .Build();
 
             return config;
+        }
+
+        private (ParameterUploadFileProcessingController Controller, Mock<IApiService> MockApiService) BuildTestClass(
+            Fixture fixture,
+            HttpStatusCode httpStatusCode,
+            object data = null,
+            CalculatorRunDetailsViewModel details = null,
+            IConfiguration configurationItems = null)
+        {
+            data = data ?? MockData.GetCalculatorRun();
+            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
+            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            var mockApiService = TestMockUtils.BuildMockApiService(
+                httpStatusCode,
+                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun()));
+
+            var testClass = new ParameterUploadFileProcessingController(
+                configurationItems,
+                mockApiService.Object,
+                new Mock<ITokenAcquisition>().Object,
+                new TelemetryClient(),
+                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
+            testClass.ControllerContext.HttpContext = new DefaultHttpContext()
+            {
+                Session = TestMockUtils.BuildMockSession(fixture).Object,
+            };
+
+            return (testClass, mockApiService);
         }
     }
 }

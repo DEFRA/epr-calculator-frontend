@@ -71,6 +71,13 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             // Setting the mocked HttpContext for the controller
             _controller.ControllerContext = new ControllerContext { HttpContext = context };
+
+            _controller = BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.OK,
+                MockData.GetCalculatorRun(),
+                Fixture.Create<CalculatorRunDetailsViewModel>(),
+                _configuration);
         }
 
         private Fixture Fixture { get; init; }
@@ -445,6 +452,35 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                        StatusCode = httpStatusCode,
                        Content = new StringContent("{\r\n\"financialYear\": \"2025-26\",\r\n  \"classifications\": [\r\n    {\r\n      \"id\": 4,\r\n      \"status\": \"TEST RUN\"\r\n    },\r\n    {\r\n      \"id\": 8,\r\n      \"status\": \"INITIAL RUN\"\r\n    }\r\n  ]\r\n}"),
                    });
+        }
+
+        private SetRunClassificationController BuildTestClass(
+                Fixture fixture,
+                HttpStatusCode httpStatusCode,
+                object data = null,
+                CalculatorRunDetailsViewModel details = null,
+                IConfiguration configurationItems = null)
+        {
+            data = data ?? MockData.GetCalculatorRun();
+            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
+            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            var mockApiService = TestMockUtils.BuildMockApiService(
+                httpStatusCode,
+                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+
+            var testClass = new SetRunClassificationController(
+                configurationItems,
+                mockApiService,
+                new Mock<ILogger<SetRunClassificationController>>().Object,
+                new Mock<ITokenAcquisition>().Object,
+                new TelemetryClient(),
+                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
+            testClass.ControllerContext.HttpContext = new DefaultHttpContext()
+            {
+                Session = TestMockUtils.BuildMockSession(fixture).Object,
+            };
+
+            return testClass;
         }
     }
 }
