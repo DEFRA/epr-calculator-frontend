@@ -1,4 +1,4 @@
-using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 
 namespace EPR.Calculator.Frontend.Mappers

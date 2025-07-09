@@ -1,4 +1,4 @@
-using EPR.Calculator.Frontend.Enums;
+﻿using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 
@@ -52,7 +52,9 @@ namespace EPR.Calculator.Frontend.Mappers
         private BillingInstruction MapBillingInstruction(string suggested)
         {
             if (string.IsNullOrWhiteSpace(suggested))
+            {
                 return BillingInstruction.Noaction;
+            }
 
             var normalized = suggested.Replace(" ", string.Empty)
                 .Replace("-", string.Empty)
@@ -73,7 +75,9 @@ namespace EPR.Calculator.Frontend.Mappers
         private BillingStatus MapBillingStatus(string? acceptReject)
         {
             if (string.IsNullOrWhiteSpace(acceptReject))
+            {
                 return BillingStatus.Pending;
+            }
 
             var normalized = acceptReject.Replace(" ", string.Empty)
                 .Replace("-", string.Empty)
