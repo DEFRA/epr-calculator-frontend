@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
@@ -48,15 +49,6 @@ namespace EPR.Calculator.Frontend.Controllers
                     // Optionally log the error here using TelemetryClient or ILogger
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
-            // Apply search filter
-            if (model.OrganisationId.HasValue)
-            {
-                billingData.Organisations = billingData.Organisations
-                    .Where(i => i.OrganisationId == model.OrganisationId)
-                    .ToList();
-            }
-
-            var viewModel = this.MapToViewModel(billingData, model);
 
                 var viewModel = mapper.MapToViewModel(billingData, request, CommonUtil.GetUserName(this.HttpContext));
 
@@ -100,6 +92,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 PageNumber = request.Page,
                 PageSize = request.PageSize,
+                SearchQuery = new ProducerBillingInstructionsSearchQueryDto { OrganisationId = request.OrganisationId },
             };
 
             var response = await this.CallApi(HttpMethod.Post, apiUrl, calculationRunId.ToString(), requestDto);
