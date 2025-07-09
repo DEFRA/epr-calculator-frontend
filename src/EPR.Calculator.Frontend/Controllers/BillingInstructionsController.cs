@@ -51,8 +51,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
             try
             {
-
-
                 bool isSelectAll = this.HttpContext.Session.GetBooleanFlag(SessionConstants.IsSelectAll);
                 bool isSelectAllPage = false;
                 if (this.HttpContext.Session.Keys.Contains("IsRedirected"))
@@ -109,7 +107,6 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize)
         {
-
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll.ToString());
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, model.OrganisationSelections.SelectPage.ToString());
             if (model.OrganisationSelections.SelectPage)
