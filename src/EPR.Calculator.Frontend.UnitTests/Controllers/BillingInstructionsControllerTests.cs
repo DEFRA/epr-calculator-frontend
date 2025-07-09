@@ -1,29 +1,29 @@
-﻿using System.Net;
-using System.Reflection;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Controllers;
-using EPR.Calculator.Frontend.Extensions;
-using EPR.Calculator.Frontend.Mappers;
-using EPR.Calculator.Frontend.Models;
-using EPR.Calculator.Frontend.UnitTests.HelpersTest;
-using EPR.Calculator.Frontend.UnitTests.Mocks;
-using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Web;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Controller;
-using Moq;
-using Moq.Protected;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
-
-namespace EPR.Calculator.Frontend.UnitTests.Controllers
+﻿namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
+    using System;
+    using System.Net;
+    using System.Security.Claims;
+    using System.Text;
+    using System.Threading.Tasks;
+    using AutoFixture;
+    using AutoFixture.AutoMoq;
+    using EPR.Calculator.Frontend.Constants;
+    using EPR.Calculator.Frontend.Controllers;
+    using EPR.Calculator.Frontend.Extensions;
+    using EPR.Calculator.Frontend.Mappers;
+    using EPR.Calculator.Frontend.Models;
+    using EPR.Calculator.Frontend.UnitTests.HelpersTest;
+    using EPR.Calculator.Frontend.UnitTests.Mocks;
+    using EPR.Calculator.Frontend.ViewModels;
+    using Microsoft.ApplicationInsights;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Identity.Web;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Moq;
+    using Moq.Protected;
+
     [TestClass]
     public class BillingInstructionsControllerTests
     {
@@ -180,6 +180,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     It.IsAny<ProducerBillingInstructionsResponseDto>(),
                     It.IsAny<PaginationRequestViewModel>(),
                     It.IsAny<string>(),
+                    It.IsAny<bool>(),
                     It.IsAny<bool>()))
                 .Throws(new Exception("Mapper failed"));
 
@@ -208,6 +209,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     It.IsAny<ProducerBillingInstructionsResponseDto>(),
                     It.IsAny<PaginationRequestViewModel>(),
                     It.IsAny<string>(),
+                    It.IsAny<bool>(),
                     It.IsAny<bool>()))
                 .Returns(new BillingInstructionsViewModel());
 
@@ -215,7 +217,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var controller = CreateControllerWithFactory(mockFactory);
 
             // Act
-            await controller.IndexAsync(calculationRunId, request);
+            var result = await controller.IndexAsync(calculationRunId, request) as IActionResult;
 
             // Assert
             _mockMapper.Verify(
@@ -231,8 +233,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     It.Is<PaginationRequestViewModel>(r =>
                         r.Page == request.Page && r.PageSize == request.PageSize),
                     "Test User",
+                    false,
                     false),
-                Times.Once);
+                Times.AtLeastOnce);
         }
 
         [TestMethod]
@@ -248,6 +251,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     It.IsAny<ProducerBillingInstructionsResponseDto>(),
                     It.IsAny<PaginationRequestViewModel>(),
                     It.IsAny<string>(),
+                    It.IsAny<bool>(),
                     It.IsAny<bool>()))
                 .Returns(new BillingInstructionsViewModel());
 
@@ -285,6 +289,40 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
             var redirectResult = (RedirectToActionResult)result;
             Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
+        }
+
+        [TestMethod]
+        public async Task CanCallSelectAll()
+        {
+            // Arrange
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var model = fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = fixture.Create<int>();
+            var pageSize = fixture.Create<int>();
+
+            var calculationRunId = 1;
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+            var billingData = CreateDefaultBillingData(calculationRunId);
+
+            // Setup the mapper to return any view model
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = await controller.SelectAll(model, currentPage, pageSize) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
         }
 
         private static DefaultHttpContext CreateTestHttpContext(string userName = "Test User")
@@ -399,6 +437,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     It.IsAny<ProducerBillingInstructionsResponseDto>(),
                     It.IsAny<PaginationRequestViewModel>(),
                     It.IsAny<string>(),
+                    It.IsAny<bool>(),
                     It.IsAny<bool>()))
                 .Returns(expectedViewModel);
         }

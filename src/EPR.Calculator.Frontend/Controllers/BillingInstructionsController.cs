@@ -1,17 +1,13 @@
-﻿using Azure.Core;
-using EPR.Calculator.Frontend.Common.Constants;
+﻿using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Mappers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using System.Reflection;
 using System.Text.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -66,11 +62,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 var producerBillingInstructionsResponseDto = await this.GetBillingData(calculationRunId, request);
-                var billingInstructionsViewModel = mapper.MapToViewModel(producerBillingInstructionsResponseDto,
-                                                                            request,
-                                                                            CommonUtil.GetUserName(this.HttpContext),
-                                                                            isSelectAll,
-                                                                            isSelectAllPage);
+                var billingInstructionsViewModel = mapper.MapToViewModel(
+                    producerBillingInstructionsResponseDto ?? new ProducerBillingInstructionsResponseDto(),
+                    request,
+                    CommonUtil.GetUserName(this.HttpContext),
+                    isSelectAll,
+                    isSelectAllPage);
                 this.HttpContext.Session.SetObject("ProducerIds", billingInstructionsViewModel.ProducerIds);
 
                 var billingData = await this.GetBillingData(calculationRunId, request);
