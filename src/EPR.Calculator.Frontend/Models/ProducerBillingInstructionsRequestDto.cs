@@ -9,5 +9,4 @@ public record ProducerBillingInstructionsRequestDto
     public int? PageSize { get; init; }
 
     public bool FetchAll { get; set; }
-
 }
