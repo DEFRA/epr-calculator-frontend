@@ -32,7 +32,7 @@ namespace EPR.Calculator.Frontend.Extensions
 
         public static void RemoveKeyIfExists(this ISession session, string key)
         {
-            if (session == null) throw new ArgumentNullException(nameof(session));
+            ArgumentNullException.ThrowIfNull(session);
 
             if (session.Keys.Contains(key))
             {
