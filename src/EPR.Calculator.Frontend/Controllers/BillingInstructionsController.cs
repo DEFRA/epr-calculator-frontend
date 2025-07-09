@@ -63,14 +63,22 @@ namespace EPR.Calculator.Frontend.Controllers
                                                                             isSelectAll);
                 this.HttpContext.Session.SetObject("ProducerIds", billingInstructionsViewModel.ProducerIds);
 
-                foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions)
+                var isSelectAllPage = false;
+                if (this.HttpContext.Session.Keys.Contains(SessionConstants.IsSelectAllPage))
+                {
+                    isSelectAllPage = bool.Parse(this.HttpContext.Session.GetString(SessionConstants.IsSelectAllPage));
+                }
+
+                var billingData = await this.GetBillingData(calculationRunId, request);
+                var viewModel1 = mapper.MapToViewModel(billingData, request, CommonUtil.GetUserName(this.HttpContext), isSelectAll, isSelectAllPage);
+                this.HttpContext.Session.SetObject("ProducerIds", viewModel1.ProducerIds);
+
+                foreach (var item in viewModel1.OrganisationBillingInstructions)
                 {
                     item.IsSelected = isSelectAll;
                 }
 
-                this.HttpContext.Session.RemoveKeyIfExists("IsRedirected");
-
-                return this.View(billingInstructionsViewModel);
+                return this.View(viewModel1);
             }
             catch (Exception ex)
             {
@@ -98,16 +106,27 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="request">Pagination parameters for the current page of billing instructions.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
-        public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize)
+        public async Task<IActionResult> SelectAll(BillingInstructionsViewModel model, [FromQuery] PaginationRequestViewModel request)
         {
-            this.HttpContext.Session.SetBooleanFlag(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll);
-            this.HttpContext.Session.SetBooleanFlag(SessionConstants.IsRedirected, true);
-            return this.RedirectToRoute("BillingInstructions_Index", new
+            if (model.OrganisationSelections.SelectAll)
             {
-                calculationRunId = model.CalculationRun.Id,
-                page = currentPage,
-                pageSize = pageSize,
-            });
+                this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll.ToString());
+            }
+            else
+            {
+                this.HttpContext.Session.Remove(SessionConstants.IsSelectAll);
+            }
+
+            if (model.OrganisationSelections.SelectPage)
+            {
+                this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, model.OrganisationSelections.SelectPage.ToString());
+            }
+            else if (this.HttpContext.Session.Keys.Contains("SessionConstants.IsSelectAllPage"))
+            {
+                this.HttpContext.Session.Remove(SessionConstants.IsSelectAll);
+            }
+
+            return this.RedirectToRoute("BillingInstructions_Index", new { calculationRunId = model.CalculationRun.Id, page = request.Page, pageSize = request.PageSize });
         }
 
         private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(

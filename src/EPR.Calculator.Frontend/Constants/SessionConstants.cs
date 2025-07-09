@@ -20,6 +20,6 @@
 
         public const string IsSelectAll = "IsSelectAll";
 
-        public const string IsRedirected = "IsRedirected";
+        public const string IsSelectAllPage = "IsSelectAllPage";
     }
 }

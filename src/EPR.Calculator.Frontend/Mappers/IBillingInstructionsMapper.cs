@@ -9,6 +9,7 @@ namespace EPR.Calculator.Frontend.Mappers
             ProducerBillingInstructionsResponseDto billingData,
             PaginationRequestViewModel request,
             string currentUser,
-            bool isSelectAll);
+            bool isSelectAll,
+            bool isSelectAllPage);
     }
 }
