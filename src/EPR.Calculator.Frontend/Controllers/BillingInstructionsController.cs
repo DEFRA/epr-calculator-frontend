@@ -89,6 +89,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 CalculationRun = billingData.CalculationRun,
                 TablePaginationModel = new PaginationViewModel
                 {
+                    Caption = CommonConstants.BillingTableHeader,
                     Records = pagedOrganisations,
                     CurrentPage = request.Page <= 0 ? CommonConstants.DefaultPage : request.Page,
                     PageSize = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,

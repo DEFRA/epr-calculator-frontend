@@ -125,6 +125,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(viewModel);
             Assert.AreEqual(1, viewModel.TablePaginationModel.Records.Count());
             Assert.AreEqual(215150, ((Organisation)viewModel.TablePaginationModel.Records.First()).OrganisationId);
+            Assert.AreEqual(CommonConstants.BillingTableHeader, viewModel.TablePaginationModel.Caption);
         }
     }
 }
