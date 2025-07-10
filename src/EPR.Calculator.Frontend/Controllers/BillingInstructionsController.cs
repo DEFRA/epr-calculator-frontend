@@ -213,6 +213,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     producers.RemoveAll(producersId.Contains);
                 }
             }
+
             return producers ?? [];
         }
     }
