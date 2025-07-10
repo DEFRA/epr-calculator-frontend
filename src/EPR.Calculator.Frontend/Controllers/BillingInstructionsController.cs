@@ -210,13 +210,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
                 else
                 {
-                    if (producersId is not null)
-                    {
-                        producers.RemoveAll(producersId.Contains);
-                    }
+                    producers.RemoveAll(producersId.Contains);
                 }
             }
-
             return producers ?? [];
         }
     }
