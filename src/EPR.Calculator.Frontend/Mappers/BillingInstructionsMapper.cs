@@ -10,7 +10,8 @@ namespace EPR.Calculator.Frontend.Mappers
             ProducerBillingInstructionsResponseDto billingData,
             PaginationRequestViewModel request,
             string currentUser,
-            bool isSelectAll)
+            bool isSelectAll,
+            bool isSelectAllPage)
         {
             var organisations = billingData.Records.Select(x => new Organisation
             {
@@ -44,7 +45,7 @@ namespace EPR.Calculator.Frontend.Mappers
                     },
                 },
                 ProducerIds = billingData.AllProducerIds,
-                OrganisationSelections = new OrganisationSelectionsViewModel { SelectAll = isSelectAll },
+                OrganisationSelections = new OrganisationSelectionsViewModel { SelectAll = isSelectAll, SelectPage = isSelectAllPage },
             };
         }
 

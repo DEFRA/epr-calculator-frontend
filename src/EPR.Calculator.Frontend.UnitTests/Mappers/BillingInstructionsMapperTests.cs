@@ -44,7 +44,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
             var isSelectAll = true;
 
             // Act
-            var result = _mapper.MapToViewModel(billingData, paginationRequest, currentUser, isSelectAll);
+            var result = _mapper.MapToViewModel(billingData, paginationRequest, currentUser, isSelectAll, false);
 
             // Assert
             Assert.AreEqual(currentUser, result.CurrentUser);
@@ -118,7 +118,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
             var isSelectAll = false;
 
             // Act
-            var result = _mapper.MapToViewModel(billingData, paginationRequest, currentUser, isSelectAll);
+            var result = _mapper.MapToViewModel(billingData, paginationRequest, currentUser, isSelectAll, false);
 
             // Assert
             var org = result.OrganisationBillingInstructions.First();
