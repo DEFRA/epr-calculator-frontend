@@ -102,9 +102,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var controller = this.BuildTestClass(
                 this.Fixture,
                 HttpStatusCode.OK,
-                billingData,
-                null,
-                this._configuration);
+                billingData);
 
             // Act
             var result = await controller.IndexAsync(calculationRunId, request) as ViewResult;
@@ -128,8 +126,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             SetupMockMapper(expectedViewModel);
 
-            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.OK,
+                billingData);
 
             // Act
             var result = await controller.IndexAsync(calculationRunId, request) as ViewResult;
@@ -166,8 +166,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             SetupMockMapper(expectedViewModel);
 
-            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.OK,
+                billingData,
+                null,
+                this._configuration);
 
             // Act
             var result = await controller.IndexAsync(calculationRunId, request) as ViewResult;
