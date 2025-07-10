@@ -191,25 +191,29 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private List<int> UpdateSession(ProducerBillingInstructionsResponseDto? producerBillingInstructionsResponseDto, bool isSelected)
         {
-            List<int>? producers = new List<int>();
+            List<int> producers = [];
 
-            var existingValues = this.HttpContext.Session.GetObject<List<int>>(SessionConstants.ProducerIds) ?? new List<int>();
+            var existingValues = this.HttpContext.Session.GetObject<List<int>>(SessionConstants.ProducerIds) ?? [];
 
             if (existingValues.Count > 0)
             {
                 producers = existingValues;
             }
 
-            var producerId = producerBillingInstructionsResponseDto?.Records?.Select(t => t.ProducerId).ToList();
-            if (isSelected)
+            var producersId = producerBillingInstructionsResponseDto?.Records?.Select(t => t.ProducerId).ToList();
+
+            if (producersId != null && producers is not null)
             {
-                producers?.AddRange(producerId ?? []);
-            }
-            else
-            {
-                if (producerId is not null)
+                if (isSelected)
                 {
-                    producers?.RemoveAll(producerId.Contains);
+                    producers.AddRange(producersId);
+                }
+                else
+                {
+                    if (producersId is not null)
+                    {
+                        producers.RemoveAll(producersId.Contains);
+                    }
                 }
             }
 
