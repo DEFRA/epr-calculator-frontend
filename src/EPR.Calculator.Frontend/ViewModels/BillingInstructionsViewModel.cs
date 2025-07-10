@@ -12,7 +12,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// </summary>
         public CalculationRunForBillingInstructionsDto CalculationRun { get; init; } = new();
 
-        
         public ICollection<Organisation> OrganisationBillingInstructions { get; init; } = [];
 
         /// <summary>
