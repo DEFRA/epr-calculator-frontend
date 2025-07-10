@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -20,11 +21,17 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="logger">The logger instance.</param>
     public class CalculationRunDetailsController(
         IConfiguration configuration,
-        IHttpClientFactory clientFactory,
+        IApiService apiService,
         ILogger<CalculationRunDetailsController> logger,
         ITokenAcquisition tokenAcquisition,
-        TelemetryClient telemetryClient)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
+        TelemetryClient telemetryClient,
+
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(configuration,
+            tokenAcquisition,
+            telemetryClient,
+            apiService,
+            calculatorRunDetailsService)
     {
         private ILogger<CalculationRunDetailsController> Logger { get; init; } = logger;
 
@@ -195,19 +202,25 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The response message returned by the endpoint.</returns>
         private async Task<HttpResponseMessage> PutCalculatorRunsAsync(int runId, RunClassification classification)
         {
-            var apiUrl = this.GetApiUrl(
+            var apiUrl = this.ApiService.GetApiUrl(
                 ConfigSection.DashboardCalculatorRun,
                 ConfigSection.DashboardCalculatorRunApi);
             var args = new CalculatorRunStatusUpdateDto() { RunId = runId, ClassificationId = (int)classification };
-            return await this.CallApi(HttpMethod.Put, apiUrl, string.Empty, args);
+            return await this.ApiService.CallApi(
+                this.HttpContext,
+                HttpMethod.Put,
+                apiUrl,
+                string.Empty,
+                args);
         }
 
         private async Task<HttpResponseMessage> GetCalculatorRunAsync(int runId)
         {
-            var apiUrl = this.GetApiUrl(
+            var apiUrl = this.ApiService.GetApiUrl(
                 ConfigSection.DashboardCalculatorRun,
                 ConfigSection.DashboardCalculatorRunApi);
-            return await this.CallApi(
+            return await this.ApiService.CallApi(
+                this.HttpContext,
                 HttpMethod.Get,
                 apiUrl,
                 runId.ToString(),

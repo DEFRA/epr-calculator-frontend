@@ -3,12 +3,14 @@ using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Extensions;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
@@ -27,48 +29,17 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task DefaultParamerController_Success_View_Test()
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(JsonConvert.SerializeObject(MockData.GetDefaultParameterValues()))
-                });
+            // Arrange
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.OK,
+                MockData.GetDefaultParameterValues());
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            // Mock IHttpClientFactory
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-
-            var controller = new DefaultParametersController(
-                ConfigurationItems.GetConfigurationValues(),
-                mockHttpClientFactory.Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient());
-
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-
-            var context = new DefaultHttpContext()
-            {
-                Session = mockSession
-            };
-            controller.ControllerContext.HttpContext = context;
-
+            // Act
             var result = await controller.Index() as ViewResult;
-
             var resultModel = result.ViewData.Model as DefaultParametersViewModel;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(TotalRecords, resultModel.SchemeParameters.Count());
             Assert.AreEqual(1, resultModel.SchemeParameters.Count(t => t.SchemeParameterName == ParameterType.CommunicationCostsByCountry.GetDisplayName()));
@@ -85,43 +56,19 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task DefaultParameterController_Success_No_Data_View_Test()
         {
+            // Arrange
             var content = "No data available for the specified year.Please check the year and try again.";
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Content = new StringContent(content)
-                });
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            // Mock IHttpClientFactory
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.NotFound,
+                content);
 
-            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
-
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-
-            var context = new DefaultHttpContext()
-            {
-                Session = mockSession
-            };
-            controller.ControllerContext.HttpContext = context;
-
+            // Act
             var result = await controller.Index() as ViewResult;
-            var defaultParametersViewModel = result.Model as DefaultParametersViewModel;
+            var defaultParametersViewModel = (DefaultParametersViewModel)result.Model as DefaultParametersViewModel;
 
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(false, defaultParametersViewModel.IsDataAvailable);
         }
@@ -149,12 +96,45 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new DefaultParametersController(ConfigurationItems.GetConfigurationValues(), mockHttpClientFactory.Object, mockTokenAcquisition.Object, new TelemetryClient());
+            var controller = new DefaultParametersController(
+                ConfigurationItems.GetConfigurationValues(),
+                new Mock<IApiService>().Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             var result = await controller.Index() as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual("StandardError", result.ControllerName);
+        }
+
+        private DefaultParametersController BuildTestClass(
+            Fixture fixture,
+            HttpStatusCode httpStatusCode,
+            object data = null,
+            CalculatorRunDetailsViewModel details = null,
+            IConfiguration configurationItems = null)
+        {
+            data = data ?? MockData.GetCalculatorRun();
+            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
+            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            var mockApiService = TestMockUtils.BuildMockApiService(
+                httpStatusCode,
+                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+
+            var testClass = new DefaultParametersController(
+                configurationItems,
+                mockApiService,
+                new Mock<ITokenAcquisition>().Object,
+                new TelemetryClient(),
+                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
+            testClass.ControllerContext.HttpContext = new DefaultHttpContext()
+            {
+                Session = TestMockUtils.BuildMockSession(fixture).Object,
+            };
+
+            return testClass;
         }
     }
 }

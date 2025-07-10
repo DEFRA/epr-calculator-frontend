@@ -1,10 +1,13 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using System.Text;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Mappers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
+using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -31,17 +34,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
         public BillingInstructionsControllerTests()
         {
+            this.Fixture = new Fixture();
+            // _mockConfiguration = new Mock<IConfiguration>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
             _mockClientFactory = new Mock<IHttpClientFactory>();
             _mockMapper = new Mock<IBillingInstructionsMapper>();
-
-            _controller = new BillingInstructionsController(
-                _configuration,
-                _mockTokenAcquisition.Object,
-                _mockTelemetryClient,
-                _mockClientFactory.Object,
-                _mockMapper.Object);
 
             _mockHttpContext = new Mock<HttpContext>();
             _mockHttpContext.Setup(context => context.User)
@@ -49,6 +47,13 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 [
                     new Claim(ClaimTypes.Name, "Test User")
                 ])));
+
+            _controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.OK,
+                MockData.GetCalculatorRun(),
+                Fixture.Create<CalculatorRunDetailsViewModel>(),
+                _configuration);
 
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
@@ -61,6 +66,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Setting the mocked HttpContext for the controller
             _controller.ControllerContext = new ControllerContext { HttpContext = context };
         }
+
+        private Fixture Fixture { get; init; }
 
         [TestMethod]
         public async Task Index_InvalidCalculationRunId_RedirectsToError()
@@ -92,7 +99,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             SetupMockMapper(expectedViewModel);
 
             var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = this.BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.OK,
+                billingData);
 
             // Act
             var result = await controller.IndexAsync(calculationRunId, request) as ViewResult;
@@ -116,8 +126,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             SetupMockMapper(expectedViewModel);
 
-            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.OK,
+                billingData);
 
             // Act
             var result = await controller.IndexAsync(calculationRunId, request) as ViewResult;
@@ -154,8 +166,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             SetupMockMapper(expectedViewModel);
 
-            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.OK,
+                billingData,
+                null,
+                this._configuration);
 
             // Act
             var result = await controller.IndexAsync(calculationRunId, request) as ViewResult;
@@ -266,12 +282,24 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 .Returns(new BillingInstructionsViewModel());
 
             var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.OK,
+                billingData,
+                null,
+                this._configuration);
 
             // Act
             await controller.IndexAsync(calculationRunId, request);
 
             // Assert
+            _mockMapper.Verify(
+                m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    "Test User"),
+                Times.Once);
+
             _mockMapper.Verify(
                 m => m.MapToViewModel(
                     It.Is<ProducerBillingInstructionsResponseDto>(dto =>
@@ -435,11 +463,38 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 _configuration,
                 _mockTokenAcquisition.Object,
                 _mockTelemetryClient,
-                mockFactory.Object,
-                _mockMapper.Object);
+                _mockMapper.Object,
+                new Mock<IApiService>().Object,
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             controller.ControllerContext = new ControllerContext { HttpContext = CreateTestHttpContext() };
             return controller;
+        }
+
+        private BillingInstructionsController BuildTestClass(
+            Fixture fixture,
+            HttpStatusCode httpStatusCode,
+            object data = null,
+            CalculatorRunDetailsViewModel details = null,
+            IConfiguration configurationItems = null)
+        {
+            data = data ?? MockData.GetCalculatorRun();
+            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
+            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            var mockApiService = TestMockUtils.BuildMockApiService(
+                httpStatusCode,
+                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+
+            var testClass = new BillingInstructionsController(
+                configurationItems,
+                new Mock<ITokenAcquisition>().Object,
+                _mockTelemetryClient,
+                _mockMapper.Object,
+                mockApiService,
+                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
+            testClass.ControllerContext.HttpContext = _mockHttpContext.Object;
+
+            return testClass;
         }
     }
 }

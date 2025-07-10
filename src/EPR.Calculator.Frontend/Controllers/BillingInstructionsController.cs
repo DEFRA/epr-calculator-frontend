@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Mappers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -19,9 +20,10 @@ namespace EPR.Calculator.Frontend.Controllers
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
-        IHttpClientFactory clientFactory,
-        IBillingInstructionsMapper mapper)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
+        IBillingInstructionsMapper mapper,
+        IApiService apiService,
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, apiService, calculatorRunDetailsService)
     {
         /// <summary>
         /// Displays the billing instructions for a given calculation run.
@@ -86,7 +88,7 @@ namespace EPR.Calculator.Frontend.Controllers
             int calculationRunId,
             PaginationRequestViewModel request)
         {
-            var apiUrl = this.GetApiUrl(ConfigSection.ProducerBillingInstructions, ConfigSection.ProducerBillingInstructionsV1);
+            var apiUrl = this.ApiService.GetApiUrl(ConfigSection.ProducerBillingInstructions, ConfigSection.ProducerBillingInstructionsV1);
 
             var requestDto = new ProducerBillingInstructionsRequestDto
             {
@@ -95,7 +97,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 SearchQuery = new ProducerBillingInstructionsSearchQueryDto { OrganisationId = request.OrganisationId },
             };
 
-            var response = await this.CallApi(HttpMethod.Post, apiUrl, calculationRunId.ToString(), requestDto);
+            var response = await this.ApiService.CallApi(
+                this.HttpContext,
+                HttpMethod.Post,
+                apiUrl,
+                calculationRunId.ToString(),
+                body: requestDto);
 
             if (!response.IsSuccessStatusCode)
             {
