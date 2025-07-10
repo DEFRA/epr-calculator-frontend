@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using System.Text.Json;
-using EPR.Calculator.Frontend.Common.Constants;
+﻿using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
@@ -9,7 +7,10 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Elfie;
 using Microsoft.Identity.Web;
+using System.Reflection;
+using System.Text.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -30,6 +31,42 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var controllerName = CommonUtil.GetControllerName(typeof(StandardErrorController));
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, controllerName);
+            }
+        }
+
+        [HttpPost("UpdateOrganisationSelection", Name = "BillingInstructions_OrganisationSelection")]
+        public async Task<IActionResult> UpdateOrganisationSelectionAsync([FromBody] BillingSelectionOrgDto orgDto)
+        {
+            try
+            {
+                // Retrieve the SelectedProducerIds from session or create a new list
+                //var selectedProducerIds = this.HttpContext.Session.G<List<int>>(SessionConstants.SelectedProducerIds) ?? new List<int>();
+
+                //if (obj.IsSelected)
+                //{
+                //    // Add the organisation id if not already present
+                //    if (!selectedProducerIds.Contains(model.Id))
+                //    {
+                //        selectedProducerIds.Add(model.Id);
+                //    }
+                //}
+                //else
+                //{
+                //    // Remove the organisation id if present
+                //    selectedProducerIds.Remove(model.Id);
+                //}
+
+                // TODO - the list is immutable - make sure you do a full replace 
+
+                //// Save the updated list back to the session
+                //this.HttpContext.Session.SetObject(SessionConstants.SelectedProducerIds, selectedProducerIds);
+
+                return this.Ok();
+            }
+            catch (Exception ex)
+            {
+                this.TelemetryClient.TrackException(ex);
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
             }
         }
 
