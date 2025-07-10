@@ -1,18 +1,17 @@
 ﻿namespace EPR.Calculator.Frontend.UnitTests.Services
 {
-    using AutoFixture;
-    using EPR.Calculator.Frontend.Services;
-    using Microsoft.ApplicationInsights;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.DotNet.Scaffolding.Shared.Messaging;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Identity.Web;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Moq;
     using System;
     using System.Net.Http;
     using System.Security.Claims;
     using System.Threading.Tasks;
+    using AutoFixture;
+    using EPR.Calculator.Frontend.Services;
+    using Microsoft.ApplicationInsights;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Identity.Web;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Moq;
 
     [TestClass]
     public class ApiServiceTests
