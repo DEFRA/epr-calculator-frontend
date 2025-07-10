@@ -1,4 +1,6 @@
-﻿using EPR.Calculator.Frontend.Enums;
+﻿using System.Collections.Generic;
+using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Mappers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -8,124 +10,165 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
     [TestClass]
     public class BillingInstructionsMapperTests
     {
-        private BillingInstructionsMapper _mapper;
+        private readonly BillingInstructionsMapper _mapper = new();
 
-        [TestInitialize]
-        public void Setup()
+        [TestMethod]
+        [DataRow("Noaction", BillingInstruction.Noaction)]
+        [DataRow("Initial", BillingInstruction.Initial)]
+        [DataRow("Delta", BillingInstruction.Delta)]
+        [DataRow("Rebill", BillingInstruction.Rebill)]
+        [DataRow("Cancelbill", BillingInstruction.Cancelbill)]
+        [DataRow("noaction", BillingInstruction.Noaction)]
+        [DataRow("initial", BillingInstruction.Initial)]
+        [DataRow("delta", BillingInstruction.Delta)]
+        [DataRow("rebill", BillingInstruction.Rebill)]
+        [DataRow("cancelbill", BillingInstruction.Cancelbill)]
+        [DataRow("No Action", BillingInstruction.Noaction)]
+        [DataRow("Initial ", BillingInstruction.Initial)]
+        [DataRow(" DELTA", BillingInstruction.Delta)]
+        [DataRow("Re-bill", BillingInstruction.Rebill)]
+        [DataRow("cancel_bill", BillingInstruction.Cancelbill)]
+        [DataRow("", BillingInstruction.Noaction)]
+        [DataRow(null, BillingInstruction.Noaction)]
+        [DataRow("unknown", BillingInstruction.Noaction)]
+        public void MapBillingInstruction_Handles_All_Values(string input, BillingInstruction expected)
         {
-            _mapper = new BillingInstructionsMapper();
+            // Use reflection to call the private method
+            var method = typeof(BillingInstructionsMapper).GetMethod("MapBillingInstruction", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var result = (BillingInstruction)method.Invoke(_mapper, new object[] { input });
+            Assert.AreEqual(expected, result);
         }
 
         [TestMethod]
-        public void MapToViewModel_ShouldMapBasicFieldsCorrectly()
+        [DataRow("Noaction", BillingStatus.Noaction)]
+        [DataRow("Accepted", BillingStatus.Accepted)]
+        [DataRow("Rejected", BillingStatus.Rejected)]
+        [DataRow("Pending", BillingStatus.Pending)]
+        [DataRow("noaction", BillingStatus.Noaction)]
+        [DataRow("accepted", BillingStatus.Accepted)]
+        [DataRow("rejected", BillingStatus.Rejected)]
+        [DataRow("pending", BillingStatus.Pending)]
+        [DataRow("No Action", BillingStatus.Noaction)]
+        [DataRow("Accepted ", BillingStatus.Accepted)]
+        [DataRow(" REJECTED", BillingStatus.Rejected)]
+        [DataRow("pending", BillingStatus.Pending)]
+        [DataRow("no_action", BillingStatus.Noaction)]
+        [DataRow("", BillingStatus.Pending)]
+        [DataRow(null, BillingStatus.Pending)]
+        [DataRow("unknown", BillingStatus.Noaction)]
+        public void MapBillingStatus_Handles_All_Values(string input, BillingStatus expected)
         {
-            // Arrange
+            // Use reflection to call the private method
+            var method = typeof(BillingInstructionsMapper).GetMethod("MapBillingStatus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var result = (BillingStatus)method.Invoke(_mapper, new object[] { input });
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void MapToViewModel_Maps_All_Properties_Correctly()
+        {
             var billingData = new ProducerBillingInstructionsResponseDto
             {
-                CalculatorRunId = 101,
+                CalculatorRunId = 123,
                 RunName = "Test Run",
+                PageNumber = 2,
+                PageSize = 10,
                 TotalRecords = 1,
                 Records = new List<ProducerBillingInstructionsDto>
-            {
-                new ProducerBillingInstructionsDto
                 {
-                    ProducerId = 1,
-                    ProducerName = "Org A",
-                    SuggestedBillingInstruction = "Initial",
-                    SuggestedInvoiceAmount = 500.00m,
-                    BillingInstructionAcceptReject = "Accepted"
+                    new ProducerBillingInstructionsDto
+                    {
+                        ProducerId = 1,
+                        ProducerName = "Producer A",
+                        SuggestedBillingInstruction = "Initial",
+                        SuggestedInvoiceAmount = 100.5m,
+                        BillingInstructionAcceptReject = "Accepted"
+                    }
                 }
-            },
-                AllProducerIds = new List<int> { 1 }
             };
+            var request = new PaginationRequestViewModel { Page = 2, PageSize = 10 };
+            var currentUser = "Test User";
 
-            var paginationRequest = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
-            var currentUser = "user123";
-            var isSelectAll = true;
+            var result = _mapper.MapToViewModel(billingData, request, currentUser, true, false);
 
-            // Act
-            var result = _mapper.MapToViewModel(billingData, paginationRequest, currentUser, isSelectAll, false);
-
-            // Assert
+            Assert.IsNotNull(result);
             Assert.AreEqual(currentUser, result.CurrentUser);
-            Assert.AreEqual(101, result.CalculationRun.Id);
+            Assert.AreEqual(123, result.CalculationRun.Id);
             Assert.AreEqual("Test Run", result.CalculationRun.Name);
-            Assert.AreEqual(1, result.OrganisationBillingInstructions.Count);
+            Assert.AreEqual(2, result.TablePaginationModel.CurrentPage);
+            Assert.AreEqual(10, result.TablePaginationModel.PageSize);
+            Assert.AreEqual(1, result.TablePaginationModel.TotalRecords);
+            Assert.AreEqual(BillingInstructionConstants.BillingInstructionsIndexRouteName, result.TablePaginationModel.RouteName);
+            Assert.AreEqual(123, result.TablePaginationModel.RouteValues[BillingInstructionConstants.CalculationRunIdKey]);
 
-            var org = result.OrganisationBillingInstructions.First();
+            var orgs = result.TablePaginationModel.Records as List<Organisation>;
+            Assert.IsNotNull(orgs);
+            Assert.AreEqual(1, orgs.Count);
+            var org = orgs[0];
             Assert.AreEqual(1, org.Id);
-            Assert.AreEqual("Org A", org.OrganisationName);
+            Assert.AreEqual("Producer A", org.OrganisationName);
             Assert.AreEqual(BillingInstruction.Initial, org.BillingInstruction);
-            Assert.AreEqual(500.00m, org.InvoiceAmount);
+            Assert.AreEqual(100.5m, org.InvoiceAmount);
             Assert.AreEqual(BillingStatus.Accepted, org.Status);
-
-            Assert.AreEqual(true, result.OrganisationSelections.SelectAll);
-            Assert.AreEqual(1, result.ProducerIds.Count());
         }
 
         [TestMethod]
-        public void MapBillingInstruction_ShouldHandleVariousFormats()
+        public void MapToViewModel_Handles_Empty_Records()
         {
-            var privateMethod = typeof(BillingInstructionsMapper)
-                .GetMethod("MapBillingInstruction", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            var billingData = new ProducerBillingInstructionsResponseDto
+            {
+                CalculatorRunId = 1,
+                RunName = "Empty Run",
+                PageNumber = 1,
+                PageSize = 10,
+                TotalRecords = 0,
+                Records = new List<ProducerBillingInstructionsDto>()
+            };
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+            var currentUser = "User";
 
-            Assert.AreEqual(BillingInstruction.Initial, privateMethod.Invoke(null, new object[] { "initial" }));
-            Assert.AreEqual(BillingInstruction.Initial, privateMethod.Invoke(null, new object[] { " Initial " }));
-            Assert.AreEqual(BillingInstruction.Initial, privateMethod.Invoke(null, new object[] { "INITIAL" }));
-            Assert.AreEqual(BillingInstruction.Delta, privateMethod.Invoke(null, new object[] { "delta" }));
-            Assert.AreEqual(BillingInstruction.Noaction, privateMethod.Invoke(null, new object[] { null }));
-            Assert.AreEqual(BillingInstruction.Noaction, privateMethod.Invoke(null, new object[] { "unknown" }));
+            var result = _mapper.MapToViewModel(billingData, request, currentUser, false, false);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, ((List<Organisation>)result.TablePaginationModel.Records).Count);
         }
 
         [TestMethod]
-        public void MapBillingStatus_ShouldHandleVariousFormats()
+        public void MapToViewModel_Handles_Null_And_Empty_Strings()
         {
-            var privateMethod = typeof(BillingInstructionsMapper)
-                .GetMethod("MapBillingStatus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-
-            Assert.AreEqual(BillingStatus.Accepted, privateMethod.Invoke(null, new object[] { "Accepted" }));
-            Assert.AreEqual(BillingStatus.Pending, privateMethod.Invoke(null, new object[] { " pending " }));
-            Assert.AreEqual(BillingStatus.Rejected, privateMethod.Invoke(null, new object[] { "REJECTED" }));
-            Assert.AreEqual(BillingStatus.Noaction, privateMethod.Invoke(null, new object[] { "unknown" }));
-            Assert.AreEqual(BillingStatus.Pending, privateMethod.Invoke(null, new object[] { null }));
-        }
-
-        [TestMethod]
-        public void MapToViewModel_ShouldHandleNullProducerName()
-        {
-            // Arrange
             var billingData = new ProducerBillingInstructionsResponseDto
             {
                 CalculatorRunId = 2,
                 RunName = null,
+                PageNumber = 1,
+                PageSize = 10,
                 TotalRecords = 1,
                 Records = new List<ProducerBillingInstructionsDto>
-            {
-                new ProducerBillingInstructionsDto
                 {
-                    ProducerId = 99,
-                    ProducerName = null,
-                    SuggestedBillingInstruction = "delta",
-                    SuggestedInvoiceAmount = 250.50m,
-                    BillingInstructionAcceptReject = "pending"
+                    new ProducerBillingInstructionsDto
+                    {
+                        ProducerId = 0,
+                        ProducerName = null,
+                        SuggestedBillingInstruction = null,
+                        SuggestedInvoiceAmount = 0,
+                        BillingInstructionAcceptReject = null
+                    }
                 }
-            },
-                AllProducerIds = new List<int> { 99 }
             };
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+            var currentUser = "User";
 
-            var paginationRequest = new PaginationRequestViewModel { Page = 2, PageSize = 5 };
-            var currentUser = "tester";
-            var isSelectAll = false;
+            var result = _mapper.MapToViewModel(billingData, request, currentUser, false, true);
 
-            // Act
-            var result = _mapper.MapToViewModel(billingData, paginationRequest, currentUser, isSelectAll, false);
-
-            // Assert
-            var org = result.OrganisationBillingInstructions.First();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(string.Empty, result.CalculationRun.Name);
+            var orgs = result.TablePaginationModel.Records as List<Organisation>;
+            Assert.IsNotNull(orgs);
+            Assert.AreEqual(1, orgs.Count);
+            var org = orgs[0];
             Assert.AreEqual(string.Empty, org.OrganisationName);
-            Assert.AreEqual(BillingInstruction.Delta, org.BillingInstruction);
+            Assert.AreEqual(BillingInstruction.Noaction, org.BillingInstruction);
             Assert.AreEqual(BillingStatus.Pending, org.Status);
-            Assert.AreEqual("BillingInstructions_Index", result.TablePaginationModel.RouteName);
         }
     }
 }

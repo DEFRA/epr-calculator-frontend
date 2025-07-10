@@ -1,47 +1,51 @@
-﻿namespace EPR.Calculator.Frontend.UnitTests.Models
-{
-    using AutoFixture;
-    using AutoFixture.AutoMoq;
-    using EPR.Calculator.Frontend.Models;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Text.Json;
+using EPR.Calculator.Frontend.Models;
 
+namespace EPR.Calculator.Frontend.UnitTests.Models
+{
     [TestClass]
     public class ProducerBillingInstructionsDtoTests
     {
-        private ProducerBillingInstructionsDto _testClass;
-        private string _producerName;
-        private int _producerId;
-        private string _suggestedBillingInstruction;
-        private decimal _suggestedInvoiceAmount;
-        private string _billingInstructionAcceptReject;
-
-        [TestInitialize]
-        public void SetUp()
+        [TestMethod]
+        public void Can_Construct_And_Assign_Properties()
         {
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
-            _producerName = fixture.Create<string>();
-            _producerId = fixture.Create<int>();
-            _suggestedBillingInstruction = fixture.Create<string>();
-            _suggestedInvoiceAmount = fixture.Create<decimal>();
-            _billingInstructionAcceptReject = fixture.Create<string>();
-            _testClass = fixture.Create<ProducerBillingInstructionsDto>();
+            var dto = new ProducerBillingInstructionsDto
+            {
+                ProducerName = "Test Producer",
+                ProducerId = 42,
+                SuggestedBillingInstruction = "Initial",
+                SuggestedInvoiceAmount = 123.45m,
+                BillingInstructionAcceptReject = "Accepted"
+            };
+
+            Assert.AreEqual("Test Producer", dto.ProducerName);
+            Assert.AreEqual(42, dto.ProducerId);
+            Assert.AreEqual("Initial", dto.SuggestedBillingInstruction);
+            Assert.AreEqual(123.45m, dto.SuggestedInvoiceAmount);
+            Assert.AreEqual("Accepted", dto.BillingInstructionAcceptReject);
         }
 
         [TestMethod]
-        public void CanInitialize()
+        public void Can_Serialize_And_Deserialize()
         {
-            // Act
-            var instance = new ProducerBillingInstructionsDto
+            var dto = new ProducerBillingInstructionsDto
             {
-                ProducerName = _producerName,
-                ProducerId = _producerId,
-                SuggestedBillingInstruction = _suggestedBillingInstruction,
-                SuggestedInvoiceAmount = _suggestedInvoiceAmount,
-                BillingInstructionAcceptReject = _billingInstructionAcceptReject
+                ProducerName = "Serialize Producer",
+                ProducerId = 99,
+                SuggestedBillingInstruction = "Delta",
+                SuggestedInvoiceAmount = 999.99m,
+                BillingInstructionAcceptReject = "Rejected"
             };
 
-            // Assert
-            Assert.IsNotNull(instance);
+            var json = JsonSerializer.Serialize(dto);
+            var deserialized = JsonSerializer.Deserialize<ProducerBillingInstructionsDto>(json);
+
+            Assert.IsNotNull(deserialized);
+            Assert.AreEqual(dto.ProducerName, deserialized.ProducerName);
+            Assert.AreEqual(dto.ProducerId, deserialized.ProducerId);
+            Assert.AreEqual(dto.SuggestedBillingInstruction, deserialized.SuggestedBillingInstruction);
+            Assert.AreEqual(dto.SuggestedInvoiceAmount, deserialized.SuggestedInvoiceAmount);
+            Assert.AreEqual(dto.BillingInstructionAcceptReject, deserialized.BillingInstructionAcceptReject);
         }
     }
 }

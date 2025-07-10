@@ -1,55 +1,75 @@
-﻿namespace EPR.Calculator.Frontend.UnitTests.Models
-{
-    using System;
-    using System.Collections.Generic;
-    using AutoFixture;
-    using AutoFixture.AutoMoq;
-    using EPR.Calculator.Frontend.Models;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Text.Json;
+using EPR.Calculator.Frontend.Models;
 
+namespace EPR.Calculator.Frontend.UnitTests.Models
+{
     [TestClass]
     public class ProducerBillingInstructionsResponseDtoTests
     {
-        private ProducerBillingInstructionsResponseDto _testClass;
-        private List<ProducerBillingInstructionsDto> _records;
-        private int _totalRecords;
-        private int _calculatorRunId;
-        private string _runName;
-        private int? _pageNumber;
-        private int? _pageSize;
-        private IEnumerable<int> _allProducerIds;
-
-        [TestInitialize]
-        public void SetUp()
+        [TestMethod]
+        public void Can_Construct_And_Assign_Properties()
         {
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
-            _records = fixture.Create<List<ProducerBillingInstructionsDto>>();
-            _totalRecords = fixture.Create<int>();
-            _calculatorRunId = fixture.Create<int>();
-            _runName = fixture.Create<string>();
-            _pageNumber = fixture.Create<int?>();
-            _pageSize = fixture.Create<int?>();
-            _allProducerIds = fixture.Create<IEnumerable<int>>();
-            _testClass = fixture.Create<ProducerBillingInstructionsResponseDto>();
+            var record = new ProducerBillingInstructionsDto
+            {
+                ProducerName = "Test",
+                ProducerId = 1,
+                SuggestedBillingInstruction = "Initial",
+                SuggestedInvoiceAmount = 10.0m,
+                BillingInstructionAcceptReject = "Accepted"
+            };
+
+            var response = new ProducerBillingInstructionsResponseDto
+            {
+                CalculatorRunId = 100,
+                RunName = "Run 2025",
+                PageNumber = 2,
+                PageSize = 50,
+                TotalRecords = 200,
+                Records = new List<ProducerBillingInstructionsDto> { record }
+            };
+
+            Assert.AreEqual(100, response.CalculatorRunId);
+            Assert.AreEqual("Run 2025", response.RunName);
+            Assert.AreEqual(2, response.PageNumber);
+            Assert.AreEqual(50, response.PageSize);
+            Assert.AreEqual(200, response.TotalRecords);
+            Assert.AreEqual(1, response.Records.Count);
+            Assert.AreEqual("Test", response.Records[0].ProducerName);
         }
 
         [TestMethod]
-        public void CanInitialize()
+        public void Can_Serialize_And_Deserialize()
         {
-            // Act
-            var instance = new ProducerBillingInstructionsResponseDto
+            var record = new ProducerBillingInstructionsDto
             {
-                Records = _records,
-                TotalRecords = _totalRecords,
-                CalculatorRunId = _calculatorRunId,
-                RunName = _runName,
-                PageNumber = _pageNumber,
-                PageSize = _pageSize,
-                AllProducerIds = _allProducerIds
+                ProducerName = "SerializeTest",
+                ProducerId = 2,
+                SuggestedBillingInstruction = "Rebill",
+                SuggestedInvoiceAmount = 99.9m,
+                BillingInstructionAcceptReject = "Pending"
             };
 
-            // Assert
-            Assert.IsNotNull(instance);
+            var response = new ProducerBillingInstructionsResponseDto
+            {
+                CalculatorRunId = 123,
+                RunName = "RunName",
+                PageNumber = 1,
+                PageSize = 20,
+                TotalRecords = 1,
+                Records = new List<ProducerBillingInstructionsDto> { record }
+            };
+
+            var json = JsonSerializer.Serialize(response);
+            var deserialized = JsonSerializer.Deserialize<ProducerBillingInstructionsResponseDto>(json);
+
+            Assert.IsNotNull(deserialized);
+            Assert.AreEqual(response.CalculatorRunId, deserialized.CalculatorRunId);
+            Assert.AreEqual(response.RunName, deserialized.RunName);
+            Assert.AreEqual(response.PageNumber, deserialized.PageNumber);
+            Assert.AreEqual(response.PageSize, deserialized.PageSize);
+            Assert.AreEqual(response.TotalRecords, deserialized.TotalRecords);
+            Assert.AreEqual(1, deserialized.Records.Count);
+            Assert.AreEqual("SerializeTest", deserialized.Records[0].ProducerName);
         }
     }
 }

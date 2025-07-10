@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
+﻿using System.Text.Json;
+using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
@@ -8,12 +9,11 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using System.Text.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
-    /// Organisation Controller.
+    /// Billing Instructions Controller.
     /// </summary>
     public class BillingInstructionsController(
         IConfiguration configuration,
@@ -86,6 +86,14 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        /// <summary>
+        /// Handles the selection of organisations and redirects to the Index action for the specified calculation run.
+        /// </summary>
+        /// <param name="calculationRunId">The unique identifier for the calculation run.</param>
+        /// <param name="selections">The selected organisation IDs from the form.</param>
+        /// <returns>
+        /// An <see cref="IActionResult"/> that redirects to the Index action for the specified calculation run.
+        /// </returns>
         [HttpPost]
         public IActionResult ProcessSelection(int calculationRunId, [FromForm] OrganisationSelectionsViewModel selections)
         {
