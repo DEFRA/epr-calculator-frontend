@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
@@ -41,7 +42,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// An <see cref="IActionResult"/> that renders the billing instructions view,
         /// or redirects to a standard error page if the calculation run ID is invalid.
         /// </returns>
-        [HttpGet("BillingInstructions/{calculationRunId}", Name = "BillingInstructions_Index")]
+        [HttpGet("BillingInstructions/{calculationRunId}", Name = RouteNames.BillingInstructionsIndex)]
         public async Task<IActionResult> IndexAsync([FromRoute] int calculationRunId, [FromQuery] PaginationRequestViewModel request)
         {
             if (calculationRunId <= 0)
@@ -68,16 +69,12 @@ namespace EPR.Calculator.Frontend.Controllers
                     isSelectAllPage);
                 this.HttpContext.Session.SetObject("ProducerIds", billingInstructionsViewModel.ProducerIds);
 
-                var billingData = await this.GetBillingData(calculationRunId, request);
-                var viewModel1 = mapper.MapToViewModel(billingData, request, CommonUtil.GetUserName(this.HttpContext), isSelectAll, isSelectAllPage);
-                this.HttpContext.Session.SetObject("ProducerIds", viewModel1.ProducerIds);
-
-                foreach (var item in viewModel1.OrganisationBillingInstructions)
+                foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions)
                 {
                     item.IsSelected = isSelectAll || isSelectAllPage;
                 }
 
-                return this.View(viewModel1);
+                return this.View(billingInstructionsViewModel);
             }
             catch (Exception ex)
             {
@@ -137,6 +134,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 PageNumber = request.Page,
                 PageSize = request.PageSize,
+                SearchQuery = new ProducerBillingInstructionsSearchQueryDto { OrganisationId = request.OrganisationId },
             };
 
             // Pass the calculationRunId as the route argument, and the DTO as the body

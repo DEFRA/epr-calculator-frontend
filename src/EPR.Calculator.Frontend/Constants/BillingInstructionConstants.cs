@@ -15,5 +15,7 @@
         /// The key used to store or retrieve the calculation run ID from route data, query strings, or other data structures.
         /// </summary>
         public const string CalculationRunIdKey = "calculationRunId";
+
+        public const string OrganisationIdKey = "organisationId";
     }
 }

@@ -98,8 +98,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
             Assert.AreEqual(2, result.TablePaginationModel.CurrentPage);
             Assert.AreEqual(10, result.TablePaginationModel.PageSize);
             Assert.AreEqual(1, result.TablePaginationModel.TotalRecords);
-            Assert.AreEqual(BillingInstructionConstants.BillingInstructionsIndexRouteName, result.TablePaginationModel.RouteName);
+            Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.TablePaginationModel.RouteName);
             Assert.AreEqual(123, result.TablePaginationModel.RouteValues[BillingInstructionConstants.CalculationRunIdKey]);
+            Assert.AreEqual(null, result.TablePaginationModel.RouteValues[BillingInstructionConstants.OrganisationIdKey]);
 
             var orgs = result.TablePaginationModel.Records as List<Organisation>;
             Assert.IsNotNull(orgs);

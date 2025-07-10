@@ -47,14 +47,16 @@ namespace EPR.Calculator.Frontend.Mappers
                 OrganisationBillingInstructions = organisations ?? [],
                 TablePaginationModel = new PaginationViewModel
                 {
+                    Caption = CommonConstants.BillingTableHeader,
                     Records = organisations ?? [],
-                    CurrentPage = request.Page,
-                    PageSize = request.PageSize,
+                    CurrentPage = request.Page <= 0 ? CommonConstants.DefaultPage : request.Page,
+                    PageSize = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,
                     TotalRecords = billingData?.TotalRecords ?? 0,
-                    RouteName = BillingInstructionConstants.BillingInstructionsIndexRouteName,
+                    RouteName = RouteNames.BillingInstructionsIndex,
                     RouteValues = new Dictionary<string, object?>
                     {
                         { BillingInstructionConstants.CalculationRunIdKey, billingData?.CalculatorRunId ?? 0 },
+                        { BillingInstructionConstants.OrganisationIdKey, request.OrganisationId },
                     },
                 },
                 ProducerIds = billingData?.AllProducerIds,
