@@ -13,13 +13,35 @@
             <span class="govuk-caption-l">@Model.CalculationRun.Name</span>
             <h1 class="govuk-heading-l">Confirm billing instructions</h1>
 
-            <form id="filter-form">
+            @using (Html.BeginRouteForm(routeName: RouteNames.BillingInstructionsIndex, routeValues: new { calculationRunId = Model.CalculationRun.Id }, method: FormMethod.Get))
+            {
                 <p class="govuk-body-m">
                     These billing instructions match those in the results file. Use this screen to confirm
                     which instructions you want to accept or reject.
                 </p>
                 <p class="govuk-body-m">Your changes are saved automatically, so you can return to this screen at any time. Once all instructions have been accepted or rejected, you’ll be able to generate a draft billing file. If you reject any instructions, you’ll need to give a reason on the next screen.</p>
-            </form>
+
+                <div class="search-panel">
+                    <div class="govuk-form-group">
+                        <h2 class="govuk-heading-m">Search for an organisation</h2>
+                        <label class="govuk-label" for="OrganisationId">
+                            Enter an organisation ID to find a billing instruction.
+                        </label>
+
+                        <div class="search-input-group">
+                            <input class="govuk-input"
+                                   id="OrganisationId"
+                                   name="OrganisationId"
+                                   type="search"
+                                   style="flex: 1;"
+                                   value="@Model.TablePaginationModel?.RouteValues?["organisationId"]" />
+                            <button type="submit" class="govuk-button" data-module="govuk-button">
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 

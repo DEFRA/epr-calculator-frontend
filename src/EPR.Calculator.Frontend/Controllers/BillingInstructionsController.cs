@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
@@ -31,7 +32,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// An <see cref="IActionResult"/> that renders the billing instructions view,
         /// or redirects to the standard error page if the calculation run ID is invalid or an error occurs.
         /// </returns>
-        [HttpGet("BillingInstructions/{calculationRunId}", Name = BillingInstructionConstants.BillingInstructionsIndexRouteName)]
+        [HttpGet("BillingInstructions/{calculationRunId}", Name = RouteNames.BillingInstructionsIndex)]
         public async Task<IActionResult> IndexAsync([FromRoute] int calculationRunId, [FromQuery] PaginationRequestViewModel request)
         {
             try
@@ -91,6 +92,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 PageNumber = request.Page,
                 PageSize = request.PageSize,
+                SearchQuery = new ProducerBillingInstructionsSearchQueryDto { OrganisationId = request.OrganisationId },
             };
 
             var response = await this.CallApi(HttpMethod.Post, apiUrl, calculationRunId.ToString(), requestDto);

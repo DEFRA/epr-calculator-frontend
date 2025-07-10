@@ -64,5 +64,10 @@
         /// Standard error controller.
         /// </summary>
         public const string StandardErrorController = "StandardErrorController";
+
+        /// <summary>
+        /// Billing Instructions controller.
+        /// </summary>
+        public const string BillingInstructionsController = "BillingInstructions";
     }
 }

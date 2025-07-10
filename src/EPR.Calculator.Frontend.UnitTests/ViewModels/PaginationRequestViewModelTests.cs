@@ -1,4 +1,7 @@
-﻿using EPR.Calculator.Frontend.ViewModels;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
+using Humanizer;
 
 namespace EPR.Calculator.Frontend.UnitTests.ViewModels
 {
@@ -6,30 +9,38 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
     public class PaginationRequestViewModelTests
     {
         [TestMethod]
-        public void DefaultConstructor_ShouldSetDefaultValues()
+        public void PaginationRequestViewModel_DefaultValues_ShouldBeSetCorrectly()
         {
             // Arrange & Act
-            var model = new PaginationRequestViewModel();
+            var viewModel = new PaginationRequestViewModel();
 
             // Assert
-            Assert.AreEqual(1, model.Page, "Default Page should be 1.");
-            Assert.AreEqual(10, model.PageSize, "Default PageSize should be 10.");
+            Assert.AreEqual(CommonConstants.DefaultPage, viewModel.Page);
+            Assert.AreEqual(CommonConstants.DefaultPageSize, viewModel.PageSize);
+            Assert.IsNull(viewModel.OrganisationId);
+            Assert.AreEqual(viewModel.GetType(), typeof(PaginationRequestViewModel));
         }
 
         [TestMethod]
-        public void WithExpression_ShouldCreateModifiedCopy()
+        public void PaginationRequestViewModel_CustomValues_ShouldBeSetCorrectly()
         {
             // Arrange
-            var original = new PaginationRequestViewModel();
+            var page = 2;
+            var pageSize = 50;
+            var organisationId = 123;
 
             // Act
-            var modified = original with { Page = 2, PageSize = 25 };
+            var viewModel = new PaginationRequestViewModel
+            {
+                Page = page,
+                PageSize = pageSize,
+                OrganisationId = organisationId
+            };
 
             // Assert
-            Assert.AreEqual(2, modified.Page, "Page should be updated to 2.");
-            Assert.AreEqual(25, modified.PageSize, "PageSize should be updated to 25.");
-            Assert.AreEqual(1, original.Page, "Original Page should remain 1.");
-            Assert.AreEqual(10, original.PageSize, "Original PageSize should remain 10.");
+            Assert.AreEqual(page, viewModel.Page);
+            Assert.AreEqual(pageSize, viewModel.PageSize);
+            Assert.AreEqual(organisationId, viewModel.OrganisationId);
         }
     }
 }

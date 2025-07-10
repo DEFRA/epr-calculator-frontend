@@ -178,6 +178,6 @@
         /// <summary>
         /// Organisation index controller page view.
         /// </summary>
-        public const string OrganisationIndex = "~/Views/Organisation/Index.cshtml";
+        public const string BillingInstructionsIndex = "~/Views/BillingInstructions/Index.cshtml";
     }
 }

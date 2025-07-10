@@ -103,6 +103,73 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
+        public async Task Index_WithValidOrganisationId_FiltersOrganisations()
+        {
+            // Arrange
+            var calculationRunId = 1;
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10, OrganisationId = 123 };
+
+            // Prepare a fake response DTO
+            var billingData = CreateDefaultBillingData(calculationRunId);
+
+            var expectedViewModel = CreateDefaultViewModel(calculationRunId, billingData, request);
+
+            SetupMockMapper(expectedViewModel);
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = await controller.IndexAsync(calculationRunId, request) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Model, typeof(BillingInstructionsViewModel));
+        }
+
+        [TestMethod]
+        public async Task Index_WithInValidOrganisationId_FiltersOrganisations()
+        {
+            // Arrange
+            var calculationRunId = 1;
+            var request = new PaginationRequestViewModel
+            {
+                Page = 1,
+                PageSize = 10,
+                OrganisationId = 1234 // invalid ID
+            };
+
+            // Simulate no records for the invalid OrganisationId
+            var billingData = new ProducerBillingInstructionsResponseDto
+            {
+                Records = new List<ProducerBillingInstructionsDto>(),
+                TotalRecords = 0,
+                CalculatorRunId = calculationRunId,
+                RunName = "Test Run",
+                PageNumber = 1,
+                PageSize = 10
+            };
+
+            var expectedViewModel = CreateDefaultViewModel(calculationRunId, billingData, request);
+
+            SetupMockMapper(expectedViewModel);
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = await controller.IndexAsync(calculationRunId, request) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Model, typeof(BillingInstructionsViewModel));
+
+            var model = result.Model as BillingInstructionsViewModel;
+            Assert.IsNotNull(model);
+            Assert.AreEqual(0, model.TablePaginationModel.TotalRecords);
+        }
+
+        [TestMethod]
         public void ProcessSelection_RedirectsToIndex()
         {
             // Arrange
@@ -342,10 +409,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     CurrentPage = request.Page,
                     PageSize = request.PageSize,
                     TotalRecords = billingData.TotalRecords,
-                    RouteName = BillingInstructionConstants.BillingInstructionsIndexRouteName,
+                    RouteName = RouteNames.BillingInstructionsIndex,
                     RouteValues = new Dictionary<string, object?>
                     {
-                        { BillingInstructionConstants.CalculationRunIdKey, calculationRunId }
+                        { BillingInstructionConstants.CalculationRunIdKey, calculationRunId },
+                        { BillingInstructionConstants.OrganisationIdKey, request.OrganisationId },
                     }
                 }
             };
