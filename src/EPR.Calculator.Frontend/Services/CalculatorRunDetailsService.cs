@@ -29,7 +29,8 @@ namespace EPR.Calculator.Frontend.Services
                     $"Failed to retrieve calculator run details. Status code: {response.StatusCode}");
             }
 
-            var runDetails = response.Content.ReadFromJsonAsync<CalculatorRunDetailsViewModel>().Result;
+            var runDetails = await response.Content.ReadFromJsonAsync<CalculatorRunDetailsViewModel>()
+                ?? new CalculatorRunDetailsViewModel();
 
             return runDetails;
         }
