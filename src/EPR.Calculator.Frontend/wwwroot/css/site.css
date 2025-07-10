@@ -67,3 +67,14 @@ body {
 .vertical-middle {
     vertical-align: middle;
 }
+
+.search-panel {
+    background-color: #f3f2f1;
+    padding: 20px;
+    border: 1px solid #b1b4b6;    
+}
+
+.search-input-group {
+    display: flex;
+    gap: 10px;    
+}
