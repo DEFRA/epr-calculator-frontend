@@ -130,7 +130,11 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize)
         {
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll.ToString());
-            if (!model.OrganisationSelections.SelectAll) { this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, new List<int>()); }
+            if (!model.OrganisationSelections.SelectAll)
+            {
+                this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, new List<int>());
+            }
+
             return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
         }
 
