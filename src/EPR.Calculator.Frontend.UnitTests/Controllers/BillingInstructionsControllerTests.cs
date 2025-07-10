@@ -563,6 +563,7 @@
             mockSession.SetString("accessToken", "something");
             mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
             mockSession.SetObject(SessionConstants.ProducerIds, prodIds);
+            mockSession.SetObject(SessionConstants.IsRedirected, "true");
 
             var context = new DefaultHttpContext
             {
