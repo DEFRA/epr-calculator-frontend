@@ -13,6 +13,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Tokens;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -78,7 +79,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var existingSelectedIds = this.HttpContext.Session.GetObject<List<int>>(SessionConstants.ProducerIds) ?? new List<int>();
 
-                if (!isSelectAll && producerBillingInstructionsResponseDto.Records.All(t => existingSelectedIds.Contains(t.ProducerId)))
+                if (!isSelectAll && producerBillingInstructionsResponseDto is not null && producerBillingInstructionsResponseDto.Records.TrueForAll(t => existingSelectedIds.Contains(t.ProducerId)))
                 {
                     billingInstructionsViewModel.OrganisationSelections.SelectPage = true;
                     this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, "true");
@@ -193,22 +194,23 @@ namespace EPR.Calculator.Frontend.Controllers
             List<int>? producers = new List<int>();
 
             var existingValues = this.HttpContext.Session.GetObject<List<int>>(SessionConstants.ProducerIds) ?? new List<int>();
-            if (existingValues != null)
+
+            if (existingValues.Count > 0)
             {
-                producers = existingValues as List<int>;
+                producers = existingValues;
             }
 
             var producerId = producerBillingInstructionsResponseDto?.Records?.Select(t => t.ProducerId).ToList();
             if (isSelected)
             {
-                producers?.AddRange(producerId);
+                producers?.AddRange(producerId ?? []);
             }
             else
             {
-                producers?.RemoveAll(t => producerId.Contains(t));
+                producers?.RemoveAll(producerId.Contains);
             }
 
-            return producers;
+            return producers ?? [];
         }
     }
 }
