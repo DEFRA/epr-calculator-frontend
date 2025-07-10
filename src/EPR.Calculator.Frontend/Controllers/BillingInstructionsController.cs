@@ -54,10 +54,10 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 bool isSelectAll = this.HttpContext.Session.GetBooleanFlag(SessionConstants.IsSelectAll);
                 bool isSelectAllPage = false;
-                if (this.HttpContext.Session.Keys.Contains("IsRedirected"))
+                if (this.HttpContext.Session.Keys.Contains(SessionConstants.IsRedirected))
                 {
                     isSelectAllPage = this.HttpContext.Session.GetBooleanFlag(SessionConstants.IsSelectAllPage);
-                    this.HttpContext.Session.Remove("IsRedirected");
+                    this.HttpContext.Session.Remove(SessionConstants.IsRedirected);
                 }
 
                 var producerBillingInstructionsResponseDto = await this.GetBillingData(calculationRunId, request);
@@ -67,7 +67,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     CommonUtil.GetUserName(this.HttpContext),
                     isSelectAll,
                     isSelectAllPage);
-                this.HttpContext.Session.SetObject("ProducerIds", billingInstructionsViewModel.ProducerIds);
+                this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, billingInstructionsViewModel.ProducerIds);
 
                 foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions)
                 {
@@ -117,10 +117,10 @@ namespace EPR.Calculator.Frontend.Controllers
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, model.OrganisationSelections.SelectPage.ToString());
             if (model.OrganisationSelections.SelectPage)
             {
-                this.HttpContext.Session.SetString("IsRedirected", "true");
+                this.HttpContext.Session.SetString(SessionConstants.IsRedirected, "true");
             }
 
-            return this.RedirectToRoute("BillingInstructions_Index", new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
+            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
         }
 
         private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(

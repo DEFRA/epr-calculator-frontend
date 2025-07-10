@@ -21,5 +21,9 @@
         public const string IsSelectAll = "IsSelectAll";
 
         public const string IsSelectAllPage = "IsSelectAllPage";
+
+        public const string ProducerIds = "ProducerIds";
+
+        public const string IsRedirected = "IsRedirected";
     }
 }
