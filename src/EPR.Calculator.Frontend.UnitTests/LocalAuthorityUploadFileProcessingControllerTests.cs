@@ -214,7 +214,6 @@ namespace EPR.Calculator.Frontend.UnitTests
                     It.IsAny<string>(),
                     new CreateLapcapDataDto(new LapcapRefreshViewModel(), currentYear)),
                 Times.Once());
-
         }
 
         [TestMethod]
@@ -242,7 +241,9 @@ namespace EPR.Calculator.Frontend.UnitTests
                 Times.Once());
         }
 
-        private (LocalAuthorityUploadFileProcessingController Controller, Mock<IApiService> MockApiService) BuildTestClass(
+        private (
+            LocalAuthorityUploadFileProcessingController Controller,
+            Mock<IApiService> MockApiService) BuildTestClass(
             Fixture fixture,
             HttpStatusCode httpStatusCode,
             object data = null,

@@ -1,6 +1,9 @@
-﻿using System.Security.Claims;
+﻿using System.Net;
+using System.Security.Claims;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -22,19 +25,20 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         private BillingInstructionsController _controller;
         private Mock<HttpContext> _mockHttpContext;
 
-        [TestInitialize]
-        public void Setup()
+        public BillingInstructionsControllerTests()
         {
+            this.Fixture = new Fixture();
             _mockConfiguration = new Mock<IConfiguration>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
             _mockClientFactory = new Mock<IHttpClientFactory>();
 
-            _controller = new BillingInstructionsController(
-                _mockConfiguration.Object,
-                _mockTokenAcquisition.Object,
-                _mockTelemetryClient,
-                _mockClientFactory.Object);
+            _controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.OK,
+                MockData.GetCalculatorRun(),
+                Fixture.Create<CalculatorRunDetailsViewModel>(),
+                _mockConfiguration.Object);
 
             _mockHttpContext = new Mock<HttpContext>();
             _mockHttpContext.Setup(context => context.User)
@@ -54,6 +58,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Setting the mocked HttpContext for the controller
             _controller.ControllerContext = new ControllerContext { HttpContext = context };
         }
+
+        private Fixture Fixture { get; init; }
 
         [TestMethod]
         public void Index_InvalidCalculationRunId_RedirectsToError()
@@ -102,6 +108,34 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual(calculationRunId, result.RouteValues["calculationRunId"]);
+        }
+
+        private BillingInstructionsController BuildTestClass(
+            Fixture fixture,
+            HttpStatusCode httpStatusCode,
+            object data = null,
+            CalculatorRunDetailsViewModel details = null,
+            IConfiguration configurationItems = null)
+        {
+            data = data ?? MockData.GetCalculatorRun();
+            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
+            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            var mockApiService = TestMockUtils.BuildMockApiService(
+                httpStatusCode,
+                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+
+            var testClass = new BillingInstructionsController(
+                configurationItems,
+                new Mock<ITokenAcquisition>().Object,
+                new TelemetryClient(),
+                mockApiService,
+                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
+            testClass.ControllerContext.HttpContext = new DefaultHttpContext()
+            {
+                Session = TestMockUtils.BuildMockSession(fixture).Object,
+            };
+
+            return testClass;
         }
     }
 }

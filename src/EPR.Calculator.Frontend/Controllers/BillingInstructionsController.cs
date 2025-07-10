@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -17,8 +18,13 @@ namespace EPR.Calculator.Frontend.Controllers
     /// </summary>
     public class BillingInstructionsController : BaseController
     {
-        public BillingInstructionsController(IConfiguration configuration, ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient, IHttpClientFactory clientFactory)
-            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
+        public BillingInstructionsController(
+            IConfiguration configuration,
+            ITokenAcquisition tokenAcquisition,
+            TelemetryClient telemetryClient,
+            IApiService apiService,
+            ICalculatorRunDetailsService calculatorRunDetailsService)
+            : base(configuration, tokenAcquisition, telemetryClient, apiService, calculatorRunDetailsService)
         {
         }
 

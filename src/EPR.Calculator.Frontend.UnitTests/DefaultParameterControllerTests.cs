@@ -66,7 +66,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Act
             var result = await controller.Index() as ViewResult;
-            var defaultParametersViewModel = (DefaultParametersViewModel) result.Model as DefaultParametersViewModel;
+            var defaultParametersViewModel = (DefaultParametersViewModel)result.Model as DefaultParametersViewModel;
 
             // Assert
             Assert.IsNotNull(result);
