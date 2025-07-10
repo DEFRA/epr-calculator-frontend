@@ -446,7 +446,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task SelectAllPage_SetsSessionAndReturnsViewWithSelectAllViewModel()
         {
             // Arrange
-            // Arrange
             var calculationRunId = 1;
             var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
             var billingData = CreateDefaultBillingData(calculationRunId);
@@ -458,13 +457,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     It.IsAny<string>(),
                     It.IsAny<bool>(),
                     It.IsAny<bool>()))
-                .Returns(new BillingInstructionsViewModel());
+                .Returns(new BillingInstructionsViewModel()
+                { OrganisationBillingInstructions = new List<Organisation>() { new Organisation { Id = 1, BillingInstruction = Enums.BillingInstruction.Initial, IsSelected = true, InvoiceAmount = 100, OrganisationId = 1, OrganisationName = "Test", Status = Enums.BillingStatus.Accepted } } });
 
             var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
             var controller = CreateControllerWithFactory(mockFactory);
-
-            // Act
-            await controller.IndexAsync(calculationRunId, request);
 
             // Act
             var result = await controller.IndexAsync(calculationRunId, request);
@@ -472,6 +469,14 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Assert
             Assert.IsNotNull(result);
             var redirectResult = (ViewResult)result;
+            Assert.IsNotNull(redirectResult);
+
+            var model = redirectResult.Model as BillingInstructionsViewModel;
+
+            Assert.IsFalse(model.OrganisationSelections.SelectAll);
+            Assert.IsFalse(model.OrganisationSelections.SelectPage);
+            Assert.IsFalse(model.OrganisationBillingInstructions.First().IsSelected);
+            Assert.AreEqual(1, model.OrganisationBillingInstructions.First().OrganisationId);
         }
 
         private static DefaultHttpContext CreateTestHttpContext(string userName = "Test User")
