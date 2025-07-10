@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
+﻿using System.Text.Json;
+using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
@@ -7,10 +8,8 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.Elfie;
 using Microsoft.Identity.Web;
-using System.Reflection;
-using System.Text.Json;
+
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -31,42 +30,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var controllerName = CommonUtil.GetControllerName(typeof(StandardErrorController));
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, controllerName);
-            }
-        }
-
-        [HttpPost("UpdateOrganisationSelection", Name = "BillingInstructions_OrganisationSelection")]
-        public async Task<IActionResult> UpdateOrganisationSelectionAsync([FromBody] BillingSelectionOrgDto orgDto)
-        {
-            try
-            {
-                // Retrieve the SelectedProducerIds from session or create a new list
-                //var selectedProducerIds = this.HttpContext.Session.G<List<int>>(SessionConstants.SelectedProducerIds) ?? new List<int>();
-
-                //if (obj.IsSelected)
-                //{
-                //    // Add the organisation id if not already present
-                //    if (!selectedProducerIds.Contains(model.Id))
-                //    {
-                //        selectedProducerIds.Add(model.Id);
-                //    }
-                //}
-                //else
-                //{
-                //    // Remove the organisation id if present
-                //    selectedProducerIds.Remove(model.Id);
-                //}
-
-                // TODO - the list is immutable - make sure you do a full replace 
-
-                //// Save the updated list back to the session
-                //this.HttpContext.Session.SetObject(SessionConstants.SelectedProducerIds, selectedProducerIds);
-
-                return this.Ok();
-            }
-            catch (Exception ex)
-            {
-                this.TelemetryClient.TrackException(ex);
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
             }
         }
 
@@ -104,11 +67,24 @@ namespace EPR.Calculator.Frontend.Controllers
                     CommonUtil.GetUserName(this.HttpContext),
                     isSelectAll,
                     isSelectAllPage);
-                this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, billingInstructionsViewModel.ProducerIds);
 
-                foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions)
+                if (isSelectAll || isSelectAllPage)
                 {
-                    item.IsSelected = isSelectAll || isSelectAllPage;
+                    this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, billingInstructionsViewModel.ProducerIds);
+
+                    foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions)
+                    {
+                        item.IsSelected = isSelectAll || isSelectAllPage;
+                    }
+                }
+                else
+                {
+                    var selectedProducerIds = this.HttpContext.Session.GetObject<List<int>>(SessionConstants.ProducerIds) ?? new List<int>();
+
+                    foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions)
+                    {
+                        item.IsSelected = selectedProducerIds.Contains(item.OrganisationId);
+                    }
                 }
 
                 return this.View(billingInstructionsViewModel);
@@ -158,6 +134,65 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
+        }
+
+        /// <summary>
+        /// Handles AJAX updates to the selected organisation IDs in the user's session.
+        /// Adds or removes the organisation ID from the session-based collection depending on the IsSelected flag.
+        /// </summary>
+        /// <param name="orgDto">
+        /// The <see cref="BillingSelectionOrgDto"/> containing the organisation ID and selection state.
+        /// </param>
+        /// <returns>
+        /// <see cref="IActionResult"/> indicating the result of the operation.
+        /// Returns 200 OK on success, or 500 Internal Server Error if an exception occurs.
+        /// </returns>
+        [HttpPost("UpdateOrganisationSelection", Name = "BillingInstructions_OrganisationSelection")]
+        public IActionResult UpdateOrganisationSelectionAsync([FromBody] BillingSelectionOrgDto orgDto)
+        {
+            try
+            {
+                // Retrieve the list from session or create a new one if it doesn't exist
+                var selectedProducerIds = this.HttpContext.Session.GetObject<List<int>>(SessionConstants.ProducerIds) ?? new List<int>();
+
+                if (orgDto.IsSelected)
+                {
+                    // Ensure the ID is in the collection
+                    if (!selectedProducerIds.Contains(orgDto.Id))
+                    {
+                        selectedProducerIds.Add(orgDto.Id);
+                    }
+                    else
+                    {
+                        // if it already exists we don't want to do anything to the session state
+                        // at all and want to return
+                        return this.Ok();
+                    }
+                }
+                else
+                {
+                    // Ensure the ID is not in the collection
+                    selectedProducerIds.Remove(orgDto.Id);
+                }
+
+                // if we had to add or remove now we need to also falsify the SelectAll and SelectAllPage session flags
+                this.HttpContext.Session.SetBooleanFlag(SessionConstants.IsSelectAll, false);
+
+                // todo - we will need to do extra logic on this one, because for a particular page 
+                // we may still have selected all the ids and this flag may still be true
+                // although there is no real side effect except that the Selectpage checkbox will be reset
+                this.HttpContext.Session.SetBooleanFlag(SessionConstants.IsSelectAllPage, false);
+
+                // Overwrite the session object
+                this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, selectedProducerIds);
+
+                return this.Ok();
+            }
+            catch (Exception ex)
+            {
+                this.TelemetryClient.TrackException(ex);
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
         }
 
         private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(
