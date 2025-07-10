@@ -57,8 +57,8 @@
                     <legend class="govuk-fieldset__legend">
                         <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;">
                             <div class="govuk-checkboxes__item" style="width: 300px !important;">
-                                <input type="hidden" name="pageSize" value="@Model.TablePaginationModel.PageSize" />
-                                <input type="hidden" name="currentPage" value="@Model.TablePaginationModel.CurrentPage" />
+                                <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
+                                <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
                                 @Html.CheckBoxFor(m => m.OrganisationSelections.SelectPage, new { name = "SelectPage", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
                                 <label class="govuk-label govuk-checkboxes__label" for="selectall">
                                     Select all records on this page
