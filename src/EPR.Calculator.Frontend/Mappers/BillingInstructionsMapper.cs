@@ -16,22 +16,24 @@ namespace EPR.Calculator.Frontend.Mappers
         /// <param name="billingData">The billing data response DTO.</param>
         /// <param name="request">The pagination request view model.</param>
         /// <param name="currentUser">The current user's name.</param>
+        /// <param name="isSelectAll">IsSelectAll.</param>
+        /// <param name="isSelectAllPage">IsSelectAllPage.</param>
         /// <returns>A populated <see cref="BillingInstructionsViewModel"/>.</returns>
         public BillingInstructionsViewModel MapToViewModel(
-            ProducerBillingInstructionsResponseDto billingData,
+            ProducerBillingInstructionsResponseDto? billingData,
             PaginationRequestViewModel request,
             string currentUser,
             bool isSelectAll,
             bool isSelectAllPage)
         {
-            var organisations = billingData.Records.Select(x => new Organisation
+            var organisations = billingData?.Records.Select(x => new Organisation
             {
                 Id = x.ProducerId,
                 OrganisationName = x.ProducerName ?? string.Empty,
                 OrganisationId = x.ProducerId,
-                BillingInstruction = MapBillingInstruction(x.SuggestedBillingInstruction),
+                BillingInstruction = this.MapBillingInstruction(x.SuggestedBillingInstruction),
                 InvoiceAmount = x.SuggestedInvoiceAmount,
-                Status = MapBillingStatus(x.BillingInstructionAcceptReject),
+                Status = this.MapBillingStatus(x.BillingInstructionAcceptReject),
             }).ToList();
 
             return new BillingInstructionsViewModel
@@ -39,23 +41,23 @@ namespace EPR.Calculator.Frontend.Mappers
                 CurrentUser = currentUser,
                 CalculationRun = new CalculationRunForBillingInstructionsDto
                 {
-                    Id = billingData.CalculatorRunId,
-                    Name = billingData.RunName ?? string.Empty,
+                    Id = billingData?.CalculatorRunId ?? 0,
+                    Name = billingData?.RunName ?? string.Empty,
                 },
-                OrganisationBillingInstructions = organisations,
+                OrganisationBillingInstructions = organisations ?? [],
                 TablePaginationModel = new PaginationViewModel
                 {
-                    Records = organisations,
+                    Records = organisations ?? [],
                     CurrentPage = request.Page,
                     PageSize = request.PageSize,
-                    TotalRecords = billingData.TotalRecords,
+                    TotalRecords = billingData?.TotalRecords ?? 0,
                     RouteName = BillingInstructionConstants.BillingInstructionsIndexRouteName,
                     RouteValues = new Dictionary<string, object?>
                     {
-                        { BillingInstructionConstants.CalculationRunIdKey, billingData.CalculatorRunId },
+                        { BillingInstructionConstants.CalculationRunIdKey, billingData?.CalculatorRunId ?? 0 },
                     },
                 },
-                ProducerIds = billingData.AllProducerIds,
+                ProducerIds = billingData?.AllProducerIds,
                 OrganisationSelections = new OrganisationSelectionsViewModel { SelectAll = isSelectAll, SelectPage = isSelectAllPage },
             };
         }

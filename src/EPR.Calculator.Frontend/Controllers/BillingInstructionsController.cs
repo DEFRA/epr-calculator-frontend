@@ -110,10 +110,11 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Handles the POST request to select all billing instructions.
         /// </summary>
         /// <param name="model">The view model containing billing instructions and selection state.</param>
-        /// <param name="request">Pagination parameters for the current page of billing instructions.</param>
+        /// <param name="currentPage">current page.</param>
+        /// <param name="pageSize">page size.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
-        public async Task<IActionResult> SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize)
+        public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize)
         {
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll.ToString());
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, model.OrganisationSelections.SelectPage.ToString());

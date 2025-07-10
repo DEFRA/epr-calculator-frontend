@@ -312,7 +312,7 @@ public class BillingInstructionsControllerTests
         var controller = CreateControllerWithFactory(mockFactory);
 
         // Act
-        var result = await controller.SelectAll(model, currentPage, pageSize) as RedirectToRouteResult;
+        var result = controller.SelectAll(model, currentPage, pageSize) as RedirectToRouteResult;
 
         // Assert
         Assert.IsNotNull(result);
@@ -356,7 +356,7 @@ public class BillingInstructionsControllerTests
         controller.ControllerContext = new ControllerContext { HttpContext = context };
 
         // Act
-        var result = await controller.SelectAll(model, currentPage, pageSize) as RedirectToRouteResult;
+        var result = controller.SelectAll(model, currentPage, pageSize) as RedirectToRouteResult;
 
         // Assert
         Assert.IsNotNull(result);

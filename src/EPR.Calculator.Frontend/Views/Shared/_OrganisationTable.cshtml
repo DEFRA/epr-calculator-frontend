@@ -3,7 +3,7 @@
 
 @{
     var selectedCount = Model.OrganisationSelections.SelectedOrganisationIds?.Count ?? 0;
-    var totalCount = Model.ProducerIds.Count();
+    var totalCount = Model.ProducerIds?.Count();
     var displayText = (Model.OrganisationSelections.SelectAll)
     ? $"{totalCount} records selected"
     : $"{selectedCount} records selected";

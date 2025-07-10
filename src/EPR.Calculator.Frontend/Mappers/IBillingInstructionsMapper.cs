@@ -16,7 +16,7 @@ namespace EPR.Calculator.Frontend.Mappers
         /// <param name="currentUser">The current user's name.</param>
         /// <returns>A populated <see cref="BillingInstructionsViewModel"/>.</returns>
         BillingInstructionsViewModel MapToViewModel(
-            ProducerBillingInstructionsResponseDto billingData,
+            ProducerBillingInstructionsResponseDto? billingData,
             PaginationRequestViewModel request,
             string currentUser,
             bool isSelectAll,
