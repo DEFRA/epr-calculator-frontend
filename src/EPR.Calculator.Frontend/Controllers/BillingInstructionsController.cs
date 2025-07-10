@@ -21,7 +21,7 @@ namespace EPR.Calculator.Frontend.Controllers
         TelemetryClient telemetryClient,
         IBillingInstructionsMapper mapper,
         IApiService apiService,
-        ICalculatorRunDetailsService calculatorRunDetailsService) 
+        ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(configuration, tokenAcquisition, telemetryClient, apiService, calculatorRunDetailsService)
     {
         /// <summary>

@@ -35,7 +35,7 @@ namespace EPR.Calculator.Frontend.Controllers
             configuration,
             tokenAcquisition,
             telemetryClient,
-            apiService, 
+            apiService,
             calculatorRunDetailsService)
     {
         /// <summary>
