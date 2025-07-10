@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Exceptions;
 using EPR.Calculator.Frontend.HealthCheck;
+using EPR.Calculator.Frontend.Mappers;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.Validators;
 using FluentValidation;
@@ -63,6 +64,8 @@ if (environmentName != EPR.Calculator.Frontend.Constants.Environment.Local.ToLow
 builder.Services.AddHttpClient();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+builder.Services.AddScoped<IBillingInstructionsMapper, BillingInstructionsMapper>();
 
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
 

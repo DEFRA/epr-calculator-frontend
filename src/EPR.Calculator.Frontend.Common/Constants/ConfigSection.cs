@@ -126,5 +126,15 @@
         /// The key for the prepare billing file send to fss endpoint file settings section.
         /// </summary>
         public const string ProducerBillingInstructionsAcceptApi = "ProducerBillingInstructionsAcceptApi";
+
+        /// <summary>
+        /// The key for the producer billing instructions section.
+        /// </summary>
+        public const string ProducerBillingInstructions = "ProducerBillingInstructions";
+
+        /// <summary>
+        /// The key for the producer billing instructions post endpoint.
+        /// </summary>
+        public const string ProducerBillingInstructionsV1 = "ProducerBillingInstructions";
     }
 }
