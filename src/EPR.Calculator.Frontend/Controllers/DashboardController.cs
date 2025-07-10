@@ -45,7 +45,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 this.IsShowDetailedError();
 
-                return await this.GoToDashboardView(CommonUtil.GetFinancialYear(this.HttpContext));
+                return await this.GoToDashboardView(CommonUtil.GetFinancialYear(this.HttpContext.Session));
             }
             catch (Exception)
             {

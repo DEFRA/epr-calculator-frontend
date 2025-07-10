@@ -166,7 +166,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<bool> SetClassfications(int runId, SetRunClassificationViewModel viewModel)
         {
-            var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = CommonUtil.GetFinancialYear(this.HttpContext) });
+            var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session) });
             if (!classifications.IsSuccessStatusCode)
             {
                 return false;

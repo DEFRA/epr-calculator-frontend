@@ -39,11 +39,8 @@
             var sessionMock = new Mock<ISession>();
             sessionMock.Setup(s => s.TryGetValue(key, out byteValue)).Returns(true);
 
-            var httpContextMock = new Mock<HttpContext>();
-            httpContextMock.Setup(c => c.Session).Returns(sessionMock.Object);
-
             // Act
-            var result = CommonUtil.GetFinancialYear(httpContextMock.Object);
+            var result = CommonUtil.GetFinancialYear(sessionMock.Object);
 
             // Assert
             Assert.AreEqual(expectedYear, result);
@@ -59,13 +56,10 @@
             var sessionMock = new Mock<ISession>();
             sessionMock.Setup(s => s.TryGetValue(key, out byteValue)).Returns(false);
 
-            var httpContextMock = new Mock<HttpContext>();
-            httpContextMock.Setup(c => c.Session).Returns(sessionMock.Object);
-
             var expectedDefault = CommonUtil.GetDefaultFinancialYear(DateTime.Now);
 
             // Act
-            var result = CommonUtil.GetFinancialYear(httpContextMock.Object);
+            var result = CommonUtil.GetFinancialYear(sessionMock.Object);
 
             // Assert
             Assert.AreEqual(expectedDefault, result);

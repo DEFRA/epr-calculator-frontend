@@ -31,7 +31,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 var response = await this.PostDefaultParametersAsync(
                     new CreateDefaultParameterSettingDto(
                         parameterRefreshViewModel,
-                        CommonUtil.GetFinancialYear(this.HttpContext)));
+                        CommonUtil.GetFinancialYear(this.HttpContext.Session)));
 
                 if (response.IsSuccessStatusCode && response.StatusCode == HttpStatusCode.Created)
                 {

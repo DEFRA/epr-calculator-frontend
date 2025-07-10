@@ -63,9 +63,9 @@ namespace EPR.Calculator.Frontend.Helpers
         /// </summary>
         /// <returns>Returns the financial year.</returns>
         /// <exception cref="ArgumentNullException">Returns error if financial year is null or empty.</exception>
-        public static string GetFinancialYear(HttpContext httpContext)
+        public static string GetFinancialYear(ISession session)
         {
-            var parameterYear = httpContext.Session.GetString(SessionConstants.FinancialYear);
+            var parameterYear = session.GetString(SessionConstants.FinancialYear);
 
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
