@@ -99,29 +99,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private List<int> UpdateSession(ProducerBillingInstructionsResponseDto? producerBillingInstructionsResponseDto, bool isSelected)
-        {
-            List<int>? producers = new List<int>();
-
-            var existingValues = this.HttpContext.Session.GetObject<List<int>>(SessionConstants.ProducerIds) ?? new List<int>();
-            if (existingValues != null)
-            {
-                producers = existingValues as List<int>;
-            }
-
-            var producerId = producerBillingInstructionsResponseDto?.Records?.Select(t => t.ProducerId).ToList();
-            if (isSelected)
-            {
-                producers?.AddRange(producerId);
-            }
-            else
-            {
-                producers?.RemoveAll(t => producerId.Contains(t));
-            }
-
-            return producers;
-        }
-
         /// <summary>
         /// Handles the selection of organisations and redirects to the Index action for the specified calculation run.
         /// </summary>
@@ -205,6 +182,29 @@ namespace EPR.Calculator.Frontend.Controllers
             var billingData = JsonSerializer.Deserialize<ProducerBillingInstructionsResponseDto>(json);
 
             return billingData;
+        }
+
+        private List<int> UpdateSession(ProducerBillingInstructionsResponseDto? producerBillingInstructionsResponseDto, bool isSelected)
+        {
+            List<int>? producers = new List<int>();
+
+            var existingValues = this.HttpContext.Session.GetObject<List<int>>(SessionConstants.ProducerIds) ?? new List<int>();
+            if (existingValues != null)
+            {
+                producers = existingValues as List<int>;
+            }
+
+            var producerId = producerBillingInstructionsResponseDto?.Records?.Select(t => t.ProducerId).ToList();
+            if (isSelected)
+            {
+                producers?.AddRange(producerId);
+            }
+            else
+            {
+                producers?.RemoveAll(t => producerId.Contains(t));
+            }
+
+            return producers;
         }
     }
 }
