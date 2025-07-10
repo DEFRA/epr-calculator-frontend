@@ -48,7 +48,7 @@ namespace EPR.Calculator.Frontend.Mappers
             };
         }
 
-        private BillingInstruction MapBillingInstruction(string suggested)
+        private static BillingInstruction MapBillingInstruction(string suggested)
         {
             if (string.IsNullOrWhiteSpace(suggested))
             {
@@ -67,11 +67,11 @@ namespace EPR.Calculator.Frontend.Mappers
                 "delta" => BillingInstruction.Delta,
                 "rebill" => BillingInstruction.Rebill,
                 "cancelbill" => BillingInstruction.Cancelbill,
-                _ => BillingInstruction.Noaction
+                _ => BillingInstruction.Noaction,
             };
         }
 
-        private BillingStatus MapBillingStatus(string? acceptReject)
+        private static BillingStatus MapBillingStatus(string? acceptReject)
         {
             if (string.IsNullOrWhiteSpace(acceptReject))
             {
@@ -89,7 +89,7 @@ namespace EPR.Calculator.Frontend.Mappers
                 "accepted" => BillingStatus.Accepted,
                 "rejected" => BillingStatus.Rejected,
                 "pending" => BillingStatus.Pending,
-                _ => BillingStatus.Noaction
+                _ => BillingStatus.Noaction,
             };
         }
     }

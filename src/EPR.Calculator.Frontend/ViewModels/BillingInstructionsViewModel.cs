@@ -12,6 +12,6 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public OrganisationSelectionsViewModel OrganisationSelections { get; set; } = new();
 
-        public IEnumerable<int> ProducerIds { get; init; }
+        public IEnumerable<int>? ProducerIds { get; init; }
     }
 }

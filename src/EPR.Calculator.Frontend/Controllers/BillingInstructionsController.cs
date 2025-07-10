@@ -57,10 +57,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 bool isSelectAll = this.HttpContext.Session.GetBooleanFlag(SessionConstants.IsSelectAll);
                 var producerBillingInstructionsResponseDto = await this.GetBillingData(calculationRunId, request);
-                var billingInstructionsViewModel = mapper.MapToViewModel(producerBillingInstructionsResponseDto,
-                                                                            request,
-                                                                            CommonUtil.GetUserName(this.HttpContext),
-                                                                            isSelectAll);
+                var billingInstructionsViewModel = mapper.MapToViewModel(producerBillingInstructionsResponseDto, request, CommonUtil.GetUserName(this.HttpContext), isSelectAll);
                 this.HttpContext.Session.SetObject("ProducerIds", billingInstructionsViewModel.ProducerIds);
 
                 foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions)
