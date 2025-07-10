@@ -22,6 +22,8 @@
 
         public const string IsSelectAllPage = "IsSelectAllPage";
 
-        public const string SelectedProducerIds = "SelectedProducerIds";
+        public const string ProducerIds = "ProducerIds";
+
+        public const string IsRedirected = "IsRedirected";
     }
 }

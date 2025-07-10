@@ -2,7 +2,7 @@
 @model BillingInstructionsViewModel
 
 @{
-    var selectedCount = Model.OrganisationSelections.SelectedOrganisationIds?.Count ?? 0;
+    var selectedCount = Model.OrganisationSelections.SelectPage ? Model.OrganisationBillingInstructions?.Take(Model.TablePaginationModel.PageSize).Count() : 0;
     var totalCount = Model.ProducerIds?.Count();
     var displayText = (Model.OrganisationSelections.SelectAll)
     ? $"{totalCount} records selected"
