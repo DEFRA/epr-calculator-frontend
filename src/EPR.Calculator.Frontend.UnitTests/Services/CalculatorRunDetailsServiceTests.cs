@@ -21,16 +21,17 @@
                 It.IsAny<string>(),
                 It.IsAny<string>())).Returns(Fixture.Create<Uri>());
             this.ApiService.Setup(s => s.CallApi(
-                new Mock<HttpContext>().Object,
+                It.IsAny<HttpContext>(),
                 HttpMethod.Get,
                 It.IsAny<Uri>(),
                 It.IsAny<string>(),
-                It.IsAny<object?>())).Callback(
-                (HttpMethod a, Uri b, string c, object d) => new HttpResponseMessage
-                {
-                    StatusCode = System.Net.HttpStatusCode.OK,
-                    Content = new StringContent($"{{\"RunId\" : \"{c}\"}}"),
-                });
+                It.IsAny<object?>()))
+                .ReturnsAsync(
+                    (HttpContext _, HttpMethod _, Uri _, string runId, object _) => new HttpResponseMessage
+                    {
+                        StatusCode = System.Net.HttpStatusCode.OK,
+                        Content = new StringContent($"{{\"RunId\" : \"{runId}\"}}"),
+                    });
             this.TestClass = new CalculatorRunDetailsService(this.ApiService.Object);
         }
 
@@ -61,14 +62,15 @@
             // Arrange
             var runId = Fixture.Create<int>();
             this.ApiService.Setup(s => s.CallApi(
-                new Mock<HttpContext>().Object,
+                It.IsAny<HttpContext>(),
                 HttpMethod.Get,
                 It.IsAny<Uri>(),
                 It.IsAny<string>(),
-                It.IsAny<object?>())).ReturnsAsync(new HttpResponseMessage
+                It.IsAny<object?>()))
+                .ReturnsAsync(new HttpResponseMessage
                 {
-                    StatusCode = System.Net.HttpStatusCode.OK,
-                    Content = new StringContent(null),
+                    StatusCode = System.Net.HttpStatusCode.BadRequest,
+                    Content = new StringContent("{}"),
                 });
 
             // Act
@@ -85,7 +87,7 @@
             }
 
             // Assert
-            Assert.IsInstanceOfType<InvalidOperationException>(result);
+            Assert.IsInstanceOfType<HttpRequestException>(result);
         }
     }
 }
