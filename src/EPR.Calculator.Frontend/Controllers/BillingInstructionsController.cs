@@ -1,5 +1,8 @@
-﻿using System.Reflection;
+﻿using System.Linq;
+using System.Reflection;
 using System.Text.Json;
+using AutoMapper.Configuration.Annotations;
+using Azure.Core;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
@@ -67,7 +70,20 @@ namespace EPR.Calculator.Frontend.Controllers
                     CommonUtil.GetUserName(this.HttpContext),
                     isSelectAll,
                     isSelectAllPage);
-                this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, billingInstructionsViewModel.ProducerIds);
+
+                if (isSelectAll)
+                {
+                    this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, billingInstructionsViewModel.ProducerIds);
+                }
+
+                var existingSelectedIds = this.HttpContext.Session.GetObject<List<int>>(SessionConstants.ProducerIds) ?? new List<int>();
+
+                if (!isSelectAll && producerBillingInstructionsResponseDto.Records.All(t => existingSelectedIds.Contains(t.ProducerId)))
+                {
+                    billingInstructionsViewModel.OrganisationSelections.SelectPage = true;
+                    this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, "true");
+                    isSelectAllPage = true;
+                }
 
                 foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions)
                 {
@@ -81,6 +97,29 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.TelemetryClient.TrackException(ex);
                 return this.RedirectToStandardError;
             }
+        }
+
+        private List<int> UpdateSession(ProducerBillingInstructionsResponseDto? producerBillingInstructionsResponseDto, bool isSelected)
+        {
+            List<int>? producers = new List<int>();
+
+            var existingValues = this.HttpContext.Session.GetObject<List<int>>(SessionConstants.ProducerIds) ?? new List<int>();
+            if (existingValues != null)
+            {
+                producers = existingValues as List<int>;
+            }
+
+            var producerId = producerBillingInstructionsResponseDto?.Records?.Select(t => t.ProducerId).ToList();
+            if (isSelected)
+            {
+                producers?.AddRange(producerId);
+            }
+            else
+            {
+                producers?.RemoveAll(t => producerId.Contains(t));
+            }
+
+            return producers;
         }
 
         /// <summary>
@@ -114,12 +153,26 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize)
         {
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll.ToString());
-            this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, model.OrganisationSelections.SelectPage.ToString());
-            if (model.OrganisationSelections.SelectPage)
-            {
-                this.HttpContext.Session.SetString(SessionConstants.IsRedirected, "true");
-            }
+            if (!model.OrganisationSelections.SelectAll) { this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, new List<int>()); }
+            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
+        }
 
+        /// <summary>
+        /// Handles the POST request to select all billing instructions.
+        /// </summary>
+        /// <param name="model">The view model containing billing instructions and selection state.</param>
+        /// <param name="currentPage">current page.</param>
+        /// <param name="pageSize">page size.</param>
+        /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
+        [HttpPost]
+        public async Task<IActionResult> SelectAllPage(BillingInstructionsViewModel model, int currentPage, int pageSize)
+        {
+            this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, model.OrganisationSelections.SelectPage.ToString());
+
+            var producerBillingInstructionsResponseDto = await this.GetBillingData(model.CalculationRun.Id, new PaginationRequestViewModel() { Page = currentPage, PageSize = pageSize });
+            var producerIds = this.UpdateSession(producerBillingInstructionsResponseDto, model.OrganisationSelections.SelectPage);
+            this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, producerIds);
+            this.HttpContext.Session.SetString(SessionConstants.IsRedirected, "true");
             return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
         }
 

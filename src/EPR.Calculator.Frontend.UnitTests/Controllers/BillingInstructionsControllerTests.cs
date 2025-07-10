@@ -5,6 +5,7 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Mappers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
@@ -55,6 +56,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
             mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
             var context = new DefaultHttpContext()
             {
                 Session = mockSession
@@ -484,10 +486,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var claims = new List<Claim> { new Claim(ClaimTypes.Name, userName) };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
             var principal = new ClaimsPrincipal(identity);
+            var prodIds = new List<int>() { 1, 2, 3 };
 
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
             mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            mockSession.SetObject(SessionConstants.ProducerIds, prodIds);
 
             var context = new DefaultHttpContext
             {

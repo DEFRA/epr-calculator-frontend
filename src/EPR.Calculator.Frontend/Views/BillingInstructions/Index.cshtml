@@ -50,7 +50,7 @@
     </div>
 
     <div class="padding: 0px 20px; clear: both;">
-        @using (Html.BeginForm(ActionNames.SelectAll, null, FormMethod.Post))
+        @using (Html.BeginForm(ActionNames.SelectAllPage, null, FormMethod.Post))
         {
             <div class="govuk-form-group" style="margin-bottom:20px;">
                 <fieldset class="govuk-fieldset">
@@ -63,8 +63,26 @@
                                 <label class="govuk-label govuk-checkboxes__label" for="selectall">
                                     Select all records on this page
                                 </label>
-                            </div>
+                                <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
+                                <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
+                            </div>                            
+                        </div>
+                    </legend>
+                </fieldset>
+            </div>
+        }
+
+
+
+        @using (Html.BeginForm(ActionNames.SelectAll, null, FormMethod.Post))
+        {
+            <div class="govuk-form-group" style="margin-bottom:20px;">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend">
+                        <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;"> 
                             <div class="govuk-checkboxes__item" style="width: 300px !important;">
+                                <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
+                                <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
                                 @Html.CheckBoxFor(m => m.OrganisationSelections.SelectAll, new { name = "SelectAll", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
                                 <label class="govuk-label govuk-checkboxes__label center-label" for="status-selectAll">
                                     Select all @selectableCount records
