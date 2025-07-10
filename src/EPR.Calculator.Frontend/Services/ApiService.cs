@@ -35,7 +35,7 @@ namespace EPR.Calculator.Frontend.Services
             object? body)
         {
             var argsString = !string.IsNullOrEmpty(argument) ? $"/{argument}" : string.Empty;
-            argsString = !argument.Contains("&") ? argsString : $"?{argument}";
+            argsString = !argument.Contains('&') ? argsString : $"?{argument}";
             var contentString = JsonSerializer.Serialize(body);
             var request = new HttpRequestMessage(
                 httpMethod,

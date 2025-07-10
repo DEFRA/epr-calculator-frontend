@@ -514,7 +514,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
 
             configuration["ShowDetailedError"] = "true";
-            var controller = new DashboardController(configuration,
+            var controller = new DashboardController(
+                configuration,
                 new Mock<IApiService>().Object,
                 mockAuthorizationHeaderProvider.Object,
                 new TelemetryClient(),
