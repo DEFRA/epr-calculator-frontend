@@ -1,0 +1,67 @@
+﻿@inject HttpClient Http;
+
+@* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
+
+@* Needed for dialogs *@
+<MudDialogProvider />
+
+@* Needed for snackbars *@
+<MudSnackbarProvider />
+
+<style type="text/css">
+     .mud-table-head .header-centered th {
+         text-align: center;
+         font-size: 1.2em;
+     }
+
+    .mud-table-foot .bold-text .mud-table-cell {
+        font-weight: 500;
+    }
+</style>
+<MudForm  Model="orgProducers" @ref="form" OnValidSubmit="HandleSubmit" >
+
+ <MudTable @ref="_orgtableRef" Items="@orgProducers" MultiSelection="true" @bind-SelectedItems="selectedItems" Hover="true" Breakpoint="Breakpoint.Sm" Striped="false" Bordered="true"
+          CustomHeader="true" CustomFooter="true" HeaderClass="table-head-bordered" FooterClass="table-foot-bordered">
+    <HeaderContent>
+        <MudTHeadRow IgnoreCheckbox="true" Class="header-centered">
+            <MudTh colspan="6">Producer details</MudTh>
+        </MudTHeadRow>        
+        <MudTHeadRow Checkable="true">
+            <MudTh>Organisationname</MudTh>
+            <MudTh>Organisation ID</MudTh>
+            <MudTh>Billing instruction</MudTh>
+            <MudTh>Invoice amount</MudTh>
+            <MudTh>Status</MudTh>
+        </MudTHeadRow>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Organisation name">@context.OrganisationName</MudTd>
+        <MudTd DataLabel="Organisation ID">@context.OrganisationID</MudTd>
+        <MudTd DataLabel="Billing instruction"><MudHighlighter Class="govuk-tag govuk-tag--light-blue" Text="@context.BillingInstructions" HighlightedText="@context.BillingInstructions" /></MudTd>
+        <MudTd DataLabel="Invoice amount" HideSmall="_hidePosition">@context.InvoiceAmount</MudTd>
+        <MudTd DataLabel="Status"><MudHighlighter Class="govuk-tag govuk-tag--green" Text="@context.Status" HighlightedText="@context.Status" /></MudTd>
+    </RowTemplate>
+    <FooterContent>        
+        <MudTFootRow Checkable="true">
+            <MudTd colspan="5">Selected: @selectedItems.Count</MudTd>
+        </MudTFootRow>       
+    </FooterContent>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[] { 10, 50, 100 }"
+                       RowsPerPageString="@rowsPerPageString"
+                       InfoFormat="@infoFormat"
+                       AllItemsText="@allItemsText"
+                       HorizontalAlignment="@horizontalAlignment"
+                       HideRowsPerPage="@hideRowsPerPage"
+                       HidePageNumber="@hidePageNumber"
+                       HidePagination="@hidePagination" />
+    </PagerContent>
+</MudTable> 
+<MudCheckBox @bind-Value="PageSelectionState">Select all records on this page</MudCheckBox>
+<div Class="align-start">
+<MudButton ButtonType="ButtonType.Submit" Size="Size.Medium" OnClick="@(()=>HandleSubmit())" Class="govuk-button" style="width:10%;margin-top :20px;" Variant="Variant.Filled" FullWidth="false" Color="Color.Primary">Submit</MudButton>
+<MudButton ButtonType="ButtonType.Reset" Size="Size.Medium" OnClick="@(()=>HandleReset())" Class="govuk-button" style="width:10%;margin-top :20px;" Variant="Variant.Filled" FullWidth="false" Color="Color.Secondary">Clear</MudButton>
+</div>
+</MudForm>
