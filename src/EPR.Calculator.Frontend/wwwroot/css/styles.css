@@ -92,6 +92,11 @@
     overflow-wrap: break-word;
 }
 
-.center-label {
-    align-self: unset !important;
+.align-checkbox {
+    display: flex;
+    margin-top: 20px;
+}
+
+.checkbox-item-label{
+    width: 350px !important;
 }
