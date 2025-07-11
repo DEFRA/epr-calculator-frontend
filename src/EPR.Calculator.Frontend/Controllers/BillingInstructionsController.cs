@@ -78,7 +78,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     billingInstructionsViewModel.OrganisationSelections.SelectPage = true;
                     this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, "true");
-                    isSelectAllPage = true;
                 }
 
                 foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions.Where(t => existingSelectedIds.Contains(t.OrganisationId)))
