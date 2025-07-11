@@ -72,7 +72,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, billingInstructionsViewModel.ProducerIds);
                 }
 
-                var existingSelectedIds = this.HttpContext.Session.GetObject<List<int>>(SessionConstants.ProducerIds) ?? new List<int>();
+                var existingSelectedIds = this.HttpContext.Session.GetObject<IEnumerable<int>>(SessionConstants.ProducerIds) ?? [];
 
                 if (!isSelectAll && producerBillingInstructionsResponseDto is not null && producerBillingInstructionsResponseDto.Records.TrueForAll(t => existingSelectedIds.Contains(t.ProducerId)))
                 {
@@ -187,11 +187,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             List<int> producers = [];
 
-            var existingValues = this.HttpContext.Session.GetObject<List<int>>(SessionConstants.ProducerIds) ?? [];
+            var existingValues = this.HttpContext.Session.GetObject<IEnumerable<int>>(SessionConstants.ProducerIds) ?? [];
 
-            if (existingValues.Count > 0)
+            if (existingValues.ToList().Count > 0)
             {
-                producers = existingValues;
+                producers = existingValues.ToList();
             }
 
             var producersId = producerBillingInstructionsResponseDto?.Records?.Select(t => t.ProducerId).ToList();
