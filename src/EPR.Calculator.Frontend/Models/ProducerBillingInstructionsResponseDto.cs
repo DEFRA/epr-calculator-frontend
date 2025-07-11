@@ -20,6 +20,24 @@ public record ProducerBillingInstructionsResponseDto
     public int TotalRecords { get; init; }
 
     /// <summary>
+    ///  Gets the total Accepted number of records available for the query.
+    /// </summary>
+    [JsonPropertyName("totalAcceptedRecords")]
+    public int TotalAcceptedRecords { get; init; }
+
+    /// <summary>
+    ///  Gets the total Rejected number of records available for the query.
+    /// </summary>
+    [JsonPropertyName("totalRejectedRecords")]
+    public int TotalRejectedRecords { get; init; }
+
+    /// <summary>
+    ///  Gets the total Pending number of records available for the query.
+    /// </summary>
+    [JsonPropertyName("totalPendingRecords")]
+    public int TotalPendingRecords { get; init; }
+
+    /// <summary>
     /// Gets the unique identifier for the calculation run.
     /// </summary>
     [JsonPropertyName("calculatorRunId")]

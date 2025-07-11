@@ -134,7 +134,11 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 PageNumber = request.Page,
                 PageSize = request.PageSize,
-                SearchQuery = new ProducerBillingInstructionsSearchQueryDto { OrganisationId = request.OrganisationId },
+                SearchQuery = new ProducerBillingInstructionsSearchQueryDto
+                {
+                    OrganisationId = request.OrganisationId,
+                    Status = request.BillingStatus.HasValue ? new List<string> { request.BillingStatus.Value.ToString() } : null,
+                },
             };
 
             // Pass the calculationRunId as the route argument, and the DTO as the body

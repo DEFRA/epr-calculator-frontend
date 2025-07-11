@@ -19,6 +19,10 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             Assert.IsNotNull(viewModel.TablePaginationModel);
             Assert.IsInstanceOfType(viewModel.TablePaginationModel, typeof(PaginationViewModel));
 
+            Assert.AreEqual(0, viewModel.TotalAcceptedRecords);
+            Assert.AreEqual(0, viewModel.TotalRejectedRecords);
+            Assert.AreEqual(0, viewModel.TotalPendingRecords);
+
             Assert.AreEqual(viewModel.GetType(), typeof(BillingInstructionsViewModel));
         }
 

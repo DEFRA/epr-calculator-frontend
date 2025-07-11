@@ -4,6 +4,8 @@
 
 @{
     var selectableCount = Model.ProducerIds?.Count();
+
+    var routeValues = new Dictionary<string, object?>(Model.TablePaginationModel.RouteValues);
 }
 
 <partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
@@ -17,7 +19,7 @@
             <span class="govuk-caption-l">@Model.CalculationRun.Name</span>
             <h1 class="govuk-heading-l">Confirm billing instructions</h1>
 
-            @using (Html.BeginRouteForm(routeName: RouteNames.BillingInstructionsIndex, routeValues: new { calculationRunId = Model.CalculationRun.Id }, method: FormMethod.Get))
+            @using (Html.BeginRouteForm(routeName: RouteNames.BillingInstructionsIndex, routeValues: new { calculationRunId = Model.CalculationRun.Id, }, method: FormMethod.Get))
             {
                 <p class="govuk-body-m">
                     These billing instructions match those in the results file. Use this screen to confirm
@@ -38,10 +40,45 @@
                                    name="OrganisationId"
                                    type="search"
                                    style="flex: 1;"
-                                   value="@Model.TablePaginationModel?.RouteValues?["organisationId"]" />
+                                   value="@Model.TablePaginationModel?.RouteValues?[BillingInstructionConstants.OrganisationIdKey]" />
                             <button type="submit" class="govuk-button" data-module="govuk-button">
                                 Search
                             </button>
+                        </div>
+
+                        <div style="margin-top: 0px;">
+                            <h2 class="govuk-heading-m">Filter by status</h2>
+                            <table class="govuk-table" id="submission-table">
+                                <thead class="govuk-table__head">
+                                    <tr>
+                                        <td class="govuk-table__cell" style="padding-right: 20px;">
+                                            <a class="govuk-link govuk-link--selected"
+                                               href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) { [BillingInstructionConstants.BillingStatus] = (string?)null })">
+                                                
+                                                All (@Model.TablePaginationModel?.TotalRecords)
+                                            </a>
+                                        </td>
+                                        <td class="govuk-table__cell govuk-link--selected" style="padding-right: 20px;">
+                                            <a class="govuk-link govuk-link--selected"
+                                               href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) { [BillingInstructionConstants.BillingStatus] = BillingStatus.Accepted.ToString() })">
+                                                Accepted (@Model.TotalAcceptedRecords)
+                                            </a>
+                                        </td>
+                                        <td class="govuk-table__cell govuk-link--selected" style="padding-right: 20px;">
+                                            <a class="govuk-link govuk-link--selected"
+                                               href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) { [BillingInstructionConstants.BillingStatus] = BillingStatus.Rejected.ToString() })">
+                                                Rejected (@Model.TotalRejectedRecords)
+                                            </a>
+                                        </td>
+                                        <td class="govuk-table__cell govuk-link--selected" style="padding-right: 20px;">
+                                            <a class="govuk-link govuk-link--selected"
+                                               href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) { [BillingInstructionConstants.BillingStatus] = BillingStatus.Pending.ToString() })">
+                                                Pending (@Model.TotalPendingRecords)
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </thead>
+                            </table>
                         </div>
                     </div>
                 </div>

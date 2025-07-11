@@ -57,8 +57,12 @@ namespace EPR.Calculator.Frontend.Mappers
                     {
                         { BillingInstructionConstants.CalculationRunIdKey, billingData?.CalculatorRunId ?? 0 },
                         { BillingInstructionConstants.OrganisationIdKey, request.OrganisationId },
+                        { BillingInstructionConstants.BillingStatus, request.BillingStatus },
                     },
                 },
+                TotalAcceptedRecords = billingData!.TotalAcceptedRecords,
+                TotalRejectedRecords = billingData.TotalRejectedRecords,
+                TotalPendingRecords = billingData.TotalPendingRecords,
                 ProducerIds = billingData?.AllProducerIds,
                 OrganisationSelections = new OrganisationSelectionsViewModel { SelectAll = isSelectAll, SelectPage = isSelectAllPage },
             };

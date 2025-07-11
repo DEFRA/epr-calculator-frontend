@@ -25,7 +25,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
                 PageNumber = 2,
                 PageSize = 50,
                 TotalRecords = 200,
-                Records = new List<ProducerBillingInstructionsDto> { record }
+                Records = new List<ProducerBillingInstructionsDto> { record },
+                AllProducerIds = new List<int> { 1, 2, 3 },
+                TotalAcceptedRecords = 150,
+                TotalRejectedRecords = 30,
+                TotalPendingRecords = 20
             };
 
             Assert.AreEqual(100, response.CalculatorRunId);
@@ -35,6 +39,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
             Assert.AreEqual(200, response.TotalRecords);
             Assert.AreEqual(1, response.Records.Count);
             Assert.AreEqual("Test", response.Records[0].ProducerName);
+            Assert.AreEqual(3, response.AllProducerIds?.Count());
+            Assert.AreEqual(150, response.TotalAcceptedRecords);
+            Assert.AreEqual(30, response.TotalRejectedRecords);
+            Assert.AreEqual(20, response.TotalPendingRecords);
         }
 
         [TestMethod]

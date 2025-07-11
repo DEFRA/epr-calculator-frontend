@@ -11,5 +11,7 @@
         public const string CalculationRunIdKey = "calculationRunId";
 
         public const string OrganisationIdKey = "organisationId";
+
+        public const string BillingStatus = "billingStatus";
     }
 }

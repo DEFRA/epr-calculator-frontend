@@ -101,6 +101,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
             Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.TablePaginationModel.RouteName);
             Assert.AreEqual(123, result.TablePaginationModel.RouteValues[BillingInstructionConstants.CalculationRunIdKey]);
             Assert.AreEqual(null, result.TablePaginationModel.RouteValues[BillingInstructionConstants.OrganisationIdKey]);
+            Assert.AreEqual(null, result.TablePaginationModel.RouteValues[BillingInstructionConstants.BillingStatus]);
 
             var orgs = result.TablePaginationModel.Records as List<Organisation>;
             Assert.IsNotNull(orgs);
