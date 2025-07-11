@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using System.Reflection;
-using System.Text.Json;
-using AutoMapper.Configuration.Annotations;
-using Azure.Core;
+﻿using System.Text.Json;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
@@ -13,7 +9,6 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using Microsoft.IdentityModel.Tokens;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -86,9 +81,9 @@ namespace EPR.Calculator.Frontend.Controllers
                     isSelectAllPage = true;
                 }
 
-                foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions)
+                foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions.Where(t => existingSelectedIds.Contains(t.OrganisationId)))
                 {
-                    item.IsSelected = isSelectAll || isSelectAllPage;
+                    item.IsSelected = true;
                 }
 
                 return this.View(billingInstructionsViewModel);

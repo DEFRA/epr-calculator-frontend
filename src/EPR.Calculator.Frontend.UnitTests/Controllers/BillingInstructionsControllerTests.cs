@@ -479,7 +479,7 @@
 
             Assert.IsFalse(model.OrganisationSelections.SelectAll);
             Assert.IsFalse(model.OrganisationSelections.SelectPage);
-            Assert.IsFalse(model.OrganisationBillingInstructions.First().IsSelected);
+            Assert.IsTrue(model.OrganisationBillingInstructions.First().IsSelected);
             Assert.AreEqual(1, model.OrganisationBillingInstructions.First().OrganisationId);
         }
 
