@@ -1,12 +1,9 @@
 ﻿using System.Configuration;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using EPR.Calculator.Frontend.Common;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -64,23 +61,6 @@ namespace EPR.Calculator.Frontend.Controllers
             this.TelemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
             this.TelemetryClient.TrackTrace($"accessToken length {accessToken.Length}", SeverityLevel.Information);
             return accessToken;
-        }
-
-        /// <summary>
-        /// Returns the financial year from session if feature enabled, else from config.
-        /// </summary>
-        /// <returns>Returns the financial year.</returns>
-        /// <exception cref="ArgumentNullException">Returns error if financial year is null or empty.</exception>
-        protected string GetFinancialYear()
-        {
-            var parameterYear = this.HttpContext.Session.GetString(SessionConstants.FinancialYear);
-
-            if (string.IsNullOrWhiteSpace(parameterYear))
-            {
-                parameterYear = CommonUtil.GetFinancialYear(DateTime.Now);
-            }
-
-            return parameterYear;
         }
 
         protected async Task<HttpResponseMessage> CallApi(
