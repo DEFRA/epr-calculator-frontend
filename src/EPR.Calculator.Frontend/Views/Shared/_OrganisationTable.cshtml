@@ -1,6 +1,14 @@
 ﻿@using EPR.Calculator.Frontend.Enums
 @model BillingInstructionsViewModel
 
+@{
+    var selectedCount = Model.OrganisationSelections.SelectPage ? Model.OrganisationBillingInstructions?.Take(Model.TablePaginationModel.PageSize).Count() : 0;
+    var totalCount = Model.ProducerIds?.Count();
+    var displayText = (Model.OrganisationSelections.SelectAll)
+    ? $"{totalCount} records selected"
+    : $"{selectedCount} records selected";
+
+}
 <!-- Header showing total records -->
 <div>
     <table class="govuk-table" id="submission-table" aria-describedby="table-description">
@@ -10,7 +18,7 @@
         <thead class="govuk-table__head">
             <tr>
                 <th class="govuk-table__cell header-left-cell">
-                    <strong>0 records selected</strong>
+                    <strong>@displayText</strong>
                 </th>
                 <th class="govuk-table__cell header-right-cell">
                     <strong>@Model.TablePaginationModel.StartRecord - @Model.TablePaginationModel.EndRecord of @Model.TablePaginationModel.TotalRecords</strong>
@@ -47,7 +55,8 @@
                            value="@org.Id"
                            aria-labelledby="checkbox-label-@org.Id"
                            class="record-checkbox"
-                    @(org.Status == BillingStatus.Noaction ? "disabled" : "")>
+                    @(org.IsSelected ? "checked" : null)
+                    @(org.Status == BillingStatus.Noaction ? "disabled" : null)/>
                 </td>
                 <td class="govuk-table__cell govuk-!-text-align-center vertical-middle" id="checkbox-label-@org.Id">@org.OrganisationName</td>
                 <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">@org.OrganisationId</td>

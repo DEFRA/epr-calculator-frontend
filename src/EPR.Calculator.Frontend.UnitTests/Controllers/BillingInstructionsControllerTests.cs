@@ -1,23 +1,28 @@
-﻿using System.Net;
-using System.Security.Claims;
-using System.Text;
-using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Controllers;
-using EPR.Calculator.Frontend.Mappers;
-using EPR.Calculator.Frontend.Models;
-using EPR.Calculator.Frontend.UnitTests.HelpersTest;
-using EPR.Calculator.Frontend.UnitTests.Mocks;
-using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Web;
-using Moq;
-using Moq.Protected;
-
-namespace EPR.Calculator.Frontend.UnitTests.Controllers
+﻿namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
+    using System;
+    using System.Net;
+    using System.Security.Claims;
+    using System.Text;
+    using AutoFixture;
+    using AutoFixture.AutoMoq;
+    using EPR.Calculator.Frontend.Constants;
+    using EPR.Calculator.Frontend.Controllers;
+    using EPR.Calculator.Frontend.Extensions;
+    using EPR.Calculator.Frontend.Mappers;
+    using EPR.Calculator.Frontend.Models;
+    using EPR.Calculator.Frontend.UnitTests.HelpersTest;
+    using EPR.Calculator.Frontend.UnitTests.Mocks;
+    using EPR.Calculator.Frontend.ViewModels;
+    using Microsoft.ApplicationInsights;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Identity.Web;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Moq;
+    using Moq.Protected;
+
     [TestClass]
     public class BillingInstructionsControllerTests
     {
@@ -53,6 +58,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
             mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
             var context = new DefaultHttpContext()
             {
                 Session = mockSession
@@ -235,7 +241,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var billingData = CreateDefaultBillingData(calculationRunId);
 
             // Mapper throws exception
-            _mockMapper.Setup(m => m.MapToViewModel(It.IsAny<ProducerBillingInstructionsResponseDto>(), It.IsAny<PaginationRequestViewModel>(), It.IsAny<string>()))
+            _mockMapper.Setup(m => m.MapToViewModel(It.IsAny<ProducerBillingInstructionsResponseDto>(), It.IsAny<PaginationRequestViewModel>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
                 .Throws(new Exception("Mapper failed"));
 
             // Use the helper to simulate a successful API response
@@ -262,7 +268,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             _mockMapper.Setup(m => m.MapToViewModel(
                     It.IsAny<ProducerBillingInstructionsResponseDto>(),
                     It.IsAny<PaginationRequestViewModel>(),
-                    It.IsAny<string>()))
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
                 .Returns(new BillingInstructionsViewModel());
 
             var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
@@ -284,7 +292,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                         dto.Records[0].ProducerId == billingData.Records[0].ProducerId),
                     It.Is<PaginationRequestViewModel>(r =>
                         r.Page == request.Page && r.PageSize == request.PageSize),
-                    "Test User"),
+                    "Test User", false, false),
                 Times.Once);
         }
 
@@ -313,15 +321,249 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
         }
 
+        [TestMethod]
+        public async Task Index_ValidCalculationRunId_EmptySession()
+        {
+            // Arrange
+            var calculationRunId = 1;
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+            var billingData = CreateDefaultBillingData(calculationRunId);
+
+            // Setup the mapper to return any view model
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = await controller.IndexAsync(calculationRunId, request) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Model, typeof(BillingInstructionsViewModel));
+        }
+
+        [TestMethod]
+        public async Task CanCallSelectAll()
+        {
+            // Arrange
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var model = fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = fixture.Create<int>();
+            var pageSize = fixture.Create<int>();
+
+            var calculationRunId = 1;
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+            var billingData = CreateDefaultBillingData(calculationRunId);
+
+            // Setup the mapper to return any view model
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = controller.SelectAll(model, currentPage, pageSize) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public async Task CanCallSelectAll_Page()
+        {
+            // Arrange
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var model = fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = fixture.Create<int>();
+            var pageSize = fixture.Create<int>();
+
+            var calculationRunId = 1;
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+            var billingData = CreateDefaultBillingData(calculationRunId);
+
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("IsRedirected", "true");
+
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+
+            // Setup the mapper to return any view model
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            controller.ControllerContext = new ControllerContext { HttpContext = context };
+
+            // Act
+            var result = controller.SelectAll(model, currentPage, pageSize) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public void ClearSelection_RedirectsToIndex()
+        {
+            // Arrange
+            var calculationRunId = 1;
+            var selections = new OrganisationSelectionsViewModel
+            {
+                SelectedOrganisationIds = new List<int> { 1, 2, 3 }
+            };
+
+            // Act
+            var result = _controller.ClearSelection(calculationRunId, selections) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual(calculationRunId, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public async Task SelectAllPage_SetsSessionAndReturnsViewWithSelectAllViewModel()
+        {
+            // Arrange
+            var calculationRunId = 1;
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+            var billingData = CreateDefaultBillingData(calculationRunId);
+
+            // Setup the mapper to return any view model
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel()
+                { OrganisationBillingInstructions = new List<Organisation>() { new Organisation { Id = 1, BillingInstruction = Enums.BillingInstruction.Initial, IsSelected = true, InvoiceAmount = 100, OrganisationId = 1, OrganisationName = "Test", Status = Enums.BillingStatus.Accepted } } });
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = await controller.IndexAsync(calculationRunId, request);
+
+            // Assert
+            Assert.IsNotNull(result);
+            var redirectResult = (ViewResult)result;
+            Assert.IsNotNull(redirectResult);
+
+            var model = redirectResult.Model as BillingInstructionsViewModel;
+
+            Assert.IsFalse(model.OrganisationSelections.SelectAll);
+            Assert.IsFalse(model.OrganisationSelections.SelectPage);
+            Assert.IsTrue(model.OrganisationBillingInstructions.First().IsSelected);
+            Assert.AreEqual(1, model.OrganisationBillingInstructions.First().OrganisationId);
+        }
+
+        [TestMethod]
+        public async Task CanCallSelectAllPage()
+        {
+            // Arrange
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var model = fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = fixture.Create<int>();
+            var pageSize = fixture.Create<int>();
+
+            var calculationRunId = 1;
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+            var billingData = CreateDefaultBillingData(calculationRunId);
+
+            // Setup the mapper to return any view model
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = await controller.SelectAllPage(model, currentPage, pageSize) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public async Task CanCallSelectAllPage_UnChecked()
+        {
+            // Arrange
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var model = fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = fixture.Create<int>();
+            var pageSize = fixture.Create<int>();
+            model.OrganisationSelections.SelectPage = false;
+
+            var calculationRunId = 1;
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+            var billingData = CreateDefaultBillingData(calculationRunId);
+
+            // Setup the mapper to return any view model
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = await controller.SelectAllPage(model, currentPage, pageSize) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+        }
+
         private static DefaultHttpContext CreateTestHttpContext(string userName = "Test User")
         {
             var claims = new List<Claim> { new Claim(ClaimTypes.Name, userName) };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
             var principal = new ClaimsPrincipal(identity);
+            var prodIds = new List<int>() { 1, 2, 3 };
 
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
             mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            mockSession.SetObject(SessionConstants.ProducerIds, prodIds);
+            mockSession.SetObject(SessionConstants.IsRedirected, "true");
 
             var context = new DefaultHttpContext
             {
@@ -425,7 +667,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 .Setup(m => m.MapToViewModel(
                     It.IsAny<ProducerBillingInstructionsResponseDto>(),
                     It.IsAny<PaginationRequestViewModel>(),
-                    It.IsAny<string>()))
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
                 .Returns(expectedViewModel);
         }
 

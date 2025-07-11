@@ -16,13 +16,17 @@ namespace EPR.Calculator.Frontend.Mappers
         /// <param name="billingData">The billing data response DTO.</param>
         /// <param name="request">The pagination request view model.</param>
         /// <param name="currentUser">The current user's name.</param>
+        /// <param name="isSelectAll">IsSelectAll.</param>
+        /// <param name="isSelectAllPage">IsSelectAllPage.</param>
         /// <returns>A populated <see cref="BillingInstructionsViewModel"/>.</returns>
         public BillingInstructionsViewModel MapToViewModel(
-            ProducerBillingInstructionsResponseDto billingData,
+            ProducerBillingInstructionsResponseDto? billingData,
             PaginationRequestViewModel request,
-            string currentUser)
+            string currentUser,
+            bool isSelectAll,
+            bool isSelectAllPage)
         {
-            var organisations = billingData.Records.Select(x => new Organisation
+            var organisations = billingData?.Records.Select(x => new Organisation
             {
                 Id = x.ProducerId,
                 OrganisationName = x.ProducerName ?? string.Empty,
@@ -37,23 +41,26 @@ namespace EPR.Calculator.Frontend.Mappers
                 CurrentUser = currentUser,
                 CalculationRun = new CalculationRunForBillingInstructionsDto
                 {
-                    Id = billingData.CalculatorRunId,
-                    Name = billingData.RunName ?? string.Empty,
+                    Id = billingData?.CalculatorRunId ?? 0,
+                    Name = billingData?.RunName ?? string.Empty,
                 },
+                OrganisationBillingInstructions = organisations ?? [],
                 TablePaginationModel = new PaginationViewModel
                 {
                     Caption = CommonConstants.BillingTableHeader,
-                    Records = organisations,
+                    Records = organisations ?? [],
                     CurrentPage = request.Page <= 0 ? CommonConstants.DefaultPage : request.Page,
                     PageSize = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,
-                    TotalRecords = billingData.TotalRecords,
+                    TotalRecords = billingData?.TotalRecords ?? 0,
                     RouteName = RouteNames.BillingInstructionsIndex,
                     RouteValues = new Dictionary<string, object?>
                     {
-                        { BillingInstructionConstants.CalculationRunIdKey, billingData.CalculatorRunId },
+                        { BillingInstructionConstants.CalculationRunIdKey, billingData?.CalculatorRunId ?? 0 },
                         { BillingInstructionConstants.OrganisationIdKey, request.OrganisationId },
                     },
                 },
+                ProducerIds = billingData?.AllProducerIds,
+                OrganisationSelections = new OrganisationSelectionsViewModel { SelectAll = isSelectAll, SelectPage = isSelectAllPage },
             };
         }
 

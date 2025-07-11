@@ -12,9 +12,15 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// </summary>
         public CalculationRunForBillingInstructionsDto CalculationRun { get; init; } = new();
 
+        public ICollection<Organisation> OrganisationBillingInstructions { get; init; } = [];
+
         /// <summary>
         /// Gets the pagination model containing the billing instruction records and pagination information.
         /// </summary>
         public PaginationViewModel TablePaginationModel { get; init; } = new();
+
+        public OrganisationSelectionsViewModel OrganisationSelections { get; set; } = new();
+
+        public IEnumerable<int>? ProducerIds { get; init; }
     }
 }

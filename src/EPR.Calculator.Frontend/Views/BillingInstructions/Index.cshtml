@@ -2,6 +2,10 @@
 @using EPR.Calculator.Frontend.Extensions
 @model BillingInstructionsViewModel
 
+@{
+    var selectableCount = Model.ProducerIds?.Count();
+}
+
 <partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
 
 <div class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content">
@@ -46,6 +50,53 @@
     </div>
 
     <div class="padding: 0px 20px; clear: both;">
+        <div class="align-checkbox">
+        @using (Html.BeginForm(ActionNames.SelectAllPage, null, FormMethod.Post))
+        {
+            <div class="govuk-form-group" style="margin-bottom:20px;">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend">
+                        <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;">
+                                <div class="govuk-checkboxes__item checkbox-item-label">
+                                <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
+                                <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
+                                @Html.CheckBoxFor(m => m.OrganisationSelections.SelectPage, new { name = "SelectPage", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
+                                    <label class="govuk-label govuk-checkboxes__label" for="OrganisationSelections_SelectPage">
+                                    Select all records on this page
+                                </label>
+                                <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
+                                <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
+                            </div>                            
+                        </div>
+                    </legend>
+                </fieldset>
+            </div>
+        }
+
+
+
+        @using (Html.BeginForm(ActionNames.SelectAll, null, FormMethod.Post))
+        {
+            <div class="govuk-form-group" style="margin-bottom:20px;">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend">
+                        <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;"> 
+                            <div class="govuk-checkboxes__item" style="width: 300px !important;">
+                                <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
+                                <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
+                                @Html.CheckBoxFor(m => m.OrganisationSelections.SelectAll, new { name = "SelectAll", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
+                                    <label class="govuk-label govuk-checkboxes__label" for="OrganisationSelections_SelectAll">
+                                    Select all @selectableCount records
+                                </label>
+                                <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
+                                <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
+                            </div>
+                        </div>
+                    </legend>
+                </fieldset>
+            </div>
+        }
+        </div>
         @using (Html.BeginForm(ActionNames.ProcessSelection, null, FormMethod.Post))
         {
             <partial name="_OrganisationTable" model="Model" />
@@ -68,3 +119,4 @@
         </div>
     </div>
 </div>
+

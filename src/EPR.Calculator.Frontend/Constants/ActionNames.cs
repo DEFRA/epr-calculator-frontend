@@ -79,5 +79,15 @@
         /// ClearSelection.
         /// </summary>
         public const string ClearSelection = "ClearSelection";
+
+        /// <summary>
+        /// Select All.
+        /// </summary>
+        public const string SelectAll = "SelectAll";
+
+        /// <summary>
+        /// Select All Page.
+        /// </summary>
+        public const string SelectAllPage = "SelectAllPage";
     }
 }
