@@ -11,6 +11,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
 
         private MockHttpSession _session;
 
+        // Static readonly arrays for assertions
+        private static readonly int[] MergedProducerIds = { 1, 2, 3, 4 };
+        private static readonly int[] RemainingAfterRemove = { 1, 3 };
+
         public ARJourneySessionHelperTests()
         {
             _session = new MockHttpSession();
@@ -44,7 +48,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
 
             // Assert
             var result = ARJourneySessionHelper.GetFromSession(_session);
-            CollectionAssert.AreEquivalent(new[] { 1, 2, 3, 4 }, result.ToList());
+            CollectionAssert.AreEquivalent(MergedProducerIds, result.ToList());
         }
 
         [TestMethod]
@@ -61,7 +65,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
 
             // Assert
             var result = ARJourneySessionHelper.GetFromSession(_session);
-            CollectionAssert.AreEquivalent(new[] { 1, 3 }, result.ToList());
+            CollectionAssert.AreEquivalent(RemainingAfterRemove, result.ToList());
         }
 
         [TestMethod]

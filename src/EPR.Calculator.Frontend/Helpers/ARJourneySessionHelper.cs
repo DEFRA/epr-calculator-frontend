@@ -7,7 +7,7 @@ namespace EPR.Calculator.Frontend.Helpers
     /// Provides helper methods for managing a collection of producer IDs
     /// in the user's session for the AR Journey workflow.
     /// </summary>
-    public class ARJourneySessionHelper
+    public static class ARJourneySessionHelper
     {
         /// <summary>
         /// The session key used to store the producer IDs.
