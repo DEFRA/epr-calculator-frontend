@@ -14,6 +14,6 @@
 
         public const string BillingStatus = "billingStatus";
 
-        public const string BillingStatusBanner = "You’ve accepted {0} instructions and rejected {1}. <br>{0} instructions are still pending.";
+        public const string BillingStatusBanner = "You’ve accepted {0} instructions and rejected {1}. <br>{2} instructions are still pending.";
     }
 }
