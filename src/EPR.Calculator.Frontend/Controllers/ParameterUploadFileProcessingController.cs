@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -30,7 +31,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 var response = await this.PostDefaultParametersAsync(
                     new CreateDefaultParameterSettingDto(
                         parameterRefreshViewModel,
-                        this.GetFinancialYear()));
+                        CommonUtil.GetFinancialYear(this.HttpContext.Session)));
 
                 if (response.IsSuccessStatusCode && response.StatusCode == HttpStatusCode.Created)
                 {
