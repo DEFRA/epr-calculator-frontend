@@ -91,6 +91,13 @@
                     id: organisationId,
                     isSelected: isChecked
                 })
+            }).then(function () {
+                if (!isChecked) {                    
+                    var selectPage = document.getElementById('OrganisationSelections_SelectPage');
+                    var selectAll = document.getElementById('OrganisationSelections_SelectAll');
+                    if (selectPage) selectPage.checked = false;
+                    if (selectAll) selectAll.checked = false;
+                }
             });
         }
     });

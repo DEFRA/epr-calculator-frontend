@@ -9,6 +9,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using NuGet.Packaging;
 
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -129,6 +130,9 @@ namespace EPR.Calculator.Frontend.Controllers
             if (!model.OrganisationSelections.SelectAll)
             {
                 this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, new List<int>());
+
+                // If they just unselected all we also want to untick the select all page
+                this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, false.ToString());
             }
 
             return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
@@ -144,11 +148,21 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> SelectAllPage(BillingInstructionsViewModel model, int currentPage, int pageSize)
         {
+            // Sets the SelectAllPage flag to either true or false based on the model's selection state.
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, model.OrganisationSelections.SelectPage.ToString());
 
-            var producerBillingInstructionsResponseDto = await this.GetBillingData(model.CalculationRun.Id, new PaginationRequestViewModel() { Page = currentPage, PageSize = pageSize });
-            var producerIds = this.UpdateSession(producerBillingInstructionsResponseDto, model.OrganisationSelections.SelectPage);
-            this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, producerIds);
+            // Makes an api request to get the instructions for the current calculation run.
+            var producerBillingInstructionsResponseDto =
+                await this.GetBillingData(model.CalculationRun.Id, new PaginationRequestViewModel() { Page = currentPage, PageSize = pageSize });
+
+            var producerIdsFromResponse =
+                producerBillingInstructionsResponseDto?.Records?.Select(t => t.ProducerId).ToList();
+
+            if (producerIdsFromResponse != null)
+            {
+                this.AddOrRemoveSessionProducerIds(producerIdsFromResponse, model.OrganisationSelections.SelectPage);
+            }
+
             this.HttpContext.Session.SetString(SessionConstants.IsRedirected, "true");
             return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
         }
@@ -169,39 +183,13 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                // Retrieve the list from session or create a new one if it doesn't exist
-                var selectedProducerIds = this.HttpContext.Session.GetObject<List<int>>(SessionConstants.ProducerIds) ?? new List<int>();
+                this.AddOrRemoveSessionProducerIds([orgDto.Id], orgDto.IsSelected);
 
-                if (orgDto.IsSelected)
+                // If they just unselected an item then it clearly means we must untick the all is selected flag
+                if (!orgDto.IsSelected)
                 {
-                    // Ensure the ID is in the collection
-                    if (!selectedProducerIds.Contains(orgDto.Id))
-                    {
-                        selectedProducerIds.Add(orgDto.Id);
-                    }
-                    else
-                    {
-                        // if it already exists we don't want to do anything to the session state
-                        // at all and want to return
-                        return this.Ok();
-                    }
+                    this.HttpContext.Session.SetBooleanFlag(SessionConstants.IsSelectAll, false);
                 }
-                else
-                {
-                    // Ensure the ID is not in the collection
-                    selectedProducerIds.Remove(orgDto.Id);
-                }
-
-                // if we had to add or remove now we need to also falsify the SelectAll and SelectAllPage session flags
-                this.HttpContext.Session.SetBooleanFlag(SessionConstants.IsSelectAll, false);
-
-                // todo - we will need to do extra logic on this one, because for a particular page 
-                // we may still have selected all the ids and this flag may still be true
-                // although there is no real side effect except that the Selectpage checkbox will be reset
-                this.HttpContext.Session.SetBooleanFlag(SessionConstants.IsSelectAllPage, false);
-
-                // Overwrite the session object
-                this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, selectedProducerIds);
 
                 return this.Ok();
             }
@@ -212,13 +200,29 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        private void AddOrRemoveSessionProducerIds(IEnumerable<int> producerIds, bool isSelected)
+        {
+            var existingValues = this.HttpContext.Session.GetObject<IEnumerable<int>>(SessionConstants.ProducerIds) ?? [];
+
+            var producers = new HashSet<int>(existingValues);
+            if (isSelected)
+            {
+                producers.AddRange(producerIds);
+            }
+            else
+            {
+                producers.RemoveWhere(producerIds.Contains);
+            }
+
+            this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, producers.Distinct().ToList());
+        }
+
         private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(
             int calculationRunId,
             PaginationRequestViewModel request)
         {
             var apiUrl = this.GetApiUrl(ConfigSection.ProducerBillingInstructions, ConfigSection.ProducerBillingInstructionsV1);
 
-            // Build the request DTO
             var requestDto = new ProducerBillingInstructionsRequestDto
             {
                 PageNumber = request.Page,
@@ -226,7 +230,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 SearchQuery = new ProducerBillingInstructionsSearchQueryDto { OrganisationId = request.OrganisationId },
             };
 
-            // Pass the calculationRunId as the route argument, and the DTO as the body
             var response = await this.CallApi(HttpMethod.Post, apiUrl, calculationRunId.ToString(), requestDto);
 
             if (!response.IsSuccessStatusCode)
@@ -241,34 +244,6 @@ namespace EPR.Calculator.Frontend.Controllers
             var billingData = JsonSerializer.Deserialize<ProducerBillingInstructionsResponseDto>(json);
 
             return billingData;
-        }
-
-        private List<int> UpdateSession(ProducerBillingInstructionsResponseDto? producerBillingInstructionsResponseDto, bool isSelected)
-        {
-            List<int> producers = [];
-
-            var existingValues = this.HttpContext.Session.GetObject<IEnumerable<int>>(SessionConstants.ProducerIds) ?? [];
-
-            if (existingValues.ToList().Count > 0)
-            {
-                producers = existingValues.ToList();
-            }
-
-            var producersId = producerBillingInstructionsResponseDto?.Records?.Select(t => t.ProducerId).ToList();
-
-            if (producersId != null && producers is not null)
-            {
-                if (isSelected)
-                {
-                    producers.AddRange(producersId);
-                }
-                else
-                {
-                    producers.RemoveAll(producersId.Contains);
-                }
-            }
-
-            return producers ?? [];
         }
     }
 }
