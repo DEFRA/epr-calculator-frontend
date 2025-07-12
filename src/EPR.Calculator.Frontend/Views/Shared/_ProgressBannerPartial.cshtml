@@ -1,6 +1,6 @@
 ﻿@model BillingInstructionsViewModel
 @{
-    var message = string.Format(BillingInstructionConstants.BillingStatusBanner, @Model.TotalAcceptedRecords, @Model.TotalRejectedRecords, @Model.TotalAcceptedRecords);
+    var message = string.Format(BillingInstructionConstants.BillingStatusBanner, @Model.TotalAcceptedRecords, @Model.TotalRejectedRecords, @Model.TotalPendingRecords);
 }
 <div class="govuk-notification-banner govuk-notification-banner--success govuk-!-margin-bottom-0" role="alert" data-module="govuk-notification-banner">
     <div class="govuk-notification-banner__header">
