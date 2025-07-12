@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using NuGet.Packaging;
 
-
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
