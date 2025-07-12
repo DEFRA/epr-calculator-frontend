@@ -9,7 +9,6 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using NuGet.Packaging;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -68,14 +67,18 @@ namespace EPR.Calculator.Frontend.Controllers
                     isSelectAll,
                     isSelectAllPage);
 
-                if (isSelectAll)
+                if (isSelectAll &&
+                    billingInstructionsViewModel.ProducerIds != null &&
+                    billingInstructionsViewModel.ProducerIds.Any())
                 {
-                    this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, billingInstructionsViewModel.ProducerIds);
+                    ARJourneySessionHelper.AddToSession(this.HttpContext.Session, billingInstructionsViewModel.ProducerIds);
                 }
 
-                var existingSelectedIds = this.HttpContext.Session.GetObject<IEnumerable<int>>(SessionConstants.ProducerIds) ?? [];
+                var existingSelectedIds = ARJourneySessionHelper.GetFromSession(this.HttpContext.Session);
 
-                if (!isSelectAll && producerBillingInstructionsResponseDto is not null && producerBillingInstructionsResponseDto.Records.TrueForAll(t => existingSelectedIds.Contains(t.ProducerId)))
+                if (!isSelectAll &&
+                    producerBillingInstructionsResponseDto is not null &&
+                    producerBillingInstructionsResponseDto.Records.TrueForAll(t => existingSelectedIds.Contains(t.ProducerId)))
                 {
                     billingInstructionsViewModel.OrganisationSelections.SelectPage = true;
                     this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, "true");
@@ -128,7 +131,7 @@ namespace EPR.Calculator.Frontend.Controllers
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll.ToString());
             if (!model.OrganisationSelections.SelectAll)
             {
-                this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, new List<int>());
+                ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
 
                 // If they just unselected all we also want to untick the select all page
                 this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, false.ToString());
@@ -159,7 +162,16 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (producerIdsFromResponse != null)
             {
-                this.AddOrRemoveSessionProducerIds(producerIdsFromResponse, model.OrganisationSelections.SelectPage);
+                if (model.OrganisationSelections.SelectPage)
+                {
+                    // If the SelectPage is true, add the producer IDs to the session.
+                    ARJourneySessionHelper.AddToSession(this.HttpContext.Session, producerIdsFromResponse);
+                }
+                else
+                {
+                    // If the SelectPage is false, remove the producer IDs from the session.
+                    ARJourneySessionHelper.RemoveFromSession(this.HttpContext.Session, producerIdsFromResponse);
+                }
             }
 
             this.HttpContext.Session.SetString(SessionConstants.IsRedirected, "true");
@@ -182,7 +194,14 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                this.AddOrRemoveSessionProducerIds([orgDto.Id], orgDto.IsSelected);
+                if (orgDto.IsSelected)
+                {
+                    ARJourneySessionHelper.AddToSession(this.HttpContext.Session, [orgDto.Id]);
+                }
+                else
+                {
+                    ARJourneySessionHelper.RemoveFromSession(this.HttpContext.Session, [orgDto.Id]);
+                }
 
                 // If they just unselected an item then it clearly means we must untick the all is selected flag
                 if (!orgDto.IsSelected)
@@ -197,23 +216,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.TelemetryClient.TrackException(ex);
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
             }
-        }
-
-        private void AddOrRemoveSessionProducerIds(IEnumerable<int> producerIds, bool isSelected)
-        {
-            var existingValues = this.HttpContext.Session.GetObject<IEnumerable<int>>(SessionConstants.ProducerIds) ?? [];
-
-            var producers = new HashSet<int>(existingValues);
-            if (isSelected)
-            {
-                producers.AddRange(producerIds);
-            }
-            else
-            {
-                producers.RemoveWhere(producerIds.Contains);
-            }
-
-            this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, producers.Distinct().ToList());
         }
 
         private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(
