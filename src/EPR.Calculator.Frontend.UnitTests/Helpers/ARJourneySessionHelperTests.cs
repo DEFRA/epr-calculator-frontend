@@ -7,13 +7,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
     [TestClass]
     public class ARJourneySessionHelperTests
     {
-        private const string SessionKey = SessionConstants.ProducerIds;
-
-        private MockHttpSession _session;
-
         // Static readonly arrays for assertions
         private static readonly int[] MergedProducerIds = { 1, 2, 3, 4 };
         private static readonly int[] RemainingAfterRemove = { 1, 3 };
+
+        private const string SessionKey = SessionConstants.ProducerIds;
+        private MockHttpSession _session;
 
         public ARJourneySessionHelperTests()
         {
