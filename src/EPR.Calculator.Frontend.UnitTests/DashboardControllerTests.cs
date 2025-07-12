@@ -630,7 +630,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             var task = controller.Index();
             // Assert
             AggregateException ex = Assert.ThrowsException<AggregateException>(task.Wait);
-            Assert.AreEqual("One or more errors occurred. (The given key 'accessToken' was not present in the dictionary.)", ex.Message);
+            Assert.IsInstanceOfType(ex.InnerException, typeof(MsalUiRequiredException));
+            Assert.AreEqual("No account or login hint passed", ex.InnerException.Message);
         }
 
         [TestMethod]
