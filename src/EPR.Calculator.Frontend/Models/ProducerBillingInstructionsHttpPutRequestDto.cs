@@ -1,4 +1,6 @@
-﻿namespace EPR.Calculator.Frontend.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace EPR.Calculator.Frontend.Models
 {
     /// <summary>
     /// Data transfer object for submitting billing instructions for one or more producers.
@@ -24,8 +26,9 @@
         public string? ReasonForRejection { get; set; }
 
         /// <summary>
-        /// Authorisaion token for the request, typically used for API authentication.
+        /// Gets or sets the Authorisaion token for the request, typically used for API authentication.
         /// </summary>
+        [Required]
         public string AuthorizationToken { get; set; }
     }
 }

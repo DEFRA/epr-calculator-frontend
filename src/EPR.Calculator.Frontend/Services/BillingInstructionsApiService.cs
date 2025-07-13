@@ -26,7 +26,7 @@ namespace EPR.Calculator.Frontend.Services
         /// </remarks>
         public async Task<bool> PutAcceptRejectBillingInstructions(int calculationRunId, ProducerBillingInstructionsHttpPutRequestDto requestDto)
         {
-            var apiUrl = this.GetApiUrl(ConfigSection.ProducerBillingInstructions, ConfigSection.ProducerBillingInstructionsV2HttpPut);
+            var apiUrl = this.GetApiUrl(ConfigSection.ProducerBillingInstructions, ConfigSection.ProducerBillingInstructionsV2);
 
             var response = await this.CallApi(HttpMethod.Put, apiUrl, calculationRunId.ToString(), requestDto);
 
@@ -61,7 +61,7 @@ namespace EPR.Calculator.Frontend.Services
         private HttpClient GetHttpClient(string authToken)
         {
             var client = clientFactory.CreateClient();
-            if (client.DefaultRequestHeaders is not null && !client.DefaultRequestHeaders.Contains("Authorization"))
+            if (!client.DefaultRequestHeaders.Contains("Authorization"))
             {
                 client.DefaultRequestHeaders.Add("Authorization", authToken);
             }
