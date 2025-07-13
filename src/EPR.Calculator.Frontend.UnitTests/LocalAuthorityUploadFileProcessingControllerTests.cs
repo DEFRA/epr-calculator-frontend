@@ -312,7 +312,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task Index_DefaultToCurrentYearWhenNoFinancialYearInSession()
         {
-            var currentYear = CommonUtil.GetFinancialYear(DateTime.Now);
+            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.Now);
 
             // Act
             var result = await TestClass.Index(new LapcapRefreshViewModel());
