@@ -99,9 +99,5 @@ body {
     text-align: left;
     padding: 10px 30px 10px 0px;
     vertical-align: top;
-    border-bottom: 0px;
-}
-
-.no-border-bottom {
-    border-bottom: none !important;
+    border: none !important;
 }

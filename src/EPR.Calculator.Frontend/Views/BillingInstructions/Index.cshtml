@@ -61,25 +61,25 @@
                                 </caption>
                                 <thead class="govuk-table__head">
                                     <tr class="govuk-table__row">
-                                        <th class="govuk-table__header filter-by-status__cell no-border-bottom">
+                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
                                             <a class="@HighlightIfSelected(null)"
                                                href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) {[BillingInstructionConstants.BillingStatus] = (string?)null })">
                                                 All (@Model.TablePaginationModel?.TotalRecords)
                                             </a>
                                         </th>
-                                        <th class="govuk-table__header filter-by-status__cell no-border-bottom">
+                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
                                             <a class="@HighlightIfSelected(BillingStatus.Accepted.ToString())"
                                                href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) {[BillingInstructionConstants.BillingStatus] = BillingStatus.Accepted.ToString() })">
                                                 Accepted (@Model.TotalAcceptedRecords)
                                             </a>
                                         </th>
-                                        <th class="govuk-table__header filter-by-status__cell no-border-bottom">
+                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
                                             <a class="@HighlightIfSelected(BillingStatus.Rejected.ToString())"
                                                href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) {[BillingInstructionConstants.BillingStatus] = BillingStatus.Rejected.ToString() })">
                                                 Rejected (@Model.TotalRejectedRecords)
                                             </a>
                                         </th>
-                                        <th class="govuk-table__header filter-by-status__cell no-border-bottom">
+                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
                                             <a class="@HighlightIfSelected(BillingStatus.Pending.ToString())"
                                                href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) {[BillingInstructionConstants.BillingStatus] = BillingStatus.Pending.ToString() })">
                                                 Pending (@Model.TotalPendingRecords)
