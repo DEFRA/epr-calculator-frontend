@@ -42,4 +42,7 @@ public record ProducerBillingInstructionsResponseDto
     /// </summary>
     [JsonPropertyName("pageSize")]
     public int? PageSize { get; init; }
+
+    [JsonPropertyName("allProducerIds")]
+    public IEnumerable<int>? AllProducerIds { get; init; }
 }

@@ -91,3 +91,12 @@
 .calculator-run-h2 {
     overflow-wrap: break-word;
 }
+
+.align-checkbox {
+    display: flex;
+    margin-top: 20px;
+}
+
+.checkbox-item-label{
+    width: 350px !important;
+}

@@ -89,7 +89,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
             var request = new PaginationRequestViewModel { Page = 2, PageSize = 10 };
             var currentUser = "Test User";
 
-            var result = _mapper.MapToViewModel(billingData, request, currentUser);
+            var result = _mapper.MapToViewModel(billingData, request, currentUser, true, false);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(currentUser, result.CurrentUser);
@@ -128,7 +128,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
             var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
             var currentUser = "User";
 
-            var result = _mapper.MapToViewModel(billingData, request, currentUser);
+            var result = _mapper.MapToViewModel(billingData, request, currentUser, false, false);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(0, ((List<Organisation>)result.TablePaginationModel.Records).Count);
@@ -159,7 +159,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
             var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
             var currentUser = "User";
 
-            var result = _mapper.MapToViewModel(billingData, request, currentUser);
+            var result = _mapper.MapToViewModel(billingData, request, currentUser, false, true);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(string.Empty, result.CalculationRun.Name);
