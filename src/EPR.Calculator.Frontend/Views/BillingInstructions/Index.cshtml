@@ -136,6 +136,11 @@
                 <input type="hidden" name="CalculationRunId" value="@Model.CalculationRun.Id" />
             }
         </div>
+        @if (Model.TotalPendingRecords == 0) 
+        {
+            <h2 class="govuk-heading-m">@BillingInstructionConstants.BillingNextStep</h2>
+            <p class="govuk-body-m">@BillingInstructionConstants.BillingNextStepText</p>
+        }
     </div>
 </div>
 
