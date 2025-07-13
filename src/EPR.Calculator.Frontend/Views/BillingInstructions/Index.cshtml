@@ -6,6 +6,13 @@
     var selectableCount = Model.ProducerIds?.Count();
 
     var routeValues = new Dictionary<string, object?>(Model.TablePaginationModel.RouteValues);
+
+    var selectedStatus = routeValues.ContainsKey(BillingInstructionConstants.BillingStatus)
+    ? routeValues[BillingInstructionConstants.BillingStatus]?.ToString()
+    : null;
+
+    string HighlightIfSelected(string? status) =>
+        selectedStatus == status ? "govuk-link govuk-link--selected-status" : "govuk-link";
 }
 
 <partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
@@ -52,26 +59,26 @@
                                 <thead class="govuk-table__head">
                                     <tr>
                                         <td class="govuk-table__cell" style="padding-right: 20px;">
-                                            <a class="govuk-link govuk-link--selected"
+                                            <a class="@HighlightIfSelected(null)"
                                                href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) { [BillingInstructionConstants.BillingStatus] = (string?)null })">
-                                                
+
                                                 All (@Model.TablePaginationModel?.TotalRecords)
                                             </a>
                                         </td>
                                         <td class="govuk-table__cell govuk-link--selected" style="padding-right: 20px;">
-                                            <a class="govuk-link govuk-link--selected"
+                                            <a class="@HighlightIfSelected(BillingStatus.Accepted.ToString())"
                                                href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) { [BillingInstructionConstants.BillingStatus] = BillingStatus.Accepted.ToString() })">
                                                 Accepted (@Model.TotalAcceptedRecords)
                                             </a>
                                         </td>
                                         <td class="govuk-table__cell govuk-link--selected" style="padding-right: 20px;">
-                                            <a class="govuk-link govuk-link--selected"
+                                            <a class="@HighlightIfSelected(BillingStatus.Rejected.ToString())"
                                                href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) { [BillingInstructionConstants.BillingStatus] = BillingStatus.Rejected.ToString() })">
                                                 Rejected (@Model.TotalRejectedRecords)
                                             </a>
                                         </td>
                                         <td class="govuk-table__cell govuk-link--selected" style="padding-right: 20px;">
-                                            <a class="govuk-link govuk-link--selected"
+                                            <a class="@HighlightIfSelected(BillingStatus.Pending.ToString())"
                                                href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) { [BillingInstructionConstants.BillingStatus] = BillingStatus.Pending.ToString() })">
                                                 Pending (@Model.TotalPendingRecords)
                                             </a>
