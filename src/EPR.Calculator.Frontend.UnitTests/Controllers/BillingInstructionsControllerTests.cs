@@ -552,6 +552,101 @@
             Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
         }
 
+        [TestMethod]
+        public void UpdateOrganisationSelectionAsync_WhenIsSelectedTrue_AddsToSessionAndReturnsOk()
+        {
+            // Arrange
+            var controller = _controller;
+            var orgDto = new BillingSelectionOrgDto { Id = 42, IsSelected = true };
+            var mockSession = new MockHttpSession();
+            var context = new DefaultHttpContext { Session = mockSession };
+            controller.ControllerContext = new ControllerContext { HttpContext = context };
+
+            // Act
+            var result = controller.UpdateOrganisationSelectionAsync(orgDto) as OkResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(StatusCodes.Status200OK, result.StatusCode);
+            var stored = mockSession.GetObject<IEnumerable<int>>(EPR.Calculator.Frontend.Constants.SessionConstants.ProducerIds);
+            Assert.IsTrue(stored != null && stored.Contains(42));
+        }
+
+        [TestMethod]
+        public void UpdateOrganisationSelectionAsync_WhenIsSelectedFalse_RemovesFromSessionAndUnsetsSelectAll()
+        {
+            // Arrange
+            var controller = _controller;
+            var orgDto = new BillingSelectionOrgDto { Id = 99, IsSelected = false };
+            var mockSession = new MockHttpSession();
+            // Pre-populate session with the ID
+            mockSession.SetObject(EPR.Calculator.Frontend.Constants.SessionConstants.ProducerIds, new List<int> { 99 });
+            mockSession.SetString(EPR.Calculator.Frontend.Constants.SessionConstants.IsSelectAll, "true");
+            var context = new DefaultHttpContext { Session = mockSession };
+            controller.ControllerContext = new ControllerContext { HttpContext = context };
+
+            // Act
+            var result = controller.UpdateOrganisationSelectionAsync(orgDto) as OkResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(StatusCodes.Status200OK, result.StatusCode);
+            var stored = mockSession.GetObject<IEnumerable<int>>(EPR.Calculator.Frontend.Constants.SessionConstants.ProducerIds);
+            Assert.IsFalse(stored != null && stored.Contains(99));
+            // Check that the select all flag is now false
+            Assert.AreEqual("False", mockSession.GetString(EPR.Calculator.Frontend.Constants.SessionConstants.IsSelectAll));
+        }
+
+        [TestMethod]
+        public async Task IndexAsync_WhenIsSelectAllAndProducerIdsExist_AddsProducerIdsToSession()
+        {
+            // Arrange
+            var calculationRunId = 1;
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+
+            // Set up session with IsSelectAll = true
+            var mockSession = new MockHttpSession();
+            mockSession.SetString(SessionConstants.IsSelectAll, "true");
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            var context = new DefaultHttpContext { Session = mockSession };
+
+            // Prepare a BillingInstructionsViewModel with ProducerIds
+            var expectedProducerIds = new List<int> { 101, 102 };
+            var expectedViewModel = new BillingInstructionsViewModel
+            {
+                ProducerIds = expectedProducerIds,
+                OrganisationSelections = new OrganisationSelectionsViewModel(),
+                OrganisationBillingInstructions = new List<Organisation>(),
+                CalculationRun = new CalculationRunForBillingInstructionsDto { Id = calculationRunId, Name = "Test Run" },
+                TablePaginationModel = new PaginationViewModel()
+            };
+
+            // Setup the mapper to return the expected view model for any parameters
+            _mockMapper
+                .Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(expectedViewModel);
+
+            var billingData = CreateDefaultBillingData(calculationRunId);
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+
+            var controller = CreateControllerWithFactory(mockFactory);
+            controller.ControllerContext = new ControllerContext { HttpContext = context };
+
+            // Act
+            var result = await controller.IndexAsync(calculationRunId, request);
+
+            // Assert
+            var stored = mockSession.GetObject<IEnumerable<int>>(SessionConstants.ProducerIds);
+            Assert.IsNotNull(stored, "ProducerIds should be set in session.");
+            CollectionAssert.AreEquivalent(expectedProducerIds, stored.ToList());
+        }
+
         private static DefaultHttpContext CreateTestHttpContext(string userName = "Test User")
         {
             var claims = new List<Claim> { new Claim(ClaimTypes.Name, userName) };

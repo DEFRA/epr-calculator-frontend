@@ -55,9 +55,11 @@
                            value="@org.Id"
                            aria-labelledby="checkbox-label-@org.Id"
                            class="record-checkbox"
-                    @(org.IsSelected ? "checked" : null)
-                    @(org.Status == BillingStatus.Noaction ? "disabled" : null)/>
+                           data-organisation-id="@org.OrganisationId"
+                           @(org.IsSelected ? "checked" : null)
+                           @(org.Status == BillingStatus.Noaction ? "disabled" : null)/>
                 </td>
+
                 <td class="govuk-table__cell govuk-!-text-align-center vertical-middle" id="checkbox-label-@org.Id">@org.OrganisationName</td>
                 <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">@org.OrganisationId</td>
                 <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">
@@ -73,3 +75,30 @@
         }
     </tbody>
 </table>
+
+<script type="text/javascript">
+    document.addEventListener('click', function (event) {   
+        if (event.target.classList.contains('record-checkbox')) {
+            var organisationId = event.target.getAttribute('data-organisation-id');
+            var isChecked = event.target.checked;
+            
+            fetch('/UpdateOrganisationSelection', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: organisationId,
+                    isSelected: isChecked
+                })
+            }).then(function () {
+                if (!isChecked) {                    
+                    var selectPage = document.getElementById('OrganisationSelections_SelectPage');
+                    var selectAll = document.getElementById('OrganisationSelections_SelectAll');
+                    if (selectPage) selectPage.checked = false;
+                    if (selectAll) selectAll.checked = false;
+                }
+            });
+        }
+    });
+</script>
