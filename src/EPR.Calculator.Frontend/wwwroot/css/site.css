@@ -89,3 +89,19 @@ body {
     box-decoration-break: clone;
     padding: 0 4px;
 }
+
+.filter-by-status {
+    margin-top: 0px;
+}
+
+.filter-by-status__cell {
+    width: 20px;
+    text-align: left;
+    padding: 10px 30px 10px 0px;
+    vertical-align: top;
+    border-bottom: 0px;
+}
+
+.no-border-bottom {
+    border-bottom: none !important;
+}
