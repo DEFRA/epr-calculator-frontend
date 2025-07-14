@@ -1,0 +1,50 @@
+﻿@model ReasonForRejectionViewModel
+
+@{
+    var backLinkModel = new BackLinkPartialViewModel
+            {
+                BackLink = Model.BackLink,
+                CurrentUser = Model.CurrentUser,
+                RunId = Model.CalculationRunId
+            };
+}
+<partial name="_BackLinkPartialNew" model="backLinkModel" />
+
+<div class="govuk-width-container ">
+
+  
+
+    @using (Html.BeginForm(ActionNames.Index, ControllerNames.ReasonForRejection, FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.Hidden("runId", Model.CalculationRunId)
+        @Html.Hidden("BackLink", Model.BackLink)
+        @Html.Hidden("CurrentUser", Model.CurrentUser)
+        @Html.Hidden("CalculationRunId", Model.CalculationRunId)
+        <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+
+            <div class="govuk-grid-row">
+                <div class="@(ViewContext.ModelState.IsValid ?  "govuk-form-group govuk-grid-column-full" : "govuk-form-group govuk-form-group--error" )">
+                    <span class="govuk-caption-xl">@Model.CalculationRunName</span>
+                    <h1 class="govuk-heading-xl" style="margin-bottom: 3%;">Give a reason for rejecting billing instructions</h1>
+                    <div class="govuk-grid-column-two-thirds" style="padding:0px;">
+
+                        <div class="govuk-form-group">
+                            @Html.ValidationMessageFor(m => m.Reason, "", new { @class = "govuk-error-message" })
+                            @Html.TextAreaFor(m => m.Reason, new { @class = "govuk-textarea form-control text-area-margin-bottom", rows = 5 })
+                        </div>
+
+                    </div>
+                </div>
+                <div class="govuk-form-group">
+                    <button type="submit" class="@(ViewContext.ModelState.IsValid ? "govuk-button govuk-button--secondary  button-margin" : "govuk-button govuk-button--secondary")" data-module="govuk-button">
+                        Continue
+                    </button>
+                </div>
+
+            </div>
+
+
+        </main>
+    }
+</div>
