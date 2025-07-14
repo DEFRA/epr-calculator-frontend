@@ -1,9 +1,7 @@
 ﻿using System.Configuration;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using EPR.Calculator.Frontend.Common;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
@@ -79,7 +77,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
-                parameterYear = CommonUtil.GetFinancialYear(DateTime.Now);
+                parameterYear = CommonUtil.GetDefaultFinancialYear(DateTime.Now);
             }
 
             return parameterYear;

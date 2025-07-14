@@ -192,7 +192,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                    It.Is<CreateDefaultParameterSettingDto>(dto =>
                        dto.ParameterTemplateValues.SequenceEqual(data.ParameterTemplateValues) &&
                        dto.FileName == data.FileName &&
-                       dto.ParameterYear == CommonUtil.GetFinancialYear(DateTime.Now))),
+                       dto.ParameterYear == CommonUtil.GetDefaultFinancialYear(DateTime.Now))),
                Times.Once);
         }
 
