@@ -1,10 +1,12 @@
-﻿using System.Net;
-using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
+using System.Configuration;
+using System.Net;
+using System.Reflection;
 
 namespace EPR.Calculator.Frontend.UnitTests.Services
 {
@@ -88,6 +90,24 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
 
             // Assert
             Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void GetConfigSetting_NullOrWhitespace_ThrowsConfigurationErrorsException()
+        {
+            // Arrange
+            var service = new BillingInstructionsApiService(_mockHttpClientFactory.Object, _mockConfiguration);
+
+            // Act
+            var method = service.GetType()
+                .GetMethod("GetConfigSetting", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+
+            var ex = Assert.ThrowsException<TargetInvocationException>(() =>
+                method.Invoke(service, new object[] { "SomeSection", "SomeKey" }));
+
+            // Assert
+            Assert.IsInstanceOfType(ex.InnerException, typeof(ConfigurationErrorsException));
+            StringAssert.Contains(ex.InnerException!.Message, "SomeSection:SomeKey is null or empty");
         }
     }
 }
