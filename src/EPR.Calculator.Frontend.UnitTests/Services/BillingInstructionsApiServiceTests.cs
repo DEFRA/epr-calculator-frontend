@@ -1,12 +1,12 @@
-﻿using EPR.Calculator.Frontend.Models;
+﻿using System.Configuration;
+using System.Net;
+using System.Reflection;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
-using System.Configuration;
-using System.Net;
-using System.Reflection;
 
 namespace EPR.Calculator.Frontend.UnitTests.Services
 {
