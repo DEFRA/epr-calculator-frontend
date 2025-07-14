@@ -51,7 +51,7 @@ namespace EPR.Calculator.Frontend.Mappers
                     Records = organisations ?? [],
                     CurrentPage = request.Page <= 0 ? CommonConstants.DefaultPage : request.Page,
                     PageSize = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,
-                    TotalRecords = billingData?.TotalRecords ?? 0,
+                    TotalTableRecords = billingData?.AllProducerIds?.Count() ?? 0,
                     RouteName = RouteNames.BillingInstructionsIndex,
                     RouteValues = new Dictionary<string, object?>
                     {
@@ -60,6 +60,7 @@ namespace EPR.Calculator.Frontend.Mappers
                         { BillingInstructionConstants.BillingStatus, request.BillingStatus },
                     },
                 },
+                TotalRecords = billingData!.TotalRecords,
                 TotalAcceptedRecords = billingData!.TotalAcceptedRecords,
                 TotalRejectedRecords = billingData.TotalRejectedRecords,
                 TotalPendingRecords = billingData.TotalPendingRecords,
