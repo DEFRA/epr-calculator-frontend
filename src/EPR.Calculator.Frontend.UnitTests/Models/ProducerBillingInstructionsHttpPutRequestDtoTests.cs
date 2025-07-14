@@ -43,5 +43,20 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
             Assert.AreEqual("Invalid data", deserialized.ReasonForRejection);
             Assert.AreEqual("Bearer xyz", deserialized.AuthorizationToken);
         }
+
+        [TestMethod]
+        public void Deserialization_Without_AuthorizationToken_Throws_JsonException()
+        {
+            // JSON missing the required AuthorizationToken property
+            var json = @"{
+                    ""OrganisationIds"": [1, 2],
+                    ""Status"": ""Accepted""
+                }";
+
+            Assert.ThrowsException<System.Text.Json.JsonException>(() =>
+            {
+                JsonSerializer.Deserialize<ProducerBillingInstructionsHttpPutRequestDto>(json);
+            });
+        }
     }
 }
