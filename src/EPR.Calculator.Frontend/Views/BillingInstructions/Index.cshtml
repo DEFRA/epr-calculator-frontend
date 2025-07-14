@@ -173,8 +173,7 @@
         </div>
         @if (Model.TotalPendingRecords == 0) 
         {
-            <h2 class="govuk-heading-m">@BillingInstructionConstants.BillingNextStep</h2>
-            <p class="govuk-body-m">@BillingInstructionConstants.BillingNextStepText</p>
+            <partial name="_BillingNextStepPartial"/>
         }
     </div>
 </div>
