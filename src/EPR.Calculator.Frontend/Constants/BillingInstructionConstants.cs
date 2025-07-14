@@ -11,5 +11,9 @@
         public const string CalculationRunIdKey = "calculationRunId";
 
         public const string OrganisationIdKey = "organisationId";
+
+        public const string AmendBillingInstructions = "Amend billing instructions";
+
+        public const string AmendBillingInstructionText = "Review or change the billing instructions before sending the billing file.";
     }
 }
