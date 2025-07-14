@@ -42,7 +42,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                return this.View(model);
+                return this.View(ViewNames.ReasonForRejectionIndex, model);
             }
 
             return this.RedirectToAction(ViewNames.ReasonForRejectionIndex, new { model.CalculationRunId });

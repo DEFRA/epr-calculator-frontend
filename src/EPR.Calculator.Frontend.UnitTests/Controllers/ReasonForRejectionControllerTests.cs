@@ -1,17 +1,13 @@
 namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
-    using System;
     using System.Net;
     using System.Net.Http;
-    using System.Security.Claims;
     using System.Threading.Tasks;
     using AutoFixture;
     using AutoFixture.AutoMoq;
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Controllers;
-    using EPR.Calculator.Frontend.Mappers;
     using EPR.Calculator.Frontend.UnitTests.HelpersTest;
-    using EPR.Calculator.Frontend.UnitTests.Mocks;
     using EPR.Calculator.Frontend.ViewModels;
     using Microsoft.ApplicationInsights;
     using Microsoft.AspNetCore.Http;
@@ -90,6 +86,34 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             // Assert
             Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public void CanCallIndexPost_WithNoReason()
+        {
+            // Arrange
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var runId = fixture.Create<int>();
+            var model = new ReasonForRejectionViewModel() { Reason = string.Empty, BackLink = ViewNames.BillingInstructionsIndex, CalculationRunId = runId };
+
+            var controller = new ReasonForRejectionController(
+                this.Configuration,
+                new Mock<ITokenAcquisition>().Object,
+                new TelemetryClient(),
+                this.MockClientFactory.Object);
+
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            controller.ModelState.AddModelError("No Reason", "Provide a reason that applies to all the billing instructions you selected for rejection.");
+
+            // Act
+            var result = controller.IndexPost(runId, model) as ViewResult;
+
+            var resultModel = result.Model as ReasonForRejectionViewModel;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.ReasonForRejectionIndex, result.ViewName);
+            Assert.AreEqual(runId, resultModel.CalculationRunId);
         }
     }
 }
