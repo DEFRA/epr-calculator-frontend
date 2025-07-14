@@ -38,11 +38,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
             _sessionStorage[key] = Encoding.UTF8.GetString(value);
         }
 
-        bool ISession.TryGetValue(string key, out byte[] value)
+        public bool TryGetValue(string key, out byte[] value)
         {
-            if (_sessionStorage[key] != null)
+            if (_sessionStorage.TryGetValue(key, out var obj))
             {
-                value = Encoding.ASCII.GetBytes(_sessionStorage[key].ToString());
+                value = Encoding.UTF8.GetBytes(obj.ToString()!);
                 return true;
             }
 

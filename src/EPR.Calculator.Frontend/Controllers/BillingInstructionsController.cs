@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Text.Json;
+﻿using System.Text.Json;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
@@ -67,11 +66,27 @@ namespace EPR.Calculator.Frontend.Controllers
                     CommonUtil.GetUserName(this.HttpContext),
                     isSelectAll,
                     isSelectAllPage);
-                this.HttpContext.Session.SetObject(SessionConstants.ProducerIds, billingInstructionsViewModel.ProducerIds);
 
-                foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions)
+                if (isSelectAll &&
+                    billingInstructionsViewModel.ProducerIds != null &&
+                    billingInstructionsViewModel.ProducerIds.Any())
                 {
-                    item.IsSelected = isSelectAll || isSelectAllPage;
+                    ARJourneySessionHelper.AddToSession(this.HttpContext.Session, billingInstructionsViewModel.ProducerIds);
+                }
+
+                var existingSelectedIds = ARJourneySessionHelper.GetFromSession(this.HttpContext.Session);
+
+                if (!isSelectAll &&
+                    producerBillingInstructionsResponseDto is not null &&
+                    producerBillingInstructionsResponseDto.Records.TrueForAll(t => existingSelectedIds.Contains(t.ProducerId)))
+                {
+                    billingInstructionsViewModel.OrganisationSelections.SelectPage = true;
+                    this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, "true");
+                }
+
+                foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions.Where(t => existingSelectedIds.Contains(t.OrganisationId)))
+                {
+                    item.IsSelected = true;
                 }
 
                 return this.View(billingInstructionsViewModel);
@@ -114,13 +129,93 @@ namespace EPR.Calculator.Frontend.Controllers
         public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize)
         {
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll.ToString());
-            this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, model.OrganisationSelections.SelectPage.ToString());
-            if (model.OrganisationSelections.SelectPage)
+            if (!model.OrganisationSelections.SelectAll)
             {
-                this.HttpContext.Session.SetString(SessionConstants.IsRedirected, "true");
+                ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
+
+                // If they just unselected all we also want to untick the select all page
+                this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, false.ToString());
             }
 
             return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
+        }
+
+        /// <summary>
+        /// Handles the POST request to select all billing instructions.
+        /// </summary>
+        /// <param name="model">The view model containing billing instructions and selection state.</param>
+        /// <param name="currentPage">current page.</param>
+        /// <param name="pageSize">page size.</param>
+        /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
+        [HttpPost]
+        public async Task<IActionResult> SelectAllPage(BillingInstructionsViewModel model, int currentPage, int pageSize)
+        {
+            // Sets the SelectAllPage flag to either true or false based on the model's selection state.
+            this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, model.OrganisationSelections.SelectPage.ToString());
+
+            // Makes an api request to get the instructions for the current calculation run.
+            var producerBillingInstructionsResponseDto =
+                await this.GetBillingData(model.CalculationRun.Id, new PaginationRequestViewModel() { Page = currentPage, PageSize = pageSize });
+
+            var producerIdsFromResponse =
+                producerBillingInstructionsResponseDto?.Records?.Select(t => t.ProducerId).ToList();
+
+            if (producerIdsFromResponse != null)
+            {
+                if (model.OrganisationSelections.SelectPage)
+                {
+                    // If the SelectPage is true, add the producer IDs to the session.
+                    ARJourneySessionHelper.AddToSession(this.HttpContext.Session, producerIdsFromResponse);
+                }
+                else
+                {
+                    // If the SelectPage is false, remove the producer IDs from the session.
+                    ARJourneySessionHelper.RemoveFromSession(this.HttpContext.Session, producerIdsFromResponse);
+                }
+            }
+
+            this.HttpContext.Session.SetString(SessionConstants.IsRedirected, "true");
+            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
+        }
+
+        /// <summary>
+        /// Handles AJAX updates to the selected organisation IDs in the user's session.
+        /// Adds or removes the organisation ID from the session-based collection depending on the IsSelected flag.
+        /// </summary>
+        /// <param name="orgDto">
+        /// The <see cref="BillingSelectionOrgDto"/> containing the organisation ID and selection state.
+        /// </param>
+        /// <returns>
+        /// <see cref="IActionResult"/> indicating the result of the operation.
+        /// Returns 200 OK on success, or 500 Internal Server Error if an exception occurs.
+        /// </returns>
+        [HttpPost("UpdateOrganisationSelection", Name = "BillingInstructions_OrganisationSelection")]
+        public IActionResult UpdateOrganisationSelectionAsync([FromBody] BillingSelectionOrgDto orgDto)
+        {
+            try
+            {
+                if (orgDto.IsSelected)
+                {
+                    ARJourneySessionHelper.AddToSession(this.HttpContext.Session, [orgDto.Id]);
+                }
+                else
+                {
+                    ARJourneySessionHelper.RemoveFromSession(this.HttpContext.Session, [orgDto.Id]);
+                }
+
+                // If they just unselected an item then it clearly means we must untick the all is selected flag
+                if (!orgDto.IsSelected)
+                {
+                    this.HttpContext.Session.SetBooleanFlag(SessionConstants.IsSelectAll, false);
+                }
+
+                return this.Ok();
+            }
+            catch (Exception ex)
+            {
+                this.TelemetryClient.TrackException(ex);
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
         }
 
         private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(
