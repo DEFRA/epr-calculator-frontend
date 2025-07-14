@@ -23,17 +23,16 @@ namespace EPR.Calculator.Frontend.Controllers
         public async Task<IActionResult> Index(int runId)
         {
             var runDetails = await this.GetCalculatorRundetails(runId);
-            if (!this.ModelState.IsValid) { }
 
             var viewModel = new ReasonForRejectionViewModel()
             {
-                CalculationRunId = runDetails.RunId,
-                CalculationRunName = runDetails.RunName,
+                CalculationRunId = runId,
+                CalculationRunName = runDetails?.RunName,
                 Reason = string.Empty,
                 BackLink = ControllerNames.BillingInstructionsController,
             };
 
-            return View(viewModel);
+            return this.View(ViewNames.ReasonForRejectionIndex, viewModel);
         }
 
         [HttpPost]
@@ -46,7 +45,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(model);
             }
 
-            return this.RedirectToAction(ActionNames.Index, new { model.CalculationRunId });
+            return this.RedirectToAction(ViewNames.ReasonForRejectionIndex, new { model.CalculationRunId });
         }
     }
 }
