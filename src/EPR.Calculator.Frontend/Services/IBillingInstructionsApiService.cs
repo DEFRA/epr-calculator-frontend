@@ -19,5 +19,5 @@ public interface IBillingInstructionsApiService
     /// A task that represents the asynchronous operation. The task result contains a boolean indicating
     /// whether the operation was successful.
     /// </returns>
-    Task<bool> PutAcceptRejectBillingInstructions(int calculationRunId, ProducerBillingInstructionsHttpPutRequestDto request);
+    Task<bool> PutAcceptRejectBillingInstructions(int calculationRunId, ProducerBillingInstructionsHttpPutRequestDto requestDto);
 }

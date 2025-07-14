@@ -28,7 +28,6 @@ namespace EPR.Calculator.Frontend.Models
         /// <summary>
         /// Gets or sets the Authorisaion token for the request, typically used for API authentication.
         /// </summary>
-        [Required]
-        public string AuthorizationToken { get; set; }
+        public required string AuthorizationToken { get; set; }
     }
 }

@@ -67,8 +67,6 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddScoped<IBillingInstructionsMapper, BillingInstructionsMapper>();
 
-builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
 builder.Services.AddScoped<IBillingInstructionsApiService, BillingInstructionsApiService>();
 
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
