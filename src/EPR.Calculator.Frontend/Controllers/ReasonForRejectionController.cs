@@ -1,4 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -30,6 +31,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 CalculationRunName = runDetails?.RunName,
                 Reason = string.Empty,
                 BackLink = ControllerNames.BillingInstructionsController,
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
             };
 
             return this.View(ViewNames.ReasonForRejectionIndex, viewModel);
