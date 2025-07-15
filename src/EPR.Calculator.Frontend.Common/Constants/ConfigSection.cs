@@ -136,5 +136,10 @@
         /// The key for the producer billing instructions post endpoint.
         /// </summary>
         public const string ProducerBillingInstructionsV1 = "ProducerBillingInstructions";
+
+        /// <summary>
+        /// The key for the producer billing instructions v2 put endpoint.
+        /// </summary>
+        public const string ProducerBillingInstructionsV2 = "ProducerBillingInstructionsV2";
     }
 }
