@@ -21,7 +21,7 @@
                     <strong>@displayText</strong>
                 </th>
                 <th class="govuk-table__cell header-right-cell">
-                    <strong>@Model.TablePaginationModel.StartRecord - @Model.TablePaginationModel.EndRecord of @Model.TablePaginationModel.TotalRecords</strong>
+                    <strong>@Model.TablePaginationModel.StartRecord - @Model.TablePaginationModel.Records.Count() of @Model.ProducerIds!.Count()</strong>
                 </th>
             </tr>
         </thead>

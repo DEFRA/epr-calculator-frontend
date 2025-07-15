@@ -23,6 +23,8 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public IEnumerable<int>? ProducerIds { get; init; }
 
+        public int TotalRecords { get; set; }
+
         public int TotalAcceptedRecords { get; set; }
 
         public int TotalRejectedRecords { get; set; }
