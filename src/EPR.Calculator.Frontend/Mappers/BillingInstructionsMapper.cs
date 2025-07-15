@@ -51,14 +51,19 @@ namespace EPR.Calculator.Frontend.Mappers
                     Records = organisations ?? [],
                     CurrentPage = request.Page <= 0 ? CommonConstants.DefaultPage : request.Page,
                     PageSize = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,
-                    TotalRecords = billingData?.TotalRecords ?? 0,
+                    TotalTableRecords = billingData?.AllProducerIds?.Count() ?? 0,
                     RouteName = RouteNames.BillingInstructionsIndex,
                     RouteValues = new Dictionary<string, object?>
                     {
                         { BillingInstructionConstants.CalculationRunIdKey, billingData?.CalculatorRunId ?? 0 },
                         { BillingInstructionConstants.OrganisationIdKey, request.OrganisationId },
+                        { BillingInstructionConstants.BillingStatus, request.BillingStatus },
                     },
                 },
+                TotalRecords = billingData!.TotalRecords,
+                TotalAcceptedRecords = billingData!.TotalAcceptedRecords,
+                TotalRejectedRecords = billingData.TotalRejectedRecords,
+                TotalPendingRecords = billingData.TotalPendingRecords,
                 ProducerIds = billingData?.AllProducerIds,
                 OrganisationSelections = new OrganisationSelectionsViewModel { SelectAll = isSelectAll, SelectPage = isSelectAllPage },
             };

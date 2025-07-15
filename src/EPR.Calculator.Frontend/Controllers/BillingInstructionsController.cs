@@ -224,13 +224,19 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var apiUrl = this.GetApiUrl(ConfigSection.ProducerBillingInstructions, ConfigSection.ProducerBillingInstructionsV1);
 
+            // Build the request DTO
             var requestDto = new ProducerBillingInstructionsRequestDto
             {
                 PageNumber = request.Page,
                 PageSize = request.PageSize,
-                SearchQuery = new ProducerBillingInstructionsSearchQueryDto { OrganisationId = request.OrganisationId },
+                SearchQuery = new ProducerBillingInstructionsSearchQueryDto
+                {
+                    OrganisationId = request.OrganisationId,
+                    Status = request.BillingStatus.HasValue ? new List<string> { request.BillingStatus.Value.ToString() } : null,
+                },
             };
 
+            // Pass the calculationRunId as the route argument, and the DTO as the body
             var response = await this.CallApi(HttpMethod.Post, apiUrl, calculationRunId.ToString(), requestDto);
 
             if (!response.IsSuccessStatusCode)

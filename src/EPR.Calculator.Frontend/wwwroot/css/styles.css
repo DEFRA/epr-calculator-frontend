@@ -100,3 +100,7 @@
 .checkbox-item-label{
     width: 350px !important;
 }
+
+.center-label {
+    align-self: unset !important;
+}
