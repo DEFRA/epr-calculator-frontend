@@ -58,7 +58,6 @@
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
             mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-
             var context = new DefaultHttpContext()
             {
                 Session = mockSession
@@ -172,7 +171,7 @@
 
             var model = result.Model as BillingInstructionsViewModel;
             Assert.IsNotNull(model);
-            Assert.AreEqual(0, model.TablePaginationModel.TotalRecords);
+            Assert.AreEqual(0, model.TablePaginationModel.TotalTableRecords);
         }
 
         [TestMethod]
@@ -745,7 +744,7 @@
                     Records = billingData.Records,
                     CurrentPage = request.Page,
                     PageSize = request.PageSize,
-                    TotalRecords = billingData.TotalRecords,
+                    TotalTableRecords = billingData.TotalRecords,
                     RouteName = RouteNames.BillingInstructionsIndex,
                     RouteValues = new Dictionary<string, object?>
                     {

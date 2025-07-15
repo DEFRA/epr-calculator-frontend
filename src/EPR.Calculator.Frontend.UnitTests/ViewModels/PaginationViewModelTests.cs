@@ -33,7 +33,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Arrange
             var viewModel = new PaginationViewModel
             {
-                TotalRecords = 55,
+                TotalTableRecords = 55,
                 PageSize = 10
             };
 
@@ -50,7 +50,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Arrange
             var viewModel = new PaginationViewModel
             {
-                TotalRecords = 55,
+                TotalTableRecords = 55,
                 PageSize = 10,
                 CurrentPage = 2
             };
@@ -68,7 +68,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Arrange
             var viewModel = new PaginationViewModel
             {
-                TotalRecords = 55,
+                TotalTableRecords = 55,
                 PageSize = 10,
                 CurrentPage = 2
             };
@@ -86,7 +86,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Arrange
             var viewModel = new PaginationViewModel
             {
-                TotalRecords = 55,
+                TotalTableRecords = 55,
                 PageSize = 10,
                 CurrentPage = 6
             };
@@ -117,7 +117,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Arrange
             var viewModel = new PaginationViewModel
             {
-                TotalRecords = 0,
+                TotalTableRecords = 0,
                 CurrentPage = 1,
                 PageSize = 10
             };
@@ -135,7 +135,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Arrange
             var viewModel = new PaginationViewModel
             {
-                TotalRecords = 100,
+                TotalTableRecords = 100,
                 CurrentPage = 2,
                 PageSize = 10
             };
@@ -158,7 +158,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             Assert.AreEqual(Enumerable.Empty<object>(), viewModel.Records);
             Assert.AreEqual("index", viewModel.RouteName);
             Assert.IsNotNull(viewModel.RouteValues);
-            Assert.AreEqual(0, viewModel.TotalRecords);
+            Assert.AreEqual(0, viewModel.TotalTableRecords);
             Assert.AreEqual(0, viewModel.CurrentPage);
             Assert.AreEqual(0, viewModel.PageSize);
             CollectionAssert.AreEqual(ExpectedPageSizes, viewModel.PageSizeOptions.ToList());

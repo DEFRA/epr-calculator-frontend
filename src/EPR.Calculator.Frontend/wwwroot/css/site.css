@@ -78,3 +78,26 @@ body {
     display: flex;
     gap: 10px;    
 }
+
+.govuk-link--selected-status {
+    outline: 3px solid transparent;
+    color: #0b0c0c;
+    background-color: #ffdd00;
+    box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
+    text-decoration: none;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    padding: 0 4px;
+}
+
+.filter-by-status {
+    margin-top: 0px;
+}
+
+.filter-by-status__cell {
+    width: 20px;
+    text-align: left;
+    padding: 10px 30px 10px 0px;
+    vertical-align: top;
+    border: none !important;
+}
