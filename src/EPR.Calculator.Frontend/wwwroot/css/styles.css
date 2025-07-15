@@ -132,3 +132,12 @@
     margin-left: 30px;
     box-shadow: 0 2px 0 rgb(212, 53, 28);
 }
+
+.flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.custom-width-300 {
+    width: 300px;
+}

@@ -109,10 +109,10 @@
         <div class="align-checkbox">
             @using (Html.BeginForm(ActionNames.SelectAllPage, null, FormMethod.Post))
             {
-                <div class="govuk-form-group" style="margin-bottom:20px;">
+                <div class="govuk-form-group govuk-!-margin-bottom-4">
                     <fieldset class="govuk-fieldset">
                         <legend class="govuk-fieldset__legend">
-                            <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;">
+                            <div class="govuk-checkboxes govuk-checkboxes--small flex-wrap">
                                 <div class="govuk-checkboxes__item checkbox-item-label">
                                     <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
                                     <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
@@ -133,11 +133,11 @@
 
             @using (Html.BeginForm(ActionNames.SelectAll, null, FormMethod.Post))
             {
-                <div class="govuk-form-group" style="margin-bottom:20px;">
+                <div class="govuk-form-group govuk-!-margin-bottom-4">
                     <fieldset class="govuk-fieldset">
                         <legend class="govuk-fieldset__legend">
-                            <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;">
-                                <div class="govuk-checkboxes__item" style="width: 300px !important;">
+                            <div class="govuk-checkboxes govuk-checkboxes--small flex-wrap">
+                                <div class="govuk-checkboxes__item custom-width-300">
                                     <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
                                     <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
                                     @Html.CheckBoxFor(m => m.OrganisationSelections.SelectAll, new { name = "SelectAll", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
