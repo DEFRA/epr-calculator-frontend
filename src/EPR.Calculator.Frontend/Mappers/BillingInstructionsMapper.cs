@@ -64,7 +64,7 @@ namespace EPR.Calculator.Frontend.Mappers
                 TotalAcceptedRecords = billingData!.TotalAcceptedRecords,
                 TotalRejectedRecords = billingData.TotalRejectedRecords,
                 TotalPendingRecords = billingData.TotalPendingRecords,
-                ProducerIds = billingData?.AllProducerIds,
+                ProducerIds = billingData.AllProducerIds,
                 OrganisationSelections = new OrganisationSelectionsViewModel { SelectAll = isSelectAll, SelectPage = isSelectAllPage },
             };
         }
