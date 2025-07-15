@@ -23,6 +23,11 @@ namespace EPR.Calculator.Frontend.ViewModels
         public required BillingStatus Status { get; set; }
 
         /// <summary>
+        /// gets or sets the approval yes/no flag.
+        /// </summary>
+        public bool? ApproveData { get; set; }
+
+        /// <summary>
         /// gets or sets Reason for rejection.
         /// </summary>
         public string? Reason { get; set; }

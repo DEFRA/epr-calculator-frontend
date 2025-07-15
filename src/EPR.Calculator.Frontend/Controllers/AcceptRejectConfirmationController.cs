@@ -1,6 +1,8 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +18,8 @@ namespace EPR.Calculator.Frontend.Controllers
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        IBillingInstructionsApiService billingInstructionsApiService)
         : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
     {
         /// <summary>
@@ -25,23 +28,31 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="calculationRunId">The ID of the calculation run.</param>
         /// <returns>accept reject confirmation index view.</returns>
         [Route("{calculationRunId}")]
-        public IActionResult Index(int calculationRunId, AcceptRejectConfirmationViewModel? model)
+        public async Task<IActionResult> IndexAsync(int calculationRunId)
         {
-            if (model != null && !string.IsNullOrEmpty(model.Reason)) // rejected
+            var errorControllerName = CommonUtil.GetControllerName(typeof(StandardErrorController));
+
+            if (calculationRunId <= 0)
             {
-                // If the model has a reason, it means the user has already submitted a reason for rejection.
-                // Redirect to the confirmation view with the provided model.
-                return this.View(ViewNames.AcceptRejectConfirmationIndex, model);
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, errorControllerName);
             }
 
-            var viewModel = new AcceptRejectConfirmationViewModel()
+            var runDetails = await this.GetCalculatorRundetails(calculationRunId);
+
+            if (runDetails == null)
+            {
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, errorControllerName);
+            }
+
+            var viewModel = new AcceptRejectConfirmationViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 CalculationRunId = calculationRunId,
                 BackLink = ControllerNames.Organisation,
-                CalculationRunName = "Calculation run 99",
+                CalculationRunName = runDetails.RunName,
                 Status = BillingStatus.Accepted,
             };
+
             return this.View(ViewNames.AcceptRejectConfirmationIndex, viewModel);
         }
 
@@ -53,13 +64,44 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Submit()
+        public async Task<IActionResult> Submit(AcceptRejectConfirmationViewModel model)
         {
-            //validation
+            if (!ModelState.IsValid)
+            {
+                // Return the same view with the model so errors display
+                return this.View(ViewNames.AcceptRejectConfirmationIndex, model);
+            }
 
-            // API call
+            if (model.ApproveData is false)
+            {
+                return this.RedirectToAction(ActionNames.Index, ControllerNames.BillingInstructionsController, routeValues: new { calculationRunId = model.CalculationRunId });
+            }
 
-            return this.RedirectToAction(ActionNames.Index, ControllerNames.Organisation);
+            try
+            {
+                var requestDto = new ProducerBillingInstructionsHttpPutRequestDto
+                {
+                    OrganisationIds = ARJourneySessionHelper.GetFromSession(this.HttpContext.Session),
+                    AuthorizationToken = this.HttpContext.Session.GetString("accessToken")!,
+                    Status = model.Status.ToString(),
+                    ReasonForRejection = model.Reason,
+                };
+
+                var isSuccessCode = await billingInstructionsApiService.PutAcceptRejectBillingInstructions(model.CalculationRunId, requestDto);
+                ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
+
+                if (!isSuccessCode)
+                {
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                }
+            }
+            catch (Exception ex)
+            {
+                this.TelemetryClient.TrackException(ex);
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
+
+            return this.RedirectToAction(ActionNames.Index, ControllerNames.BillingInstructionsController, routeValues: new { calculationRunId = model.CalculationRunId });
         }
     }
 }
