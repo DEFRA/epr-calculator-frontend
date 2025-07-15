@@ -35,6 +35,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 Reason = string.Empty,
                 Status = BillingStatus.Rejected,
                 BackLink = ControllerNames.BillingInstructionsController,
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
             };
 
             return this.View(ViewNames.ReasonForRejectionIndex, viewModel);
