@@ -69,5 +69,10 @@
         /// Billing Instructions controller.
         /// </summary>
         public const string BillingInstructionsController = "BillingInstructions";
+
+        /// <summary>
+        /// Reason for Rejection controller.
+        /// </summary>
+        public const string ReasonForRejection = "ReasonForRejection";
     }
 }
