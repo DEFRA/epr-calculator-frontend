@@ -75,7 +75,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     ARJourneySessionHelper.AddToSession(this.HttpContext.Session, billingInstructionsViewModel.ProducerIds);
                 }
 
-                this.HttpContext.Session.Remove(SessionConstants.ClearSelection);
+                this.HttpContext.Session.RemoveKeyIfExists(SessionConstants.ClearSelection);
                 var existingSelectedIds = ARJourneySessionHelper.GetFromSession(this.HttpContext.Session);
 
                 if (!isSelectAll &&
@@ -124,10 +124,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult ClearSelection(int runId, int currentPage, int pageSize)
         {
-            ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
-            this.HttpContext.Session.SetString(SessionConstants.ClearSelection, "true");
-            this.HttpContext.Session.RemoveKeyIfExists(SessionConstants.IsSelectAll);
-            this.HttpContext.Session.RemoveKeyIfExists(SessionConstants.IsSelectAllPage);
+            this.ClearAllSession();
             return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = runId, page = currentPage, PageSize = pageSize });
         }
 
@@ -251,6 +248,15 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.TelemetryClient.TrackException(ex);
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
             }
+        }
+
+        private void ClearAllSession()
+        {
+            var session = this.HttpContext.Session;
+            ARJourneySessionHelper.ClearAllFromSession(session);
+            session.SetString(SessionConstants.ClearSelection, "true");
+            session.RemoveKeyIfExists(SessionConstants.IsSelectAll);
+            session.RemoveKeyIfExists(SessionConstants.IsSelectAllPage);
         }
 
         private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(

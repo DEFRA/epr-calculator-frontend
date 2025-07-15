@@ -165,7 +165,7 @@
         <div style="clear: both;"></div>
         <div style="margin-top: 60px;">
             <h2 class="govuk-heading-m">Update billing instructions</h2>
-            <div class="align-checkbox">
+            <div class="align-button">
                 <form asp-action="AcceptSelected" asp-controller="BillingInstructions" method="post" onsubmit="@(!hasProducerIdSessionKey ? "return false;" : null)">
                     <button type="submit" class="govuk-button govuk-button--secondary accept-button" data-module="govuk-button" id="accept-selection-btn">
                         Accept selected
@@ -178,8 +178,8 @@
                     </button>
                     <input type="hidden" name="RunId" value="@Model.CalculationRun.Id" />
                 </form>
-                <form asp-action="ClearSelection" asp-controller="BillingInstructions" method="post">
-                    <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" id="clear-selection-btn">
+                <form asp-action="ClearSelection" asp-controller="BillingInstructions" method="post" onsubmit="@(!hasProducerIdSessionKey ? "return false;" : null)">
+                    <button type="submit" class="govuk-button govuk-button--secondary" style="margin-left: 30px;" data-module="govuk-button" id="clear-selection-btn">
                         Clear selection
                     </button>
                     <input type="hidden" name="RunId" value="@Model.CalculationRun.Id" />
