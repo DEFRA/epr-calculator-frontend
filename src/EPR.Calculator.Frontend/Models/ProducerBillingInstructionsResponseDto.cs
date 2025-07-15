@@ -62,5 +62,5 @@ public record ProducerBillingInstructionsResponseDto
     public int? PageSize { get; init; }
 
     [JsonPropertyName("allProducerIds")]
-    public IEnumerable<int> AllProducerIds { get; init; }
+    public IEnumerable<int> AllProducerIds { get; init; } = [];
 }
