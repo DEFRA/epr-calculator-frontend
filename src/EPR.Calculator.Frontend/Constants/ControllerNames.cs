@@ -69,5 +69,15 @@
         /// Billing Instructions controller.
         /// </summary>
         public const string BillingInstructionsController = "BillingInstructions";
+
+        /// <summary>
+        /// Accept Reject Confirmation controller.
+        /// </summary>
+        public const string AcceptRejectConfirmationController = "AcceptRejectConfirmation";
+
+        /// <summary>
+        /// ReasonForRejection Controller.
+        /// </summary>
+        public const string ReasonForRejectionController = "ReasonForRejection";
     }
 }

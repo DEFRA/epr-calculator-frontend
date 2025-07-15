@@ -428,25 +428,6 @@
         }
 
         [TestMethod]
-        public void ClearSelection_RedirectsToIndex()
-        {
-            // Arrange
-            var calculationRunId = 1;
-            var selections = new OrganisationSelectionsViewModel
-            {
-                SelectedOrganisationIds = new List<int> { 1, 2, 3 }
-            };
-
-            // Act
-            var result = _controller.ClearSelection(calculationRunId, selections) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
-            Assert.AreEqual(calculationRunId, result.RouteValues["calculationRunId"]);
-        }
-
-        [TestMethod]
         public async Task SelectAllPage_SetsSessionAndReturnsViewWithSelectAllViewModel()
         {
             // Arrange
@@ -645,6 +626,82 @@
             var stored = mockSession.GetObject<IEnumerable<int>>(SessionConstants.ProducerIds);
             Assert.IsNotNull(stored, "ProducerIds should be set in session.");
             CollectionAssert.AreEquivalent(expectedProducerIds, stored.ToList());
+        }
+
+        [TestMethod]
+        public void AcceptSelected_ReturnsRedirectToAcceptRejectConfirmation()
+        {
+            // Arrange
+            int testRunId = 123;
+
+            // Act
+            var result = _controller.AcceptSelected(testRunId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.AcceptRejectConfirmationController, result.ControllerName);
+            Assert.AreEqual(testRunId, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public void RejectSelected_ReturnsRedirectToReasonForRejection()
+        {
+            // Arrange
+            int testRunId = 456;
+
+            // Act
+            var result = _controller.RejectSelected(testRunId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.ReasonForRejectionController, result.ControllerName);
+            Assert.AreEqual(testRunId, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public void ClearSelection_SetsAndRemovesSessionKeys_RedirectsToBillingInstructions()
+        {
+            // Arrange
+            int runId = 1;
+            int currentPage = 2;
+            int pageSize = 50;
+
+            var billingData = CreateDefaultBillingData(runId);
+
+            var mockSession = new MockHttpSession();
+            mockSession.SetString(SessionConstants.ClearSelection, "true");
+
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+
+            // Setup the mapper to return any view model
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = _controller.ClearSelection(runId, currentPage, pageSize) as RedirectToRouteResult;
+
+            // Assert redirect
+            Assert.IsNotNull(result);
+            Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.RouteName);
+            Assert.AreEqual(runId, result.RouteValues["calculationRunId"]);
+            Assert.AreEqual(currentPage, result.RouteValues["page"]);
+            Assert.AreEqual(pageSize, result.RouteValues["PageSize"]);
+
+            // Assert session changes
+            Assert.AreEqual("true", mockSession.GetString(EPR.Calculator.Frontend.Constants.SessionConstants.ClearSelection));
         }
 
         private static DefaultHttpContext CreateTestHttpContext(string userName = "Test User")

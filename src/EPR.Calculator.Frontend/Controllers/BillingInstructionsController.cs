@@ -69,11 +69,13 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (isSelectAll &&
                     billingInstructionsViewModel.ProducerIds != null &&
-                    billingInstructionsViewModel.ProducerIds.Any())
+                    billingInstructionsViewModel.ProducerIds.Any() &&
+                    !this.HttpContext.Session.Keys.Contains(SessionConstants.ClearSelection))
                 {
                     ARJourneySessionHelper.AddToSession(this.HttpContext.Session, billingInstructionsViewModel.ProducerIds);
                 }
 
+                this.HttpContext.Session.Remove(SessionConstants.ClearSelection);
                 var existingSelectedIds = ARJourneySessionHelper.GetFromSession(this.HttpContext.Session);
 
                 if (!isSelectAll &&
@@ -112,10 +114,43 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.RedirectToAction("Index", new { calculationRunId });
         }
 
+        /// <summary>
+        /// Clears all selected billing instructions from the session and redirects to the Billing Instructions index page.
+        /// </summary>
+        /// <param name="runId">The ID of the calculation run.</param>
+        /// <param name="currentPage">The current page number for pagination.</param>
+        /// <param name="pageSize">The number of items displayed per page.</param>
+        /// <returns>A redirect to the Billing Instructions index route.</returns>
         [HttpPost]
-        public IActionResult ClearSelection(int calculationRunId, [FromForm] OrganisationSelectionsViewModel selections)
+        public IActionResult ClearSelection(int runId, int currentPage, int pageSize)
         {
-            return this.RedirectToAction("Index", new { calculationRunId });
+            ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
+            this.HttpContext.Session.SetString(SessionConstants.ClearSelection, "true");
+            this.HttpContext.Session.RemoveKeyIfExists(SessionConstants.IsSelectAll);
+            this.HttpContext.Session.RemoveKeyIfExists(SessionConstants.IsSelectAllPage);
+            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = runId, page = currentPage, PageSize = pageSize });
+        }
+
+        /// <summary>
+        /// Redirects to the Accept/Reject Confirmation index action for the specified calculation run.
+        /// </summary>
+        /// <param name="runId">The ID of the calculation run.</param>
+        /// <returns>A redirect to the Accept/Reject Confirmation controller's index action.</returns>
+        [HttpPost]
+        public IActionResult AcceptSelected(int runId)
+        {
+            return this.RedirectToAction(ActionNames.Index, ControllerNames.AcceptRejectConfirmationController, new { runId });
+        }
+
+        /// <summary>
+        /// Redirects to the Reason for Rejection index action for the specified calculation run.
+        /// </summary>
+        /// <param name="runId">The ID of the calculation run.</param>
+        /// <returns>A redirect to the Reason for Rejection controller's index action.</returns>
+        [HttpPost]
+        public IActionResult RejectSelected(int runId)
+        {
+            return this.RedirectToAction(ActionNames.Index, ControllerNames.ReasonForRejectionController, new { runId });
         }
 
         /// <summary>
@@ -134,7 +169,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
 
                 // If they just unselected all we also want to untick the select all page
-                this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, false.ToString());
+                this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, "false");
             }
 
             return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
@@ -170,7 +205,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 else
                 {
                     // If the SelectPage is false, remove the producer IDs from the session.
-                    ARJourneySessionHelper.RemoveFromSession(this.HttpContext.Session, producerIdsFromResponse);
+                    ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
                 }
             }
 

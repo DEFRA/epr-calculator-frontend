@@ -4,6 +4,7 @@
 
 @{
     var selectableCount = Model.ProducerIds?.Count();
+    bool hasProducerIdSessionKey = Context.Session.GetString(SessionConstants.ProducerIds) != null;
 }
 
 <partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
@@ -51,51 +52,48 @@
 
     <div class="padding: 0px 20px; clear: both;">
         <div class="align-checkbox">
-        @using (Html.BeginForm(ActionNames.SelectAllPage, null, FormMethod.Post))
-        {
-            <div class="govuk-form-group" style="margin-bottom:20px;">
-                <fieldset class="govuk-fieldset">
-                    <legend class="govuk-fieldset__legend">
-                        <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;">
+            @using (Html.BeginForm(ActionNames.SelectAllPage, null, FormMethod.Post))
+            {
+                <div class="govuk-form-group" style="margin-bottom:20px;">
+                    <fieldset class="govuk-fieldset">
+                        <legend class="govuk-fieldset__legend">
+                            <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;">
                                 <div class="govuk-checkboxes__item checkbox-item-label">
-                                <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
-                                <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
-                                @Html.CheckBoxFor(m => m.OrganisationSelections.SelectPage, new { name = "SelectPage", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
+                                    <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
+                                    <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
+                                    @Html.CheckBoxFor(m => m.OrganisationSelections.SelectPage, new { name = "SelectPage", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
                                     <label class="govuk-label govuk-checkboxes__label" for="OrganisationSelections_SelectPage">
-                                    Select all records on this page
-                                </label>
-                                <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
-                                <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
-                            </div>                            
-                        </div>
-                    </legend>
-                </fieldset>
-            </div>
-        }
-
-
-
-        @using (Html.BeginForm(ActionNames.SelectAll, null, FormMethod.Post))
-        {
-            <div class="govuk-form-group" style="margin-bottom:20px;">
-                <fieldset class="govuk-fieldset">
-                    <legend class="govuk-fieldset__legend">
-                        <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;"> 
-                            <div class="govuk-checkboxes__item" style="width: 300px !important;">
-                                <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
-                                <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
-                                @Html.CheckBoxFor(m => m.OrganisationSelections.SelectAll, new { name = "SelectAll", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
-                                    <label class="govuk-label govuk-checkboxes__label" for="OrganisationSelections_SelectAll">
-                                    Select all @selectableCount records
-                                </label>
-                                <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
-                                <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
+                                        Select all records on this page
+                                    </label>
+                                    <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
+                                    <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
+                                </div>
                             </div>
-                        </div>
-                    </legend>
-                </fieldset>
-            </div>
-        }
+                        </legend>
+                    </fieldset>
+                </div>
+            }
+            @using (Html.BeginForm(ActionNames.SelectAll, null, FormMethod.Post))
+            {
+                <div class="govuk-form-group" style="margin-bottom:20px;">
+                    <fieldset class="govuk-fieldset">
+                        <legend class="govuk-fieldset__legend">
+                            <div class="govuk-checkboxes govuk-checkboxes--small" style="display: flex; flex-wrap: wrap;">
+                                <div class="govuk-checkboxes__item" style="width: 300px !important;">
+                                    <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
+                                    <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
+                                    @Html.CheckBoxFor(m => m.OrganisationSelections.SelectAll, new { name = "SelectAll", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
+                                    <label class="govuk-label govuk-checkboxes__label" for="OrganisationSelections_SelectAll">
+                                        Select all @selectableCount records
+                                    </label>
+                                    <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
+                                    <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
+                                </div>
+                            </div>
+                        </legend>
+                    </fieldset>
+                </div>
+            }
         </div>
         @using (Html.BeginForm(ActionNames.ProcessSelection, null, FormMethod.Post))
         {
@@ -109,13 +107,28 @@
         <div style="clear: both;"></div>
         <div style="margin-top: 60px;">
             <h2 class="govuk-heading-m">Update billing instructions</h2>
-            @using (Html.BeginForm(ActionNames.ClearSelection, "BillingInstructions", FormMethod.Post))
-            {
-                <button class="govuk-button govuk-button--secondary" asp-action="ClearSelection" asp-controller="BillingInstructions" type="submit" data-module="govuk-button" id="clear-selection-btn">
-                    Clear selection
-                </button>
-                <input type="hidden" name="CalculationRunId" value="@Model.CalculationRun.Id" />
-            }
+            <div class="align-checkbox">
+                <form asp-action="AcceptSelected" asp-controller="BillingInstructions" method="post" onsubmit="@(!hasProducerIdSessionKey ? "return false;" : null)">
+                    <button type="submit" class="govuk-button govuk-button--secondary accept-button" data-module="govuk-button" id="accept-selection-btn">
+                        Accept selected
+                    </button>
+                    <input type="hidden" name="RunId" value="@Model.CalculationRun.Id" />
+                </form>
+                <form asp-action="RejectSelected" asp-controller="BillingInstructions" method="post" onsubmit="@(!hasProducerIdSessionKey ? "return false;" : null)">
+                    <button type="submit" class="govuk-button govuk-button--secondary reject-button" data-module="govuk-button" id="reject-selection-btn">
+                        Reject selected
+                    </button>
+                    <input type="hidden" name="RunId" value="@Model.CalculationRun.Id" />
+                </form>
+                <form asp-action="ClearSelection" asp-controller="BillingInstructions" method="post">
+                    <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" id="clear-selection-btn">
+                        Clear selection
+                    </button>
+                    <input type="hidden" name="RunId" value="@Model.CalculationRun.Id" />
+                    <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
+                    <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
+                </form>
+            </div>
         </div>
     </div>
 </div>
