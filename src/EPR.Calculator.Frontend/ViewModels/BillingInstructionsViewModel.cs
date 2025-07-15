@@ -22,5 +22,13 @@ namespace EPR.Calculator.Frontend.ViewModels
         public OrganisationSelectionsViewModel OrganisationSelections { get; set; } = new();
 
         public IEnumerable<int>? ProducerIds { get; init; }
+
+        public int TotalRecords { get; set; }
+
+        public int TotalAcceptedRecords { get; set; }
+
+        public int TotalRejectedRecords { get; set; }
+
+        public int TotalPendingRecords { get; set; }
     }
 }
