@@ -69,13 +69,11 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (isSelectAll &&
                     billingInstructionsViewModel.ProducerIds != null &&
-                    billingInstructionsViewModel.ProducerIds.Any() &&
-                    !this.HttpContext.Session.Keys.Contains(SessionConstants.ClearSelection))
+                    billingInstructionsViewModel.ProducerIds.Any())
                 {
                     ARJourneySessionHelper.AddToSession(this.HttpContext.Session, billingInstructionsViewModel.ProducerIds);
                 }
 
-                this.HttpContext.Session.RemoveKeyIfExists(SessionConstants.ClearSelection);
                 var existingSelectedIds = ARJourneySessionHelper.GetFromSession(this.HttpContext.Session);
 
                 if (!isSelectAll &&
@@ -254,7 +252,6 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var session = this.HttpContext.Session;
             ARJourneySessionHelper.ClearAllFromSession(session);
-            session.SetString(SessionConstants.ClearSelection, "true");
             session.RemoveKeyIfExists(SessionConstants.IsSelectAll);
             session.RemoveKeyIfExists(SessionConstants.IsSelectAllPage);
         }

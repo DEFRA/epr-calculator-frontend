@@ -25,7 +25,5 @@
         public const string ProducerIds = "ProducerIds";
 
         public const string IsRedirected = "IsRedirected";
-
-        public const string ClearSelection = "ClearSelection";
     }
 }
