@@ -115,12 +115,6 @@
     margin-left:15px;
 }
 
-
-.align-button {
-    display: flex;
-    gap: 1rem;
-}
-
 .accept-button {
     background-color: #ffffff;
     border: 1px solid #00703c;

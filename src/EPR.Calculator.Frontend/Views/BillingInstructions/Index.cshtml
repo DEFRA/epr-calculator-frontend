@@ -162,10 +162,9 @@
         <partial name="_Pagination" model="Model.TablePaginationModel" />
         <!-- End Record Pagination -->
 
-        <div style="clear: both;"></div>
-        <div style="margin-top: 60px;">
+        <div class="govuk-!-margin-top-9">
             <h2 class="govuk-heading-m">Update billing instructions</h2>
-            <div class="align-button">
+            <div class="govuk-button-group">
                 <form asp-action="AcceptSelected" asp-controller="BillingInstructions" method="post" onsubmit="@(!hasProducerIdSessionKey ? "return false;" : null)">
                     <button type="submit" class="govuk-button govuk-button--secondary accept-button" data-module="govuk-button" id="accept-selection-btn">
                         Accept selected
@@ -179,7 +178,7 @@
                     <input type="hidden" name="RunId" value="@Model.CalculationRun.Id" />
                 </form>
                 <form asp-action="ClearSelection" asp-controller="BillingInstructions" method="post" onsubmit="@(!hasProducerIdSessionKey ? "return false;" : null)">
-                    <button type="submit" class="govuk-button govuk-button--secondary" style="margin-left: 30px;" data-module="govuk-button" id="clear-selection-btn">
+                    <button type="submit" class="govuk-button govuk-button--secondary govuk-!-margin-left-6" data-module="govuk-button" id="clear-selection-btn">
                         Clear selection
                     </button>
                     <input type="hidden" name="RunId" value="@Model.CalculationRun.Id" />
