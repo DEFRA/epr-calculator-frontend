@@ -163,17 +163,45 @@
         <div style="clear: both;"></div>
         <div style="margin-top: 60px;">
             <h2 class="govuk-heading-m">Update billing instructions</h2>
-            @using (Html.BeginForm(ActionNames.ClearSelection, "BillingInstructions", FormMethod.Post))
+
+            @using (Html.BeginForm("AcceptSelected", "BillingInstructions", FormMethod.Post, new { @style = "display:inline;" }))
             {
-                <button class="govuk-button govuk-button--secondary" asp-action="ClearSelection" asp-controller="BillingInstructions" type="submit" data-module="govuk-button" id="clear-selection-btn">
+                <button type="submit"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                        style="background-color: #ffffff; border: 1px solid #00703c; color: #00703c; margin-left: 0px; box-shadow: 0 2px 0 rgb(0, 112, 60);">
+                    Accept selected
+                </button>
+            }
+
+            @using (Html.BeginForm(ActionNames.Index, ControllerNames.ReasonForRejection, new { calculationRunId = Model.CalculationRun.Id }, FormMethod.Get, false, new { @style = "display:inline;" }))
+            {
+                <button type="submit"
+                        class="govuk-button govuk-button--warning"
+                        data-module="govuk-button"
+                        style="background-color: #ffffff; border: 1px solid #d4351c; color: #d4351c; margin-left: 30px; box-shadow: 0 2px 0 rgb(212, 53, 28);">
+                    Reject selected
+                </button>
+            }
+
+            @using (Html.BeginForm(ActionNames.ClearSelection, ControllerNames.BillingInstructionsController, new { calculationRunId = Model.CalculationRun.Id }, FormMethod.Post, antiforgery: true, new { @style = "display:inline;" }))
+            {
+                <button asp-action="ClearSelection" asp-controller="BillingInstructions" type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" style="margin-left: 30px;" id="clear-selection-btn">
                     Clear selection
                 </button>
-                <input type="hidden" name="CalculationRunId" value="@Model.CalculationRun.Id" />
             }
+            <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link" style="float: right; padding-right:230px; padding-top: 10px; font-size: 18px;">@ActionLinkLabels.ReturnToDashBoard</a>
+            @* @using (Html.BeginForm(ActionNames.ClearSelection, "BillingInstructions", FormMethod.Post))
+            {
+            <button class="govuk-button govuk-button--secondary" asp-action="ClearSelection" asp-controller="BillingInstructions" type="submit" data-module="govuk-button" id="clear-selection-btn">
+            Clear selection
+            </button>
+            <input type="hidden" name="CalculationRunId" value="@Model.CalculationRun.Id" />
+            } *@
         </div>
-        @if (Model.TotalPendingRecords == 0) 
+        @if (Model.TotalPendingRecords == 0)
         {
-            <partial name="_BillingNextStepPartial"/>
+            <partial name="_BillingNextStepPartial" />
         }
     </div>
 </div>

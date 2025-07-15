@@ -1,4 +1,7 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -19,16 +22,18 @@ namespace EPR.Calculator.Frontend.Controllers
         IHttpClientFactory httpClientFactory)
         : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
     {
-        [Route("{runId}")]
-        public async Task<IActionResult> Index(int runId)
+        [Route("{calculationRunId}")]
+        public async Task<IActionResult> Index(int calculationRunId)
         {
-            var runDetails = await this.GetCalculatorRundetails(runId);
+            var runDetails = await this.GetCalculatorRundetails(calculationRunId);
 
-            var viewModel = new ReasonForRejectionViewModel()
+            var viewModel = new AcceptRejectConfirmationViewModel()
             {
-                CalculationRunId = runId,
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CalculationRunId = calculationRunId,
                 CalculationRunName = runDetails?.RunName,
                 Reason = string.Empty,
+                Status = BillingStatus.Rejected,
                 BackLink = ControllerNames.BillingInstructionsController,
             };
 
@@ -38,14 +43,18 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         [ActionName("Index")]
         [Route("{runId}")]
-        public IActionResult IndexPost(int runId, ReasonForRejectionViewModel model)
+        public IActionResult IndexPost(int runId, AcceptRejectConfirmationViewModel model)
         {
-            if (!this.ModelState.IsValid)
+            if (string.IsNullOrEmpty(model.Reason))
             {
+                this.ModelState.AddModelError(nameof(model.Reason), "Provide a reason that applies to all the billing instructions you selected for rejection.");
                 return this.View(ViewNames.ReasonForRejectionIndex, model);
             }
 
-            return this.RedirectToAction(ViewNames.ReasonForRejectionIndex, new { model.CalculationRunId });
+            return this.View(ViewNames.AcceptRejectConfirmationIndex, model);
         }
+
+
+
     }
 }

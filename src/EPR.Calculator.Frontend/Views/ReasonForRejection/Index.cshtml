@@ -1,4 +1,4 @@
-﻿@model ReasonForRejectionViewModel
+﻿@model AcceptRejectConfirmationViewModel
 
 @{
     var backLinkModel = new BackLinkPartialViewModel
@@ -21,6 +21,7 @@
         @Html.Hidden("BackLink", Model.BackLink)
         @Html.Hidden("CurrentUser", Model.CurrentUser)
         @Html.Hidden("CalculationRunId", Model.CalculationRunId)
+        @Html.Hidden("Status", Model.Status)
         <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
 
             <div class="govuk-grid-row">

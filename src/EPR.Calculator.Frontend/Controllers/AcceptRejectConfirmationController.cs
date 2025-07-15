@@ -1,4 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -21,19 +22,26 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <summary>
         /// Displays the accept reject confirmation controller index view.
         /// </summary>
-        /// <param name="runId">The ID of the calculation run.</param>
+        /// <param name="calculationRunId">The ID of the calculation run.</param>
         /// <returns>accept reject confirmation index view.</returns>
-        [Route("{runId}")]
-        public IActionResult Index(int runId)
+        [Route("{calculationRunId}")]
+        public IActionResult Index(int calculationRunId, AcceptRejectConfirmationViewModel? model)
         {
+            if (model != null && !string.IsNullOrEmpty(model.Reason)) // rejected
+            {
+                // If the model has a reason, it means the user has already submitted a reason for rejection.
+                // Redirect to the confirmation view with the provided model.
+                return this.View(ViewNames.AcceptRejectConfirmationIndex, model);
+            }
+
             var viewModel = new AcceptRejectConfirmationViewModel()
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                RunId = runId,
+                CalculationRunId = calculationRunId,
                 BackLink = ControllerNames.Organisation,
-                CalculationRunTitle = "Calculation run 99",
+                CalculationRunName = "Calculation run 99",
+                Status = BillingStatus.Accepted,
             };
-
             return this.View(ViewNames.AcceptRejectConfirmationIndex, viewModel);
         }
 
@@ -47,6 +55,10 @@ namespace EPR.Calculator.Frontend.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Submit()
         {
+            //validation
+
+            // API call
+
             return this.RedirectToAction(ActionNames.Index, ControllerNames.Organisation);
         }
     }

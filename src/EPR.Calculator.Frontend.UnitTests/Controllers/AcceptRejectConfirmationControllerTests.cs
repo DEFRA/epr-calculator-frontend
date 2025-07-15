@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Controllers;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -46,8 +47,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
             _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+            var model = new AcceptRejectConfirmationViewModel() { Reason = string.Empty, BackLink = ViewNames.BillingInstructionsIndex, CalculationRunId = runId, Status = Enums.BillingStatus.Rejected };
 
-            var result = _controller.Index(runId);
+            var result = _controller.Index(runId, model);
 
             // Assert
             Assert.IsNotNull(result);
