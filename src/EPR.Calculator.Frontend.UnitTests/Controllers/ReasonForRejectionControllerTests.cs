@@ -107,7 +107,6 @@
 
             // Act
             var result = controller.IndexPost(runId, model) as ViewResult;
-
             var resultModel = result.Model as ReasonForRejectionViewModel;
 
             // Assert
