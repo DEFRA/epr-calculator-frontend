@@ -21,12 +21,13 @@
         @Html.Hidden("BackLink", Model.BackLink)
         @Html.Hidden("CurrentUser", Model.CurrentUser)
         @Html.Hidden("CalculationRunId", Model.CalculationRunId)
+        @Html.Hidden("CalculationRunName", Model.CalculationRunName)
         <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
 
             <div class="govuk-grid-row">
                 <div class="@(ViewContext.ModelState.IsValid ?  "govuk-form-group govuk-grid-column-full" : "govuk-form-group govuk-form-group--error" )">
                     <span class="govuk-caption-xl">@Model.CalculationRunName</span>
-                    <h1 class="govuk-heading-xl" style="margin-bottom: 3%;">Give a reason for rejecting billing instructions</h1>
+                    <h1 class="govuk-heading-xl">Give a reason for rejecting billing instructions</h1>
                     <div class="govuk-grid-column-two-thirds" style="padding:0px;">
 
                         <div class="govuk-form-group">
