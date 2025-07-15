@@ -41,9 +41,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// An <see cref="IActionResult"/> that renders the billing instructions view,
         /// or redirects to a standard error page if the calculation run ID is invalid.
         /// </returns>
-        [HttpGet]
-        [HttpPost]
-        [Route("BillingInstructions/{calculationRunId}", Name = RouteNames.BillingInstructionsIndex)]
+        [HttpGet("BillingInstructions/{calculationRunId}", Name = RouteNames.BillingInstructionsIndex)]
         public async Task<IActionResult> IndexAsync([FromRoute] int calculationRunId, [FromQuery] PaginationRequestViewModel request)
         {
             if (calculationRunId <= 0)

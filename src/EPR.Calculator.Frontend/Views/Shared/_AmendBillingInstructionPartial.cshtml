@@ -3,9 +3,9 @@
 <h2 class="govuk-heading-m">@BillingInstructionConstants.AmendBillingInstructions</h2>
 <p class="govuk-body">@BillingInstructionConstants.AmendBillingInstructionText</p>
 <div class="govuk-button-group">
-    <button asp-route="@RouteNames.BillingInstructionsIndex" asp-route-calculationRunId="@Model.RunId" 
-            disabled="@(Model.IsBillingFileGenerating == true ? "disabled" : null)"
-            class="govuk-button govuk-button--secondary" type="submit" data-module="govuk-button">
-        @BillingInstructionConstants.AmendBillingInstructions
-    </button>
+    <a href="@($"/{ControllerNames.BillingInstructionsController}/{Model.RunId}")" 
+        class="govuk-button govuk-button--secondary"
+        @(Model.IsBillingFileGenerating == true ? "disabled" : null)>
+            @BillingInstructionConstants.AmendBillingInstructions
+    </a>
 </div>
