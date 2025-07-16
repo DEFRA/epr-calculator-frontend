@@ -141,3 +141,7 @@
 .custom-width-300 {
     width: 300px;
 }
+
+.align-center {
+    align-items: center;
+}

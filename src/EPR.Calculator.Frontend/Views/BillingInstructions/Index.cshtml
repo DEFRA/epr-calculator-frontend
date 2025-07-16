@@ -164,7 +164,7 @@
 
         <div class="govuk-!-margin-top-9">
             <h2 class="govuk-heading-m">Update billing instructions</h2>
-            <div class="govuk-button-group">
+            <div class="govuk-button-group align-center">
                 <form asp-action="AcceptSelected" asp-controller="BillingInstructions" method="post" onsubmit="return checkHasProducerIds();">
                     <button type="submit" class="govuk-button govuk-button--secondary accept-button" data-module="govuk-button" id="accept-selection-btn">
                         Accept selected
@@ -185,9 +185,10 @@
                     <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
                     <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
                 </form>
+                <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
             </div>
         </div>
-        @if (Model.TotalPendingRecords == 0) 
+        @if (Model.TotalPendingRecords == 0)
         {
             <partial name="_BillingNextStepPartial"/>
         }
