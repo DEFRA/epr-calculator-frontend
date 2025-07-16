@@ -19,6 +19,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Identity.Web;
+    using Microsoft.IdentityModel.Abstractions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Moq.Protected;
@@ -657,6 +658,32 @@
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.ReasonForRejectionController, result.ControllerName);
             Assert.AreEqual(testRunId, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public async Task GenerateBillingFile_Returns_Success()
+        {
+            // Arrange
+            int testRunId = 1;
+
+            // Set up session with IsSelectAll = true
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            var context = new DefaultHttpContext { Session = mockSession };
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(null, HttpStatusCode.OK);
+
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.RouteValues["action"]);
+            Assert.AreEqual(ControllerNames.CalculationRunOverview, result.RouteValues["controller"]);
+            Assert.AreEqual(testRunId, result.RouteValues["runId"]);
         }
 
         private static DefaultHttpContext CreateTestHttpContext(string userName = "Test User")
