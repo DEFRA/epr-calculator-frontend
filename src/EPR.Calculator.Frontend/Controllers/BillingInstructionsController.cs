@@ -219,6 +219,37 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        /// <summary>
+        /// Generate the billing file.
+        /// </summary>
+        /// <param name="runId">The unique identifier for the calculation run.</param>
+        [HttpPost]
+        public async Task<IActionResult> GenerateDraftBillingFile(int runId)
+        {
+            try
+            {
+                var result = await this.TryGenerateBillingFile(runId);
+                if (result)
+                {
+                    return this.RedirectToRoute(new
+                    {
+                        controller = ControllerNames.CalculationRunOverview,
+                        action = "Index",
+                        runId,
+                    });
+                }
+                else
+                {
+                    return this.RedirectToStandardError;
+                }
+            }
+            catch (Exception ex)
+            {
+                this.TelemetryClient.TrackException(ex);
+                return this.RedirectToStandardError;
+            }
+        }
+
         private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(
             int calculationRunId,
             PaginationRequestViewModel request)
@@ -253,19 +284,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
             return billingData;
         }
-
-        public async void SubmitForAcceptBillinFile()
-        {
-            // Get the RunId from the URL
-            const int runId = 100; // Replace with actual logic to retrieve the RunId from the context or parameters
-            var result = await TryGenerateBillingFile(runId);
-
-            if(result)
-            {
-                // Redirect to the calculation run overview page
-            }
-        }
-
 
         private async Task<bool> TryGenerateBillingFile(int runId)
         {
