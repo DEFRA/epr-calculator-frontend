@@ -323,17 +323,17 @@ namespace EPR.Calculator.Frontend.Controllers
             return billingData;
         }
 
-        private async Task<bool> TryGenerateBillingFile(int runId)
+        protected async Task<bool> TryGenerateBillingFile(int runId)
         {
-            var instructionsAcceptApiUrl = this.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.ProducerBillingInstructionsAcceptApi);
+            var acceptApiUrl = this.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.ProducerBillingInstructionsAcceptApi);
 
             try
             {
-                var response = await this.CallApi(HttpMethod.Put, instructionsAcceptApiUrl, runId.ToString(), null);
+                var responseDto = await this.CallApi(HttpMethod.Put, acceptApiUrl, runId.ToString(), null);
 
-                if (!response.IsSuccessStatusCode)
+                if (!responseDto.IsSuccessStatusCode)
                 {
-                    this.TelemetryClient.TrackTrace($"Billing instructions acceptance failed for RunId {runId}. StatusCode: {response.StatusCode}, Reason: {response.ReasonPhrase}");
+                    this.TelemetryClient.TrackTrace($"Billing instructions acceptance failed for RunId {runId}. StatusCode: {responseDto.StatusCode}, Reason: {responseDto.ReasonPhrase}");
                     return false;
                 }
 
