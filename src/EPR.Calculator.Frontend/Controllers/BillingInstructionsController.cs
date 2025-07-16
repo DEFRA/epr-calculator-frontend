@@ -256,26 +256,18 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> GenerateDraftBillingFile(int runId)
         {
-            try
+            var result = await this.TryGenerateBillingFile(runId);
+            if (result)
             {
-                var result = await this.TryGenerateBillingFile(runId);
-                if (result)
+                return this.RedirectToRoute(new
                 {
-                    return this.RedirectToRoute(new
-                    {
-                        controller = ControllerNames.CalculationRunOverview,
-                        action = "Index",
-                        runId,
-                    });
-                }
-                else
-                {
-                    return this.RedirectToStandardError;
-                }
+                    controller = ControllerNames.CalculationRunOverview,
+                    action = "Index",
+                    runId,
+                });
             }
-            catch (Exception ex)
+            else
             {
-                this.TelemetryClient.TrackException(ex);
                 return this.RedirectToStandardError;
             }
         }
@@ -327,23 +319,15 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var acceptApiUrl = this.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.ProducerBillingInstructionsAcceptApi);
 
-            try
-            {
-                var responseDto = await this.CallApi(HttpMethod.Put, acceptApiUrl, runId.ToString(), null);
+            var responseDto = await this.CallApi(HttpMethod.Put, acceptApiUrl, runId.ToString(), null);
 
-                if (!responseDto.IsSuccessStatusCode)
-                {
-                    this.TelemetryClient.TrackTrace($"Billing instructions acceptance failed for RunId {runId}. StatusCode: {responseDto.StatusCode}, Reason: {responseDto.ReasonPhrase}");
-                    return false;
-                }
-
-                return true;
-            }
-            catch (Exception ex)
+            if (!responseDto.IsSuccessStatusCode)
             {
-                this.TelemetryClient.TrackException(ex);
+                this.TelemetryClient.TrackTrace($"Billing instructions acceptance failed for RunId {runId}. StatusCode: {responseDto.StatusCode}, Reason: {responseDto.ReasonPhrase}");
                 return false;
             }
+
+            return true;
         }
     }
 }
