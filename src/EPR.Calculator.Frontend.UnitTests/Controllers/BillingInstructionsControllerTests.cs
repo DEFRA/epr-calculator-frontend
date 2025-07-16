@@ -659,6 +659,24 @@
             Assert.AreEqual(testRunId, result.RouteValues["runId"]);
         }
 
+        [TestMethod]
+        public void ClearSelection_RedirectsToIndex()
+        {
+            // Arrange
+            var calculationRunId = 1;
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var currentPage = fixture.Create<int>();
+            var pageSize = fixture.Create<int>();
+
+            // Act
+            var result = _controller.ClearSelection(calculationRunId, currentPage, pageSize) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("BillingInstructions_Index", result.RouteName);
+            Assert.AreEqual(calculationRunId, result.RouteValues["calculationRunId"]);
+        }
+
         private static DefaultHttpContext CreateTestHttpContext(string userName = "Test User")
         {
             var claims = new List<Claim> { new Claim(ClaimTypes.Name, userName) };
