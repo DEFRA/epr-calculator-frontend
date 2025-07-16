@@ -1,13 +1,10 @@
 ﻿@using EPR.Calculator.Frontend.Enums
+@using EPR.Calculator.Frontend.Helpers
 @model BillingInstructionsViewModel
 
 @{
-    var selectedCount = Model.OrganisationSelections.SelectPage ? Model.OrganisationBillingInstructions?.Take(Model.TablePaginationModel.PageSize).Count() : 0;
-    var totalCount = Model.ProducerIds?.Count();
-    var displayText = (Model.OrganisationSelections.SelectAll)
-    ? $"{totalCount} records selected"
-    : $"{selectedCount} records selected";
-
+    var producerIds = ARJourneySessionHelper.GetFromSession(Context.Session);
+    var displayText = $"{producerIds.Count}";
 }
 <!-- Header showing total records -->
 <div>
@@ -18,7 +15,7 @@
         <thead class="govuk-table__head">
             <tr>
                 <th class="govuk-table__cell header-left-cell">
-                    <strong>@displayText</strong>
+                    <strong><span id="totalCountText">@displayText</span> records selected</strong>
                 </th>
                 <th class="govuk-table__cell header-right-cell">
                     <strong>@Model.TablePaginationModel.StartRecord - @Model.TablePaginationModel.Records.Count() of @Model.ProducerIds!.Count()</strong>
@@ -81,7 +78,11 @@
         if (event.target.classList.contains('record-checkbox')) {
             var organisationId = event.target.getAttribute('data-organisation-id');
             var isChecked = event.target.checked;
-            
+
+            var span = document.getElementById('totalCountText');
+            var current = parseInt(span.textContent, 10) || 0;
+            span.textContent = isChecked ? current + 1 : Math.max(0, current - 1);
+
             fetch('/UpdateOrganisationSelection', {
                 method: 'POST',
                 headers: {

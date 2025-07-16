@@ -113,10 +113,40 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.RedirectToAction("Index", new { calculationRunId });
         }
 
+        /// <summary>
+        /// Clears all selected billing instructions from the session and redirects to the Billing Instructions index page.
+        /// </summary>
+        /// <param name="calculationRunId">The ID of the calculation run.</param>
+        /// <param name="currentPage">The current page number for pagination.</param>
+        /// <param name="pageSize">The number of items displayed per page.</param>
+        /// <returns>A redirect to the Billing Instructions index route.</returns>
         [HttpPost]
-        public IActionResult ClearSelection(int calculationRunId, [FromForm] OrganisationSelectionsViewModel selections)
+        public IActionResult ClearSelection(int calculationRunId, int currentPage, int pageSize)
         {
-            return this.RedirectToAction("Index", new { calculationRunId });
+            this.ClearAllSession();
+            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = calculationRunId, page = currentPage, PageSize = pageSize });
+        }
+
+        /// <summary>
+        /// Redirects to the Accept/Reject Confirmation index action for the specified calculation run.
+        /// </summary>
+        /// <param name="calculationRunId">The ID of the calculation run.</param>
+        /// <returns>A redirect to the Accept/Reject Confirmation controller's index action.</returns>
+        [HttpPost]
+        public IActionResult AcceptSelected(int calculationRunId)
+        {
+            return this.RedirectToAction(ActionNames.Index, ControllerNames.AcceptRejectConfirmationController, new { calculationRunId });
+        }
+
+        /// <summary>
+        /// Redirects to the Reason for Rejection index action for the specified calculation run.
+        /// </summary>
+        /// <param name="calculationRunId">The ID of the calculation run.</param>
+        /// <returns>A redirect to the Reason for Rejection controller's index action.</returns>
+        [HttpPost]
+        public IActionResult RejectSelected(int calculationRunId)
+        {
+            return this.RedirectToAction(ActionNames.Index, ControllerNames.ReasonForRejectionController, new { calculationRunId });
         }
 
         /// <summary>
@@ -135,7 +165,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
 
                 // If they just unselected all we also want to untick the select all page
-                this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, false.ToString());
+                this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, "false");
             }
 
             return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
@@ -171,7 +201,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 else
                 {
                     // If the SelectPage is false, remove the producer IDs from the session.
-                    ARJourneySessionHelper.RemoveFromSession(this.HttpContext.Session, producerIdsFromResponse);
+                    ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
                 }
             }
 
@@ -248,6 +278,14 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.TelemetryClient.TrackException(ex);
                 return this.RedirectToStandardError;
             }
+        }
+
+        private void ClearAllSession()
+        {
+            var session = this.HttpContext.Session;
+            ARJourneySessionHelper.ClearAllFromSession(session);
+            session.RemoveKeyIfExists(SessionConstants.IsSelectAll);
+            session.RemoveKeyIfExists(SessionConstants.IsSelectAllPage);
         }
 
         private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(
