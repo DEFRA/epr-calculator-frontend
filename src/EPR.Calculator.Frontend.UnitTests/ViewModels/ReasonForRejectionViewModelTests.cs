@@ -8,13 +8,13 @@
     [TestClass]
     public class ReasonForRejectionViewModelTests
     {
-        private ReasonForRejectionViewModel _testClass;
+        private AcceptRejectConfirmationViewModel _testClass;
 
         [TestInitialize]
         public void SetUp()
         {
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
-            _testClass = fixture.Create<ReasonForRejectionViewModel>();
+            _testClass = fixture.Create<AcceptRejectConfirmationViewModel>();
         }
 
         [TestMethod]

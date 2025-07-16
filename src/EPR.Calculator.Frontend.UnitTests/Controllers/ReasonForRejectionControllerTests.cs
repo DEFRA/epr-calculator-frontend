@@ -57,7 +57,7 @@
             // Act
             var result = await controller.Index(runId) as ViewResult;
 
-            var resultModel = result.Model as ReasonForRejectionViewModel;
+            var resultModel = result.Model as AcceptRejectConfirmationViewModel;
 
             // Assert
             Assert.IsNotNull(result);
@@ -71,7 +71,7 @@
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
             var runId = fixture.Create<int>();
-            var model = fixture.Create<ReasonForRejectionViewModel>();
+            var model = fixture.Create<AcceptRejectConfirmationViewModel>();
 
             var controller = new ReasonForRejectionController(
                 this.Configuration,
@@ -94,7 +94,7 @@
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
             var runId = fixture.Create<int>();
-            var model = new ReasonForRejectionViewModel() { Reason = string.Empty, BackLink = ViewNames.BillingInstructionsIndex, CalculationRunId = runId };
+            var model = new AcceptRejectConfirmationViewModel() { Reason = string.Empty, BackLink = ViewNames.BillingInstructionsIndex, CalculationRunId = runId, Status = Enums.BillingStatus.Rejected };
 
             var controller = new ReasonForRejectionController(
                 this.Configuration,
@@ -107,7 +107,7 @@
 
             // Act
             var result = controller.IndexPost(runId, model) as ViewResult;
-            var resultModel = result.Model as ReasonForRejectionViewModel;
+            var resultModel = result.Model as AcceptRejectConfirmationViewModel;
 
             // Assert
             Assert.IsNotNull(result);

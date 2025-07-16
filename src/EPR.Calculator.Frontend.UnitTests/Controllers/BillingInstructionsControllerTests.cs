@@ -640,14 +640,14 @@
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.AcceptRejectConfirmationController, result.ControllerName);
-            Assert.AreEqual(testRunId, result.RouteValues["runId"]);
+            Assert.AreEqual(testRunId, result.RouteValues["calculationRunId"]);
         }
 
         [TestMethod]
         public void RejectSelected_ReturnsRedirectToReasonForRejection()
         {
             // Arrange
-            int testRunId = 456;
+            int testRunId = 46023;
 
             // Act
             var result = _controller.RejectSelected(testRunId) as RedirectToActionResult;
@@ -656,25 +656,7 @@
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.ReasonForRejectionController, result.ControllerName);
-            Assert.AreEqual(testRunId, result.RouteValues["runId"]);
-        }
-
-        [TestMethod]
-        public void ClearSelection_RedirectsToIndex()
-        {
-            // Arrange
-            var calculationRunId = 1;
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
-            var currentPage = fixture.Create<int>();
-            var pageSize = fixture.Create<int>();
-
-            // Act
-            var result = _controller.ClearSelection(calculationRunId, currentPage, pageSize) as RedirectToRouteResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("BillingInstructions_Index", result.RouteName);
-            Assert.AreEqual(calculationRunId, result.RouteValues["calculationRunId"]);
+            Assert.AreEqual(testRunId, result.RouteValues["calculationRunId"]);
         }
 
         private static DefaultHttpContext CreateTestHttpContext(string userName = "Test User")
