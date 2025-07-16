@@ -125,3 +125,29 @@
     margin-left:15px;
 }
 
+.accept-button {
+    background-color: #ffffff;
+    border: 1px solid #00703c;
+    color: #00703c;
+    margin-left: 10px;
+    margin-left: 0px;
+    box-shadow: 0 2px 0 rgb(0, 112, 60);
+}
+
+.reject-button {
+    background-color: #ffffff;
+    border: 1px solid #d4351c;
+    color: #d4351c;
+    margin-left: 10px;
+    margin-left: 30px;
+    box-shadow: 0 2px 0 rgb(212, 53, 28);
+}
+
+.flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.custom-width-300 {
+    width: 300px;
+}
