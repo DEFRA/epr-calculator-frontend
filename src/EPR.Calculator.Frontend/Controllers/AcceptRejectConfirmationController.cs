@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
@@ -7,6 +8,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -90,6 +92,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var isSuccessCode = await billingInstructionsApiService.PutAcceptRejectBillingInstructions(model.CalculationRunId, requestDto);
                 ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
+                this.HttpContext.Session.RemoveKeyIfExists(SessionConstants.IsSelectAll);
+                this.HttpContext.Session.RemoveKeyIfExists(SessionConstants.IsSelectAllPage);
 
                 if (!isSuccessCode)
                 {

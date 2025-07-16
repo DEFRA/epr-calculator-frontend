@@ -27,9 +27,9 @@
 
             <div class="govuk-grid-row">
                 <div class="@(ViewContext.ModelState.IsValid ?  "govuk-form-group govuk-grid-column-full" : "govuk-form-group govuk-form-group--error" )">
-                    <span class="govuk-caption-xl">@Model.CalculationRunName</span>
-                    <h1 class="govuk-heading-xl" style="margin-bottom: 3%;">Give a reason for rejecting billing instructions</h1>
-                    <div class="govuk-grid-column-two-thirds" style="padding:0px;">
+                        <span class="govuk-caption-xl">@Model.CalculationRunName</span>
+                        <h1 class="govuk-heading-xl">Give a reason for rejecting billing instructions</h1>
+                        <div class="govuk-grid-column-two-thirds" style="padding:0px;">
 
                         <div class="govuk-form-group">
                             @Html.ValidationMessageFor(m => m.Reason, "", new { @class = "govuk-error-message" })
