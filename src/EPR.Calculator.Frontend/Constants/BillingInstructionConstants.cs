@@ -12,6 +12,10 @@
 
         public const string OrganisationIdKey = "organisationId";
 
+        public const string AmendBillingInstructions = "Amend billing instructions";
+
+        public const string AmendBillingInstructionText = "Review or change the billing instructions before sending the billing file.";
+
         public const string BillingStatus = "billingStatus";
 
         public const string BillingStatusBanner = "You’ve accepted {0} instructions and rejected {1}. <br>{2} instructions are still pending.";
