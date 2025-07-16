@@ -9,23 +9,23 @@ namespace EPR.Calculator.Frontend.Validators
     {
         public AcceptRejectConfirmationViewModelValidator()
         {
-            RuleFor(x => x.CalculationRunId)
+            this.RuleFor(x => x.CalculationRunId)
                 .GreaterThan(0).WithMessage(ErrorMessages.CalculatorRunIdGreaterThanZero);
 
-            RuleFor(x => x.CalculationRunName)
+            this.RuleFor(x => x.CalculationRunName)
                 .NotEmpty().WithMessage(ErrorMessages.CalculationRunNameEmpty)
                 .MaximumLength(100).WithMessage(ErrorMessages.CalculationRunNameMaxLengthExceeded);
 
-            RuleFor(x => x.Status)
+            this.RuleFor(x => x.Status)
                 .IsInEnum().WithMessage(ErrorMessages.StatusMustBeValid);
 
-            RuleFor(x => x.ApproveData)
+            this.RuleFor(x => x.ApproveData)
                 .NotNull().WithMessage(ErrorMessages.AcceptRejectConfirmationApproveDataRequired);
 
             // Reason is only required if status is Rejected
-            When(x => x.Status == BillingStatus.Rejected, () =>
+            this.When(x => x.Status == BillingStatus.Rejected, () =>
             {
-                RuleFor(x => x.Reason)
+                this.RuleFor(x => x.Reason)
                     .NotEmpty().WithMessage(ErrorMessages.ReasonForRejectionRequired)
                     .MaximumLength(500).WithMessage(ErrorMessages.ReasonMustNotExceed500Characters);
             });

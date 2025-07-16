@@ -1,6 +1,11 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Security.Claims;
+using System.Security.Principal;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
+using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
@@ -8,6 +13,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using Moq;
+using Moq.Protected;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
@@ -16,48 +23,141 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
     {
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
         private Mock<ITokenAcquisition> _mockTokenAcquisition;
+        private Mock<IBillingInstructionsApiService> _billingInstructionsApiService;
         private TelemetryClient _telemetryClient;
-        private AcceptRejectConfirmationController _controller;
-        private Mock<HttpContext> _mockHttpContext;
 
         public AcceptRejectConfirmationControllerTests()
         {
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            _billingInstructionsApiService = new Mock<IBillingInstructionsApiService>();
             _telemetryClient = new TelemetryClient();
-            _mockHttpContext = new Mock<HttpContext>();
-
-            _controller = new AcceptRejectConfirmationController(
-                   _configuration,
-                   _mockTokenAcquisition.Object,
-                   _telemetryClient,
-                   new Mock<IHttpClientFactory>().Object)
-            {
-                // Setting the mocked HttpContext for the controller
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = _mockHttpContext.Object
-                }
-            };
         }
 
         [TestMethod]
-        public void CanCallIndex()
+        public async Task IndexAsync_InvalidCalculationRunId_RedirectsToStandardError()
         {
-            int runId = 99;
+            // Arrange
+            int invalidRunId = 0;
+            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
 
-            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
-            var model = new AcceptRejectConfirmationViewModel() { Reason = string.Empty, BackLink = ViewNames.BillingInstructionsIndex, CalculationRunId = runId, Status = Enums.BillingStatus.Rejected };
-
-            var result = _controller.Index(runId, model);
+            // Act
+            var result = await controller.IndexAsync(invalidRunId);
 
             // Assert
-            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
+        }
 
+        [TestMethod]
+        public async Task IndexAsync_NullRunDetails_RedirectsToStandardError()
+        {
+            // Arrange
+            int runId = 123;
+
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    Content = new StringContent(JsonConvert.SerializeObject(null)),
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            var controller = CreateController(mockHttpClientFactory.Object);
+
+            // Act
+            var result = await controller.IndexAsync(runId);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
+        }
+
+        [TestMethod]
+        public async Task IndexAsync_ValidRunDetails_ReturnsViewWithModel()
+        {
+            // Arrange
+            int runId = 99;
+            var runDetails = new CalculatorRunDetailsViewModel { RunName = "TestRun" };
+
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    Content = new StringContent(JsonConvert.SerializeObject(runDetails)),
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            var controller = CreateController(mockHttpClientFactory.Object);
+
+            // Act
+            var result = await controller.IndexAsync(runId);
+
+            // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
             var viewResult = result as ViewResult;
             Assert.IsNotNull(viewResult);
             Assert.IsInstanceOfType(viewResult.Model, typeof(AcceptRejectConfirmationViewModel));
+            var model = viewResult.Model as AcceptRejectConfirmationViewModel;
+            Assert.AreEqual(runId, model.CalculationRunId);
+            Assert.AreEqual("TestRun", model.CalculationRunName);
+            Assert.AreEqual(BillingStatus.Accepted, model.Status);
+        }
+
+        private AcceptRejectConfirmationController CreateController(IHttpClientFactory httpClientFactory)
+        {
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString("accessToken", "dummy-token");
+
+            var context = new DefaultHttpContext()
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+
+            var controller = new AcceptRejectConfirmationController(
+                _configuration,
+                _mockTokenAcquisition.Object,
+                _telemetryClient,
+                httpClientFactory,
+                _billingInstructionsApiService.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = context
+                }
+            };
+
+            return controller;
         }
     }
 }

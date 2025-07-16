@@ -66,7 +66,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Submit(AcceptRejectConfirmationViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (!this.ModelState.IsValid)
             {
                 // Return the same view with the model so errors display
                 return this.View(ViewNames.AcceptRejectConfirmationIndex, model);

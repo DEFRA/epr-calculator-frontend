@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Enums;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
@@ -37,8 +38,8 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// </summary>
         public string AcceptRejectConfirmationText => this.Status switch
         {
-            BillingStatus.Accepted => "accept",
-            BillingStatus.Rejected => "reject",
+            BillingStatus.Accepted => CommonConstants.AcceptViewText,
+            BillingStatus.Rejected => CommonConstants.RejectViewText,
             _ => string.Empty,
         };
     }
