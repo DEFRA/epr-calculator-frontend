@@ -71,8 +71,13 @@
         public const string BillingInstructionsController = "BillingInstructions";
 
         /// <summary>
-        /// Reason for Rejection controller.
+        /// Accept Reject Confirmation controller.
         /// </summary>
-        public const string ReasonForRejection = "ReasonForRejection";
+        public const string AcceptRejectConfirmationController = "AcceptRejectConfirmation";
+
+        /// <summary>
+        /// ReasonForRejection Controller.
+        /// </summary>
+        public const string ReasonForRejectionController = "ReasonForRejection";
     }
 }

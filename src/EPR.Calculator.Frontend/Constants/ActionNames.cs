@@ -89,5 +89,15 @@
         /// Select All Page.
         /// </summary>
         public const string SelectAllPage = "SelectAllPage";
+
+        /// <summary>
+        /// Accept Selected.
+        /// </summary>
+        public const string AcceptSelected = "AcceptSelected";
+
+        /// <summary>
+        /// Reject Selected.
+        /// </summary>
+        public const string RejectSelected = "RejectSelected";
     }
 }

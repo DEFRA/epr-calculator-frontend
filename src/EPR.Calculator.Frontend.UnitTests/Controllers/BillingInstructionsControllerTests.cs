@@ -427,25 +427,6 @@
         }
 
         [TestMethod]
-        public void ClearSelection_RedirectsToIndex()
-        {
-            // Arrange
-            var calculationRunId = 1;
-            var selections = new OrganisationSelectionsViewModel
-            {
-                SelectedOrganisationIds = new List<int> { 1, 2, 3 }
-            };
-
-            // Act
-            var result = _controller.ClearSelection(calculationRunId, selections) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
-            Assert.AreEqual(calculationRunId, result.RouteValues["calculationRunId"]);
-        }
-
-        [TestMethod]
         public async Task SelectAllPage_SetsSessionAndReturnsViewWithSelectAllViewModel()
         {
             // Arrange
@@ -644,6 +625,56 @@
             var stored = mockSession.GetObject<IEnumerable<int>>(SessionConstants.ProducerIds);
             Assert.IsNotNull(stored, "ProducerIds should be set in session.");
             CollectionAssert.AreEquivalent(expectedProducerIds, stored.ToList());
+        }
+
+        [TestMethod]
+        public void AcceptSelected_ReturnsRedirectToAcceptRejectConfirmation()
+        {
+            // Arrange
+            int testRunId = 123;
+
+            // Act
+            var result = _controller.AcceptSelected(testRunId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.AcceptRejectConfirmationController, result.ControllerName);
+            Assert.AreEqual(testRunId, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public void RejectSelected_ReturnsRedirectToReasonForRejection()
+        {
+            // Arrange
+            int testRunId = 456;
+
+            // Act
+            var result = _controller.RejectSelected(testRunId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.ReasonForRejectionController, result.ControllerName);
+            Assert.AreEqual(testRunId, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public void ClearSelection_RedirectsToIndex()
+        {
+            // Arrange
+            var calculationRunId = 1;
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var currentPage = fixture.Create<int>();
+            var pageSize = fixture.Create<int>();
+
+            // Act
+            var result = _controller.ClearSelection(calculationRunId, currentPage, pageSize) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("BillingInstructions_Index", result.RouteName);
+            Assert.AreEqual(calculationRunId, result.RouteValues["calculationRunId"]);
         }
 
         private static DefaultHttpContext CreateTestHttpContext(string userName = "Test User")

@@ -14,7 +14,7 @@
 
   
 
-    @using (Html.BeginForm(ActionNames.Index, ControllerNames.ReasonForRejection, FormMethod.Post))
+    @using (Html.BeginForm(ActionNames.Index, ControllerNames.ReasonForRejectionController, FormMethod.Post))
     {
         @Html.AntiForgeryToken()
         @Html.Hidden("runId", Model.CalculationRunId)
