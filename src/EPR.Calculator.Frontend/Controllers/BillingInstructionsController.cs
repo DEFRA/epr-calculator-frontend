@@ -323,7 +323,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return billingData;
         }
 
-        protected async Task<bool> TryGenerateBillingFile(int runId)
+        private async Task<bool> TryGenerateBillingFile(int runId)
         {
             var acceptApiUrl = this.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.ProducerBillingInstructionsAcceptApi);
 
