@@ -51,6 +51,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(ViewNames.ReasonForRejectionIndex, model);
             }
 
+            this.ModelState.Clear();
             return this.View(ViewNames.AcceptRejectConfirmationIndex, model);
         }
     }
