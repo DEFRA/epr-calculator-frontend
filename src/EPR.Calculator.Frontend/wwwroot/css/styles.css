@@ -100,3 +100,18 @@
 .checkbox-item-label{
     width: 350px !important;
 }
+
+.center-label {
+    align-self: unset !important;
+}
+
+
+.text-area-margin-bottom
+{
+    margin-bottom : 0px !important;
+}
+
+.button-margin{
+    margin-left:15px;
+}
+

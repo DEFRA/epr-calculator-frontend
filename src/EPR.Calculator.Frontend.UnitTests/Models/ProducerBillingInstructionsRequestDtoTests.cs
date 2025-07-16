@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text.Json;
+﻿using System.Text.Json;
 using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.UnitTests.Models

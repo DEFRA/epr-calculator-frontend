@@ -84,7 +84,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
                         SuggestedInvoiceAmount = 100.5m,
                         BillingInstructionAcceptReject = "Accepted"
                     }
-                }
+                },
+                AllProducerIds = [1]
             };
             var request = new PaginationRequestViewModel { Page = 2, PageSize = 10 };
             var currentUser = "Test User";
@@ -97,10 +98,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
             Assert.AreEqual("Test Run", result.CalculationRun.Name);
             Assert.AreEqual(2, result.TablePaginationModel.CurrentPage);
             Assert.AreEqual(10, result.TablePaginationModel.PageSize);
-            Assert.AreEqual(1, result.TablePaginationModel.TotalRecords);
+            Assert.AreEqual(1, result.TablePaginationModel.TotalTableRecords);
             Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.TablePaginationModel.RouteName);
             Assert.AreEqual(123, result.TablePaginationModel.RouteValues[BillingInstructionConstants.CalculationRunIdKey]);
             Assert.AreEqual(null, result.TablePaginationModel.RouteValues[BillingInstructionConstants.OrganisationIdKey]);
+            Assert.AreEqual(null, result.TablePaginationModel.RouteValues[BillingInstructionConstants.BillingStatus]);
 
             var orgs = result.TablePaginationModel.Records as List<Organisation>;
             Assert.IsNotNull(orgs);

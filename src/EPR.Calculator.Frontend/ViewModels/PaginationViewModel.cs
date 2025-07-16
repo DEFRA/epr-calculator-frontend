@@ -12,7 +12,7 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public int PageSize { get; init; }
 
-        public int TotalRecords { get; init; }
+        public int TotalTableRecords { get; init; }
 
         public IEnumerable<int> PageSizeOptions { get; init; } = CommonConstants.PageSizeOptions;
 
@@ -24,10 +24,10 @@ namespace EPR.Calculator.Frontend.ViewModels
         public Dictionary<string, object?> RouteValues { get; init; } = new();
 
         // Calculated properties
-        public int TotalPages => (int)Math.Ceiling((double)this.TotalRecords / this.PageSize);
+        public int TotalPages => (int)Math.Ceiling((double)this.TotalTableRecords / this.PageSize);
 
-        public int StartRecord => this.TotalRecords == 0 ? 0 : ((this.CurrentPage - 1) * this.PageSize) + 1;
+        public int StartRecord => this.TotalTableRecords == 0 ? 0 : ((this.CurrentPage - 1) * this.PageSize) + 1;
 
-        public int EndRecord => Math.Min(this.CurrentPage * this.PageSize, this.TotalRecords);
+        public int EndRecord => Math.Min(this.CurrentPage * this.PageSize, this.TotalTableRecords);
     }
 }
