@@ -169,19 +169,19 @@
                     <button type="submit" class="govuk-button govuk-button--secondary accept-button" data-module="govuk-button" id="accept-selection-btn">
                         Accept selected
                     </button>
-                    <input type="hidden" name="RunId" value="@Model.CalculationRun.Id" />
+                    <input type="hidden" name="calculationRunId" value="@Model.CalculationRun.Id" />
                 </form>
                 <form asp-action="RejectSelected" asp-controller="BillingInstructions" method="post" onsubmit="return checkHasProducerIds();">
                     <button type="submit" class="govuk-button govuk-button--secondary reject-button" data-module="govuk-button" id="reject-selection-btn">
                         Reject selected
                     </button>
-                    <input type="hidden" name="RunId" value="@Model.CalculationRun.Id" />
+                    <input type="hidden" name="calculationRunId" value="@Model.CalculationRun.Id" />
                 </form>
                 <form asp-action="ClearSelection" asp-controller="BillingInstructions" method="post" onsubmit="return checkHasProducerIds();">
                     <button type="submit" class="govuk-button govuk-button--secondary govuk-!-margin-left-6" data-module="govuk-button" id="clear-selection-btn">
                         Clear selection
                     </button>
-                    <input type="hidden" name="RunId" value="@Model.CalculationRun.Id" />
+                    <input type="hidden" name="calculationRunId" value="@Model.CalculationRun.Id" />
                     <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
                     <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
                 </form>
