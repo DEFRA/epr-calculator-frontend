@@ -640,14 +640,14 @@
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.AcceptRejectConfirmationController, result.ControllerName);
-            Assert.AreEqual(testRunId, result.RouteValues["runId"]);
+            Assert.AreEqual(testRunId, result.RouteValues["calculationRunId"]);
         }
 
         [TestMethod]
         public void RejectSelected_ReturnsRedirectToReasonForRejection()
         {
             // Arrange
-            int testRunId = 456;
+            int testRunId = 46023;
 
             // Act
             var result = _controller.RejectSelected(testRunId) as RedirectToActionResult;
@@ -656,7 +656,7 @@
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.ReasonForRejectionController, result.ControllerName);
-            Assert.AreEqual(testRunId, result.RouteValues["runId"]);
+            Assert.AreEqual(testRunId, result.RouteValues["calculationRunId"]);
         }
 
         private static DefaultHttpContext CreateTestHttpContext(string userName = "Test User")
