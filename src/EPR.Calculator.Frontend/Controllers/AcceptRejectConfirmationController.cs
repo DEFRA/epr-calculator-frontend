@@ -59,6 +59,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <summary>
         /// Handles the submission of accept all selected yes or no billing instructions.
         /// </summary>
+        /// <param name="model">The accept reject confirmation view model.</param>
         /// <returns>
         /// A redirection to the organisation view on selection of yes or no.
         /// </returns>
