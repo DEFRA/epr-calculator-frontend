@@ -3,6 +3,7 @@ using System.Security.Principal;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
@@ -127,6 +128,132 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.AreEqual(runId, model.CalculationRunId);
             Assert.AreEqual("TestRun", model.CalculationRunName);
             Assert.AreEqual(BillingStatus.Accepted, model.Status);
+        }
+
+        [TestMethod]
+        public async Task Submit_InvalidModelState_ReturnsViewWithModel()
+        {
+            // Arrange
+            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            controller.ModelState.AddModelError("CalculationRunId", "Required");
+            var model = new AcceptRejectConfirmationViewModel
+            {
+                CalculationRunId = 1,
+                CalculationRunName = "Test",
+                Status = BillingStatus.Accepted,
+                ApproveData = true
+            };
+
+            // Act
+            var result = await controller.Submit(model);
+
+            // Assert
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            Assert.AreEqual(ViewNames.AcceptRejectConfirmationIndex, viewResult.ViewName);
+            Assert.AreEqual(model, viewResult.Model);
+        }
+
+        [TestMethod]
+        public async Task Submit_ApproveDataFalse_RedirectsToBillingInstructions()
+        {
+            // Arrange
+            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var model = new AcceptRejectConfirmationViewModel
+            {
+                CalculationRunId = 1,
+                CalculationRunName = "Test",
+                Status = BillingStatus.Accepted,
+                ApproveData = false
+            };
+
+            // Act
+            var result = await controller.Submit(model);
+
+            // Assert
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.Index, redirectResult.ActionName);
+            Assert.AreEqual(ControllerNames.BillingInstructionsController, redirectResult.ControllerName);
+            Assert.AreEqual(model.CalculationRunId, redirectResult.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public async Task Submit_ApiReturnsFalse_RedirectsToStandardError()
+        {
+            // Arrange
+            _billingInstructionsApiService.Setup(x => x.PutAcceptRejectBillingInstructions(It.IsAny<int>(), It.IsAny<ProducerBillingInstructionsHttpPutRequestDto>()))
+                .ReturnsAsync(false);
+
+            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var model = new AcceptRejectConfirmationViewModel
+            {
+                CalculationRunId = 1,
+                CalculationRunName = "Test",
+                Status = BillingStatus.Accepted,
+                ApproveData = true
+            };
+
+            // Act
+            var result = await controller.Submit(model);
+
+            // Assert
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
+        }
+
+        [TestMethod]
+        public async Task Submit_ApiThrowsException_ReturnsInternalServerError()
+        {
+            // Arrange
+            _billingInstructionsApiService.Setup(x => x.PutAcceptRejectBillingInstructions(It.IsAny<int>(), It.IsAny<ProducerBillingInstructionsHttpPutRequestDto>()))
+                .ThrowsAsync(new Exception("API error"));
+
+            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var model = new AcceptRejectConfirmationViewModel
+            {
+                CalculationRunId = 1,
+                CalculationRunName = "Test",
+                Status = BillingStatus.Accepted,
+                ApproveData = true
+            };
+
+            // Act
+            var result = await controller.Submit(model);
+
+            // Assert
+            var statusResult = result as ObjectResult;
+            Assert.IsNotNull(statusResult);
+            Assert.AreEqual(StatusCodes.Status500InternalServerError, statusResult.StatusCode);
+            Assert.AreEqual("An error occurred while processing your request.", statusResult.Value);
+        }
+
+        [TestMethod]
+        public async Task Submit_Success_RedirectsToBillingInstructions()
+        {
+            // Arrange
+            _billingInstructionsApiService.Setup(x => x.PutAcceptRejectBillingInstructions(It.IsAny<int>(), It.IsAny<ProducerBillingInstructionsHttpPutRequestDto>()))
+                .ReturnsAsync(true);
+
+            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var model = new AcceptRejectConfirmationViewModel
+            {
+                CalculationRunId = 1,
+                CalculationRunName = "Test",
+                Status = BillingStatus.Accepted,
+                ApproveData = true
+            };
+
+            // Act
+            var result = await controller.Submit(model);
+
+            // Assert
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual(ActionNames.Index, redirectResult.ActionName);
+            Assert.AreEqual(ControllerNames.BillingInstructionsController, redirectResult.ControllerName);
+            Assert.AreEqual(model.CalculationRunId, redirectResult.RouteValues["calculationRunId"]);
         }
 
         private AcceptRejectConfirmationController CreateController(IHttpClientFactory httpClientFactory)
