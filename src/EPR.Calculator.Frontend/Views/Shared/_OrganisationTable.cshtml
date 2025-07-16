@@ -5,6 +5,12 @@
 @{
     var producerIds = ARJourneySessionHelper.GetFromSession(Context.Session);
     var displayText = $"{producerIds.Count}";
+
+    var recordCount = Model.TablePaginationModel.Records.Count();
+    var total = Model.ProducerIds?.Count() ?? 0;
+    var start = total == 0 || recordCount == 0 ? 0 : Model.TablePaginationModel.StartRecord;
+    var end = total == 0 || recordCount == 0 ? 0 : start + recordCount - 1;
+
 }
 <!-- Header showing total records -->
 <div>
@@ -18,7 +24,9 @@
                     <strong><span id="totalCountText">@displayText</span> records selected</strong>
                 </th>
                 <th class="govuk-table__cell header-right-cell">
-                    <strong>@Model.TablePaginationModel.StartRecord - @Model.TablePaginationModel.Records.Count() of @Model.ProducerIds!.Count()</strong>
+                    <strong>
+                        @start – @end of @total
+                    </strong>
                 </th>
             </tr>
         </thead>
@@ -53,8 +61,8 @@
                            aria-labelledby="checkbox-label-@org.Id"
                            class="record-checkbox"
                            data-organisation-id="@org.OrganisationId"
-                           @(org.IsSelected ? "checked" : null)
-                           @(org.Status == BillingStatus.Noaction ? "disabled" : null)/>
+                    @(org.IsSelected ? "checked" : null)
+                    @(org.Status == BillingStatus.Noaction ? "disabled" : null) />
                 </td>
 
                 <td class="govuk-table__cell govuk-!-text-align-center vertical-middle" id="checkbox-label-@org.Id">@org.OrganisationName</td>
@@ -74,7 +82,7 @@
 </table>
 
 <script type="text/javascript">
-    document.addEventListener('click', function (event) {   
+    document.addEventListener('click', function (event) {
         if (event.target.classList.contains('record-checkbox')) {
             var organisationId = event.target.getAttribute('data-organisation-id');
             var isChecked = event.target.checked;
@@ -93,7 +101,7 @@
                     isSelected: isChecked
                 })
             }).then(function () {
-                if (!isChecked) {                    
+                if (!isChecked) {
                     var selectPage = document.getElementById('OrganisationSelections_SelectPage');
                     var selectAll = document.getElementById('OrganisationSelections_SelectAll');
                     if (selectPage) selectPage.checked = false;
