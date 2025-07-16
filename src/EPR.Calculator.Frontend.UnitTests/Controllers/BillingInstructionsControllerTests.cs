@@ -9,6 +9,7 @@
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Controllers;
     using EPR.Calculator.Frontend.Extensions;
+    using EPR.Calculator.Frontend.Helpers;
     using EPR.Calculator.Frontend.Mappers;
     using EPR.Calculator.Frontend.Models;
     using EPR.Calculator.Frontend.UnitTests.HelpersTest;
@@ -19,6 +20,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Identity.Web;
+    using Microsoft.IdentityModel.Abstractions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Moq.Protected;
@@ -656,6 +658,78 @@
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.ReasonForRejectionController, result.ControllerName);
+            Assert.AreEqual(testRunId, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public async Task GenerateBillingFile_Returns_Success()
+        {
+            // Arrange
+            int testRunId = 1;
+
+            // Set up session with IsSelectAll = true
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            var context = new DefaultHttpContext { Session = mockSession };
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(null, HttpStatusCode.OK);
+
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.RouteValues["action"]);
+            Assert.AreEqual(ControllerNames.CalculationRunOverview, result.RouteValues["controller"]);
+            Assert.AreEqual(testRunId, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public async Task GenerateBillingFile_Returns_Failure()
+        {
+            // Arrange
+            int testRunId = 1;
+
+            // Set up session with IsSelectAll = true
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            var context = new DefaultHttpContext { Session = mockSession };
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(null, HttpStatusCode.InternalServerError);
+
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
+        }
+
+        [TestMethod]
+        public void ClearSelection_Verifys_ClearsSession()
+        {
+            // Arrange
+            int testRunId = 1;
+
+            // Set up session with IsSelectAll = true
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            var context = new DefaultHttpContext { Session = mockSession };
+
+            // Act
+            var result = _controller.ClearSelection(testRunId, 1, 10) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.RouteName);
             Assert.AreEqual(testRunId, result.RouteValues["calculationRunId"]);
         }
 

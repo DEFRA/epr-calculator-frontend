@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using AspNetCoreGeneratedDocument;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
@@ -248,6 +249,29 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        /// <summary>
+        /// Generate the billing file.
+        /// </summary>
+        /// <param name="runId">The unique identifier for the calculation run.</param>
+        [HttpPost]
+        public async Task<IActionResult> GenerateDraftBillingFile(int runId)
+        {
+            var result = await this.TryGenerateBillingFile(runId);
+            if (result)
+            {
+                return this.RedirectToRoute(new
+                {
+                    controller = ControllerNames.CalculationRunOverview,
+                    action = "Index",
+                    runId,
+                });
+            }
+            else
+            {
+                return this.RedirectToStandardError;
+            }
+        }
+
         private void ClearAllSession()
         {
             var session = this.HttpContext.Session;
@@ -289,6 +313,21 @@ namespace EPR.Calculator.Frontend.Controllers
             var billingData = JsonSerializer.Deserialize<ProducerBillingInstructionsResponseDto>(json);
 
             return billingData;
+        }
+
+        private async Task<bool> TryGenerateBillingFile(int runId)
+        {
+            var acceptApiUrl = this.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.ProducerBillingInstructionsAcceptApi);
+
+            var responseDto = await this.CallApi(HttpMethod.Put, acceptApiUrl, runId.ToString(), null);
+
+            if (!responseDto.IsSuccessStatusCode)
+            {
+                this.TelemetryClient.TrackTrace($"Billing instructions acceptance failed for RunId {runId}. StatusCode: {responseDto.StatusCode}, Reason: {responseDto.ReasonPhrase}");
+                return false;
+            }
+
+            return true;
         }
     }
 }

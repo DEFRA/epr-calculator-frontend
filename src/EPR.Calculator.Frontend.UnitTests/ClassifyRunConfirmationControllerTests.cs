@@ -199,19 +199,18 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void Submit_RedirectsToPaymentCalculatorIndex_WhenModelStateIsValid()
+        public void Submit_RedirectsToBillingInstructionsIndex_WhenModelStateIsValid()
         {
             // Arrange
             int runId = 1;
 
             // Act
-            var result = _controller.Submit(runId) as RedirectToActionResult;
+            var result = _controller.Submit(runId) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(ControllerNames.PaymentCalculator, result.ControllerName);
-            Assert.AreEqual(runId, result.RouteValues["runId"]);
+            Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.RouteName);
+            Assert.AreEqual(runId, result.RouteValues["calculationRunId"]);
         }
 
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)

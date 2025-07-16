@@ -190,7 +190,7 @@
         </div>
         @if (Model.TotalPendingRecords == 0)
         {
-            <partial name="_BillingNextStepPartial" />
+            <partial name="_BillingNextStepPartial" model="@Model.CalculationRun.Id" />
         }
     </div>
 </div>
