@@ -712,6 +712,27 @@
             Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
         }
 
+        [TestMethod]
+        public void ClearSelection_Verifys_ClearsSession()
+        {
+            // Arrange
+            int testRunId = 1;
+
+            // Set up session with IsSelectAll = true
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            var context = new DefaultHttpContext { Session = mockSession };
+
+            // Act
+            var result = _controller.ClearSelection(testRunId, 1, 10) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.RouteName);
+            Assert.AreEqual(testRunId, result.RouteValues["calculationRunId"]);
+        }
+
         private static DefaultHttpContext CreateTestHttpContext(string userName = "Test User")
         {
             var claims = new List<Claim> { new Claim(ClaimTypes.Name, userName) };
