@@ -79,5 +79,10 @@
         /// ReasonForRejection Controller.
         /// </summary>
         public const string ReasonForRejectionController = "ReasonForRejection";
+
+        /// <summary>
+        /// Accept Reject Confirmation Controller
+        /// </summary>
+        public const string AcceptRejectConfirmation = "AcceptRejectConfirmation";
     }
 }

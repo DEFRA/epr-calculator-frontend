@@ -115,37 +115,37 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <summary>
         /// Clears all selected billing instructions from the session and redirects to the Billing Instructions index page.
         /// </summary>
-        /// <param name="runId">The ID of the calculation run.</param>
+        /// <param name="calculationRunId">The ID of the calculation run.</param>
         /// <param name="currentPage">The current page number for pagination.</param>
         /// <param name="pageSize">The number of items displayed per page.</param>
         /// <returns>A redirect to the Billing Instructions index route.</returns>
         [HttpPost]
-        public IActionResult ClearSelection(int runId, int currentPage, int pageSize)
+        public IActionResult ClearSelection(int calculationRunId, int currentPage, int pageSize)
         {
             this.ClearAllSession();
-            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = runId, page = currentPage, PageSize = pageSize });
+            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = calculationRunId, page = currentPage, PageSize = pageSize });
         }
 
         /// <summary>
         /// Redirects to the Accept/Reject Confirmation index action for the specified calculation run.
         /// </summary>
-        /// <param name="runId">The ID of the calculation run.</param>
+        /// <param name="calculationRunId">The ID of the calculation run.</param>
         /// <returns>A redirect to the Accept/Reject Confirmation controller's index action.</returns>
         [HttpPost]
-        public IActionResult AcceptSelected(int runId)
+        public IActionResult AcceptSelected(int calculationRunId)
         {
-            return this.RedirectToAction(ActionNames.Index, ControllerNames.AcceptRejectConfirmationController, new { runId });
+            return this.RedirectToAction(ActionNames.Index, ControllerNames.AcceptRejectConfirmationController, new { calculationRunId });
         }
 
         /// <summary>
         /// Redirects to the Reason for Rejection index action for the specified calculation run.
         /// </summary>
-        /// <param name="runId">The ID of the calculation run.</param>
+        /// <param name="calculationRunId">The ID of the calculation run.</param>
         /// <returns>A redirect to the Reason for Rejection controller's index action.</returns>
         [HttpPost]
-        public IActionResult RejectSelected(int runId)
+        public IActionResult RejectSelected(int calculationRunId)
         {
-            return this.RedirectToAction(ActionNames.Index, ControllerNames.ReasonForRejectionController, new { runId });
+            return this.RedirectToAction(ActionNames.Index, ControllerNames.ReasonForRejectionController, new { calculationRunId });
         }
 
         /// <summary>

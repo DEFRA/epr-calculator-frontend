@@ -61,9 +61,13 @@ namespace EPR.Calculator.Frontend.Services
         private HttpClient GetHttpClient(string authToken)
         {
             var client = clientFactory.CreateClient();
+            var bearerToken = authToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+                ? authToken
+                : $"Bearer {authToken}";
+
             if (!client.DefaultRequestHeaders.Contains("Authorization"))
             {
-                client.DefaultRequestHeaders.Add("Authorization", authToken);
+                client.DefaultRequestHeaders.Add("Authorization", bearerToken);
             }
 
             return client;

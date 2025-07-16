@@ -4,27 +4,48 @@
 
 <partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
 
+@{
+    var approveDataHasError = ViewData.ModelState.ContainsKey(nameof(Model.ApproveData)) &&
+                              ViewData.ModelState[nameof(Model.ApproveData)]?.Errors?.Count > 0;
+    var formGroupClass = "govuk-form-group" + (approveDataHasError ? " govuk-form-group--error" : "");
+}
+
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     @using (Html.BeginForm(ActionNames.Submit, CommonUtil.GetControllerName(typeof(AcceptRejectConfirmationController)), FormMethod.Post))
     {
         @Html.AntiForgeryToken()
-        <div class="govuk-form-group">
+        @Html.HiddenFor(m => m.CurrentUser)
+        @Html.HiddenFor(m => m.CalculationRunId)
+        @Html.HiddenFor(m => m.CalculationRunName)
+        @Html.HiddenFor(m => m.Status)
+        @Html.HiddenFor(m => m.Reason)
+
+        <partial name="_ValidationSummaryPartial" />
+
+        <div class="@formGroupClass">
             <span class="govuk-caption-xl">Calculation run 99</span>
-            <fieldset class="govuk-fieldset">
+            <fieldset class="govuk-fieldset" aria-describedby="ApproveData-error">
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                     <h1 class="govuk-fieldset__heading">
-                        Are you sure you want to accept all selected billing instructions?
+                        Are you sure you want to @Model.AcceptRejectConfirmationText all selected billing instructions?
                     </h1>
                 </legend>
+                @if (approveDataHasError)
+                {
+                    <span id="ApproveData-error" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">Error:</span>
+                        @ViewData.ModelState[nameof(Model.ApproveData)]?.Errors.First().ErrorMessage
+                    </span>
+                }
                 <div class="govuk-radios" data-module="govuk-radios">
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" id="radio-yes" name="approve-data" type="radio" value="yes">
+                        <input class="govuk-radios__input" id="radio-yes" name="ApproveData" type="radio" value="true" @(Model.ApproveData == true ? "checked" : "")>
                         <label class="govuk-label govuk-radios__label" for="radio-yes">
                             Yes
                         </label>
                     </div>
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" id="radio-no" name="approve-data" type="radio" value="no">
+                        <input class="govuk-radios__input" id="radio-no" name="ApproveData" type="radio" value="false" @(Model.ApproveData == false ? "checked" : "")>
                         <label class="govuk-label govuk-radios__label" for="radio-no">
                             No
                         </label>
