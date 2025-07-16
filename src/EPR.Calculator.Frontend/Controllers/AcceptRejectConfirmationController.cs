@@ -91,14 +91,14 @@ namespace EPR.Calculator.Frontend.Controllers
                 };
 
                 var isSuccessCode = await billingInstructionsApiService.PutAcceptRejectBillingInstructions(model.CalculationRunId, requestDto);
-                ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
-                this.HttpContext.Session.RemoveKeyIfExists(SessionConstants.IsSelectAll);
-                this.HttpContext.Session.RemoveKeyIfExists(SessionConstants.IsSelectAllPage);
-
                 if (!isSuccessCode)
                 {
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
+
+                ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
+                this.HttpContext.Session.RemoveKeyIfExists(SessionConstants.IsSelectAll);
+                this.HttpContext.Session.RemoveKeyIfExists(SessionConstants.IsSelectAllPage);
             }
             catch (Exception ex)
             {
