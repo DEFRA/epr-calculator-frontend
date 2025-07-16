@@ -9,6 +9,7 @@
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Controllers;
     using EPR.Calculator.Frontend.Extensions;
+    using EPR.Calculator.Frontend.Helpers;
     using EPR.Calculator.Frontend.Mappers;
     using EPR.Calculator.Frontend.Models;
     using EPR.Calculator.Frontend.UnitTests.HelpersTest;
@@ -684,6 +685,31 @@
             Assert.AreEqual(ActionNames.Index, result.RouteValues["action"]);
             Assert.AreEqual(ControllerNames.CalculationRunOverview, result.RouteValues["controller"]);
             Assert.AreEqual(testRunId, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public async Task GenerateBillingFile_Returns_Failure()
+        {
+            // Arrange
+            int testRunId = 1;
+
+            // Set up session with IsSelectAll = true
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            var context = new DefaultHttpContext { Session = mockSession };
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(null, HttpStatusCode.InternalServerError);
+
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
         }
 
         private static DefaultHttpContext CreateTestHttpContext(string userName = "Test User")
