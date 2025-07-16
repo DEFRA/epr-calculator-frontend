@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using AspNetCoreGeneratedDocument;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
@@ -245,6 +246,42 @@ namespace EPR.Calculator.Frontend.Controllers
             var billingData = JsonSerializer.Deserialize<ProducerBillingInstructionsResponseDto>(json);
 
             return billingData;
+        }
+
+        public async void SubmitForAcceptBillinFile()
+        {
+            // Get the RunId from the URL
+            const int runId = 100; // Replace with actual logic to retrieve the RunId from the context or parameters
+            var result = await TryGenerateBillingFile(runId);
+
+            if(result)
+            {
+                // Redirect to the calculation run overview page
+            }
+        }
+
+
+        private async Task<bool> TryGenerateBillingFile(int runId)
+        {
+            var instructionsAcceptApiUrl = this.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.ProducerBillingInstructionsAcceptApi);
+
+            try
+            {
+                var response = await this.CallApi(HttpMethod.Put, instructionsAcceptApiUrl, runId.ToString(), null);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    this.TelemetryClient.TrackTrace($"Billing instructions acceptance failed for RunId {runId}. StatusCode: {response.StatusCode}, Reason: {response.ReasonPhrase}");
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.TelemetryClient.TrackException(ex);
+                return false;
+            }
         }
     }
 }
