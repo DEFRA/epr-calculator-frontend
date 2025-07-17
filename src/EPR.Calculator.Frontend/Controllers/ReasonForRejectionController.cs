@@ -47,7 +47,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (string.IsNullOrEmpty(model.Reason))
             {
-                this.ModelState.AddModelError(nameof(model.Reason), "Provide a reason that applies to all the billing instructions you selected for rejection.");
+                this.ModelState.Remove("Reason");
                 return this.View(ViewNames.ReasonForRejectionIndex, model);
             }
 
