@@ -1,8 +1,15 @@
 ﻿@using EPR.Calculator.Frontend.Helpers;
 @using EPR.Calculator.Frontend.Controllers;
 @model AcceptRejectConfirmationViewModel
-
-<partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
+@{
+    var backLinkModel = new BackLinkPartialViewModel
+            {
+                BackLink = Model.BackLink,
+                CurrentUser = Model.CurrentUser,
+                RunId = Model.CalculationRunId
+            };
+}
+<partial name="_BackLinkPartialNew" model="backLinkModel" />
 
 @{
     var approveDataHasError = ViewData.ModelState.ContainsKey(nameof(Model.ApproveData)) &&
@@ -19,8 +26,20 @@
         @Html.HiddenFor(m => m.CalculationRunName)
         @Html.HiddenFor(m => m.Status)
         @Html.HiddenFor(m => m.Reason)
+        @Html.HiddenFor(m => m.BackLink)
 
-        <partial name="_ValidationSummaryPartial" />
+        <!-- Error Summary -->
+        @if (ViewData.ModelState[$"Summary_{nameof(Model.ApproveData)}"]?.Errors.Count > 0)
+        {
+            var summaryError = ViewData.ModelState[$"Summary_{nameof(Model.ApproveData)}"]?.Errors.First().ErrorMessage;
+
+            <div class="govuk-error-summary" role="alert">
+                <h2 class="govuk-error-summary__title">There is a problem</h2>
+                <ul class="govuk-list govuk-error-summary__list">
+                    <li><a href="#ApproveData">@summaryError</a></li>
+                </ul>
+            </div>
+        }
 
         <div class="@formGroupClass">
             <span class="govuk-caption-xl">@Model.CalculationRunName</span>
@@ -39,7 +58,7 @@
                 }
                 <div class="govuk-radios" data-module="govuk-radios">
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" id="radio-yes" name="ApproveData" type="radio" value="true" @(Model.ApproveData == true ? "checked" : "")>
+                        <input class="govuk-radios__input" id="ApproveData" name="ApproveData" type="radio" value="true" @(Model.ApproveData == true ? "checked" : "")>
                         <label class="govuk-label govuk-radios__label" for="radio-yes">
                             Yes
                         </label>

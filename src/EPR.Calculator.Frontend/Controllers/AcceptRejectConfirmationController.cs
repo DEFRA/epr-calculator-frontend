@@ -50,7 +50,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 CalculationRunId = calculationRunId,
-                BackLink = ControllerNames.Organisation,
+                BackLink = ControllerNames.BillingInstructionsController,
                 CalculationRunName = runDetails.RunName,
                 Status = BillingStatus.Accepted,
             };
@@ -71,6 +71,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!this.ModelState.IsValid)
             {
+                if (this.ModelState.ContainsKey(nameof(model.ApproveData)) && this.ModelState[nameof(model.ApproveData)]?.Errors?.Any() == true)
+                {
+                    this.ModelState.AddModelError($"Summary_{nameof(model.ApproveData)}", ErrorMessages.AcceptRejectConfirmationApproveDataRequiredSummary); // Summary message
+                }
+
                 // Return the same view with the model so errors display
                 return this.View(ViewNames.AcceptRejectConfirmationIndex, model);
             }
