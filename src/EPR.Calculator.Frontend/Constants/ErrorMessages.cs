@@ -100,7 +100,6 @@
         /// </summary>
         public const string AcceptRejectConfirmationApproveDataRequiredSummary = "Please select an option before continuing.";
 
-
         /// <summary>
         /// Error message for Reason on the AcceptRejectConfirmationViewModel.
         /// </summary>
