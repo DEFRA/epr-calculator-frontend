@@ -272,6 +272,28 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        /// <summary>
+        /// Displays a billing file sent confirmation screen.
+        /// </summary>
+        /// <returns>Billing file sent page.</returns>
+        [Route("BillingFileSuccess")]
+        public IActionResult BillingFileSuccess()
+        {
+            var model = new BillingFileSuccessViewModel
+            {
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                ConfirmationViewModel = new ConfirmationViewModel
+                {
+                    Title = ConfirmationMessages.BillingFileSuccessTitle,
+                    Body = ConfirmationMessages.BillingFileSuccessBody,
+                    AdditionalParagraphs = ConfirmationMessages.BillingFileSuccessAdditionalParagraphs,
+                    RedirectController = ControllerNames.Dashboard,
+                },
+            };
+
+            return this.View(ViewNames.BillingConfirmationSuccess, model);
+        }
+
         private void ClearAllSession()
         {
             var session = this.HttpContext.Session;
