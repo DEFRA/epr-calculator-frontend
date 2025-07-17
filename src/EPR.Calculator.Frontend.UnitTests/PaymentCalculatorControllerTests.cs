@@ -273,42 +273,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
         }
 
-        [TestMethod]
-        public void Index_ReturnsViewResult_WithCorrectViewName()
-        {
-            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
-
-            // Assert
-            var viewResult = _controller.BillingFileSuccess() as ViewResult;
-            Assert.IsNotNull(viewResult);
-            Assert.AreEqual(ViewNames.BillingConfirmationSuccess, viewResult.ViewName);
-        }
-
-        [TestMethod]
-        public void BillingFileSuccess_ReturnsViewResult_WithCorrectViewModel()
-        {
-            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
-
-            // Act
-            var result = _controller.BillingFileSuccess() as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.BillingConfirmationSuccess, result.ViewName);
-
-            var model = result.Model as BillingFileSuccessViewModel;
-            Assert.IsNotNull(model);
-
-            var confirmationModel = model.ConfirmationViewModel;
-            Assert.IsNotNull(confirmationModel);
-            Assert.AreEqual(ConfirmationMessages.BillingFileSuccessTitle, confirmationModel.Title);
-            Assert.AreEqual(ConfirmationMessages.BillingFileSuccessBody, confirmationModel.Body);
-            CollectionAssert.AreEqual(ConfirmationMessages.BillingFileSuccessAdditionalParagraphs, confirmationModel.AdditionalParagraphs);
-            Assert.AreEqual(ControllerNames.Dashboard, confirmationModel.RedirectController);
-        }
-
         private PaymentCalculatorController BuildTestClass(
             Fixture fixture,
             HttpStatusCode httpStatusCode,

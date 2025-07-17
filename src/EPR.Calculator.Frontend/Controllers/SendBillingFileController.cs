@@ -68,7 +68,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (response.StatusCode == HttpStatusCode.Accepted)
                 {
-                    return this.RedirectToAction(ActionNames.BillingFileSuccess, CommonUtil.GetControllerName(typeof(PaymentCalculatorController)));
+                    return this.RedirectToAction(ActionNames.BillingFileSuccess, CommonUtil.GetControllerName(typeof(BillingInstructionsController)));
                 }
 
                 this.TelemetryClient.TrackTrace($"1.Request (send billing file) not accepted response code:{response.StatusCode}");
