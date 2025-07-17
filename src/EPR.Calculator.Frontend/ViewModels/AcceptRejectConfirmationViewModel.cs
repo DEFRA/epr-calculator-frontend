@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
@@ -28,6 +29,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// </summary>
         public bool? ApproveData { get; set; }
 
+        [Required]
         /// <summary>
         /// gets or sets Reason for rejection.
         /// </summary>
