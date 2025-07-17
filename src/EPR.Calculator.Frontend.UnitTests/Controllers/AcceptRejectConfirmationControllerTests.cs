@@ -179,7 +179,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsTrue(controller.ModelState.ContainsKey($"Summary_{nameof(model.ApproveData)}"));
         }
 
-
         [TestMethod]
         public async Task Submit_ApproveDataFalse_RedirectsToBillingInstructions()
         {
