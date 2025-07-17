@@ -29,7 +29,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// </summary>
         public bool? ApproveData { get; set; }
 
-        [Required]
         /// <summary>
         /// gets or sets Reason for rejection.
         /// </summary>
