@@ -155,7 +155,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public async Task Submit_InvalidModelState_AddSummary_ReturnsViewWithModel()
+        public async Task Submit_InvalidModelState_Summary_ReturnsViewWithModel()
         {
             // Arrange
             var controller = CreateController(new Mock<IHttpClientFactory>().Object);
@@ -163,8 +163,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             {
                 CalculationRunId = 1,
                 CalculationRunName = "Test",
-                Status = BillingStatus.Accepted,
-                ApproveData = true
+                Status = BillingStatus.Accepted
             };
 
             controller.ModelState.AddModelError(nameof(model.ApproveData), "ApproveData is required.");
@@ -177,6 +176,32 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.AreEqual(ViewNames.AcceptRejectConfirmationIndex, result.ViewName);
             Assert.AreEqual(model, result.Model);
             Assert.IsTrue(controller.ModelState.ContainsKey($"Summary_{nameof(model.ApproveData)}"));
+            Assert.AreEqual(
+               ErrorMessages.AcceptRejectConfirmationApproveDataRequiredSummary,
+               controller.ModelState[$"Summary_{nameof(model.ApproveData)}"].Errors.First().ErrorMessage);
+        }
+
+        [TestMethod]
+        public async Task Submit_ValidModelState_Summary_ReturnsViewWithModel()
+        {
+            // Arrange
+            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var model = new AcceptRejectConfirmationViewModel
+            {
+                CalculationRunId = 1,
+                CalculationRunName = "Test",
+                Status = BillingStatus.Accepted,
+                ApproveData = false
+            };
+
+            // Act
+            var result = await controller.Submit(model) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.BillingInstructionsController, result.ControllerName);
+            Assert.AreEqual(model.CalculationRunId, result.RouteValues["calculationRunId"]);
         }
 
         [TestMethod]
