@@ -155,6 +155,32 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
+        public async Task Submit_InvalidModelState_AddSummary_ReturnsViewWithModel()
+        {
+            // Arrange
+            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var model = new AcceptRejectConfirmationViewModel
+            {
+                CalculationRunId = 1,
+                CalculationRunName = "Test",
+                Status = BillingStatus.Accepted,
+                ApproveData = true
+            };
+
+            controller.ModelState.AddModelError(nameof(model.ApproveData), "ApproveData is required.");
+
+            // Act
+            var result = await controller.Submit(model) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ViewNames.AcceptRejectConfirmationIndex, result.ViewName);
+            Assert.AreEqual(model, result.Model);
+            Assert.IsTrue(controller.ModelState.ContainsKey($"Summary_{nameof(model.ApproveData)}"));
+        }
+
+
+        [TestMethod]
         public async Task Submit_ApproveDataFalse_RedirectsToBillingInstructions()
         {
             // Arrange
