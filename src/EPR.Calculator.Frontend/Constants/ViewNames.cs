@@ -179,5 +179,10 @@
         /// Organisation index controller page view.
         /// </summary>
         public const string BillingInstructionsIndex = "~/Views/BillingInstructions/Index.cshtml";
+
+        /// <summary>
+        /// Organisation index controller page view.
+        /// </summary>
+        public const string ReasonForRejectionIndex = "~/Views/ReasonForRejection/Index.cshtml";
     }
 }

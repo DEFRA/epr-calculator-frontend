@@ -15,6 +15,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller for handling payment calculations.
     /// </summary>
     [Route("[controller]")]
+    [NonController]
     public class PaymentCalculatorController(
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,

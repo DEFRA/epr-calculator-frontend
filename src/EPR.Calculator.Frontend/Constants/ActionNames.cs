@@ -89,5 +89,19 @@
         /// Select All Page.
         /// </summary>
         public const string SelectAllPage = "SelectAllPage";
+
+        /// <summary>
+        /// Generate Draft Billing File.
+        /// </summary>
+        public const string GenerateDraftBillingFile = "GenerateDraftBillingFile";
+
+        /// Accept Selected.
+        /// </summary>
+        public const string AcceptSelected = "AcceptSelected";
+
+        /// <summary>
+        /// Reject Selected.
+        /// </summary>
+        public const string RejectSelected = "RejectSelected";
     }
 }

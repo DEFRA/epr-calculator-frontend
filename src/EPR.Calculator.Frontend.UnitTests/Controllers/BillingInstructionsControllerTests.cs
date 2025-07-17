@@ -9,6 +9,7 @@
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Controllers;
     using EPR.Calculator.Frontend.Extensions;
+    using EPR.Calculator.Frontend.Helpers;
     using EPR.Calculator.Frontend.Mappers;
     using EPR.Calculator.Frontend.Models;
     using EPR.Calculator.Frontend.Services;
@@ -20,6 +21,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Identity.Web;
+    using Microsoft.IdentityModel.Abstractions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Moq.Protected;
@@ -61,7 +63,6 @@
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
             mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-
             var context = new DefaultHttpContext()
             {
                 Session = mockSession
@@ -186,7 +187,7 @@
 
             var model = result.Model as BillingInstructionsViewModel;
             Assert.IsNotNull(model);
-            Assert.AreEqual(0, model.TablePaginationModel.TotalRecords);
+            Assert.AreEqual(0, model.TablePaginationModel.TotalTableRecords);
         }
 
         [TestMethod]
@@ -455,25 +456,6 @@
         }
 
         [TestMethod]
-        public void ClearSelection_RedirectsToIndex()
-        {
-            // Arrange
-            var calculationRunId = 1;
-            var selections = new OrganisationSelectionsViewModel
-            {
-                SelectedOrganisationIds = new List<int> { 1, 2, 3 }
-            };
-
-            // Act
-            var result = _controller.ClearSelection(calculationRunId, selections) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
-            Assert.AreEqual(calculationRunId, result.RouteValues["calculationRunId"]);
-        }
-
-        [TestMethod]
         public async Task SelectAllPage_SetsSessionAndReturnsViewWithSelectAllViewModel()
         {
             // Arrange
@@ -659,6 +641,101 @@
             CollectionAssert.AreEquivalent(expectedProducerIds, stored.ToList());
         }
 
+        [TestMethod]
+        public void AcceptSelected_ReturnsRedirectToAcceptRejectConfirmation()
+        {
+            // Arrange
+            int testRunId = 123;
+
+            // Act
+            var result = _controller.AcceptSelected(testRunId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.AcceptRejectConfirmationController, result.ControllerName);
+            Assert.AreEqual(testRunId, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public void RejectSelected_ReturnsRedirectToReasonForRejection()
+        {
+            // Arrange
+            int testRunId = 46023;
+
+            // Act
+            var result = _controller.RejectSelected(testRunId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.ReasonForRejectionController, result.ControllerName);
+            Assert.AreEqual(testRunId, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public async Task GenerateBillingFile_Returns_Success()
+        {
+            // Arrange
+            int testRunId = 1;
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(null, HttpStatusCode.OK);
+
+            var controller = BuildTestClass(Fixture, HttpStatusCode.OK, null, null, _configuration);
+
+            // Act
+            var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.RouteValues["action"]);
+            Assert.AreEqual(ControllerNames.CalculationRunOverview, result.RouteValues["controller"]);
+            Assert.AreEqual(testRunId, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public async Task GenerateBillingFile_Returns_Failure()
+        {
+            // Arrange
+            int testRunId = 1;
+
+            var controller = BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.InternalServerError,
+                null,
+                null,
+                this._configuration);
+
+            // Act
+            var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
+        }
+
+        [TestMethod]
+        public void ClearSelection_Verifys_ClearsSession()
+        {
+            // Arrange
+            int testRunId = 1;
+
+            // Set up session with IsSelectAll = true
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            var context = new DefaultHttpContext { Session = mockSession };
+
+            // Act
+            var result = _controller.ClearSelection(testRunId, 1, 10) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.RouteName);
+            Assert.AreEqual(testRunId, result.RouteValues["calculationRunId"]);
+        }
+
         private static DefaultHttpContext CreateTestHttpContext(string userName = "Test User")
         {
             var claims = new List<Claim> { new Claim(ClaimTypes.Name, userName) };
@@ -757,7 +834,7 @@
                     Records = billingData.Records,
                     CurrentPage = request.Page,
                     PageSize = request.PageSize,
-                    TotalRecords = billingData.TotalRecords,
+                    TotalTableRecords = billingData.TotalRecords,
                     RouteName = RouteNames.BillingInstructionsIndex,
                     RouteValues = new Dictionary<string, object?>
                     {
