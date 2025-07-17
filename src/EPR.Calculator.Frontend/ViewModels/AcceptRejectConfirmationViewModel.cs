@@ -1,6 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
-using System.ComponentModel.DataAnnotations;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
