@@ -4,6 +4,7 @@
 @model SetRunClassificationViewModel
 @{
     var calcDetails = Model.CalculatorRunDetails;
+    var classificationStatusInformation = Model.ClassificationStatusInformation;
 
     var backLinkModel = new BackLinkPartialViewModel
             {
@@ -90,17 +91,23 @@
                         </div>
                         <div class="govuk-notification-banner__content">
                             <p class="govuk-body-s">
-                                <strong>Interim recalculation run</strong><br />
-                                An optional run, only available after the initial run.
+                                <strong>Initial run</strong><br />
+                                @classificationStatusInformation.InitialRunDescription
                             </p>
-                            <p class="govuk-body-s">
-                                <strong>Final recalculation run</strong><br />
-                                An optional run, only available if no other final recalculation or later run has been classified this year.
-                            </p>
-                            <p class="govuk-body-s">
-                                <strong>Final run</strong><br />
-                                A mandatory run, only available if no other final run or later run has been classified this year.
-                            </p>
+                            @if (classificationStatusInformation.ShowFinalRecalculationRunDescription)
+                            {
+                                <p class="govuk-body-s">
+                                    <strong>Final recalculation run</strong><br />
+                                    @classificationStatusInformation.FinalRecalculationRunDescription
+                                </p>
+                            }
+                            @if (classificationStatusInformation.ShowFinalRunDescription)
+                            {
+                                <p class="govuk-body-s">
+                                    <strong>Final run</strong><br />
+                                    @classificationStatusInformation.FinalRunDescription
+                                </p>
+                            }
                         </div>
                     </div>
                     <div class="govuk-warning-text">
