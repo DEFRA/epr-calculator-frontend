@@ -45,8 +45,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [ActionName("Index")]
-        [Route("{runId}")]
-        public IActionResult IndexPost(int runId, AcceptRejectConfirmationViewModel model)
+        [Route("{calculationRunId}")]
+        public IActionResult IndexPost(int calculationRunId, AcceptRejectConfirmationViewModel model)
         {
             if (string.IsNullOrEmpty(model.Reason))
             {
@@ -55,6 +55,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             this.ModelState.Clear();
+            model.BackLink = ControllerNames.ReasonForRejectionController;
             return this.View(ViewNames.AcceptRejectConfirmationIndex, model);
         }
     }
