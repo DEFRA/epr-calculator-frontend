@@ -155,9 +155,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="model">The view model containing billing instructions and selection state.</param>
         /// <param name="currentPage">current page.</param>
         /// <param name="pageSize">page size.</param>
+        /// <param name="organisationId">organisation Id.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
-        public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize)
+        public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize, int? organisationId)
         {
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll.ToString());
             if (!model.OrganisationSelections.SelectAll)
@@ -168,7 +169,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, "false");
             }
 
-            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
+            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize, OrganisationId = organisationId });
         }
 
         /// <summary>
