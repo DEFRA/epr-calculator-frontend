@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -24,11 +25,17 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class SetRunClassificationController(
         IConfiguration configuration,
-        IHttpClientFactory clientFactory,
+        IApiService apiService,
         ILogger<SetRunClassificationController> logger,
         ITokenAcquisition tokenAcquisition,
-        TelemetryClient telemetryClient)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
+        TelemetryClient telemetryClient,
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(
+            configuration,
+            tokenAcquisition,
+            telemetryClient,
+            apiService,
+            calculatorRunDetailsService)
     {
         private readonly ILogger<SetRunClassificationController> logger = logger;
 
@@ -78,10 +85,11 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.View(ViewNames.SetRunClassificationIndex, viewModel);
                 }
 
-                var apiUrl = this.GetApiUrl(
+                var apiUrl = this.ApiService.GetApiUrl(
                 ConfigSection.DashboardCalculatorRun,
                 ConfigSection.DashboardCalculatorRunV2);
-                var result = await this.CallApi(
+                var result = await this.ApiService.CallApi(
+                    this.HttpContext,
                     HttpMethod.Put,
                     apiUrl,
                     string.Empty,
@@ -123,7 +131,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 BackLink = ControllerNames.CalculationRunDetails,
             };
 
-            var runDetails = await this.GetCalculatorRundetails(runId);
+            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
+                this.HttpContext,
+                runId);
             if (runDetails != null && runDetails!.RunId != 0)
             {
                 viewModel.CalculatorRunDetails = runDetails;
@@ -134,10 +144,11 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<HttpResponseMessage> GetClassfications(CalcFinancialYearRequestDto dto)
         {
-            var apiUrl = this.GetApiUrl(
+            var apiUrl = this.ApiService.GetApiUrl(
                ConfigSection.CalculationRunSettings,
                ConfigSection.ClassificationByFinancialYearApi);
-            return await this.CallApi(
+            return await this.ApiService.CallApi(
+                this.HttpContext,
                 HttpMethod.Get,
                 apiUrl,
                 $"RundId={dto.RunId}&FinancialYear={dto.FinancialYear}",

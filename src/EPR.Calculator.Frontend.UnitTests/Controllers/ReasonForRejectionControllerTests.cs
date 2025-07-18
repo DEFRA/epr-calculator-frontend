@@ -7,6 +7,7 @@
     using AutoFixture.AutoMoq;
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Controllers;
+    using EPR.Calculator.Frontend.Services;
     using EPR.Calculator.Frontend.UnitTests.HelpersTest;
     using EPR.Calculator.Frontend.ViewModels;
     using Microsoft.ApplicationInsights;
@@ -50,7 +51,8 @@
                 this.Configuration,
                 new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(),
-                this.MockClientFactory.Object);
+                new Mock<IApiService>().Object,
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
@@ -77,7 +79,8 @@
                 this.Configuration,
                 new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(),
-                this.MockClientFactory.Object);
+                new Mock<IApiService>().Object,
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
@@ -100,7 +103,8 @@
                 this.Configuration,
                 new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(),
-                this.MockClientFactory.Object);
+                new Mock<IApiService>().Object,
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
             controller.ModelState.AddModelError("No Reason", "Provide a reason that applies to all the billing instructions you selected for rejection.");

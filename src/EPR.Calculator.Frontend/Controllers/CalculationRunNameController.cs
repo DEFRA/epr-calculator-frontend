@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -26,11 +27,17 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="logger">The logger instance.</param>
         public CalculationRunNameController(
             IConfiguration configuration,
-            IHttpClientFactory clientFactory,
+            IApiService apiService,
             ILogger<CalculationRunNameController> logger,
             ITokenAcquisition tokenAcquisition,
-            TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
+            TelemetryClient telemetryClient,
+            ICalculatorRunDetailsService calculatorRunDetailsService)
+            : base(
+                  configuration,
+                  tokenAcquisition,
+                  telemetryClient,
+                  apiService,
+                  calculatorRunDetailsService)
         {
             this.Logger = logger;
         }
@@ -214,18 +221,28 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The response message returned by the endpoint.</returns>
         private async Task<HttpResponseMessage> PostCalculatorRunAsync(CreateCalculatorRunDto dto)
         {
-            var apiUrl = this.GetApiUrl(
+            var apiUrl = this.ApiService.GetApiUrl(
                 ConfigSection.CalculationRunSettings,
                 ConfigSection.CalculationRunApi);
-            return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, dto);
+            return await this.ApiService.CallApi(
+                this.HttpContext,
+                HttpMethod.Post,
+                apiUrl,
+                string.Empty,
+                dto);
         }
 
         private async Task<HttpResponseMessage> CheckCalcNameExistsAsync(string calculationName)
         {
-            var apiUrl = this.GetApiUrl(
+            var apiUrl = this.ApiService.GetApiUrl(
                 ConfigSection.CalculationRunSettings,
                 ConfigSection.CalculationRunNameApi);
-            return await this.CallApi(HttpMethod.Get, apiUrl, calculationName, null);
+            return await this.ApiService.CallApi(
+                this.HttpContext,
+                HttpMethod.Get,
+                apiUrl,
+                calculationName,
+                null);
         }
     }
 }

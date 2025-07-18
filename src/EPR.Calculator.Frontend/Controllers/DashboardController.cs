@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
@@ -25,10 +26,16 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("/")]
     public class DashboardController(
         IConfiguration configuration,
-        IHttpClientFactory clientFactory,
+        IApiService apiService,
         ITokenAcquisition tokenAcquisition,
-        TelemetryClient telemetryClient)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
+        TelemetryClient telemetryClient,
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(
+            configuration,
+            tokenAcquisition,
+            telemetryClient,
+            apiService,
+            calculatorRunDetailsService)
     {
         private bool ShowDetailedError { get; set; }
 
@@ -131,7 +138,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The response message returned by the endpoint.</returns>
         private async Task<HttpResponseMessage> PostCalculatorRunsAsync(string financialYear)
         {
-            var apiUrl = this.GetApiUrl(
+            var apiUrl = this.ApiService.GetApiUrl(
                 ConfigSection.DashboardCalculatorRun,
                 ConfigSection.DashboardCalculatorRunApi);
             if (string.IsNullOrEmpty(financialYear))
@@ -141,7 +148,12 @@ namespace EPR.Calculator.Frontend.Controllers
                     "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
             }
 
-            return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, (CalculatorRunParamsDto)financialYear);
+            return await this.ApiService.CallApi(
+                this.HttpContext,
+                HttpMethod.Post,
+                apiUrl,
+                string.Empty,
+                (CalculatorRunParamsDto)financialYear);
         }
     }
 }

@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using EPR.Calculator.Frontend.ViewModels.Enums;
 using Microsoft.ApplicationInsights;
@@ -21,10 +22,16 @@ namespace EPR.Calculator.Frontend.Controllers
 
         public CalculationRunDetailsNewController(
             IConfiguration configuration,
-            IHttpClientFactory clientFactory,
+            IApiService apiService,
             ITokenAcquisition tokenAcquisition,
-            TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
+            TelemetryClient telemetryClient,
+            ICalculatorRunDetailsService calculatorRunDetailsService)
+            : base(
+                  configuration,
+                  tokenAcquisition,
+                  telemetryClient,
+                  apiService,
+                  calculatorRunDetailsService)
         {
             _configuration = configuration;
         }
@@ -75,7 +82,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
             };
 
-            var runDetails = await this.GetCalculatorRundetails(runId);
+            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
+                this.HttpContext,
+                runId);
             if (runDetails != null && runDetails!.RunId > 0)
             {
                 viewModel.CalculatorRunDetails = runDetails;
