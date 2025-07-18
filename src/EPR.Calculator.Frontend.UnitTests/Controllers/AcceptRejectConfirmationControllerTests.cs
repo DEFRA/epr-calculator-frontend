@@ -147,7 +147,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_InvalidModelState_Summary_ReturnsViewWithModel()
         {
             // Arrange
-            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var controller = CreateController();
             var model = new AcceptRejectConfirmationViewModel
             {
                 CalculationRunId = 1,
@@ -174,7 +174,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_ValidModelState_Summary_ReturnsViewWithModel()
         {
             // Arrange
-            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var controller = CreateController();
             var model = new AcceptRejectConfirmationViewModel
             {
                 CalculationRunId = 1,
