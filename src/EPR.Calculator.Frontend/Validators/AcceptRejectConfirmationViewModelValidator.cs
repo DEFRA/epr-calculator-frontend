@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.ViewModels;
 using FluentValidation;
+using System;
 
 namespace EPR.Calculator.Frontend.Validators
 {
@@ -20,7 +21,7 @@ namespace EPR.Calculator.Frontend.Validators
                 .IsInEnum().WithMessage(ErrorMessages.StatusMustBeValid);
 
             this.RuleFor(x => x.ApproveData)
-                .NotNull().WithMessage(ErrorMessages.AcceptRejectConfirmationApproveDataRequired);
+                .NotNull().WithMessage(model => string.Format(ErrorMessages.AcceptRejectConfirmationApproveDataRequired, model.AcceptRejectConfirmationText));
 
             // Reason is only required if status is Rejected
             this.When(x => x.Status == BillingStatus.Rejected, () =>
