@@ -79,7 +79,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (!isSelectAll &&
                     producerBillingInstructionsResponseDto is not null &&
-                    producerBillingInstructionsResponseDto.Records.TrueForAll(t => existingSelectedIds.Contains(t.ProducerId)))
+                    producerBillingInstructionsResponseDto.Records.TrueForAll(t => existingSelectedIds.Contains(t.ProducerId)) && billingInstructionsViewModel.TotalRecords > 0)
                 {
                     billingInstructionsViewModel.OrganisationSelections.SelectPage = true;
                     this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, "true");
@@ -146,6 +146,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult RejectSelected(int calculationRunId)
         {
+            this.TempData.Clear();
             return this.RedirectToAction(ActionNames.Index, ControllerNames.ReasonForRejectionController, new { calculationRunId });
         }
 

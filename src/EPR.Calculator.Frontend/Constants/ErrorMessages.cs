@@ -93,7 +93,7 @@
         /// <summary>
         /// Error message for ApproveData on the AcceptRejectConfirmationViewModel.
         /// </summary>
-        public const string AcceptRejectConfirmationApproveDataRequired = "Select yes or no to confirm whether you want to reject all selected billing instructions.";
+        public const string AcceptRejectConfirmationApproveDataRequired = "Select yes or no to confirm whether you want to {0} all selected billing instructions.";
 
         /// <summary>
         /// Error message for ApproveData on the AcceptRejectConfirmationViewModel.
