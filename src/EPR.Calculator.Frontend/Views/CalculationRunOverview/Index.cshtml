@@ -75,6 +75,15 @@
                                     </button>
                                 </div>
 
+                                <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                                <h2 class="govuk-heading-m">Remove this run's classification</h2>
+                                <p class="govuk-body">Mark this run as a test or delete it to remove its classification.</p>
+                                <div class="govuk-button-group">
+                                    <a asp-action="Index" asp-controller="CalculationRunDelete" asp-route-runId="@Model.CalculatorRunDetails.RunId" class="govuk-button govuk-button--secondary">
+                                        Remove classification
+                                    </a>
+                                </div>
+
                                 <partial name="_AmendBillingInstructionPartial" model="calcDetails" />
 
                                 <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
