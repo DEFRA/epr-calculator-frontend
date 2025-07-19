@@ -70,7 +70,14 @@
                                     </button>
                                     <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
                                             @(calcDetails.IsBillingFileGenerating == false ? "" : "disabled")
-                                            onclick="downloadFile('@Model.DownloadCsvBillingURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
+                                            onclick="downloadFile(
+                                                '@Model.DownloadCsvBillingURL', 
+                                                '@Model.DownloadErrorURL', 
+                                                event, 
+                                                '@Model.DownloadTimeout', 
+                                                '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")',
+                                                '@CommonConstants.IsBillingFileTrue',
+                                                '@CommonConstants.IsDraftFileTrue');">
                                         @(calcDetails.IsBillingFileGenerating == true ? BillingInstructionConstants.DraftBillingFileGenerating : BillingInstructionConstants.DraftBillingFile)
                                     </button>
                                 </div>
