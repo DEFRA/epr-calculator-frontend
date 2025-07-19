@@ -116,6 +116,57 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
         }
 
         [TestMethod]
+        public void MapToViewModel_Maps_All_Properties_OrgId_Search_Correctly()
+        {
+            var billingData = new ProducerBillingInstructionsResponseDto
+            {
+                CalculatorRunId = 123,
+                RunName = "Test Run",
+                PageNumber = 2,
+                PageSize = 10,
+                TotalRecords = 1,
+                Records = new List<ProducerBillingInstructionsDto>
+                {
+                    new ProducerBillingInstructionsDto
+                    {
+                        ProducerId = 1,
+                        ProducerName = "Producer A",
+                        SuggestedBillingInstruction = "Initial",
+                        SuggestedInvoiceAmount = 100.5m,
+                        BillingInstructionAcceptReject = "Accepted"
+                    }
+                },
+                AllProducerIds = [1]
+            };
+            var request = new PaginationRequestViewModel { Page = 2, PageSize = 10, OrganisationId = 1 };
+            var currentUser = "Test User";
+
+            var result = _mapper.MapToViewModel(billingData, request, currentUser, true, false);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(currentUser, result.CurrentUser);
+            Assert.AreEqual(123, result.CalculationRun.Id);
+            Assert.AreEqual("Test Run", result.CalculationRun.Name);
+            Assert.AreEqual(2, result.TablePaginationModel.CurrentPage);
+            Assert.AreEqual(10, result.TablePaginationModel.PageSize);
+            Assert.AreEqual(1, result.TablePaginationModel.TotalTableRecords);
+            Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.TablePaginationModel.RouteName);
+            Assert.AreEqual(123, result.TablePaginationModel.RouteValues[BillingInstructionConstants.CalculationRunIdKey]);
+            Assert.AreEqual(1, result.TablePaginationModel.RouteValues[BillingInstructionConstants.OrganisationIdKey]);
+            Assert.AreEqual(null, result.TablePaginationModel.RouteValues[BillingInstructionConstants.BillingStatus]);
+
+            var orgs = result.TablePaginationModel.Records as List<Organisation>;
+            Assert.IsNotNull(orgs);
+            Assert.AreEqual(1, orgs.Count);
+            var org = orgs[0];
+            Assert.AreEqual(1, org.Id);
+            Assert.AreEqual("Producer A", org.OrganisationName);
+            Assert.AreEqual(BillingInstruction.Initial, org.BillingInstruction);
+            Assert.AreEqual(100.5m, org.InvoiceAmount);
+            Assert.AreEqual(BillingStatus.Accepted, org.Status);
+        }
+
+        [TestMethod]
         public void MapToViewModel_Handles_Empty_Records()
         {
             var billingData = new ProducerBillingInstructionsResponseDto
