@@ -18,6 +18,7 @@
     using Microsoft.ApplicationInsights;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.ViewFeatures;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Identity.Web;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -685,6 +686,8 @@
         {
             // Arrange
             int testRunId = 46023;
+            var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
+            _controller.TempData = tempData;
 
             // Act
             var result = _controller.RejectSelected(testRunId) as RedirectToActionResult;

@@ -189,7 +189,7 @@
                 <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
             </div>
         </div>
-        @if (Model.TotalPendingRecords == 0)
+        @if (Model.TotalPendingRecords == 0 && Model.TotalRecords > 0 )
         {
             <partial name="_BillingNextStepPartial" model="@Model.CalculationRun.Id" />
         }
