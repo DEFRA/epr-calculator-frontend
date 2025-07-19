@@ -1,8 +1,6 @@
 ﻿function downloadFile(url, errorAction, event, timeout, token, isBillingFile = false, isDraftBillingFile = false) {    
-    isBillingFile = (isBillingFile === true || isBillingFile === "True" || isBillingFile === "true");
-    isDraftBillingFile = (isDraftBillingFile === true || isDraftBillingFile === "True" || isDraftBillingFile === "true");
-
-    debugger;
+    isBillingFile = String(isBillingFile).toLowerCase() === "true";
+    isDraftBillingFile = String(isDraftBillingFile).toLowerCase() === "true";
 
     event.preventDefault();
     $.ajax({
