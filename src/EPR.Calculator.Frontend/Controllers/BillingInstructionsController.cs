@@ -146,6 +146,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult RejectSelected(int calculationRunId)
         {
+            this.TempData.Clear();
             return this.RedirectToAction(ActionNames.Index, ControllerNames.ReasonForRejectionController, new { calculationRunId });
         }
 

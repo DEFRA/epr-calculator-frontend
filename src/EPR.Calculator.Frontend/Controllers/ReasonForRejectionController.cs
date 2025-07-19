@@ -7,6 +7,7 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using System.Configuration;
+using System.Drawing;
 using System.Net.Http;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -32,7 +33,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 CalculationRunId = calculationRunId,
                 CalculationRunName = runDetails?.RunName,
-                Reason = string.Empty,
+                Reason = this.TempData[nameof(AcceptRejectConfirmationViewModel.Reason)]?.ToString() ?? string.Empty,
                 Status = BillingStatus.Rejected,
                 BackLink = ControllerNames.BillingInstructionsController,
             };
@@ -53,6 +54,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             this.ModelState.Clear();
             model.BackLink = ControllerNames.ReasonForRejectionController;
+            this.TempData[nameof(model.Reason)] = model.Reason;
             return this.View(ViewNames.AcceptRejectConfirmationIndex, model);
         }
     }
