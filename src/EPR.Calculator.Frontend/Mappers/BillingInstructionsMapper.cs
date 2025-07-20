@@ -34,7 +34,12 @@ namespace EPR.Calculator.Frontend.Mappers
                 BillingInstruction = this.MapBillingInstruction(x.SuggestedBillingInstruction),
                 InvoiceAmount = x.SuggestedInvoiceAmount,
                 Status = this.MapBillingStatus(x.BillingInstructionAcceptReject),
-            }).ToList();
+            }).ToList() ?? [];
+
+            if (request.OrganisationId > 0)
+            {
+                organisations = organisations.Where(x => x.OrganisationId == request.OrganisationId).ToList();
+            }
 
             return new BillingInstructionsViewModel
             {
@@ -44,11 +49,11 @@ namespace EPR.Calculator.Frontend.Mappers
                     Id = billingData?.CalculatorRunId ?? 0,
                     Name = billingData?.RunName ?? string.Empty,
                 },
-                OrganisationBillingInstructions = organisations ?? [],
+                OrganisationBillingInstructions = organisations,
                 TablePaginationModel = new PaginationViewModel
                 {
                     Caption = CommonConstants.BillingTableHeader,
-                    Records = organisations ?? [],
+                    Records = organisations,
                     CurrentPage = request.Page <= 0 ? CommonConstants.DefaultPage : request.Page,
                     PageSize = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,
                     TotalTableRecords = billingData?.AllProducerIds?.Count() ?? 0,
