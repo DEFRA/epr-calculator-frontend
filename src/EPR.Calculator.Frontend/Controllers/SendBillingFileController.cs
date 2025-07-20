@@ -34,9 +34,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 RunId = runId,
                 CalcRunName = runDetails.RunName,
-                ConfirmationContent = CommonConstants.ConfirmationContent,
-                SendBillFileHeading = CommonConstants.SendBillingFile,
-                WarningContent = CommonConstants.WarningContent,
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 BackLink = ControllerNames.CalculationRunOverview,
             };
@@ -46,16 +43,16 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Submit(int runId)
+        public async Task<IActionResult> Submit(SendBillingFileViewModel viewModel)
         {
-            if (!ModelState.IsValid)
+            if (viewModel.ConfirmSend != true || !this.ModelState.IsValid)
             {
-                return this.RedirectToAction(ActionNames.Index, new { runId });
+                return this.View(ViewNames.SendBillingFileIndex, viewModel);
             }
 
             try
             {
-                var response = await this.PrepareBillingFileSendToFSSAsync(runId);
+                var response = await this.PrepareBillingFileSendToFSSAsync(viewModel.RunId);
 
                 if (response.StatusCode == HttpStatusCode.Accepted)
                 {
