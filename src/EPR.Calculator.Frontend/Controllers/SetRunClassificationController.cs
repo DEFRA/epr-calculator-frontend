@@ -209,20 +209,20 @@ namespace EPR.Calculator.Frontend.Controllers
                 else
                 {
                     classificationStatusInformationViewModel.InitialRunDescription = string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, financialYear);
-                }
 
-                // check if calculator classification list does not have final recalculation run status to be initiated
-                if (!classificationList.Any(n => n.Id == (int)RunClassification.FINAL_RECALCULATION_RUN))
-                {
-                    classificationStatusInformationViewModel.ShowFinalRecalculationRunDescription = true;
-                    classificationStatusInformationViewModel.FinalRecalculationRunDescription = string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, financialYear);
-                }
+                    // check if calculator classification list does not have final recalculation run status to be initiated
+                    if (!classificationList.Any(n => n.Id == (int)RunClassification.FINAL_RECALCULATION_RUN))
+                    {
+                        classificationStatusInformationViewModel.ShowFinalRecalculationRunDescription = true;
+                        classificationStatusInformationViewModel.FinalRecalculationRunDescription = $"{ClassifyCalculationRunStatusInformation.FinalRecalculationRunNotYetRanStatusDescription} {string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, financialYear)}";
+                    }
 
-                // check if list doesn't have initial run status
-                if (!classificationList.Any(n => n.Id == (int)RunClassification.FINAL_RUN))
-                {
-                    classificationStatusInformationViewModel.ShowFinalRunDescription = true;
-                    classificationStatusInformationViewModel.FinalRunDescription = string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, financialYear);
+                    // check if list doesn't have initial run status
+                    if (!classificationList.Any(n => n.Id == (int)RunClassification.FINAL_RUN))
+                    {
+                        classificationStatusInformationViewModel.ShowFinalRunDescription = true;
+                        classificationStatusInformationViewModel.FinalRunDescription = $"{ClassifyCalculationRunStatusInformation.FinalRunYetRanStatusDescription} {string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, financialYear)}";
+                    }
                 }
             }
 

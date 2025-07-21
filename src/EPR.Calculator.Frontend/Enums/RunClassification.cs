@@ -58,15 +58,15 @@ namespace EPR.Calculator.Frontend.Enums
         INTERIM_RECALCULATION_RUN_COMPLETED = 12,
 
         /// <summary>
-        /// FINAL RUN COMPLETED.
-        /// </summary>
-        [Description("FINAL RUN COMPLETED")]
-        FINAL_RUN_COMPLETED = 13,
-
-        /// <summary>
         /// FINAL RE-CALCULATION RUN COMPLETED.
         /// </summary>
         [Description("FINAL RE-CALCULATION RUN COMPLETED")]
-        FINAL_RECALCULATION_RUN_COMPLETED = 14,
+        FINAL_RECALCULATION_RUN_COMPLETED = 13,
+
+        /// <summary>
+        /// FINAL RUN COMPLETED.
+        /// </summary>
+        [Description("FINAL RUN COMPLETED")]
+        FINAL_RUN_COMPLETED = 14,
     }
 }
