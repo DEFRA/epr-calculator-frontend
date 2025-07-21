@@ -13,6 +13,7 @@
     using Microsoft.ApplicationInsights;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.ViewFeatures;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Identity.Web;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -47,6 +48,9 @@
             // Arrange
             int runId = this.Fixture.Create<int>();
 
+            // Arrange
+            var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
+
             var controller = new ReasonForRejectionController(
                 this.Configuration,
                 new Mock<ITokenAcquisition>().Object,
@@ -55,6 +59,9 @@
                 new Mock<ICalculatorRunDetailsService>().Object);
 
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            tempData[nameof(AcceptRejectConfirmationViewModel.Reason)] = "Some rejection reason";
+
+            controller.TempData = tempData;
 
             // Act
             var result = await controller.Index(runId) as ViewResult;
@@ -65,6 +72,7 @@
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ReasonForRejectionIndex, result.ViewName);
             Assert.AreEqual(runId, resultModel.CalculationRunId);
+            Assert.AreEqual(tempData[nameof(AcceptRejectConfirmationViewModel.Reason)], resultModel.Reason);
         }
 
         [TestMethod]
@@ -75,12 +83,14 @@
             var runId = fixture.Create<int>();
             var model = fixture.Create<AcceptRejectConfirmationViewModel>();
 
+            var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
             var controller = new ReasonForRejectionController(
                 this.Configuration,
                 new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(),
                 new Mock<IApiService>().Object,
                 new Mock<ICalculatorRunDetailsService>().Object);
+            controller.TempData = tempData;
 
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
@@ -99,6 +109,7 @@
             var runId = fixture.Create<int>();
             var model = new AcceptRejectConfirmationViewModel() { Reason = string.Empty, BackLink = ViewNames.BillingInstructionsIndex, CalculationRunId = runId, Status = Enums.BillingStatus.Rejected };
 
+            var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
             var controller = new ReasonForRejectionController(
                 this.Configuration,
                 new Mock<ITokenAcquisition>().Object,
@@ -107,6 +118,7 @@
                 new Mock<ICalculatorRunDetailsService>().Object);
 
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            controller.TempData = tempData;
             controller.ModelState.AddModelError("No Reason", "Provide a reason that applies to all the billing instructions you selected for rejection.");
 
             // Act

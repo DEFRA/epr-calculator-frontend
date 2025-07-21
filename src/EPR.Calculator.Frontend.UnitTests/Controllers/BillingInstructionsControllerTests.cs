@@ -19,6 +19,7 @@
     using Microsoft.ApplicationInsights;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.ViewFeatures;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Identity.Web;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -402,7 +403,42 @@
             var controller = CreateControllerWithFactory(mockFactory);
 
             // Act
-            var result = controller.SelectAll(model, currentPage, pageSize) as RedirectToRouteResult;
+            var result = controller.SelectAll(model, currentPage, pageSize, 0) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public async Task CanSelectAll_WhenOrgIdIsPresent()
+        {
+            // Arrange
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var model = fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = fixture.Create<int>();
+            var pageSize = fixture.Create<int>();
+            var organisationId = fixture.Create<int>();
+
+            var calculationRunId = 1;
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+            var billingData = CreateDefaultBillingData(calculationRunId);
+
+            // Setup the mapper to return any view model
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = controller.SelectAll(model, currentPage, pageSize, organisationId) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -418,6 +454,7 @@
             var model = fixture.Create<BillingInstructionsViewModel>();
             var currentPage = fixture.Create<int>();
             var pageSize = fixture.Create<int>();
+            var organisationId = fixture.Create<int>();
 
             var calculationRunId = 1;
             var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
@@ -446,7 +483,7 @@
             controller.ControllerContext = new ControllerContext { HttpContext = context };
 
             // Act
-            var result = controller.SelectAll(model, currentPage, pageSize) as RedirectToRouteResult;
+            var result = controller.SelectAll(model, currentPage, pageSize, organisationId) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -661,6 +698,8 @@
         {
             // Arrange
             int testRunId = 46023;
+            var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
+            _controller.TempData = tempData;
 
             // Act
             var result = _controller.RejectSelected(testRunId) as RedirectToActionResult;

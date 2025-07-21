@@ -140,6 +140,7 @@
                                 <div class="govuk-checkboxes__item custom-width-300">
                                     <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
                                     <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
+                                    <input type="hidden" name="organisationId" value="@Model.TablePaginationModel?.RouteValues?[BillingInstructionConstants.OrganisationIdKey]" />
                                     @Html.CheckBoxFor(m => m.OrganisationSelections.SelectAll, new { name = "SelectAll", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
                                     <label class="govuk-label govuk-checkboxes__label" for="OrganisationSelections_SelectAll">
                                         Select all @selectableCount records
@@ -188,7 +189,7 @@
                 <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
             </div>
         </div>
-        @if (Model.TotalPendingRecords == 0)
+        @if (Model.TotalPendingRecords == 0 && Model.TotalRecords > 0 )
         {
             <partial name="_BillingNextStepPartial" model="@Model.CalculationRun.Id" />
         }
