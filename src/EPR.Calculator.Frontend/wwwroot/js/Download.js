@@ -1,4 +1,6 @@
-﻿function downloadFile(url, errorAction, event, timeout, token, isBillingFile = false, isDraftBillingFile = false) {    
+﻿// TODO removing
+
+function downloadFile(url, errorAction, event, timeout, token, isBillingFile = false, isDraftBillingFile = false) {    
     isBillingFile = String(isBillingFile).toLowerCase() === "true";
     isDraftBillingFile = String(isDraftBillingFile).toLowerCase() === "true";
 
