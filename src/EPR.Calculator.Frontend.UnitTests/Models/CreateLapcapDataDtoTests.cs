@@ -1,6 +1,5 @@
 ﻿namespace EPR.Calculator.Frontend.UnitTests.Models
 {
-    using System;
     using System.Collections.Generic;
     using AutoFixture;
     using AutoFixture.AutoMoq;

@@ -1,4 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
@@ -9,5 +10,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         public int PageSize { get; init; } = CommonConstants.DefaultPageSize;
 
         public int? OrganisationId { get; init; }
+
+        public BillingStatus? BillingStatus { get; init; }
     }
 }

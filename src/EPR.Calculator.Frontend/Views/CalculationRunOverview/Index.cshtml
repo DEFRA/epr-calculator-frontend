@@ -69,10 +69,23 @@
                                         Results file
                                     </button>
                                     <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
+                                            @(calcDetails.IsBillingFileGenerating == false ? "" : "disabled")
                                             onclick="downloadFile('@Model.DownloadCsvBillingURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
-                                        Draft billing file
+                                        @(calcDetails.IsBillingFileGenerating == true ? BillingInstructionConstants.DraftBillingFileGenerating : BillingInstructionConstants.DraftBillingFile)
                                     </button>
                                 </div>
+
+                                <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                                <h2 class="govuk-heading-m">Remove this run's classification</h2>
+                                <p class="govuk-body">Mark this run as a test or delete it to remove its classification.</p>
+                                <div class="govuk-button-group">
+                                    <a asp-action=@ActionNames.Index asp-controller=@ControllerNames.CalculationRunDelete asp-route-runId="@Model.CalculatorRunDetails.RunId" class="govuk-button govuk-button--secondary">
+                                        Remove classification
+                                    </a>
+                                </div>
+
+                                <partial name="_AmendBillingInstructionPartial" model="calcDetails" />
+
                                 <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
                                 <h2 class="govuk-heading-m">Next step</h2>

@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http.Json;
 using System.Security.Claims;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -170,7 +169,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var redirect = result as RedirectToActionResult;
             Assert.IsNotNull(redirect);
             Assert.AreEqual(ActionNames.BillingFileSuccess, redirect.ActionName);
-            Assert.AreEqual(CommonUtil.GetControllerName(typeof(PaymentCalculatorController)), redirect.ControllerName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(BillingInstructionsController)), redirect.ControllerName);
         }
 
         [TestMethod]

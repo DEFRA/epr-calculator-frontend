@@ -53,7 +53,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.Index, new { runId });
             }
 
-            return RedirectToAction(ActionNames.Index, ControllerNames.PaymentCalculator, new { runId = runId });
+            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = runId });
         }
 
         private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
