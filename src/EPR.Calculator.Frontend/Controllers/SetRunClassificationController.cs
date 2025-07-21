@@ -140,7 +140,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return await this.CallApi(
                 HttpMethod.Get,
                 apiUrl,
-                $"RundId={dto.RunId}&FinancialYear={dto.FinancialYear}",
+                $"RunId={dto.RunId}&FinancialYear={dto.FinancialYear}",
                 null);
         }
 
