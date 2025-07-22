@@ -1,4 +1,7 @@
-﻿function downloadFile(url, errorAction, event, timeout, token) {    
+﻿function downloadFile(url, errorAction, event, timeout, token, isBillingFile = false, isDraftBillingFile = false) {    
+    isBillingFile = String(isBillingFile).toLowerCase() === "true";
+    isDraftBillingFile = String(isDraftBillingFile).toLowerCase() === "true";
+
     event.preventDefault();
     $.ajax({
         url: url,
@@ -23,7 +26,18 @@
                 let matches = filenameRegex.exec(contentDisposition);
                 if (matches?.[1]) {
                     filename = matches[1].replace(/['"]/g, '');
-                }               
+                }
+
+                // If the file is a billing file, adjust the filename accordingly
+                if (isBillingFile) {
+                    // Remove any existing extension for clarity
+                    const baseName = filename.replace(/(\.[^/.]+)?$/, '');
+                    if (isDraftBillingFile) {
+                        filename = `${baseName}_DRAFT.csv`;
+                    } else {
+                        filename = `${baseName}_AUTHORISED.csv`;
+                    }
+                }
 
                 // Create a download link
                 const url = window.URL.createObjectURL(data);

@@ -121,28 +121,38 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_ModelStateInvalid_RedirectsToIndex()
         {
             // Arrange
+            SendBillingFileViewModel model = new SendBillingFileViewModel
+            {
+                RunId = 1,
+                ConfirmSend = false, // Simulating invalid state
+                CalcRunName = "Test Run",
+            };
+
             _controller.ModelState.AddModelError("Error", "Invalid");
 
             // Act
-            var result = await _controller.Submit(1);
+            var result = await _controller.Submit(model);
 
             // Assert
-            var redirect = result as RedirectToActionResult;
-            Assert.IsNotNull(redirect);
-            Assert.AreEqual(ActionNames.Index, redirect.ActionName);
-            Assert.AreEqual(1, redirect.RouteValues["runId"]);
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            Assert.AreEqual(ViewNames.SendBillingFileIndex, viewResult.ViewName);
+            Assert.AreEqual(model, viewResult.Model);
         }
 
         [TestMethod]
         public async Task Submit_ApiAccepted_RedirectsToBillingFileSuccess()
         {
             // Arrange
+            Fixture.Customize<SendBillingFileViewModel>(c => c.With(c => c.ConfirmSend, true));
+            SendBillingFileViewModel model = Fixture.Create<SendBillingFileViewModel>();
+
             var controller = BuildTestClass(
                 Fixture,
                 HttpStatusCode.Accepted);
 
             // Act
-            var result = await controller.Submit(1);
+            var result = await controller.Submit(model);
 
             // Assert
             var redirect = result as RedirectToActionResult;
@@ -172,9 +182,15 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     HttpContext = _mockHttpContext.Object
                 }
             };
+            SendBillingFileViewModel model = new SendBillingFileViewModel
+            {
+                RunId = 1,
+                ConfirmSend = true,
+                CalcRunName = "Test Run",
+            };
 
             // Act
-            var result = await controller.Submit(1);
+            var result = await controller.Submit(model);
 
             // Assert
             var redirect = result as RedirectToActionResult;
@@ -216,8 +232,15 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 }
             };
 
+            SendBillingFileViewModel model = new SendBillingFileViewModel
+            {
+                RunId = 1,
+                ConfirmSend = true,
+                CalcRunName = "Test Run",
+            };
+
             // Act
-            var result = await controller.Submit(1);
+            var result = await controller.Submit(model);
 
             // Assert
             var redirect = result as RedirectToActionResult;
