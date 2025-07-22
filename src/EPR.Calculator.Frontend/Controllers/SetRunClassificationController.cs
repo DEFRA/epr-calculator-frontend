@@ -196,7 +196,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 string financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session);
 
                 // check if calculator classification list have initial run
-                if (classificationList.Any(n => n.Id == (int)RunClassification.INITIAL_RUN))
+                if (classificationList.Exists(n => n.Id == (int)RunClassification.INITIAL_RUN))
                 {
                     classificationStatusInformationViewModel.ShowInterimRecalculationRunDescription = true;
                     classificationStatusInformationViewModel.InterimRecalculationRunDescription = ClassifyCalculationRunStatusInformation.InterimReCalculationStatusDescription;
@@ -213,14 +213,14 @@ namespace EPR.Calculator.Frontend.Controllers
                     classificationStatusInformationViewModel.InitialRunDescription = string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, financialYear);
 
                     // check if calculator classification list does not have final recalculation run status to be initiated
-                    if (!classificationList.Any(n => n.Id == (int)RunClassification.FINAL_RECALCULATION_RUN))
+                    if (!classificationList.Exists(n => n.Id == (int)RunClassification.FINAL_RECALCULATION_RUN))
                     {
                         classificationStatusInformationViewModel.ShowFinalRecalculationRunDescription = true;
                         classificationStatusInformationViewModel.FinalRecalculationRunDescription = $"{string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, financialYear)}";
                     }
 
                     // check if list doesn't have initial run status
-                    if (!classificationList.Any(n => n.Id == (int)RunClassification.FINAL_RUN))
+                    if (!classificationList.Exists(n => n.Id == (int)RunClassification.FINAL_RUN))
                     {
                         classificationStatusInformationViewModel.ShowFinalRunDescription = true;
                         classificationStatusInformationViewModel.FinalRunDescription = $"{string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, financialYear)}";
