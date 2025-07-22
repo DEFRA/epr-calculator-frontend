@@ -69,6 +69,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var response = this.GetLapcapDataAsync(year);
 
+                var currentUser = CommonUtil.GetUserName(this.HttpContext);
+
                 if (response.Result.IsSuccessStatusCode)
                 {
                     var deserializedlapcapdata = JsonConvert.DeserializeObject<List<LocalAuthorityDisposalCost>>(response.Result.Content.ReadAsStringAsync().Result);
@@ -83,9 +85,14 @@ namespace EPR.Calculator.Frontend.Controllers
                         ViewNames.LocalAuthorityDisposalCostsIndex,
                         new LocalAuthorityViewModel
                         {
-                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                            CurrentUser = currentUser,
                             LastUpdatedBy = deserializedlapcapdata?.First().CreatedBy ?? ErrorMessages.UnknownUser,
                             ByCountry = localAuthorityDataGroupedByCountry,
+                            BackLinkViewModel = new BackLinkViewModel()
+                            {
+                                BackLink = string.Empty,
+                                CurrentUser = currentUser,
+                            },
                         });
                 }
 
@@ -96,6 +103,11 @@ namespace EPR.Calculator.Frontend.Controllers
                         CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                         LastUpdatedBy = ErrorMessages.UnknownUser,
                         ByCountry = new List<IGrouping<string, LocalAuthorityViewModel.LocalAuthorityData>>(),
+                        BackLinkViewModel = new BackLinkViewModel()
+                        {
+                            BackLink = string.Empty,
+                            CurrentUser = currentUser,
+                        },
                     });
                 }
 

@@ -44,11 +44,17 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("RunANewCalculation")]
         public IActionResult Index()
         {
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             return this.View(
                 CalculationRunNameIndexView,
                 new InitiateCalculatorRunModel
                 {
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    CurrentUser = currentUser,
+                    BackLinkViewModel = new BackLinkViewModel()
+                    {
+                        BackLink = string.Empty,
+                        CurrentUser = currentUser,
+                    },
                 });
         }
 

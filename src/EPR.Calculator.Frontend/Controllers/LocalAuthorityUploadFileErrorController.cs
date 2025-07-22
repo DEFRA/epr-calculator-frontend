@@ -71,9 +71,15 @@ namespace EPR.Calculator.Frontend.Controllers
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             var lapcapFileErrors = CsvFileHelper.ValidateCSV(fileUpload);
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var lapcapUploadViewModel = new LapcapUploadViewModel
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
+                BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = "LocalAuthorityUploadFile",
+                    CurrentUser = currentUser,
+                },
             };
 
             if (lapcapFileErrors.ErrorMessage is not null)

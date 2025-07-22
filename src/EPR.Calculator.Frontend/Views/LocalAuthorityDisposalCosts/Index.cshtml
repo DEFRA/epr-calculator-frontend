@@ -2,13 +2,12 @@
 
 @{
     ViewData["Title"] = "Index";
-    var BackLinkValue = "Dashboard";
     var EffectiveFromDate = @Model.ByCountry?.FirstOrDefault()?.FirstOrDefault()?.EffectiveFrom;
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
-<partial name="_BackLinkPartial" model="(BackLinkValue, Model.CurrentUser)" />
+<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
