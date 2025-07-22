@@ -104,7 +104,17 @@
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
             var runId = fixture.Create<int>();
-            var model = new AcceptRejectConfirmationViewModel() { Reason = string.Empty, BackLink = ViewNames.BillingInstructionsIndex, CalculationRunId = runId, Status = Enums.BillingStatus.Rejected };
+            var model = new AcceptRejectConfirmationViewModel()
+            {
+                Reason = string.Empty,
+                CalculationRunId = runId,
+                Status = Enums.BillingStatus.Rejected,
+                BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = ViewNames.BillingInstructionsIndex,
+                    CurrentUser = "Test user"
+                },
+            };
 
             var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
             var controller = new ReasonForRejectionController(

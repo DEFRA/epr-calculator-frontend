@@ -79,11 +79,16 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>An initialized AcceptInvoiceInstructionsViewModel instance.</returns>
         private AcceptInvoiceInstructionsViewModel InitializeAcceptInvoiceInstructionsViewModel()
         {
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             return new AcceptInvoiceInstructionsViewModel
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                BackLink = ControllerNames.ClassifyRunConfirmation,
+                CurrentUser = currentUser,
                 AcceptAll = false,
+                BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = ControllerNames.ClassifyRunConfirmation,
+                    CurrentUser = currentUser,
+                },
             };
         }
 

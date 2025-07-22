@@ -43,6 +43,12 @@ namespace EPR.Calculator.Frontend.Mappers
 
             return new BillingInstructionsViewModel
             {
+                BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = ControllerNames.ClassifyRunConfirmation,
+                    CurrentUser = currentUser,
+                    RunId = billingData?.CalculatorRunId ?? 0,
+                },
                 CurrentUser = currentUser,
                 CalculationRun = new CalculationRunForBillingInstructionsDto
                 {

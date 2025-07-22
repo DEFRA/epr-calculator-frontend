@@ -1,14 +1,6 @@
 ﻿@model AcceptRejectConfirmationViewModel
 
-@{
-    var backLinkModel = new BackLinkPartialViewModel
-            {
-                BackLink = Model.BackLink,
-                CurrentUser = Model.CurrentUser,
-                RunId = Model.CalculationRunId
-            };
-}
-<partial name="_BackLinkPartialNew" model="backLinkModel" />
+<partial name="_BackLinkPartialNew" model="Model.BackLinkViewModel" />
 
 <div class="govuk-width-container ">  
 
@@ -16,7 +8,7 @@
     {
         @Html.AntiForgeryToken()
         @Html.Hidden("runId", Model.CalculationRunId)
-        @Html.Hidden("BackLink", Model.BackLink)
+        @Html.Hidden("BackLink", Model.BackLinkViewModel)
         @Html.Hidden("CurrentUser", Model.CurrentUser)
         @Html.Hidden("CalculationRunId", Model.CalculationRunId)
         @Html.Hidden("Status", Model.Status)

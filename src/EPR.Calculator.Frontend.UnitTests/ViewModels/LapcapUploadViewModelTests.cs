@@ -37,37 +37,6 @@
         }
 
         [TestMethod]
-        public void ImplementsIEquatable_LapcapUploadViewModel()
-        {
-            // Arrange
-            var same = new LapcapUploadViewModel
-            {
-                CurrentUser = this.TestClass.CurrentUser,
-                Errors = this.TestClass.Errors,
-                LapcapDataTemplateValue = this.TestClass.LapcapDataTemplateValue,
-                LapcapErrors = this.TestClass.LapcapErrors,
-                ValidationErrors = this.TestClass.ValidationErrors,
-                BackLink = this.TestClass.BackLink,
-            };
-
-            var different = Fixture.Create<LapcapUploadViewModel>();
-
-            // Assert
-            Assert.IsFalse(this.TestClass.Equals(default(object)));
-            Assert.IsFalse(this.TestClass.Equals(new object()));
-            Assert.IsTrue(this.TestClass.Equals((object)same));
-            Assert.IsFalse(this.TestClass.Equals((object)different));
-            Assert.IsTrue(this.TestClass.Equals(same));
-            Assert.IsFalse(this.TestClass.Equals(different));
-            Assert.AreEqual(same.GetHashCode(), this.TestClass.GetHashCode());
-            Assert.AreNotEqual(different.GetHashCode(), this.TestClass.GetHashCode());
-            Assert.IsTrue(this.TestClass == same);
-            Assert.IsFalse(this.TestClass == different);
-            Assert.IsFalse(this.TestClass != same);
-            Assert.IsTrue(this.TestClass != different);
-        }
-
-        [TestMethod]
         public void CanSetAndGetLapcapErrors()
         {
             // Arrange

@@ -44,11 +44,16 @@ namespace EPR.Calculator.Frontend.Controllers
                 CalcName = runDetails?.RunName,
                 ClassificationId = (int)RunClassification.DELETED,
             };
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var calculationRunDeleteViewModel = new CalculationRunDeleteViewModel
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
                 CalculatorRunStatusData = calculatorRunStatusUpdate,
-                BackLink = ControllerNames.CalculationRunDetails,
+                BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = ControllerNames.CalculationRunDetails,
+                    CurrentUser = currentUser,
+                },
             };
             return this.View(ViewNames.CalculationRunDeleteIndex, calculationRunDeleteViewModel);
         }

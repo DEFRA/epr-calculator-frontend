@@ -97,7 +97,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(calculatorRunDto.RunId, model.RunId);
             Assert.IsFalse(model.AcceptAll);
             Assert.AreEqual("Test Run", model.CalculationRunTitle);
-            Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, model.BackLink);
+            Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, model.BackLinkViewModel.BackLink);
         }
 
         [TestMethod]
