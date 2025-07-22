@@ -39,7 +39,7 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var viewModel = await this.CreateViewModel(runId);
-                if (!await SetClassifications(runId, viewModel))
+                if (!await this.SetClassifications(runId, viewModel))
                 {
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }

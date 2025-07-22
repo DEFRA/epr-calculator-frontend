@@ -27,6 +27,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets or sets the classification status information toggles.
         /// </summary>
-        public ClassificationStatusInformationViewModel ClassificationStatusInformation { get; set; }
+        public ClassificationStatusInformationViewModel? ClassificationStatusInformation { get; set; }
     }
 }

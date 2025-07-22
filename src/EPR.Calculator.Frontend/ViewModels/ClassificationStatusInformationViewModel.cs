@@ -11,7 +11,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets or sets a value indicating whether gets or sets show initial run status description.
         /// </summary>
-        public string InitialRunDescription { get; set; }
+        public string? InitialRunDescription { get; set; }
 
         /// <summary>
         /// <summary>
@@ -22,7 +22,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets or sets a value indicating whether gets or sets final recalculation run status description.
         /// </summary>
-        public string FinalRecalculationRunDescription { get; set; }
+        public string? FinalRecalculationRunDescription { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether gets or sets show final run description.
@@ -32,6 +32,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets or sets a value indicating whether gets or sets final run status description.
         /// </summary>
-        public string FinalRunDescription { get; set; }
+        public string? FinalRunDescription { get; set; }
     }
 }
