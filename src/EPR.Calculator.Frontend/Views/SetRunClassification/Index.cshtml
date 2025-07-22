@@ -88,33 +88,36 @@
                             </h2>
                         </div>
                         <div class="govuk-notification-banner__content">
-                            @if (classificationStatusInformation.ShowInitialRunDescription)
+                            @if (classificationStatusInformation != null)
                             {
-                                <p class="govuk-body-s">
-                                    <strong>Initial run</strong><br />
-                                    @classificationStatusInformation.InitialRunDescription
-                                </p>
-                            }
-                            @if (classificationStatusInformation.ShowInterimRecalculationRunDescription)
-                            {
-                                <p class="govuk-body-s">
-                                    <strong>Interim recalculation run</strong><br />
-                                    @classificationStatusInformation.InterimRecalculationRunDescription
-                                </p>
-                            }                           
-                            @if (classificationStatusInformation.ShowFinalRecalculationRunDescription)
-                            {
-                                <p class="govuk-body-s">
-                                    <strong>Final recalculation run</strong><br />
-                                    @classificationStatusInformation.FinalRecalculationRunDescription
-                                </p>
-                            }
-                            @if (classificationStatusInformation.ShowFinalRunDescription)
-                            {
-                                <p class="govuk-body-s">
-                                    <strong>Final run</strong><br />
-                                    @classificationStatusInformation.FinalRunDescription
-                                </p>
+                                @if (classificationStatusInformation.ShowInitialRunDescription)
+                                {
+                                    <p class="govuk-body-s">
+                                        <strong>Initial run</strong><br />
+                                        @classificationStatusInformation.InitialRunDescription
+                                    </p>
+                                }
+                                @if (classificationStatusInformation.ShowInterimRecalculationRunDescription)
+                                {
+                                    <p class="govuk-body-s">
+                                        <strong>Interim recalculation run</strong><br />
+                                        @classificationStatusInformation.InterimRecalculationRunDescription
+                                    </p>
+                                }                           
+                                @if (classificationStatusInformation.ShowFinalRecalculationRunDescription)
+                                {
+                                    <p class="govuk-body-s">
+                                        <strong>Final recalculation run</strong><br />
+                                        @classificationStatusInformation.FinalRecalculationRunDescription
+                                    </p>
+                                }
+                                @if (classificationStatusInformation.ShowFinalRunDescription)
+                                {
+                                    <p class="govuk-body-s">
+                                        <strong>Final run</strong><br />
+                                        @classificationStatusInformation.FinalRunDescription
+                                    </p>
+                                }
                             }
                         </div>
                     </div>
