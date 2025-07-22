@@ -5,8 +5,8 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 
@@ -94,17 +94,15 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<ActionResult> GoToDashboardView(string financialYear, bool returnPartialView = false)
         {
-            var accessToken = await this.AcquireToken();
-
             this.HttpContext.Session.SetString(SessionConstants.FinancialYear, financialYear);
 
             var dashboardViewModel = new DashboardViewModel
             {
-                AccessToken = accessToken,
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 FinancialYear = financialYear,
-                FinancialYearListApi = this.Configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
                 Calculations = null,
+                SelectedFinancialYear = financialYear,
+                FinancialYearSelectList = await this.GetFinancialYearsAsync(financialYear),
             };
 
             using var response = await this.PostCalculatorRunsAsync(financialYear);
@@ -142,6 +140,44 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, (CalculatorRunParamsDto)financialYear);
+        }
+
+        private async Task<List<SelectListItem>> GetFinancialYearsAsync(string selectedFinancialYear)
+        {
+            var apiUrl = new Uri(this.Configuration.GetSection(ConfigSection.FinancialYearListApi).Value!);
+            var response = await this.CallApi(HttpMethod.Get, apiUrl, string.Empty, null);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                this.TelemetryClient.TrackTrace("Unable to fetch financial years from API", SeverityLevel.Error);
+                throw new Exception("Failed to fetch financial years.");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var years = JsonConvert.DeserializeObject<List<FinancialYearDto>>(content) ?? new List<FinancialYearDto>();
+            var financialYears = years.Select(x => x.Name).ToList();
+
+            // Sort by starting year descending
+            financialYears = financialYears
+                .OrderByDescending(fy => int.Parse(fy.Substring(0, 4)))
+                .ToList();
+
+            // Ensure current year is first
+            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.Now);
+            financialYears.Remove(currentYear);
+            financialYears.Insert(0, currentYear);
+
+            // Build SelectListItem list
+            var selectList = financialYears
+                .Select(fy => new SelectListItem
+                {
+                    Value = fy,
+                    Text = fy,
+                    Selected = fy == selectedFinancialYear,
+                })
+                .ToList();
+
+            return selectList;
         }
     }
 }

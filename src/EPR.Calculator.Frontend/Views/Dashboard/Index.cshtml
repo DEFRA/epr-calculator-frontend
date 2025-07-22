@@ -46,8 +46,11 @@
                     <label class="govuk-label" for="financial-year-list">
                         Select a financial year
                     </label>
-                    <select class="govuk-select" id="financial-year-list" name="financial-year-list">
-                    </select>
+                    @Html.DropDownListFor(
+                        m => m.SelectedFinancialYear,
+                        Model.FinancialYearSelectList ?? new List<SelectListItem>(),
+                        new { @class = "govuk-select", id = "financial-year-list" }
+                    )
                 </div>
             </div>
         </div>
@@ -58,36 +61,10 @@
 </div>
 
 <script type="text/javascript">
-    $(document).ready(() => {
-
+    $(document).ready(() => {        
         var financialYearListDropdown = $('#financial-year-list');
 
-        $.ajax({
-            url: '@Model.FinancialYearListApi',
-            method: 'GET',
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('Authorization', '@Model.AccessToken');
-            },
-            success: function (data, status, xhr) {
-                try {
-                    var financialYears = data.map(x => x.name);
-                    var sortedFinancialYears = sortFinancialYears(financialYears);
-                    $.each(sortedFinancialYears, function (index, financialYear) {
-                        var option = financialYear === '@Model.FinancialYear'
-                            ? `<option value="${financialYear}" selected>${financialYear}</option>`
-                            : `<option value="${financialYear}">${financialYear}</option>`;
-                        financialYearListDropdown.append(option);
-                    });
-                }
-                catch (error) {
-                    window.location.href = '/StandardError';
-                }
-            },
-            error: function (error) {
-                window.location.href = '/StandardError';
-            }
-        });
-
+        // TODO This does not need changing, its already calling a front-end endpoint
         financialYearListDropdown.change(function () {
             var selectedFinancialYear = $(this).val();
             $.ajax({
@@ -103,12 +80,5 @@
                 }
             });
         });
-
-        sortFinancialYears = (financialYears) => {
-            var filteredFinancialYears = financialYears.filter(f => f !== '@currentFinancialYear');
-            filteredFinancialYears.sort().reverse();
-            filteredFinancialYears.unshift('@currentFinancialYear');
-            return filteredFinancialYears;
-        }
     });
 </script>
