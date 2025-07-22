@@ -11,7 +11,23 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets or sets a value indicating whether gets or sets show initial run status description.
         /// </summary>
+        public bool ShowInitialRunDescription { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether gets or sets show initial run status description.
+        /// </summary>
         public string? InitialRunDescription { get; set; }
+
+        /// <summary>
+        /// <summary>
+        /// Gets or sets a value indicating whether gets or sets show interim recalculation run status description.
+        /// </summary>
+        public bool ShowInterimRecalculationRunDescription { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether gets or sets show interim recalculation run status description.
+        /// </summary>
+        public string? InterimRecalculationRunDescription { get; set; }
 
         /// <summary>
         /// <summary>

@@ -7,13 +7,11 @@
     var classificationStatusInformation = Model.ClassificationStatusInformation;
 
     var backLinkModel = new BackLinkPartialViewModel
-            {
-                BackLink = Model.BackLink,
-                CurrentUser = Model.CurrentUser,
-                RunId = calcDetails.RunId
-            };
-
-  
+    {
+        BackLink = Model.BackLink,
+        CurrentUser = Model.CurrentUser,
+        RunId = calcDetails.RunId
+    };  
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
@@ -90,10 +88,20 @@
                             </h2>
                         </div>
                         <div class="govuk-notification-banner__content">
-                            <p class="govuk-body-s">
-                                <strong>Initial run</strong><br />
-                                @classificationStatusInformation.InitialRunDescription
-                            </p>
+                            @if (classificationStatusInformation.ShowInitialRunDescription)
+                            {
+                                <p class="govuk-body-s">
+                                    <strong>Initial run</strong><br />
+                                    @classificationStatusInformation.InitialRunDescription
+                                </p>
+                            }
+                            @if (classificationStatusInformation.ShowInterimRecalculationRunDescription)
+                            {
+                                <p class="govuk-body-s">
+                                    <strong>Interim recalculation run</strong><br />
+                                    @classificationStatusInformation.InterimRecalculationRunDescription
+                                </p>
+                            }                           
                             @if (classificationStatusInformation.ShowFinalRecalculationRunDescription)
                             {
                                 <p class="govuk-body-s">

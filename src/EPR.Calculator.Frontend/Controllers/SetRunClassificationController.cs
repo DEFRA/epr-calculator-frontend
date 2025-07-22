@@ -198,16 +198,18 @@ namespace EPR.Calculator.Frontend.Controllers
                 // check if calculator classification list have initial run
                 if (classificationList.Any(n => n.Id == (int)RunClassification.INITIAL_RUN))
                 {
-                    classificationStatusInformationViewModel.InitialRunDescription = ClassifyCalculationRunStatusInformation.InterimCalculationRunNotYetRanStatusDescription;
+                    classificationStatusInformationViewModel.ShowInterimRecalculationRunDescription = true;
+                    classificationStatusInformationViewModel.InterimRecalculationRunDescription = ClassifyCalculationRunStatusInformation.InterimReCalculationStatusDescription;
 
                     classificationStatusInformationViewModel.ShowFinalRecalculationRunDescription = true;
-                    classificationStatusInformationViewModel.FinalRecalculationRunDescription = ClassifyCalculationRunStatusInformation.FinalRecalculationRunNotYetRanStatusDescription;
+                    classificationStatusInformationViewModel.FinalRecalculationRunDescription = ClassifyCalculationRunStatusInformation.FinalRecalculationStatusDescription;
 
                     classificationStatusInformationViewModel.ShowFinalRunDescription = true;
-                    classificationStatusInformationViewModel.FinalRunDescription = ClassifyCalculationRunStatusInformation.FinalRunYetRanStatusDescription;
+                    classificationStatusInformationViewModel.FinalRunDescription = ClassifyCalculationRunStatusInformation.FinalRunStatusDescription;
                 }
                 else
                 {
+                    classificationStatusInformationViewModel.ShowInitialRunDescription = true;
                     classificationStatusInformationViewModel.InitialRunDescription = string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, financialYear);
 
                     // check if calculator classification list does not have final recalculation run status to be initiated
