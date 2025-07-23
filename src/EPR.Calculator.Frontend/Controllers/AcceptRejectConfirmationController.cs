@@ -20,9 +20,14 @@ namespace EPR.Calculator.Frontend.Controllers
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
-        IHttpClientFactory httpClientFactory,
+        IApiService apiService,
+        ICalculatorRunDetailsService calculatorRunDetailsService,
         IBillingInstructionsApiService billingInstructionsApiService)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
+        : BaseController(configuration,
+            tokenAcquisition,
+            telemetryClient,
+            apiService,
+            calculatorRunDetailsService)
     {
         /// <summary>
         /// Displays the accept reject confirmation controller index view.
@@ -39,7 +44,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, errorControllerName);
             }
 
-            var runDetails = await this.GetCalculatorRundetails(calculationRunId);
+            var runDetails = await this.CalculatorRunDetailsService
+                .GetCalculatorRundetailsAsync(this.HttpContext, calculationRunId);
 
             if (runDetails == null)
             {

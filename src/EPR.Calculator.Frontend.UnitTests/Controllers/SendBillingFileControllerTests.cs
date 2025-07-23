@@ -1,9 +1,12 @@
 ﻿using System.Net;
 using System.Security.Claims;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
+using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
@@ -27,6 +30,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
         public SendBillingFileControllerTests()
         {
+            this.Fixture = new Fixture();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _telemetryClient = new TelemetryClient();
 
@@ -39,6 +43,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             _controller = CreateController();
         }
 
+        private Fixture Fixture { get; init; }
+
         [TestMethod]
         public async Task Index_WithValidRunDetails_ReturnsViewWithViewModel()
         {
@@ -47,29 +53,15 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var runDetails = new CalculatorRunDetailsViewModel
             {
                 RunId = runId,
-                RunName = "Test Run"
+                RunName = Fixture.Create<string>(),
             };
 
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    Content = new StringContent(JsonConvert.SerializeObject(runDetails)),
-                });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-
-            var controller = CreateController(httpClientFactory: mockHttpClientFactory.Object);
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.OK,
+                runDetails,
+                runDetails,
+                configurationItems: _configuration);
 
             // Act
             var result = await controller.Index(runId);
@@ -80,7 +72,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var model = viewResult.Model as SendBillingFileViewModel;
             Assert.IsNotNull(model);
             Assert.AreEqual(runId, model.RunId);
-            Assert.AreEqual("Test Run", model.CalcRunName);
+            Assert.AreEqual(runDetails.RunName, model.CalcRunName);
         }
 
         [TestMethod]
@@ -152,29 +144,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_ApiAccepted_RedirectsToBillingFileSuccess()
         {
             // Arrange
-            SendBillingFileViewModel model = new SendBillingFileViewModel
-            {
-                RunId = 1,
-                ConfirmSend = true,
-                CalcRunName = "Test Run",
-            };
+            Fixture.Customize<SendBillingFileViewModel>(c => c.With(c => c.ConfirmSend, true));
+            SendBillingFileViewModel model = Fixture.Create<SendBillingFileViewModel>();
 
-            var acceptedCode = HttpStatusCode.Accepted;
-
-            var mockHttpClientFactory = GetMockHttpClientFactoryWithResponse(acceptedCode);
-
-            var controller = new SendBillingFileController(
-                   _configuration,
-                   _mockTokenAcquisition.Object,
-                   _telemetryClient,
-                   mockHttpClientFactory.Object)
-            {
-                // Setting the mocked HttpContext for the controller
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = _mockHttpContext.Object
-                }
-            };
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.Accepted);
 
             // Act
             var result = await controller.Submit(model);
@@ -198,7 +173,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                    _configuration,
                    _mockTokenAcquisition.Object,
                    _telemetryClient,
-                   mockHttpClientFactory.Object)
+                   new Mock<IApiService>().Object,
+                   new Mock<ICalculatorRunDetailsService>().Object)
             {
                 // Setting the mocked HttpContext for the controller
                 ControllerContext = new ControllerContext
@@ -247,7 +223,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 _configuration,
                 _mockTokenAcquisition.Object,
                 _telemetryClient,
-                mockHttpClientFactory.Object)
+                new Mock<IApiService>().Object,
+                new Mock<ICalculatorRunDetailsService>().Object)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -307,7 +284,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 configuration ?? _configuration,
                 tokenAcquisition ?? _mockTokenAcquisition.Object,
                 telemetryClient ?? _telemetryClient,
-                httpClientFactory ?? new Mock<IHttpClientFactory>().Object)
+                new Mock<IApiService>().Object,
+                new Mock<ICalculatorRunDetailsService>().Object)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -316,6 +294,34 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             };
 
             return controller;
+        }
+
+        private SendBillingFileController BuildTestClass(
+                Fixture fixture,
+                HttpStatusCode httpStatusCode,
+                object data = null,
+                CalculatorRunDetailsViewModel details = null,
+                IConfiguration configurationItems = null)
+        {
+            data = data ?? MockData.GetCalculatorRun();
+            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
+            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            var mockApiService = TestMockUtils.BuildMockApiService(
+                httpStatusCode,
+                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+
+            var testClass = new SendBillingFileController(
+                configurationItems,
+                new Mock<ITokenAcquisition>().Object,
+                new TelemetryClient(),
+                mockApiService,
+                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
+            testClass.ControllerContext.HttpContext = new DefaultHttpContext()
+            {
+                Session = TestMockUtils.BuildMockSession(fixture).Object,
+            };
+
+            return testClass;
         }
     }
 }

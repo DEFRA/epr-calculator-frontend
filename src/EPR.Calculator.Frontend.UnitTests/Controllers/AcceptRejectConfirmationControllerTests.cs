@@ -1,5 +1,7 @@
-﻿using System.Security.Claims;
+﻿using System.Net;
+using System.Security.Claims;
 using System.Security.Principal;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
@@ -29,17 +31,20 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
         public AcceptRejectConfirmationControllerTests()
         {
+            this.Fixture = new Fixture();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _billingInstructionsApiService = new Mock<IBillingInstructionsApiService>();
             _telemetryClient = new TelemetryClient();
         }
+
+        private Fixture Fixture { get; init; }
 
         [TestMethod]
         public async Task IndexAsync_InvalidCalculationRunId_RedirectsToStandardError()
         {
             // Arrange
             int invalidRunId = 0;
-            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var controller = CreateController();
 
             // Act
             var result = await controller.IndexAsync(invalidRunId);
@@ -76,7 +81,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
 
-            var controller = CreateController(mockHttpClientFactory.Object);
+            var controller = CreateController();
 
             // Act
             var result = await controller.IndexAsync(runId);
@@ -92,32 +97,16 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task IndexAsync_ValidRunDetails_ReturnsViewWithModel()
         {
             // Arrange
-            int runId = 99;
-            var runDetails = new CalculatorRunDetailsViewModel { RunName = "TestRun" };
+            var runDetails = new CalculatorRunDetailsViewModel
+            {
+                RunId = this.Fixture.Create<int>(),
+                RunName = this.Fixture.Create<string>(),
+            };
 
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    Content = new StringContent(JsonConvert.SerializeObject(runDetails)),
-                });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-
-            var controller = CreateController(mockHttpClientFactory.Object);
+            var controller = CreateController(calculatorRunDetails: runDetails);
 
             // Act
-            var result = await controller.IndexAsync(runId);
+            var result = await controller.IndexAsync(runDetails.RunId);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
@@ -125,8 +114,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(viewResult);
             Assert.IsInstanceOfType(viewResult.Model, typeof(AcceptRejectConfirmationViewModel));
             var model = viewResult.Model as AcceptRejectConfirmationViewModel;
-            Assert.AreEqual(runId, model.CalculationRunId);
-            Assert.AreEqual("TestRun", model.CalculationRunName);
+            Assert.AreEqual(runDetails.RunId, model.CalculationRunId);
+            Assert.AreEqual(runDetails.RunName, model.CalculationRunName);
             Assert.AreEqual(BillingStatus.Accepted, model.Status);
         }
 
@@ -134,7 +123,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_InvalidModelState_ReturnsViewWithModel()
         {
             // Arrange
-            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var controller = CreateController();
             controller.ModelState.AddModelError("CalculationRunId", "Required");
             var model = new AcceptRejectConfirmationViewModel
             {
@@ -158,7 +147,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_InvalidModelState_Summary_ReturnsViewWithModel()
         {
             // Arrange
-            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var controller = CreateController();
             var model = new AcceptRejectConfirmationViewModel
             {
                 CalculationRunId = 1,
@@ -185,7 +174,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_ValidModelState_Summary_ReturnsViewWithModel()
         {
             // Arrange
-            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var controller = CreateController();
             var model = new AcceptRejectConfirmationViewModel
             {
                 CalculationRunId = 1,
@@ -208,7 +197,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task Submit_ApproveDataFalse_RedirectsToBillingInstructions()
         {
             // Arrange
-            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var controller = CreateController();
             var model = new AcceptRejectConfirmationViewModel
             {
                 CalculationRunId = 1,
@@ -235,7 +224,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             _billingInstructionsApiService.Setup(x => x.PutAcceptRejectBillingInstructions(It.IsAny<int>(), It.IsAny<ProducerBillingInstructionsHttpPutRequestDto>()))
                 .ReturnsAsync(false);
 
-            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var controller = CreateController();
             var model = new AcceptRejectConfirmationViewModel
             {
                 CalculationRunId = 1,
@@ -260,7 +249,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             _billingInstructionsApiService.Setup(x => x.PutAcceptRejectBillingInstructions(It.IsAny<int>(), It.IsAny<ProducerBillingInstructionsHttpPutRequestDto>()))
                 .ThrowsAsync(new Exception("API error"));
 
-            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var controller = CreateController(billingApiThrowException: true);
             var model = new AcceptRejectConfirmationViewModel
             {
                 CalculationRunId = 1,
@@ -286,7 +275,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             _billingInstructionsApiService.Setup(x => x.PutAcceptRejectBillingInstructions(It.IsAny<int>(), It.IsAny<ProducerBillingInstructionsHttpPutRequestDto>()))
                 .ReturnsAsync(true);
 
-            var controller = CreateController(new Mock<IHttpClientFactory>().Object);
+            var controller = CreateController();
             var model = new AcceptRejectConfirmationViewModel
             {
                 CalculationRunId = 1,
@@ -306,7 +295,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.AreEqual(model.CalculationRunId, redirectResult.RouteValues["calculationRunId"]);
         }
 
-        private AcceptRejectConfirmationController CreateController(IHttpClientFactory httpClientFactory)
+        private AcceptRejectConfirmationController CreateController(
+            HttpStatusCode apiReturnCode = HttpStatusCode.OK,
+            bool billingApiThrowException = false,
+            CalculatorRunDetailsViewModel calculatorRunDetails = null)
         {
             var identity = new GenericIdentity("TestUser");
             identity.AddClaim(new Claim("name", "TestUser"));
@@ -321,12 +313,39 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 Session = mockHttpSession
             };
 
+            var calculatorRunDetailsService = new Mock<ICalculatorRunDetailsService>();
+            if (calculatorRunDetails is not null)
+            {
+                calculatorRunDetailsService.Setup(service
+                    => service.GetCalculatorRundetailsAsync(It.IsAny<HttpContext>(), calculatorRunDetails.RunId))
+                    .ReturnsAsync(calculatorRunDetails);
+            }
+
+            var billingApiService = new Mock<IBillingInstructionsApiService>();
+            if(billingApiThrowException)
+            {
+                billingApiService.Setup(service
+                    => service.PutAcceptRejectBillingInstructions(
+                        It.IsAny<int>(),
+                        It.IsAny<ProducerBillingInstructionsHttpPutRequestDto>()))
+                    .Throws<InvalidOperationException>();
+            }
+            else
+            {
+                billingApiService.Setup(service
+                    => service.PutAcceptRejectBillingInstructions(
+                        It.IsAny<int>(),
+                        It.IsAny<ProducerBillingInstructionsHttpPutRequestDto>()))
+                    .ReturnsAsync(true);
+            }
+
             var controller = new AcceptRejectConfirmationController(
                 _configuration,
                 _mockTokenAcquisition.Object,
                 _telemetryClient,
-                httpClientFactory,
-                _billingInstructionsApiService.Object)
+                TestMockUtils.BuildMockApiService(apiReturnCode).Object,
+                calculatorRunDetailsService.Object,
+                billingApiService.Object)
             {
                 ControllerContext = new ControllerContext
                 {
