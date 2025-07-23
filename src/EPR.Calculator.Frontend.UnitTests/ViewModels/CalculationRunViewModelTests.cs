@@ -242,6 +242,5 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
 
             Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/CalculationRunOverview/{_calculationRun.Id}");
         }
-
     }
 }
