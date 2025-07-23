@@ -69,7 +69,7 @@ builder.Services.AddScoped<IBillingInstructionsMapper, BillingInstructionsMapper
 
 builder.Services.AddScoped<IBillingInstructionsApiService, BillingInstructionsApiService>();
 
-builder.Services.AddScoped<IFileDownloadService, FileDownloadService>();
+builder.Services.AddScoped<IResultBillingFileService, ResultBillingFileService>();
 
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
 

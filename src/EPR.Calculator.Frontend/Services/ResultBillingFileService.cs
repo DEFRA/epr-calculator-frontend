@@ -16,10 +16,10 @@ using NuGet.Common;
 
 namespace EPR.Calculator.Frontend.Services
 {
-    public class FileDownloadService(
+    public class ResultBillingFileService(
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
-        TelemetryClient telemetryClient) : IFileDownloadService
+        TelemetryClient telemetryClient) : IResultBillingFileService
     {
         private readonly IHttpClientFactory httpClientFactory = httpClientFactory;
         private readonly IConfiguration configuration = configuration;

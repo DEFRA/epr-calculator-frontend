@@ -17,7 +17,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
         private Mock<IConfiguration> _configurationMock;
         private TelemetryClient _telemetryClient;
         private Mock<HttpMessageHandler> _httpMessageHandlerMock;
-        private FileDownloadService _fileDownloadService;
+        private ResultBillingFileService _fileDownloadService;
 
         public FileDownloadServiceTests()
         {
@@ -33,7 +33,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
             _configurationMock.Setup(c => c.GetSection("CalculationRunSettings:DownloadResultTimeoutInMilliSeconds").Value)
                 .Returns(TimeoutMs.ToString());
 
-            _fileDownloadService = new FileDownloadService(
+            _fileDownloadService = new ResultBillingFileService(
                 _httpClientFactoryMock.Object,
                 _configurationMock.Object,
                 _telemetryClient);

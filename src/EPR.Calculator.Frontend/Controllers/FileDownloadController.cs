@@ -19,9 +19,9 @@ namespace EPR.Calculator.Frontend.Controllers
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
         IHttpClientFactory clientFactory,
-        IFileDownloadService fileDownloadService) : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
+        IResultBillingFileService fileDownloadService) : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
     {
-        private readonly IFileDownloadService fileDownloadService = fileDownloadService;
+        private readonly IResultBillingFileService fileDownloadService = fileDownloadService;
 
         [HttpGet]
         [Route("DownloadResultFile/{runId}")]
