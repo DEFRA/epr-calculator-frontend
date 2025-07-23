@@ -415,6 +415,380 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
         }
 
+        [TestMethod]
+        public async Task Index_ReturnsStandardError_WhenRunIdIsZero()
+        {
+            var responseContent = "{\r\n  \"runId\": 0,\r\n  \"runClassificationId\": 7,\r\n  \"runName\": \"Test Calculator1702\",\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"financialYear\": \"2025-26\"\r\n}";
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Content = new StringContent(responseContent)
+                    });
+
+            mockHttpMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.Is<HttpRequestMessage>(k => k.RequestUri != null && k.RequestUri.ToString().Contains("Financial")),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.OK,
+                       Content = new StringContent("{\r\n\"financialYear\": \"2025-26\",\r\n  \"classifications\": [\r\n    {\r\n      \"id\": 4,\r\n      \"status\": \"TEST RUN\"\r\n    },\r\n    {\r\n      \"id\": 8,\r\n      \"status\": \"INITIAL RUN\"\r\n    }\r\n  ]\r\n}"),
+                   });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockTokenAcquisition
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
+
+            _mockHttpClientFactory
+               .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                   .Returns(httpClient);
+
+            _controller = new SetRunClassificationController(
+                       _configuration,
+                       _mockHttpClientFactory.Object,
+                       _mockLogger.Object,
+                       _mockTokenAcquisition.Object,
+                       _mockTelemetryClient);
+
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext { HttpContext = context };
+
+            // Arrange
+            int runId = 1;
+
+            // Act
+            var result = await _controller.Index(runId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task Index_ReturnsStandardError_WhenThrowsException()
+        {
+            var responseContent = "{\r\n  \"runId\": 0,\r\n  \"runClassificationId\": 7,\r\n  \"runName\": \"Test Calculator1702\",\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"financialYear\": \"2025-26\"\r\n}";
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                     {
+                         StatusCode = HttpStatusCode.BadRequest,
+                         Content = new StringContent(responseContent)
+                     });
+
+            mockHttpMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.Is<HttpRequestMessage>(k => k.RequestUri != null && k.RequestUri.ToString().Contains("Financial")),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.OK,
+                       Content = new StringContent("{\r\n\"financialYear\": \"2025-26\",\r\n  \"classifications\": [\r\n    {\r\n      \"id\": 4,\r\n      \"status\": \"TEST RUN\"\r\n    },\r\n    {\r\n      \"id\": 8,\r\n      \"status\": \"INITIAL RUN\"\r\n    }\r\n  ]\r\n}"),
+                   });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockTokenAcquisition
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
+
+            _mockHttpClientFactory
+               .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                   .Returns(httpClient);
+
+            _controller = new SetRunClassificationController(
+                       _configuration,
+                       _mockHttpClientFactory.Object,
+                       _mockLogger.Object,
+                       _mockTokenAcquisition.Object,
+                       _mockTelemetryClient);
+
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext { HttpContext = context };
+
+            // Arrange
+            int runId = 1;
+
+            // Act
+            var result = await _controller.Index(runId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
+        }
+
+        [TestMethod]
+        [DataRow(RunClassification.INITIAL_RUN, CommonConstants.InitialRunDescription)]
+        [DataRow(RunClassification.TEST_RUN, CommonConstants.TestRunDescription)]
+        [DataRow(RunClassification.INTERIM_RECALCULATION_RUN, CommonConstants.InterimRunDescription)]
+        [DataRow(RunClassification.FINAL_RECALCULATION_RUN, CommonConstants.FinalRecalculationRunDescription)]
+        [DataRow(RunClassification.FINAL_RUN, CommonConstants.FinalRecalculationRunDescription)]
+        public async Task Index_CheckClassificationStatusDescription_IsValid(RunClassification runClassification, string description)
+        {
+            var responseContent = "{\r\n  \"runId\": 1,\r\n  \"runClassificationId\": 7,\r\n  \"runName\": \"Test Calculator1702\",\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"financialYear\": \"2025-26\"\r\n}";
+            var classificationResponseContent = "{\r\n\"financialYear\": \"2025-26\",\r\n  \"classifications\": [\r\n    {\r\n      \"id\":" + (int)runClassification + ",\r\n\"status\": \"INITIAL RUN\"\r\n    }\r\n  ]\r\n}";
+
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(responseContent)
+                    });
+
+            mockHttpMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.Is<HttpRequestMessage>(k => k.RequestUri != null && k.RequestUri.ToString().Contains("Financial")),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.OK,
+                       Content = new StringContent(classificationResponseContent),
+                   });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockTokenAcquisition
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
+
+            _mockHttpClientFactory
+               .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                   .Returns(httpClient);
+
+            _controller = new SetRunClassificationController(
+                       _configuration,
+                       _mockHttpClientFactory.Object,
+                       _mockLogger.Object,
+                       _mockTokenAcquisition.Object,
+                       _mockTelemetryClient);
+
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext { HttpContext = context };
+
+            // Arrange
+            int runId = 1;
+
+            // Act
+            var result = await _controller.Index(runId) as ViewResult;
+            var model = result.Model as SetRunClassificationViewModel;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Model, typeof(SetRunClassificationViewModel));
+            Assert.AreEqual(description, model.FinancialYearClassifications.Classifications.First().Description);
+        }
+
+        [TestMethod]
+        [DataRow(RunClassification.INITIAL_RUN, CommonConstants.InitialRunDescription)]
+        [DataRow(RunClassification.TEST_RUN, CommonConstants.TestRunDescription)]
+        [DataRow(RunClassification.INTERIM_RECALCULATION_RUN, CommonConstants.InterimRunDescription)]
+        [DataRow(RunClassification.FINAL_RECALCULATION_RUN, CommonConstants.FinalRecalculationRunDescription)]
+        [DataRow(RunClassification.FINAL_RUN, CommonConstants.FinalRecalculationRunDescription)]
+        public async Task Index_ValidModel_ClassificationStatusDescription_IsValid(RunClassification runClassification, string description)
+        {
+            var responseContent = "{\r\n  \"runId\": 1,\r\n  \"runClassificationId\": 7,\r\n  \"runName\": \"Test Calculator1702\",\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"financialYear\": \"2025-26\"\r\n}";
+            var classificationResponseContent = "{\r\n\"financialYear\": \"2025-26\",\r\n  \"classifications\": [\r\n    {\r\n      \"id\":" + (int)runClassification + ",\r\n\"status\": \"INITIAL RUN\"\r\n    }\r\n  ]\r\n}";
+
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(responseContent)
+                    });
+
+            mockHttpMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.Is<HttpRequestMessage>(k => k.RequestUri != null && k.RequestUri.ToString().Contains("Financial")),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.OK,
+                       Content = new StringContent(classificationResponseContent),
+                   });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockTokenAcquisition
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
+
+            _mockHttpClientFactory
+               .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                   .Returns(httpClient);
+
+            _controller = new SetRunClassificationController(
+                       _configuration,
+                       _mockHttpClientFactory.Object,
+                       _mockLogger.Object,
+                       _mockTokenAcquisition.Object,
+                       _mockTelemetryClient);
+
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext { HttpContext = context };
+
+            // Arrange
+            int runId = 1;
+
+            // Act
+            var result = await _controller.Index(runId) as ViewResult;
+            var model = result.Model as SetRunClassificationViewModel;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Model, typeof(SetRunClassificationViewModel));
+            Assert.AreEqual(description, model.FinancialYearClassifications.Classifications.First().Description);
+        }
+
+        [TestMethod]
+        [DataRow(RunClassification.INITIAL_RUN, CommonConstants.InitialRunDescription)]
+        [DataRow(RunClassification.FINAL_RECALCULATION_RUN, CommonConstants.FinalRecalculationRunDescription)]
+        [DataRow(RunClassification.FINAL_RUN, CommonConstants.FinalRecalculationRunDescription)]
+        public async Task Index_ValidModel_ClassificationStatusInformation_IsValid(RunClassification runClassification, string description)
+        {
+            var responseContent = "{\r\n  \"runId\": 1,\r\n  \"runClassificationId\": 7,\r\n  \"runName\": \"Test Calculator1702\",\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"financialYear\": \"2025-26\"\r\n}";
+            var classificationResponseContent = "{\r\n\"financialYear\": \"2025-26\",\r\n  \"classifications\": [\r\n    {\r\n      \"id\":" + (int)runClassification + ",\r\n\"status\": \"INITIAL RUN\"\r\n    }\r\n  ]\r\n}";
+
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(responseContent)
+                    });
+
+            mockHttpMessageHandler
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                   "SendAsync",
+                   ItExpr.Is<HttpRequestMessage>(k => k.RequestUri != null && k.RequestUri.ToString().Contains("Financial")),
+                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                   {
+                       StatusCode = HttpStatusCode.OK,
+                       Content = new StringContent(classificationResponseContent),
+                   });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            _mockTokenAcquisition
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
+
+            _mockHttpClientFactory
+               .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                   .Returns(httpClient);
+
+            _controller = new SetRunClassificationController(
+                       _configuration,
+                       _mockHttpClientFactory.Object,
+                       _mockLogger.Object,
+                       _mockTokenAcquisition.Object,
+                       _mockTelemetryClient);
+
+            var mockSession = new MockHttpSession();
+            mockSession.SetString("accessToken", "something");
+            mockSession.SetString(SessionConstants.FinancialYear, "2025-26");
+            var context = new DefaultHttpContext()
+            {
+                Session = mockSession
+            };
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext { HttpContext = context };
+
+            // Arrange
+            int runId = 1;
+
+            // Act
+            var result = await _controller.Index(runId) as ViewResult;
+            var model = result.Model as SetRunClassificationViewModel;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Model, typeof(SetRunClassificationViewModel));
+
+            if(runClassification == RunClassification.INITIAL_RUN)
+            {
+               Assert.IsFalse(model.ClassificationStatusInformation.ShowInitialRunDescription);
+               Assert.IsTrue(model.ClassificationStatusInformation.ShowInterimRecalculationRunDescription);
+               Assert.IsTrue(model.ClassificationStatusInformation.ShowFinalRecalculationRunDescription);
+               Assert.IsTrue(model.ClassificationStatusInformation.ShowFinalRunDescription);
+            }
+
+            if (runClassification == RunClassification.FINAL_RECALCULATION_RUN)
+            {
+                Assert.IsTrue(model.ClassificationStatusInformation.ShowInitialRunDescription);
+                Assert.IsFalse(model.ClassificationStatusInformation.ShowFinalRecalculationRunDescription);
+            }
+
+            if (runClassification == RunClassification.FINAL_RUN)
+            {
+                Assert.IsTrue(model.ClassificationStatusInformation.ShowInitialRunDescription);
+                Assert.IsFalse(model.ClassificationStatusInformation.ShowFinalRunDescription);
+            }
+        }
+
         private void SetMessageHandlerResponses(bool isUnclassified, HttpStatusCode httpStatusCode)
         {
             var responseContent = isUnclassified ? "{\r\n  \"runId\": 1,\r\n  \"runClassificationId\": 3,\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"financialYear\": \"2025-26\"\r\n}"
