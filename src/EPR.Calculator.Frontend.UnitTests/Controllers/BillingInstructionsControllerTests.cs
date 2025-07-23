@@ -1,11 +1,8 @@
 ﻿namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
-    using System;
-    using System.Net;
-    using System.Security.Claims;
-    using System.Text;
     using AutoFixture;
     using AutoFixture.AutoMoq;
+    using Azure.Core;
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Controllers;
     using EPR.Calculator.Frontend.Extensions;
@@ -25,6 +22,10 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Moq.Protected;
+    using System;
+    using System.Net;
+    using System.Security.Claims;
+    using System.Text;
 
     [TestClass]
     public class BillingInstructionsControllerTests
@@ -640,6 +641,7 @@
             mockSession.SetString("accessToken", "something");
             mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
             var context = new DefaultHttpContext { Session = mockSession };
+            context.Request.Headers.Append("Referer", "https://calculator/details/4");
 
             // Prepare a BillingInstructionsViewModel with ProducerIds
             var expectedProducerIds = new List<int> { 101, 102 };
@@ -974,6 +976,7 @@
                 [
                     new Claim(ClaimTypes.Name, "Test User")
                 ]));
+            testClass.ControllerContext.HttpContext.Request.Headers.Append("Referer", "https://calculator/details/4");
 
             return testClass;
         }

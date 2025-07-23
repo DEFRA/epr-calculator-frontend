@@ -21,7 +21,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     CurrentUser = currentUser,
                     BackLinkViewModel = new BackLinkViewModel()
                     {
-                        BackLink = "ViewLocalAuthorityDisposalCosts",
+                        BackLink = ControllerNames.ViewLocalAuthorityDisposalCosts,
                         CurrentUser = currentUser,
                     },
                 });
