@@ -151,7 +151,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.HttpContext,
                 HttpMethod.Get,
                 apiUrl,
-                $"RundId={dto.RunId}&FinancialYear={dto.FinancialYear}",
+                $"RunId={dto.RunId}&FinancialYear={dto.FinancialYear}",
                 null);
         }
 
