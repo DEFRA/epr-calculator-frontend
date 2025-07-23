@@ -39,6 +39,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// An <see cref="IActionResult"/> that renders the Dashboard Index view with the calculation runs data,
         /// or redirects to the Standard Error page if an error occurs.
         /// </returns>
+        [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             try
