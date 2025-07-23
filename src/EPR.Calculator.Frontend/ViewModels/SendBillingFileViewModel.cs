@@ -1,4 +1,7 @@
-﻿namespace EPR.Calculator.Frontend.ViewModels
+﻿using EPR.Calculator.Frontend.Constants;
+using System.ComponentModel.DataAnnotations;
+
+namespace EPR.Calculator.Frontend.ViewModels
 {
     public record SendBillingFileViewModel : ViewModelCommonData
     {
@@ -6,10 +9,14 @@
 
         public required string CalcRunName { get; set; }
 
-        public required string SendBillFileHeading { get; set; }
+        public string SendBillFileHeading { get; set; } = CommonConstants.SendBillingFile;
 
-        public required string ConfirmationContent { get; set; }
+        public string ConfirmationContent { get; set; } = CommonConstants.ConfirmationContent;
 
-        public required string WarningContent { get; set; }
+        public string WarningContent { get; set; } = CommonConstants.WarningContent;
+
+        [Required(ErrorMessage = "You must confirm that you’ve checked the billing file before sending it.")]
+        [Display(Name = "ConfirmSend")]
+        public bool? ConfirmSend { get; set; }
     }
 }
