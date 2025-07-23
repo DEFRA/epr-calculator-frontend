@@ -70,6 +70,11 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var errorMessages = this.ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
                 calculationRunModel.Errors = CreateErrorViewModel(errorMessages.First());
+                calculationRunModel.BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = string.Empty,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                };
                 return this.View(CalculationRunNameIndexView, calculationRunModel);
             }
 
@@ -96,6 +101,11 @@ namespace EPR.Calculator.Frontend.Controllers
                             {
                                 CurrentUser = currentUser,
                                 ErrorMessage = await this.ExtractErrorMessageAsync(response),
+                                BackLinkViewModel = new BackLinkViewModel()
+                                {
+                                    BackLink = ControllerNames.RunANewCalculation,
+                                    CurrentUser = currentUser,
+                                },
                             });
                     }
 
@@ -107,6 +117,11 @@ namespace EPR.Calculator.Frontend.Controllers
                             {
                                 CurrentUser = currentUser,
                                 ErrorMessage = await response.Content.ReadAsStringAsync(),
+                                BackLinkViewModel = new BackLinkViewModel()
+                                {
+                                    BackLink = string.Empty,
+                                    CurrentUser = currentUser,
+                                },
                             });
                     }
 

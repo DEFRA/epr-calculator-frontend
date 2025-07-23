@@ -81,8 +81,23 @@
         public const string ReasonForRejectionController = "ReasonForRejection";
 
         /// <summary>
-        /// Accept Reject Confirmation Controller
+        /// Accept Reject Confirmation Controller.
         /// </summary>
         public const string AcceptRejectConfirmation = "AcceptRejectConfirmation";
+
+        /// <summary>
+        /// View default parameters controller.
+        /// </summary>
+        public const string ViewDefaultParameters = "ViewDefaultParameters";
+
+        /// <summary>
+        /// Local Authority upload file controller.
+        /// </summary>
+        public const string LocalAuthorityUploadFile = "LocalAuthorityUploadFile";
+
+        /// <summary>
+        /// View Local Authority disposal costs controller.
+        /// </summary>
+        public const string ViewLocalAuthorityDisposalCosts = "ViewLocalAuthorityDisposalCosts";
     }
 }

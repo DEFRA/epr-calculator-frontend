@@ -73,7 +73,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         FileName = fileUpload.FileName,
                         BackLinkViewModel = new BackLinkViewModel()
                         {
-                            BackLink = "ViewLocalAuthorityDisposalCosts",
+                            BackLink = ControllerNames.ViewLocalAuthorityDisposalCosts,
                             CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                         },
                     };
@@ -124,7 +124,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 Errors = new List<ErrorViewModel> { errors! },
                 BackLinkViewModel = new BackLinkViewModel()
                 {
-                    BackLink = "LocalAuthorityUploadFile",
+                    BackLink = ControllerNames.LocalAuthorityUploadFile,
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 },
             };

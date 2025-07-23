@@ -38,6 +38,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 BackLinkViewModel = new BackLinkViewModel
                 {
                     BackLink = ControllerNames.BillingInstructionsController,
+                    RunId = calculationRunId,
                     CurrentUser = currentUser,
                 },
             };
@@ -60,6 +61,7 @@ namespace EPR.Calculator.Frontend.Controllers
             model.BackLinkViewModel = new BackLinkViewModel
             {
                 BackLink = ControllerNames.ReasonForRejectionController,
+                RunId = calculationRunId,
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
             };
             this.TempData[nameof(model.Reason)] = model.Reason;

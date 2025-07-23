@@ -88,7 +88,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         FileName = fileUpload.FileName,
                         BackLinkViewModel = new BackLinkViewModel()
                         {
-                            BackLink = "ViewDefaultParameters",
+                            BackLink = ControllerNames.ViewDefaultParameters,
                             CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                         },
                     };
@@ -118,7 +118,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 Errors = errors,
                 BackLinkViewModel = new BackLinkViewModel()
                 {
-                    BackLink = "ViewDefaultParameters",
+                    BackLink = ControllerNames.ViewDefaultParameters,
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 },
             };

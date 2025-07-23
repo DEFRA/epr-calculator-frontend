@@ -54,10 +54,16 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<CalculatorRunOverviewViewModel> CreateViewModel(int runId)
         {
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var viewModel = new CalculatorRunOverviewViewModel()
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
+                BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = ControllerNames.ClassifyingCalculationRun,
+                    CurrentUser = currentUser,
+                },
             };
 
             var runDetails = await this.GetCalculatorRundetails(runId);

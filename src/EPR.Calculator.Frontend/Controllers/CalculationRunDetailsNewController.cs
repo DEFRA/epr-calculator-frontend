@@ -33,7 +33,11 @@ namespace EPR.Calculator.Frontend.Controllers
         public async Task<IActionResult> Index(int runId)
         {
             var viewModel = await this.CreateViewModel(runId);
-
+            viewModel.BackLinkViewModel = new BackLinkViewModel()
+            {
+                BackLink = string.Empty,
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+            };
             if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId <= 0)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
@@ -55,7 +59,11 @@ namespace EPR.Calculator.Frontend.Controllers
             if (!this.ModelState.IsValid)
             {
                 var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
-
+                viewModel.BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = ControllerNames.ClassifyingCalculationRun,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                };
                 return this.View(ViewNames.CalculationRunDetailsNewIndex, viewModel);
             }
 

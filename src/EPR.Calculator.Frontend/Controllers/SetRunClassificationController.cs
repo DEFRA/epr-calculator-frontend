@@ -124,6 +124,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 BackLinkViewModel = new BackLinkViewModel
                 {
                     BackLink = ControllerNames.CalculationRunDetails,
+                    RunId = runId,
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 },
             };

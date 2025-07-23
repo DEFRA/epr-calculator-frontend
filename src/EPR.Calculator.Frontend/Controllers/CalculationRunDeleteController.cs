@@ -52,6 +52,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 BackLinkViewModel = new BackLinkViewModel
                 {
                     BackLink = ControllerNames.CalculationRunDetails,
+                    RunId = runId,
                     CurrentUser = currentUser,
                 },
             };
@@ -66,10 +67,16 @@ namespace EPR.Calculator.Frontend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmationSuccess(CalculatorRunDetailsViewModel model)
         {
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var viewModel = new CalculatorRunDetailsNewViewModel()
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
                 CalculatorRunDetails = model,
+                BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = ControllerNames.ClassifyingCalculationRun,
+                    CurrentUser = currentUser,
+                },
             };
 
             var apiUrl = this.GetApiUrl(
