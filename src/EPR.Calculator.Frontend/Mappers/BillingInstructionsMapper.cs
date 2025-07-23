@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 
@@ -43,12 +44,6 @@ namespace EPR.Calculator.Frontend.Mappers
 
             return new BillingInstructionsViewModel
             {
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = ControllerNames.ClassifyRunConfirmation,
-                    CurrentUser = currentUser,
-                    RunId = billingData?.CalculatorRunId ?? 0,
-                },
                 CurrentUser = currentUser,
                 CalculationRun = new CalculationRunForBillingInstructionsDto
                 {

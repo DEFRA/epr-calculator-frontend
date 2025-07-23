@@ -30,7 +30,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var runDetails = await this.CalculatorRunDetailsService
                 .GetCalculatorRundetailsAsync(this.HttpContext, calculationRunId);
-
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var viewModel = new AcceptRejectConfirmationViewModel()
             {
                 CurrentUser = currentUser,

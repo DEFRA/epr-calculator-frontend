@@ -47,6 +47,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 BackLinkViewModel = new BackLinkViewModel
                 {
                     BackLink = ControllerNames.CalculationRunOverview,
+                    RunId = runId,
                     CurrentUser = currentUser,
                 },
             };

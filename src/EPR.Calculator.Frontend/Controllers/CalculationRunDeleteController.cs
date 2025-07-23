@@ -52,6 +52,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 CalcName = runDetails?.RunName,
                 ClassificationId = (int)RunClassification.DELETED,
             };
+
             var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var calculationRunDeleteViewModel = new CalculationRunDeleteViewModel
             {
@@ -59,7 +60,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 CalculatorRunStatusData = calculatorRunStatusUpdate,
                 BackLinkViewModel = new BackLinkViewModel
                 {
-                    BackLink = ControllerNames.CalculationRunDetails,
+                    BackLink = this.GetBackLink(),
                     RunId = runId,
                     CurrentUser = currentUser,
                 },
@@ -82,7 +83,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 CalculatorRunDetails = model,
                 BackLinkViewModel = new BackLinkViewModel()
                 {
-                    BackLink = ControllerNames.ClassifyingCalculationRun,
+                    BackLink = CommonUtil.GetBackLinkUrl(model),
+                    RunId = model.RunId,
                     CurrentUser = currentUser,
                 },
             };
@@ -111,6 +113,15 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.TelemetryClient.TrackTrace($"API did not return successful ({result.StatusCode}).");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+        }
+
+        private string GetBackLink()
+        {
+            var referrer = this.Request.Headers["Referer"].ToString();
+            var urlUnits = referrer.Split("/");
+            var backLink = urlUnits[urlUnits.Length - 2];
+
+            return backLink;
         }
     }
 }

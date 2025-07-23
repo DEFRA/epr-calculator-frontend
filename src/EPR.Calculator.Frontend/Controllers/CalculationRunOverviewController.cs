@@ -68,7 +68,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
                 BackLinkViewModel = new BackLinkViewModel()
                 {
-                    BackLink = ControllerNames.ClassifyingCalculationRun,
+                    BackLink = string.Empty,
                     CurrentUser = currentUser,
                 },
             };

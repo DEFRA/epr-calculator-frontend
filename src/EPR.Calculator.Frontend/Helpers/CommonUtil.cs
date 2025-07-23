@@ -3,7 +3,8 @@
 // </copyright>
 
 using EPR.Calculator.Frontend.Constants;
-using Microsoft.AspNetCore.Http.HttpResults;
+using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.ViewModels;
 
 namespace EPR.Calculator.Frontend.Helpers
 {
@@ -73,6 +74,29 @@ namespace EPR.Calculator.Frontend.Helpers
             }
 
             return parameterYear;
+        }
+
+        /// <summary>
+        /// Returns the URL for the back link based on the run details.
+        /// </summary>
+        /// <param name="runDetails">Run details.</param>
+        /// <returns>Back link URL.</returns>
+        public static string GetBackLinkUrl(CalculatorRunDetailsViewModel? runDetails = null)
+        {
+            if (runDetails == null)
+            {
+                return string.Empty;
+            }
+
+            return runDetails.RunClassificationId switch
+            {
+                RunClassification.UNCLASSIFIED => string.Format(ActionNames.CalculationRunNewDetails, runDetails.RunId),
+                RunClassification.INITIAL_RUN when !runDetails.IsBillingFileGenerating ?? false => ControllerNames.ClassifyRunConfirmation,
+                RunClassification.INITIAL_RUN when runDetails.IsBillingFileGenerating ?? true => ControllerNames.CalculationRunOverview,
+                RunClassification.INITIAL_RUN_COMPLETED => string.Format(ActionNames.PostBillingFile, runDetails.RunId),
+                RunClassification.ERROR => ControllerNames.CalculationRunDetails,
+                _ => string.Empty,
+            };
         }
     }
 }
