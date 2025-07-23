@@ -37,11 +37,11 @@ namespace EPR.Calculator.Frontend.Services
                 throw new ArgumentException("Invalid runId", nameof(runId));
             }
 
-            var timeout = configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
+            var timeout = this.configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
 
             try
             {
-                var response = await CallApi(HttpMethod.Get, apiUrl, runId.ToString(), accessToken, null, timeout);
+                var response = await this.CallApi(HttpMethod.Get, apiUrl, runId.ToString(), accessToken, null, timeout);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {

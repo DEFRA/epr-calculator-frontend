@@ -37,7 +37,7 @@ namespace EPR.Calculator.Frontend.Controllers
             catch (Exception ex)
             {
                 this.TelemetryClient.TrackException(ex);
-                return RedirectToAction(ActionNames.IndexNew, ControllerNames.DownloadFileErrorNewController, new { runId });
+                return this.RedirectToAction(ActionNames.IndexNew, ControllerNames.DownloadFileErrorNewController, new { runId });
             }
         }
 
@@ -55,7 +55,7 @@ namespace EPR.Calculator.Frontend.Controllers
             catch (Exception ex)
             {
                 this.TelemetryClient.TrackException(ex);
-                return RedirectToAction(ActionNames.IndexNew, ControllerNames.DownloadFileErrorNewController, new { runId });
+                return this.RedirectToAction(ActionNames.IndexNew, ControllerNames.DownloadFileErrorNewController, new { runId });
             }
         }
     }
