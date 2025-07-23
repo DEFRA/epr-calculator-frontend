@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -24,10 +25,15 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class CalculationRunDeleteController(
         IConfiguration configuration,
-        IHttpClientFactory clientFactory,
+        IApiService apiService,
         ITokenAcquisition tokenAcquisition,
-        TelemetryClient telemetryClient)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
+        TelemetryClient telemetryClient,
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(configuration,
+            tokenAcquisition,
+            telemetryClient,
+            apiService,
+            calculatorRunDetailsService)
     {
         /// <summary>
         /// Displays the calculate run delete confirmation screen.
@@ -37,7 +43,9 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("{runId}")]
         public async Task<IActionResult> Index(int runId)
         {
-            var runDetails = await this.GetCalculatorRundetails(runId);
+            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
+                this.HttpContext,
+                runId);
             var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
             {
                 RunId = runId,
@@ -79,11 +87,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 },
             };
 
-            var apiUrl = this.GetApiUrl(
+            var apiUrl = this.ApiService.GetApiUrl(
                 ConfigSection.DashboardCalculatorRun,
                 ConfigSection.DashboardCalculatorRunV2);
 
-            var result = await this.CallApi(
+            var result = await this.ApiService.CallApi(
+                this.HttpContext,
                 HttpMethod.Put,
                 apiUrl,
                 string.Empty,

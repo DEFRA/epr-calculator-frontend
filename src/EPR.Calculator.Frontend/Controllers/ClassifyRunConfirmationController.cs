@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
@@ -22,10 +23,16 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class ClassifyRunConfirmationController(
         IConfiguration configuration,
-        IHttpClientFactory clientFactory,
-        ILogger<ClassifyRunConfirmationController> logger,
-        ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
+        IApiService apiService,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient,
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(
+            configuration,
+            tokenAcquisition,
+            telemetryClient,
+            apiService,
+            calculatorRunDetailsService)
     {
         private readonly IConfiguration _configuration = configuration;
 
@@ -75,7 +82,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 },
             };
 
-            var runDetails = await this.GetCalculatorRundetails(runId);
+            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
+                this.HttpContext,
+                runId);
             if (runDetails != null && runDetails!.RunId != 0)
             {
                 viewModel.CalculatorRunDetails = runDetails;

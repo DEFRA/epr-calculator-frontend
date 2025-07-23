@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -20,14 +21,16 @@ namespace EPR.Calculator.Frontend.Controllers
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
-        IHttpClientFactory httpClientFactory)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
+        IApiService apiService,
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, apiService, calculatorRunDetailsService)
     {
         [Route("{calculationRunId}")]
         public async Task<IActionResult> Index(int calculationRunId)
         {
-            var runDetails = await this.GetCalculatorRundetails(calculationRunId);
-            var currentUser = CommonUtil.GetUserName(this.HttpContext);
+            var runDetails = await this.CalculatorRunDetailsService
+                .GetCalculatorRundetailsAsync(this.HttpContext, calculationRunId);
+
             var viewModel = new AcceptRejectConfirmationViewModel()
             {
                 CurrentUser = currentUser,

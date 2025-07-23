@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.Validators;
@@ -14,6 +15,7 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Build.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
@@ -46,8 +48,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockTokenAcquisition
                 .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
                 .ReturnsAsync("somevalue");
-            _controller = new CalculationRunNameController(configuration, mockClientFactory.Object, mockLogger.Object,
-                mockTokenAcquisition.Object, new TelemetryClient());
+            _controller = new CalculationRunNameController(
+                configuration,
+                new Mock<IApiService>().Object,
+                mockLogger.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
             _validationRules = new CalculatorRunNameValidator();
             _tempDataMock = new Mock<ITempDataDictionary>();
 
@@ -89,23 +96,18 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_ShouldRedirect_IsOnlyAlphabets_WhenCalculationNameIsValid()
         {
+            // Arrange
             var model = new InitiateCalculatorRunModel
             {
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "ValidCalculationName",
             };
-            MockHttpClientWithResponse();
-            var mockHttpContext = new Mock<HttpContext>();
-            var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK);
 
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = mockHttpContext.Object
-            };
+            // Act
+            var result = await controller.RunCalculator(model) as ViewResult;
 
-            var result = await _controller.RunCalculator(model) as ViewResult;
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
             Assert.AreNotEqual(ActionNames.RunCalculatorConfirmation, result.ViewName);
@@ -114,22 +116,19 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_ShouldRedirect_IsOnlyNumeric_WhenCalculationNameIsValid()
         {
+            // Arrange
             var calculatorRunModel = new InitiateCalculatorRunModel()
             {
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "1234",
             };
-            var mockHttpContext = new Mock<HttpContext>();
-            var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
 
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = mockHttpContext.Object
-            };
-            MockHttpClientWithResponse();
-            var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK);
+
+            // Act
+            var result = await controller.RunCalculator(calculatorRunModel) as ViewResult;
+
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
             Assert.AreNotEqual(ActionNames.RunCalculatorConfirmation, result.ViewName);
@@ -138,25 +137,19 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_ShouldRedirect_IsAplhaNumeric_WithNoSpace_WhenCalculationNameIsValid()
         {
+            // Arrange
             var calculatorRunModel = new InitiateCalculatorRunModel()
             {
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "ValidCalculationName1234",
             };
-            MockHttpClientWithResponse();
 
-            var mockHttpContext = new Mock<HttpContext>();
-            var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK);
 
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = mockHttpContext.Object
-            };
+            // Act
+            var result = await controller.RunCalculator(calculatorRunModel) as ViewResult;
 
-            var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
-
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
             Assert.AreNotEqual(ActionNames.RunCalculatorConfirmation, result.ViewName);
@@ -165,24 +158,19 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_WhenCalculationName__IsAplhaNumeric_WithSpace_IsValid()
         {
+            // Arrange
             var calculatorRunModel = new InitiateCalculatorRunModel()
             {
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "ValidCalculationName 123",
             };
-            MockHttpClientWithResponse();
 
-            var mockHttpContext = new Mock<HttpContext>();
-            var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK);
 
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = mockHttpContext.Object
-            };
+            // Act
+            var result = await controller.RunCalculator(calculatorRunModel) as ViewResult;
 
-            var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
             Assert.AreNotEqual(ActionNames.RunCalculatorConfirmation, result.ViewName);
@@ -196,6 +184,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = string.Empty,
             };
+
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK);
             _controller.ModelState.AddModelError("CalculationName", "Enter a name for this calculation");
             var result = await _controller.RunCalculator(calculatorRunModel) as ViewResult;
             Assert.IsNotNull(result);
@@ -316,30 +306,15 @@ namespace EPR.Calculator.Frontend.UnitTests
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "TestCalculation",
             };
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
 
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+            var controller = BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.OK, "{}");
 
-            var mockHttpContext = new Mock<HttpContext>();
-            var mockSession = new Mock<ISession>();
-            mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            // Act
+            var result = await controller.RunCalculator(model) as ViewResult;
 
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = mockHttpContext.Object
-            };
-
-            var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
-            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient);
-            var result = await _controller.RunCalculator(model) as ViewResult;
-
+            // Assert
             Assert.IsNotNull(result);
             var calculatorRunModel = result.Model as InitiateCalculatorRunModel;
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
@@ -350,53 +325,19 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_ValidModel_CalculationNameDoesNotExist_ShouldRedirectToConfirmation()
         {
+            // Arrange
             var model = new InitiateCalculatorRunModel
             {
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "UniqueCalculation",
             };
 
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-            var context = new DefaultHttpContext()
-            {
-                Session = mockSession
-            };
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = context
-            };
+            var controller = BuildTestClass(
+                this.Fixture,
+                // Return not found for the first API call, and accepted for the second.
+                [(HttpStatusCode.NotFound, "{}"), (HttpStatusCode.Accepted, "{}")]);
 
-            // Mock the first API call to return NotFound
-            var mockHttpMessageHandler1 = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler1
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
-
-            var mockHttpClient1 = new HttpClient(mockHttpMessageHandler1.Object);
-            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient1);
-
-            // Mock the second API call to return Accepted
-            var mockHttpMessageHandler2 = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler2
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Accepted));
-
-            var mockHttpClient2 = new HttpClient(mockHttpMessageHandler2.Object);
-            mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
-                             .Returns(mockHttpClient1)
-                             .Returns(mockHttpClient2);
-
-            var result = await _controller.RunCalculator(model) as RedirectToActionResult;
+            var result = await controller.RunCalculator(model) as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
         }
@@ -422,8 +363,13 @@ namespace EPR.Calculator.Frontend.UnitTests
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "TestCalculation",
             };
-            _controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object,
-                mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient());
+            _controller = new CalculationRunNameController(
+                mockConfiguration.Object,
+                new Mock<IApiService>().Object,
+                mockLogger.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
             var redirectResult = await _controller.RunCalculator(model) as RedirectToActionResult;
             Assert.IsNotNull(redirectResult);
             Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
@@ -478,7 +424,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                              .Returns(mockHttpClient1)
                              .Returns(mockHttpClient2);
 
-            var result = await _controller.RunCalculator(model);
+            var controller = BuildTestClass(
+                this.Fixture,
+                // Return not found for the first API call, and accepted for the second.
+                [(HttpStatusCode.NotFound, "{}"), (HttpStatusCode.Accepted, "{}")]);
+
+            var result = await controller.RunCalculator(model);
             var redirectResult = result as RedirectToActionResult;
             Assert.IsNotNull(redirectResult);
             Assert.AreEqual(ActionNames.RunCalculatorConfirmation, redirectResult.ActionName);
@@ -594,8 +545,13 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var mockHttpContext = new Mock<HttpContext>();
             var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunNameController(mockConfiguration.Object, mockClientFactory.Object,
-                mockLogger.Object, mockTokenAcquisition.Object, new TelemetryClient())
+            var controller = new CalculationRunNameController(
+                mockConfiguration.Object,
+                new Mock<IApiService>().Object,
+                mockLogger.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -616,200 +572,130 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task RunCalculator_ShouldRedirectToError_WhenUnprocessableEntity()
         {
+            // Arrange
             var calculationRunModel = new InitiateCalculatorRunModel
             {
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "TestRun"
             };
-            var errorMessage = "The calculator is currently running. You will be able to run another calculation once the current one has finished.";
-            var httpResponse = new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
-            {
-                Content = new StringContent($"{{ \"message\": \"{errorMessage}\" }}")
-            };
 
-            var mockHttpMessageNotFoundHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageNotFoundHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.UnprocessableEntity);
 
-            var mockHttpClient1 = new HttpClient(mockHttpMessageNotFoundHandler.Object);
-            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient1);
+            // Act
+            var result = await controller.RunCalculator(calculationRunModel) as ViewResult;
 
-            var mockHttpMessageUnprocessableEntityHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageUnprocessableEntityHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(httpResponse);
-
-            var mockHttpClient2 = new HttpClient(mockHttpMessageUnprocessableEntityHandler.Object);
-            mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
-                             .Returns(mockHttpClient1)
-                             .Returns(mockHttpClient2);
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-
-            var context = new DefaultHttpContext()
-            {
-                Session = mockSession
-            };
-
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = context
-            };
-
-            var result = await _controller.RunCalculator(calculationRunModel);
-
-            var redirectResult = result as ViewResult;
-            Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", redirectResult.ViewName);
+            // Assert
+            Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", result.ViewName);
         }
 
         [TestMethod]
         public async Task RunCalculator_ShouldRedirectToError_WhenFailedDependency()
         {
+            // Arrange
             var calculationRunModel = new InitiateCalculatorRunModel
             {
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "TestRun",
             };
             var errorMessage = "Default parameter settings and Lapcap data not available for the financial year 2024-2025.";
-            var httpResponse = new HttpResponseMessage(HttpStatusCode.FailedDependency)
-            {
-                Content = new StringContent($"{{ \"message\": \"{errorMessage}\" }}")
-            };
+            var responseContent = $"{{ \"message\": \"{errorMessage}\" }}";
 
-            var mockHttpMessageNotFoundHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageNotFoundHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.FailedDependency, responseContent);
 
-            var mockHttpClient1 = new HttpClient(mockHttpMessageNotFoundHandler.Object);
-            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient1);
+            // Act
+            var result = (ViewResult)(await controller.RunCalculator(calculationRunModel));
+            var model = result.Model as CalculationRunErrorViewModel;
 
-            var mockHttpMessageUnprocessableEntityHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageUnprocessableEntityHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(httpResponse);
-
-            var mockHttpClient2 = new HttpClient(mockHttpMessageUnprocessableEntityHandler.Object);
-            mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
-                             .Returns(mockHttpClient1)
-                             .Returns(mockHttpClient2);
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-
-            var context = new DefaultHttpContext()
-            {
-                Session = mockSession
-            };
-
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = context
-            };
-
-            var result = await _controller.RunCalculator(calculationRunModel);
-
-            var redirectResult = result as ViewResult;
-            var model = redirectResult.Model as CalculationRunErrorViewModel;
-            Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", redirectResult.ViewName);
-            Assert.AreEqual("{ \"message\": \"Default parameter settings and Lapcap data not available for the financial year 2024-2025.\" }", model.ErrorMessage);
+            // Assert
+            Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", result.ViewName);
+            Assert.AreEqual(
+                "{ \"message\": \"Default parameter settings and Lapcap data not available for the financial year 2024-2025.\" }",
+                model.ErrorMessage);
         }
 
         [TestMethod]
         public async Task RunCalculator_ShouldRedirectToError_WhenUnprocessableEntity_ParsingError()
         {
+            // Arrange
             var calculationRunModel = new InitiateCalculatorRunModel
             {
                 CurrentUser = Fixture.Create<string>(),
                 CalculationName = "TestRun"
             };
-            var errorMessage = "Unable to process the error response.";
-            var httpResponse = new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
-            {
-                Content = new StringContent($"parsing error")
-            };
 
-            var mockHttpMessageNotFoundHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageNotFoundHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.UnprocessableEntity);
 
-            var mockHttpClient1 = new HttpClient(mockHttpMessageNotFoundHandler.Object);
-            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient1);
+            // Act
+            var result = await controller.RunCalculator(calculationRunModel);
 
-            var mockHttpMessageUnprocessableEntityHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageUnprocessableEntityHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(httpResponse);
-
-            var mockHttpClient2 = new HttpClient(mockHttpMessageUnprocessableEntityHandler.Object);
-            mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
-                             .Returns(mockHttpClient1)
-                             .Returns(mockHttpClient2);
-
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-
-            var context = new DefaultHttpContext()
-            {
-                Session = mockSession
-            };
-
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = context
-            };
-
-            var result = await _controller.RunCalculator(calculationRunModel);
-
+            // Assert
             var redirectResult = result as ViewResult;
             Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", redirectResult.ViewName);
         }
 
-        private void MockHttpClientWithResponse()
+        /// <summary>
+        /// Builds a test class.
+        /// </summary>
+        /// <remarks>Accepts an object that will be serialised for
+        /// the API service to return as it's response.</remarks>
+        private CalculationRunNameController BuildTestClass(
+            Fixture fixture,
+            HttpStatusCode apiReturnStatusCode,
+            CalculatorRunDto apiResponseData = null,
+            CalculatorRunDetailsViewModel details = null)
+            => BuildTestClass(
+                fixture,
+                apiReturnStatusCode,
+                System.Text.Json.JsonSerializer.Serialize(apiResponseData ?? MockData.GetCalculatorRun()),
+                details);
+
+        /// <summary>
+        /// Builds a test class.
+        /// </summary>
+        /// <remarks>Accepts a string for the API service to return as it's response.</remarks>
+        private CalculationRunNameController BuildTestClass(
+            Fixture fixture,
+            HttpStatusCode apiReturnStatusCode,
+            string apiResponseMessage,
+            CalculatorRunDetailsViewModel details = null)
+            => BuildTestClass(fixture, [(apiReturnStatusCode, apiResponseMessage)], details);
+
+        /// <summary>
+        /// Builds a test class where the api service returns a list of results that will be
+        /// returned in sequence when the service is called multiple times.
+        /// </summary>
+        private CalculationRunNameController BuildTestClass(
+            Fixture fixture,
+            (HttpStatusCode ReturnStatusCode, string ResponseMessage)[] apiReturn,
+            CalculatorRunDetailsViewModel details = null)
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockClientFactory = new Mock<IHttpClientFactory>();
+            mockLogger = new Mock<ILogger<CalculationRunNameController>>();
+            mockTokenAcquisition = new Mock<ITokenAcquisition>();
+            mockTokenAcquisition
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
 
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Accepted));
+            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            var mockApiService = TestMockUtils.BuildMockApiService(apiReturn)
+                .Object;
 
-            var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
-            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient);
+            var testClass = new CalculationRunNameController(
+                ConfigurationItems.GetConfigurationValues(),
+                mockApiService,
+                mockLogger.Object,
+                mockTokenAcquisition.Object,
+                new TelemetryClient(),
+                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
+            testClass.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    Session = TestMockUtils.BuildMockSession(fixture).Object,
+                }
+            };
+
+            return testClass;
         }
     }
 }

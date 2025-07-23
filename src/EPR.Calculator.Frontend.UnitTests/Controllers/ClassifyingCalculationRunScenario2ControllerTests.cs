@@ -6,6 +6,7 @@
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Controllers;
     using EPR.Calculator.Frontend.Models;
+    using EPR.Calculator.Frontend.Services;
     using EPR.Calculator.Frontend.UnitTests.HelpersTest;
     using EPR.Calculator.Frontend.UnitTests.Mocks;
     using EPR.Calculator.Frontend.ViewModels;
@@ -55,7 +56,8 @@
                _configuration,
                _mockTokenAcquisition.Object,
                _telemetryClient,
-               new Mock<IHttpClientFactory>().Object)
+               new Mock<IApiService>().Object,
+               new Mock<ICalculatorRunDetailsService>().Object)
             {
                 ControllerContext = new ControllerContext
                 {

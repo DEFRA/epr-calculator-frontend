@@ -12,6 +12,7 @@
     using EPR.Calculator.Frontend.Helpers;
     using EPR.Calculator.Frontend.Mappers;
     using EPR.Calculator.Frontend.Models;
+    using EPR.Calculator.Frontend.Services;
     using EPR.Calculator.Frontend.UnitTests.HelpersTest;
     using EPR.Calculator.Frontend.UnitTests.Mocks;
     using EPR.Calculator.Frontend.ViewModels;
@@ -38,17 +39,12 @@
 
         public BillingInstructionsControllerTests()
         {
+            this.Fixture = new Fixture();
+            // _mockConfiguration = new Mock<IConfiguration>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
             _mockClientFactory = new Mock<IHttpClientFactory>();
             _mockMapper = new Mock<IBillingInstructionsMapper>();
-
-            _controller = new BillingInstructionsController(
-                _configuration,
-                _mockTokenAcquisition.Object,
-                _mockTelemetryClient,
-                _mockClientFactory.Object,
-                _mockMapper.Object);
 
             _mockHttpContext = new Mock<HttpContext>();
             _mockHttpContext.Setup(context => context.User)
@@ -56,6 +52,13 @@
                 [
                     new Claim(ClaimTypes.Name, "Test User")
                 ])));
+
+            _controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.OK,
+                MockData.GetCalculatorRun(),
+                Fixture.Create<CalculatorRunDetailsViewModel>(),
+                _configuration);
 
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
@@ -68,6 +71,8 @@
             // Setting the mocked HttpContext for the controller
             _controller.ControllerContext = new ControllerContext { HttpContext = context };
         }
+
+        private Fixture Fixture { get; init; }
 
         [TestMethod]
         public async Task Index_InvalidCalculationRunId_RedirectsToError()
@@ -99,7 +104,10 @@
             SetupMockMapper(expectedViewModel);
 
             var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = this.BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.OK,
+                billingData);
 
             // Act
             var result = await controller.IndexAsync(calculationRunId, request) as ViewResult;
@@ -123,8 +131,10 @@
 
             SetupMockMapper(expectedViewModel);
 
-            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.OK,
+                billingData);
 
             // Act
             var result = await controller.IndexAsync(calculationRunId, request) as ViewResult;
@@ -161,8 +171,12 @@
 
             SetupMockMapper(expectedViewModel);
 
-            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.OK,
+                billingData,
+                null,
+                this._configuration);
 
             // Act
             var result = await controller.IndexAsync(calculationRunId, request) as ViewResult;
@@ -275,12 +289,26 @@
                 .Returns(new BillingInstructionsViewModel());
 
             var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.OK,
+                billingData,
+                null,
+                this._configuration);
 
             // Act
             await controller.IndexAsync(calculationRunId, request);
 
             // Assert
+            _mockMapper.Verify(
+                m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    "Test User",
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()),
+                Times.Once);
+
             _mockMapper.Verify(
                 m => m.MapToViewModel(
                     It.Is<ProducerBillingInstructionsResponseDto>(dto =>
@@ -339,8 +367,7 @@
                     It.IsAny<bool>()))
                 .Returns(new BillingInstructionsViewModel());
 
-            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
 
             // Act
             var result = await controller.IndexAsync(calculationRunId, request) as ViewResult;
@@ -482,8 +509,7 @@
                 .Returns(new BillingInstructionsViewModel()
                 { OrganisationBillingInstructions = new List<Organisation>() { new Organisation { Id = 1, BillingInstruction = Enums.BillingInstruction.Initial, IsSelected = true, InvoiceAmount = 100, OrganisationId = 1, OrganisationName = "Test", Status = Enums.BillingStatus.Accepted } } });
 
-            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
 
             // Act
             var result = await controller.IndexAsync(calculationRunId, request);
@@ -505,26 +531,12 @@
         public async Task CanCallSelectAllPage()
         {
             // Arrange
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
-            var model = fixture.Create<BillingInstructionsViewModel>();
-            var currentPage = fixture.Create<int>();
-            var pageSize = fixture.Create<int>();
-
+            var model = this.Fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = this.Fixture.Create<int>();
+            var pageSize = this.Fixture.Create<int>();
             var calculationRunId = 1;
-            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
             var billingData = CreateDefaultBillingData(calculationRunId);
-
-            // Setup the mapper to return any view model
-            _mockMapper.Setup(m => m.MapToViewModel(
-                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
-                    It.IsAny<PaginationRequestViewModel>(),
-                    It.IsAny<string>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<bool>()))
-                .Returns(new BillingInstructionsViewModel());
-
-            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
 
             // Act
             var result = await controller.SelectAllPage(model, currentPage, pageSize) as RedirectToRouteResult;
@@ -559,7 +571,7 @@
                 .Returns(new BillingInstructionsViewModel());
 
             var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
 
             // Act
             var result = await controller.SelectAllPage(model, currentPage, pageSize) as RedirectToRouteResult;
@@ -653,7 +665,7 @@
             var billingData = CreateDefaultBillingData(calculationRunId);
             var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
 
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
             controller.ControllerContext = new ControllerContext { HttpContext = context };
 
             // Act
@@ -705,15 +717,9 @@
             // Arrange
             int testRunId = 1;
 
-            // Set up session with IsSelectAll = true
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-            var context = new DefaultHttpContext { Session = mockSession };
-
             var mockFactory = GetMockHttpClientFactoryWithObjectResponse(null, HttpStatusCode.OK);
 
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(Fixture, HttpStatusCode.OK, null, null, _configuration);
 
             // Act
             var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToRouteResult;
@@ -731,15 +737,12 @@
             // Arrange
             int testRunId = 1;
 
-            // Set up session with IsSelectAll = true
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
-            var context = new DefaultHttpContext { Session = mockSession };
-
-            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(null, HttpStatusCode.InternalServerError);
-
-            var controller = CreateControllerWithFactory(mockFactory);
+            var controller = BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.InternalServerError,
+                null,
+                null,
+                this._configuration);
 
             // Act
             var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToActionResult;
@@ -934,11 +937,45 @@
                 _configuration,
                 _mockTokenAcquisition.Object,
                 _mockTelemetryClient,
-                mockFactory.Object,
-                _mockMapper.Object);
+                _mockMapper.Object,
+                new Mock<IApiService>().Object,
+                new Mock<ICalculatorRunDetailsService>().Object);
 
             controller.ControllerContext = new ControllerContext { HttpContext = CreateTestHttpContext() };
             return controller;
+        }
+
+        private BillingInstructionsController BuildTestClass(
+            Fixture fixture,
+            HttpStatusCode httpStatusCode,
+            object data = null,
+            CalculatorRunDetailsViewModel details = null,
+            IConfiguration configurationItems = null)
+        {
+            data = data ?? MockData.GetCalculatorRun();
+            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
+            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            var mockApiService = TestMockUtils.BuildMockApiService(
+                httpStatusCode,
+                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+
+            var testClass = new BillingInstructionsController(
+                configurationItems,
+                new Mock<ITokenAcquisition>().Object,
+                _mockTelemetryClient,
+                _mockMapper.Object,
+                mockApiService,
+                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
+            testClass.ControllerContext.HttpContext = new DefaultHttpContext
+            {
+                Session = TestMockUtils.BuildMockSession(fixture).Object,
+            };
+            testClass.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+                [
+                    new Claim(ClaimTypes.Name, "Test User")
+                ]));
+
+            return testClass;
         }
     }
 }
