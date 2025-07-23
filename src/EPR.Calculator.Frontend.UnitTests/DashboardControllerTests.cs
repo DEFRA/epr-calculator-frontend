@@ -575,6 +575,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
                 mockAuthorizationHeaderProvider.Object, new TelemetryClient());
 
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    Session = new MockHttpSession()
+                }
+            };
+
             // Act
             var task = controller.Index();
             Assert.ThrowsException<AggregateException>(task.Wait);
