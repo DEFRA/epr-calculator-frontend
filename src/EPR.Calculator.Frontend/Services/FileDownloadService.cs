@@ -121,6 +121,8 @@ namespace EPR.Calculator.Frontend.Services
                 client.DefaultRequestHeaders.Add("Authorization", accessToken);
             }
 
+            await Task.CompletedTask;
+
             return client;
         }
     }
