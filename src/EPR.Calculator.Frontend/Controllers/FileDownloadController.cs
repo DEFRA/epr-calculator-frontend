@@ -8,13 +8,8 @@ using Microsoft.Identity.Web;
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
-    /// Controller for handling file downloads related to calculation runs and billing files.
+    /// Controller for handling file downloads related to calculation runs.
     /// </summary>
-    /// <param name="configuration"></param>
-    /// <param name="apiService"></param>
-    /// <param name="tokenAcquisition"></param>
-    /// <param name="telemetryClient"></param>
-    /// <param name="fileDownloadService"></param>
     public class FileDownloadController : BaseController
     {
         private readonly IApiService apiService;
