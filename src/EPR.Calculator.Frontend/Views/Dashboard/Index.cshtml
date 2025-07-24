@@ -63,8 +63,7 @@
 <script type="text/javascript">
     $(document).ready(() => {        
         var financialYearListDropdown = $('#financial-year-list');
-
-        // TODO This does not need changing, its already calling a front-end endpoint
+        
         financialYearListDropdown.change(function () {
             var selectedFinancialYear = $(this).val();
             $.ajax({
