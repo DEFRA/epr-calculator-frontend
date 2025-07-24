@@ -47,7 +47,7 @@
                         Select a financial year
                     </label>
                     @Html.DropDownListFor(
-                        m => m.SelectedFinancialYear,
+                        m => m.FinancialYear,
                         Model.FinancialYearSelectList ?? new List<SelectListItem>(),
                         new { @class = "govuk-select", id = "financial-year-list" }
                     )

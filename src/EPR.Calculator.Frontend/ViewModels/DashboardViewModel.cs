@@ -23,10 +23,5 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets the financial years.
         /// </summary>
         public List<SelectListItem>? FinancialYearSelectList { get; set; }
-
-        /// <summary>
-        /// Sets the currently selected financial year.
-        /// </summary>
-        public string SelectedFinancialYear { get; set; }
     }
 }

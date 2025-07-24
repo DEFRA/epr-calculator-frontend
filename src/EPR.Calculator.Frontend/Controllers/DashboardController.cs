@@ -101,7 +101,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 FinancialYear = financialYear,
                 Calculations = null,
-                SelectedFinancialYear = financialYear,
                 FinancialYearSelectList = await this.GetFinancialYearsAsync(financialYear),
             };
 
