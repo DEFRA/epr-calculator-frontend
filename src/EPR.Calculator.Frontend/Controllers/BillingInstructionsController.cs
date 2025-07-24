@@ -2,6 +2,7 @@
 using AspNetCoreGeneratedDocument;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Mappers;
@@ -159,9 +160,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="currentPage">current page.</param>
         /// <param name="pageSize">page size.</param>
         /// <param name="organisationId">organisation Id.</param>
+        /// <param name="billingStatus">billing status.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
-        public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize, int? organisationId)
+        public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize, int? organisationId, BillingStatus? billingStatus)
         {
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll.ToString());
             if (!model.OrganisationSelections.SelectAll)
@@ -172,7 +174,14 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, "false");
             }
 
-            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize, OrganisationId = organisationId });
+            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new
+            {
+                calculationRunId = model.CalculationRun.Id,
+                page = currentPage,
+                PageSize = pageSize,
+                OrganisationId = organisationId,
+                BillingStatus = billingStatus,
+            });
         }
 
         /// <summary>
