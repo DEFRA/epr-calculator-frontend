@@ -150,5 +150,125 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                 await _fileDownloadService.DownloadFileAsync(apiUrl, runId, token);
             });
         }
+
+        [TestMethod]
+        public async Task DownloadFileAsync_UsesFileNameStar_WhenFileNameIsEmpty()
+        {
+            // Arrange
+            var apiUrl = new Uri("https://api.example.com/files");
+            int runId = 104;
+            string token = "Bearer token";
+            byte[] content = Encoding.UTF8.GetBytes("test content");
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(content)
+            };
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = null, // or string.Empty
+                FileNameStar = "\"AlternativeFile.csv\""
+            };
+
+            _httpMessageHandlerMock
+                .SetupSendAsync(HttpMethod.Get, $"{apiUrl}/{runId}", response);
+
+            // Act
+            var result = await _fileDownloadService.DownloadFileAsync(apiUrl, runId, token);
+
+            // Assert
+            var fileResult = result as FileContentResult;
+            Assert.AreEqual("AlternativeFile.csv", fileResult.FileDownloadName);
+        }
+
+        [TestMethod]
+        public async Task DownloadFileAsync_UsesDefaultFileName_WhenBothFileNameAndFileNameStarAreEmpty()
+        {
+            // Arrange
+            var apiUrl = new Uri("https://api.example.com/files");
+            int runId = 105;
+            string token = "Bearer token";
+            byte[] content = Encoding.UTF8.GetBytes("test content");
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(content)
+            };
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = null,
+                FileNameStar = null
+            };
+
+            _httpMessageHandlerMock
+                .SetupSendAsync(HttpMethod.Get, $"{apiUrl}/{runId}", response);
+
+            // Act
+            var result = await _fileDownloadService.DownloadFileAsync(apiUrl, runId, token);
+
+            // Assert
+            var fileResult = result as FileContentResult;
+            Assert.AreEqual($"Result_{runId}.csv", fileResult.FileDownloadName);
+        }
+
+        [TestMethod]
+        public async Task DownloadFileAsync_UsesDefaultFileName_WhenContentDispositionIsNull()
+        {
+            // Arrange
+            var apiUrl = new Uri("https://api.example.com/files");
+            int runId = 106;
+            string token = "Bearer token";
+            byte[] content = Encoding.UTF8.GetBytes("test content");
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(content)
+            };
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+            // Don't set ContentDisposition - it will be null
+
+            _httpMessageHandlerMock
+                .SetupSendAsync(HttpMethod.Get, $"{apiUrl}/{runId}", response);
+
+            // Act
+            var result = await _fileDownloadService.DownloadFileAsync(apiUrl, runId, token);
+
+            // Assert
+            var fileResult = result as FileContentResult;
+            Assert.AreEqual($"Result_{runId}.csv", fileResult.FileDownloadName);
+        }
+
+        [TestMethod]
+        public async Task DownloadFileAsync_AppliesBillingSuffix_WhenFileNameStarUsedAndIsBillingFile()
+        {
+            // Arrange
+            var apiUrl = new Uri("https://api.example.com/files");
+            int runId = 107;
+            string token = "Bearer token";
+            byte[] content = Encoding.UTF8.GetBytes("billing content");
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(content)
+            };
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = "", // Empty string
+                FileNameStar = "\"BillingFromStar.csv\""
+            };
+
+            _httpMessageHandlerMock
+                .SetupSendAsync(HttpMethod.Get, $"{apiUrl}/{runId}", response);
+
+            // Act
+            var result = await _fileDownloadService.DownloadFileAsync(apiUrl, runId, token, true, true);
+
+            // Assert
+            var fileResult = result as FileContentResult;
+            Assert.AreEqual("BillingFromStar_DRAFT.csv", fileResult.FileDownloadName);
+        }
     }
 }
