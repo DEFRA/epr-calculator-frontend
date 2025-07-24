@@ -15,15 +15,23 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="tokenAcquisition"></param>
     /// <param name="telemetryClient"></param>
     /// <param name="fileDownloadService"></param>
-    public class FileDownloadController(
-     IConfiguration configuration,
-     ITokenAcquisition tokenAcquisition,
-     TelemetryClient telemetryClient,
-     IResultBillingFileService fileDownloadService,
-     IApiService apiService)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, apiService, null)
+    public class FileDownloadController : BaseController
     {
-        private readonly IResultBillingFileService fileDownloadService = fileDownloadService;
+        private readonly IApiService apiService;
+        private readonly IResultBillingFileService fileDownloadService;
+
+        public FileDownloadController(
+            IConfiguration configuration,
+            IApiService apiService,
+            ITokenAcquisition tokenAcquisition,
+            TelemetryClient telemetryClient,
+            IResultBillingFileService fileDownloadService,
+            ICalculatorRunDetailsService calculatorRunDetailsService)
+            : base(configuration, tokenAcquisition, telemetryClient, apiService, calculatorRunDetailsService)
+        {
+            this.apiService = apiService;
+            this.fileDownloadService = fileDownloadService;
+        }
 
         [HttpGet]
         [Route("DownloadResultFile/{runId}")]
