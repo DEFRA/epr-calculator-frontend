@@ -1,8 +1,11 @@
 ﻿namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
+    using System;
+    using System.Net;
+    using System.Security.Claims;
+    using System.Text;
     using AutoFixture;
     using AutoFixture.AutoMoq;
-    using Azure.Core;
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Controllers;
     using EPR.Calculator.Frontend.Extensions;
@@ -22,10 +25,6 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Moq.Protected;
-    using System;
-    using System.Net;
-    using System.Security.Claims;
-    using System.Text;
 
     [TestClass]
     public class BillingInstructionsControllerTests
