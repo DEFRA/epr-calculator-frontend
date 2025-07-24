@@ -4,7 +4,9 @@ using System.Text;
 using System.Text.Json;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
@@ -21,19 +23,20 @@ namespace EPR.Calculator.Frontend.Controllers
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
-        IHttpClientFactory clientFactory) : Controller
+        IApiService apiService,
+        ICalculatorRunDetailsService calculatorRunDetailsService) : Controller
     {
         private readonly ITokenAcquisition tokenAcquisition = tokenAcquisition;
+
+        protected IApiService ApiService { get; init; } = apiService;
+
+        protected ICalculatorRunDetailsService CalculatorRunDetailsService { get; init; }
+            = calculatorRunDetailsService;
 
         protected TelemetryClient TelemetryClient { get; init; } = telemetryClient;
 
         /// <summary>Gets the configuration object to retrieve API URL and parameters.</summary>
         protected IConfiguration Configuration { get; init; } = configuration;
-
-        /// <summary>
-        /// Gets an HTTP client factory that will be used for making connections to the calculator API.
-        /// </summary>
-        private IHttpClientFactory ClientFactory { get; init; } = clientFactory;
 
         protected async Task<string> AcquireToken()
         {
@@ -63,54 +66,21 @@ namespace EPR.Calculator.Frontend.Controllers
             return accessToken;
         }
 
-        protected async Task<HttpResponseMessage> CallApi(
-            HttpMethod httpMethod,
-            Uri apiUrl,
-            string argument,
-            object? body)
-        {
-            var argsString = !string.IsNullOrEmpty(argument)
-                ? $"/{argument}"
-                : string.Empty;
-            argsString = !argument.Contains("&") ? argsString : $"?{argument}";
-            var contentString = JsonSerializer.Serialize(body);
-            var request = new HttpRequestMessage(
-                httpMethod,
-                new Uri($"{apiUrl}{argsString}"));
-            if (body is not null)
-            {
-                request.Content = new StringContent(
-                    contentString,
-                    Encoding.UTF8,
-                    StaticHelpers.MediaType);
-            }
-
-            var client = await this.GetHttpClient();
-            return await client.SendAsync(request);
-        }
-
         /// <summary>
-        /// Retrieves the API URL from the specified configuration section and key.
+        /// Returns the financial year from session if feature enabled, else from config.
         /// </summary>
-        protected Uri GetApiUrl(string configSection, string configKey)
-            => new Uri(this.GetConfigSetting(configSection, configKey));
-
-        protected async Task<CalculatorRunDetailsViewModel?> GetCalculatorRundetails(int runId)
+        /// <returns>Returns the financial year.</returns>
+        /// <exception cref="ArgumentNullException">Returns error if financial year is null or empty.</exception>
+        protected string GetFinancialYear()
         {
-            var runDetails = new CalculatorRunDetailsViewModel();
-            var apiUrl = this.GetApiUrl(
-                    ConfigSection.DashboardCalculatorRun,
-                    ConfigSection.DashboardCalculatorRunApi);
+            var parameterYear = this.HttpContext.Session.GetString(SessionConstants.FinancialYear);
 
-            var response = await this.CallApi(HttpMethod.Get, apiUrl, runId.ToString(), null);
-
-            if (response.StatusCode == HttpStatusCode.OK)
+            if (string.IsNullOrWhiteSpace(parameterYear))
             {
-                 runDetails = response.Content.ReadFromJsonAsync<CalculatorRunDetailsViewModel>().Result;
-                 return runDetails;
+                parameterYear = CommonUtil.GetDefaultFinancialYear(DateTime.Now);
             }
 
-            return runDetails;
+            return parameterYear;
         }
 
         /// <summary>
@@ -121,11 +91,16 @@ namespace EPR.Calculator.Frontend.Controllers
         protected async Task<CalculatorRunPostBillingFileDto?> GetCalculatorRunWithBillingdetails(int runId)
         {
             var runDetails = new CalculatorRunPostBillingFileDto();
-            var apiUrl = this.GetApiUrl(
+            var apiUrl = this.ApiService.GetApiUrl(
                     ConfigSection.CalculationRunSettings,
                     ConfigSection.CalculationRunApiV2);
 
-            var response = await this.CallApi(HttpMethod.Get, apiUrl, runId.ToString(), null);
+            var response = await this.ApiService.CallApi(
+                this.HttpContext,
+                HttpMethod.Get,
+                apiUrl,
+                runId.ToString(),
+                null);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -134,36 +109,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return runDetails;
-        }
-
-        private async Task<HttpClient> GetHttpClient()
-        {
-            var client = this.ClientFactory.CreateClient();
-            var accessToken = await this.AcquireToken();
-            if (client.DefaultRequestHeaders is not null && !client.DefaultRequestHeaders.Contains("Authorization"))
-            {
-                client.DefaultRequestHeaders.Add("Authorization", accessToken);
-            }
-
-            return client;
-        }
-
-        /// <summary>
-        /// Retrieves a configuration setting from the specified section and key.
-        /// </summary>
-        private string GetConfigSetting(string configSection, string configKey)
-        {
-            var value = this.Configuration
-                            .GetSection(configSection)
-                            .GetValue<string>(configKey);
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new ConfigurationErrorsException(
-                    $"{configSection}:{configKey} is null or empty. Please check the configuration settings. " +
-                    $"{ConfigSection.CalculationRunSettings}");
-            }
-
-            return value;
         }
     }
 }

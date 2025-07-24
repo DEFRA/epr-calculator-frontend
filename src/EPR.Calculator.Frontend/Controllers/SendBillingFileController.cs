@@ -3,6 +3,7 @@ using Azure;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -18,13 +19,21 @@ namespace EPR.Calculator.Frontend.Controllers
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
-        IHttpClientFactory httpClientFactory)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
+        IApiService apiService,
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(
+            configuration,
+            tokenAcquisition,
+            telemetryClient,
+            apiService,
+            calculatorRunDetailsService)
     {
         [Route("{runId}")]
         public async Task<IActionResult> Index(int runId)
         {
-            var runDetails = await this.GetCalculatorRundetails(runId);
+            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
+                this.HttpContext,
+                runId);
             if (runDetails == null || runDetails.RunName == null)
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
@@ -34,9 +43,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 RunId = runId,
                 CalcRunName = runDetails.RunName,
-                ConfirmationContent = CommonConstants.ConfirmationContent,
-                SendBillFileHeading = CommonConstants.SendBillingFile,
-                WarningContent = CommonConstants.WarningContent,
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 BackLink = ControllerNames.CalculationRunOverview,
             };
@@ -46,16 +52,16 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Submit(int runId)
+        public async Task<IActionResult> Submit(SendBillingFileViewModel viewModel)
         {
-            if (!ModelState.IsValid)
+            if (viewModel.ConfirmSend != true || !this.ModelState.IsValid)
             {
-                return this.RedirectToAction(ActionNames.Index, new { runId });
+                return this.View(ViewNames.SendBillingFileIndex, viewModel);
             }
 
             try
             {
-                var response = await this.PrepareBillingFileSendToFSSAsync(runId);
+                var response = await this.PrepareBillingFileSendToFSSAsync(viewModel.RunId);
 
                 if (response.StatusCode == HttpStatusCode.Accepted)
                 {
@@ -81,11 +87,11 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The response message returned by the endpoint.</returns>
         protected async Task<HttpResponseMessage> PrepareBillingFileSendToFSSAsync(int runId)
         {
-            var apiUrl = this.GetApiUrl(
+            var apiUrl = this.ApiService.GetApiUrl(
                 ConfigSection.CalculationRunSettings,
                 ConfigSection.PrepareBillingFileSendToFSS);
 
-            return await this.CallApi(HttpMethod.Post, apiUrl, runId.ToString(), null);
+            return await this.ApiService.CallApi(this.HttpContext, HttpMethod.Post, apiUrl, runId.ToString(), null);
         }
     }
 }

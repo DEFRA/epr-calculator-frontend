@@ -1,9 +1,12 @@
-﻿using AutoFixture;
+﻿using System.Globalization;
+using System.Net;
+using AutoFixture;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -816,6 +819,34 @@ namespace EPR.Calculator.Frontend.UnitTests
         private static Mock<HttpMessageHandler> GetMockHttpMessageHandlerBadRequestMessage(string content)
         {
             return GetMockHttpMessageHandler(HttpStatusCode.BadRequest, content);
+        }
+
+        private DashboardController BuildTestClass(
+            Fixture fixture,
+            HttpStatusCode httpStatusCode,
+            object data = null,
+            CalculatorRunDetailsViewModel details = null,
+            IConfiguration configurationItems = null)
+        {
+            data = data ?? MockData.GetCalculatorRun();
+            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
+            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            var mockApiService = TestMockUtils.BuildMockApiService(
+                httpStatusCode,
+                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+
+            var testClass = new DashboardController(
+                configurationItems,
+                mockApiService,
+                new Mock<ITokenAcquisition>().Object,
+                new TelemetryClient(),
+                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
+            testClass.ControllerContext.HttpContext = new DefaultHttpContext()
+            {
+                Session = TestMockUtils.BuildMockSession(fixture).Object,
+            };
+
+            return testClass;
         }
     }
 }

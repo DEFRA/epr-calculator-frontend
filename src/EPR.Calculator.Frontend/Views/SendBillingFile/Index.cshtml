@@ -1,6 +1,9 @@
-﻿@model SendBillingFileViewModel;
+﻿@model SendBillingFileViewModel
 
 @{
+    var hasError = ViewData.ModelState["ConfirmSend"]?.Errors.Any() == true;
+    var formGroupClass = "govuk-form-group" + (hasError ? " govuk-form-group--error" : "");
+
     var backLinkModel = new BackLinkPartialViewModel
             {
                 BackLink = Model.BackLink,
@@ -9,44 +12,86 @@
             };
 }
 <partial name="_BackLinkPartialNew" model="backLinkModel" />
-<div class="govuk-width-container ">
 
+<div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <br />
+
+            @* ✅ GOV.UK Error Summary *@
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="govuk-error-summary" data-module="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabindex="-1">
+                    <h2 class="govuk-error-summary__title" id="error-summary-title">
+                        There is a problem
+                    </h2>
+                    <div class="govuk-error-summary__body">
+                        <ul class="govuk-list govuk-error-summary__list">
+                            @if (hasError)
+                            {
+                                <li>
+                                    <a href="#ConfirmSend">Please confirm before continuing.</a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.SendBillingFile, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-                @Html.Hidden("RunId", Model.RunId)
+                @Html.HiddenFor(m => m.CurrentUser)
+                @Html.HiddenFor(m => m.CalcRunName)
+                @Html.HiddenFor(m => m.RunId)
+                @Html.HiddenFor(m => m.BackLink)                
 
-                <div class="govuk-form-group">
-                    <fieldset class="govuk-fieldset">
-                        <div class="govuk-form-group">
-                            <fieldset class="govuk-fieldset">
-                                <legend></legend>
-                                <span class="govuk-caption-l">@Model.CalcRunName</span>
-                                <h1 class="govuk-heading-l">@Model.SendBillFileHeading</h1>
+                <span class="govuk-caption-l">@Model.CalcRunName</span>
+                <h1 class="govuk-heading-l">@Model.SendBillFileHeading</h1>
 
-                                <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
-                                <h3 class="govuk-body-m">@Model.ConfirmationContent</h3>
+                <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
 
-                                <div class="govuk-warning-text">
-                                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                                    <strong class="govuk-warning-text__text">
-                                        <span class="govuk-visually-hidden">Warning</span>
-                                        @Model.WarningContent
-                                    </strong>
-                                </div>
-                            </fieldset>
-                        </div>
+                <p class="govuk-body">@Model.ConfirmationContent</p>
 
-                        <div class="govuk-button-group">
-                            <button type="submit" class="govuk-button" data-module="govuk-button">
-                                @ActionLinkLabels.SendBillingFile
-                            </button>
-                            <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
+                <div class="@formGroupClass">
+                    <fieldset class="govuk-fieldset" aria-describedby="@(hasError ? "ConfirmSend-error" : null)">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                            <h2 class="govuk-fieldset__heading">Confirm you’re ready to send</h2>
+                        </legend>
+
+                        @if (hasError)
+                        {
+                            <p id="ConfirmSend-error" class="govuk-error-message">
+                                <span class="govuk-visually-hidden">Error:</span>
+                                @ViewData.ModelState["ConfirmSend"]?.Errors.First().ErrorMessage
+                            </p>
+                        }
+
+                        <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                            <div class="govuk-checkboxes__item">                                
+                                <input type="checkbox" class="govuk-checkboxes__input" id="ConfirmSend" name="ConfirmSend" value="true" @(Model.ConfirmSend == true ? "checked" : "") />
+                                <label class="govuk-label govuk-checkboxes__label" for="ConfirmSend">
+                                    I’ve checked the billing file and I’m ready to send it to the FSS.
+                                </label>
+                            </div>
                         </div>
                     </fieldset>
+                </div>
+
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-visually-hidden">Warning</span>
+                        @Model.WarningContent
+                    </strong>
+                </div>
+
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button" data-module="govuk-button">
+                        @ActionLinkLabels.SendBillingFile
+                    </button>
+                    <a href="@Url.Action(ActionNames.Index, ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">
+                        @ActionLinkLabels.ReturnToDashBoard
+                    </a>
                 </div>
             }
         </div>

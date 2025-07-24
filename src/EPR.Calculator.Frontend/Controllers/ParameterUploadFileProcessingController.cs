@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +19,16 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="tokenAcquisition">The token acquisition service.</param>
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     public class ParameterUploadFileProcessingController(IConfiguration configuration,
-        IHttpClientFactory clientFactory,
+        IApiService apiService,
         ITokenAcquisition tokenAcquisition,
-        TelemetryClient telemetryClient)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
+        TelemetryClient telemetryClient,
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(
+            configuration,
+            tokenAcquisition,
+            telemetryClient,
+            apiService,
+            calculatorRunDetailsService)
     {
         [HttpPost]
         public async Task<IActionResult> Index([FromBody] ParameterRefreshViewModel parameterRefreshViewModel)
@@ -55,10 +62,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The response message returned by the endpoint.</returns>
         protected async Task<HttpResponseMessage> PostDefaultParametersAsync(CreateDefaultParameterSettingDto dto)
         {
-            var apiUrl = this.GetApiUrl(
+            var apiUrl = this.ApiService.GetApiUrl(
                 ConfigSection.ParameterSettings,
                 ConfigSection.DefaultParameterSettingsApi);
-            return await this.CallApi(HttpMethod.Post, apiUrl, string.Empty, dto);
+            return await this.ApiService.CallApi(this.HttpContext, HttpMethod.Post, apiUrl, string.Empty, dto);
         }
     }
 }
