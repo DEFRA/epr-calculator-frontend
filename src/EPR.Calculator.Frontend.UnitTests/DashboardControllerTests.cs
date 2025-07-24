@@ -1,10 +1,4 @@
-﻿using System.Globalization;
-using System.Net;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Security.Claims;
-using System.Security.Principal;
-using AutoFixture;
+﻿using AutoFixture;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -14,6 +8,7 @@ using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +17,13 @@ using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
+using System.Globalization;
+using System.Net;
+using System.Net.Http;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Security.Claims;
+using System.Security.Principal;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -29,6 +31,7 @@ namespace EPR.Calculator.Frontend.UnitTests
     public class DashboardControllerTests
     {
         private readonly IConfiguration configuration = ConfigurationItems.GetConfigurationValues();
+        private readonly List<FinancialYearDto> financialYears;
 
         public DashboardControllerTests()
         {
@@ -36,6 +39,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             this.MockHttpContext = new Mock<HttpContext>();
             this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
             this.MockHttpContext.Setup(c => c.Session).Returns(TestMockUtils.BuildMockSession(Fixture).Object);
+
+            this.financialYears = new List<FinancialYearDto>
+            {
+                new FinancialYearDto { Name = "2025-26" },
+                new FinancialYearDto { Name = "2024-25" },
+                new FinancialYearDto { Name = "2023-24" }
+            };
         }
 
         private Fixture Fixture { get; init; }
@@ -46,9 +56,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task DashboardController_Success_View_Test()
         {
             // Arrange
-            var mockHttpMessageHandler = GetMockHttpMessageHandler();
+            var financialYearsResponse = CreateResponse(HttpStatusCode.OK, this.financialYears);
+            var calculationRunsResponse = CreateResponse(HttpStatusCode.OK, MockData.GetCalculationRuns());
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            var mockHandler = CreateMockHttpMessageHandler(financialYearsResponse, calculationRunsResponse);
+            var httpClient = new HttpClient(mockHandler);
 
             // Mock IHttpClientFactory
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
@@ -66,7 +78,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
                 .ReturnsAsync("somevalue");
 
-            var mockClient = new TelemetryClient();
+            var mockClient = new TelemetryClient(new TelemetryConfiguration());
 
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
                 mockAuthorizationHeaderProvider.Object, mockClient);
@@ -88,9 +100,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task DashboardController_With_FinancialYear_Success_View_Test()
         {
             // Arrange
-            var mockHttpMessageHandler = GetMockHttpMessageHandler();
+            var financialYearsResponse = CreateResponse(HttpStatusCode.OK, this.financialYears);
+            var calculationRunsResponse = CreateResponse(HttpStatusCode.OK, MockData.GetCalculationRuns());
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            var mockHandler = CreateMockHttpMessageHandler(financialYearsResponse, calculationRunsResponse);
+            var httpClient = new HttpClient(mockHandler);
 
             // Mock IHttpClientFactory
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
@@ -129,27 +143,28 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task DashboardController_Success_No_Data_View_Test()
         {
-            var content = "No data available for the specified year.Please check the year and try again.";
-            var mockHttpMessageHandler = GetMockHttpMessageHandlerNotFoundMessage(content);
+            // Arrange
+            var financialYearsResponse = CreateResponse(HttpStatusCode.OK, this.financialYears);
+            var noDataContent = "No data available for the specified year.Please check the year and try again.";
+            var calculationRunsResponse = CreateResponse(HttpStatusCode.NotFound, noDataContent);
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            var mockHandler = CreateMockHttpMessageHandler(financialYearsResponse, calculationRunsResponse);
+            var httpClient = new HttpClient(mockHandler);
 
-            // Mock IHttpClientFactory
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
             mockAuthorizationHeaderProvider
-                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
-                    null, null))
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
                 .ReturnsAsync("somevalue");
 
-            var mockClient = new TelemetryClient();
+            var telemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
 
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, mockClient);
+                mockAuthorizationHeaderProvider.Object, telemetryClient);
 
             var identity = new GenericIdentity("TestUser");
             identity.AddClaim(new Claim("name", "TestUser"));
@@ -169,34 +184,38 @@ namespace EPR.Calculator.Frontend.UnitTests
                 HttpContext = context
             };
 
+            // Act
             var result = await controller.Index() as ViewResult;
+
+            // Assert
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
         public async Task DashboardController_With_FinancialYear_Success_No_Data_View_Test()
         {
-            var content = "No data available for the specified year.Please check the year and try again.";
-            var mockHttpMessageHandler = GetMockHttpMessageHandlerNotFoundMessage(content);
+            // Arrange
+            var financialYearsResponse = CreateResponse(HttpStatusCode.OK, this.financialYears);
+            var noDataContent = "No data available for the specified year.Please check the year and try again.";
+            var calculationRunsResponse = CreateResponse(HttpStatusCode.NotFound, noDataContent);
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            var mockHandler = CreateMockHttpMessageHandler(financialYearsResponse, calculationRunsResponse);
+            var httpClient = new HttpClient(mockHandler);
 
-            // Mock IHttpClientFactory
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
             mockAuthorizationHeaderProvider
-                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
-                    null, null))
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
                 .ReturnsAsync("somevalue");
 
-            var mockClient = new TelemetryClient();
+            var telemetryClient = new TelemetryClient(new TelemetryConfiguration());
 
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, mockClient);
+                mockAuthorizationHeaderProvider.Object, telemetryClient);
 
             var identity = new GenericIdentity("TestUser");
             identity.AddClaim(new Claim("name", "TestUser"));
@@ -216,7 +235,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                 HttpContext = context
             };
 
+            // Act
             var result = await controller.Index() as ViewResult;
+
+            // Assert
             Assert.IsNotNull(result);
         }
 
@@ -447,44 +469,36 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task Index_ShowsErrorLink_WhenStatusIsError()
         {
+            // Arrange
             var calculationRuns = new List<CalculationRun>
             {
                 new CalculationRun { Id = 5, CalculatorRunClassificationId = RunClassification.ERROR, Name = "Test Run", CreatedAt = DateTime.Parse("30/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
                 new CalculationRun { Id = 10, CalculatorRunClassificationId = RunClassification.QUEUE, Name = "Test 5", CreatedAt = DateTime.Parse("30/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
             };
 
-            var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
+            var financialYearsResponse = CreateResponse(HttpStatusCode.OK, this.financialYears);
+            var calculationRunsResponse = CreateResponse(HttpStatusCode.OK, calculationRuns);
 
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = System.Net.HttpStatusCode.OK,
-                    Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(calculationRuns))
-                });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            var mockHandler = CreateMockHttpMessageHandler(financialYearsResponse, calculationRunsResponse);
+            var httpClient = new HttpClient(mockHandler);
 
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
             mockAuthorizationHeaderProvider
-                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
-                    null, null))
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
                 .ReturnsAsync("somevalue");
-            var mockClient = new TelemetryClient();
-            // Act
+
+            var telemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
+
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, mockClient);
+                mockAuthorizationHeaderProvider.Object, telemetryClient);
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
+            // Act
             var result = await controller.Index() as ViewResult;
             var model = result?.Model as DashboardViewModel;
 
@@ -499,43 +513,43 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task Index_ShowInitialRunCompleted_WhenStatusInitialRunCompleted()
         {
+            // Arrange
             var calculationRuns = new List<CalculationRun>
             {
-                new CalculationRun { Id = 10, CalculatorRunClassificationId = RunClassification.INITIAL_RUN_COMPLETED, Name = "Test 6", CreatedAt = DateTime.Parse("30/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+                new CalculationRun
+                {
+                    Id = 10,
+                    CalculatorRunClassificationId = RunClassification.INITIAL_RUN_COMPLETED,
+                    Name = "Test 6",
+                    CreatedAt = DateTime.Parse("30/06/2025 12:09:00", new CultureInfo("en-GB")),
+                    CreatedBy = "Jamie Roberts",
+                    Financial_Year = "2024-25"
+                }
             };
 
-            var runClassifications = Enum.GetValues(typeof(RunClassification)).Cast<RunClassification>().ToList();
+            var financialYearsResponse = CreateResponse(HttpStatusCode.OK, this.financialYears);
+            var calculationRunsResponse = CreateResponse(HttpStatusCode.OK, calculationRuns);
 
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = System.Net.HttpStatusCode.OK,
-                    Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(calculationRuns))
-                });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            var mockHandler = CreateMockHttpMessageHandler(financialYearsResponse, calculationRunsResponse);
+            var httpClient = new HttpClient(mockHandler);
 
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
                 .Returns(httpClient);
-            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
 
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
             mockAuthorizationHeaderProvider
-                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
-                    null, null))
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
                 .ReturnsAsync("somevalue");
-            var mockClient = new TelemetryClient();
-            // Act
+
+            var telemetryClient = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, mockClient);
+                mockAuthorizationHeaderProvider.Object, telemetryClient);
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+
+            // Act
             var result = await controller.Index() as ViewResult;
             var model = result?.Model as DashboardViewModel;
 
@@ -547,75 +561,64 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void Index_ShowDetailedError_WhenExceptionIsThrown()
+        public async Task Index_CalculationsShouldBeNull_WhenApiReturnsBadRequest()
         {
             // Arrange
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Content = new StringContent("Test content")
-                });
+            var financialYearsResponse = CreateResponse(HttpStatusCode.OK, this.financialYears);
+            var calculationRunsResponse = CreateResponse(HttpStatusCode.BadRequest, "Test content");
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            var mockHandler = CreateMockHttpMessageHandler(financialYearsResponse, calculationRunsResponse);
+            var httpClient = new HttpClient(mockHandler);
 
-            // Mock IHttpClientFactory
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
+                .Returns(httpClient);
+
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
-            configuration["ShowDetailedError"] = "true";
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, new TelemetryClient());
+                mockAuthorizationHeaderProvider.Object, new TelemetryClient(TelemetryConfiguration.CreateDefault()));
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
             // Act
-            var task = controller.Index();
-            Assert.ThrowsException<AggregateException>(task.Wait);
+            var result = await controller.Index();
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            var model = viewResult.Model as DashboardViewModel;
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model.Calculations == null || !model.Calculations.Any());
         }
 
         [TestMethod]
         public async Task Index_ShowDetailedError_WhenExceptionIsThrown_TokenAsync()
         {
+            // Arrange
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
             mockAuthorizationHeaderProvider
-                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
-                    null, null))
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
                 .Throws(new MsalUiRequiredException("Test", "No account or login hint passed"));
-            // Arrange
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Content = new StringContent("Test content")
-                });
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+            var financialYearsResponse = CreateResponse(HttpStatusCode.OK, this.financialYears);
+            var calculationRunsResponse = CreateResponse(HttpStatusCode.OK, new List<CalculationRun>());
 
-            // Mock IHttpClientFactory
+            var mockHandler = CreateMockHttpMessageHandler(financialYearsResponse, calculationRunsResponse);
+            var httpClient = new HttpClient(mockHandler);
+
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
+                .Returns(httpClient);
 
             var mockHttpSession = new MockHttpSession();
             mockHttpSession.SetString(SessionConstants.FinancialYear, "2024-25");
 
             configuration["ShowDetailedError"] = "true";
+            var telemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, new TelemetryClient());
+                mockAuthorizationHeaderProvider.Object, telemetryClient);
 
             var context = new DefaultHttpContext()
             {
@@ -627,8 +630,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                 HttpContext = context
             };
 
+            // Act & Assert
             var task = controller.Index();
-            // Assert
             AggregateException ex = Assert.ThrowsException<AggregateException>(task.Wait);
             Assert.IsInstanceOfType(ex.InnerException, typeof(MsalUiRequiredException));
             Assert.AreEqual("No account or login hint passed", ex.InnerException.Message);
@@ -637,12 +640,19 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task GetCalculations_ShowDetailedError_WhenExceptionIsThrown_TokenAsync()
         {
+            // Arrange
+            var financialYearsResponse = CreateResponse(HttpStatusCode.OK, this.financialYears);
+            var calculationRunsResponse = CreateResponse(HttpStatusCode.OK, MockData.GetCalculationRuns());
+
+            var mockHandler = CreateMockHttpMessageHandler(financialYearsResponse, calculationRunsResponse);
+            var httpClient = new HttpClient(mockHandler);
+
             var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
             mockAuthorizationHeaderProvider
                 .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null,
                     null, null))
                 .Throws(new MsalUiRequiredException("Test", "No account or login hint passed"));
-            // Arrange
+
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler
                 .Protected()
@@ -656,39 +666,129 @@ namespace EPR.Calculator.Frontend.UnitTests
                     Content = new StringContent("Test content")
                 });
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
             // Mock IHttpClientFactory
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
             mockHttpClientFactory
                 .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Throws(new Exception()); // Ensure exception is thrown when CreateClient is called
+                .Returns(httpClient); // Ensure exception is thrown when CreateClient is called
 
             configuration["ShowDetailedError"] = "true";
             var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
-                mockAuthorizationHeaderProvider.Object, new TelemetryClient());
+                mockAuthorizationHeaderProvider.Object, new TelemetryClient(TelemetryConfiguration.CreateDefault()));
+
+            var identity = new GenericIdentity("TestUser");
+            identity.AddClaim(new Claim("name", "TestUser"));
+            var principal = new ClaimsPrincipal(identity);
+            var mockHttpSession = new MockHttpSession();
+            mockHttpSession.SetString(SessionConstants.FinancialYear, "2024-25");
+
+            var context = new DefaultHttpContext
+            {
+                User = principal,
+                Session = mockHttpSession
+            };
+
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = context
+            };
 
             var task = controller.GetCalculations("2024-25");
+
             // Assert
             AggregateException ex = Assert.ThrowsException<AggregateException>(task.Wait);
             Assert.AreEqual("One or more errors occurred. (No account or login hint passed)", ex.Message);
         }
 
-        private static Mock<HttpMessageHandler> GetMockHttpMessageHandler()
+        [TestMethod]
+        public async Task DashboardController_Index_Populates_FinancialYearSelectList()
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
+            // Arrange
+            var calculationRuns = new List<CalculationRun>
+            {
+                new CalculationRun { Id = 10, CalculatorRunClassificationId = RunClassification.INITIAL_RUN_COMPLETED, Name = "Test 6", CreatedAt = DateTime.Parse("30/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", Financial_Year = "2024-25" },
+            };
+
+            var financialYearsResponse = CreateResponse(HttpStatusCode.OK, this.financialYears);
+            var calculationRunsResponse = CreateResponse(HttpStatusCode.OK, calculationRuns);
+
+            var mockHandler = CreateMockHttpMessageHandler(financialYearsResponse, calculationRunsResponse);
+            var httpClient = new HttpClient(mockHandler);
+
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory
+                .Setup(_ => _.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
+
+            var mockAuthorizationHeaderProvider = new Mock<ITokenAcquisition>();
+            mockAuthorizationHeaderProvider
+                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
+                .ReturnsAsync("somevalue");
+
+            var telemetryClient = new TelemetryClient();
+
+            var controller = new DashboardController(configuration, mockHttpClientFactory.Object,
+                mockAuthorizationHeaderProvider.Object, telemetryClient);
+
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = this.MockHttpContext.Object
+            };
+
+            controller.HttpContext.Session.SetString(SessionConstants.FinancialYear, "2024-25");
+
+            // Act
+            var result = await controller.Index() as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            var model = result.Model as DashboardViewModel;
+            Assert.IsNotNull(model);
+            Assert.IsNotNull(model.FinancialYearSelectList);
+            Assert.IsTrue(model.FinancialYearSelectList.Any());
+            Assert.AreEqual("2025-26", model.FinancialYearSelectList.First().Value);
+        }
+
+        private static HttpResponseMessage CreateResponse(HttpStatusCode statusCode, object content)
+        {
+            return new HttpResponseMessage(statusCode)
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(content))
+            };
+        }
+
+        private static HttpMessageHandler CreateMockHttpMessageHandler(
+            HttpResponseMessage financialYearsResponse,
+            HttpResponseMessage calculationRunsResponse)
+        {
+            var mockHandler = new Mock<HttpMessageHandler>();
+
+            mockHandler
+                .Protected()
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.IsAny<HttpRequestMessage>(),
                     ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
+                .Returns<HttpRequestMessage, CancellationToken>((request, cancellationToken) =>
                 {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(JsonConvert.SerializeObject(MockData.GetCalculationRuns()))
+                    var path = request.RequestUri!.AbsolutePath.ToLower();
+
+                    if (path.Contains("financialyears"))
+                    {
+                        return Task.FromResult(financialYearsResponse);
+                    }
+                    else if (path.Contains("calculatorruns"))
+                    {
+                        return Task.FromResult(calculationRunsResponse);
+                    }
+
+                    return Task.FromResult(new HttpResponseMessage
+                    {
+                        StatusCode = HttpStatusCode.NotFound
+                    });
                 });
-            return mockHttpMessageHandler;
+
+            return mockHandler.Object;
         }
 
         private static Mock<HttpMessageHandler> GetMockHttpMessageHandler(HttpStatusCode statusCode, string content)
