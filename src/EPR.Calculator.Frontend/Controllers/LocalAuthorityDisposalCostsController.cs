@@ -34,26 +34,6 @@ namespace EPR.Calculator.Frontend.Controllers
             calculatorRunDetailsService)
     {
         /// <summary>
-        /// Sends an HTTP POST request to the Local Authority Disposal Costs API with the specified parameters.
-        /// </summary>
-        /// <param name="lapcapRunApi">Lapcap Run Api API URL and parameters.</param>
-        /// <param name="year">year from configuration</param>
-        /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when the API URL is null or empty.</exception>
-        public async Task<HttpResponseMessage> GetHttpRequest(string lapcapRunApi, string year, IHttpClientFactory clientFactory)
-        {
-            var client = clientFactory.CreateClient();
-            client.BaseAddress = new Uri(lapcapRunApi);
-            var accessToken = await this.AcquireToken();
-            client.DefaultRequestHeaders.Add("Authorization", accessToken);
-            var uri = new Uri(string.Format("{0}/{1}", lapcapRunApi, year));
-            var response = await client.GetAsync(uri);
-
-            return response;
-        }
-
-        /// <summary>
         /// Handles the Index action asynchronously. Sends an HTTP request and processes the response to display local authority disposal costs.
         /// </summary>
         /// <returns>

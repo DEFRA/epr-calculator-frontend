@@ -15,7 +15,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 new ViewModelCommonData
                 {
                     CurrentUser = currentUser,
-                    BackLinkViewModel = new BackLinkViewModel ()
+                    BackLinkViewModel = new BackLinkViewModel
                     {
                         BackLink = string.Empty,
                         CurrentUser = currentUser,

@@ -38,6 +38,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+
             var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var billingFileViewModel = new SendBillingFileViewModel()
             {

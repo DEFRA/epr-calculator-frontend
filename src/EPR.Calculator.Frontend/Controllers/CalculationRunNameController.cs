@@ -183,7 +183,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="calculatorRunName">The name of the calculator run.</param>
         /// <returns>The HTTP response message.</returns>
-        /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown</exception>
+        /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown.</exception>
         private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
         {
             var year = CommonUtil.GetFinancialYear(this.HttpContext.Session);
