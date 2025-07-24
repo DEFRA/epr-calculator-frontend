@@ -81,12 +81,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 CurrentUser = currentUser,
                 CalculatorRunDetails = model,
-                BackLinkViewModel = new BackLinkViewModel()
-                {
-                    BackLink = CommonUtil.GetBackLinkUrl(model),
-                    RunId = model.RunId,
-                    CurrentUser = currentUser,
-                },
             };
 
             var apiUrl = this.ApiService.GetApiUrl(
