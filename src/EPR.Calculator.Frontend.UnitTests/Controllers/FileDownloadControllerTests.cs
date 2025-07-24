@@ -59,11 +59,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 .Returns(mockDownstreamApiSection.Object);
 
             _controller = new FileDownloadController(
-                _mockConfiguration.Object,
-                _mockTokenAcquisition.Object,
-                _telemetryClient,
-                _mockHttpClientFactory.Object,
-                _mockFileDownloadService.Object);
+                tokenAcquisition: _mockTokenAcquisition.Object,
+                configuration: _mockConfiguration.Object,
+                apiService: new Mock<IApiService>().Object,
+                telemetryClient: _telemetryClient,
+                fileDownloadService: _mockFileDownloadService.Object);
         }
 
         [TestMethod]

@@ -7,19 +7,27 @@ using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
+
     /// <summary>
-    /// Controller for handling file downloads related to calculation runs.
+    /// Controller for handling file downloads related to calculation runs and billing files.
     /// </summary>
     /// <param name="configuration"></param>
+    /// <param name="apiService"></param>
     /// <param name="tokenAcquisition"></param>
     /// <param name="telemetryClient"></param>
-    /// <param name="clientFactory"></param>
     /// <param name="fileDownloadService"></param>
-    public class FileDownloadController(IConfiguration configuration,
-        ITokenAcquisition tokenAcquisition,
-        TelemetryClient telemetryClient,
-        IHttpClientFactory clientFactory,
-        IResultBillingFileService fileDownloadService) : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
+    public class FileDownloadController(
+       IConfiguration configuration,
+       IApiService apiService,
+       ITokenAcquisition tokenAcquisition,
+       TelemetryClient telemetryClient,
+
+       IResultBillingFileService fileDownloadService) : BaseController(
+        configuration,
+        tokenAcquisition,
+        telemetryClient,
+        apiService,
+        null) // CalculatorRunDetailsService is not used in this controller
     {
         private readonly IResultBillingFileService fileDownloadService = fileDownloadService;
 
@@ -29,7 +37,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var apiUrl = this.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.DownloadResultApi);
+                var apiUrl = apiService.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.DownloadResultApi);
 
                 var accessToken = await this.AcquireToken();
                 return await this.fileDownloadService.DownloadFileAsync(apiUrl, runId, accessToken);
@@ -47,7 +55,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var apiUrl = this.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.DownloadCsvBillingApi);
+                var apiUrl = apiService.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.DownloadCsvBillingApi);
 
                 var accessToken = await this.AcquireToken();
                 return await this.fileDownloadService.DownloadFileAsync(apiUrl, runId, accessToken, isBillingFile, isDraftBillingFile);
