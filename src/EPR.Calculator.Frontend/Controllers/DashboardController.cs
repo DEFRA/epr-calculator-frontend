@@ -20,7 +20,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Initializes a new instance of the <see cref="DashboardController"/> class.
     /// </remarks>
     /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
-    /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
+    /// <param name="apiService">The api service.</param>
     /// <param name="tokenAcquisition">The token acquisition service.</param>
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     [Route("/")]
@@ -103,16 +103,16 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             this.HttpContext.Session.SetString(SessionConstants.FinancialYear, financialYear);
 
+            var financialYears = await this.GetFinancialYearsAsync(financialYear);
             var dashboardViewModel = new DashboardViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 FinancialYear = financialYear,
                 Calculations = null,
-                FinancialYearSelectList = await this.GetFinancialYearsAsync(financialYear),
+                FinancialYearSelectList = financialYears,
             };
 
             using var response = await this.PostCalculatorRunsAsync(financialYear);
-
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
@@ -155,8 +155,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<List<SelectListItem>> GetFinancialYearsAsync(string selectedFinancialYear)
         {
-            var apiUrl = new Uri(this.Configuration.GetSection(ConfigSection.FinancialYearListApi).Value!);
-            var response = await this.CallApi(HttpMethod.Get, apiUrl, string.Empty, null);
+            var apiUrl = this.ApiService.GetApiUrl(ConfigSection.FinancialYearListApi);
+            var response = await this.ApiService.CallApi(this.HttpContext, HttpMethod.Get, apiUrl, string.Empty, null);
 
             if (!response.IsSuccessStatusCode)
             {

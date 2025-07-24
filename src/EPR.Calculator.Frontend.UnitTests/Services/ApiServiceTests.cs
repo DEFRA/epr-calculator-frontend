@@ -156,5 +156,18 @@
                 Configuration.GetSection("ParameterSettings").GetValue<string>("DefaultParameterSettingsApi"),
                 result.ToString());
         }
+
+        [TestMethod]
+        public void CanCallGetApiUrl_FlatKey()
+        {
+            // Arrange
+            var expectedUrl = Configuration.GetValue<string>("FinancialYearListApi");
+
+            // Act
+            var result = this.TestClass.GetApiUrl("FinancialYearListApi");
+
+            // Assert
+            Assert.AreEqual(expectedUrl, result.ToString());
+        }
     }
 }
