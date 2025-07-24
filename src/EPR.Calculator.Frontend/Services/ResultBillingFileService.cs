@@ -14,9 +14,6 @@ namespace EPR.Calculator.Frontend.Services
         IConfiguration configuration,
         TelemetryClient telemetryClient) : IResultBillingFileService
     {
-        private static readonly Regex FilenameRegex =
-            new Regex(@"filename[^;=\n]*=((['""]).*?\2|[^;\n]*)", RegexOptions.Compiled);
-
         private readonly IHttpClientFactory httpClientFactory = httpClientFactory;
         private readonly IConfiguration configuration = configuration;
         private readonly TelemetryClient telemetryClient = telemetryClient;
@@ -49,7 +46,7 @@ namespace EPR.Calculator.Frontend.Services
                     if (response.Content.Headers.ContentDisposition != null)
                     {
                         var disposition = response.Content.Headers.ContentDisposition.ToString();
-                        var match = FilenameRegex.Match(disposition);
+                        var match = Regex.Match(disposition, @"filename[^;=\n]*=((['""]).*?\2|[^;\n]*)");
                         if (match.Success)
                         {
                             fileName = match.Groups[1].Value.Trim('"').Trim('\'');
