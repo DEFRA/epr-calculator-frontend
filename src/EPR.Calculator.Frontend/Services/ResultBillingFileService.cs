@@ -3,6 +3,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices; // Needed for GeneratedRegexAttribute
 using Azure.Core;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
@@ -24,6 +25,9 @@ namespace EPR.Calculator.Frontend.Services
         private readonly IHttpClientFactory httpClientFactory = httpClientFactory;
         private readonly IConfiguration configuration = configuration;
         private readonly TelemetryClient telemetryClient = telemetryClient;
+
+        private static readonly Regex FilenameRegex =
+            new Regex(@"filename[^;=\n]*=((['""]).*?\2|[^;\n]*)", RegexOptions.Compiled);
 
         public async Task<FileResult> DownloadFileAsync(
             Uri apiUrl,
@@ -53,7 +57,7 @@ namespace EPR.Calculator.Frontend.Services
                     if (response.Content.Headers.ContentDisposition != null)
                     {
                         var disposition = response.Content.Headers.ContentDisposition.ToString();
-                        var match = Regex.Match(disposition, @"filename[^;=\n]*=((['""]).*?\2|[^;\n]*)");
+                        var match = FilenameRegex.Match(disposition);
                         if (match.Success)
                         {
                             fileName = match.Groups[1].Value.Trim('"').Trim('\'');
@@ -94,7 +98,7 @@ namespace EPR.Calculator.Frontend.Services
             var argsString = !string.IsNullOrEmpty(argument)
                 ? $"/{argument}"
                 : string.Empty;
-            argsString = !argument.Contains("&") ? argsString : $"?{argument}";
+            argsString = !argument.Contains('&') ? argsString : $"?{argument}";
             var contentString = JsonSerializer.Serialize(body);
             var request = new HttpRequestMessage(
                 httpMethod,
