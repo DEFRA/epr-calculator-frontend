@@ -90,6 +90,19 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        private static List<string> GetFilteredFinancialYears(List<string> allYears)
+        {
+            var today = DateTime.Today;
+            int currentStartYear = today.Month >= 4 ? today.Year : today.Year - 1;
+
+            var filteredYears = allYears
+                .Where(fy => int.Parse(fy.Split('-')[0]) <= currentStartYear)
+                .OrderByDescending(fy => int.Parse(fy.Split('-')[0]))
+                .ToList();
+
+            return filteredYears;
+        }
+
         private void IsShowDetailedError()
         {
             var showDetailedError = this.Configuration.GetValue(typeof(bool), CommonConstants.ShowDetailedError);
@@ -172,6 +185,8 @@ namespace EPR.Calculator.Frontend.Controllers
             financialYears = financialYears
                 .OrderByDescending(fy => int.Parse(fy.Substring(0, 4)))
                 .ToList();
+
+            financialYears = GetFilteredFinancialYears(financialYears);
 
             // Ensure current year is first
             var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.Now);
