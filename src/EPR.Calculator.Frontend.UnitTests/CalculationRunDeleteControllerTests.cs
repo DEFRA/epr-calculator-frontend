@@ -2,6 +2,7 @@
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -41,13 +42,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             // Arrange
             int runId = this.Fixture.Create<int>();
-
-            var controller = new CalculationRunDeleteController(
-                this.Configuration,
-                this.MockClientFactory.Object,
-                new Mock<ITokenAcquisition>().Object,
-                new TelemetryClient());
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            var controller = this.BuildTestClass(HttpStatusCode.OK);
 
             // Act
             var result = await controller.Index(runId) as ViewResult;
@@ -68,22 +63,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task DeleteConfirmationSuccess_RedirectToConfirmationScreenWhenDeletionSucceeds()
         {
             // Arrange
-            var controller = new CalculationRunDeleteController(
-                this.Configuration,
-                this.MockClientFactory.Object,
-                new Mock<ITokenAcquisition>().Object,
-                new TelemetryClient());
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            var controller = BuildTestClass(HttpStatusCode.Created);
             var model = new CalculatorRunDetailsViewModel
             {
                 RunId = this.Fixture.Create<int>(),
                 RunName = this.Fixture.Create<string>(),
-            };
-
-            var viewModel = new CalculatorRunDetailsNewViewModel()
-            {
-                CurrentUser = this.Fixture.Create<string>(),
-                CalculatorRunDetails = model,
             };
 
             // Act
@@ -104,12 +88,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task DeleteConfirmationSuccess_RedirectToErrorWhenApiDoesntReturnSuccess()
         {
             // Arrange
-            var controller = new CalculationRunDeleteController(
-                this.Configuration,
-                TestMockUtils.BuildMockHttpClientFactory(HttpStatusCode.BadRequest).Object,
-                new Mock<ITokenAcquisition>().Object,
-                new TelemetryClient());
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            var controller = BuildTestClass(HttpStatusCode.BadRequest);
             var model = new CalculatorRunDetailsViewModel
             {
                 RunId = this.Fixture.Create<int>(),
@@ -122,6 +101,18 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+        }
+
+        private CalculationRunDeleteController BuildTestClass(HttpStatusCode httpStatusCode)
+        {
+            var testClass = new CalculationRunDeleteController(
+                this.Configuration,
+                TestMockUtils.BuildMockApiService(httpStatusCode).Object,
+                new Mock<ITokenAcquisition>().Object,
+                new TelemetryClient(),
+                new Mock<ICalculatorRunDetailsService>().Object);
+            testClass.ControllerContext.HttpContext = this.MockHttpContext.Object;
+            return testClass;
         }
     }
 }
