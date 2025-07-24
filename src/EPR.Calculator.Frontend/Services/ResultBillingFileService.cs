@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using Microsoft.ApplicationInsights;
@@ -45,11 +44,16 @@ namespace EPR.Calculator.Frontend.Services
 
                     if (response.Content.Headers.ContentDisposition != null)
                     {
-                        var disposition = response.Content.Headers.ContentDisposition.ToString();
-                        var match = Regex.Match(disposition, @"filename[^;=\n]*=((['""]).*?\2|[^;\n]*)");
-                        if (match.Success)
+                        var contentDisposition = response.Content.Headers.ContentDisposition;
+
+                        // Use the FileName property which handles parsing automatically
+                        if (!string.IsNullOrEmpty(contentDisposition.FileName))
                         {
-                            fileName = match.Groups[1].Value.Trim('"').Trim('\'');
+                            fileName = contentDisposition.FileName.Trim('"').Trim('\'');
+                        }
+                        else if (!string.IsNullOrEmpty(contentDisposition.FileNameStar))
+                        {
+                            fileName = contentDisposition.FileNameStar.Trim('"').Trim('\'');
                         }
 
                         if (isBillingFile)
