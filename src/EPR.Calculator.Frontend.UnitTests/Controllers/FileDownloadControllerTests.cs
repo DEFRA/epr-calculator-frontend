@@ -21,6 +21,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private Mock<IHttpClientFactory> _mockHttpClientFactory;
         private Mock<IResultBillingFileService> _mockFileDownloadService;
+        private Mock<ICalculatorRunDetailsService> _mockRunDetailsService;
         private TelemetryClient _telemetryClient;
 
         private FileDownloadController _controller;
@@ -32,6 +33,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _mockFileDownloadService = new Mock<IResultBillingFileService>();
+            _mockRunDetailsService = new Mock<ICalculatorRunDetailsService>();
             _telemetryClient = new TelemetryClient();
 
             // Setup for DownloadResultApi
@@ -63,7 +65,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 configuration: _mockConfiguration.Object,
                 apiService: new Mock<IApiService>().Object,
                 telemetryClient: _telemetryClient,
-                fileDownloadService: _mockFileDownloadService.Object);
+                fileDownloadService: _mockFileDownloadService.Object,
+                calculatorRunDetailsService: _mockRunDetailsService.Object);
         }
 
         [TestMethod]
