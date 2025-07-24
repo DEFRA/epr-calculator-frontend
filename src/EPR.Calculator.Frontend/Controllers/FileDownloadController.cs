@@ -7,7 +7,6 @@ using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
-
     /// <summary>
     /// Controller for handling file downloads related to calculation runs and billing files.
     /// </summary>
