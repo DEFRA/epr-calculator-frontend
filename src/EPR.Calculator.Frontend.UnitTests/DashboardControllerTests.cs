@@ -606,7 +606,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var model = result.Model as DashboardViewModel;
             Assert.IsNotNull(model);
             Assert.IsNotNull(model.FinancialYearSelectList);
-            Assert.IsTrue(model.FinancialYearSelectList.Any());
+            Assert.IsTrue(model.FinancialYearSelectList.Count > 0);
             Assert.AreEqual("2025-26", model.FinancialYearSelectList.First().Value);
         }
 

@@ -174,7 +174,7 @@ namespace EPR.Calculator.Frontend.Controllers
             if (!response.IsSuccessStatusCode)
             {
                 this.TelemetryClient.TrackTrace("Unable to fetch financial years from API", SeverityLevel.Error);
-                throw new Exception("Failed to fetch financial years.");
+                throw new InvalidOperationException("Failed to fetch financial years.");
             }
 
             var content = await response.Content.ReadAsStringAsync();
