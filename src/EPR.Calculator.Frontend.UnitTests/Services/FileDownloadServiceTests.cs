@@ -210,7 +210,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
 
             // Assert
             var fileResult = result as FileContentResult;
-            Assert.AreEqual($"Result_{runId}.csv", fileResult.FileDownloadName);
+            Assert.AreEqual($"Result_{runId}.csv", fileResult!.FileDownloadName);
         }
 
         [TestMethod]
@@ -237,7 +237,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
 
             // Assert
             var fileResult = result as FileContentResult;
-            Assert.AreEqual($"Result_{runId}.csv", fileResult.FileDownloadName);
+            Assert.AreEqual($"Result_{runId}.csv", fileResult!.FileDownloadName);
         }
 
         [TestMethod]
@@ -256,7 +256,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
             response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
             response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
             {
-                FileName = "", // Empty string
+                FileName = string.Empty,
                 FileNameStar = "\"BillingFromStar.csv\""
             };
 
@@ -268,7 +268,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
 
             // Assert
             var fileResult = result as FileContentResult;
-            Assert.AreEqual("BillingFromStar_DRAFT.csv", fileResult.FileDownloadName);
+            Assert.AreEqual("BillingFromStar_DRAFT.csv", fileResult!.FileDownloadName);
         }
     }
 }
