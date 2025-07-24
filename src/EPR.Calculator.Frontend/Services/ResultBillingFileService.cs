@@ -1,19 +1,11 @@
-﻿// Services/FileDownloadService.cs
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Runtime.CompilerServices; // Needed for GeneratedRegexAttribute
-using Azure.Core;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Controllers;
-using EPR.Calculator.Frontend.Services;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Web;
-using NuGet.Common;
 
 namespace EPR.Calculator.Frontend.Services
 {
