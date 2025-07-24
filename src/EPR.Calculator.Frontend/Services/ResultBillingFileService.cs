@@ -14,12 +14,12 @@ namespace EPR.Calculator.Frontend.Services
         IConfiguration configuration,
         TelemetryClient telemetryClient) : IResultBillingFileService
     {
+        private static readonly Regex FilenameRegex =
+            new Regex(@"filename[^;=\n]*=((['""]).*?\2|[^;\n]*)", RegexOptions.Compiled);
+
         private readonly IHttpClientFactory httpClientFactory = httpClientFactory;
         private readonly IConfiguration configuration = configuration;
         private readonly TelemetryClient telemetryClient = telemetryClient;
-
-        private static readonly Regex FilenameRegex =
-            new Regex(@"filename[^;=\n]*=((['""]).*?\2|[^;\n]*)", RegexOptions.Compiled);
 
         public async Task<FileResult> DownloadFileAsync(
             Uri apiUrl,
