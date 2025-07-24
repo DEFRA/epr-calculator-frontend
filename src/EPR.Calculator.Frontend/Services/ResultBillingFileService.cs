@@ -44,17 +44,7 @@ namespace EPR.Calculator.Frontend.Services
 
                     if (response.Content.Headers.ContentDisposition != null)
                     {
-                        var contentDisposition = response.Content.Headers.ContentDisposition;
-
-                        // Use the FileName property which handles parsing automatically
-                        if (!string.IsNullOrEmpty(contentDisposition.FileName))
-                        {
-                            fileName = contentDisposition.FileName.Trim('"').Trim('\'');
-                        }
-                        else if (!string.IsNullOrEmpty(contentDisposition.FileNameStar))
-                        {
-                            fileName = contentDisposition.FileNameStar.Trim('"').Trim('\'');
-                        }
+                        fileName = HandleContentDisposition(response, fileName);
 
                         if (isBillingFile)
                         {
@@ -78,6 +68,22 @@ namespace EPR.Calculator.Frontend.Services
                 this.telemetryClient.TrackException(ex);
                 throw;
             }
+        }
+
+        private static string HandleContentDisposition(HttpResponseMessage response, string fileName)
+        {
+            var contentDisposition = response.Content.Headers.ContentDisposition;
+
+            if (!string.IsNullOrEmpty(contentDisposition!.FileName))
+            {
+                fileName = contentDisposition.FileName.Trim('"').Trim('\'');
+            }
+            else if (!string.IsNullOrEmpty(contentDisposition.FileNameStar))
+            {
+                fileName = contentDisposition.FileNameStar.Trim('"').Trim('\'');
+            }
+
+            return fileName;
         }
 
         private async Task<HttpResponseMessage> CallApi(
