@@ -34,7 +34,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var apiUrl = apiService.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.DownloadResultApi);
+                var apiUrl = this.apiService.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.DownloadResultApi);
 
                 var accessToken = await this.AcquireToken();
                 return await this.fileDownloadService.DownloadFileAsync(apiUrl, runId, accessToken);
@@ -52,7 +52,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var apiUrl = apiService.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.DownloadCsvBillingApi);
+                var apiUrl = this.apiService.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.DownloadCsvBillingApi);
 
                 var accessToken = await this.AcquireToken();
                 return await this.fileDownloadService.DownloadFileAsync(apiUrl, runId, accessToken, isBillingFile, isDraftBillingFile);
