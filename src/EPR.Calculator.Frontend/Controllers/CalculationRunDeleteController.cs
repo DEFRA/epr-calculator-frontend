@@ -52,11 +52,18 @@ namespace EPR.Calculator.Frontend.Controllers
                 CalcName = runDetails?.RunName,
                 ClassificationId = (int)RunClassification.DELETED,
             };
+
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var calculationRunDeleteViewModel = new CalculationRunDeleteViewModel
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
                 CalculatorRunStatusData = calculatorRunStatusUpdate,
-                BackLink = ControllerNames.CalculationRunDetails,
+                BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = this.GetBackLink(),
+                    RunId = runId,
+                    CurrentUser = currentUser,
+                },
             };
             return this.View(ViewNames.CalculationRunDeleteIndex, calculationRunDeleteViewModel);
         }
@@ -69,9 +76,10 @@ namespace EPR.Calculator.Frontend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmationSuccess(CalculatorRunDetailsViewModel model)
         {
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var viewModel = new CalculatorRunDetailsNewViewModel()
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
                 CalculatorRunDetails = model,
             };
 
@@ -99,6 +107,15 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.TelemetryClient.TrackTrace($"API did not return successful ({result.StatusCode}).");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+        }
+
+        private string GetBackLink()
+        {
+            var referrer = this.Request.Headers["Referer"].ToString();
+            var urlUnits = referrer.Split("/");
+            var backLink = urlUnits[urlUnits.Length - 2];
+
+            return backLink;
         }
     }
 }

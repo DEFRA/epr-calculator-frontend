@@ -36,7 +36,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             this.Fixture = new Fixture();
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            _mockLogger = new Mock<ILogger<CalculationRunOverviewController>>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _telemetryClient = new TelemetryClient();
             _mockHttpContext = new Mock<HttpContext>();
@@ -45,7 +44,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new CalculationRunOverviewController(
                    _configuration,
                    new Mock<IApiService>().Object,
-                   _mockLogger.Object,
                    _mockTokenAcquisition.Object,
                    _telemetryClient,
                    new Mock<ICalculatorRunDetailsService>().Object)
@@ -117,7 +115,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new CalculationRunOverviewController(
                 _configuration,
                 new Mock<IApiService>().Object,
-                _mockLogger.Object,
                 _mockTokenAcquisition.Object,
                 _telemetryClient,
                 new Mock<ICalculatorRunDetailsService>().Object);
@@ -187,7 +184,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var testClass = new CalculationRunOverviewController(
                 ConfigurationItems.GetConfigurationValues(),
                 mockApiService,
-                new Mock<ILogger<CalculationRunOverviewController>>().Object,
                 _mockTokenAcquisition.Object,
                 new TelemetryClient(),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);

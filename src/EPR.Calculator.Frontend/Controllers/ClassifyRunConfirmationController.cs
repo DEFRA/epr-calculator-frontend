@@ -70,11 +70,16 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<ClassifyRunConfirmationViewModel> CreateViewModel(int runId)
         {
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var viewModel = new ClassifyRunConfirmationViewModel()
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-                BackLink = ControllerNames.CalculationRunDetails,
+                BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = string.Empty,
+                    CurrentUser = currentUser,
+                },
             };
 
             var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(

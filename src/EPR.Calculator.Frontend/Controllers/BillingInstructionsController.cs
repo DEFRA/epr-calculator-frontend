@@ -69,6 +69,12 @@ namespace EPR.Calculator.Frontend.Controllers
                     CommonUtil.GetUserName(this.HttpContext),
                     isSelectAll,
                     isSelectAllPage);
+                billingInstructionsViewModel.BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = this.GetBackLink(),
+                    RunId = calculationRunId,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                };
 
                 if (isSelectAll &&
                     billingInstructionsViewModel.ProducerIds != null &&
@@ -366,6 +372,15 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return true;
+        }
+
+        private string GetBackLink()
+        {
+            var referrer = this.Request.Headers["Referer"].ToString();
+            var urlUnits = referrer.Split("/");
+            var backLink = urlUnits[urlUnits.Length - 2];
+
+            return backLink;
         }
     }
 }
