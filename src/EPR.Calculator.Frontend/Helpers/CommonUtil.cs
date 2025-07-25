@@ -37,7 +37,7 @@ namespace EPR.Calculator.Frontend.Helpers
         /// </summary>
         /// <param name="date">Any date.</param>
         /// <returns>The financial year in the format YYYY-YY.</returns>
-        public static string GetFinancialYear(DateTime date)
+        public static string GetDefaultFinancialYear(DateTime date)
         {
             var year = date.Year;
 
@@ -56,6 +56,23 @@ namespace EPR.Calculator.Frontend.Helpers
         {
             var britishZone = TimeZoneInfo.FindSystemTimeZoneById(CommonConstants.TimeZone);
             return TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Utc, britishZone);
+        }
+
+        /// <summary>
+        /// Returns the financial year from session if feature enabled, else from config.
+        /// </summary>
+        /// <returns>Returns the financial year.</returns>
+        /// <exception cref="ArgumentNullException">Returns error if financial year is null or empty.</exception>
+        public static string GetFinancialYear(ISession session)
+        {
+            var parameterYear = session.GetString(SessionConstants.FinancialYear);
+
+            if (string.IsNullOrWhiteSpace(parameterYear))
+            {
+                parameterYear = CommonUtil.GetDefaultFinancialYear(DateTime.Now);
+            }
+
+            return parameterYear;
         }
     }
 }

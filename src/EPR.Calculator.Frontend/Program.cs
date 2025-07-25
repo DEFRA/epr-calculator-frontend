@@ -1,7 +1,8 @@
-﻿using System.Reflection;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Exceptions;
 using EPR.Calculator.Frontend.HealthCheck;
+using EPR.Calculator.Frontend.Mappers;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 var environmentName = builder.Environment.EnvironmentName?.ToLower() ?? string.Empty;
@@ -63,7 +65,17 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
+builder.Services.AddScoped<IBillingInstructionsMapper, BillingInstructionsMapper>();
+
+builder.Services.AddScoped<IBillingInstructionsApiService, BillingInstructionsApiService>();
+
+builder.Services.AddScoped<IResultBillingFileService, ResultBillingFileService>();
+
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
+
+// Register services.
+builder.Services.AddTransient<ICalculatorRunDetailsService, CalculatorRunDetailsService>();
+builder.Services.AddTransient<IApiService, ApiService>();
 
 var app = builder.Build();
 

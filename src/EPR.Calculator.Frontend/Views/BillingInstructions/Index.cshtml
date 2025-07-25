@@ -1,0 +1,207 @@
+﻿@using EPR.Calculator.Frontend.Enums
+@using EPR.Calculator.Frontend.Extensions
+@model BillingInstructionsViewModel
+
+@{
+    var selectableCount = Model.ProducerIds?.Count();
+
+    var routeValues = new Dictionary<string, object?>(Model.TablePaginationModel.RouteValues);
+
+    var selectedStatus = routeValues.ContainsKey(BillingInstructionConstants.BillingStatus)
+    ? routeValues[BillingInstructionConstants.BillingStatus]?.ToString()
+    : null;
+
+    string HighlightIfSelected(string? status) =>
+        selectedStatus == status ? "govuk-link govuk-link--selected-status" : "govuk-link";
+
+    bool hasProducerIdSessionKey = Context.Session.GetString(SessionConstants.ProducerIds) != null;
+}
+
+<partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
+
+<partial name="_ProgressBannerPartial" model="Model" />
+
+<div class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content">
+    <h1 class="govuk-visually-hidden">Select organisations to process</h1>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <br>
+            <span class="govuk-caption-l">@Model.CalculationRun.Name</span>
+            <h1 class="govuk-heading-l">Confirm billing instructions</h1>
+
+            @using (Html.BeginRouteForm(routeName: RouteNames.BillingInstructionsIndex, routeValues: new { calculationRunId = Model.CalculationRun.Id, }, method: FormMethod.Get))
+            {
+                <p class="govuk-body-m">
+                    These billing instructions match those in the results file. Use this screen to confirm
+                    which instructions you want to accept or reject.
+                </p>
+                <p class="govuk-body-m">Your changes are saved automatically, so you can return to this screen at any time. Once all instructions have been accepted or rejected, you’ll be able to generate a draft billing file. If you reject any instructions, you’ll need to give a reason on the next screen.</p>
+
+                <div class="search-panel">
+                    <div class="govuk-form-group">
+                        <h2 class="govuk-heading-m">Search for an organisation</h2>
+                        <label class="govuk-label" for="OrganisationId">
+                            Enter an organisation ID to find a billing instruction.
+                        </label>
+
+                        <div class="search-input-group">
+                            <input class="govuk-input"
+                                   id="OrganisationId"
+                                   name="OrganisationId"
+                                   type="search"
+                                   style="flex: 1;"
+                                   value="@Model.TablePaginationModel?.RouteValues?[BillingInstructionConstants.OrganisationIdKey]" />
+                            <button type="submit" class="govuk-button" data-module="govuk-button">
+                                Search
+                            </button>
+                        </div>
+
+                        <div class="filter-by-status">
+                            <h2 class="govuk-heading-m">Filter by status</h2>
+                            <table class="govuk-table" id="submission-table">
+                                <caption class="govuk-table__caption govuk-visually-hidden">
+                                    Billing instruction filter by status: All, Accepted, Rejected, or Pending
+                                </caption>
+                                <thead class="govuk-table__head">
+                                    <tr class="govuk-table__row">
+                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
+                                            <a class="@HighlightIfSelected(null)"
+                                               href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) {[BillingInstructionConstants.BillingStatus] = (string?)null })">
+                                                All (@Model.TotalRecords)
+                                            </a>
+                                        </th>
+                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
+                                            <a class="@HighlightIfSelected(BillingStatus.Accepted.ToString())"
+                                               href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) {[BillingInstructionConstants.BillingStatus] = BillingStatus.Accepted.ToString() })">
+                                                Accepted (@Model.TotalAcceptedRecords)
+                                            </a>
+                                        </th>
+                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
+                                            <a class="@HighlightIfSelected(BillingStatus.Rejected.ToString())"
+                                               href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) {[BillingInstructionConstants.BillingStatus] = BillingStatus.Rejected.ToString() })">
+                                                Rejected (@Model.TotalRejectedRecords)
+                                            </a>
+                                        </th>
+                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
+                                            <a class="@HighlightIfSelected(BillingStatus.Pending.ToString())"
+                                               href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routeValues) {[BillingInstructionConstants.BillingStatus] = BillingStatus.Pending.ToString() })">
+                                                Pending (@Model.TotalPendingRecords)
+                                            </a>
+                                        </th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+
+                        <a href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary { ["calculationRunId"] = Model.CalculationRun.Id })"
+                           class="govuk-button govuk-button--secondary govuk-!-margin-top-6"
+                           style="background-color: black; border-color: black; color: white; display: block; width: fit-content; margin-top: 4rem;">
+                            Clear filters
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="padding: 0px 20px; clear: both;">
+        <div class="align-checkbox">
+            @using (Html.BeginForm(ActionNames.SelectAllPage, null, FormMethod.Post))
+            {
+                <div class="govuk-form-group govuk-!-margin-bottom-4">
+                    <fieldset class="govuk-fieldset">
+                        <legend class="govuk-fieldset__legend">
+                            <div class="govuk-checkboxes govuk-checkboxes--small flex-wrap">
+                                <div class="govuk-checkboxes__item checkbox-item-label">
+                                    <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
+                                    <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
+                                    @Html.CheckBoxFor(m => m.OrganisationSelections.SelectPage, new { name = "SelectPage", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
+                                    <label class="govuk-label govuk-checkboxes__label" for="OrganisationSelections_SelectPage">
+                                        Select all records on this page
+                                    </label>
+                                    <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
+                                    <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
+                                </div>
+                            </div>
+                        </legend>
+                    </fieldset>
+                </div>
+            }
+
+
+
+            @using (Html.BeginForm(ActionNames.SelectAll, null, FormMethod.Post))
+            {
+                <div class="govuk-form-group govuk-!-margin-bottom-4">
+                    <fieldset class="govuk-fieldset">
+                        <legend class="govuk-fieldset__legend">
+                            <div class="govuk-checkboxes govuk-checkboxes--small flex-wrap">
+                                <div class="govuk-checkboxes__item custom-width-300">
+                                    <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
+                                    <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
+                                    <input type="hidden" name="organisationId" value="@Model.TablePaginationModel?.RouteValues?[BillingInstructionConstants.OrganisationIdKey]" />
+                                    @Html.CheckBoxFor(m => m.OrganisationSelections.SelectAll, new { name = "SelectAll", @class = "govuk-checkboxes__input", onchange = "this.form.submit();" })
+                                    <label class="govuk-label govuk-checkboxes__label" for="OrganisationSelections_SelectAll">
+                                        Select all @selectableCount records
+                                    </label>
+                                    <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
+                                    <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
+                                </div>
+                            </div>
+                        </legend>
+                    </fieldset>
+                </div>
+            }
+        </div>
+        @using (Html.BeginForm(ActionNames.ProcessSelection, null, FormMethod.Post))
+        {
+            <partial name="_OrganisationTable" model="Model" />
+        }
+
+        <!-- Record Pagination -->
+        <partial name="_Pagination" model="Model.TablePaginationModel" />
+        <!-- End Record Pagination -->
+
+        <div class="govuk-!-margin-top-9">
+            <h2 class="govuk-heading-m">Update billing instructions</h2>
+            <div class="govuk-button-group align-center">
+                <form asp-action="AcceptSelected" asp-controller="BillingInstructions" method="post" onsubmit="return checkHasProducerIds();">
+                    <button type="submit" class="govuk-button govuk-button--secondary accept-button" data-module="govuk-button" id="accept-selection-btn">
+                        Accept selected
+                    </button>
+                    <input type="hidden" name="calculationRunId" value="@Model.CalculationRun.Id" />
+                </form>
+                <form asp-action="RejectSelected" asp-controller="BillingInstructions" method="post" onsubmit="return checkHasProducerIds();">
+                    <button type="submit" class="govuk-button govuk-button--secondary reject-button" data-module="govuk-button" id="reject-selection-btn">
+                        Reject selected
+                    </button>
+                    <input type="hidden" name="calculationRunId" value="@Model.CalculationRun.Id" />
+                </form>
+                <form asp-action="ClearSelection" asp-controller="BillingInstructions" method="post" onsubmit="return checkHasProducerIds();">
+                    <button type="submit" class="govuk-button govuk-button--secondary govuk-!-margin-left-6" data-module="govuk-button" id="clear-selection-btn">
+                        Clear selection
+                    </button>
+                    <input type="hidden" name="calculationRunId" value="@Model.CalculationRun.Id" />
+                    <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
+                    <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
+                </form>
+                <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
+            </div>
+        </div>
+        @if (Model.TotalPendingRecords == 0 && Model.TotalRecords > 0 )
+        {
+            <partial name="_BillingNextStepPartial" model="@Model.CalculationRun.Id" />
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    function checkHasProducerIds() {
+        var hasProducerIdSessionKey = @hasProducerIdSessionKey.ToString().ToLower();
+        var currentlyIsSelected = Array.from(document.querySelectorAll('.record-checkbox'))
+            .some(checkbox => checkbox.checked);
+        return hasProducerIdSessionKey || currentlyIsSelected;
+    }
+</script>
+
+

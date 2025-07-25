@@ -1,5 +1,4 @@
 ﻿using EPR.Calculator.Frontend.Enums;
-using System.ComponentModel;
 
 namespace EPR.Calculator.Frontend.Models
 {
@@ -13,8 +12,10 @@ namespace EPR.Calculator.Frontend.Models
 
         public BillingInstruction? BillingInstruction { get; init; }
 
-        public double InvoiceAmount { get; init; }
+        public decimal InvoiceAmount { get; init; }
 
         public BillingStatus? Status { get; init; }
+
+        public bool IsSelected { get; set; }
     }
 }

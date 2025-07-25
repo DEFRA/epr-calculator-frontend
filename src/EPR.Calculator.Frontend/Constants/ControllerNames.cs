@@ -64,5 +64,40 @@
         /// Standard error controller.
         /// </summary>
         public const string StandardErrorController = "StandardErrorController";
+
+        /// <summary>
+        /// Billing Instructions controller.
+        /// </summary>
+        public const string BillingInstructionsController = "BillingInstructions";
+
+        /// <summary>
+        /// Accept Reject Confirmation controller.
+        /// </summary>
+        public const string AcceptRejectConfirmationController = "AcceptRejectConfirmation";
+
+        /// <summary>
+        /// ReasonForRejection Controller.
+        /// </summary>
+        public const string ReasonForRejectionController = "ReasonForRejection";
+
+        /// <summary>
+        /// Accept Reject Confirmation Controller.
+        /// </summary>
+        public const string AcceptRejectConfirmation = "AcceptRejectConfirmation";
+
+        /// <summary>
+        /// Post Billing File Controller.
+        /// </summary>
+        public const string PostBillingFileController = "PostBillingFile";
+
+        /// <summary>
+        /// File Download Controller.
+        /// </summary>
+        public const string DownloadFileErrorNewController = "DownloadFileErrorNew";
+
+        /// <summary>
+        /// File Download Controller.
+        /// </summary>
+        public const string FileDownloadController = "FileDownload";
     }
 }
