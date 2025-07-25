@@ -46,8 +46,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
-            this.SetDownloadParameters(viewModel);
-
             return this.View(ViewNames.PostBillingFileIndex, viewModel);
         }
 
@@ -75,22 +73,9 @@ namespace EPR.Calculator.Frontend.Controllers
             if (runDetails != null && runDetails!.RunId > 0)
             {
                 viewModel.CalculatorRunStatus = runDetails;
-                this.SetDownloadParameters(viewModel);
             }
 
             return viewModel;
-        }
-
-        private void SetDownloadParameters(PostBillingFileViewModel viewModel)
-        {
-            var baseApiUrl = this.Configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
-            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.CalculatorRunStatus!.RunId}");
-
-            var billingApiUrl = this.Configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadCsvBillingApi}");
-            viewModel.DownloadCsvBillingURL = new Uri($"{billingApiUrl}/{viewModel.CalculatorRunStatus!.RunId}");
-
-            viewModel.DownloadErrorURL = $"/DownloadFileErrorNew/{viewModel.CalculatorRunStatus.RunId}";
-            viewModel.DownloadTimeout = this.Configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
         }
     }
 }

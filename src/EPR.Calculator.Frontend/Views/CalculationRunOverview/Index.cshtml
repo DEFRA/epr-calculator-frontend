@@ -4,7 +4,7 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunOverviewViewModel
 @{
-    var calcDetails = Model.CalculatorRunDetails;    
+    var calcDetails = Model.CalculatorRunDetails;
     var backLinkModel = new BackLinkPartialViewModel
             {
                 BackLink = Model.BackLink,
@@ -64,22 +64,22 @@
 
                                 <p class="govuk-body">Download files related to this calculation run.</p>
                                 <div class="govuk-button-group">
-                                    <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
-                                            onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
+                                    <a class="govuk-button govuk-button--secondary"
+                                       role="button"
+                                       draggable="false"
+                                       href="@Url.Action(ActionNames.DownloadResultFile, ControllerNames.FileDownloadController, new { runId = Model.CalculatorRunDetails.RunId })">
                                         Results file
-                                    </button>
-                                    <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
-                                            @(calcDetails.IsBillingFileGenerating == false ? "" : "disabled")
-                                            onclick="downloadFile(
-                                                '@Model.DownloadCsvBillingURL', 
-                                                '@Model.DownloadErrorURL', 
-                                                event, 
-                                                '@Model.DownloadTimeout', 
-                                                '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")',
-                                                '@CommonConstants.IsBillingFileTrue',
-                                                '@CommonConstants.IsDraftFileTrue');">
+                                    </a>
+
+                                    <a class="govuk-button govuk-button--secondary"
+                                       role="button"
+                                       draggable="false"
+                                       href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController,
+                                        new { runId = Model.CalculatorRunDetails.RunId,
+                                                isBillingFile= @CommonConstants.IsBillingFileTrue,
+                                                isDraftBillingFile=@CommonConstants.IsDraftFileTrue })">
                                         @(calcDetails.IsBillingFileGenerating == true ? BillingInstructionConstants.DraftBillingFileGenerating : BillingInstructionConstants.DraftBillingFile)
-                                    </button>
+                                    </a>
                                 </div>
 
                                 <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
@@ -109,7 +109,7 @@
 
                                 <div class="govuk-button-group">
                                     <div class="govuk-button-group">
-                                        <button type="Submit" @(calcDetails.IsBillingFileGenerating == true ?  "disabled" : "") class="govuk-button" data-module="govuk-button">
+                                        <button type="Submit" @(calcDetails.IsBillingFileGenerating == true ? "disabled" : "") class="govuk-button" data-module="govuk-button">
                                             Continue
                                         </button>
                                     </div>
