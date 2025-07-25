@@ -114,16 +114,6 @@
     align-self: unset !important;
 }
 
-
-.text-area-margin-bottom
-{
-    margin-bottom : 0px !important;
-}
-
-.button-margin{
-    margin-left:15px;
-}
-
 .accept-button {
     background-color: #ffffff;
     border: 1px solid #00703c;
