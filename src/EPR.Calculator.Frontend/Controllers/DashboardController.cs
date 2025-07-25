@@ -6,8 +6,8 @@ using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 using SessionExtensions = EPR.Calculator.Frontend.Extensions.SessionExtensions;
@@ -21,7 +21,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Initializes a new instance of the <see cref="DashboardController"/> class.
     /// </remarks>
     /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
-    /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
+    /// <param name="apiService">The api service.</param>
     /// <param name="tokenAcquisition">The token acquisition service.</param>
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     [Route("/")]
@@ -93,6 +93,19 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        private static List<string> GetFilteredFinancialYears(List<string> allYears)
+        {
+            var today = DateTime.Today;
+            int currentStartYear = today.Month >= 4 ? today.Year : today.Year - 1;
+
+            var filteredYears = allYears
+                .Where(fy => int.Parse(fy.Split('-')[0]) <= currentStartYear)
+                .OrderByDescending(fy => int.Parse(fy.Split('-')[0]))
+                .ToList();
+
+            return filteredYears;
+        }
+
         private void IsShowDetailedError()
         {
             var showDetailedError = this.Configuration.GetValue(typeof(bool), CommonConstants.ShowDetailedError);
@@ -104,21 +117,18 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<ActionResult> GoToDashboardView(string financialYear, bool returnPartialView = false)
         {
-            var accessToken = await this.AcquireToken();
-
             this.HttpContext.Session.SetString(SessionConstants.FinancialYear, financialYear);
 
+            var financialYears = await this.GetFinancialYearsAsync(financialYear);
             var dashboardViewModel = new DashboardViewModel
             {
-                AccessToken = accessToken,
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 FinancialYear = financialYear,
-                FinancialYearListApi = this.Configuration.GetSection(ConfigSection.FinancialYearListApi).Value ?? string.Empty,
                 Calculations = null,
+                FinancialYearSelectList = financialYears,
             };
 
             using var response = await this.PostCalculatorRunsAsync(financialYear);
-
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
@@ -157,6 +167,46 @@ namespace EPR.Calculator.Frontend.Controllers
                 apiUrl,
                 string.Empty,
                 (CalculatorRunParamsDto)financialYear);
+        }
+
+        private async Task<List<SelectListItem>> GetFinancialYearsAsync(string selectedFinancialYear)
+        {
+            var apiUrl = this.ApiService.GetApiUrl(ConfigSection.FinancialYearListApi);
+            var response = await this.ApiService.CallApi(this.HttpContext, HttpMethod.Get, apiUrl, string.Empty, null);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                this.TelemetryClient.TrackTrace("Unable to fetch financial years from API", SeverityLevel.Error);
+                throw new InvalidOperationException("Failed to fetch financial years.");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var years = JsonConvert.DeserializeObject<List<FinancialYearDto>>(content) ?? new List<FinancialYearDto>();
+            var financialYears = years.Select(x => x.Name).ToList();
+
+            // Sort by starting year descending
+            financialYears = financialYears
+                .OrderByDescending(fy => int.Parse(fy.Substring(0, 4)))
+                .ToList();
+
+            financialYears = GetFilteredFinancialYears(financialYears);
+
+            // Ensure current year is first
+            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.Now);
+            financialYears.Remove(currentYear);
+            financialYears.Insert(0, currentYear);
+
+            // Build SelectListItem list
+            var selectList = financialYears
+                .Select(fy => new SelectListItem
+                {
+                    Value = fy,
+                    Text = fy,
+                    Selected = fy == selectedFinancialYear,
+                })
+                .ToList();
+
+            return selectList;
         }
     }
 }

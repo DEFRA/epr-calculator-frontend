@@ -1,11 +1,14 @@
 ﻿namespace EPR.Calculator.Frontend.UnitTests.Services
 {
     using System;
+    using System.Configuration;
     using System.Net.Http;
+    using System.Reflection;
     using System.Security.Claims;
     using System.Threading.Tasks;
     using AutoFixture;
     using EPR.Calculator.Frontend.Services;
+    using EPR.Calculator.Frontend.UnitTests.HelpersTest;
     using Microsoft.ApplicationInsights;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
@@ -16,6 +19,8 @@
     [TestClass]
     public class ApiServiceTests
     {
+        private readonly IConfiguration configuration = ConfigurationItems.GetConfigurationValues();
+
         public ApiServiceTests()
         {
             this.Fixture = new Fixture();
@@ -155,6 +160,52 @@
             Assert.AreEqual(
                 Configuration.GetSection("ParameterSettings").GetValue<string>("DefaultParameterSettingsApi"),
                 result.ToString());
+        }
+
+        [TestMethod]
+        public void CanCallGetApiUrl_FlatKey()
+        {
+            // Arrange
+            var expectedUrl = Configuration.GetValue<string>("FinancialYearListApi");
+
+            // Act
+            var result = this.TestClass.GetApiUrl("FinancialYearListApi");
+
+            // Assert
+            Assert.AreEqual(expectedUrl, result.ToString());
+        }
+
+        [TestMethod]
+        public void GetApiUrl_ThrowsException_WhenConfigValueIsNullOrWhitespace_FlatKey()
+        {
+            // Arrange
+            var configKey = "MissingKey";
+            var apiService = new ApiService(
+                configuration,
+                Fixture.Create<TelemetryClient>(),
+                TestMockUtils.BuildMockHttpClientFactory(TestMockUtils.BuildMockMessageHandler().Object).Object,
+                MockTokenAcquisition.Object);
+
+            // Act & Assert
+            Assert.ThrowsException<ConfigurationErrorsException>(() =>
+                apiService.GetApiUrl(configKey));
+        }
+
+        [TestMethod]
+        public void GetApiUrl_ThrowsException_WhenConfigValueIsNullOrWhitespace_SectionKey()
+        {
+            // Arrange
+            var configSection = "SomeMissingSectionThatDoesntExist";
+            var configKey = "MissingKey";
+            var apiService = new ApiService(
+                configuration,
+                Fixture.Create<TelemetryClient>(),
+                TestMockUtils.BuildMockHttpClientFactory(TestMockUtils.BuildMockMessageHandler().Object).Object,
+                MockTokenAcquisition.Object);
+
+            // Act & Assert
+            Assert.ThrowsException<ConfigurationErrorsException>(() =>
+                apiService.GetApiUrl(configSection, configKey));
         }
     }
 }

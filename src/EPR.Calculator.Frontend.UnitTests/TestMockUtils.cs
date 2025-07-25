@@ -177,6 +177,45 @@ namespace EPR.Calculator.Frontend.UnitTests
             return service;
         }
 
+        public static Mock<IApiService> BuildMockApiService(
+            Dictionary<(HttpMethod Method, string Url, string Argument), (HttpStatusCode StatusCode, string Response)> responses)
+        {
+            var service = new Mock<IApiService>();
+
+            service.Setup(s => s.GetApiUrl(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns((string section, string key) => new Uri($"http://test/{section}/{key}"));
+
+            service.Setup(s => s.GetApiUrl(It.IsAny<string>()))
+                .Returns((string key) => new Uri($"http://test/{key}"));
+
+            service.Setup(s => s.CallApi(
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<HttpMethod>(),
+                    It.IsAny<Uri>(),
+                    It.IsAny<string>(),
+                    It.IsAny<object>()))
+                .ReturnsAsync((HttpContext ctx, HttpMethod method, Uri uri, string argument, object body) =>
+                {
+                    var key = (method, uri.AbsoluteUri, argument ?? string.Empty);
+                    if (responses.TryGetValue(key, out var resp))
+                    {
+                        return new HttpResponseMessage
+                        {
+                            StatusCode = resp.StatusCode,
+                            Content = new StringContent(resp.Response)
+                        };
+                    }
+
+                    // Default response if not found
+                    return new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent("{}")
+                    };
+                });
+
+            return service;
+        }
+
         public static Mock<ICalculatorRunDetailsService> BuildMockCalculatorRunDetailsService(
             CalculatorRunDetailsViewModel data)
         {
