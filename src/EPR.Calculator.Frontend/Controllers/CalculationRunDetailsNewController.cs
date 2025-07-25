@@ -18,8 +18,6 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class CalculationRunDetailsNewController : BaseController
     {
-        private readonly IConfiguration _configuration;
-
         public CalculationRunDetailsNewController(
             IConfiguration configuration,
             IApiService apiService,
@@ -33,7 +31,6 @@ namespace EPR.Calculator.Frontend.Controllers
                   apiService,
                   calculatorRunDetailsService)
         {
-            _configuration = configuration;
         }
 
         [Route("{runId}")]
