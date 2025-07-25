@@ -34,8 +34,6 @@ namespace EPR.Calculator.Frontend.Controllers
             apiService,
             calculatorRunDetailsService)
     {
-        private readonly IConfiguration _configuration = configuration;
-
         [HttpGet("{runId}")]
         public async Task<IActionResult> Index(int runId)
         {
@@ -83,19 +81,9 @@ namespace EPR.Calculator.Frontend.Controllers
             if (runDetails != null && runDetails!.RunId != 0)
             {
                 viewModel.CalculatorRunDetails = runDetails;
-                this.SetDownloadParameters(viewModel);
             }
 
             return viewModel;
-        }
-
-        private void SetDownloadParameters(ClassifyRunConfirmationViewModel viewModel)
-        {
-            var baseApiUrl = this._configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
-            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.CalculatorRunDetails.RunId}");
-
-            viewModel.DownloadErrorURL = $"/DownloadFileErrorNew/{viewModel.CalculatorRunDetails.RunId}";
-            viewModel.DownloadTimeout = this._configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
         }
     }
 }

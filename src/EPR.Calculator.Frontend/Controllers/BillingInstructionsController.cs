@@ -2,6 +2,7 @@
 using AspNetCoreGeneratedDocument;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Mappers;
@@ -11,6 +12,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using SessionExtensions = EPR.Calculator.Frontend.Extensions.SessionExtensions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -125,7 +127,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult ClearSelection(int calculationRunId, int currentPage, int pageSize)
         {
-            this.ClearAllSession();
+            SessionExtensions.ClearAllSession(this.HttpContext.Session);
             return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = calculationRunId, page = currentPage, PageSize = pageSize });
         }
 
@@ -159,9 +161,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="currentPage">current page.</param>
         /// <param name="pageSize">page size.</param>
         /// <param name="organisationId">organisation Id.</param>
+        /// <param name="billingStatus">billing status.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
-        public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize, int? organisationId)
+        public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize, int? organisationId, BillingStatus? billingStatus)
         {
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll.ToString());
             if (!model.OrganisationSelections.SelectAll)
@@ -172,7 +175,14 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, "false");
             }
 
-            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize, OrganisationId = organisationId });
+            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new
+            {
+                calculationRunId = model.CalculationRun.Id,
+                page = currentPage,
+                PageSize = pageSize,
+                OrganisationId = organisationId,
+                BillingStatus = billingStatus,
+            });
         }
 
         /// <summary>
@@ -296,14 +306,6 @@ namespace EPR.Calculator.Frontend.Controllers
             };
 
             return this.View(ViewNames.BillingConfirmationSuccess, model);
-        }
-
-        private void ClearAllSession()
-        {
-            var session = this.HttpContext.Session;
-            ARJourneySessionHelper.ClearAllFromSession(session);
-            session.RemoveKeyIfExists(SessionConstants.IsSelectAll);
-            session.RemoveKeyIfExists(SessionConstants.IsSelectAllPage);
         }
 
         private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(

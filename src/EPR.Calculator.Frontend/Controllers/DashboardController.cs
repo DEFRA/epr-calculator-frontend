@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
+using SessionExtensions = EPR.Calculator.Frontend.Extensions.SessionExtensions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -46,10 +47,12 @@ namespace EPR.Calculator.Frontend.Controllers
         /// An <see cref="IActionResult"/> that renders the Dashboard Index view with the calculation runs data,
         /// or redirects to the Standard Error page if an error occurs.
         /// </returns>
+        [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             try
             {
+                SessionExtensions.ClearAllSession(this.HttpContext.Session);
                 this.IsShowDetailedError();
 
                 return await this.GoToDashboardView(CommonUtil.GetFinancialYear(this.HttpContext.Session));

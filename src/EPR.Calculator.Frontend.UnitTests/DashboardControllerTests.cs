@@ -454,6 +454,14 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             controller.ControllerContext = new ControllerContext { HttpContext = MockHttpContext.Object };
 
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    Session = new MockHttpSession()
+                }
+            };
+
             // Act
             var result = await controller.Index();
 
