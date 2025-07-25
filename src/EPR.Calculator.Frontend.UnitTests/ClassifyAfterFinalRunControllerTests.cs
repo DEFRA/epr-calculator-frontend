@@ -3,6 +3,7 @@ using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -53,7 +54,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                _configuration,
                _mockTokenAcquisition.Object,
                _telemetryClient,
-               _mockHttpClientFactory.Object)
+               new Mock<IApiService>().Object,
+               new Mock<ICalculatorRunDetailsService>().Object)
             {
                 ControllerContext = new ControllerContext
                 {

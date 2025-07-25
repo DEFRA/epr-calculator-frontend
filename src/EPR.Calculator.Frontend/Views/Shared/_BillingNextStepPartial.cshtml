@@ -1,2 +1,10 @@
-﻿<h2 class="govuk-heading-m">@BillingInstructionConstants.BillingNextStep</h2>
+﻿@model int
+<h2 class="govuk-heading-m">@BillingInstructionConstants.BillingNextStep</h2>
 <p class="govuk-body-m">@BillingInstructionConstants.BillingNextStepText</p>
+@using (Html.BeginForm(ActionNames.GenerateDraftBillingFile, ControllerNames.BillingInstructionsController, FormMethod.Post))
+{
+    <button class="govuk-button" type="submit" data-module="govuk-button" id="generate-billing-instruction">
+        @BillingInstructionConstants.GenerateDraftBillingFile
+    </button>
+    <input type="hidden" name="runId" value="@Model" />
+}

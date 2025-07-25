@@ -54,14 +54,24 @@
                         <h2 class="govuk-heading-m">Downloads</h2>
                         <p class="govuk-body">Download files related to this calculation run.</p>
 
-                        <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
-                                onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
+                        <a class="govuk-button govuk-button--secondary"
+                           role="button"
+                           draggable="false"
+                           href="@Url.Action( ActionNames.DownloadResultFile ,ControllerNames.FileDownloadController, new { runId = Model.CalculatorRunDetails.RunId })">
                             Results file
-                        </button>
+                        </a>
 
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                        <h2 class="govuk-heading-m">Remove this run's classification</h2>
+                        <p class="govuk-body">Mark this run as a test or delete it to remove its classification.</p>
+                        <div class="govuk-button-group">
+                            <a asp-action=@ActionNames.Index asp-controller=@ControllerNames.CalculationRunDelete asp-route-runId="@Model.CalculatorRunDetails.RunId" class="govuk-button govuk-button--secondary">
+                                Remove classification
+                            </a>
+                        </div>
+                        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                         <h2 class="govuk-heading-m">Next step</h2>
-                        <p class="govuk-body">Accept all billing instructions contained in the results file.</p>
+                        <p class="govuk-body">Review and confirm the billing instructions from the results file.</p>
                     </fieldset>
                 </div>
 

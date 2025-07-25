@@ -1,10 +1,14 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using System.Configuration;
+using System.Drawing;
 using System.Net.Http;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -17,21 +21,24 @@ namespace EPR.Calculator.Frontend.Controllers
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
-        IHttpClientFactory httpClientFactory)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
+        IApiService apiService,
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, apiService, calculatorRunDetailsService)
     {
-        [Route("{runId}")]
-        public async Task<IActionResult> Index(int runId)
+        [Route("{calculationRunId}")]
+        public async Task<IActionResult> Index(int calculationRunId)
         {
-            var runDetails = await this.GetCalculatorRundetails(runId);
+            var runDetails = await this.CalculatorRunDetailsService
+                .GetCalculatorRundetailsAsync(this.HttpContext, calculationRunId);
 
-            var viewModel = new ReasonForRejectionViewModel()
+            var viewModel = new AcceptRejectConfirmationViewModel()
             {
-                CalculationRunId = runId,
-                CalculationRunName = runDetails?.RunName,
-                Reason = string.Empty,
-                BackLink = ControllerNames.BillingInstructionsController,
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CalculationRunId = calculationRunId,
+                CalculationRunName = runDetails?.RunName,
+                Reason = this.TempData[nameof(AcceptRejectConfirmationViewModel.Reason)]?.ToString() ?? string.Empty,
+                Status = BillingStatus.Rejected,
+                BackLink = ControllerNames.BillingInstructionsController,
             };
 
             return this.View(ViewNames.ReasonForRejectionIndex, viewModel);
@@ -39,15 +46,19 @@ namespace EPR.Calculator.Frontend.Controllers
 
         [HttpPost]
         [ActionName("Index")]
-        [Route("{runId}")]
-        public IActionResult IndexPost(int runId, ReasonForRejectionViewModel model)
+        [Route("{calculationRunId}")]
+        public IActionResult IndexPost(int calculationRunId, AcceptRejectConfirmationViewModel model)
         {
-            if (!this.ModelState.IsValid)
+            if (string.IsNullOrEmpty(model.Reason))
             {
+                this.ModelState.Remove("Reason");
                 return this.View(ViewNames.ReasonForRejectionIndex, model);
             }
 
-            return this.RedirectToAction(ActionNames.Index, new { runId= model.CalculationRunId });
+            this.ModelState.Clear();
+            model.BackLink = ControllerNames.ReasonForRejectionController;
+            this.TempData[nameof(model.Reason)] = model.Reason;
+            return this.View(ViewNames.AcceptRejectConfirmationIndex, model);
         }
     }
 }

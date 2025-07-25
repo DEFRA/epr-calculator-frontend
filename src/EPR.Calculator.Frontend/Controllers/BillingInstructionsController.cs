@@ -1,14 +1,17 @@
 ﻿using System.Text.Json;
+using AspNetCoreGeneratedDocument;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Mappers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using SessionExtensions = EPR.Calculator.Frontend.Extensions.SessionExtensions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -19,9 +22,10 @@ namespace EPR.Calculator.Frontend.Controllers
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
-        IHttpClientFactory clientFactory,
-        IBillingInstructionsMapper mapper)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
+        IBillingInstructionsMapper mapper,
+        IApiService apiService,
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(configuration, tokenAcquisition, telemetryClient, apiService, calculatorRunDetailsService)
     {
         private IActionResult RedirectToStandardError
         {
@@ -78,7 +82,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (!isSelectAll &&
                     producerBillingInstructionsResponseDto is not null &&
-                    producerBillingInstructionsResponseDto.Records.TrueForAll(t => existingSelectedIds.Contains(t.ProducerId)))
+                    producerBillingInstructionsResponseDto.Records.TrueForAll(t => existingSelectedIds.Contains(t.ProducerId)) && billingInstructionsViewModel.TotalRecords > 0)
                 {
                     billingInstructionsViewModel.OrganisationSelections.SelectPage = true;
                     this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, "true");
@@ -112,10 +116,41 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.RedirectToAction("Index", new { calculationRunId });
         }
 
+        /// <summary>
+        /// Clears all selected billing instructions from the session and redirects to the Billing Instructions index page.
+        /// </summary>
+        /// <param name="calculationRunId">The ID of the calculation run.</param>
+        /// <param name="currentPage">The current page number for pagination.</param>
+        /// <param name="pageSize">The number of items displayed per page.</param>
+        /// <returns>A redirect to the Billing Instructions index route.</returns>
         [HttpPost]
-        public IActionResult ClearSelection(int calculationRunId, [FromForm] OrganisationSelectionsViewModel selections)
+        public IActionResult ClearSelection(int calculationRunId, int currentPage, int pageSize)
         {
-            return this.RedirectToAction("Index", new { calculationRunId });
+            SessionExtensions.ClearAllSession(this.HttpContext.Session);
+            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = calculationRunId, page = currentPage, PageSize = pageSize });
+        }
+
+        /// <summary>
+        /// Redirects to the Accept/Reject Confirmation index action for the specified calculation run.
+        /// </summary>
+        /// <param name="calculationRunId">The ID of the calculation run.</param>
+        /// <returns>A redirect to the Accept/Reject Confirmation controller's index action.</returns>
+        [HttpPost]
+        public IActionResult AcceptSelected(int calculationRunId)
+        {
+            return this.RedirectToAction(ActionNames.Index, ControllerNames.AcceptRejectConfirmationController, new { calculationRunId });
+        }
+
+        /// <summary>
+        /// Redirects to the Reason for Rejection index action for the specified calculation run.
+        /// </summary>
+        /// <param name="calculationRunId">The ID of the calculation run.</param>
+        /// <returns>A redirect to the Reason for Rejection controller's index action.</returns>
+        [HttpPost]
+        public IActionResult RejectSelected(int calculationRunId)
+        {
+            this.TempData.Clear();
+            return this.RedirectToAction(ActionNames.Index, ControllerNames.ReasonForRejectionController, new { calculationRunId });
         }
 
         /// <summary>
@@ -124,9 +159,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="model">The view model containing billing instructions and selection state.</param>
         /// <param name="currentPage">current page.</param>
         /// <param name="pageSize">page size.</param>
+        /// <param name="organisationId">organisation Id.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
-        public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize)
+        public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize, int? organisationId)
         {
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll.ToString());
             if (!model.OrganisationSelections.SelectAll)
@@ -134,10 +170,10 @@ namespace EPR.Calculator.Frontend.Controllers
                 ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
 
                 // If they just unselected all we also want to untick the select all page
-                this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, false.ToString());
+                this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, "false");
             }
 
-            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
+            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize, OrganisationId = organisationId });
         }
 
         /// <summary>
@@ -170,7 +206,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 else
                 {
                     // If the SelectPage is false, remove the producer IDs from the session.
-                    ARJourneySessionHelper.RemoveFromSession(this.HttpContext.Session, producerIdsFromResponse);
+                    ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
                 }
             }
 
@@ -218,11 +254,56 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        /// <summary>
+        /// Generate the billing file.
+        /// </summary>
+        /// <param name="runId">The unique identifier for the calculation run.</param>
+        [HttpPost]
+        public async Task<IActionResult> GenerateDraftBillingFile(int runId)
+        {
+            var result = await this.TryGenerateBillingFile(runId);
+            if (result)
+            {
+                return this.RedirectToRoute(new
+                {
+                    controller = ControllerNames.CalculationRunOverview,
+                    action = "Index",
+                    runId,
+                });
+            }
+            else
+            {
+                return this.RedirectToStandardError;
+            }
+        }
+
+        /// <summary>
+        /// Displays a billing file sent confirmation screen.
+        /// </summary>
+        /// <returns>Billing file sent page.</returns>
+        [Route("BillingFileSuccess")]
+        public IActionResult BillingFileSuccess()
+        {
+            var model = new BillingFileSuccessViewModel
+            {
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                ConfirmationViewModel = new ConfirmationViewModel
+                {
+                    Title = ConfirmationMessages.BillingFileSuccessTitle,
+                    Body = ConfirmationMessages.BillingFileSuccessBody,
+                    AdditionalParagraphs = ConfirmationMessages.BillingFileSuccessAdditionalParagraphs,
+                    RedirectController = ControllerNames.Dashboard,
+                },
+            };
+
+            return this.View(ViewNames.BillingConfirmationSuccess, model);
+        }
+
         private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(
             int calculationRunId,
             PaginationRequestViewModel request)
         {
-            var apiUrl = this.GetApiUrl(ConfigSection.ProducerBillingInstructions, ConfigSection.ProducerBillingInstructionsV1);
+            var apiUrl = this.ApiService.GetApiUrl(ConfigSection.ProducerBillingInstructions, ConfigSection.ProducerBillingInstructionsV1);
 
             // Build the request DTO
             var requestDto = new ProducerBillingInstructionsRequestDto
@@ -237,7 +318,12 @@ namespace EPR.Calculator.Frontend.Controllers
             };
 
             // Pass the calculationRunId as the route argument, and the DTO as the body
-            var response = await this.CallApi(HttpMethod.Post, apiUrl, calculationRunId.ToString(), requestDto);
+            var response = await this.ApiService.CallApi(
+                this.HttpContext,
+                HttpMethod.Post,
+                apiUrl,
+                calculationRunId.ToString(),
+                body: requestDto);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -251,6 +337,28 @@ namespace EPR.Calculator.Frontend.Controllers
             var billingData = JsonSerializer.Deserialize<ProducerBillingInstructionsResponseDto>(json);
 
             return billingData;
+        }
+
+        private async Task<bool> TryGenerateBillingFile(int runId)
+        {
+            var acceptApiUrl = this.ApiService.GetApiUrl(
+                ConfigSection.CalculationRunSettings,
+                ConfigSection.ProducerBillingInstructionsAcceptApi);
+
+            var responseDto = await this.ApiService.CallApi(
+                this.HttpContext,
+                HttpMethod.Put,
+                acceptApiUrl,
+                runId.ToString(),
+                null);
+
+            if (!responseDto.IsSuccessStatusCode)
+            {
+                this.TelemetryClient.TrackTrace($"Billing instructions acceptance failed for RunId {runId}. StatusCode: {responseDto.StatusCode}, Reason: {responseDto.ReasonPhrase}");
+                return false;
+            }
+
+            return true;
         }
     }
 }

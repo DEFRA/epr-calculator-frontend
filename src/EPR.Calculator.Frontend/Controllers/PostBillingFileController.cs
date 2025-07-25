@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -18,8 +19,14 @@ namespace EPR.Calculator.Frontend.Controllers
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
-        IHttpClientFactory httpClientFactory)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
+        IApiService apiService,
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(
+            configuration,
+            tokenAcquisition,
+            telemetryClient,
+            apiService,
+            calculatorRunDetailsService)
     {
         /// <summary>
         /// Displays the calculation run post billing file details index view.
@@ -38,8 +45,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-
-            this.SetDownloadParameters(viewModel);
 
             return this.View(ViewNames.PostBillingFileIndex, viewModel);
         }
@@ -68,22 +73,9 @@ namespace EPR.Calculator.Frontend.Controllers
             if (runDetails != null && runDetails!.RunId > 0)
             {
                 viewModel.CalculatorRunStatus = runDetails;
-                this.SetDownloadParameters(viewModel);
             }
 
             return viewModel;
-        }
-
-        private void SetDownloadParameters(PostBillingFileViewModel viewModel)
-        {
-            var baseApiUrl = this.Configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
-            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.CalculatorRunStatus!.RunId}");
-
-            var billingApiUrl = this.Configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadCsvBillingApi}");
-            viewModel.DownloadCsvBillingURL = new Uri($"{billingApiUrl}/{viewModel.CalculatorRunStatus!.RunId}");
-
-            viewModel.DownloadErrorURL = $"/DownloadFileErrorNew/{viewModel.CalculatorRunStatus.RunId}";
-            viewModel.DownloadTimeout = this.Configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
         }
     }
 }

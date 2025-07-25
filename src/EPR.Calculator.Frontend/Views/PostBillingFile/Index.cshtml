@@ -53,13 +53,22 @@
 
                     <p class="govuk-body">Download files related to this calculation run.</p>
                     <div class="govuk-button-group">
-                        <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
-                                onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
+                        <a class="govuk-button govuk-button--secondary"
+                           role="button"
+                           draggable="false"
+                           href="@Url.Action(ActionNames.DownloadResultFile, ControllerNames.FileDownloadController, new { runId = Model.CalculatorRunStatus.RunId })">
                             Results file
-                        </button>
-                        <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" onclick="downloadFile('@Model.DownloadCsvBillingURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
+                        </a>
+
+                        <a class="govuk-button govuk-button--secondary"
+                           role="button"
+                           draggable="false"
+                           href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController,
+                            new { runId = Model.CalculatorRunStatus.RunId,
+                                isBillingFile= @CommonConstants.IsBillingFileTrue,
+                                isDraftBillingFile=@CommonConstants.IsDraftFileFalse })">
                             Billing file
-                        </button>
+                        </a>
                     </div>
 
                     <div class="govuk-button-group">

@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +15,19 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller for handling payment calculations.
     /// </summary>
     [Route("[controller]")]
+    [NonController]
     public class PaymentCalculatorController(
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
-        IHttpClientFactory httpClientFactory)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, httpClientFactory)
+        IApiService apiService,
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(
+            configuration,
+            tokenAcquisition,
+            telemetryClient,
+            apiService,
+            calculatorRunDetailsService)
     {
         /// <summary>
         /// The main action method that handles the request to display the AcceptInvoiceInstructionsViewModel view.
@@ -32,7 +40,9 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var acceptInvoiceInstructionsViewModel = this.InitializeAcceptInvoiceInstructionsViewModel();
 
-            var runDetails = await this.GetCalculatorRundetails(runId);
+            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
+                this.HttpContext,
+                runId);
 
             if (runDetails != null && runDetails!.RunId != 0)
             {
@@ -73,28 +83,6 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
-        /// Displays a billing file sent confirmation screen.
-        /// </summary>
-        /// <returns>Billing file sent page.</returns>
-        [Route("BillingFileSuccess")]
-        public IActionResult BillingFileSuccess()
-        {
-            var model = new BillingFileSuccessViewModel
-            {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                ConfirmationViewModel = new ConfirmationViewModel
-                {
-                    Title = ConfirmationMessages.BillingFileSuccessTitle,
-                    Body = ConfirmationMessages.BillingFileSuccessBody,
-                    AdditionalParagraphs = ConfirmationMessages.BillingFileSuccessAdditionalParagraphs,
-                    RedirectController = ControllerNames.Dashboard,
-                },
-            };
-
-            return this.View(ViewNames.BillingConfirmationSuccess, model);
-        }
-
-        /// <summary>
         /// Initializes and returns a new AcceptInvoiceInstructionsViewModel with default values.
         /// </summary>
         /// <returns>An initialized AcceptInvoiceInstructionsViewModel instance.</returns>
@@ -110,7 +98,9 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<bool> TryGenerateBillingFile(int runId)
         {
-            var billingFileApiUrl = this.GetApiUrl(ConfigSection.BillingFileSettings, ConfigSection.BillingFileApi);
+            var billingFileApiUrl = this.ApiService.GetApiUrl(
+                ConfigSection.BillingFileSettings,
+                ConfigSection.BillingFileApi);
             var billingFileRequestDto = new GenerateBillingFileRequestDto
             {
                 CalculatorRunId = runId,
@@ -118,7 +108,12 @@ namespace EPR.Calculator.Frontend.Controllers
 
             try
             {
-                var response = await this.CallApi(HttpMethod.Post, billingFileApiUrl, string.Empty, billingFileRequestDto);
+                var response = await this.ApiService.CallApi(
+                    this.HttpContext,
+                    HttpMethod.Post,
+                    billingFileApiUrl,
+                    string.Empty,
+                    billingFileRequestDto);
 
                 if (response.StatusCode != HttpStatusCode.Accepted)
                 {
@@ -137,11 +132,18 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<bool> TryAcceptBillingInstructions(int runId)
         {
-            var instructionsAcceptApiUrl = this.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.ProducerBillingInstructionsAcceptApi);
+            var instructionsAcceptApiUrl = this.ApiService.GetApiUrl(
+                ConfigSection.CalculationRunSettings,
+                ConfigSection.ProducerBillingInstructionsAcceptApi);
 
             try
             {
-                var response = await this.CallApi(HttpMethod.Put, instructionsAcceptApiUrl, runId.ToString(), null);
+                var response = await this.ApiService.CallApi(
+                    this.HttpContext,
+                    HttpMethod.Put,
+                    instructionsAcceptApiUrl,
+                    runId.ToString(),
+                    null);
 
                 if (!response.IsSuccessStatusCode)
                 {
