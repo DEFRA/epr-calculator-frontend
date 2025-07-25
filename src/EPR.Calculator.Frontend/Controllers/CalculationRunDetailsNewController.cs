@@ -14,7 +14,10 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller responsible for displaying the details of a calculation run.
     /// </summary>
     [Route("[controller]")]
-    public class CalculationRunDetailsNewController(IConfiguration configuration,
+    public class CalculationRunDetailsNewController : BaseController
+    {
+        public CalculationRunDetailsNewController(
+            IConfiguration configuration,
             IApiService apiService,
             ITokenAcquisition tokenAcquisition,
             TelemetryClient telemetryClient,
@@ -23,7 +26,9 @@ namespace EPR.Calculator.Frontend.Controllers
                   telemetryClient,
                   apiService,
                   calculatorRunDetailsService)
-    {
+        {
+        }
+
         [Route("{runId}")]
         public async Task<IActionResult> Index(int runId)
         {
