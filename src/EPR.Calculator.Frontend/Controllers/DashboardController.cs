@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
+using SessionExtensions = EPR.Calculator.Frontend.Extensions.SessionExtensions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -51,6 +52,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                SessionExtensions.ClearAllSession(this.HttpContext.Session);
                 this.IsShowDetailedError();
 
                 return await this.GoToDashboardView(CommonUtil.GetFinancialYear(this.HttpContext.Session));
