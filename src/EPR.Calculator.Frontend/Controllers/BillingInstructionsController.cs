@@ -12,6 +12,7 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using SessionExtensions = EPR.Calculator.Frontend.Extensions.SessionExtensions;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -126,7 +127,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public IActionResult ClearSelection(int calculationRunId, int currentPage, int pageSize)
         {
-            this.ClearAllSession();
+            SessionExtensions.ClearAllSession(this.HttpContext.Session);
             return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = calculationRunId, page = currentPage, PageSize = pageSize });
         }
 
@@ -305,14 +306,6 @@ namespace EPR.Calculator.Frontend.Controllers
             };
 
             return this.View(ViewNames.BillingConfirmationSuccess, model);
-        }
-
-        private void ClearAllSession()
-        {
-            var session = this.HttpContext.Session;
-            ARJourneySessionHelper.ClearAllFromSession(session);
-            session.RemoveKeyIfExists(SessionConstants.IsSelectAll);
-            session.RemoveKeyIfExists(SessionConstants.IsSelectAllPage);
         }
 
         private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(
