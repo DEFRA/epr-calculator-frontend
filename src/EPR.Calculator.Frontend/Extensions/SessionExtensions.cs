@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Extensions
 {
@@ -38,6 +40,13 @@ namespace EPR.Calculator.Frontend.Extensions
             {
                 session.Remove(key);
             }
+        }
+
+        public static void ClearAllSession(this ISession session)
+        {
+            ARJourneySessionHelper.ClearAllFromSession(session);
+            session.RemoveKeyIfExists(SessionConstants.IsSelectAll);
+            session.RemoveKeyIfExists(SessionConstants.IsSelectAllPage);
         }
     }
 }
