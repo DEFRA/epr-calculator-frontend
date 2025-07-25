@@ -34,7 +34,6 @@ namespace EPR.Calculator.Frontend.Controllers
             apiService,
             calculatorRunDetailsService)
     {
-
         [HttpGet("{runId}")]
         public async Task<IActionResult> Index(int runId)
         {
