@@ -421,6 +421,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                 new TelemetryClient(),
                 new Mock<ICalculatorRunDetailsService>().Object);
 
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    Session = new MockHttpSession()
+                }
+            };
+
             // Act
             var task = controller.Index();
             Assert.ThrowsException<AggregateException>(task.Wait);

@@ -81,8 +81,23 @@
         public const string ReasonForRejectionController = "ReasonForRejection";
 
         /// <summary>
-        /// Accept Reject Confirmation Controller
+        /// Accept Reject Confirmation Controller.
         /// </summary>
         public const string AcceptRejectConfirmation = "AcceptRejectConfirmation";
+
+        /// <summary>
+        /// Post Billing File Controller.
+        /// </summary>
+        public const string PostBillingFileController = "PostBillingFile";
+
+        /// <summary>
+        /// File Download Controller.
+        /// </summary>
+        public const string DownloadFileErrorNewController = "DownloadFileErrorNew";
+
+        /// <summary>
+        /// File Download Controller.
+        /// </summary>
+        public const string FileDownloadController = "FileDownload";
     }
 }
