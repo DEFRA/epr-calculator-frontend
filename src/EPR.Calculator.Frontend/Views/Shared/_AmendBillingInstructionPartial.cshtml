@@ -3,9 +3,9 @@
 <h2 class="govuk-heading-m">@BillingInstructionConstants.AmendBillingInstructions</h2>
 <p class="govuk-body">@BillingInstructionConstants.AmendBillingInstructionText</p>
 <div class="govuk-button-group">
-    <a href="@($"/{ControllerNames.BillingInstructionsController}/{Model.RunId}")" 
-        class="govuk-button govuk-button--secondary"
-        @(Model.IsBillingFileGenerating == true ? "disabled" : null)>
-            @BillingInstructionConstants.AmendBillingInstructions
+    <a href="@($"/{ControllerNames.BillingInstructionsController}/{Model.RunId}")"
+       class="govuk-button govuk-button--secondary" @(Model.IsBillingFileGenerating == true ? "disabled" : null)
+       onclick="return @(Model.IsBillingFileGenerating == true ? "false" : "true");">
+        @BillingInstructionConstants.AmendBillingInstructions
     </a>
 </div>
