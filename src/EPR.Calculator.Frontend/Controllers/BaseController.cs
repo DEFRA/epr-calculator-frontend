@@ -127,7 +127,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (segments.Length >= 2)
                 {
-                    return segments[^2]; 
+                    return segments[^2];
                 }
             }
             catch (UriFormatException)
