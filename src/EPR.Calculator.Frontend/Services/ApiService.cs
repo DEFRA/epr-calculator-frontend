@@ -56,6 +56,10 @@ namespace EPR.Calculator.Frontend.Services
         public Uri GetApiUrl(string configSection, string configKey)
             => new Uri(this.GetConfigSetting(configSection, configKey));
 
+        /// <inheritdoc/>
+        public Uri GetApiUrl(string configKey)
+            => new Uri(this.GetConfigSetting(configKey));
+
         protected async Task<string> AcquireToken(HttpContext httpContext)
         {
             this.TelemetryClient.TrackTrace("AcquireToken");
@@ -96,6 +100,22 @@ namespace EPR.Calculator.Frontend.Services
             {
                 throw new ConfigurationErrorsException(
                     $"{configSection}:{configKey} is null or empty. Please check the configuration settings. " +
+                    $"{ConfigSection.CalculationRunSettings}");
+            }
+
+            return value;
+        }
+
+        /// <summary>
+        /// Retrieves a configuration setting from the specified key.
+        /// </summary>
+        private string GetConfigSetting(string configKey)
+        {
+            var value = this.Configuration.GetValue<string>(configKey);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ConfigurationErrorsException(
+                    $"{configKey} is null or empty. Please check the configuration settings. " +
                     $"{ConfigSection.CalculationRunSettings}");
             }
 
