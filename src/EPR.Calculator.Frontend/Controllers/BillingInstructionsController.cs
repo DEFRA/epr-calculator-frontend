@@ -83,7 +83,9 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (!isSelectAll &&
                     producerBillingInstructionsResponseDto is not null &&
-                    producerBillingInstructionsResponseDto.Records.TrueForAll(t => existingSelectedIds.Contains(t.ProducerId)) && billingInstructionsViewModel.TotalRecords > 0)
+                    producerBillingInstructionsResponseDto.Records.Count > 0 &&
+                    producerBillingInstructionsResponseDto.Records.TrueForAll(t => existingSelectedIds.Contains(t.ProducerId)) &&
+                    billingInstructionsViewModel.TotalRecords > 0)
                 {
                     billingInstructionsViewModel.OrganisationSelections.SelectPage = true;
                     this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, "true");
@@ -193,7 +195,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="pageSize">page size.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
-        public async Task<IActionResult> SelectAllPage(BillingInstructionsViewModel model, int currentPage, int pageSize)
+        public async Task<IActionResult> SelectAllPage(BillingInstructionsViewModel model, int currentPage, int pageSize, int? organisationId, BillingStatus? billingStatus)
         {
             // Sets the SelectAllPage flag to either true or false based on the model's selection state.
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, model.OrganisationSelections.SelectPage.ToString());
@@ -220,7 +222,14 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             this.HttpContext.Session.SetString(SessionConstants.IsRedirected, "true");
-            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = model.CalculationRun.Id, page = currentPage, PageSize = pageSize });
+            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new
+            {
+                calculationRunId = model.CalculationRun.Id,
+                page = currentPage,
+                PageSize = pageSize,
+                OrganisationId = organisationId,
+                BillingStatus = billingStatus,
+            });
         }
 
         /// <summary>

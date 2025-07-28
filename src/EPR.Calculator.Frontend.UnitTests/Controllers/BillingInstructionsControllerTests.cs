@@ -638,7 +638,131 @@
             var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
 
             // Act
-            var result = await controller.SelectAllPage(model, currentPage, pageSize) as RedirectToRouteResult;
+            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, null) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public async Task CanCallSelectAllPage_WhenOrgIdIsPresent()
+        {
+            // Arrange
+            var model = this.Fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = this.Fixture.Create<int>();
+            var pageSize = this.Fixture.Create<int>();
+            var organisationId = this.Fixture.Create<int>();
+            var calculationRunId = 1;
+
+            // Setup the mapper to return any view model
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var billingData = CreateDefaultBillingData(calculationRunId);
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
+
+            // Act
+            var result = await controller.SelectAllPage(model, currentPage, pageSize, organisationId, null) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public async Task CanCallSelectAllPage_FilterPending()
+        {
+            // Arrange
+            var model = this.Fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = this.Fixture.Create<int>();
+            var pageSize = this.Fixture.Create<int>();
+            var organisationId = this.Fixture.Create<int>();
+            var calculationRunId = 1;
+
+            // Setup the mapper to return any view model
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var billingData = CreateDefaultBillingData(calculationRunId);
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
+
+            // Act
+            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, BillingStatus.Pending) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public async Task CanCallSelectAllPage_FilterAccepted()
+        {
+            // Arrange
+            var model = this.Fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = this.Fixture.Create<int>();
+            var pageSize = this.Fixture.Create<int>();
+            var organisationId = this.Fixture.Create<int>();
+            var calculationRunId = 1;
+
+            // Setup the mapper to return any view model
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var billingData = CreateDefaultBillingData(calculationRunId);
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
+
+            // Act
+            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, BillingStatus.Accepted) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public async Task CanCallSelectAllPage_FilterRejected()
+        {
+            // Arrange
+            var model = this.Fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = this.Fixture.Create<int>();
+            var pageSize = this.Fixture.Create<int>();
+            var organisationId = this.Fixture.Create<int>();
+            var calculationRunId = 1;
+
+            // Setup the mapper to return any view model
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var billingData = CreateDefaultBillingData(calculationRunId);
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
+
+            // Act
+            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, BillingStatus.Rejected) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -673,7 +797,7 @@
             var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
 
             // Act
-            var result = await controller.SelectAllPage(model, currentPage, pageSize) as RedirectToRouteResult;
+            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, null) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
