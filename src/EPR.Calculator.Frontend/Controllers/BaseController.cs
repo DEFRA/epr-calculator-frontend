@@ -111,7 +111,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return runDetails;
         }
 
-        public string GetBackLink()
+        protected string GetBackLink()
         {
             var referrer = this.Request.Headers["Referer"].ToString();
 
@@ -127,7 +127,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (segments.Length >= 2)
                 {
-                    return segments[^2]; // second to last segment
+                    return segments[^2]; 
                 }
             }
             catch (UriFormatException)
