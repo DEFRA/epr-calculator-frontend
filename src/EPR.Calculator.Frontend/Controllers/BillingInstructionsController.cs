@@ -202,7 +202,13 @@ namespace EPR.Calculator.Frontend.Controllers
 
             // Makes an api request to get the instructions for the current calculation run.
             var producerBillingInstructionsResponseDto =
-                await this.GetBillingData(model.CalculationRun.Id, new PaginationRequestViewModel() { Page = currentPage, PageSize = pageSize });
+                await this.GetBillingData(model.CalculationRun.Id, new PaginationRequestViewModel()
+                {
+                    Page = currentPage,
+                    PageSize = pageSize,
+                    OrganisationId = organisationId,
+                    BillingStatus = billingStatus,
+                });
 
             var producerIdsFromResponse =
                 producerBillingInstructionsResponseDto?.Records?.Select(t => t.ProducerId).ToList();
