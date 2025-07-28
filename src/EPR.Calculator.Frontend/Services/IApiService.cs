@@ -10,5 +10,7 @@
             object? body);
 
         Uri GetApiUrl(string configSection, string configKey);
+
+        Uri GetApiUrl(string configKey);
     }
 }
