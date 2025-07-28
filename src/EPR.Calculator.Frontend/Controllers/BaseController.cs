@@ -110,5 +110,32 @@ namespace EPR.Calculator.Frontend.Controllers
 
             return runDetails;
         }
+
+        public string GetBackLink()
+        {
+            var referrer = this.Request.Headers["Referer"].ToString();
+
+            if (string.IsNullOrEmpty(referrer))
+            {
+                return string.Empty;
+            }
+
+            try
+            {
+                var uri = new Uri(referrer);
+                var segments = uri.AbsolutePath.TrimEnd('/').Split('/');
+
+                if (segments.Length >= 2)
+                {
+                    return segments[^2]; // second to last segment
+                }
+            }
+            catch (UriFormatException)
+            {
+                return string.Empty;
+            }
+
+            return string.Empty;
+        }
     }
 }
