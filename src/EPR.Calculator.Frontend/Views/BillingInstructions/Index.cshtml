@@ -138,6 +138,7 @@
                         <legend class="govuk-fieldset__legend">
                             <div class="govuk-checkboxes govuk-checkboxes--small flex-wrap">
                                 <div class="govuk-checkboxes__item custom-width-300">
+                                    <input type="hidden" name="billingStatus" value="@Model.TablePaginationModel?.RouteValues?[BillingInstructionConstants.BillingStatus]" />
                                     <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
                                     <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
                                     <input type="hidden" name="organisationId" value="@Model.TablePaginationModel?.RouteValues?[BillingInstructionConstants.OrganisationIdKey]" />

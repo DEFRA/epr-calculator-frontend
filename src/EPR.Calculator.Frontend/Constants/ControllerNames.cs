@@ -86,6 +86,21 @@
         public const string AcceptRejectConfirmation = "AcceptRejectConfirmation";
 
         /// <summary>
+        /// Post Billing File Controller.
+        /// </summary>
+        public const string PostBillingFileController = "PostBillingFile";
+
+        /// <summary>
+        /// File Download Controller.
+        /// </summary>
+        public const string DownloadFileErrorNewController = "DownloadFileErrorNew";
+
+        /// <summary>
+        /// File Download Controller.
+        /// </summary>
+        public const string FileDownloadController = "FileDownload";
+
+        /// <summary>
         /// View default parameters controller.
         /// </summary>
         public const string ViewDefaultParameters = "ViewDefaultParameters";
