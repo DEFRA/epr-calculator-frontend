@@ -48,6 +48,10 @@
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
                                     <td class="govuk-table__cell">@Model.CalculatorRunDetails.CreatedAt.ToUKDateTimeDisplay()</td>
                                 </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Run by</th>
+                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.CreatedBy</td>
+                                </tr>
                             </tbody>
                         </table>
 

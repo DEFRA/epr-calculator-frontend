@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
@@ -9,23 +10,18 @@ namespace EPR.Calculator.Frontend.ViewModels
     public record DashboardViewModel : ViewModelCommonData
     {
         /// <summary>
-        /// Gets or sets the access token to authenticate the API.
-        /// </summary>
-        public required string AccessToken { get; set; }
-
-        /// <summary>
         /// Gets or sets the financial year.
         /// </summary>
         public required string FinancialYear { get; set; }
 
         /// <summary>
-        /// Gets or sets the financial year list API.
-        /// </summary>
-        public string? FinancialYearListApi { get; set; }
-
-        /// <summary>
         /// Gets or sets the calculation run list.
         /// </summary>
         public IEnumerable<CalculationRunViewModel>? Calculations { get; set; }
+
+        /// <summary>
+        /// Gets or sets the financial years.
+        /// </summary>
+        public List<SelectListItem>? FinancialYearSelectList { get; set; }
     }
 }
