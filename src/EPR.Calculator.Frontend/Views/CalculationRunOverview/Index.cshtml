@@ -70,6 +70,8 @@
                                     <a class="govuk-button govuk-button--secondary"
                                        role="button"
                                        draggable="false"
+                                       @(calcDetails.IsBillingFileGenerating == false ? null : "disabled")
+                                       onclick="return @(calcDetails.IsBillingFileGenerating == false ? "true" : "false");"
                                        href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController,
                                         new { runId = Model.CalculatorRunDetails.RunId,
                                                 isBillingFile= @CommonConstants.IsBillingFileTrue,
