@@ -3,6 +3,7 @@ using System.Net;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
@@ -157,12 +158,10 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private void SetStatusDescriptions(SetRunClassificationViewModel model)
         {
-            TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
-
             foreach (var classification in model.FinancialYearClassifications.Classifications)
             {
-                classification.Description = GetStatusDescription(classification.Id);
-                classification.Status = myTI.ToTitleCase(classification.Status.ToLower());
+                classification.Description = this.GetStatusDescription(classification.Id);
+                classification.Status = this.GetStatus(classification);
             }
         }
 
@@ -178,6 +177,21 @@ namespace EPR.Calculator.Frontend.Controllers
                 _ => string.Empty,
             };
         }
+
+        private string GetStatus(CalculatorRunClassificationDto classificationDto)
+        {
+            TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
+            return classificationDto.Id switch
+            {
+                (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunStatus,
+                (int)RunClassification.TEST_RUN => CommonConstants.TestRunStatus,
+                (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunStatus,
+                (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunStatus,
+                (int)RunClassification.FINAL_RUN => CommonConstants.FinalRunStatus,
+                _ => myTI.ToFirstLetterCap(classificationDto.Status),
+            };
+        }
+
 
         private async Task<bool> SetClassifications(int runId, SetRunClassificationViewModel viewModel)
         {
