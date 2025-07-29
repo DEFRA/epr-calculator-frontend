@@ -11,13 +11,10 @@ namespace EPR.Calculator.Frontend.Extensions
                 return text;
             }
 
-            if (text.Length <= 1)
-            {
-                return textInfo.ToUpper(text);
-            }
+            string lowercaseText = textInfo.ToLower(text);
+            char firstChar = textInfo.ToUpper(lowercaseText[0].ToString())[0];
 
-            string lowercasetext = textInfo.ToLower(text);
-            return $"{textInfo.ToUpper(lowercasetext.First().ToString())}{new string(lowercasetext.Skip(1).ToArray())}";
+            return firstChar + lowercaseText.Substring(1);
         }
     }
 }
