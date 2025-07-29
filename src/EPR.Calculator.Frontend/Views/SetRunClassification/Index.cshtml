@@ -4,15 +4,14 @@
 @model SetRunClassificationViewModel
 @{
     var calcDetails = Model.CalculatorRunDetails;
+    var classificationStatusInformation = Model.ClassificationStatusInformation;
 
     var backLinkModel = new BackLinkPartialViewModel
-            {
-                BackLink = Model.BackLink,
-                CurrentUser = Model.CurrentUser,
-                RunId = calcDetails.RunId
-            };
-
-  
+    {
+        BackLink = Model.BackLink,
+        CurrentUser = Model.CurrentUser,
+        RunId = calcDetails.RunId
+    };  
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
@@ -64,17 +63,20 @@
                                 @Html.ValidationMessageFor(model => model.ClassifyRunType, "", new { @class = "govuk-error-message" })
 
                                 <div class="govuk-radios" data-module="govuk-radios">
-                                    @foreach (var classfication in Model.FinancialYearClassifications.Classifications.OrderBy(t => t.Status))
+                                    @if(Model.FinancialYearClassifications?.Classifications != null && Model.FinancialYearClassifications.Classifications.Any())
                                     {
-                                    <div class="govuk-radios__item">                                            
-                                            @Html.RadioButtonFor(model => model.ClassifyRunType, classfication.Id, new { @class = "govuk-radios__input", id = classfication.Status })
-                                        <label class="govuk-label govuk-radios__label" for="@classfication.Status">
-                                                <strong>@classfication.Status</strong><br />
-                                            <p class="govuk-body-s" style="margin-bottom: 0;">
-                                                    @classfication.Description
-                                            </p>
-                                        </label>
-                                    </div>   
+                                        @foreach (var classfication in Model.FinancialYearClassifications.Classifications)
+                                        {  
+                                          <div class="govuk-radios__item">                                            
+                                                @Html.RadioButtonFor(model => model.ClassifyRunType, classfication.Id, new { @class = "govuk-radios__input", id = classfication.Status })
+                                            <label class="govuk-label govuk-radios__label" for="@classfication.Status">
+                                                    <strong>@classfication.Status</strong><br />
+                                                <p class="govuk-body-s" style="margin-bottom: 0;">
+                                                        @classfication.Description
+                                                </p>
+                                            </label>
+                                          </div>   
+                                        }
                                     }
                                 </div>
                             </fieldset>
@@ -89,18 +91,37 @@
                             </h2>
                         </div>
                         <div class="govuk-notification-banner__content">
-                            <p class="govuk-body-s">
-                                <strong>Interim recalculation run</strong><br />
-                                An optional run, only available after the initial run.
-                            </p>
-                            <p class="govuk-body-s">
-                                <strong>Final recalculation run</strong><br />
-                                An optional run, only available if no other final recalculation or later run has been classified this year.
-                            </p>
-                            <p class="govuk-body-s">
-                                <strong>Final run</strong><br />
-                                A mandatory run, only available if no other final run or later run has been classified this year.
-                            </p>
+                            @if (classificationStatusInformation != null)
+                            {
+                                @if (classificationStatusInformation.ShowInitialRunDescription)
+                                {
+                                    <p class="govuk-body-s">
+                                        <strong>Initial run</strong><br />
+                                        @classificationStatusInformation.InitialRunDescription
+                                    </p>
+                                }
+                                @if (classificationStatusInformation.ShowInterimRecalculationRunDescription)
+                                {
+                                    <p class="govuk-body-s">
+                                        <strong>Interim recalculation run</strong><br />
+                                        @classificationStatusInformation.InterimRecalculationRunDescription
+                                    </p>
+                                }                           
+                                @if (classificationStatusInformation.ShowFinalRecalculationRunDescription)
+                                {
+                                    <p class="govuk-body-s">
+                                        <strong>Final recalculation run</strong><br />
+                                        @classificationStatusInformation.FinalRecalculationRunDescription
+                                    </p>
+                                }
+                                @if (classificationStatusInformation.ShowFinalRunDescription)
+                                {
+                                    <p class="govuk-body-s">
+                                        <strong>Final run</strong><br />
+                                        @classificationStatusInformation.FinalRunDescription
+                                    </p>
+                                }
+                            }
                         </div>
                     </div>
                     <div class="govuk-warning-text">
