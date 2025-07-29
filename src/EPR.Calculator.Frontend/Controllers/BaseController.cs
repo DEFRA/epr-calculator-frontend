@@ -113,7 +113,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         protected string GetBackLink()
         {
-            var referrer = this.Request.Headers["Referer"].ToString();
+            var referrer = this.Request.Headers.Referer.ToString();
 
             if (string.IsNullOrEmpty(referrer))
             {

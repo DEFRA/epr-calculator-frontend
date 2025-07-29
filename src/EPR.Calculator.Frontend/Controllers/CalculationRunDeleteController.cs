@@ -108,14 +108,5 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
-
-        private string GetBackLink()
-        {
-            var referrer = this.Request.Headers["Referer"].ToString();
-            var urlUnits = referrer.Split("/");
-            var backLink = urlUnits[urlUnits.Length - 2];
-
-            return backLink;
-        }
     }
 }
