@@ -123,7 +123,13 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var uri = new Uri(referrer);
-                var segments = uri.AbsolutePath.TrimEnd('/').Split('/');
+                var absolutePath = uri.AbsolutePath;
+                if (absolutePath == "/")
+                {
+                    return ControllerNames.Dashboard;
+                }
+
+                var segments = absolutePath.TrimEnd('/').Split('/');
 
                 if (segments.Length >= 2)
                 {
