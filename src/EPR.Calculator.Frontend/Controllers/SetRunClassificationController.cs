@@ -192,7 +192,6 @@ namespace EPR.Calculator.Frontend.Controllers
             };
         }
 
-
         private async Task<bool> SetClassifications(int runId, SetRunClassificationViewModel viewModel)
         {
             var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session) });
