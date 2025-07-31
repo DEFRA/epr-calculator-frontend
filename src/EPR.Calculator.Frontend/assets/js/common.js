@@ -1,4 +1,4 @@
-    function preventFormReSubmission(event, formElement) {
+﻿    function preventFormReSubmission(event, formElement) {
         if (formElement.dataset.submitted) {
             event.preventDefault();
             return;

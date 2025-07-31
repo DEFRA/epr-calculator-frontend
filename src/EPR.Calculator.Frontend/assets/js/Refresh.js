@@ -1,4 +1,4 @@
-function processAndUploadData(parameterData, url, sucessUrl, errorAction) {
+﻿function processAndUploadData(parameterData, url, sucessUrl, errorAction) {
     $.ajax({
         url: url,
         type: 'POST',
