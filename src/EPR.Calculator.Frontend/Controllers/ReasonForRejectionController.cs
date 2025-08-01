@@ -57,6 +57,12 @@ namespace EPR.Calculator.Frontend.Controllers
             if (string.IsNullOrEmpty(model.Reason))
             {
                 this.ModelState.Remove("Reason");
+                model.BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = ControllerNames.BillingInstructionsController,
+                    RunId = calculationRunId,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                };
                 return this.View(ViewNames.ReasonForRejectionIndex, model);
             }
 
