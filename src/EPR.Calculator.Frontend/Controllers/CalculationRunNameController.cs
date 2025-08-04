@@ -89,16 +89,24 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
                 {
+                    var currentUser = CommonUtil.GetUserName(this.HttpContext);
                     var calculationName = calculationRunModel.CalculationName.Trim();
                     var calculationNameExistsResponse = await this.CheckIfCalculationNameExistsAsync(calculationName);
                     if (calculationNameExistsResponse.IsSuccessStatusCode)
                     {
-                        calculationRunModel.Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists);
-                        return this.View(CalculationRunNameIndexView, calculationRunModel);
+                        return this.View(CalculationRunNameIndexView, new InitiateCalculatorRunModel
+                        {
+                            CurrentUser = currentUser,
+                            Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists),
+                            BackLinkViewModel = new BackLinkViewModel()
+                            {
+                                BackLink = string.Empty,
+                                CurrentUser = currentUser,
+                            },
+                        });
                     }
 
                     var response = await this.HttpPostToCalculatorRunApi(calculationName);
-                    var currentUser = CommonUtil.GetUserName(this.HttpContext);
 
                     if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
                     {
