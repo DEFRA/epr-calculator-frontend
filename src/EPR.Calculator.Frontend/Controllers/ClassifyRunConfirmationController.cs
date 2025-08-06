@@ -78,6 +78,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     BackLink = string.Empty,
                     CurrentUser = currentUser,
+                    HideBackLink = this.GetBackLink() != ControllerNames.Dashboard,
                 },
             };
 

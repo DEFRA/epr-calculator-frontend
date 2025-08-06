@@ -19,5 +19,10 @@
         /// Gets or sets the run ID.
         /// </summary>
         public int? RunId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the flag to manually hide the back link.
+        /// </summary>
+        public bool HideBackLink { get; set; } = false;
     }
 }
