@@ -63,16 +63,13 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 CurrentUser = currentUser,
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-            };
-
-            if (this.GetBackLink() == ControllerNames.Dashboard)
-            {
-                viewModel.BackLinkViewModel = new BackLinkViewModel
+                BackLinkViewModel = new BackLinkViewModel
                 {
                     BackLink = string.Empty,
                     CurrentUser = currentUser,
-                };
-            }
+                    HideBackLink = this.GetBackLink() != ControllerNames.Dashboard,
+                },
+            };
 
             var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
                 this.HttpContext,
