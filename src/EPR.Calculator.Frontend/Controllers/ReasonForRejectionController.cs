@@ -30,15 +30,20 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var runDetails = await this.CalculatorRunDetailsService
                 .GetCalculatorRundetailsAsync(this.HttpContext, calculationRunId);
-
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var viewModel = new AcceptRejectConfirmationViewModel()
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
                 CalculationRunId = calculationRunId,
                 CalculationRunName = runDetails?.RunName,
                 Reason = this.TempData[nameof(AcceptRejectConfirmationViewModel.Reason)]?.ToString() ?? string.Empty,
                 Status = BillingStatus.Rejected,
-                BackLink = ControllerNames.BillingInstructionsController,
+                BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = ControllerNames.BillingInstructionsController,
+                    RunId = calculationRunId,
+                    CurrentUser = currentUser,
+                },
             };
 
             return this.View(ViewNames.ReasonForRejectionIndex, viewModel);
@@ -52,11 +57,22 @@ namespace EPR.Calculator.Frontend.Controllers
             if (string.IsNullOrEmpty(model.Reason))
             {
                 this.ModelState.Remove("Reason");
+                model.BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = ControllerNames.BillingInstructionsController,
+                    RunId = calculationRunId,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                };
                 return this.View(ViewNames.ReasonForRejectionIndex, model);
             }
 
             this.ModelState.Clear();
-            model.BackLink = ControllerNames.ReasonForRejectionController;
+            model.BackLinkViewModel = new BackLinkViewModel
+            {
+                BackLink = ControllerNames.ReasonForRejectionController,
+                RunId = calculationRunId,
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+            };
             this.TempData[nameof(model.Reason)] = model.Reason;
             return this.View(ViewNames.AcceptRejectConfirmationIndex, model);
         }
