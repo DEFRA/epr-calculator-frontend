@@ -3,20 +3,27 @@
 
 @{
     var url = Model.RunId != null
-                ? $"~/{Model.BackLink}/{Model.RunId}"
-                : $"~/{Model.BackLink}";
+        ? $"~/{Model.BackLink}/{Model.RunId}"
+        : $"~/{Model.BackLink}";
 }
 
 <div class="govuk-grid-row">
 
     <div class="govuk-grid-column-three-quarters">
-        <a href="@Url.Content(url)" class="govuk-back-link">Back</a>
+        @if (!Model.HideBackLink)
+        {
+            <a href="@Url.Content(url)" class="govuk-back-link">Back</a>
+        }
+        else
+        {
+            <a class="govuk-back-link" style="visibility: hidden;" aria-hidden="true">&nbsp;</a>
+        }
     </div>
     <div class="govuk-grid-column-one-quarter govuk-body-s govuk-!-margin-top-4">
-	    <div class="epr-!-account-info">
-		    <span class="your-name" id="bannerUserName">@Model.CurrentUser</span>
+        <div class="epr-!-account-info">
+            <span class="your-name" id="bannerUserName">@Model.CurrentUser</span>
             <a asp-controller="@ControllerNames.Account" asp-action="@ActionNames.Signout" asp-area="MicrosoftIdentity" class="account-link">Sign out</a>
-	    </div>
+        </div>
     </div>
 
 </div>
