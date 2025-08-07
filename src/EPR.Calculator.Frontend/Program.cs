@@ -79,6 +79,12 @@ builder.Services.AddTransient<IApiService, ApiService>();
 
 var app = builder.Build();
 
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("Content-Security-Policy", "default-src 'self'; font-src 'self';frame-src 'self'; img-src 'self'; script-src 'self'; style-src 'self'");
+    await next();
+});
+
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler("/StandardError/Index");
 
