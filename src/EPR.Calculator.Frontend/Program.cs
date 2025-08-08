@@ -82,7 +82,8 @@ var app = builder.Build();
 // add csp headers
 app.Use(async (context, next) =>
 {
-    context.Response.Headers.Append("Content-Security-Policy", "default-src 'self'; font-src 'self';frame-src 'self'; img-src 'self'; script-src 'self'; style-src 'self';frame-ancestors 'self';");
+    context.Response.Headers.Append("Content-Security-Policy", "default-src 'self'; font-src 'self';frame-src 'self'; img-src 'self'; script-src 'self';frame-ancestors 'self'");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
     await next();
 });
 
