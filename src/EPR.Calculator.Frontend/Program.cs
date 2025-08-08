@@ -94,7 +94,6 @@ app.UseExceptionHandler("/StandardError/Index");
 if (!app.Environment.IsDevelopment() && environmentName != EPR.Calculator.Frontend.Constants.Environment.Local.ToLower())
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    // Enable to verify in localhost
     app.UseHsts();
 }
 
