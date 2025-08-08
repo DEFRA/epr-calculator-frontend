@@ -88,6 +88,12 @@ if (!app.Environment.IsDevelopment() && environmentName != EPR.Calculator.Fronte
     app.UseHsts();
 }
 
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    await next();
+});
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
