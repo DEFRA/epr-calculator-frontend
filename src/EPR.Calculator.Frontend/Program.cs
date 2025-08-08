@@ -84,9 +84,6 @@ builder.Services.AddHsts(options =>
     options.Preload = true;
     options.IncludeSubDomains = true;
     options.MaxAge = TimeSpan.FromDays(365);
-
-    // Enable to verify in localhost
-    // options.ExcludedHosts.Clear();
 });
 
 var app = builder.Build();
