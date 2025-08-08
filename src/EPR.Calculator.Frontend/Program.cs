@@ -8,6 +8,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
@@ -77,6 +78,17 @@ builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
 builder.Services.AddTransient<ICalculatorRunDetailsService, CalculatorRunDetailsService>();
 builder.Services.AddTransient<IApiService, ApiService>();
 
+// Add Hsts
+builder.Services.AddHsts(options =>
+{
+    options.Preload = true;
+    options.IncludeSubDomains = true;
+    options.MaxAge = TimeSpan.FromDays(365);
+
+    // Enable to verify in localhost
+    // options.ExcludedHosts.Clear();
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -85,6 +97,7 @@ app.UseExceptionHandler("/StandardError/Index");
 if (!app.Environment.IsDevelopment() && environmentName != EPR.Calculator.Frontend.Constants.Environment.Local.ToLower())
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    // Enable to verify in localhost
     app.UseHsts();
 }
 
