@@ -52,6 +52,9 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
     options.Cookie.Name = builder.Configuration.GetValue<string>("SessionCookieName");
+
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 if (environmentName != EPR.Calculator.Frontend.Constants.Environment.Local.ToLower())
