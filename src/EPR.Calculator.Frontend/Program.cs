@@ -22,6 +22,19 @@ builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration,
     .AddDownstreamApi("DownstreamApi", builder.Configuration.GetSection("DownstreamApi"))
     .AddInMemoryTokenCaches();
 
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    // Ensures that SameSite=None is respected
+    options.MinimumSameSitePolicy = SameSiteMode.None;
+});
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.SameSite = SameSiteMode.None;             // Required for Azure AD redirects
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // HTTPS only
+    options.Cookie.HttpOnly = true;                          // Prevent JS access
+});
+
 builder.Services.AddRazorPages().AddMvcOptions(options =>
 {
     var policy = new AuthorizationPolicyBuilder()
@@ -49,12 +62,11 @@ builder.Services.AddHealthChecks();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(builder.Configuration.GetValue<int>("SessionTimeOut"));
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
     options.Cookie.Name = builder.Configuration.GetValue<string>("SessionCookieName");
-
-    options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 if (environmentName != EPR.Calculator.Frontend.Constants.Environment.Local.ToLower())
