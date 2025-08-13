@@ -8,6 +8,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
@@ -76,6 +77,14 @@ builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
 // Register services.
 builder.Services.AddTransient<ICalculatorRunDetailsService, CalculatorRunDetailsService>();
 builder.Services.AddTransient<IApiService, ApiService>();
+
+// Add Hsts
+builder.Services.AddHsts(options =>
+{
+    options.Preload = true;
+    options.IncludeSubDomains = true;
+    options.MaxAge = TimeSpan.FromDays(365);
+});
 
 var app = builder.Build();
 
