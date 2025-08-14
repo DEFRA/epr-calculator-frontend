@@ -8,6 +8,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
@@ -21,6 +22,19 @@ builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration,
     .EnableTokenAcquisitionToCallDownstreamApi(builder.Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' '))
     .AddDownstreamApi("DownstreamApi", builder.Configuration.GetSection("DownstreamApi"))
     .AddInMemoryTokenCaches();
+
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    // Ensures that SameSite=None is respected
+    options.MinimumSameSitePolicy = SameSiteMode.None;
+});
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.SameSite = SameSiteMode.None;             // Required for Azure AD redirects
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // HTTPS only
+    options.Cookie.HttpOnly = true;                          // Prevent JS access
+});
 
 builder.Services.AddRazorPages().AddMvcOptions(options =>
 {
@@ -49,6 +63,8 @@ builder.Services.AddHealthChecks();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(builder.Configuration.GetValue<int>("SessionTimeOut"));
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
     options.Cookie.Name = builder.Configuration.GetValue<string>("SessionCookieName");
@@ -76,6 +92,14 @@ builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
 // Register services.
 builder.Services.AddTransient<ICalculatorRunDetailsService, CalculatorRunDetailsService>();
 builder.Services.AddTransient<IApiService, ApiService>();
+
+// Add Hsts
+builder.Services.AddHsts(options =>
+{
+    options.Preload = true;
+    options.IncludeSubDomains = true;
+    options.MaxAge = TimeSpan.FromDays(365);
+});
 
 var app = builder.Build();
 
