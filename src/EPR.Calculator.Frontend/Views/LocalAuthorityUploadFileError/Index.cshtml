@@ -4,11 +4,10 @@
     ViewData["Title"] = "Run the service administrator calculator - Upload CSV Error";
     var validationErrorList = Model.ValidationErrors;
     var errorList = Model.LapcapErrors;
-    var BackLink = "LocalAuthorityUploadFile";
     var defaultError = Model.Errors;
 }
 
-<partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
+<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">

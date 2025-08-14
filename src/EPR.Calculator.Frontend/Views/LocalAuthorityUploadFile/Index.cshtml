@@ -2,12 +2,9 @@
 
 @{
     var errors = Model.Errors;
-    var BackLink = "ViewLocalAuthorityDisposalCosts";
-
 }
 
-<partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
-
+<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
 
 @if (errors != null)
 {

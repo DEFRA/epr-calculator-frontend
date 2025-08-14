@@ -71,6 +71,12 @@ namespace EPR.Calculator.Frontend.Controllers
                     CommonUtil.GetUserName(this.HttpContext),
                     isSelectAll,
                     isSelectAllPage);
+                billingInstructionsViewModel.BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = this.GetBackLink(),
+                    RunId = calculationRunId,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                };
 
                 if (isSelectAll &&
                     billingInstructionsViewModel.ProducerIds != null &&

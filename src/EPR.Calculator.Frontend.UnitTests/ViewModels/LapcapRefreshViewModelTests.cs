@@ -47,7 +47,9 @@
             var same = new LapcapRefreshViewModel
             {
                 LapcapTemplateValue = TestClass.LapcapTemplateValue,
-                FileName = TestClass.FileName
+                FileName = TestClass.FileName,
+                CurrentUser = TestClass.CurrentUser,
+                BackLinkViewModel = TestClass.BackLinkViewModel
             };
             var different = Fixture.Create<LapcapRefreshViewModel>();
 

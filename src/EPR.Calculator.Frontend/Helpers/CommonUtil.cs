@@ -3,7 +3,6 @@
 // </copyright>
 
 using EPR.Calculator.Frontend.Constants;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace EPR.Calculator.Frontend.Helpers
 {
