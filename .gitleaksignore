@@ -1,1 +1,4 @@
 ﻿**/ConfigSection.cs
+src/**/ConfigSection.cs
+/src/**/ConfigSection.cs
+./src/**/ConfigSection.cs
