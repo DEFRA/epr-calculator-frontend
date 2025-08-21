@@ -60,10 +60,12 @@
                         <h2 class="govuk-heading-m">Downloads</h2>
                         <p class="govuk-body">Download files related to this calculation run.</p>
 
-                        <button type="button" id="downloadResultFileBtn" class="govuk-button govuk-button--secondary" data-module="govuk-button" 
-                                onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
+                        <a class="govuk-button govuk-button--secondary"
+                           role="button"
+                           draggable="false"
+                           href="@Url.Action(ActionNames.DownloadResultFile,ControllerNames.FileDownloadController, new { runId = Model.CalculatorRunDetails.RunId })">
                             Results file
-                        </button>
+                        </a>
 
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
@@ -96,10 +98,10 @@
                     </fieldset>
                 </div>
 
-                <div class="govuk-button-group">                   
-                        <button type="Submit" class="govuk-button" data-module="govuk-button">
-                            Continue
-                        </button>                    
+                <div class="govuk-button-group">
+                    <button type="Submit" class="govuk-button" data-module="govuk-button">
+                        Continue
+                    </button>
 
                     <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
                 </div>

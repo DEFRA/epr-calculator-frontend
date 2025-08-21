@@ -74,5 +74,50 @@
         /// ProcessSelection.
         /// </summary>
         public const string ProcessSelection = "ProcessSelection";
+
+        /// <summary>
+        /// ClearSelection.
+        /// </summary>
+        public const string ClearSelection = "ClearSelection";
+
+        /// <summary>
+        /// Select All.
+        /// </summary>
+        public const string SelectAll = "SelectAll";
+
+        /// <summary>
+        /// Select All Page.
+        /// </summary>
+        public const string SelectAllPage = "SelectAllPage";
+
+        /// <summary>
+        /// Generate Draft Billing File.
+        /// </summary>
+        public const string GenerateDraftBillingFile = "GenerateDraftBillingFile";
+
+        /// <summary>
+        /// Accept Selected.
+        /// </summary>
+        public const string AcceptSelected = "AcceptSelected";
+
+        /// <summary>
+        /// Reject Selected.
+        /// </summary>
+        public const string RejectSelected = "RejectSelected";
+
+        /// <summary>
+        /// Download Result File.
+        /// </summary>
+        public const string DownloadResultFile = "DownloadResultFile";
+
+        /// <summary>
+        /// Download Billing File.
+        /// </summary>
+        public const string DownloadBillingFile = "DownloadBillingFile";
+
+        /// <summary>
+        /// Download Billing File Error.
+        /// </summary>
+        public const string IndexNew = "IndexNew";
     }
 }

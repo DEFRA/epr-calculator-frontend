@@ -222,5 +222,25 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
 
             Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/ClassifyRunConfirmation/{_calculationRun.Id}");
         }
+
+        [TestMethod]
+        public void GetTurnOnFeatureUrl_ShouldReturnCalculationRunOverview_WhenInitialRunAndIsBillingFileGeneratingTrue()
+        {
+            // Assert
+            _calculationRun = new CalculationRun
+            {
+                Id = 1,
+                Name = "Test1",
+                Financial_Year = "2024-25",
+                CreatedBy = "TestUser",
+                CalculatorRunClassificationId = RunClassification.INITIAL_RUN,
+                HasBillingFileGenerated = false,
+                IsBillingFileGenerating = true
+            };
+            _testClass = new CalculationRunViewModel(_calculationRun);
+            Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
+
+            Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/CalculationRunOverview/{_calculationRun.Id}");
+        }
     }
 }

@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
@@ -22,13 +23,17 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class ClassifyRunConfirmationController(
         IConfiguration configuration,
-        IHttpClientFactory clientFactory,
-        ILogger<ClassifyRunConfirmationController> logger,
-        ITokenAcquisition tokenAcquisition, TelemetryClient telemetryClient)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, clientFactory)
+        IApiService apiService,
+        ITokenAcquisition tokenAcquisition,
+        TelemetryClient telemetryClient,
+        ICalculatorRunDetailsService calculatorRunDetailsService)
+        : BaseController(
+            configuration,
+            tokenAcquisition,
+            telemetryClient,
+            apiService,
+            calculatorRunDetailsService)
     {
-        private readonly IConfiguration _configuration = configuration;
-
         [HttpGet("{runId}")]
         public async Task<IActionResult> Index(int runId)
         {
@@ -53,7 +58,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.Index, new { runId });
             }
 
-            return RedirectToAction(ActionNames.Index, ControllerNames.PaymentCalculator, new { runId = runId });
+            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = runId });
         }
 
         private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
@@ -70,23 +75,15 @@ namespace EPR.Calculator.Frontend.Controllers
                 BackLink = ControllerNames.CalculationRunDetails,
             };
 
-            var runDetails = await this.GetCalculatorRundetails(runId);
+            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
+                this.HttpContext,
+                runId);
             if (runDetails != null && runDetails!.RunId != 0)
             {
                 viewModel.CalculatorRunDetails = runDetails;
-                this.SetDownloadParameters(viewModel);
             }
 
             return viewModel;
-        }
-
-        private void SetDownloadParameters(ClassifyRunConfirmationViewModel viewModel)
-        {
-            var baseApiUrl = this._configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
-            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.CalculatorRunDetails.RunId}");
-
-            viewModel.DownloadErrorURL = $"/DownloadFileErrorNew/{viewModel.CalculatorRunDetails.RunId}";
-            viewModel.DownloadTimeout = this._configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
         }
     }
 }

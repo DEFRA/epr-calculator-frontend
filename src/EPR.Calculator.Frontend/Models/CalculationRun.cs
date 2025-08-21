@@ -19,5 +19,7 @@ namespace EPR.Calculator.Frontend.Models
         public DateTime CreatedAt { get; set; }
 
         public bool HasBillingFileGenerated { get; set; }
+
+        public bool? IsBillingFileGenerating { get; set; }
     }
 }

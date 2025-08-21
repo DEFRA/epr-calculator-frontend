@@ -1,8 +1,9 @@
 ﻿using System.Net;
 using System.Text;
 using AutoFixture;
+using EPR.Calculator.Frontend.Services;
+using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Http;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
@@ -111,6 +112,120 @@ namespace EPR.Calculator.Frontend.UnitTests
            .Callback<string>((key) => sessionStorage.Remove(key));
 
             return sessionMock;
+        }
+
+        /// <summary>
+        /// Creates a mock <see cref="IApiService"/> and configures it's methods to return values.
+        /// </summary>
+        /// <param name="httpStatusCode">The HTTP status code to return in the response.</param>
+        /// <param name="callApiResponse">The JSON content to return in the response.</param>
+        /// <returns>A mock <see cref="IApiService"/>.</returns>
+        public static Mock<IApiService> BuildMockApiService(
+            HttpStatusCode httpStatusCode,
+            string callApiResponse = "{}")
+            => BuildMockApiService([(httpStatusCode, callApiResponse)]);
+
+        /// <summary>
+        /// Creates a mock <see cref="IApiService"/> and configures it's methods to return values.
+        /// </summary>
+        /// <param name="responses">
+        /// A sequence of responses for CallApi to return in order.
+        /// The final value is returned indfinitely for subsequent calls.
+        /// </param>
+        /// <returns>A mock <see cref="IApiService"/>.</returns>
+        public static Mock<IApiService> BuildMockApiService(
+            IEnumerable<(HttpStatusCode StatusCode, string CallApiResponse)> responses)
+        {
+            var service = new Mock<IApiService>();
+
+            // Mock the GetApiUrl method.
+            service.SetupSequence(s => s.GetApiUrl(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new Uri("http://test.test"));
+
+            // Mock the CallApi method to return a sequence of responses.
+            var messages = responses.Select(r => new HttpResponseMessage
+            {
+                StatusCode = r.StatusCode,
+                Content = new StringContent(r.CallApiResponse)
+            });
+            var setup = service.SetupSequence(s => s.CallApi(
+                It.IsAny<HttpContext>(),
+                It.IsAny<HttpMethod>(),
+                It.IsAny<Uri>(),
+                It.IsAny<string>(),
+                It.IsAny<object>()).Result);
+
+            // Queue up the response messages.
+            foreach (var item in messages)
+            {
+                setup.Returns(item);
+            }
+
+            // After Returning the final message, overwrite the setup to return the final message
+            // every time from now on.
+            setup.Returns(() =>
+            {
+                service.Setup(s => s.CallApi(
+                It.IsAny<HttpContext>(),
+                It.IsAny<HttpMethod>(),
+                It.IsAny<Uri>(),
+                It.IsAny<string>(),
+                It.IsAny<object>()).Result).Returns(messages.Last());
+                return messages.Last();
+            });
+
+            return service;
+        }
+
+        public static Mock<IApiService> BuildMockApiService(
+            Dictionary<(HttpMethod Method, string Url, string Argument), (HttpStatusCode StatusCode, string Response)> responses)
+        {
+            var service = new Mock<IApiService>();
+
+            service.Setup(s => s.GetApiUrl(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns((string section, string key) => new Uri($"http://test/{section}/{key}"));
+
+            service.Setup(s => s.GetApiUrl(It.IsAny<string>()))
+                .Returns((string key) => new Uri($"http://test/{key}"));
+
+            service.Setup(s => s.CallApi(
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<HttpMethod>(),
+                    It.IsAny<Uri>(),
+                    It.IsAny<string>(),
+                    It.IsAny<object>()))
+                .ReturnsAsync((HttpContext ctx, HttpMethod method, Uri uri, string argument, object body) =>
+                {
+                    var key = (method, uri.AbsoluteUri, argument ?? string.Empty);
+                    if (responses.TryGetValue(key, out var resp))
+                    {
+                        return new HttpResponseMessage
+                        {
+                            StatusCode = resp.StatusCode,
+                            Content = new StringContent(resp.Response)
+                        };
+                    }
+
+                    // Default response if not found
+                    return new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent("{}")
+                    };
+                });
+
+            return service;
+        }
+
+        public static Mock<ICalculatorRunDetailsService> BuildMockCalculatorRunDetailsService(
+            CalculatorRunDetailsViewModel data)
+        {
+            var service = new Mock<ICalculatorRunDetailsService>();
+            service.Setup(s => s.GetCalculatorRundetailsAsync(
+                It.IsAny<HttpContext>(),
+                It.IsAny<int>()))
+                .ReturnsAsync(data);
+
+            return service;
         }
     }
 }

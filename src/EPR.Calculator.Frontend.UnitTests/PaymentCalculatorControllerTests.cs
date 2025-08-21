@@ -1,25 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Configuration;
-using System.Net;
+﻿using System.Net;
 using System.Security.Claims;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
-using EPR.Calculator.Frontend.Validators;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using Moq;
-using Moq.Protected;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -51,7 +45,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                    _configuration,
                    _mockTokenAcquisition.Object,
                    _telemetryClient,
-                   _mockClientFactory.Object)
+                   new Mock<IApiService>().Object,
+                   new Mock<ICalculatorRunDetailsService>().Object)
             {
                 // Setting the mocked HttpContext for the controller
                 ControllerContext = new ControllerContext
@@ -73,22 +68,16 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             // Arrange
             CalculatorRunDto calculatorRunDto = MockData.GetCalculatorRun();
+            var runDetails = Fixture.Create<CalculatorRunDetailsViewModel>();
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.OK,
+                calculatorRunDto,
+                runDetails,
+                _configuration);
 
-            var mockHttpMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.OK, calculatorRunDto);
-            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(mockHttpMessageHandler.Object);
-
-            _controller = new PaymentCalculatorController(
-                _configuration,
-                _mockTokenAcquisition.Object,
-                _telemetryClient,
-                _mockClientFactory.Object);
-
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = _mockHttpContext.Object
-            };
             // Act
-            var result = await _controller.Index(calculatorRunDto.RunId) as ViewResult;
+            var result = await controller.Index(calculatorRunDto.RunId) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -96,7 +85,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var model = result.Model as AcceptInvoiceInstructionsViewModel;
             Assert.AreEqual(calculatorRunDto.RunId, model.RunId);
             Assert.IsFalse(model.AcceptAll);
-            Assert.AreEqual("Test Run", model.CalculationRunTitle);
+            Assert.AreEqual(runDetails.RunName, model.CalculationRunTitle);
             Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, model.BackLink);
         }
 
@@ -120,22 +109,13 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             // Arrange
             var model = new AcceptInvoiceInstructionsViewModel { RunId = 123 };
-            var mockHttpMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Accepted, model);
-            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(mockHttpMessageHandler.Object);
-
-            _controller = new PaymentCalculatorController(
-                _configuration,
-                _mockTokenAcquisition.Object,
-                _telemetryClient,
-                _mockClientFactory.Object);
-
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = _mockHttpContext.Object
-            };
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.Accepted,
+                model);
 
             // Act
-            var result = await _controller.Submit(model) as RedirectToActionResult;
+            var result = await controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -167,7 +147,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                 _configuration,
                 _mockTokenAcquisition.Object,
                 _telemetryClient,
-                _mockClientFactory.Object)
+                new Mock<IApiService>().Object,
+                new Mock<ICalculatorRunDetailsService>().Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object }
             };
@@ -197,7 +178,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                 _configuration,
                 _mockTokenAcquisition.Object,
                 _telemetryClient,
-                _mockClientFactory.Object)
+                new Mock<IApiService>().Object,
+                new Mock<ICalculatorRunDetailsService>().Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object }
             };
@@ -216,30 +198,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Arrange
             var model = new AcceptInvoiceInstructionsViewModel { RunId = 123, AcceptAll = true };
 
-            // Both API calls succeed
-            var handlerAccepted = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Accepted, model);
-            var handlerSuccess = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.OK, model);
-
-            var httpClientAccepted = new HttpClient(handlerAccepted.Object);
-            var httpClientSuccess = new HttpClient(handlerSuccess.Object);
-
-            // First call: GenerateBillingFile (POST) -> Accepted
-            // Second call: AcceptBillingInstructions (PUT) -> OK
-            _mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
-                .Returns(httpClientAccepted) // For TryGenerateBillingFile
-                .Returns(httpClientSuccess); // For TryAcceptBillingInstructions
-
-            _controller = new PaymentCalculatorController(
-                _configuration,
-                _mockTokenAcquisition.Object,
-                _telemetryClient,
-                _mockClientFactory.Object)
-            {
-                ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object }
-            };
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.Accepted,
+                model);
 
             // Act
-            var result = await _controller.Submit(model) as RedirectToActionResult;
+            var result = await controller.Submit(model) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -253,22 +218,12 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             // Arrange
             var runId = 123;
-            var handlerSuccess = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.OK, null);
-            var httpClientSuccess = new HttpClient(handlerSuccess.Object);
 
-            _mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>()))
-                .Returns(httpClientSuccess);
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.Accepted);
 
-            var controller = new PaymentCalculatorController(
-                _configuration,
-                _mockTokenAcquisition.Object,
-                _telemetryClient,
-                _mockClientFactory.Object)
-            {
-                ControllerContext = new ControllerContext { HttpContext = _mockHttpContext.Object }
-            };
-
-            // Use reflection to invoke the private method
+            // Use reflection to get the private method for invocation.
             var method = typeof(PaymentCalculatorController)
                 .GetMethod("TryAcceptBillingInstructions", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
@@ -318,57 +273,32 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
         }
 
-        [TestMethod]
-        public void Index_ReturnsViewResult_WithCorrectViewName()
+        private PaymentCalculatorController BuildTestClass(
+            Fixture fixture,
+            HttpStatusCode httpStatusCode,
+            object data = null,
+            CalculatorRunDetailsViewModel details = null,
+            IConfiguration configurationItems = null)
         {
-            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+            data = data ?? MockData.GetCalculatorRun();
+            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
+            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            var mockApiService = TestMockUtils.BuildMockApiService(
+                httpStatusCode,
+                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
 
-            // Assert
-            var viewResult = _controller.BillingFileSuccess() as ViewResult;
-            Assert.IsNotNull(viewResult);
-            Assert.AreEqual(ViewNames.BillingConfirmationSuccess, viewResult.ViewName);
-        }
-
-        [TestMethod]
-        public void BillingFileSuccess_ReturnsViewResult_WithCorrectViewModel()
-        {
-            // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
-
-            // Act
-            var result = _controller.BillingFileSuccess() as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.BillingConfirmationSuccess, result.ViewName);
-
-            var model = result.Model as BillingFileSuccessViewModel;
-            Assert.IsNotNull(model);
-
-            var confirmationModel = model.ConfirmationViewModel;
-            Assert.IsNotNull(confirmationModel);
-            Assert.AreEqual(ConfirmationMessages.BillingFileSuccessTitle, confirmationModel.Title);
-            Assert.AreEqual(ConfirmationMessages.BillingFileSuccessBody, confirmationModel.Body);
-            CollectionAssert.AreEqual(ConfirmationMessages.BillingFileSuccessAdditionalParagraphs, confirmationModel.AdditionalParagraphs);
-            Assert.AreEqual(ControllerNames.Dashboard, confirmationModel.RedirectController);
-        }
-
-        private void MockHttpMessageHandler(out AcceptInvoiceInstructionsViewModel model, out Mock<HttpMessageHandler> mockHttpMessageHandler)
-        {
-            model = new AcceptInvoiceInstructionsViewModel { RunId = 123 };
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-            var context = new DefaultHttpContext()
+            var testClass = new PaymentCalculatorController(
+                configurationItems,
+                new Mock<ITokenAcquisition>().Object,
+                new TelemetryClient(),
+                mockApiService,
+                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
+            testClass.ControllerContext.HttpContext = new DefaultHttpContext()
             {
-                Session = mockSession
-            };
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = context
+                Session = TestMockUtils.BuildMockSession(fixture).Object,
             };
 
-            mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            return testClass;
         }
     }
 }

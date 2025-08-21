@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using EPR.Calculator.Frontend.ViewModels.Enums;
 using Microsoft.ApplicationInsights;
@@ -17,16 +18,19 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class CalculationRunDetailsNewController : BaseController
     {
-        private readonly IConfiguration _configuration;
-
         public CalculationRunDetailsNewController(
             IConfiguration configuration,
-            IHttpClientFactory clientFactory,
+            IApiService apiService,
             ITokenAcquisition tokenAcquisition,
-            TelemetryClient telemetryClient)
-            : base(configuration, tokenAcquisition, telemetryClient, clientFactory)
+            TelemetryClient telemetryClient,
+            ICalculatorRunDetailsService calculatorRunDetailsService)
+            : base(
+                  configuration,
+                  tokenAcquisition,
+                  telemetryClient,
+                  apiService,
+                  calculatorRunDetailsService)
         {
-            _configuration = configuration;
         }
 
         [Route("{runId}")]
@@ -75,23 +79,15 @@ namespace EPR.Calculator.Frontend.Controllers
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
             };
 
-            var runDetails = await this.GetCalculatorRundetails(runId);
+            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
+                this.HttpContext,
+                runId);
             if (runDetails != null && runDetails!.RunId > 0)
             {
                 viewModel.CalculatorRunDetails = runDetails;
-                this.SetDownloadParameters(viewModel);
             }
 
             return viewModel;
-        }
-
-        private void SetDownloadParameters(CalculatorRunDetailsNewViewModel viewModel)
-        {
-            var baseApiUrl = this._configuration.GetValue<string>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultApi}");
-            viewModel.DownloadResultURL = new Uri($"{baseApiUrl}/{viewModel.CalculatorRunDetails.RunId}");
-
-            viewModel.DownloadErrorURL = $"/DownloadFileErrorNew/{viewModel.CalculatorRunDetails.RunId}";
-            viewModel.DownloadTimeout = this._configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
         }
     }
 }

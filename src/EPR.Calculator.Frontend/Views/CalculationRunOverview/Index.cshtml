@@ -4,7 +4,7 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunOverviewViewModel
 @{
-    var calcDetails = Model.CalculatorRunDetails;    
+    var calcDetails = Model.CalculatorRunDetails;
     var backLinkModel = new BackLinkPartialViewModel
             {
                 BackLink = Model.BackLink,
@@ -64,15 +64,35 @@
 
                                 <p class="govuk-body">Download files related to this calculation run.</p>
                                 <div class="govuk-button-group">
-                                    <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
-                                            onclick="downloadFile('@Model.DownloadResultURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
+                                    <a class="govuk-button govuk-button--secondary"
+                                       role="button"
+                                       draggable="false"
+                                       href="@Url.Action(ActionNames.DownloadResultFile, ControllerNames.FileDownloadController, new { runId = Model.CalculatorRunDetails.RunId })">
                                         Results file
-                                    </button>
-                                    <button class="govuk-button govuk-button--secondary" data-module="govuk-button"
-                                            onclick="downloadFile('@Model.DownloadCsvBillingURL', '@Model.DownloadErrorURL', event, '@Model.DownloadTimeout', '@HttpContextAccessor.HttpContext?.Session.GetString("accessToken")');">
-                                        Draft billing file
-                                    </button>
+                                    </a>
+
+                                    <a class="govuk-button govuk-button--secondary"
+                                       role="button"
+                                       draggable="false"
+                                       href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController,
+                                        new { runId = Model.CalculatorRunDetails.RunId,
+                                                isBillingFile= @CommonConstants.IsBillingFileTrue,
+                                                isDraftBillingFile=@CommonConstants.IsDraftFileTrue })">
+                                        @(calcDetails.IsBillingFileGenerating == true ? BillingInstructionConstants.DraftBillingFileGenerating : BillingInstructionConstants.DraftBillingFile)
+                                    </a>
                                 </div>
+
+                                <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                                <h2 class="govuk-heading-m">Remove this run's classification</h2>
+                                <p class="govuk-body">Mark this run as a test or delete it to remove its classification.</p>
+                                <div class="govuk-button-group">
+                                    <a asp-action=@ActionNames.Index asp-controller=@ControllerNames.CalculationRunDelete asp-route-runId="@Model.CalculatorRunDetails.RunId" class="govuk-button govuk-button--secondary">
+                                        Remove classification
+                                    </a>
+                                </div>
+
+                                <partial name="_AmendBillingInstructionPartial" model="calcDetails" />
+
                                 <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
                                 <h2 class="govuk-heading-m">Next step</h2>
@@ -89,7 +109,7 @@
 
                                 <div class="govuk-button-group">
                                     <div class="govuk-button-group">
-                                        <button type="Submit" @(calcDetails.IsBillingFileGenerating == true ?  "disabled" : "") class="govuk-button" data-module="govuk-button">
+                                        <button type="Submit" @(calcDetails.IsBillingFileGenerating == true ? "disabled" : "") class="govuk-button" data-module="govuk-button">
                                             Continue
                                         </button>
                                     </div>

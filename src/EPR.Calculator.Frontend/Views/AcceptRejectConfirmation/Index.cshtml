@@ -1,30 +1,70 @@
 ﻿@using EPR.Calculator.Frontend.Helpers;
 @using EPR.Calculator.Frontend.Controllers;
 @model AcceptRejectConfirmationViewModel
+@{
+    var backLinkModel = new BackLinkPartialViewModel
+            {
+                BackLink = Model.BackLink,
+                CurrentUser = Model.CurrentUser,
+                RunId = Model.CalculationRunId
+            };
+}
+<partial name="_BackLinkPartialNew" model="backLinkModel" />
 
-<partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
+@{
+    var approveDataHasError = ViewData.ModelState.ContainsKey(nameof(Model.ApproveData)) &&
+                              ViewData.ModelState[nameof(Model.ApproveData)]?.Errors?.Count > 0;
+    var formGroupClass = "govuk-form-group" + (approveDataHasError ? " govuk-form-group--error" : "");
+}
 
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     @using (Html.BeginForm(ActionNames.Submit, CommonUtil.GetControllerName(typeof(AcceptRejectConfirmationController)), FormMethod.Post))
     {
         @Html.AntiForgeryToken()
-        <div class="govuk-form-group">
-            <span class="govuk-caption-xl">Calculation run 99</span>
-            <fieldset class="govuk-fieldset">
+        @Html.HiddenFor(m => m.CurrentUser)
+        @Html.HiddenFor(m => m.CalculationRunId)
+        @Html.HiddenFor(m => m.CalculationRunName)
+        @Html.HiddenFor(m => m.Status)
+        @Html.HiddenFor(m => m.Reason)
+        @Html.HiddenFor(m => m.BackLink)
+
+        <!-- Error Summary -->
+        @if (ViewData.ModelState[$"Summary_{nameof(Model.ApproveData)}"]?.Errors.Count > 0)
+        {
+            var summaryError = ViewData.ModelState[$"Summary_{nameof(Model.ApproveData)}"]?.Errors.First().ErrorMessage;
+
+            <div class="govuk-error-summary" role="alert">
+                <h2 class="govuk-error-summary__title">There is a problem</h2>
+                <ul class="govuk-list govuk-error-summary__list">
+                    <li><a href="#ApproveData">@summaryError</a></li>
+                </ul>
+            </div>
+        }
+
+        <div class="@formGroupClass">
+            <span class="govuk-caption-xl">@Model.CalculationRunName</span>
+            <fieldset class="govuk-fieldset" aria-describedby="ApproveData-error">
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                     <h1 class="govuk-fieldset__heading">
-                        Are you sure you want to accept all selected billing instructions?
+                        Are you sure you want to @Model.AcceptRejectConfirmationText all selected billing instructions?
                     </h1>
                 </legend>
+                @if (approveDataHasError)
+                {
+                    <span id="ApproveData-error" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">Error:</span>
+                        @ViewData.ModelState[nameof(Model.ApproveData)]?.Errors.First().ErrorMessage
+                    </span>
+                }
                 <div class="govuk-radios" data-module="govuk-radios">
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" id="radio-yes" name="approve-data" type="radio" value="yes">
+                        <input class="govuk-radios__input" id="ApproveData" name="ApproveData" type="radio" value="true" @(Model.ApproveData == true ? "checked" : "")>
                         <label class="govuk-label govuk-radios__label" for="radio-yes">
                             Yes
                         </label>
                     </div>
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" id="radio-no" name="approve-data" type="radio" value="no">
+                        <input class="govuk-radios__input" id="radio-no" name="ApproveData" type="radio" value="false" @(Model.ApproveData == false ? "checked" : "")>
                         <label class="govuk-label govuk-radios__label" for="radio-no">
                             No
                         </label>

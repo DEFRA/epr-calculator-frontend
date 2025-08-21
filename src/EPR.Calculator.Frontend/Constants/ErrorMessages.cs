@@ -79,5 +79,35 @@
         /// Error message for error in run.
         /// </summary>
         public const string RunDetailError = "The calculation was unsuccessful";
+
+        /// <summary>
+        /// Error message for Calculator Run Id great than zero.
+        /// </summary>
+        public const string CalculatorRunIdGreaterThanZero = "Calculation Run Id must be greater than zero.";
+
+        /// <summary>
+        /// Error message for status must be a valid enum.
+        /// </summary>
+        public const string StatusMustBeValid = "Status must be a valid value.";
+
+        /// <summary>
+        /// Error message for ApproveData on the AcceptRejectConfirmationViewModel.
+        /// </summary>
+        public const string AcceptRejectConfirmationApproveDataRequired = "Select yes or no to confirm whether you want to {0} all selected billing instructions.";
+
+        /// <summary>
+        /// Error message for ApproveData on the AcceptRejectConfirmationViewModel.
+        /// </summary>
+        public const string AcceptRejectConfirmationApproveDataRequiredSummary = "Please select an option before continuing.";
+
+        /// <summary>
+        /// Error message for Reason on the AcceptRejectConfirmationViewModel.
+        /// </summary>
+        public const string ReasonForRejectionRequired = "Reason for rejection is required.";
+
+        /// <summary>
+        /// Error message for Reason length on the AcceptRejectConfirmationViewModel.
+        /// </summary>
+        public const string ReasonMustNotExceed500Characters = "Reason for rejection must not exceed 500 characters.";
     }
 }
