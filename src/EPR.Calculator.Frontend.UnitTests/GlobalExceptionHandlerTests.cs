@@ -10,10 +10,10 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class GlobalExceptionHandlerTests
     {
-        private Mock<ILogger<GlobalExceptionHandler>> _mockLogger;
-        private Mock<IHostEnvironment> _mockEnv;
-        private GlobalExceptionHandler _exceptionHandler;
-        private DefaultHttpContext _httpContext;
+        private Mock<ILogger<GlobalExceptionHandler>> _mockLogger = null!;
+        private Mock<IHostEnvironment> _mockEnv = null!;
+        private GlobalExceptionHandler _exceptionHandler = null!;
+        private DefaultHttpContext _httpContext = null!;
         private CancellationToken _cancellationToken;
 
         [TestInitialize]

@@ -41,7 +41,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(TotalRecords, resultModel.SchemeParameters.Count());
+            Assert.AreEqual(TotalRecords, resultModel.SchemeParameters.Count);
             Assert.AreEqual(1, resultModel.SchemeParameters.Count(t => t.SchemeParameterName == ParameterType.CommunicationCostsByCountry.GetDisplayName()));
             Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.CommunicationCostsByMaterial.GetDisplayName()));
             Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.BadDebtProvision.GetDisplayName()));

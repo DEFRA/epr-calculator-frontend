@@ -31,9 +31,9 @@ namespace EPR.Calculator.Frontend.Mappers
                 Id = x.ProducerId,
                 OrganisationName = x.ProducerName ?? string.Empty,
                 OrganisationId = x.ProducerId,
-                BillingInstruction = this.MapBillingInstruction(x.SuggestedBillingInstruction),
+                BillingInstruction = MapBillingInstruction(x.SuggestedBillingInstruction),
                 InvoiceAmount = x.SuggestedInvoiceAmount,
-                Status = this.MapBillingStatus(x.BillingInstructionAcceptReject),
+                Status = MapBillingStatus(x.BillingInstructionAcceptReject),
             }).ToList() ?? [];
 
             if (request.OrganisationId > 0)
@@ -79,7 +79,7 @@ namespace EPR.Calculator.Frontend.Mappers
         /// </summary>
         /// <param name="suggested">The suggested billing instruction as a string.</param>
         /// <returns>The corresponding <see cref="BillingInstruction"/> enum value.</returns>
-        private BillingInstruction MapBillingInstruction(string suggested)
+        private static BillingInstruction MapBillingInstruction(string suggested)
         {
             if (string.IsNullOrWhiteSpace(suggested))
             {
@@ -104,7 +104,7 @@ namespace EPR.Calculator.Frontend.Mappers
         /// </summary>
         /// <param name="acceptReject">The acceptReject column as a string.</param>
         /// <returns>The corresponding <see cref="BillingStatus"/> enum value.</returns>
-        private BillingStatus MapBillingStatus(string? acceptReject)
+        private static BillingStatus MapBillingStatus(string? acceptReject)
         {
             if (string.IsNullOrWhiteSpace(acceptReject))
             {

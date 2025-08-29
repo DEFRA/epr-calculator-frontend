@@ -29,13 +29,13 @@ namespace EPR.Calculator.Frontend.UnitTests
     {
         private readonly IConfiguration configuration = ConfigurationItems.GetConfigurationValues();
 
-        private CalculationRunNameController _controller;
-        private CalculatorRunNameValidator _validationRules;
-        private Mock<IHttpClientFactory> mockClientFactory;
-        private Mock<IConfiguration> mockConfiguration;
-        private Mock<ILogger<CalculationRunNameController>> mockLogger;
-        private Mock<ITempDataDictionary> _tempDataMock;
-        private Mock<ITokenAcquisition> mockTokenAcquisition;
+        private CalculationRunNameController _controller = null!;
+        private CalculatorRunNameValidator _validationRules = null!;
+        private Mock<IHttpClientFactory> mockClientFactory = null!;
+        private Mock<IConfiguration> mockConfiguration = null!;
+        private Mock<ILogger<CalculationRunNameController>> mockLogger = null!;
+        private Mock<ITempDataDictionary> _tempDataMock = null!;
+        private Mock<ITokenAcquisition> mockTokenAcquisition = null!;
 
         private Fixture Fixture { get; } = new Fixture();
 

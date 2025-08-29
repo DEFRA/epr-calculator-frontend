@@ -95,7 +95,7 @@ namespace EPR.Calculator.Frontend.Controllers
         private LapcapUploadViewModel CreateLapcapUploadViewModel()
         {
             var errors = this.TempData[UploadFileErrorIds.LocalAuthorityUploadErrors] != null
-                ? JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData[UploadFileErrorIds.LocalAuthorityUploadErrors]?.ToString())
+                ? JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData[UploadFileErrorIds.LocalAuthorityUploadErrors]?.ToString() ?? string.Empty)
                 : null;
 
             if (errors != null)

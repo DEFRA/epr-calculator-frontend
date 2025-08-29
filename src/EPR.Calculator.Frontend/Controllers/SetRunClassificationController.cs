@@ -46,7 +46,7 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var viewModel = await this.CreateViewModel(runId);
-                if (!await SetClassfications(runId, viewModel))
+                if (!await this.SetClassifications(runId, viewModel))
                 {
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
@@ -80,7 +80,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (!this.ModelState.IsValid)
                 {
                     var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
-                    await this.SetClassfications(model.CalculatorRunDetails.RunId, viewModel);
+                    await this.SetClassifications(model.CalculatorRunDetails.RunId, viewModel);
 
                     return this.View(ViewNames.SetRunClassificationIndex, viewModel);
                 }
@@ -96,7 +96,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     new ClassificationDto
                 {
                     RunId = model.CalculatorRunDetails.RunId,
-                    ClassificationId = (int)model.ClassifyRunType,
+                    ClassificationId = (int)model.ClassifyRunType!,
                 });
 
                 if (result.StatusCode == HttpStatusCode.Created)
@@ -105,8 +105,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
                 else
                 {
-                    var message = $"API did not return successful ({result.StatusCode}).";
-                    this.logger.LogError(message);
+                    this.logger.LogError("API did not return successful ({StatusCode}).", result.StatusCode);
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
             }
@@ -115,6 +114,29 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+        }
+
+        private static void SetStatusDescriptions(SetRunClassificationViewModel model)
+        {
+            var textInfo = new CultureInfo("en-GB", false).TextInfo;
+            if (model.FinancialYearClassifications != null)
+            {
+                foreach (var classification in model.FinancialYearClassifications.Classifications)
+                {
+                    classification.Description = GetStatusDescription(classification.Id);
+                    classification.Status = textInfo.ToTitleCase(classification.Status.ToLower());
+                }
+            }
+        }
+
+        private static string GetStatusDescription(int classificationId)
+        {
+            return classificationId switch
+            {
+                (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunDescription,
+                (int)RunClassification.TEST_RUN => CommonConstants.TestRunDescription,
+                _ => string.Empty,
+            };
         }
 
         private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
@@ -142,7 +164,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return viewModel;
         }
 
-        private async Task<HttpResponseMessage> GetClassfications(CalcFinancialYearRequestDto dto)
+        private async Task<HttpResponseMessage> GetClassifications(CalcFinancialYearRequestDto dto)
         {
             var apiUrl = this.ApiService.GetApiUrl(
                ConfigSection.CalculationRunSettings,
@@ -155,36 +177,16 @@ namespace EPR.Calculator.Frontend.Controllers
                 null);
         }
 
-        private void SetStatusDescriptions(SetRunClassificationViewModel model)
+        private async Task<bool> SetClassifications(int runId, SetRunClassificationViewModel viewModel)
         {
-            TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
-            foreach (var classification in model.FinancialYearClassifications.Classifications)
-            {
-                classification.Description = GetStatusDescription(classification.Id);
-                classification.Status = myTI.ToTitleCase(classification.Status.ToLower());
-            }
-        }
-
-        private string GetStatusDescription(int classificationId)
-        {
-            return classificationId switch
-            {
-               (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunDescription,
-                (int)RunClassification.TEST_RUN => CommonConstants.TestRunDescription,
-                _ => string.Empty,
-            };
-        }
-
-        private async Task<bool> SetClassfications(int runId, SetRunClassificationViewModel viewModel)
-        {
-            var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session) });
+            var classifications = await this.GetClassifications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session) });
             if (!classifications.IsSuccessStatusCode)
             {
                 return false;
             }
 
             viewModel.FinancialYearClassifications = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(classifications.Content.ReadAsStringAsync().Result);
-            this.SetStatusDescriptions(viewModel);
+            SetStatusDescriptions(viewModel);
             return true;
         }
     }

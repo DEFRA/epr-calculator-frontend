@@ -53,10 +53,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                return RedirectToAction(ActionNames.Index, new { runId });
+                return this.RedirectToAction(ActionNames.Index, new { runId });
             }
 
-            return RedirectToAction(ActionNames.Index, ControllerNames.SendBillingFile, new { runId = runId });
+            return this.RedirectToAction(ActionNames.Index, ControllerNames.SendBillingFile, new { runId = runId });
         }
 
         private async Task<CalculatorRunOverviewViewModel> CreateViewModel(int runId)

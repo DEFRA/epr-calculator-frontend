@@ -44,10 +44,10 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.HttpContext,
                 runId);
 
-            if (runDetails != null && runDetails!.RunId != 0)
+            if (runDetails != null && runDetails?.RunId != 0)
             {
                 acceptInvoiceInstructionsViewModel.RunId = runId;
-                acceptInvoiceInstructionsViewModel.CalculationRunTitle = runDetails.RunName;
+                acceptInvoiceInstructionsViewModel.CalculationRunTitle = runDetails?.RunName ?? string.Empty;
             }
 
             return this.View(acceptInvoiceInstructionsViewModel);

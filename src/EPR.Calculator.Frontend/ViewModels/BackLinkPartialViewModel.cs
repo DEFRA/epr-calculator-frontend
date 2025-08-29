@@ -1,10 +1,10 @@
 ﻿namespace EPR.Calculator.Frontend.ViewModels
 {
-    public class BackLinkPartialViewModel
+    public record BackLinkPartialViewModel
     {
-        public string BackLink { get; set; }
+        public string BackLink { get; set; } = null!;
 
-        public string CurrentUser { get; set; }
+        public string CurrentUser { get; set; } = null!;
 
         public int RunId { get; set; }
     }

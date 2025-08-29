@@ -88,7 +88,7 @@ namespace EPR.Calculator.Frontend.Controllers
         private ParameterUploadViewModel CreateParameterUploadViewModel()
         {
             var errors = this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors] != null
-                ? JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors]?.ToString())
+                ? JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors]?.ToString() ?? string.Empty)
                 : null;
 
             if (errors != null)
