@@ -17,6 +17,6 @@ namespace EPR.Calculator.Frontend.Enums
         Rebill = 3,
 
         [Description("Cancel Bill")]
-        Cancelbill = 4,
+        Cancel = 4,
     }
 }
