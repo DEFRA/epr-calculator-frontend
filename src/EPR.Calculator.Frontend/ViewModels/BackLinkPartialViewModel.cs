@@ -1,5 +1,8 @@
-﻿namespace EPR.Calculator.Frontend.ViewModels
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace EPR.Calculator.Frontend.ViewModels
 {
+    [ExcludeFromCodeCoverage]
     public record BackLinkPartialViewModel
     {
         public string BackLink { get; set; } = null!;
