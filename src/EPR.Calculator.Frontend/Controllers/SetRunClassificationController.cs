@@ -3,6 +3,7 @@ using System.Net;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
@@ -96,7 +97,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     new ClassificationDto
                 {
                     RunId = model.CalculatorRunDetails.RunId,
-                    ClassificationId = (int)model.ClassifyRunType!,
+                    ClassificationId = (int)model.ClassifyRunType,
                 });
 
                 if (result.StatusCode == HttpStatusCode.Created)
@@ -105,7 +106,8 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
                 else
                 {
-                    this.logger.LogError("API did not return successful ({StatusCode}).", result.StatusCode);
+                    var message = $"API did not return successful ({result.StatusCode}).";
+                    this.logger.LogError(message);
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
             }
@@ -114,29 +116,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.logger.LogError(ex, "An error occurred while processing the request.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
-        }
-
-        private static void SetStatusDescriptions(SetRunClassificationViewModel model)
-        {
-            var textInfo = new CultureInfo("en-GB", false).TextInfo;
-            if (model.FinancialYearClassifications != null)
-            {
-                foreach (var classification in model.FinancialYearClassifications.Classifications)
-                {
-                    classification.Description = GetStatusDescription(classification.Id);
-                    classification.Status = textInfo.ToTitleCase(classification.Status.ToLower());
-                }
-            }
-        }
-
-        private static string GetStatusDescription(int classificationId)
-        {
-            return classificationId switch
-            {
-                (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunDescription,
-                (int)RunClassification.TEST_RUN => CommonConstants.TestRunDescription,
-                _ => string.Empty,
-            };
         }
 
         private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
@@ -164,7 +143,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return viewModel;
         }
 
-        private async Task<HttpResponseMessage> GetClassifications(CalcFinancialYearRequestDto dto)
+        private async Task<HttpResponseMessage> GetClassfications(CalcFinancialYearRequestDto dto)
         {
             var apiUrl = this.ApiService.GetApiUrl(
                ConfigSection.CalculationRunSettings,
@@ -177,17 +156,103 @@ namespace EPR.Calculator.Frontend.Controllers
                 null);
         }
 
+        private void SetStatusDescriptions(SetRunClassificationViewModel model)
+        {
+            foreach (var classification in model.FinancialYearClassifications.Classifications)
+            {
+                classification.Description = this.GetStatusDescription(classification.Id);
+                classification.Status = this.GetStatus(classification);
+            }
+        }
+
+        private string GetStatusDescription(int classificationId)
+        {
+            return classificationId switch
+            {
+                (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunDescription,
+                (int)RunClassification.TEST_RUN => CommonConstants.TestRunDescription,
+                (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunDescription,
+                (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunDescription,
+                (int)RunClassification.FINAL_RUN => CommonConstants.FinalRecalculationRunDescription,
+                _ => string.Empty,
+            };
+        }
+
+        private string GetStatus(CalculatorRunClassificationDto classificationDto)
+        {
+            TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
+            return classificationDto.Id switch
+            {
+                (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunStatus,
+                (int)RunClassification.TEST_RUN => CommonConstants.TestRunStatus,
+                (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunStatus,
+                (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunStatus,
+                (int)RunClassification.FINAL_RUN => CommonConstants.FinalRunStatus,
+                _ => myTI.ToFirstLetterCap(classificationDto.Status),
+            };
+        }
+
         private async Task<bool> SetClassifications(int runId, SetRunClassificationViewModel viewModel)
         {
-            var classifications = await this.GetClassifications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session) });
+            var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session) });
             if (!classifications.IsSuccessStatusCode)
             {
                 return false;
             }
 
             viewModel.FinancialYearClassifications = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(classifications.Content.ReadAsStringAsync().Result);
-            SetStatusDescriptions(viewModel);
+            this.SetStatusDescriptions(viewModel);
+
+            if (viewModel.FinancialYearClassifications != null)
+            {
+                viewModel.ClassificationStatusInformation = this.GetClassificationStatusInformation(viewModel.FinancialYearClassifications.Classifications);
+            }
+
             return true;
+        }
+
+        private ClassificationStatusInformationViewModel GetClassificationStatusInformation(List<CalculatorRunClassificationDto> classificationList)
+        {
+            ClassificationStatusInformationViewModel classificationStatusInformationViewModel = new ClassificationStatusInformationViewModel();
+
+            if (classificationList != null && classificationList.Count > 0)
+            {
+                string financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session);
+
+                // check if calculator classification list have initial run
+                if (classificationList.Exists(n => n.Id == (int)RunClassification.INITIAL_RUN))
+                {
+                    classificationStatusInformationViewModel.ShowInterimRecalculationRunDescription = true;
+                    classificationStatusInformationViewModel.InterimRecalculationRunDescription = ClassifyCalculationRunStatusInformation.InterimReCalculationStatusDescription;
+
+                    classificationStatusInformationViewModel.ShowFinalRecalculationRunDescription = true;
+                    classificationStatusInformationViewModel.FinalRecalculationRunDescription = ClassifyCalculationRunStatusInformation.FinalRecalculationStatusDescription;
+
+                    classificationStatusInformationViewModel.ShowFinalRunDescription = true;
+                    classificationStatusInformationViewModel.FinalRunDescription = ClassifyCalculationRunStatusInformation.FinalRunStatusDescription;
+                }
+                else
+                {
+                    classificationStatusInformationViewModel.ShowInitialRunDescription = true;
+                    classificationStatusInformationViewModel.InitialRunDescription = string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, financialYear);
+
+                    // check if calculator classification list does not have final recalculation run status to be initiated
+                    if (!classificationList.Exists(n => n.Id == (int)RunClassification.FINAL_RECALCULATION_RUN))
+                    {
+                        classificationStatusInformationViewModel.ShowFinalRecalculationRunDescription = true;
+                        classificationStatusInformationViewModel.FinalRecalculationRunDescription = $"{string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, financialYear)}";
+                    }
+
+                    // check if list doesn't have initial run status
+                    if (!classificationList.Exists(n => n.Id == (int)RunClassification.FINAL_RUN))
+                    {
+                        classificationStatusInformationViewModel.ShowFinalRunDescription = true;
+                        classificationStatusInformationViewModel.FinalRunDescription = $"{string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, financialYear)}";
+                    }
+                }
+            }
+
+            return classificationStatusInformationViewModel;
         }
     }
 }
