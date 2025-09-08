@@ -66,7 +66,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 .OrderByDescending(run => run.CreatedAt) // Ensure the latest run is first
                 .ToList() ?? new List<ClassifiedCalculatorRunDto>();
 
-            var latestCompletedRun = completedRuns.FirstOrDefault(x => x.RunClassificationId == (int)RunClassification.UNCLASSIFIED); // unclassifiled Run
+            var latestCompletedRun = completedRuns.Find(x => x.RunClassificationId == (int)RunClassification.UNCLASSIFIED); // unclassified Run
 
             var classifyAfterFinalRunViewModel = new ClassifyAfterFinalRunViewModel
             {
