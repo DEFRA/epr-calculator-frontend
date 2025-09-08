@@ -67,18 +67,30 @@
                         </h2>
                     </div>
                     <div id="divNotificationContent" class="govuk-notification-banner__content">
-                        <p id="pNotificationContent" class="govuk-body-s">
-                            <strong>Initial run</strong><br />
-                            Already classified for financial year 2024-25 on 1 May 2024
-                        </p>
-                        <p id="pNotificationContentReclacRun" class="govuk-body-s">
-                            <strong>Final recalculation run</strong><br />
-                            Not available after final run.
-                        </p>
-                        <p id="pNotificationContentFinalRun" class="govuk-body-s">
-                            <strong>Final run</strong><br />
-                            Already classified for financial year 2024-25 on 31 March 2025
-                        </p>
+                        @if (Model.ClassifiedCalculatorRun != null && Model.ClassifiedCalculatorRun.Any())
+                        {
+                            foreach (var run in Model.ClassifiedCalculatorRun)
+                            {
+                                <p class="govuk-body-s">
+                                    @{
+                                        var enumValue = (EPR.Calculator.Frontend.Enums.RunClassification)run.RunClassificationId;
+                                        var field = typeof(EPR.Calculator.Frontend.Enums.RunClassification).GetField(enumValue.ToString());
+                                        var attr = field.GetCustomAttributes(typeof(System.Runtime.Serialization.EnumMemberAttribute), false)
+                                        .Cast<System.Runtime.Serialization.EnumMemberAttribute>()
+                                        .FirstOrDefault();
+                                        var displayValue = attr != null ? attr.Value : enumValue.ToString();
+                                    }
+                                    @displayValue<br />
+                                    Already classified for financial year @Model.CalculatorRunStatus.FinancialYear on @(run.UpdatedAt?.ToString("dd MMM yyyy") ?? run.CreatedAt.ToString("dd MMM yyyy"))
+                                </p>
+                            }
+                        }
+                        else
+                        {
+                            <p class="govuk-body-s">
+                                No completed runs available.
+                            </p>
+                        }
                     </div>
                 </div>
                 <div class="govuk-warning-text">

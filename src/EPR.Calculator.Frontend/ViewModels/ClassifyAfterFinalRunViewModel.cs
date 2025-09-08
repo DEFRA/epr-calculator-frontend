@@ -12,6 +12,8 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// </summary>
         public ErrorViewModel? Errors { get; set; }
 
+        public List<ClassifiedCalculatorRunDto>? ClassifiedCalculatorRun { get; set; }
+
         /// <summary>
         /// Gets the data for the run status update.
         /// </summary>
