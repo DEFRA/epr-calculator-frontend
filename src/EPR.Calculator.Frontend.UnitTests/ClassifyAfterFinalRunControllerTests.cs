@@ -27,39 +27,40 @@ namespace EPR.Calculator.Frontend.UnitTests
         private Mock<ILogger<ClassifyAfterFinalRunController>> _mockLogger;
         private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private TelemetryClient _telemetryClient;
-        private Mock<HttpContext> _mockHttpContext;
         private ClassifyAfterFinalRunController _controller;
+        private Mock<IApiService> _mockApiService;
 
-        public ClassifyAfterFinalRunControllerTests()
+        private Fixture Fixture { get; set; }
+
+        [TestInitialize]
+        public void Setup()
         {
-            this.Fixture = new Fixture();
-            this.MockHttpContext = new Mock<HttpContext>();
-            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            Fixture = new Fixture();
 
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _mockLogger = new Mock<ILogger<ClassifyAfterFinalRunController>>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _telemetryClient = new TelemetryClient();
-            _mockHttpContext = new Mock<HttpContext>();
-        }
+            _mockApiService = new Mock<IApiService>();
 
-        private Fixture Fixture { get; }
+            var mockSession = new MockHttpSession();
+            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
 
-        private Mock<HttpContext> MockHttpContext { get; }
+            var context = new DefaultHttpContext
+            {
+                Session = mockSession
+            };
 
-        [TestInitialize]
-        public void Setup()
-        {
             _controller = new ClassifyAfterFinalRunController(
-               _configuration,
-               _mockTokenAcquisition.Object,
-               _telemetryClient,
-               new Mock<IApiService>().Object,
-               new Mock<ICalculatorRunDetailsService>().Object)
+                _configuration,
+                _mockTokenAcquisition.Object,
+                _telemetryClient,
+                _mockApiService.Object,
+                new Mock<ICalculatorRunDetailsService>().Object)
             {
                 ControllerContext = new ControllerContext
                 {
-                    HttpContext = _mockHttpContext.Object
+                    HttpContext = context
                 }
             };
         }
@@ -68,14 +69,61 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task IndexAsync_ReturnsView_WhenRunExists()
         {
             // Arrange
-            CalculatorRunDto calculatorRunDto = MockData.GetCalculatorRun();
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.OK, calculatorRunDto);
-            var client = new HttpClient(mockHttpMessageHandler.Object);
-            _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(client);
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+            var runId = 123;
+            var financialYear = "2024-25";
+            var mockResponseDto = new FinancialYearClassificationResponseDto
+            {
+                FinancialYear = "2025-26",
+                Classifications = new List<CalculatorRunClassificationDto>
+    {
+        new CalculatorRunClassificationDto { Id = 9, Status = "INTERIM RE-CALCULATION RUN" },
+        new CalculatorRunClassificationDto { Id = 4, Status = "TEST RUN" }
+    },
+                ClassifiedRuns = new List<ClassifiedCalculatorRunDto>
+    {
+        new ClassifiedCalculatorRunDto
+        {
+            RunId = 18,
+            CreatedAt = DateTime.Parse("2025-09-07T10:41:11.49982"),
+            RunName = "Scenario2_Initial",
+            RunClassificationId = 7,
+            UpdatedAt = DateTime.Parse("2025-09-08T10:41:11.49982")
+        },
+        new ClassifiedCalculatorRunDto
+        {
+            RunId = 20,
+            CreatedAt = DateTime.Parse("2025-09-08T10:52:40.143975"),
+            RunName = "FinalRe-calcCompletedTest",
+            RunClassificationId = 13,
+            UpdatedAt = DateTime.Parse("2025-09-08T10:54:57.9122624")
+        },
+        new ClassifiedCalculatorRunDto
+        {
+            RunId = 21,
+            CreatedAt = DateTime.Parse("2025-09-08T10:52:40.155863"),
+            RunName = "RunfinalRunCompletedTest",
+            RunClassificationId = 14,
+            UpdatedAt = DateTime.Parse("2025-09-08T10:54:57.9122624")
+        }
+    }
+            };
+
+            var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(mockResponseDto))
+            };
+
+            _mockApiService
+                .Setup(api => api.CallApi(
+                    It.IsAny<HttpContext>(),
+                    HttpMethod.Get,
+                    It.IsAny<System.Uri>(),
+                    It.IsAny<string>(),
+                    null))
+                .ReturnsAsync(httpResponse);
 
             // Act
-            var result = _controller.Index(calculatorRunDto.RunId);
+            var result = await _controller.IndexAsync(runId);
 
             // Assert
             var viewResult = result as ViewResult;
@@ -84,12 +132,14 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var model = viewResult.Model as ClassifyAfterFinalRunViewModel;
             Assert.IsNotNull(model);
+            Assert.AreEqual(runId, model.CalculatorRunStatus.RunId);
         }
 
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)
         {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
+            var mockHandler = new Mock<HttpMessageHandler>();
+
+            mockHandler
                 .Protected()
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
@@ -101,7 +151,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                     Content = new StringContent(JsonConvert.SerializeObject(content))
                 });
 
-            return mockHttpMessageHandler;
+            return mockHandler;
         }
     }
 }

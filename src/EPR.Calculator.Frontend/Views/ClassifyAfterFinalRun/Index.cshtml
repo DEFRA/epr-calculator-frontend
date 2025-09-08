@@ -1,4 +1,6 @@
 ﻿@using EPR.Calculator.Frontend.Constants
+@using EPR.Calculator.Frontend.Enums
+@using EPR.Calculator.Frontend.Extensions
 @model EPR.Calculator.Frontend.ViewModels.ClassifyAfterFinalRunViewModel
 
 @{
@@ -79,8 +81,11 @@
                                         .Cast<System.Runtime.Serialization.EnumMemberAttribute>()
                                         .FirstOrDefault();
                                         var displayValue = attr != null ? attr.Value : enumValue.ToString();
+                                        var displayname = ((EPR.Calculator.Frontend.Enums.RunClassification)run.RunClassificationId).GetDisplayName();
                                     }
-                                    @displayValue<br />
+
+                                    @displayname
+                                    <br />
                                     Already classified for financial year @Model.CalculatorRunStatus.FinancialYear on @(run.UpdatedAt?.ToString("dd MMM yyyy") ?? run.CreatedAt.ToString("dd MMM yyyy"))
                                 </p>
                             }
