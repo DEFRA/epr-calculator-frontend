@@ -8,9 +8,9 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
     [TestClass]
     public class SetRunClassificationViewModelTests
     {
-        private SetRunClassificationViewModel _testClass;
+        private SetRunClassificationViewModel _testClass = null!;
 
-        private IFixture Fixture { get; set; }
+        private IFixture Fixture { get; set; } = null!;
 
         [TestInitialize]
         public void SetUp()

@@ -11,7 +11,7 @@
     [TestClass]
     public class ParameterUploadViewModelTests
     {
-        private ParameterUploadViewModel _testClass;
+        private ParameterUploadViewModel _testClass = null!;
 
         [TestInitialize]
         public void SetUp()

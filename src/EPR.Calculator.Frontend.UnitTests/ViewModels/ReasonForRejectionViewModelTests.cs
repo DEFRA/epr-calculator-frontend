@@ -8,7 +8,7 @@
     [TestClass]
     public class ReasonForRejectionViewModelTests
     {
-        private AcceptRejectConfirmationViewModel _testClass;
+        private AcceptRejectConfirmationViewModel _testClass = null!;
 
         [TestInitialize]
         public void SetUp()

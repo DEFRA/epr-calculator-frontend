@@ -9,8 +9,8 @@
     [TestClass]
     public class ClassifyCalculationRunScenerio2ViewModelTests
     {
-        private ClassifyCalculationRunScenerio2ViewModel _testClass;
-        private CalculatorRunStatusUpdateDto _calculatorRunStatus;
+        private ClassifyCalculationRunScenerio2ViewModel _testClass = null!;
+        private CalculatorRunStatusUpdateDto _calculatorRunStatus = null!;
 
         [TestInitialize]
         public void SetUp()

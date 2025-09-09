@@ -1,14 +1,13 @@
-﻿using EPR.Calculator.Frontend.Models;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
     [ExcludeFromCodeCoverage]
     public record DefaultParametersViewModel : ViewModelCommonData
     {
-        public required string LastUpdatedBy { get; init; }
+        public required string LastUpdatedBy { get; init; } = null!;
 
-        public List<SchemeParametersViewModel> SchemeParameters { get; set; }
+        public List<SchemeParametersViewModel> SchemeParameters { get; set; } = null!;
 
         public DateTime EffectiveFrom { get; set; }
 

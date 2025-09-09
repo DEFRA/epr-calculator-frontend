@@ -10,8 +10,8 @@
     [TestClass]
     public class ClassifyRunConfirmationViewModelTests
     {
-        private ClassifyRunConfirmationViewModel _testClass;
-        private CalculatorRunDetailsViewModel _data;
+        private ClassifyRunConfirmationViewModel _testClass = null!;
+        private CalculatorRunDetailsViewModel _data = null!;
 
         [TestInitialize]
         public void SetUp()

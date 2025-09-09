@@ -8,8 +8,8 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
     [TestClass]
     public class ClassifyAfterFinalRunViewModelTests
     {
-        private ClassifyAfterFinalRunViewModel _testClass;
-        private CalculatorRunStatusUpdateDto _calculatorRunStatus;
+        private ClassifyAfterFinalRunViewModel _testClass = null!;
+        private CalculatorRunStatusUpdateDto _calculatorRunStatus = null!;
 
         [TestInitialize]
         public void SetUp()

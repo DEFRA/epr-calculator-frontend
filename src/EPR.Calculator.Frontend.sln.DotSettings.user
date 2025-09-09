@@ -1,0 +1,7 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=89f3d251_002D80b7_002D4a24_002Db8a7_002Daba47d7e7377/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;Tests&amp;gt;\&amp;lt;EPR.Calculator.Frontend.UnitTests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Or&gt;&#xD;
+    &lt;Project Location="C:\Repos\epr-calculator-frontend\src\EPR.Calculator.Frontend.UnitTests" Presentation="&amp;lt;Tests&amp;gt;\&amp;lt;EPR.Calculator.Frontend.UnitTests&amp;gt;" /&gt;&#xD;
+    &lt;Project Location="C:\Repos\epr-calculator-frontend\src\EPR.Calculator.Frontend.Common.UnitTests" Presentation="&amp;lt;Tests&amp;gt;\&amp;lt;EPR.Calculator.Frontend.Common.UnitTests&amp;gt;" /&gt;&#xD;
+  &lt;/Or&gt;&#xD;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

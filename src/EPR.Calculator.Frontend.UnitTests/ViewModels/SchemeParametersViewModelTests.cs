@@ -11,7 +11,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
     [TestClass]
     public class SchemeParametersViewModelTests
     {
-        private SchemeParametersViewModel _testClass;
+        private SchemeParametersViewModel _testClass = null!;
 
         [TestInitialize]
         public void SetUp()

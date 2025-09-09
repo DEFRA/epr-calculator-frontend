@@ -15,7 +15,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets the name of the currently logged in user.
         /// </summary>
-        public string CurrentUser { get; init; }
+        public string CurrentUser { get; init; } = null!;
 
         /// <summary>
         /// Gets or sets the title of the Back Link.

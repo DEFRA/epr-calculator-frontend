@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 [TestClass]
 public class PostBillingFileViewModelTests
 {
-    private PostBillingFileViewModel _testClass;
+    private PostBillingFileViewModel _testClass = null!;
 
     [TestInitialize]
     public void SetUp()

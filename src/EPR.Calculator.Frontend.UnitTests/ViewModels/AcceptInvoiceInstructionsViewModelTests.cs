@@ -8,7 +8,7 @@
     [TestClass]
     public class AcceptInvoiceInstructionsViewModelTests
     {
-        private AcceptInvoiceInstructionsViewModel _testClass;
+        private AcceptInvoiceInstructionsViewModel _testClass = null!;
 
         [TestInitialize]
         public void SetUp()

@@ -20,7 +20,7 @@ namespace EPR.Calculator.Frontend.Models
         /// <summary>
         /// Gets the unique identifier of the run name.
         /// </summary>
-        public string RunName { get; init; }
+        public string RunName { get; init; } = null!;
 
         /// <summary>
         /// Gets the unique identifier of the created at.
@@ -35,7 +35,7 @@ namespace EPR.Calculator.Frontend.Models
         /// <summary>
         /// Gets the unique identifier of the financial year.
         /// </summary>
-        public string FinancialYear { get; init; }
+        public string FinancialYear { get; init; } = null!;
 
         /// <summary>
         /// Gets the unique identifier of the run classification id.

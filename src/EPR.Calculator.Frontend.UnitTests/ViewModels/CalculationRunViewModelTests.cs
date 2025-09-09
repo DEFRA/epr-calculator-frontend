@@ -9,8 +9,8 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
     [TestClass]
     public class CalculationRunViewModelTests
     {
-        private CalculationRunViewModel _testClass;
-        private CalculationRun _calculationRun;
+        private CalculationRunViewModel _testClass = null!;
+        private CalculationRun _calculationRun = null!;
 
         [TestInitialize]
         public void SetUp()
@@ -165,7 +165,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Assert
             Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
 
-            Assert.AreEqual(_testClass.TurnOnFeatureUrl, "Dashboard");
+            Assert.AreEqual("Dashboard", _testClass.TurnOnFeatureUrl);
         }
 
         [TestMethod]
