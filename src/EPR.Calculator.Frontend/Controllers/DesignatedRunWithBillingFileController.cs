@@ -14,7 +14,7 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class DesignatedRunWithBillingFileController(
         IConfiguration configuration,
-        IApiService apiService,        
+        IApiService apiService,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
