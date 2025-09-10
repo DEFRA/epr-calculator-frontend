@@ -45,7 +45,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new DesignatedRunWithBillingFileController(
                    _configuration,
                    new Mock<IApiService>().Object,
-                   _mockLogger.Object,
                    _mockTokenAcquisition.Object,
                    _telemetryClient,
                    new Mock<ICalculatorRunDetailsService>().Object)
@@ -117,7 +116,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new DesignatedRunWithBillingFileController(
                 _configuration,
                 new Mock<IApiService>().Object,
-                _mockLogger.Object,
                 _mockTokenAcquisition.Object,
                 _telemetryClient,
                 new Mock<ICalculatorRunDetailsService>().Object);
@@ -187,7 +185,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var testClass = new DesignatedRunWithBillingFileController(
                 ConfigurationItems.GetConfigurationValues(),
                 mockApiService,
-                new Mock<ILogger<DesignatedRunWithBillingFileController>>().Object,
                 _mockTokenAcquisition.Object,
                 new TelemetryClient(),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);

@@ -14,8 +14,7 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class DesignatedRunWithBillingFileController(
         IConfiguration configuration,
-        IApiService apiService,
-        ILogger<DesignatedRunWithBillingFileController> logger,
+        IApiService apiService,        
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
@@ -50,10 +49,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                return RedirectToAction(ActionNames.Index, new { runId });
+                return this.RedirectToAction(ActionNames.Index, new { runId });
             }
 
-            return RedirectToAction(ActionNames.Index, ControllerNames.SendBillingFile, new { runId = runId });
+            return this.RedirectToAction(ActionNames.Index, ControllerNames.SendBillingFile, new { runId = runId });
         }
 
         private async Task<CalculatorRunOverviewViewModel> CreateViewModel(int runId)

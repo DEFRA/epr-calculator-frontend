@@ -38,7 +38,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0 || !IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
             {
-                return RedirectToAction(
+                return this.RedirectToAction(
                     ActionNames.StandardErrorIndex,
                     CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
