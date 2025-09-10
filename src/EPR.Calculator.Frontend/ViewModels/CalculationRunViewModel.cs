@@ -112,6 +112,9 @@ namespace EPR.Calculator.Frontend.ViewModels
                 RunClassification.UNCLASSIFIED =>
                     string.Format(ActionNames.CalculationRunNewDetails, id),
 
+                RunClassification.TEST_RUN =>
+                    string.Format(ActionNames.DesignatedRun, id),
+
                 RunClassification.INITIAL_RUN or RunClassification.INTERIM_RECALCULATION_RUN or RunClassification.FINAL_RECALCULATION_RUN or RunClassification.FINAL_RUN when isBillingFileGenerating || hasBillingFileGenerated =>
                    string.Format(ActionNames.DesignatedRunWithBillingFile, id),
 

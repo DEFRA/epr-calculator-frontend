@@ -210,6 +210,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         }
 
         [TestMethod]
+        [DataRow(RunClassification.TEST_RUN)]
         [DataRow(RunClassification.INITIAL_RUN)]
         [DataRow(RunClassification.INTERIM_RECALCULATION_RUN)]
         [DataRow(RunClassification.FINAL_RECALCULATION_RUN)]
