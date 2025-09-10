@@ -109,12 +109,21 @@ namespace EPR.Calculator.Frontend.ViewModels
         {
             return status switch
             {
-                RunClassification.UNCLASSIFIED => string.Format(ActionNames.CalculationRunNewDetails, id),
-                RunClassification.INITIAL_RUN when isBillingFileGenerating => string.Format(ActionNames.CalculationRunOverview, id),
-                RunClassification.INITIAL_RUN when !hasBillingFileGenerated => string.Format(ActionNames.ClassifyRunConfirmation, id),
-                RunClassification.INITIAL_RUN when hasBillingFileGenerated => string.Format(ActionNames.CalculationRunOverview, id),
-                RunClassification.INITIAL_RUN_COMPLETED => string.Format(ActionNames.PostBillingFile, id),
-                RunClassification.ERROR => string.Format(ActionNames.CalculationRunNewDetails, id),
+                RunClassification.UNCLASSIFIED =>
+                    string.Format(ActionNames.CalculationRunNewDetails, id),
+
+                RunClassification.INITIAL_RUN or RunClassification.INTERIM_RECALCULATION_RUN or RunClassification.FINAL_RECALCULATION_RUN or RunClassification.FINAL_RUN when isBillingFileGenerating || hasBillingFileGenerated =>
+                   string.Format(ActionNames.DesignatedRunWithBillingFile, id),
+
+                RunClassification.INITIAL_RUN or RunClassification.INTERIM_RECALCULATION_RUN or RunClassification.FINAL_RECALCULATION_RUN or RunClassification.FINAL_RUN when !hasBillingFileGenerated =>
+                    string.Format(ActionNames.DesignatedRun, id),
+
+                RunClassification.INITIAL_RUN_COMPLETED or RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED or RunClassification.FINAL_RECALCULATION_RUN_COMPLETED or RunClassification.FINAL_RUN_COMPLETED =>
+                    string.Format(ActionNames.CompletedRun, id),
+
+                RunClassification.ERROR =>
+                    string.Format(ActionNames.CalculationRunNewDetails, id),
+
                 _ => ControllerNames.Dashboard,
             };
         }

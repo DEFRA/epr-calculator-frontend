@@ -187,7 +187,11 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         }
 
         [TestMethod]
-        public void GetTurnOnFeatureUrl_ShouldReturnCalculationRunOverview_WhenInitialRunAndBillingFileGeneratedTrue()
+        [DataRow(RunClassification.INITIAL_RUN)]
+        [DataRow(RunClassification.INTERIM_RECALCULATION_RUN)]
+        [DataRow(RunClassification.FINAL_RECALCULATION_RUN)]
+        [DataRow(RunClassification.FINAL_RUN)]
+        public void GetTurnOnFeatureUrl_ShouldReturnDesignatedRunWithBillingFile_WhenSelectedRunAndBillingFileGeneratedTrue(RunClassification runClassification)
         {
             // Assert
             _calculationRun = new CalculationRun
@@ -196,17 +200,21 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
                 Name = "Test1",
                 Financial_Year = "2024-25",
                 CreatedBy = "TestUser",
-                CalculatorRunClassificationId = RunClassification.INITIAL_RUN,
+                CalculatorRunClassificationId = runClassification,
                 HasBillingFileGenerated = true
             };
             _testClass = new CalculationRunViewModel(_calculationRun);
             Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
 
-            Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/CalculationRunOverview/{_calculationRun.Id}");
+            Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/DesignatedRunWithBillingFile/{_calculationRun.Id}");
         }
 
         [TestMethod]
-        public void GetTurnOnFeatureUrl_ShouldReturnClassifyRunConfirmation_WhenInitialRunAndBillingFileGeneratedFalse()
+        [DataRow(RunClassification.INITIAL_RUN)]
+        [DataRow(RunClassification.INTERIM_RECALCULATION_RUN)]
+        [DataRow(RunClassification.FINAL_RECALCULATION_RUN)]
+        [DataRow(RunClassification.FINAL_RUN)]
+        public void GetTurnOnFeatureUrl_ShouldReturnDesignatedRun_WhenSelectedRunAndBillingFileGeneratedFalse(RunClassification runClassification)
         {
             _calculationRun = new CalculationRun
             {
@@ -214,17 +222,21 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
                 Name = "Test1",
                 Financial_Year = "2024-25",
                 CreatedBy = "TestUser",
-                CalculatorRunClassificationId = RunClassification.INITIAL_RUN,
+                CalculatorRunClassificationId = runClassification,
                 HasBillingFileGenerated = false
             };
             _testClass = new CalculationRunViewModel(_calculationRun);
             Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
 
-            Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/ClassifyRunConfirmation/{_calculationRun.Id}");
+            Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/DesignatedRun/{_calculationRun.Id}");
         }
 
         [TestMethod]
-        public void GetTurnOnFeatureUrl_ShouldReturnCalculationRunOverview_WhenInitialRunAndIsBillingFileGeneratingTrue()
+        [DataRow(RunClassification.INITIAL_RUN)]
+        [DataRow(RunClassification.INTERIM_RECALCULATION_RUN)]
+        [DataRow(RunClassification.FINAL_RECALCULATION_RUN)]
+        [DataRow(RunClassification.FINAL_RUN)]
+        public void GetTurnOnFeatureUrl_ShouldReturnDesignatedRunWithBillingFile_WhenSelectedRunAndIsBillingFileGeneratingTrue(RunClassification runClassification)
         {
             // Assert
             _calculationRun = new CalculationRun
@@ -233,14 +245,38 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
                 Name = "Test1",
                 Financial_Year = "2024-25",
                 CreatedBy = "TestUser",
-                CalculatorRunClassificationId = RunClassification.INITIAL_RUN,
+                CalculatorRunClassificationId = runClassification,
                 HasBillingFileGenerated = false,
                 IsBillingFileGenerating = true
             };
             _testClass = new CalculationRunViewModel(_calculationRun);
             Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
 
-            Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/CalculationRunOverview/{_calculationRun.Id}");
+            Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/DesignatedRunWithBillingFile/{_calculationRun.Id}");
+        }
+
+        [TestMethod]
+        [DataRow(RunClassification.INITIAL_RUN_COMPLETED)]
+        [DataRow(RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED)]
+        [DataRow(RunClassification.FINAL_RECALCULATION_RUN_COMPLETED)]
+        [DataRow(RunClassification.FINAL_RUN_COMPLETED)]
+        public void GetTurnOnFeatureUrl_ShouldReturnCompletedRun_WhenSelectedRun(RunClassification runClassification)
+        {
+            // Assert
+            _calculationRun = new CalculationRun
+            {
+                Id = 1,
+                Name = "Test1",
+                Financial_Year = "2024-25",
+                CreatedBy = "TestUser",
+                CalculatorRunClassificationId = runClassification,
+                HasBillingFileGenerated = false,
+                IsBillingFileGenerating = true
+            };
+            _testClass = new CalculationRunViewModel(_calculationRun);
+            Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
+
+            Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/CompletedRun/{_calculationRun.Id}");
         }
     }
 }

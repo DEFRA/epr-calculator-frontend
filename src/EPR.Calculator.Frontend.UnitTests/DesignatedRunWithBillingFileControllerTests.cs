@@ -21,28 +21,28 @@ using Newtonsoft.Json;
 namespace EPR.Calculator.Frontend.UnitTests
 {
     [TestClass]
-    public class CalculationRunOverviewControllerTests
+    public class DesignatedRunWithBillingFileControllerTests
     {
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
         private Mock<IHttpClientFactory> _mockHttpClientFactory;
-        private Mock<ILogger<CalculationRunOverviewController>> _mockLogger;
+        private Mock<ILogger<DesignatedRunWithBillingFileController>> _mockLogger;
         private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private TelemetryClient _telemetryClient;
-        private CalculationRunOverviewController _controller;
+        private DesignatedRunWithBillingFileController _controller;
         private Mock<HttpContext> _mockHttpContext;
         private Mock<HttpMessageHandler> _mockMessageHandler;
 
-        public CalculationRunOverviewControllerTests()
+        public DesignatedRunWithBillingFileControllerTests()
         {
             this.Fixture = new Fixture();
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            _mockLogger = new Mock<ILogger<CalculationRunOverviewController>>();
+            _mockLogger = new Mock<ILogger<DesignatedRunWithBillingFileController>>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _telemetryClient = new TelemetryClient();
             _mockHttpContext = new Mock<HttpContext>();
             _mockMessageHandler = new Mock<HttpMessageHandler>();
 
-            _controller = new CalculationRunOverviewController(
+            _controller = new DesignatedRunWithBillingFileController(
                    _configuration,
                    new Mock<IApiService>().Object,
                    _mockLogger.Object,
@@ -114,7 +114,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                    });
             _mockHttpClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
-            _controller = new CalculationRunOverviewController(
+            _controller = new DesignatedRunWithBillingFileController(
                 _configuration,
                 new Mock<IApiService>().Object,
                 _mockLogger.Object,
@@ -173,7 +173,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(1, result.RouteValues["runId"]);
         }
 
-        private CalculationRunOverviewController BuildTestClass(
+        private DesignatedRunWithBillingFileController BuildTestClass(
            HttpStatusCode httpStatusCode,
            CalculatorRunDto data = null,
            CalculatorRunDetailsViewModel details = null)
@@ -184,10 +184,10 @@ namespace EPR.Calculator.Frontend.UnitTests
                 httpStatusCode,
                 System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
 
-            var testClass = new CalculationRunOverviewController(
+            var testClass = new DesignatedRunWithBillingFileController(
                 ConfigurationItems.GetConfigurationValues(),
                 mockApiService,
-                new Mock<ILogger<CalculationRunOverviewController>>().Object,
+                new Mock<ILogger<DesignatedRunWithBillingFileController>>().Object,
                 _mockTokenAcquisition.Object,
                 new TelemetryClient(),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
