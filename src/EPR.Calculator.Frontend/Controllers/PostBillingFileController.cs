@@ -53,6 +53,12 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (calculatorRunDetails.RunClassificationId == RunClassification.UNCLASSIFIED
                 || calculatorRunDetails.RunClassificationId == RunClassification.INITIAL_RUN
+                || calculatorRunDetails.RunClassificationId == RunClassification.INTERIM_RECALCULATION_RUN
+                || calculatorRunDetails.RunClassificationId == RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED
+                || calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RECALCULATION_RUN
+                || calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RECALCULATION_RUN_COMPLETED
+                || calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RUN
+                || calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RUN_COMPLETED
                 || calculatorRunDetails.RunClassificationId == RunClassification.INITIAL_RUN_COMPLETED)
             {
                 return true;
