@@ -93,9 +93,17 @@ namespace EPR.Calculator.Frontend.ViewModels
         private static string GetStatusTagStyle(RunClassification status) => status switch
         {
             RunClassification.RUNNING => "govuk-tag govuk-tag--green",
-            RunClassification.INITIAL_RUN => "govuk-tag govuk-tag--green",
-            RunClassification.INITIAL_RUN_COMPLETED => "govuk-tag govuk-tag--purple",
+            RunClassification.UNCLASSIFIED => "govuk-tag govuk-tag--blue",
+            RunClassification.TEST_RUN => "govuk-tag govuk-tag--yellow",
             RunClassification.ERROR => "govuk-tag govuk-tag--red",
+            RunClassification.INITIAL_RUN => "govuk-tag govuk-tag--purple",
+            RunClassification.INITIAL_RUN_COMPLETED => "govuk-tag govuk-tag--purple",
+            RunClassification.INTERIM_RECALCULATION_RUN => "govuk-tag govuk-tag--purple",
+            RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED => "govuk-tag govuk-tag--purple",
+            RunClassification.FINAL_RECALCULATION_RUN => "govuk-tag govuk-tag--purple",
+            RunClassification.FINAL_RECALCULATION_RUN_COMPLETED => "govuk-tag govuk-tag--purple",
+            RunClassification.FINAL_RUN => "govuk-tag govuk-tag--purple",
+            RunClassification.FINAL_RUN_COMPLETED => "govuk-tag govuk-tag--purple",
             _ => "govuk-tag",
         };
 
