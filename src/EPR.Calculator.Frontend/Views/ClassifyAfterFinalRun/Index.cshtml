@@ -1,6 +1,4 @@
-﻿@using EPR.Calculator.Frontend.Constants
-@using EPR.Calculator.Frontend.Enums
-@using EPR.Calculator.Frontend.Extensions
+﻿﻿@using EPR.Calculator.Frontend.Constants
 @model EPR.Calculator.Frontend.ViewModels.ClassifyAfterFinalRunViewModel
 
 @{
@@ -69,27 +67,18 @@
                         </h2>
                     </div>
                     <div id="divNotificationContent" class="govuk-notification-banner__content">
-                        @if (Model.ClassifiedCalculatorRun != null && Model.ClassifiedCalculatorRun.Any())
-                        {
-                            foreach (var run in Model.ClassifiedCalculatorRun)
-                            {
-                                <p class="govuk-body-s">
-                                    @{
-                                        var displayname = ((EPR.Calculator.Frontend.Enums.RunClassification)run.RunClassificationId).GetDisplayName();
-                                    }
-
-                                    @displayname
-                                    <br />
-                                    Already classified for financial year @Model.CalculatorRunStatus.FinancialYear on @(run.UpdatedAt?.ToString("dd MMM yyyy") ?? run.CreatedAt.ToString("dd MMM yyyy"))
-                                </p>
-                            }
-                        }
-                        else
-                        {
-                            <p class="govuk-body-s">
-                                No completed runs available.
-                            </p>
-                        }
+                        <p id="pNotificationContent" class="govuk-body-s">
+                            <strong>Initial run</strong><br />
+                            Already classified for financial year 2024-25 on 1 May 2024
+                        </p>
+                        <p id="pNotificationContentReclacRun" class="govuk-body-s">
+                            <strong>Final recalculation run</strong><br />
+                            Not available after final run.
+                        </p>
+                        <p id="pNotificationContentFinalRun" class="govuk-body-s">
+                            <strong>Final run</strong><br />
+                            Already classified for financial year 2024-25 on 31 March 2025
+                        </p>
                     </div>
                 </div>
                 <div class="govuk-warning-text">

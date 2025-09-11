@@ -46,6 +46,18 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                var financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session);
+
+                var classificationsResponse = await this.GetClassfications(new CalcFinancialYearRequestDto
+                {
+                    RunId = runId,
+                    FinancialYear = financialYear,
+                });
+
+                var responseContent = await classificationsResponse.Content.ReadAsStringAsync();
+                var financialYearClassificationResponseDto = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(responseContent);
+                ImportantRunclassificationHelper importantRunclassificationHelper = new ImportantRunclassificationHelper();
+
                 var viewModel = await this.CreateViewModel(runId);
                 if (!await this.SetClassifications(runId, viewModel))
                 {
@@ -56,13 +68,17 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
-                else if (!IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
+                else if (financialYearClassificationResponseDto == null)
                 {
-                    this.ModelState.AddModelError(viewModel.CalculatorRunDetails.RunName!, ErrorMessages.RunDetailError);
-                    return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
+                    this.TelemetryClient.TrackTrace($"API did not return successful.");
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
-
-                return this.View(ViewNames.SetRunClassificationIndex, viewModel);
+                else
+                {
+                    var classifyAfterFinalRunViewModel = importantRunclassificationHelper.CreateclassificationViewModel(financialYearClassificationResponseDto.ClassifiedRuns, financialYear);
+                    viewModel.ImportantiewModel = classifyAfterFinalRunViewModel;
+                    return this.View(ViewNames.SetRunClassificationIndex, viewModel);
+                }
             }
             catch (Exception ex)
             {
