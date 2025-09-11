@@ -223,6 +223,71 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(runId, result.RouteValues["calculationRunId"]);
         }
 
+        [TestMethod]
+        [DataRow(RunClassification.INITIAL_RUN)]
+        [DataRow(RunClassification.INTERIM_RECALCULATION_RUN)]
+        [DataRow(RunClassification.FINAL_RUN)]
+        [DataRow(RunClassification.FINAL_RECALCULATION_RUN)]
+        [DataRow(RunClassification.TEST_RUN)]
+        public async Task Index_WhenGivenEligibleRunClassification_ReturnsViewResult_WithValidViewModel(RunClassification eligibleId)
+        {
+            // Arrange
+            var data = MockData.GetCalculatorRunWithInitialRun();
+            var controller = BuildTestClass(
+                HttpStatusCode.OK,
+                data,
+                new CalculatorRunDetailsViewModel
+                {
+                    RunId = data.RunId,
+                    RunClassificationId = eligibleId,
+                });
+
+            // Act
+            var result = await controller.Index(data.RunId) as ViewResult;
+            var resultViewModel = result.Model as ClassifyRunConfirmationViewModel;
+
+            // Assert
+            Assert.AreEqual(ViewNames.ClassifyRunConfirmationIndex, result.ViewName);
+            Assert.AreEqual(data.RunId, resultViewModel.CalculatorRunDetails.RunId);
+        }
+
+        [TestMethod]
+        public async Task Index_WhenGivenInEligibleRunClassification_ShouldReturnFalse()
+        {
+            // Arrange
+            var data = MockData.GetCalculatorRunWithInitialRun();
+
+            foreach (var ineligibleId in Enum.GetValues<RunClassification>())
+            {
+                // Exclude eligible run classifications
+                if (ineligibleId.Equals(RunClassification.INITIAL_RUN)
+                    || ineligibleId.Equals(RunClassification.INTERIM_RECALCULATION_RUN)
+                    || ineligibleId.Equals(RunClassification.FINAL_RUN)
+                    || ineligibleId.Equals(RunClassification.FINAL_RECALCULATION_RUN)
+                    || ineligibleId.Equals(RunClassification.TEST_RUN))
+                {
+                    continue;
+                }
+
+                var controller = BuildTestClass(
+                    HttpStatusCode.OK,
+                    data,
+                    new CalculatorRunDetailsViewModel
+                    {
+                        RunId = data.RunId,
+                        RunClassificationId = ineligibleId,
+                    });
+
+                // Act
+                var result = await controller.Index(data.RunId);
+
+                // Assert
+                var redirectResult = result as RedirectToActionResult;
+                Assert.IsNotNull(redirectResult);
+                Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
+            }
+        }
+
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
