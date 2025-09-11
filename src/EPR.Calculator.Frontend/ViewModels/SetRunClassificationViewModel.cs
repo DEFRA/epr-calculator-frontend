@@ -29,6 +29,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// </summary>
         public ClassificationStatusInformationViewModel? ClassificationStatusInformation { get; set; }
 
-        public ImportantSectionViewModel? ImportantiewModel { get; set; }
+        public ImportantSectionViewModel ImportantiewModel { get; set; }
     }
 }

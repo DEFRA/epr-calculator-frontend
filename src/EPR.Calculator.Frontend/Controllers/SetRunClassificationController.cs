@@ -134,11 +134,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
-        {
-            return calculatorRunDetails.RunClassificationId == RunClassification.UNCLASSIFIED;
-        }
-
         private async Task<SetRunClassificationViewModel> CreateViewModel(int runId)
         {
             var viewModel = new SetRunClassificationViewModel()
