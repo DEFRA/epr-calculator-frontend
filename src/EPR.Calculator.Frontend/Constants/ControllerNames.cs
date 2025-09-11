@@ -23,7 +23,7 @@
         /// <summary>
         /// Calculation run overview controller.
         /// </summary>
-        public const string CalculationRunOverview = "DesginatedRunWithBillingFile";
+        public const string CalculationRunOverview = "DesignatedRunWithBillingFile";
 
         /// <summary>
         /// Classifying calculation run controller.
@@ -33,7 +33,7 @@
         /// <summary>
         /// Classify run confirmation controller.
         /// </summary>
-        public const string ClassifyRunConfirmation = "DesginatedRun";
+        public const string ClassifyRunConfirmation = "DesignatedRun";
 
         /// <summary>
         /// Dashboard controller.
