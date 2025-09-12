@@ -30,5 +30,15 @@ namespace EPR.Calculator.Frontend.ViewModels
         public int TotalRejectedRecords { get; set; }
 
         public int TotalPendingRecords { get; set; }
+
+        public int TotalNoactionRecords { get; set; }
+
+        public int TotalInitialRecords { get; set; }
+
+        public int TotalDeltaRecords { get; set; }
+
+        public int TotalRebillRecords { get; set; }
+
+        public int TotalCancelbillRecords { get; set; }
     }
 }

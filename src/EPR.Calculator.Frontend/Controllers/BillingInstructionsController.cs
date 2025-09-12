@@ -164,9 +164,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="pageSize">page size.</param>
         /// <param name="organisationId">organisation Id.</param>
         /// <param name="billingStatus">billing status.</param>
+        /// <param name="billingInstruction">billing instruction.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
-        public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize, int? organisationId, BillingStatus? billingStatus)
+        public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize, int? organisationId, BillingStatus? billingStatus, BillingInstruction? billingInstruction)
         {
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll.ToString());
             if (!model.OrganisationSelections.SelectAll)
@@ -184,6 +185,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 PageSize = pageSize,
                 OrganisationId = organisationId,
                 BillingStatus = billingStatus,
+                BillingInstruction = billingInstruction,
             });
         }
 
@@ -193,9 +195,12 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="model">The view model containing billing instructions and selection state.</param>
         /// <param name="currentPage">current page.</param>
         /// <param name="pageSize">page size.</param>
+        /// <param name="organisationId">organisation Id.</param>
+        /// <param name="billingStatus">billing status.</param>
+        /// <param name="billingInstruction">billing instruction.</param>
         /// <returns>An <see cref="ActionResult"/> that renders the updated view or redirects as appropriate.</returns>
         [HttpPost]
-        public async Task<IActionResult> SelectAllPage(BillingInstructionsViewModel model, int currentPage, int pageSize, int? organisationId, BillingStatus? billingStatus)
+        public async Task<IActionResult> SelectAllPage(BillingInstructionsViewModel model, int currentPage, int pageSize, int? organisationId, BillingStatus? billingStatus, BillingInstruction? billingInstruction)
         {
             // Sets the SelectAllPage flag to either true or false based on the model's selection state.
             this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, model.OrganisationSelections.SelectPage.ToString());
@@ -208,6 +213,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     PageSize = pageSize,
                     OrganisationId = organisationId,
                     BillingStatus = billingStatus,
+                    BillingInstruction = billingInstruction,
                 });
 
             var producerIdsFromResponse =
@@ -235,6 +241,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 PageSize = pageSize,
                 OrganisationId = organisationId,
                 BillingStatus = billingStatus,
+                BillingInstruction = billingInstruction,
             });
         }
 
@@ -338,6 +345,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     OrganisationId = request.OrganisationId,
                     Status = request.BillingStatus.HasValue ? new List<string> { request.BillingStatus.Value.ToString() } : null,
+                    BillingInstruction = request.BillingInstruction.HasValue ? new List<string> { request.BillingInstruction.Value.ToString() } : null,
                 },
             };
 
