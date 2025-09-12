@@ -41,7 +41,7 @@ namespace EPR.Calculator.Frontend.Enums
         /// <summary>
         /// TEST RUN.
         /// </summary>
-        [Display(Name = "Test Run")]
+        [Display(Name = "Test run")]
         [Description("TEST RUN")]
         [EnumMember(Value = "TEST RUN")]
         TEST_RUN = 4,
