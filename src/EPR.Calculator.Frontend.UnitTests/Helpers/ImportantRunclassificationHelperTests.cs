@@ -7,19 +7,23 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
     [TestClass]
     public class ImportantRunclassificationHelperTests
     {
-        [TestMethod]
-        public void ShouldSetIsAnyRunInProgressWhenActiveRunExists()
+        [DataTestMethod]
+        [DataRow(RunClassification.INITIAL_RUN, 101)]
+        [DataRow(RunClassification.INTERIM_RECALCULATION_RUN, 102)]
+        [DataRow(RunClassification.FINAL_RECALCULATION_RUN, 103)]
+        [DataRow(RunClassification.FINAL_RUN, 104)]
+        public void ShouldSetIsAnyRunInProgressWhenActiveRunExists(RunClassification classification, int runId)
         {
             var runs = new List<ClassifiedCalculatorRunDto>
     {
-        CreateRun(RunClassification.INITIAL_RUN, DateTime.UtcNow, 101)
+        CreateRun(classification, DateTime.UtcNow, runId)
     };
 
             var result = ImportantRunclassificationHelper.CreateclassificationViewModel(runs, "2025");
 
             Assert.IsTrue(result.IsAnyRunInProgress);
             Assert.IsTrue(result.HasAnyDesigRun);
-            Assert.AreEqual(101, result.RunIdInProgress);
+            Assert.AreEqual(runId, result.RunIdInProgress);
         }
 
         [TestMethod]
