@@ -1,11 +1,8 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
-using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 
@@ -15,10 +12,9 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller for the calculation run overview page.
     /// </summary>
     [Route("[controller]")]
-    public class CalculationRunOverviewController(
+    public class DesignatedRunWithBillingFileController(
         IConfiguration configuration,
         IApiService apiService,
-        ILogger<CalculationRunOverviewController> logger,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
@@ -53,10 +49,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                return RedirectToAction(ActionNames.Index, new { runId });
+                return this.RedirectToAction(ActionNames.Index, new { runId });
             }
 
-            return RedirectToAction(ActionNames.Index, ControllerNames.SendBillingFile, new { runId = runId });
+            return this.RedirectToAction(ActionNames.Index, ControllerNames.SendBillingFile, new { runId = runId });
         }
 
         private async Task<CalculatorRunOverviewViewModel> CreateViewModel(int runId)
