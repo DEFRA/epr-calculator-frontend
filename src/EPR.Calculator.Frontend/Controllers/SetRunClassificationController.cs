@@ -56,7 +56,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var responseContent = await classificationsResponse.Content.ReadAsStringAsync();
                 var financialYearClassificationResponseDto = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(responseContent);
-                ImportantRunclassificationHelper importantRunclassificationHelper = new ImportantRunclassificationHelper();
 
                 var viewModel = await this.CreateViewModel(runId);
                 if (!await this.SetClassifications(runId, viewModel))
@@ -75,7 +74,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
                 else
                 {
-                    var classifyAfterFinalRunViewModel = importantRunclassificationHelper.CreateclassificationViewModel(financialYearClassificationResponseDto.ClassifiedRuns, financialYear);
+                    var classifyAfterFinalRunViewModel = ImportantRunclassificationHelper.CreateclassificationViewModel(financialYearClassificationResponseDto.ClassifiedRuns, financialYear);
                     viewModel.ImportantiewModel = classifyAfterFinalRunViewModel;
                     return this.View(ViewNames.SetRunClassificationIndex, viewModel);
                 }

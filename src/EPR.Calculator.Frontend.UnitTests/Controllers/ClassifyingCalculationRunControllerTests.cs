@@ -177,14 +177,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Arrange
             var runId = 0;
 
-            // Simulate a scenario that causes SetClassifications to fail
             var details = new CalculatorRunDetailsViewModel
             {
                 RunId = 0,
-                // Add any other properties that might be required to simulate failure
+                RunClassificationStatus = "None"
             };
 
-            // This might simulate a failure in SetClassifications depending on your implementation
             SetMessageHandlerResponses(false, HttpStatusCode.OK);
 
             (_, _, _controller) = BuildTestClass(
