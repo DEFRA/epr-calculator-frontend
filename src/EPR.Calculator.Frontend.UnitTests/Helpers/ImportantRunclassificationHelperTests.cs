@@ -73,6 +73,32 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
             Assert.AreEqual("Not available after final run.", result.IsDisplayFinalRecallRunMessage);
         }
 
+        [TestMethod]
+        public void Should_Set_InitialRunCompletedMessage_When_InitialRunCompletedExists()
+        {
+            // Arrange
+            var financialYear = "2025";
+            var updatedAt = new DateTime(2025, 4, 1);
+            var runs = new List<ClassifiedCalculatorRunDto>
+    {
+        new ClassifiedCalculatorRunDto
+        {
+            RunClassificationId = (int)RunClassification.INITIAL_RUN_COMPLETED,
+            UpdatedAt = updatedAt,
+            RunId = 1,
+            RunName = "Initial Run Completed",
+            CreatedAt = updatedAt.AddDays(-1)
+        }
+    };
+
+            // Act
+            var result = ImportantRunclassificationHelper.CreateclassificationViewModel(runs, financialYear);
+
+            // Assert
+            Assert.IsTrue(result.IsDisplayInitialRun);
+            StringAssert.Contains(result.IsDisplayInitialRunMessage, "Already completed for financial year 2025 on 01 Apr 2025");
+        }
+
         private static ClassifiedCalculatorRunDto CreateRun(RunClassification classification, DateTime updatedAt, int runId = 1)
         {
             return new ClassifiedCalculatorRunDto
