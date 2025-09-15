@@ -79,8 +79,8 @@
                                     <a class="govuk-button govuk-button--secondary"
                                        role="button"
                                        draggable="false"
-                                    @(calcDetails.IsBillingFileGenerating == false && calcDetails.IsBillingFileGeneratedLatest == true ? null : "disabled")
-                                       onclick="return @(calcDetails.IsBillingFileGenerating == false && calcDetails.IsBillingFileGeneratedLatest == true ? "true" : "false");"
+                                    @(calcDetails.IsBillingFileGenerating.HasValue && !calcDetails.IsBillingFileGenerating.Value && calcDetails.IsBillingFileGeneratedLatest ? null : "disabled")
+                                       onclick="return @(calcDetails.IsBillingFileGenerating.HasValue && !calcDetails.IsBillingFileGenerating.Value && calcDetails.IsBillingFileGeneratedLatest ? "true" : "false");"
                                        href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController,
                                         new { runId = Model.CalculatorRunDetails.RunId,
                                                 isBillingFile= @CommonConstants.IsBillingFileTrue,
