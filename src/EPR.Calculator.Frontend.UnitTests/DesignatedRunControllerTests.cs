@@ -12,7 +12,6 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Documents.SystemFunctions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
@@ -23,28 +22,28 @@ using Newtonsoft.Json;
 namespace EPR.Calculator.Frontend.UnitTests
 {
     [TestClass]
-    public class ClassifyRunConfirmationControllerTests
+    public class DesignatedRunControllerTests
     {
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
         private Mock<IHttpClientFactory> _mockClientFactory;
-        private Mock<ILogger<ClassifyRunConfirmationController>> _mockLogger;
+        private Mock<ILogger<DesignatedRunController>> _mockLogger;
         private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private TelemetryClient _mockTelemetryClient;
-        private ClassifyRunConfirmationController _controller;
+        private DesignatedRunController _controller;
         private Mock<HttpMessageHandler> _mockMessageHandler;
         private Mock<HttpContext> _mockHttpContext;
 
-        public ClassifyRunConfirmationControllerTests()
+        public DesignatedRunControllerTests()
         {
             this.Fixture = new Fixture();
             _mockHttpContext = new Mock<HttpContext>();
             _mockClientFactory = new Mock<IHttpClientFactory>();
-            _mockLogger = new Mock<ILogger<ClassifyRunConfirmationController>>();
+            _mockLogger = new Mock<ILogger<DesignatedRunController>>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
             _mockMessageHandler = new Mock<HttpMessageHandler>();
 
-            _controller = new ClassifyRunConfirmationController(
+            _controller = new DesignatedRunController(
                        _configuration,
                        new Mock<IApiService>().Object,
                        _mockTokenAcquisition.Object,
@@ -82,7 +81,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                    });
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
-            _controller = new ClassifyRunConfirmationController(
+            _controller = new DesignatedRunController(
                 _configuration,
                 new Mock<IApiService>().Object,
                 _mockTokenAcquisition.Object,
@@ -131,7 +130,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                    });
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
-            _controller = new ClassifyRunConfirmationController(
+            _controller = new DesignatedRunController(
                 _configuration,
                 new Mock<IApiService>().Object,
                 _mockTokenAcquisition.Object,
@@ -172,7 +171,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                    });
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
-            _controller = new ClassifyRunConfirmationController(
+            _controller = new DesignatedRunController(
                 _configuration,
                 new Mock<IApiService>().Object,
                 _mockTokenAcquisition.Object,
@@ -242,7 +241,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             return mockHttpMessageHandler;
         }
 
-        private ClassifyRunConfirmationController BuildTestClass(
+        private DesignatedRunController BuildTestClass(
             HttpStatusCode httpStatusCode,
             CalculatorRunDto data = null,
             CalculatorRunDetailsViewModel details = null)
@@ -253,7 +252,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 httpStatusCode,
                 System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
 
-            var testClass = new ClassifyRunConfirmationController(
+            var testClass = new DesignatedRunController(
                 ConfigurationItems.GetConfigurationValues(),
                 mockApiService,
                 _mockTokenAcquisition.Object,
