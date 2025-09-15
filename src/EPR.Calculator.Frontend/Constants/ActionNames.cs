@@ -56,19 +56,19 @@
         public const string CalculationRunNewDetails = "/CalculationRunDetailsNew/{0}";
 
         /// <summary>
-        /// Classify Run Confirmation.
+        /// Designated Run.
         /// </summary>
-        public const string ClassifyRunConfirmation = "/ClassifyRunConfirmation/{0}";
+        public const string DesignatedRun = "/DesignatedRun/{0}";
 
         /// <summary>
-        /// Calculation Run Overview.
+        /// Designated Run with Billing File.
         /// </summary>
-        public const string CalculationRunOverview = "/CalculationRunOverview/{0}";
+        public const string DesignatedRunWithBillingFile = "/DesignatedRunWithBillingFile/{0}";
 
         /// <summary>
-        /// Post Billing File Controller.
+        /// Completed Run.
         /// </summary>
-        public const string PostBillingFile = "/PostBillingFile/{0}";
+        public const string CompletedRun = "/CompletedRun/{0}";
 
         /// <summary>
         /// ProcessSelection.
