@@ -25,5 +25,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// gets or sets the billing file generating flag.
         /// </summary>
         public bool? IsBillingFileGenerating { get; set; }
+
+        public bool IsBillingFileGeneratedLatest { get; set; }
     }
 }
