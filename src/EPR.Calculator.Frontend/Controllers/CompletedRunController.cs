@@ -1,5 +1,4 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -15,7 +14,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller for handling post billing file details.
     /// </summary>
     [Route("[controller]")]
-    public class PostBillingFileController(
+    public class CompletedRunController(
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
