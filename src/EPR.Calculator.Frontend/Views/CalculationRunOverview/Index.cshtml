@@ -14,10 +14,10 @@
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
-<partial name="_BackLinkPartialNew" model="backLinkModel" />
+<partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
 @if (!calcDetails.IsBillingFileGeneratedLatest)
 {
-    <partial name="_IsBillingFileGeneratedLatestPartial"/>
+    <partial name="_BillingInstructionsPartial" model="new BackLinkPartialViewModel()" />
 }
 
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
