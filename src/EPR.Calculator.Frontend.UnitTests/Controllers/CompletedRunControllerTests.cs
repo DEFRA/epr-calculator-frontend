@@ -17,7 +17,7 @@
     using Moq;
 
     [TestClass]
-    public class PostBillingFileControllerTests
+    public class CompletedRunControllerTests
     {
         private Fixture Fixture { get; } = new Fixture();
 
@@ -61,7 +61,7 @@
             Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
         }
 
-        private PostBillingFileController BuildTestClass(
+        private CompletedRunController BuildTestClass(
                 Fixture fixture,
                 HttpStatusCode httpStatusCode,
                 object data = null,
@@ -75,7 +75,7 @@
                 httpStatusCode,
                 System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
 
-            var testClass = new PostBillingFileController(
+            var testClass = new CompletedRunController(
                 configurationItems,
                 new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(),
