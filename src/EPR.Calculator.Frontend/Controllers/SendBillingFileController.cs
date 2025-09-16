@@ -68,6 +68,12 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.RedirectToAction(ActionNames.BillingFileSuccess, CommonUtil.GetControllerName(typeof(BillingInstructionsController)));
                 }
 
+                if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
+                {
+                    viewModel.IsBillingFileLatest = false;
+                    return this.View(ActionNames.Index, viewModel);
+                }
+
                 this.TelemetryClient.TrackTrace($"1.Request (send billing file) not accepted response code:{response.StatusCode}");
                 var contentString = await response.Content.ReadAsStringAsync();
                 this.TelemetryClient.TrackTrace($"2.Request (send billing file) not accepted response message:{contentString}");

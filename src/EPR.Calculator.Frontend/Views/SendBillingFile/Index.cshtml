@@ -12,11 +12,14 @@
             };
 }
 <partial name="_BackLinkPartialNew" model="backLinkModel" />
-
+@if (!Model.IsBillingFileLatest)
+{
+    <partial name="_BillingInstructionsPartial" model="backLinkModel" />
+}
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-
+            
             @* ✅ GOV.UK Error Summary *@
             @if (!ViewData.ModelState.IsValid)
             {
