@@ -132,6 +132,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                    });
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
+            var mockRequest = new Mock<HttpRequest>();
+            mockRequest.Setup(r => r.Headers).Returns(new HeaderDictionary
+            {
+                { "Referer", "https://testhost/previous-page" }
+            });
+
+            _mockHttpContext.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
+
             _controller = new DesignatedRunController(
                 _configuration,
                 new Mock<IApiService>().Object,
@@ -172,6 +180,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                        Content = null,
                    });
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
+
+            var mockRequest = new Mock<HttpRequest>();
+            mockRequest.Setup(r => r.Headers).Returns(new HeaderDictionary
+            {
+                { "Referer", "https://testhost/previous-page" }
+            });
+
+            _mockHttpContext.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
 
             _controller = new DesignatedRunController(
                 _configuration,
