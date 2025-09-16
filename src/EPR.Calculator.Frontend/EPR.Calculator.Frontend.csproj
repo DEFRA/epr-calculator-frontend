@@ -69,7 +69,7 @@
 
 	<ItemGroup>
 		<SonarQubeSetting Include="sonar.coverage.exclusions">
-			<Value>Views/**/*.cshtml,Program.cs,wwwroot/js/*.js</Value>
+			<Value>Views/**/*.cshtml,Program.cs,wwwroot/js/*.js,gulpfile.js,assets/**/*</Value>
 		</SonarQubeSetting>
 	</ItemGroup>
 
