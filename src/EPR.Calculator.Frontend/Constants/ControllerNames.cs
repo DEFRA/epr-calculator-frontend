@@ -114,5 +114,10 @@
         /// View Local Authority disposal costs controller.
         /// </summary>
         public const string ViewLocalAuthorityDisposalCosts = "ViewLocalAuthorityDisposalCosts";
+
+        /// <summary>
+        /// Parameter upload file controller.
+        /// </summary>
+        public const string ParameterUploadFile = "ParameterUploadFile";
     }
 }

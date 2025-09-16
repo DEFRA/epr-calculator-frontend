@@ -21,7 +21,7 @@ namespace EPR.Calculator.Frontend.Controllers
                      CurrentUser = currentUser,
                      BackLinkViewModel = new BackLinkViewModel()
                      {
-                         BackLink = "ViewDefaultParameters",
+                         BackLink = ControllerNames.ViewDefaultParameters,
                          CurrentUser = currentUser,
                      },
                  });
