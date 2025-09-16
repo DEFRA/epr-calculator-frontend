@@ -1,8 +1,6 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
-using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using EPR.Calculator.Frontend.ViewModels.Enums;
@@ -16,23 +14,16 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller responsible for displaying the details of a calculation run.
     /// </summary>
     [Route("[controller]")]
-    public class CalculationRunDetailsNewController : BaseController
+    public class CalculationRunDetailsNewController(IConfiguration configuration,
+           IApiService apiService,
+           ITokenAcquisition tokenAcquisition,
+           TelemetryClient telemetryClient,
+           ICalculatorRunDetailsService calculatorRunDetailsService) : BaseController(configuration,
+                 tokenAcquisition,
+                 telemetryClient,
+                 apiService,
+                 calculatorRunDetailsService)
     {
-        public CalculationRunDetailsNewController(
-            IConfiguration configuration,
-            IApiService apiService,
-            ITokenAcquisition tokenAcquisition,
-            TelemetryClient telemetryClient,
-            ICalculatorRunDetailsService calculatorRunDetailsService)
-            : base(
-                  configuration,
-                  tokenAcquisition,
-                  telemetryClient,
-                  apiService,
-                  calculatorRunDetailsService)
-        {
-        }
-
         [Route("{runId}")]
         public async Task<IActionResult> Index(int runId)
         {
