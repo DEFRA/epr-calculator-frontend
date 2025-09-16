@@ -162,6 +162,27 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
+        public async Task Submit_ApiUnprocessableEntity_BillingFileOutdated()
+        {
+            // Arrange
+            Fixture.Customize<SendBillingFileViewModel>(c => c.With(c => c.ConfirmSend, true));
+            SendBillingFileViewModel model = Fixture.Create<SendBillingFileViewModel>();
+
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.UnprocessableEntity);
+
+            // Act
+            var result = await controller.Submit(model);
+
+            // Assert
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            Assert.AreEqual(ActionNames.Index, viewResult.ViewName);
+            Assert.AreEqual(model, viewResult.Model);
+        }
+
+        [TestMethod]
         public async Task Submit_ApiReturnsUnprocessableContent_RedirectsToStandardErrorIndex()
         {
             // Arrange
