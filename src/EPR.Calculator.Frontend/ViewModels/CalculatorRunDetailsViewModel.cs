@@ -26,6 +26,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// </summary>
         public bool? IsBillingFileGenerating { get; set; }
 
-        public bool IsBillingFileGeneratedLatest { get; set; }
+        public bool? IsBillingFileGeneratedLatest { get; set; }
     }
 }
