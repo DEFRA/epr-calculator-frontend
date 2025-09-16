@@ -7,5 +7,7 @@
         public string CurrentUser { get; set; }
 
         public int RunId { get; set; }
+
+        public bool HideBackLink { get; set; }
     }
 }

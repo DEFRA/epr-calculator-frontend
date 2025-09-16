@@ -76,6 +76,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
                 BackLink = ControllerNames.CalculationRunDetails,
+                HideBackLink = true,
             };
 
             var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(

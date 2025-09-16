@@ -48,6 +48,7 @@
                 LapcapErrors = this.TestClass.LapcapErrors,
                 ValidationErrors = this.TestClass.ValidationErrors,
                 BackLink = this.TestClass.BackLink,
+                HideBackLink = this.TestClass.HideBackLink,
             };
 
             var different = Fixture.Create<LapcapUploadViewModel>();
