@@ -1,6 +1,4 @@
-﻿using System.Configuration;
-using System.Net;
-using EPR.Calculator.Frontend.Common;
+﻿using System.Net;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
@@ -55,11 +53,17 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
+                    var currentUser = CommonUtil.GetUserName(this.HttpContext);
                     var viewModel = new DefaultParametersViewModel
                     {
-                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                        CurrentUser = currentUser,
                         LastUpdatedBy = CommonUtil.GetUserName(this.HttpContext),
                         SchemeParameters = new List<SchemeParametersViewModel>(),
+                        BackLinkViewModel = new BackLinkViewModel()
+                        {
+                            BackLink = string.Empty,
+                            CurrentUser = currentUser,
+                        },
                     };
                     var data = await response.Content.ReadAsStringAsync();
                     var defaultSchemeParameters = JsonConvert.DeserializeObject<List<DefaultSchemeParameters>>(data);
