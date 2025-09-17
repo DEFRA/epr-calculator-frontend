@@ -17,7 +17,7 @@
     bool hasProducerIdSessionKey = Context.Session.GetString(SessionConstants.ProducerIds) != null;
 }
 
-<partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
+<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
 
 <partial name="_ProgressBannerPartial" model="Model" />
 

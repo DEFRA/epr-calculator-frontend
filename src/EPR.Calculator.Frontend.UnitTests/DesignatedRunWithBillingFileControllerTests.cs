@@ -31,6 +31,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         private DesignatedRunWithBillingFileController _controller;
         private Mock<HttpContext> _mockHttpContext;
         private Mock<HttpMessageHandler> _mockMessageHandler;
+        private Mock<ICalculatorRunDetailsService> _mockCalculatorRunDetailsService;
 
         public DesignatedRunWithBillingFileControllerTests()
         {
@@ -41,13 +42,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             _telemetryClient = new TelemetryClient();
             _mockHttpContext = new Mock<HttpContext>();
             _mockMessageHandler = new Mock<HttpMessageHandler>();
+            _mockCalculatorRunDetailsService = new Mock<ICalculatorRunDetailsService>();
 
             _controller = new DesignatedRunWithBillingFileController(
                    _configuration,
                    new Mock<IApiService>().Object,
                    _mockTokenAcquisition.Object,
                    _telemetryClient,
-                   new Mock<ICalculatorRunDetailsService>().Object)
+                   _mockCalculatorRunDetailsService.Object)
             {
                 // Setting the mocked HttpContext for the controller
                 ControllerContext = new ControllerContext
@@ -113,6 +115,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                    });
             _mockHttpClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
+            var mockRequest = new Mock<HttpRequest>();
+            mockRequest.Setup(r => r.Headers).Returns(new HeaderDictionary
+            {
+                { "Referer", "https://testhost/previous-page" }
+            });
+
+            _mockHttpContext.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
+
             _controller = new DesignatedRunWithBillingFileController(
                 _configuration,
                 new Mock<IApiService>().Object,
@@ -172,50 +182,36 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task GenerateBillingFile_Returns_Success()
+        public async Task Should_SetBackLink()
         {
             // Arrange
-            int testRunId = 1;
-
             var controller = BuildTestClass(HttpStatusCode.OK, MockData.GetCalculatorRun());
 
+            _mockHttpContext = new Mock<HttpContext>();
+            _mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            var headers = new HeaderDictionary
+            {
+                { "Referer", "https://calculator/" }
+            };
+            _mockHttpContext.Setup(c => c.Request.Headers).Returns(headers);
+
+            _mockCalculatorRunDetailsService.Setup(s => s.GetCalculatorRundetailsAsync(It.IsAny<HttpContext>(), It.IsAny<int>()))
+                .ReturnsAsync(new CalculatorRunDetailsViewModel() { RunId = 1 });
+
             // Setting the mocked HttpContext for the controller
-            controller.ControllerContext = new ControllerContext
+            _controller.ControllerContext = new ControllerContext
             {
                 HttpContext = _mockHttpContext.Object
             };
 
             // Act
-            var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToRouteResult;
+            var result = await _controller.Index(1);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.RouteValues["action"]);
-            Assert.AreEqual(ControllerNames.CalculationRunOverview, result.RouteValues["controller"]);
-            Assert.AreEqual(testRunId, result.RouteValues["runId"]);
-        }
-
-        [TestMethod]
-        public async Task GenerateBillingFile_Returns_Failure()
-        {
-            // Arrange
-            int testRunId = 1;
-
-            var controller = BuildTestClass(HttpStatusCode.InternalServerError, MockData.GetCalculatorRun());
-
-            // Setting the mocked HttpContext for the controller
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = _mockHttpContext.Object
-            };
-
-            // Act
-            var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            Assert.IsInstanceOfType(viewResult.Model, typeof(CalculatorRunOverviewViewModel));
         }
 
         private DesignatedRunWithBillingFileController BuildTestClass(

@@ -33,5 +33,9 @@
         public const string GenerateNewDraftBillingFile = "Generate new draft billing file";
 
         public const string GenerateFileMessage = "This can take up to 15 minutes.";
+      
+        public const string BillingFileOutofDateBanner = "The billing instructions have changed, so the draft billing file is now out of date. You must first {0} before it can be sent to the FSS.";
+
+        public const string GenerateBillingFile = "generate a new draft billing file";
     }
 }

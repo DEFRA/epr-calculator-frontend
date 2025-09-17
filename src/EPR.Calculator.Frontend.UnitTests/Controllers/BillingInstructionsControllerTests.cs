@@ -863,6 +863,7 @@
             mockSession.SetString("accessToken", "something");
             mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
             var context = new DefaultHttpContext { Session = mockSession };
+            context.Request.Headers.Append("Referer", "https://calculator/details/4");
 
             // Prepare a BillingInstructionsViewModel with ProducerIds
             var expectedProducerIds = new List<int> { 101, 102 };
@@ -1197,6 +1198,7 @@
                 [
                     new Claim(ClaimTypes.Name, "Test User")
                 ]));
+            testClass.ControllerContext.HttpContext.Request.Headers.Append("Referer", "https://calculator/details/4");
 
             return testClass;
         }

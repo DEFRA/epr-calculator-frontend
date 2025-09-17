@@ -1,23 +1,24 @@
 ﻿@using Microsoft.AspNetCore.Http
 @using EPR.Calculator.Frontend.Extensions
 @using EPR.Calculator.Frontend.Constants
+
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunOverviewViewModel
 @{
     var calcDetails = Model.CalculatorRunDetails;
-    var backLinkModel = new BackLinkPartialViewModel
-            {
-                BackLink = Model.BackLink,
-                CurrentUser = Model.CurrentUser,
-                RunId = calcDetails.RunId
-            };
+
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
-<partial name="_BackLinkPartialNew" model="backLinkModel" />
-@if (!calcDetails.IsBillingFileGeneratedLatest)
+
+@if (Model.BackLinkViewModel != null)
 {
-    <partial name="_IsBillingFileGeneratedLatestPartial" />
+    <partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
+}
+
+@if (calcDetails.IsBillingFileGeneratedLatest.HasValue && !calcDetails.IsBillingFileGeneratedLatest.Value)
+{
+    <partial name="_BillingInstructionsPartial" model="null" />
 }
 
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
@@ -79,8 +80,8 @@
                                     <a class="govuk-button govuk-button--secondary"
                                        role="button"
                                        draggable="false"
-                                    @(calcDetails.IsBillingFileGenerating.HasValue && !calcDetails.IsBillingFileGenerating.Value && calcDetails.IsBillingFileGeneratedLatest ? null : "disabled")
-                                       onclick="return @(calcDetails.IsBillingFileGenerating.HasValue && !calcDetails.IsBillingFileGenerating.Value && calcDetails.IsBillingFileGeneratedLatest ? "true" : "false");"
+                                    @(calcDetails.IsBillingFileGenerating.HasValue && !calcDetails.IsBillingFileGenerating.Value && calcDetails.IsBillingFileGeneratedLatest.HasValue && calcDetails.IsBillingFileGeneratedLatest.Value ? null : "disabled")
+                                       onclick="return @(calcDetails.IsBillingFileGenerating.HasValue && !calcDetails.IsBillingFileGenerating.Value && calcDetails.IsBillingFileGeneratedLatest.HasValue && calcDetails.IsBillingFileGeneratedLatest.Value ? "true" : "false");"
                                        href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController,
                                         new { runId = Model.CalculatorRunDetails.RunId,
                                                 isBillingFile= @CommonConstants.IsBillingFileTrue,
@@ -129,7 +130,7 @@
 
                                 <div class="govuk-button-group">
                                     <div class="govuk-button-group">
-                                        <button type="Submit" @((calcDetails.IsBillingFileGenerating.HasValue && calcDetails.IsBillingFileGenerating.Value) || !calcDetails.IsBillingFileGeneratedLatest ? "disabled" : "") class="govuk-button" data-module="govuk-button">
+                                        <button type="Submit" @((calcDetails.IsBillingFileGenerating.HasValue && calcDetails.IsBillingFileGenerating.Value) || (calcDetails.IsBillingFileGeneratedLatest.HasValue && !calcDetails.IsBillingFileGeneratedLatest.Value) ? "disabled" : "") class="govuk-button" data-module="govuk-button">
                                             Continue
                                         </button>
                                     </div>
