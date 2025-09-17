@@ -1,8 +1,17 @@
 {
-  "devDependencies": {
-    "sass": "^1.77.0"
-  },
-  "dependencies": {
-    "govuk-frontend": "^5.3.1"
-  }
+    "devDependencies": {
+        "eslint": "^9.32.0",
+        "govuk-frontend": "^5.11.1",
+        "gulp": "^5.0.1",
+        "gulp-clean": "^0.4.0",
+        "gulp-rename": "^2.1.0",
+        "gulp-sass": "^6.0.1",
+        "sass": "^1.89.2"
+    },
+    "dependencies": {
+        "gulp-concat": "^2.6.1"
+    },
+    "scripts": {
+        "build-frontend": "gulp build-frontend"
+    }
 }
