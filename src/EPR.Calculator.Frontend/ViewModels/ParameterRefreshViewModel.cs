@@ -6,7 +6,7 @@ namespace EPR.Calculator.Frontend.ViewModels
     /// <summary>
     /// parameter refresh view model.
     /// </summary>
-    public record ParameterRefreshViewModel
+    public record ParameterRefreshViewModel : ViewModelCommonData
     {
         /// <summary>
         /// Gets the collection of scheme parameter template values.
