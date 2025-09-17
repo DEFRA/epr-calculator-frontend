@@ -1,5 +1,4 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -15,7 +14,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller for handling post billing file details.
     /// </summary>
     [Route("[controller]")]
-    public class PostBillingFileController(
+    public class CompletedRunController(
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
@@ -70,10 +69,15 @@ namespace EPR.Calculator.Frontend.Controllers
         private async Task<PostBillingFileViewModel> CreateViewModel(int runId)
         {
             var runDetails = await this.GetCalculatorRunWithBillingdetails(runId);
-
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var viewModel = new PostBillingFileViewModel()
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
+                BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = string.Empty,
+                    CurrentUser = currentUser,
+                },
             };
 
             if (runDetails != null && runDetails!.RunId > 0)

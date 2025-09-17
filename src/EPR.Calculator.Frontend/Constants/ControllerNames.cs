@@ -23,7 +23,7 @@
         /// <summary>
         /// Calculation run overview controller.
         /// </summary>
-        public const string CalculationRunOverview = "CalculationRunOverview";
+        public const string CalculationRunOverview = "DesignatedRunWithBillingFile";
 
         /// <summary>
         /// Classifying calculation run controller.
@@ -33,7 +33,7 @@
         /// <summary>
         /// Classify run confirmation controller.
         /// </summary>
-        public const string ClassifyRunConfirmation = "ClassifyRunConfirmation";
+        public const string ClassifyRunConfirmation = "DesignatedRun";
 
         /// <summary>
         /// Dashboard controller.
@@ -88,7 +88,7 @@
         /// <summary>
         /// Post Billing File Controller.
         /// </summary>
-        public const string PostBillingFileController = "PostBillingFile";
+        public const string PostBillingFileController = "CompletedRun";
 
         /// <summary>
         /// File Download Controller.
@@ -99,5 +99,25 @@
         /// File Download Controller.
         /// </summary>
         public const string FileDownloadController = "FileDownload";
+
+        /// <summary>
+        /// View default parameters controller.
+        /// </summary>
+        public const string ViewDefaultParameters = "ViewDefaultParameters";
+
+        /// <summary>
+        /// Local Authority upload file controller.
+        /// </summary>
+        public const string LocalAuthorityUploadFile = "LocalAuthorityUploadFile";
+
+        /// <summary>
+        /// View Local Authority disposal costs controller.
+        /// </summary>
+        public const string ViewLocalAuthorityDisposalCosts = "ViewLocalAuthorityDisposalCosts";
+
+        /// <summary>
+        /// Parameter upload file controller.
+        /// </summary>
+        public const string ParameterUploadFile = "ParameterUploadFile";
     }
 }

@@ -23,6 +23,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             this.Configuration = ConfigurationItems.GetConfigurationValues();
             this.MockHttpContext = new Mock<HttpContext>();
             this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            var headers = new HeaderDictionary
+            {
+                { "Referer", "https://calculator/details/4" }
+            };
+            this.MockHttpContext.Setup(c => c.Request.Headers).Returns(headers);
             this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Created);
             MockClientFactory = TestMockUtils.BuildMockHttpClientFactory(MockMessageHandler.Object);
         }
@@ -52,6 +57,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDeleteIndex, result.ViewName);
             Assert.AreEqual(runId, resultModel.CalculatorRunStatusData.RunId);
+            Assert.AreEqual("details", resultModel.BackLinkViewModel.BackLink);
         }
 
         /// <summary>

@@ -21,34 +21,35 @@ using Newtonsoft.Json;
 namespace EPR.Calculator.Frontend.UnitTests
 {
     [TestClass]
-    public class CalculationRunOverviewControllerTests
+    public class DesignatedRunWithBillingFileControllerTests
     {
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
         private Mock<IHttpClientFactory> _mockHttpClientFactory;
-        private Mock<ILogger<CalculationRunOverviewController>> _mockLogger;
+        private Mock<ILogger<DesignatedRunWithBillingFileController>> _mockLogger;
         private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private TelemetryClient _telemetryClient;
-        private CalculationRunOverviewController _controller;
+        private DesignatedRunWithBillingFileController _controller;
         private Mock<HttpContext> _mockHttpContext;
         private Mock<HttpMessageHandler> _mockMessageHandler;
+        private Mock<ICalculatorRunDetailsService> _mockCalculatorRunDetailsService;
 
-        public CalculationRunOverviewControllerTests()
+        public DesignatedRunWithBillingFileControllerTests()
         {
             this.Fixture = new Fixture();
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            _mockLogger = new Mock<ILogger<CalculationRunOverviewController>>();
+            _mockLogger = new Mock<ILogger<DesignatedRunWithBillingFileController>>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _telemetryClient = new TelemetryClient();
             _mockHttpContext = new Mock<HttpContext>();
             _mockMessageHandler = new Mock<HttpMessageHandler>();
+            _mockCalculatorRunDetailsService = new Mock<ICalculatorRunDetailsService>();
 
-            _controller = new CalculationRunOverviewController(
+            _controller = new DesignatedRunWithBillingFileController(
                    _configuration,
                    new Mock<IApiService>().Object,
-                   _mockLogger.Object,
                    _mockTokenAcquisition.Object,
                    _telemetryClient,
-                   new Mock<ICalculatorRunDetailsService>().Object)
+                   _mockCalculatorRunDetailsService.Object)
             {
                 // Setting the mocked HttpContext for the controller
                 ControllerContext = new ControllerContext
@@ -114,10 +115,17 @@ namespace EPR.Calculator.Frontend.UnitTests
                    });
             _mockHttpClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
-            _controller = new CalculationRunOverviewController(
+            var mockRequest = new Mock<HttpRequest>();
+            mockRequest.Setup(r => r.Headers).Returns(new HeaderDictionary
+            {
+                { "Referer", "https://testhost/previous-page" }
+            });
+
+            _mockHttpContext.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
+
+            _controller = new DesignatedRunWithBillingFileController(
                 _configuration,
                 new Mock<IApiService>().Object,
-                _mockLogger.Object,
                 _mockTokenAcquisition.Object,
                 _telemetryClient,
                 new Mock<ICalculatorRunDetailsService>().Object);
@@ -173,7 +181,40 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(1, result.RouteValues["runId"]);
         }
 
-        private CalculationRunOverviewController BuildTestClass(
+        [TestMethod]
+        public async Task Should_SetBackLink()
+        {
+            // Arrange
+            var controller = BuildTestClass(HttpStatusCode.OK, MockData.GetCalculatorRun());
+
+            _mockHttpContext = new Mock<HttpContext>();
+            _mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            var headers = new HeaderDictionary
+            {
+                { "Referer", "https://calculator/" }
+            };
+            _mockHttpContext.Setup(c => c.Request.Headers).Returns(headers);
+
+            _mockCalculatorRunDetailsService.Setup(s => s.GetCalculatorRundetailsAsync(It.IsAny<HttpContext>(), It.IsAny<int>()))
+                .ReturnsAsync(new CalculatorRunDetailsViewModel() { RunId = 1 });
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
+            // Act
+            var result = await _controller.Index(1);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            Assert.IsInstanceOfType(viewResult.Model, typeof(CalculatorRunOverviewViewModel));
+        }
+
+        private DesignatedRunWithBillingFileController BuildTestClass(
            HttpStatusCode httpStatusCode,
            CalculatorRunDto data = null,
            CalculatorRunDetailsViewModel details = null)
@@ -184,10 +225,9 @@ namespace EPR.Calculator.Frontend.UnitTests
                 httpStatusCode,
                 System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
 
-            var testClass = new CalculationRunOverviewController(
+            var testClass = new DesignatedRunWithBillingFileController(
                 ConfigurationItems.GetConfigurationValues(),
                 mockApiService,
-                new Mock<ILogger<CalculationRunOverviewController>>().Object,
                 _mockTokenAcquisition.Object,
                 new TelemetryClient(),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);

@@ -13,11 +13,17 @@ namespace EPR.Calculator.Frontend.Controllers
 
         public IActionResult Index()
         {
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             return this.View(
                  ViewNames.ParameterUploadFileIndex,
                  new ParameterUploadViewModel
                  {
-                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                     CurrentUser = currentUser,
+                     BackLinkViewModel = new BackLinkViewModel()
+                     {
+                         BackLink = ControllerNames.ViewDefaultParameters,
+                         CurrentUser = currentUser,
+                     },
                  });
         }
 
@@ -76,7 +82,17 @@ namespace EPR.Calculator.Frontend.Controllers
                 else
                 {
                     var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
-                    return this.View(viewName, new ParameterRefreshViewModel { ParameterTemplateValues = schemeTemplateParameterValues, FileName = fileUpload.FileName });
+                    var viewModel = new ParameterRefreshViewModel
+                    {
+                        ParameterTemplateValues = schemeTemplateParameterValues,
+                        FileName = fileUpload.FileName,
+                        BackLinkViewModel = new BackLinkViewModel()
+                        {
+                            BackLink = ControllerNames.ViewDefaultParameters,
+                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                        },
+                    };
+                    return this.View(viewName, viewModel);
                 }
             }
             catch (Exception)
@@ -97,7 +113,15 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             this.ModelState.Clear();
-            return new ParameterUploadViewModel { Errors = errors };
+            return new ParameterUploadViewModel
+            {
+                Errors = errors,
+                BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = ControllerNames.ViewDefaultParameters,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                },
+            };
         }
 
         private string GetViewName(IFormFile fileUpload)
