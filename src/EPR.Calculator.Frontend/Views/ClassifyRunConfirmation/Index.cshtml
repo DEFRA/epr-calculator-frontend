@@ -1,17 +1,15 @@
 ﻿@inject IHttpContextAccessor HttpContextAccessor
 @using EPR.Calculator.Frontend.Extensions
 @model ClassifyRunConfirmationViewModel
-@{
-    var backLinkModel = new BackLinkPartialViewModel
-            {
-                BackLink = Model.BackLink,
-                CurrentUser = Model.CurrentUser,
-                RunId = Model.CalculatorRunDetails.RunId
-            };
-}
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
-<partial name="_BackLinkPartialNew" model="backLinkModel" />
+
+@if (Model.BackLinkViewModel != null)
+{
+    <partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
+}
+
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">

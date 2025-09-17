@@ -1,20 +1,21 @@
 ﻿@using Microsoft.AspNetCore.Http
 @using EPR.Calculator.Frontend.Extensions
 @using EPR.Calculator.Frontend.Constants
+
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunOverviewViewModel
 @{
     var calcDetails = Model.CalculatorRunDetails;
-    var backLinkModel = new BackLinkPartialViewModel
-            {
-                BackLink = Model.BackLink,
-                CurrentUser = Model.CurrentUser,
-                RunId = calcDetails.RunId
-            };
+
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
-<partial name="_BackLinkPartial" model="(Model.BackLink, Model.CurrentUser)" />
+
+@if (Model.BackLinkViewModel != null)
+{
+    <partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
+}
+
 @if (calcDetails.IsBillingFileGeneratedLatest.HasValue && !calcDetails.IsBillingFileGeneratedLatest.Value)
 {
     <partial name="_BillingInstructionsPartial" model="new BackLinkPartialViewModel()" />
