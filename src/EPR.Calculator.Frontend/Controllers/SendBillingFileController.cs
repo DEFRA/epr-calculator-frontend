@@ -39,12 +39,18 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var billingFileViewModel = new SendBillingFileViewModel()
             {
                 RunId = runId,
                 CalcRunName = runDetails.RunName,
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                BackLink = ControllerNames.CalculationRunOverview,
+                CurrentUser = currentUser,
+                BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = ControllerNames.CalculationRunOverview,
+                    RunId = runId,
+                    CurrentUser = currentUser,
+                },
             };
 
             return this.View(billingFileViewModel);

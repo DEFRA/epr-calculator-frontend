@@ -3,23 +3,17 @@
 @{
     var hasError = ViewData.ModelState["ConfirmSend"]?.Errors.Any() == true;
     var formGroupClass = "govuk-form-group" + (hasError ? " govuk-form-group--error" : "");
-
-    var backLinkModel = new BackLinkPartialViewModel
-            {
-                BackLink = Model.BackLink,
-                CurrentUser = Model.CurrentUser,
-                RunId = Model.RunId
-            };
 }
-<partial name="_BackLinkPartialNew" model="backLinkModel" />
+
+<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
 @if (!Model.IsBillingFileLatest)
 {
-    <partial name="_BillingInstructionsPartial" model="backLinkModel" />
+    <partial name="_BillingInstructionsPartial" model="Model.BackLinkViewModel" />
 }
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            
+
             @* ✅ GOV.UK Error Summary *@
             @if (!ViewData.ModelState.IsValid)
             {
@@ -46,7 +40,7 @@
                 @Html.HiddenFor(m => m.CurrentUser)
                 @Html.HiddenFor(m => m.CalcRunName)
                 @Html.HiddenFor(m => m.RunId)
-                @Html.HiddenFor(m => m.BackLink)                
+                @Html.HiddenFor(m => m.BackLinkViewModel)                
 
                 <span class="govuk-caption-l">@Model.CalcRunName</span>
                 <h1 class="govuk-heading-l">@Model.SendBillFileHeading</h1>

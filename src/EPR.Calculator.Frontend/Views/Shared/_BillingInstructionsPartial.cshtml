@@ -1,8 +1,8 @@
-﻿@model BackLinkPartialViewModel
+﻿@model BackLinkViewModel
 @{
     var linkText = BillingInstructionConstants.GenerateBillingFile;
 
-    var link = Model.BackLink != null
+    var link = Model != null && Model.BackLink != null
         ? $"<a href='{Url.Content($"~/{Model.BackLink}/{Model.RunId}")}' class='govuk-link'>{linkText}</a>"
         : linkText;
 

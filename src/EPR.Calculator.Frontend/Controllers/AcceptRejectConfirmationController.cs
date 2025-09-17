@@ -52,13 +52,20 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, errorControllerName);
             }
 
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
+
             var viewModel = new AcceptRejectConfirmationViewModel
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
                 CalculationRunId = calculationRunId,
-                BackLink = ControllerNames.BillingInstructionsController,
                 CalculationRunName = runDetails.RunName,
                 Status = BillingStatus.Accepted,
+                BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = ControllerNames.BillingInstructionsController,
+                    RunId = calculationRunId,
+                    CurrentUser = currentUser,
+                },
             };
 
             return this.View(ViewNames.AcceptRejectConfirmationIndex, viewModel);
