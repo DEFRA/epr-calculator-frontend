@@ -32,6 +32,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         private DesignatedRunController _controller;
         private Mock<HttpMessageHandler> _mockMessageHandler;
         private Mock<HttpContext> _mockHttpContext;
+        private Mock<ICalculatorRunDetailsService> _mockCalculatorRunDetailsService;
 
         public DesignatedRunControllerTests()
         {
@@ -42,13 +43,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
             _mockMessageHandler = new Mock<HttpMessageHandler>();
+            _mockCalculatorRunDetailsService = new Mock<ICalculatorRunDetailsService>();
 
             _controller = new DesignatedRunController(
                        _configuration,
                        new Mock<IApiService>().Object,
                        _mockTokenAcquisition.Object,
                        _mockTelemetryClient,
-                       new Mock<ICalculatorRunDetailsService>().Object);
+                       _mockCalculatorRunDetailsService.Object);
 
             _mockHttpContext.Setup(context => context.User)
                .Returns(new ClaimsPrincipal(new ClaimsIdentity(
@@ -130,6 +132,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                    });
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
+            var mockRequest = new Mock<HttpRequest>();
+            mockRequest.Setup(r => r.Headers).Returns(new HeaderDictionary
+            {
+                { "Referer", "https://testhost/previous-page" }
+            });
+
+            _mockHttpContext.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
+
             _controller = new DesignatedRunController(
                 _configuration,
                 new Mock<IApiService>().Object,
@@ -170,6 +180,14 @@ namespace EPR.Calculator.Frontend.UnitTests
                        Content = null,
                    });
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
+
+            var mockRequest = new Mock<HttpRequest>();
+            mockRequest.Setup(r => r.Headers).Returns(new HeaderDictionary
+            {
+                { "Referer", "https://testhost/previous-page" }
+            });
+
+            _mockHttpContext.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
 
             _controller = new DesignatedRunController(
                 _configuration,
@@ -221,6 +239,38 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.RouteName);
             Assert.AreEqual(runId, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public async Task Should_SetBackLink()
+        {
+            // Arrange
+            var controller = BuildTestClass(HttpStatusCode.OK, MockData.GetCalculatorRun());
+
+            _mockHttpContext = new Mock<HttpContext>();
+            _mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            var headers = new HeaderDictionary
+            {
+                { "Referer", "https://calculator/" }
+            };
+            _mockHttpContext.Setup(c => c.Request.Headers).Returns(headers);
+
+            _mockCalculatorRunDetailsService.Setup(s => s.GetCalculatorRundetailsAsync(It.IsAny<HttpContext>(), It.IsAny<int>()))
+                .ReturnsAsync(new CalculatorRunDetailsViewModel() { RunId = 1, RunClassificationId = RunClassification.INITIAL_RUN });
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
+            // Act
+            var result = await _controller.Index(1);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
         }
 
         [TestMethod]

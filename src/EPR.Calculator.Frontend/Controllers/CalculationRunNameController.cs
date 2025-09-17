@@ -51,11 +51,17 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("RunANewCalculation")]
         public IActionResult Index()
         {
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             return this.View(
                 CalculationRunNameIndexView,
                 new InitiateCalculatorRunModel
                 {
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    CurrentUser = currentUser,
+                    BackLinkViewModel = new BackLinkViewModel()
+                    {
+                        BackLink = string.Empty,
+                        CurrentUser = currentUser,
+                    },
                 });
         }
 
@@ -71,6 +77,11 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var errorMessages = this.ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
                 calculationRunModel.Errors = CreateErrorViewModel(errorMessages.First());
+                calculationRunModel.BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = string.Empty,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                };
                 return this.View(CalculationRunNameIndexView, calculationRunModel);
             }
 
@@ -78,16 +89,24 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
                 {
+                    var currentUser = CommonUtil.GetUserName(this.HttpContext);
                     var calculationName = calculationRunModel.CalculationName.Trim();
                     var calculationNameExistsResponse = await this.CheckIfCalculationNameExistsAsync(calculationName);
                     if (calculationNameExistsResponse.IsSuccessStatusCode)
                     {
-                        calculationRunModel.Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists);
-                        return this.View(CalculationRunNameIndexView, calculationRunModel);
+                        return this.View(CalculationRunNameIndexView, new InitiateCalculatorRunModel
+                        {
+                            CurrentUser = currentUser,
+                            Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists),
+                            BackLinkViewModel = new BackLinkViewModel()
+                            {
+                                BackLink = string.Empty,
+                                CurrentUser = currentUser,
+                            },
+                        });
                     }
 
                     var response = await this.HttpPostToCalculatorRunApi(calculationName);
-                    var currentUser = CommonUtil.GetUserName(this.HttpContext);
 
                     if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
                     {
@@ -97,6 +116,11 @@ namespace EPR.Calculator.Frontend.Controllers
                             {
                                 CurrentUser = currentUser,
                                 ErrorMessage = await this.ExtractErrorMessageAsync(response),
+                                BackLinkViewModel = new BackLinkViewModel()
+                                {
+                                    BackLink = ControllerNames.RunANewCalculation,
+                                    CurrentUser = currentUser,
+                                },
                             });
                     }
 
@@ -108,6 +132,11 @@ namespace EPR.Calculator.Frontend.Controllers
                             {
                                 CurrentUser = currentUser,
                                 ErrorMessage = await response.Content.ReadAsStringAsync(),
+                                BackLinkViewModel = new BackLinkViewModel()
+                                {
+                                    BackLink = string.Empty,
+                                    CurrentUser = currentUser,
+                                },
                             });
                     }
 
@@ -162,7 +191,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// </summary>
         /// <param name="calculatorRunName">The name of the calculator run.</param>
         /// <returns>The HTTP response message.</returns>
-        /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown</exception>
+        /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown.</exception>
         private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
         {
             var year = CommonUtil.GetFinancialYear(this.HttpContext.Session);
