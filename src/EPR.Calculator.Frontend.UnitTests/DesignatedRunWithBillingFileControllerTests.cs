@@ -171,6 +171,53 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(1, result.RouteValues["runId"]);
         }
 
+        [TestMethod]
+        public async Task GenerateBillingFile_Returns_Success()
+        {
+            // Arrange
+            int testRunId = 1;
+
+            var controller = BuildTestClass(HttpStatusCode.OK, MockData.GetCalculatorRun());
+
+            // Setting the mocked HttpContext for the controller
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
+            // Act
+            var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.RouteValues["action"]);
+            Assert.AreEqual(ControllerNames.CalculationRunOverview, result.RouteValues["controller"]);
+            Assert.AreEqual(testRunId, result.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public async Task GenerateBillingFile_Returns_Failure()
+        {
+            // Arrange
+            int testRunId = 1;
+
+            var controller = BuildTestClass(HttpStatusCode.InternalServerError, MockData.GetCalculatorRun());
+
+            // Setting the mocked HttpContext for the controller
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
+            // Act
+            var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
+        }
+
         private DesignatedRunWithBillingFileController BuildTestClass(
            HttpStatusCode httpStatusCode,
            CalculatorRunDto data = null,

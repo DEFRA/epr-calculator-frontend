@@ -17,7 +17,7 @@
 <partial name="_BackLinkPartialNew" model="backLinkModel" />
 @if (!calcDetails.IsBillingFileGeneratedLatest)
 {
-    <partial name="_IsBillingFileGeneratedLatestPartial"/>
+    <partial name="_IsBillingFileGeneratedLatestPartial" />
 }
 
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
@@ -87,7 +87,20 @@
                                                 isDraftBillingFile=@CommonConstants.IsDraftFileTrue })">
                                         @(calcDetails.IsBillingFileGenerating == true ? BillingInstructionConstants.DraftBillingFileGenerating : BillingInstructionConstants.DraftBillingFile)
                                     </a>
+
+                                    <p class="govuk-body">
+                                        @(calcDetails.IsBillingFileGenerating == true ? BillingInstructionConstants.GenerateFileMessage : string.Empty)
+                                    </p>                                        
                                 </div>
+
+                                <a class="govuk-button govuk-button--secondary"
+                                   role="button"
+                                   draggable="false"
+                                @(calcDetails.IsBillingFileGenerating == true || calcDetails.IsBillingFileGeneratedLatest ? "disabled" : null)
+                                   onclick="return @(calcDetails.IsBillingFileGenerating == false ? "true" : "false");"
+                                   href="@Url.Action(ActionNames.GenerateDraftBillingFile,ControllerNames.CalculationRunOverview,  new { runId = Model.CalculatorRunDetails.RunId })">
+                                    @(BillingInstructionConstants.GenerateNewDraftBillingFile)
+                                </a>
 
                                 <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                 <h2 class="govuk-heading-m">Remove this run's classification</h2>

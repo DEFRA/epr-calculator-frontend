@@ -29,5 +29,9 @@
         public const string DraftBillingFile = "Draft billing file";
 
         public const string DraftBillingFileGenerating = "Draft billing file generating";
+
+        public const string GenerateNewDraftBillingFile = "Generate new draft billing file";
+
+        public const string GenerateFileMessage = "This can take up to 15 minutes.";
     }
 }
