@@ -1,15 +1,8 @@
 ﻿@using EPR.Calculator.Frontend.Helpers;
 @using EPR.Calculator.Frontend.Controllers;
 @model AcceptRejectConfirmationViewModel
-@{
-    var backLinkModel = new BackLinkPartialViewModel
-            {
-                BackLink = Model.BackLink,
-                CurrentUser = Model.CurrentUser,
-                RunId = Model.CalculationRunId
-            };
-}
-<partial name="_BackLinkPartialNew" model="backLinkModel" />
+
+<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
 
 @{
     var approveDataHasError = ViewData.ModelState.ContainsKey(nameof(Model.ApproveData)) &&
@@ -26,7 +19,7 @@
         @Html.HiddenFor(m => m.CalculationRunName)
         @Html.HiddenFor(m => m.Status)
         @Html.HiddenFor(m => m.Reason)
-        @Html.HiddenFor(m => m.BackLink)
+        @Html.HiddenFor(m => m.BackLinkViewModel)
 
         <!-- Error Summary -->
         @if (ViewData.ModelState[$"Summary_{nameof(Model.ApproveData)}"]?.Errors.Count > 0)

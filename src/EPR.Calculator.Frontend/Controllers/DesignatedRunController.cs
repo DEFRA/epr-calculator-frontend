@@ -1,19 +1,16 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
-using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="ClassifyRunConfirmationController"/> class.
+    /// Initializes a new instance of the <see cref="DesignatedRunController"/> class.
     /// </summary>
     /// <param name="configuration">The configuration settings.</param>
     /// <param name="clientFactory">The HTTP client factory.</param>
@@ -21,7 +18,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="tokenAcquisition">The token acquisition service.</param>
     /// <param name="telemetryClient">The telemetry client.</param>
     [Route("[controller]")]
-    public class ClassifyRunConfirmationController(
+    public class DesignatedRunController(
         IConfiguration configuration,
         IApiService apiService,
         ITokenAcquisition tokenAcquisition,
@@ -41,7 +38,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0 || !IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
             {
-                return RedirectToAction(
+                return this.RedirectToAction(
                     ActionNames.StandardErrorIndex,
                     CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
@@ -63,16 +60,29 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
         {
-            return calculatorRunDetails.RunClassificationId == RunClassification.INITIAL_RUN;
+            return calculatorRunDetails.RunClassificationId == RunClassification.INITIAL_RUN
+                ||
+                calculatorRunDetails.RunClassificationId == RunClassification.INTERIM_RECALCULATION_RUN
+                ||
+                calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RUN
+                ||
+                calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RECALCULATION_RUN;
         }
 
         private async Task<ClassifyRunConfirmationViewModel> CreateViewModel(int runId)
         {
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
+
             var viewModel = new ClassifyRunConfirmationViewModel()
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-                BackLink = ControllerNames.CalculationRunDetails,
+                BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = string.Empty,
+                    CurrentUser = currentUser,
+                    HideBackLink = this.GetBackLink() != ControllerNames.Dashboard,
+                },
             };
 
             var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(

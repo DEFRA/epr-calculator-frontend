@@ -1,5 +1,4 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -15,7 +14,7 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Controller for handling post billing file details.
     /// </summary>
     [Route("[controller]")]
-    public class PostBillingFileController(
+    public class CompletedRunController(
         IConfiguration configuration,
         ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
@@ -53,6 +52,12 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (calculatorRunDetails.RunClassificationId == RunClassification.UNCLASSIFIED
                 || calculatorRunDetails.RunClassificationId == RunClassification.INITIAL_RUN
+                || calculatorRunDetails.RunClassificationId == RunClassification.INTERIM_RECALCULATION_RUN
+                || calculatorRunDetails.RunClassificationId == RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED
+                || calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RECALCULATION_RUN
+                || calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RECALCULATION_RUN_COMPLETED
+                || calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RUN
+                || calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RUN_COMPLETED
                 || calculatorRunDetails.RunClassificationId == RunClassification.INITIAL_RUN_COMPLETED)
             {
                 return true;
@@ -64,10 +69,15 @@ namespace EPR.Calculator.Frontend.Controllers
         private async Task<PostBillingFileViewModel> CreateViewModel(int runId)
         {
             var runDetails = await this.GetCalculatorRunWithBillingdetails(runId);
-
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var viewModel = new PostBillingFileViewModel()
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
+                BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = string.Empty,
+                    CurrentUser = currentUser,
+                },
             };
 
             if (runDetails != null && runDetails!.RunId > 0)
