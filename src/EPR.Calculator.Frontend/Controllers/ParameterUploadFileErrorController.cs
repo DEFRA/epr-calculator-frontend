@@ -23,10 +23,15 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(errors);
-
+                var currentUser = CommonUtil.GetUserName(this.HttpContext);
                 var parameterUploadViewModel = new ParameterUploadViewModel()
                 {
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    CurrentUser = currentUser,
+                    BackLinkViewModel = new BackLinkViewModel()
+                    {
+                        BackLink = ControllerNames.ParameterUploadFile,
+                        CurrentUser = currentUser,
+                    },
                 };
 
                 if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
@@ -71,9 +76,15 @@ namespace EPR.Calculator.Frontend.Controllers
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var uploadViewModel = new ParameterUploadViewModel
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
+                BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = ControllerNames.ParameterUploadFile,
+                    CurrentUser = currentUser,
+                },
             };
             if (csvErrors.ErrorMessage is not null)
             {

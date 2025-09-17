@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Net;
-using EPR.Calculator.Frontend.Common.Constants;
+﻿using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Extensions;
@@ -12,6 +10,9 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
+using System.Globalization;
+using System.Net;
+using System.Reflection;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -139,7 +140,12 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-                BackLink = ControllerNames.CalculationRunDetails,
+                BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = ControllerNames.CalculationRunDetails,
+                    RunId = runId,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                },
             };
 
             var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(

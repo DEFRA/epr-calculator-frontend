@@ -1,8 +1,5 @@
 ﻿@using EPR.Calculator.Frontend.Extensions;
 @model DefaultParametersViewModel
-@{
-    var BackLink = "Dashboard";
-}
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
@@ -10,7 +7,7 @@
 
     <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
 
-        <partial name="_BackLinkPartial" model="(BackLink, Model.CurrentUser)" />
+        <partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
 
         @if(Model.IsDataAvailable)
         {

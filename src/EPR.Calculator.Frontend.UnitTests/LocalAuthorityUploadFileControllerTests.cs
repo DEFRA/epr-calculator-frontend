@@ -4,7 +4,6 @@ using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 
@@ -68,6 +67,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
+            httpContextMock.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
             controller.ControllerContext.HttpContext = httpContextMock.Object;
             controller.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUploadFileName);
 
@@ -89,6 +89,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 TempData = tempData
             };
+            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
 
             var result = await controller.Upload() as ViewResult;
             Assert.IsNotNull(result);
