@@ -69,10 +69,15 @@ namespace EPR.Calculator.Frontend.Controllers
         private async Task<PostBillingFileViewModel> CreateViewModel(int runId)
         {
             var runDetails = await this.GetCalculatorRunWithBillingdetails(runId);
-
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var viewModel = new PostBillingFileViewModel()
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
+                BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = string.Empty,
+                    CurrentUser = currentUser,
+                },
             };
 
             if (runDetails != null && runDetails!.RunId > 0)

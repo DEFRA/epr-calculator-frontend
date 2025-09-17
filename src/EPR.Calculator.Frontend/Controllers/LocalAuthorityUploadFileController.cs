@@ -13,11 +13,17 @@ namespace EPR.Calculator.Frontend.Controllers
 
         public IActionResult Index()
         {
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             return this.View(
                 ViewNames.LocalAuthorityUploadFileIndex,
                 new LapcapUploadViewModel
                 {
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    CurrentUser = currentUser,
+                    BackLinkViewModel = new BackLinkViewModel()
+                    {
+                        BackLink = ControllerNames.ViewLocalAuthorityDisposalCosts,
+                        CurrentUser = currentUser,
+                    },
                 });
         }
 
@@ -61,7 +67,17 @@ namespace EPR.Calculator.Frontend.Controllers
                 else
                 {
                     var localAuthorityDisposalCosts = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
-                    return this.View(viewName, new LapcapRefreshViewModel { LapcapTemplateValue = localAuthorityDisposalCosts, FileName = fileUpload.FileName });
+                    var viewModel = new LapcapRefreshViewModel
+                    {
+                        LapcapTemplateValue = localAuthorityDisposalCosts,
+                        FileName = fileUpload.FileName,
+                        BackLinkViewModel = new BackLinkViewModel()
+                        {
+                            BackLink = ControllerNames.ViewLocalAuthorityDisposalCosts,
+                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                        },
+                    };
+                    return this.View(viewName, viewModel);
                 }
             }
             catch (Exception)
@@ -103,7 +119,15 @@ namespace EPR.Calculator.Frontend.Controllers
                 errors.DOMElementId = ViewControlNames.FileUpload;
             }
 
-            return new LapcapUploadViewModel { Errors = new List<ErrorViewModel> { errors! } };
+            return new LapcapUploadViewModel
+            {
+                Errors = new List<ErrorViewModel> { errors! },
+                BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = ControllerNames.LocalAuthorityUploadFile,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                },
+            };
         }
     }
 }
