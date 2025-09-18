@@ -120,23 +120,6 @@
                                         @Model.ImportantiewModel.IsDisplayFinalRunMessage
                                     </p>
                                 }
-                                @if (Model.ImportantiewModel.RunIdInProgress == progressId)
-                                {
-                                    <div id="divNotificationContent" class="govuk-notification-banner__content">
-                                        <p id="pNotificationContent" class="govuk-body-s">
-                                            <strong> Interim recalculation run</strong><br />
-                                            An optional run, only available after the initial run.
-                                        </p>
-                                        <p id="pNotificationContentReclacRun" class="govuk-body-s">
-                                            <strong>Final recalculation run</strong><br />
-                                            An optional run, only available if no other final recalculation or later run has been classified this year.
-                                        </p>
-                                        <p id="pNotificationContentFinalRun" class="govuk-body-s">
-                                            <strong>Final run</strong><br />
-                                            A mandatory run, only available if no other final run or later run has been classified this year.
-                                        </p>
-                                    </div>
-                                }
                             </div>
 }
                         else if (Model.ImportantiewModel.IsAnyRunInProgress)
@@ -157,7 +140,7 @@
                         {
                             <div id="divNotificationContent" class="govuk-notification-banner__content">
                                 <p id="pNotificationContent" class="govuk-body-s">
-                                    <strong> First step Interim recalculation run</strong><br />
+                                    <strong>Interim recalculation run</strong><br />
                                     An optional run, only available after the initial run.
                                 </p>
                                 <p id="pNotificationContentReclacRun" class="govuk-body-s">
