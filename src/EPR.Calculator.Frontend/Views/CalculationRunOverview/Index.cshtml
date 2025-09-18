@@ -99,7 +99,7 @@
                                    draggable="false"
                                 @(calcDetails.IsBillingFileGenerating == true || calcDetails.IsBillingFileGeneratedLatest == true ? "disabled" : null)
                                    onclick="return @(calcDetails.IsBillingFileGenerating == false ? "true" : "false");"
-                                   href="@Url.Action(ActionNames.GenerateDraftBillingFile,ControllerNames.CalculationRunOverview,  new { runId = Model.CalculatorRunDetails.RunId })">
+                                   href="@Url.Action(ActionNames.GenerateDraftBillingFile,ControllerNames.CalculationRunOverview,  new { id = Model.CalculatorRunDetails.RunId })">
                                     @(BillingInstructionConstants.GenerateNewDraftBillingFile)
                                 </a>
 

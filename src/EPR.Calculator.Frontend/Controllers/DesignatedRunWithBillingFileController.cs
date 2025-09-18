@@ -30,8 +30,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             get
             {
-                var controllerName = CommonUtil.GetControllerName(typeof(StandardErrorController));
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, controllerName);
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
 
@@ -65,21 +64,17 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.RedirectToAction(ActionNames.Index, ControllerNames.SendBillingFile, new { runId = runId });
         }
 
-        /// <summary>
-        /// Generate the billing file.
-        /// </summary>
-        /// <param name="runId">The unique identifier for the calculation run.</param>
         [HttpGet]
-        public async Task<IActionResult> GenerateDraftBillingFile(int runId)
+        public async Task<IActionResult> GenerateBillingFile(int id)
         {
-            var result = await this.TryGenerateBillingFile(runId);
+            var result = await this.TryGenerateDraftBillingFile(id);
             if (result)
             {
                 return this.RedirectToRoute(new
                 {
                     controller = ControllerNames.CalculationRunOverview,
                     action = "Index",
-                    runId,
+                    id,
                 });
             }
             else
@@ -88,7 +83,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private async Task<bool> TryGenerateBillingFile(int runId)
+        private async Task<bool> TryGenerateDraftBillingFile(int id)
         {
             var acceptApiUrl = this.ApiService.GetApiUrl(
                 ConfigSection.CalculationRunSettings,
@@ -98,12 +93,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.HttpContext,
                 HttpMethod.Put,
                 acceptApiUrl,
-                runId.ToString(),
+                id.ToString(),
                 null);
 
             if (!responseDto.IsSuccessStatusCode)
             {
-                this.TelemetryClient.TrackTrace($"Billing instructions acceptance failed for RunId {runId}. StatusCode: {responseDto.StatusCode}, Reason: {responseDto.ReasonPhrase}");
+                this.TelemetryClient.TrackTrace($"Billing instructions acceptance failed for RunId {id}. StatusCode: {responseDto.StatusCode}, Reason: {responseDto.ReasonPhrase}");
                 return false;
             }
 
