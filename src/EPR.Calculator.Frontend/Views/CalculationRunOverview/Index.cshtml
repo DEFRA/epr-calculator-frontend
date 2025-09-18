@@ -69,7 +69,7 @@
                                 <h2 class="govuk-heading-m">Downloads</h2>
 
                                 <p class="govuk-body">Download files related to this calculation run.</p>
-                                <div class="govuk-button-group">
+                                <div class="govuk-button-group width-full">
                                     <a class="govuk-button govuk-button--secondary"
                                        role="button"
                                        draggable="false"
@@ -97,7 +97,7 @@
                                 <a class="govuk-button govuk-button--secondary"
                                    role="button"
                                    draggable="false"
-                                @(calcDetails.IsBillingFileGenerating == true || calcDetails.IsBillingFileGeneratedLatest ? "disabled" : null)
+                                @(calcDetails.IsBillingFileGenerating == true || calcDetails.IsBillingFileGeneratedLatest == true ? "disabled" : null)
                                    onclick="return @(calcDetails.IsBillingFileGenerating == false ? "true" : "false");"
                                    href="@Url.Action(ActionNames.GenerateDraftBillingFile,ControllerNames.CalculationRunOverview,  new { runId = Model.CalculatorRunDetails.RunId })">
                                     @(BillingInstructionConstants.GenerateNewDraftBillingFile)

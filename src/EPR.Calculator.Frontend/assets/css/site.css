@@ -107,3 +107,7 @@ body {
     line-height:1.25;
     font-size:1rem;
 }
+
+.width-full {
+    width: max-content;
+}
