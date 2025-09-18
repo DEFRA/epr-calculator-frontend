@@ -26,6 +26,15 @@ namespace EPR.Calculator.Frontend.Controllers
             apiService,
             calculatorRunDetailsService)
     {
+        private IActionResult RedirectToStandardError
+        {
+            get
+            {
+                var controllerName = CommonUtil.GetControllerName(typeof(StandardErrorController));
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, controllerName);
+            }
+        }
+
         [Route("{runId}")]
         public async Task<IActionResult> Index(int runId)
         {
@@ -76,15 +85,6 @@ namespace EPR.Calculator.Frontend.Controllers
             else
             {
                 return this.RedirectToStandardError;
-            }
-        }
-
-        private IActionResult RedirectToStandardError
-        {
-            get
-            {
-                var controllerName = CommonUtil.GetControllerName(typeof(StandardErrorController));
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, controllerName);
             }
         }
 
