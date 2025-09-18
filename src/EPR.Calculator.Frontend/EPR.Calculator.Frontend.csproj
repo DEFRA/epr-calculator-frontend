@@ -16,28 +16,7 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<CodeAnalysisRuleSet />
-	</PropertyGroup>
-	
-	<Target Name="NpmInstall" Inputs="package.json" Outputs="node_modules/.install-stamp">
-		<Exec Command="npm install" Condition="'$(RestorePackagesWithLockFile)' != 'true'" />
-
-		<!-- Write the stamp file, so incremental builds work -->
-		<Touch Files="node_modules/.install-stamp" AlwaysCreate="true" />
-	</Target>
-
-	<Target Name="NpmRunBuildFrontend" DependsOnTargets="NpmInstall" BeforeTargets="BeforeBuild">
-		<Exec Command="npm run build-frontend" />
-	</Target>
-
-	<ItemGroup>
-	  <Content Include="assets\css\site.css" />
-	  <Content Include="assets\css\styles.css" />
-	  <Content Include="assets\images\file.png" />
-	  <Content Include="assets\images\spinner.gif" />
-	  <Content Include="assets\js\common.js" />
-	  <Content Include="assets\js\Refresh.js" />
-	  <Content Include="assets\js\site.js" />
-	</ItemGroup>
+	</PropertyGroup>	
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
@@ -69,7 +48,7 @@
 
 	<ItemGroup>
 		<SonarQubeSetting Include="sonar.coverage.exclusions">
-			<Value>Views/**/*.cshtml,Program.cs,wwwroot/js/*.js,gulpfile.js,assets/**/*</Value>
+			<Value>Views/**/*.cshtml,Program.cs,wwwroot/js/*.js</Value>
 		</SonarQubeSetting>
 	</ItemGroup>
 
