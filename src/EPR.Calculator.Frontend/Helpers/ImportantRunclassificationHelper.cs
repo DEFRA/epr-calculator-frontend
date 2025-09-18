@@ -62,6 +62,7 @@ namespace EPR.Calculator.Frontend.Helpers
                     if (!importantClassification.IsDisplayFinalRecallRun)
                     {
                         importantClassification.HasAnyDesigRun = true;
+
                         // They have skipped the final re-callculation-run and got to the final run
                         importantClassification.IsDisplayFinalRecallRun = true;
                         importantClassification.IsDisplayFinalRecallRunMessage = "Not available after final run.";
