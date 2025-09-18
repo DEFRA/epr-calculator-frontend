@@ -107,3 +107,9 @@ body {
     line-height:1.25;
     font-size:1rem;
 }
+
+.govuk-notification-banner__heading--large {
+    font-size: 22px;
+    max-width: 100%;
+    word-wrap: break-word;
+}

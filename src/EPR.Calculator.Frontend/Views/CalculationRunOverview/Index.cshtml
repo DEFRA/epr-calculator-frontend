@@ -18,6 +18,29 @@
 
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row CalculationRunOverview">
+        @if (calcDetails.IsBillingFileGenerating == true)
+        {
+            <div class="govuk-grid-column-full">
+                <div class="govuk-notification-banner govuk-notification-banner--success"
+                     role="alert"
+                     aria-labelledby="govuk-notification-banner-title"
+                     data-module="govuk-notification-banner">
+
+                    <div class="govuk-notification-banner__header">
+                        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                            Important
+                        </h2>
+                    </div>
+
+                    <div class="govuk-notification-banner__content">
+                        <p class="govuk-notification-banner__heading govuk-!-margin-bottom-0 govuk-notification-banner__heading--large">
+                            Your draft billing file is still generating. You’ll be able to continue once it’s ready.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        }
         <div class="govuk-grid-column-two-thirds">
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.CalculationRunOverview, FormMethod.Post))
             {
@@ -75,7 +98,7 @@
                                     <a class="govuk-button govuk-button--secondary"
                                        role="button"
                                        draggable="false"
-                                       @(calcDetails.IsBillingFileGenerating == false ? null : "disabled")
+                                    @(calcDetails.IsBillingFileGenerating == false ? null : "disabled")
                                        onclick="return @(calcDetails.IsBillingFileGenerating == false ? "true" : "false");"
                                        href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController,
                                         new { runId = Model.CalculatorRunDetails.RunId,
