@@ -65,7 +65,7 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GenerateBillingFile(int id)
+        public async Task<IActionResult> GenerateDraftBillingFile(int id)
         {
             var result = await this.TryGenerateDraftBillingFile(id);
             if (result)
@@ -74,7 +74,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     controller = ControllerNames.CalculationRunOverview,
                     action = "Index",
-                    id,
+                    runId = id,
                 });
             }
             else

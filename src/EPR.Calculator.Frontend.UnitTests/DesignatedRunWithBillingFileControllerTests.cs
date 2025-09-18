@@ -229,13 +229,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
 
             // Act
-            var result = await controller.GenerateBillingFile(testRunId) as RedirectToRouteResult;
+            var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.RouteValues["action"]);
             Assert.AreEqual(ControllerNames.CalculationRunOverview, result.RouteValues["controller"]);
-            Assert.AreEqual(testRunId, result.RouteValues["id"]);
+            Assert.AreEqual(testRunId, result.RouteValues["runId"]);
         }
 
         [TestMethod]
@@ -253,7 +253,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
 
             // Act
-            var result = await controller.GenerateBillingFile(testRunId) as RedirectToActionResult;
+            var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
