@@ -18,7 +18,6 @@ namespace EPR.Calculator.Frontend.Helpers
         {
             return calculationRuns
          .Where(x => x.CalculatorRunClassificationId != RunClassification.DELETED &&
-                     x.CalculatorRunClassificationId != RunClassification.TEST_RUN &&
                      x.CalculatorRunClassificationId != RunClassification.QUEUE)
          .Select(calculationRun => new CalculationRunViewModel(calculationRun))
          .ToList();
