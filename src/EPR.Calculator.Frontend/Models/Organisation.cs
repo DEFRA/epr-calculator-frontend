@@ -12,7 +12,7 @@ namespace EPR.Calculator.Frontend.Models
 
         public BillingInstruction? BillingInstruction { get; init; }
 
-        public decimal InvoiceAmount { get; init; }
+        public decimal? InvoiceAmount { get; init; }
 
         public BillingStatus? Status { get; init; }
 
