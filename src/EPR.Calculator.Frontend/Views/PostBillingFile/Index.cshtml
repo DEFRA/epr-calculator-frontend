@@ -8,7 +8,7 @@
 <script src="~/js/Download.js"></script>
 @if (!Model.HideBackLink)
 {
-    <partial name="_BackLinkPartial" model="(@Model.BackLink, @Model.CurrentUser)" />
+    <partial name="_BackLinkPartial" model="(@Model.BackLinkViewModel, @Model.CurrentUser)" />
 }
 else
 {
