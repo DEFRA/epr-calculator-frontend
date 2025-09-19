@@ -18,6 +18,8 @@
 
         public const string BillingStatus = "billingStatus";
 
+        public const string BillingInstruction = "billingInstruction";
+
         public const string BillingStatusBanner = "You’ve accepted {0} instructions and rejected {1}. <br>{2} instructions are still pending.";
 
         public const string BillingNextStep = "Next step";
