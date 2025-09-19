@@ -45,6 +45,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
+            viewModel.HideBackLink = true;
             return this.View(ViewNames.PostBillingFileIndex, viewModel);
         }
 
