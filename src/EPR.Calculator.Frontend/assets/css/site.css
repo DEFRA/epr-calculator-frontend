@@ -113,13 +113,3 @@ body {
     max-width: 100%;
     word-wrap: break-word;
 }
-
-.govuk-notification-banner--info {
-    background-color: #005ea5; /* GOV.UK blue */
-    border-left: 8px solid #005ea5;
-}
-
-    .govuk-notification-banner--info .govuk-notification-banner__title,
-    .govuk-notification-banner--info .govuk-notification-banner__heading {
-        color: #ffffff; /* White text for contrast */
-    }
