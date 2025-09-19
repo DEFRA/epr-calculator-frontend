@@ -14,6 +14,8 @@ namespace EPR.Calculator.Frontend.Mappers
         /// <param name="billingData">The billing data response DTO.</param>
         /// <param name="request">The pagination request view model.</param>
         /// <param name="currentUser">The current user's name.</param>
+        /// <param name="isSelectAll">IsSelectAll.</param>
+        /// <param name="isSelectAllPage">IsSelectAllPage.</param>
         /// <returns>A populated <see cref="BillingInstructionsViewModel"/>.</returns>
         BillingInstructionsViewModel MapToViewModel(
             ProducerBillingInstructionsResponseDto? billingData,

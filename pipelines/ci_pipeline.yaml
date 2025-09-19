@@ -7,23 +7,15 @@ trigger:
       - 'src/*'
 
 parameters:
-- name: runTests
-  displayName: Run tests
-  type: boolean
-  default: true
-- name: runOWASPScan
-  displayName: Run OWASPScan
-  type: boolean
-  default: false
 
-- name: sonarqubeInstance
-  displayName: 'Select SonarQube for v9.9 or SonarQubeLatest for 10.4'
-  type: string
-  default: 'SonarQubeLatest'
-  values:
-  - 'SonarQube'
-  - 'SonarQubeLatest'
-
+  - name: sonarqubeInstance
+    displayName: 'Select SonarQube version'
+    type: string
+    default: 'SonarQube'
+    values:
+    - 'SonarQube'
+    # - 'SonarQubeLatest'
+    
 pool: DEFRA-COMMON-ubuntu2004-SSV3
 
 variables:
@@ -39,6 +31,8 @@ variables:
   - name: sonarQubeProjectName
     value: epr-calculator-frontend
   - name: runNugetTasks
+    value: true
+  - name: runTests
     value: true
   - name: dotnetVersion
     value: dotnetVersion8
@@ -58,13 +52,13 @@ extends:
     testProjectFolder: ${{ variables.testProjectFolder }}
     sonarQubeProjectKey: ${{ variables.sonarQubeProjectKey }}
     sonarQubeProjectName: ${{ variables.sonarQubeProjectName }}
-    runTests: ${{ parameters.runTests }}
-    runOWASPScan: ${{ parameters.runOWASPScan }}
+    runTests: ${{ variables.runTests }}
     azureSubscription: $(azureSubscription)
     acrAzureContainerRegistryName: $(acr.azureContainerRegistryName)
     acrRepositoryName: $(acr.repositoryName)
     branchName: ${{ replace(replace(variables['Build.SourceBranch'], 'refs/heads/', ''), '/', '_') }}
     runNugetTasks: ${{ variables.runNugetTasks }}
     serviceName: $(serviceName)
-    sonarqubeInstance: ${{ parameters.sonarqubeInstance }}
     dotnetVersion: ${{ variables.dotnetVersion }}
+    sonarqubeInstance: ${{ parameters.sonarqubeInstance }}
+
