@@ -66,7 +66,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 ||
                 calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RUN
                 ||
-                calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RECALCULATION_RUN;
+                calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RECALCULATION_RUN
+                ||
+                calculatorRunDetails.RunClassificationId == RunClassification.TEST_RUN;
         }
 
         private async Task<ClassifyRunConfirmationViewModel> CreateViewModel(int runId)
