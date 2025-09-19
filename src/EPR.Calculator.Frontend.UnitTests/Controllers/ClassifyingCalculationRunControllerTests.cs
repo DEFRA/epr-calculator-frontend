@@ -113,31 +113,93 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public async Task IsRunEligibleForDisplay_ShouldReturnFalse_WhenRunClassificationIsUnclassified()
+        public async Task Index_ShouldReturnSetRunClassificationView_WhenAllDependenciesSucceed()
         {
             // Arrange
-            SetMessageHandlerResponses(false, HttpStatusCode.OK);
+            var runId = 1;
             var details = Fixture.Create<CalculatorRunDetailsViewModel>();
-            details.RunId = 1;
+            details.RunId = runId;
+
+            var classificationResponse = Fixture.Create<FinancialYearClassificationResponseDto>();
+
+            SetMessageHandlerResponses(true, HttpStatusCode.OK); // Simulate success
+            (_, _, _controller) = BuildTestClass(
+                Fixture,
+                HttpStatusCode.OK,
+                classificationResponse,
+                details,
+                _configuration);
+
+            // Act
+            var result = await _controller.Index(runId);
+
+            // Assert
+            Assert.IsNotNull(result);
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            Assert.AreEqual(ViewNames.SetRunClassificationIndex, viewResult.ViewName);
+            Assert.IsInstanceOfType(viewResult.Model, typeof(SetRunClassificationViewModel));
+        }
+
+        [TestMethod]
+        public async Task Index_ShouldRedirectToError_WhenCalculatorRunDetailsIsInvalid()
+        {
+            // Arrange
+            var runId = 1;
+
+            var details = new CalculatorRunDetailsViewModel
+            {
+                RunId = 0 // Invalid
+            };
+
+            SetMessageHandlerResponses(true, HttpStatusCode.OK);
 
             (_, _, _controller) = BuildTestClass(
-                this.Fixture,
-                HttpStatusCode.Created,
+                Fixture,
+                HttpStatusCode.OK,
                 Fixture.Create<FinancialYearClassificationResponseDto>(),
                 details,
                 _configuration);
 
-            int runId = 1;
-
             // Act
-            var result = await _controller.Index(runId) as ViewResult;
+            var result = await _controller.Index(runId);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.CalculationRunDetailsNewErrorPage, result.ViewName);
-            var viewModel = result.Model as SetRunClassificationViewModel;
-            Assert.IsNotNull(viewModel);
-            Assert.AreEqual(runId, viewModel.CalculatorRunDetails.RunId);
+            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+            var redirect = result as RedirectToActionResult;
+            Assert.AreEqual("Index", redirect.ActionName);
+            Assert.AreEqual("StandardError", redirect.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task Index_ShouldRedirectToError_WhenSetClassificationsReturnsFalse()
+        {
+            // Arrange
+            var runId = 0;
+
+            var details = new CalculatorRunDetailsViewModel
+            {
+                RunId = 0,
+                RunClassificationStatus = "None"
+            };
+
+            SetMessageHandlerResponses(false, HttpStatusCode.OK);
+
+            (_, _, _controller) = BuildTestClass(
+                Fixture,
+                HttpStatusCode.OK,
+                Fixture.Create<FinancialYearClassificationResponseDto>(),
+                details,
+                _configuration);
+
+            // Act
+            var result = await _controller.Index(runId);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+            var redirect = result as RedirectToActionResult;
+            Assert.AreEqual("Index", redirect.ActionName);
+            Assert.AreEqual("StandardError", redirect.ControllerName);
         }
 
         [TestMethod]
