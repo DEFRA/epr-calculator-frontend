@@ -92,9 +92,17 @@ namespace EPR.Calculator.Frontend.ViewModels
         private static string GetStatusTagStyle(RunClassification status) => status switch
         {
             RunClassification.RUNNING => "govuk-tag govuk-tag--green",
-            RunClassification.INITIAL_RUN => "govuk-tag govuk-tag--green",
-            RunClassification.INITIAL_RUN_COMPLETED => "govuk-tag govuk-tag--purple",
+            RunClassification.UNCLASSIFIED => "govuk-tag govuk-tag--blue",
+            RunClassification.TEST_RUN => "govuk-tag govuk-tag--yellow",
             RunClassification.ERROR => "govuk-tag govuk-tag--red",
+            RunClassification.INITIAL_RUN => "govuk-tag govuk-tag--purple",
+            RunClassification.INITIAL_RUN_COMPLETED => "govuk-tag govuk-tag--purple",
+            RunClassification.INTERIM_RECALCULATION_RUN => "govuk-tag govuk-tag--purple",
+            RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED => "govuk-tag govuk-tag--purple",
+            RunClassification.FINAL_RECALCULATION_RUN => "govuk-tag govuk-tag--purple",
+            RunClassification.FINAL_RECALCULATION_RUN_COMPLETED => "govuk-tag govuk-tag--purple",
+            RunClassification.FINAL_RUN => "govuk-tag govuk-tag--purple",
+            RunClassification.FINAL_RUN_COMPLETED => "govuk-tag govuk-tag--purple",
             _ => "govuk-tag",
         };
 
@@ -108,12 +116,24 @@ namespace EPR.Calculator.Frontend.ViewModels
         {
             return status switch
             {
-                RunClassification.UNCLASSIFIED => string.Format(ActionNames.CalculationRunNewDetails, id),
-                RunClassification.INITIAL_RUN when isBillingFileGenerating => string.Format(ActionNames.CalculationRunOverview, id),
-                RunClassification.INITIAL_RUN when !hasBillingFileGenerated => string.Format(ActionNames.ClassifyRunConfirmation, id),
-                RunClassification.INITIAL_RUN when hasBillingFileGenerated => string.Format(ActionNames.CalculationRunOverview, id),
-                RunClassification.INITIAL_RUN_COMPLETED => string.Format(ActionNames.PostBillingFile, id),
-                RunClassification.ERROR => string.Format(ActionNames.CalculationRunNewDetails, id),
+                RunClassification.UNCLASSIFIED =>
+                    string.Format(ActionNames.CalculationRunNewDetails, id),
+
+                RunClassification.TEST_RUN =>
+                    string.Format(ActionNames.DesignatedRun, id),
+
+                RunClassification.INITIAL_RUN or RunClassification.INTERIM_RECALCULATION_RUN or RunClassification.FINAL_RECALCULATION_RUN or RunClassification.FINAL_RUN when isBillingFileGenerating || hasBillingFileGenerated =>
+                   string.Format(ActionNames.DesignatedRunWithBillingFile, id),
+
+                RunClassification.INITIAL_RUN or RunClassification.INTERIM_RECALCULATION_RUN or RunClassification.FINAL_RECALCULATION_RUN or RunClassification.FINAL_RUN when !hasBillingFileGenerated =>
+                    string.Format(ActionNames.DesignatedRun, id),
+
+                RunClassification.INITIAL_RUN_COMPLETED or RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED or RunClassification.FINAL_RECALCULATION_RUN_COMPLETED or RunClassification.FINAL_RUN_COMPLETED =>
+                    string.Format(ActionNames.CompletedRun, id),
+
+                RunClassification.ERROR =>
+                    string.Format(ActionNames.CalculationRunNewDetails, id),
+
                 _ => ControllerNames.Dashboard,
             };
         }

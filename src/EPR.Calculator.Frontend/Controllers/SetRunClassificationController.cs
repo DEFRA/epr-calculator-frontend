@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Net;
-using EPR.Calculator.Frontend.Common.Constants;
+﻿using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Extensions;
@@ -12,6 +10,9 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Newtonsoft.Json;
+using System.Globalization;
+using System.Net;
+using System.Reflection;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -46,6 +47,17 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                var financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session);
+
+                var classificationsResponse = await this.GetClassfications(new CalcFinancialYearRequestDto
+                {
+                    RunId = runId,
+                    FinancialYear = financialYear,
+                });
+
+                var responseContent = await classificationsResponse.Content.ReadAsStringAsync();
+                var financialYearClassificationResponseDto = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(responseContent);
+
                 var viewModel = await this.CreateViewModel(runId);
                 if (!await this.SetClassifications(runId, viewModel))
                 {
@@ -56,13 +68,17 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
-                else if (!IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
+                else if (financialYearClassificationResponseDto == null)
                 {
-                    this.ModelState.AddModelError(viewModel.CalculatorRunDetails.RunName!, ErrorMessages.RunDetailError);
-                    return this.View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
+                    this.TelemetryClient.TrackTrace($"API did not return successful.");
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
-
-                return this.View(ViewNames.SetRunClassificationIndex, viewModel);
+                else
+                {
+                    var classifyAfterFinalRunViewModel = ImportantRunclassificationHelper.CreateclassificationViewModel(financialYearClassificationResponseDto.ClassifiedRuns, financialYear);
+                    viewModel.ImportantiewModel = classifyAfterFinalRunViewModel;
+                    return this.View(ViewNames.SetRunClassificationIndex, viewModel);
+                }
             }
             catch (Exception ex)
             {
@@ -118,18 +134,18 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
-        {
-            return calculatorRunDetails.RunClassificationId == RunClassification.UNCLASSIFIED;
-        }
-
         private async Task<SetRunClassificationViewModel> CreateViewModel(int runId)
         {
             var viewModel = new SetRunClassificationViewModel()
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-                BackLink = ControllerNames.CalculationRunDetails,
+                BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = ControllerNames.CalculationRunDetails,
+                    RunId = runId,
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                },
             };
 
             var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(

@@ -18,10 +18,15 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (!string.IsNullOrEmpty(lapcapErrors))
                 {
                     var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors);
-
+                    var currentUser = CommonUtil.GetUserName(this.HttpContext);
                     var lapcapUploadViewModel = new LapcapUploadViewModel()
                     {
-                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                        CurrentUser = currentUser,
+                        BackLinkViewModel = new BackLinkViewModel()
+                        {
+                            BackLink = ControllerNames.LocalAuthorityUploadFile,
+                            CurrentUser = currentUser,
+                        },
                     };
 
                     if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
@@ -71,9 +76,15 @@ namespace EPR.Calculator.Frontend.Controllers
         public async Task<IActionResult> Upload(IFormFile fileUpload)
         {
             var lapcapFileErrors = CsvFileHelper.ValidateCSV(fileUpload);
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var lapcapUploadViewModel = new LapcapUploadViewModel
             {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                CurrentUser = currentUser,
+                BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = ControllerNames.LocalAuthorityUploadFile,
+                    CurrentUser = currentUser,
+                },
             };
 
             if (lapcapFileErrors.ErrorMessage is not null)

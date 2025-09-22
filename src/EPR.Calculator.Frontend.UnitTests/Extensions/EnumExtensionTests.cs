@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using EPR.Calculator.Frontend.Extensions;
+using DescriptionAttribute = System.ComponentModel.DescriptionAttribute;
 
 namespace EPR.Calculator.Frontend.Tests.Extensions
 {
@@ -13,13 +14,18 @@ namespace EPR.Calculator.Frontend.Tests.Extensions
             [Display(Name = "Display Name")]
             WithDisplayName,
 
-            [System.ComponentModel.Description("Description Name")]
+            [Description("Description Name")]
             WithDescription,
 
             [EnumMember(Value = "Enum Member Value")]
             WithEnumMember,
 
-            WithoutAttributes
+            WithoutAttributes,
+
+            [Display(Name = "Display Name")]
+            [Description("Description Name")]
+            [EnumMember(Value = "Enum Member Value")]
+            WithAllAttributes
         }
 
         [TestMethod]
@@ -72,6 +78,41 @@ namespace EPR.Calculator.Frontend.Tests.Extensions
 
             // Assert
             Assert.AreEqual("WithoutAttributes", result);
+        }
+
+        [DataTestMethod]
+        [DataRow(false, false, false)]
+        [DataRow(true, false, false)]
+        [DataRow(true, true, false)]
+        [DataRow(true, true, true)]
+        public void GetDisplayName_ShouldReturnExpectedValue_WhenAllAttributesArePresent(
+            bool skipDisplayAttribute,
+            bool skipDescriptionAttribute,
+            bool skipEnumMemberAttribute)
+        {
+            // Arrange
+            var enumValue = TestEnum.WithAllAttributes;
+
+            // Act
+            var result = enumValue.GetDisplayName(skipDisplayAttribute, skipDescriptionAttribute, skipEnumMemberAttribute);
+
+            // Assert
+            if (!skipDisplayAttribute && !skipDescriptionAttribute && !skipEnumMemberAttribute)
+            {
+                Assert.AreEqual("Display Name", result);
+            }
+            else if (skipDisplayAttribute && !skipDescriptionAttribute && !skipEnumMemberAttribute)
+            {
+                Assert.AreEqual("Description Name", result);
+            }
+            else if (skipDisplayAttribute && skipDescriptionAttribute && !skipEnumMemberAttribute)
+            {
+                Assert.AreEqual("Enum Member Value", result);
+            }
+            else if (skipDisplayAttribute && skipDescriptionAttribute && skipEnumMemberAttribute)
+            {
+                Assert.AreEqual(enumValue.ToString(), result);
+            }
         }
     }
 }

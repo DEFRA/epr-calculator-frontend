@@ -1,6 +1,4 @@
 ﻿using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Helpers;
-using EPR.Calculator.Frontend.Models;
 using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.ViewModels
@@ -18,8 +16,8 @@ namespace EPR.Calculator.Frontend.ViewModels
         public string CurrentUser { get; init; } = null!;
 
         /// <summary>
-        /// Gets or sets the title of the Back Link.
+        /// Gets or sets the Back Link Partial View Model.
         /// </summary>
-        public string BackLink { get; set; } = ControllerNames.Dashboard;
+        public BackLinkViewModel? BackLinkViewModel { get; set; }
     }
 }

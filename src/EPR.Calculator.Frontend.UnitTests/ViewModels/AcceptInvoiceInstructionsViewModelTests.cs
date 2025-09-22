@@ -2,6 +2,7 @@
 {
     using AutoFixture;
     using AutoFixture.AutoMoq;
+    using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.ViewModels;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -42,9 +43,13 @@
         {
             var value = "/home/return";
 
-            _testClass.BackLink = value;
+            _testClass.BackLinkViewModel = new BackLinkViewModel()
+            {
+                BackLink = value,
+                CurrentUser = "Test user"
+            };
 
-            Assert.AreEqual(value, _testClass.BackLink);
+            Assert.AreEqual(value, _testClass.BackLinkViewModel.BackLink);
         }
     }
 }

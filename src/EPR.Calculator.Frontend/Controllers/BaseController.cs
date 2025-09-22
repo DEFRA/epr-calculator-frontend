@@ -67,23 +67,6 @@ namespace EPR.Calculator.Frontend.Controllers
         }
 
         /// <summary>
-        /// Returns the financial year from session if feature enabled, else from config.
-        /// </summary>
-        /// <returns>Returns the financial year.</returns>
-        /// <exception cref="ArgumentNullException">Returns error if financial year is null or empty.</exception>
-        protected string GetFinancialYear()
-        {
-            var parameterYear = this.HttpContext.Session.GetString(SessionConstants.FinancialYear);
-
-            if (string.IsNullOrWhiteSpace(parameterYear))
-            {
-                parameterYear = CommonUtil.GetDefaultFinancialYear(DateTime.Now);
-            }
-
-            return parameterYear;
-        }
-
-        /// <summary>
         /// Retrieves the calculation run with billing details.
         /// </summary>
         /// <param name="runId">run id.</param>
@@ -109,6 +92,39 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return runDetails;
+        }
+
+        protected string GetBackLink()
+        {
+            var referrer = this.Request.Headers.Referer.ToString();
+
+            if (string.IsNullOrEmpty(referrer))
+            {
+                return string.Empty;
+            }
+
+            try
+            {
+                var uri = new Uri(referrer);
+                var absolutePath = uri.AbsolutePath;
+                if (absolutePath == "/")
+                {
+                    return ControllerNames.Dashboard;
+                }
+
+                var segments = absolutePath.TrimEnd('/').Split('/');
+
+                if (segments.Length >= 2)
+                {
+                    return segments[^2];
+                }
+            }
+            catch (UriFormatException)
+            {
+                return string.Empty;
+            }
+
+            return string.Empty;
         }
     }
 }

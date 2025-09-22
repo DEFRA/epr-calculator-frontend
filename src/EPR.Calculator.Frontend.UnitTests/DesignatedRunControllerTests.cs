@@ -12,7 +12,6 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Documents.SystemFunctions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
@@ -23,33 +22,35 @@ using Newtonsoft.Json;
 namespace EPR.Calculator.Frontend.UnitTests
 {
     [TestClass]
-    public class ClassifyRunConfirmationControllerTests
+    public class DesignatedRunControllerTests
     {
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
         private Mock<IHttpClientFactory> _mockClientFactory;
-        private Mock<ILogger<ClassifyRunConfirmationController>> _mockLogger;
+        private Mock<ILogger<DesignatedRunController>> _mockLogger;
         private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private TelemetryClient _mockTelemetryClient;
-        private ClassifyRunConfirmationController _controller;
+        private DesignatedRunController _controller;
         private Mock<HttpMessageHandler> _mockMessageHandler;
         private Mock<HttpContext> _mockHttpContext;
+        private Mock<ICalculatorRunDetailsService> _mockCalculatorRunDetailsService;
 
-        public ClassifyRunConfirmationControllerTests()
+        public DesignatedRunControllerTests()
         {
             this.Fixture = new Fixture();
             _mockHttpContext = new Mock<HttpContext>();
             _mockClientFactory = new Mock<IHttpClientFactory>();
-            _mockLogger = new Mock<ILogger<ClassifyRunConfirmationController>>();
+            _mockLogger = new Mock<ILogger<DesignatedRunController>>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
             _mockMessageHandler = new Mock<HttpMessageHandler>();
+            _mockCalculatorRunDetailsService = new Mock<ICalculatorRunDetailsService>();
 
-            _controller = new ClassifyRunConfirmationController(
+            _controller = new DesignatedRunController(
                        _configuration,
                        new Mock<IApiService>().Object,
                        _mockTokenAcquisition.Object,
                        _mockTelemetryClient,
-                       new Mock<ICalculatorRunDetailsService>().Object);
+                       _mockCalculatorRunDetailsService.Object);
 
             _mockHttpContext.Setup(context => context.User)
                .Returns(new ClaimsPrincipal(new ClaimsIdentity(
@@ -82,7 +83,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                    });
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
-            _controller = new ClassifyRunConfirmationController(
+            _controller = new DesignatedRunController(
                 _configuration,
                 new Mock<IApiService>().Object,
                 _mockTokenAcquisition.Object,
@@ -131,7 +132,15 @@ namespace EPR.Calculator.Frontend.UnitTests
                    });
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
-            _controller = new ClassifyRunConfirmationController(
+            var mockRequest = new Mock<HttpRequest>();
+            mockRequest.Setup(r => r.Headers).Returns(new HeaderDictionary
+            {
+                { "Referer", "https://testhost/previous-page" }
+            });
+
+            _mockHttpContext.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
+
+            _controller = new DesignatedRunController(
                 _configuration,
                 new Mock<IApiService>().Object,
                 _mockTokenAcquisition.Object,
@@ -172,7 +181,15 @@ namespace EPR.Calculator.Frontend.UnitTests
                    });
             _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
-            _controller = new ClassifyRunConfirmationController(
+            var mockRequest = new Mock<HttpRequest>();
+            mockRequest.Setup(r => r.Headers).Returns(new HeaderDictionary
+            {
+                { "Referer", "https://testhost/previous-page" }
+            });
+
+            _mockHttpContext.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
+
+            _controller = new DesignatedRunController(
                 _configuration,
                 new Mock<IApiService>().Object,
                 _mockTokenAcquisition.Object,
@@ -224,6 +241,103 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(runId, result.RouteValues["calculationRunId"]);
         }
 
+        [TestMethod]
+        public async Task Should_SetBackLink()
+        {
+            // Arrange
+            var controller = BuildTestClass(HttpStatusCode.OK, MockData.GetCalculatorRun());
+
+            _mockHttpContext = new Mock<HttpContext>();
+            _mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            var headers = new HeaderDictionary
+            {
+                { "Referer", "https://calculator/" }
+            };
+            _mockHttpContext.Setup(c => c.Request.Headers).Returns(headers);
+
+            _mockCalculatorRunDetailsService.Setup(s => s.GetCalculatorRundetailsAsync(It.IsAny<HttpContext>(), It.IsAny<int>()))
+                .ReturnsAsync(new CalculatorRunDetailsViewModel() { RunId = 1, RunClassificationId = RunClassification.INITIAL_RUN });
+
+            // Setting the mocked HttpContext for the controller
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = _mockHttpContext.Object
+            };
+
+            // Act
+            var result = await _controller.Index(1);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+        }
+
+        [TestMethod]
+        [DataRow(RunClassification.INITIAL_RUN)]
+        [DataRow(RunClassification.INTERIM_RECALCULATION_RUN)]
+        [DataRow(RunClassification.FINAL_RUN)]
+        [DataRow(RunClassification.FINAL_RECALCULATION_RUN)]
+        [DataRow(RunClassification.TEST_RUN)]
+        public async Task Index_WhenGivenEligibleRunClassification_ReturnsViewResult_WithValidViewModel(RunClassification eligibleId)
+        {
+            // Arrange
+            var data = MockData.GetCalculatorRunWithInitialRun();
+            var controller = BuildTestClass(
+                HttpStatusCode.OK,
+                data,
+                new CalculatorRunDetailsViewModel
+                {
+                    RunId = data.RunId,
+                    RunClassificationId = eligibleId,
+                });
+
+            // Act
+            var result = await controller.Index(data.RunId) as ViewResult;
+            var resultViewModel = result.Model as ClassifyRunConfirmationViewModel;
+
+            // Assert
+            Assert.AreEqual(ViewNames.ClassifyRunConfirmationIndex, result.ViewName);
+            Assert.AreEqual(data.RunId, resultViewModel.CalculatorRunDetails.RunId);
+        }
+
+        [TestMethod]
+        public async Task Index_WhenGivenInEligibleRunClassification_ShouldReturnFalse()
+        {
+            // Arrange
+            var data = MockData.GetCalculatorRunWithInitialRun();
+
+            foreach (var ineligibleId in Enum.GetValues<RunClassification>())
+            {
+                // Exclude eligible run classifications
+                if (ineligibleId.Equals(RunClassification.INITIAL_RUN)
+                    || ineligibleId.Equals(RunClassification.INTERIM_RECALCULATION_RUN)
+                    || ineligibleId.Equals(RunClassification.FINAL_RUN)
+                    || ineligibleId.Equals(RunClassification.FINAL_RECALCULATION_RUN)
+                    || ineligibleId.Equals(RunClassification.TEST_RUN))
+                {
+                    continue;
+                }
+
+                var controller = BuildTestClass(
+                    HttpStatusCode.OK,
+                    data,
+                    new CalculatorRunDetailsViewModel
+                    {
+                        RunId = data.RunId,
+                        RunClassificationId = ineligibleId,
+                    });
+
+                // Act
+                var result = await controller.Index(data.RunId);
+
+                // Assert
+                var redirectResult = result as RedirectToActionResult;
+                Assert.IsNotNull(redirectResult);
+                Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
+            }
+        }
+
         private static Mock<HttpMessageHandler> CreateMockHttpMessageHandler(HttpStatusCode statusCode, object content)
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -242,7 +356,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             return mockHttpMessageHandler;
         }
 
-        private ClassifyRunConfirmationController BuildTestClass(
+        private DesignatedRunController BuildTestClass(
             HttpStatusCode httpStatusCode,
             CalculatorRunDto data = null,
             CalculatorRunDetailsViewModel details = null)
@@ -253,7 +367,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 httpStatusCode,
                 System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
 
-            var testClass = new ClassifyRunConfirmationController(
+            var testClass = new DesignatedRunController(
                 ConfigurationItems.GetConfigurationValues(),
                 mockApiService,
                 _mockTokenAcquisition.Object,
