@@ -45,13 +45,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 RunId = runId,
                 CalcRunName = runDetails.RunName,
                 CurrentUser = currentUser,
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = ControllerNames.CalculationRunOverview,
-                    RunId = runId,
-                    CurrentUser = currentUser,
-                },
             };
+
+            billingFileViewModel.BackLinkViewModel = this.BacklinkModel(billingFileViewModel);
 
             return this.View(billingFileViewModel);
         }
@@ -60,6 +56,8 @@ namespace EPR.Calculator.Frontend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Submit(SendBillingFileViewModel viewModel)
         {
+            viewModel.BackLinkViewModel = this.BacklinkModel(viewModel);
+
             if (viewModel.ConfirmSend != true || !this.ModelState.IsValid)
             {
                 return this.View(ViewNames.SendBillingFileIndex, viewModel);
@@ -90,6 +88,16 @@ namespace EPR.Calculator.Frontend.Controllers
                 this.TelemetryClient.TrackException(e);
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+        }
+
+        private BackLinkViewModel BacklinkModel(SendBillingFileViewModel viewModel)
+        {
+            return new BackLinkViewModel
+            {
+                BackLink = ControllerNames.CalculationRunOverview,
+                RunId = viewModel.RunId,
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+            };
         }
 
         /// <summary>
