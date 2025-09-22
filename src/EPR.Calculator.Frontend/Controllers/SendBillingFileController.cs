@@ -90,16 +90,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private BackLinkViewModel BacklinkModel(SendBillingFileViewModel viewModel)
-        {
-            return new BackLinkViewModel
-            {
-                BackLink = ControllerNames.CalculationRunOverview,
-                RunId = viewModel.RunId,
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-            };
-        }
-
         /// <summary>
         /// Calls the "prepareBillingFileSendToFSS" POST endpoint.
         /// </summary>
@@ -112,6 +102,16 @@ namespace EPR.Calculator.Frontend.Controllers
                 ConfigSection.PrepareBillingFileSendToFSS);
 
             return await this.ApiService.CallApi(this.HttpContext, HttpMethod.Post, apiUrl, runId.ToString(), null);
+        }
+
+        private BackLinkViewModel BacklinkModel(SendBillingFileViewModel viewModel)
+        {
+            return new BackLinkViewModel
+            {
+                BackLink = ControllerNames.CalculationRunOverview,
+                RunId = viewModel.RunId,
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+            };
         }
     }
 }
