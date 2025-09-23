@@ -62,6 +62,15 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (viewModel.ConfirmSend != true || !this.ModelState.IsValid)
             {
+                var currentUser = CommonUtil.GetUserName(this.HttpContext);
+
+                viewModel.BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = ControllerNames.CalculationRunOverview,
+                    RunId = viewModel.RunId,
+                    CurrentUser = currentUser,
+                };
+
                 return this.View(ViewNames.SendBillingFileIndex, viewModel);
             }
 
