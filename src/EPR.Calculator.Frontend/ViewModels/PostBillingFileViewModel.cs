@@ -25,5 +25,10 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets download billing URL.
         /// </summary>
         public Uri? DownloadCsvBillingURL { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether gets or sets value for Hide Back Link .
+        /// </summary>
+        public bool HideBackLink { get; set; }
     }
 }
