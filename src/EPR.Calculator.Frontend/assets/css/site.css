@@ -111,3 +111,7 @@ body {
 .width-max-content {
     width: max-content;
 }
+
+.govuk-button--secondary[disabled] {
+    opacity: 0.65; /*Fix accessibility contrast issue*/
+}
