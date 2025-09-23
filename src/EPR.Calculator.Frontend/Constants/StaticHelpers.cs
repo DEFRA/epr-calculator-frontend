@@ -33,6 +33,6 @@
         /// <summary>
         /// Static helper for path.
         /// </summary>
-        public const string Path = @"wwwroot/assets/SchemeParameterTemplates/SchemeParameterTemplate.v1.1.xlsx";
+        public const string Path = @"assets/SchemeParameterTemplates/SchemeParameterTemplate.v1.1.xlsx";
     }
 }
