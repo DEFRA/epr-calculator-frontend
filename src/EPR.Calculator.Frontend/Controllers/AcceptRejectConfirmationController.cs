@@ -84,6 +84,15 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (!this.ModelState.IsValid)
             {
+                var currentUser = CommonUtil.GetUserName(this.HttpContext);
+
+                model.BackLinkViewModel = new BackLinkViewModel
+                {
+                    BackLink = ControllerNames.BillingInstructionsController,
+                    RunId = model.CalculationRunId,
+                    CurrentUser = currentUser,
+                };
+
                 if (this.ModelState.ContainsKey(nameof(model.ApproveData)) && this.ModelState[nameof(model.ApproveData)]?.Errors?.Any() == true)
                 {
                     this.ModelState.AddModelError($"Summary_{nameof(model.ApproveData)}", ErrorMessages.AcceptRejectConfirmationApproveDataRequiredSummary); // Summary message
