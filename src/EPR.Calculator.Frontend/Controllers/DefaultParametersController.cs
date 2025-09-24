@@ -48,12 +48,12 @@ namespace EPR.Calculator.Frontend.Controllers
             try
             {
                 var parameterYear = CommonUtil.GetFinancialYear(this.HttpContext.Session);
+                var currentUser = CommonUtil.GetUserName(this.HttpContext);
 
                 var response = await this.GetDefaultParametersAsync(parameterYear);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var currentUser = CommonUtil.GetUserName(this.HttpContext);
                     var viewModel = new DefaultParametersViewModel
                     {
                         CurrentUser = currentUser,
@@ -86,9 +86,14 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     return this.View(new DefaultParametersViewModel
                     {
-                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                        CurrentUser = currentUser,
                         LastUpdatedBy = string.Empty,
                         IsDataAvailable = false,
+                        BackLinkViewModel = new BackLinkViewModel()
+                        {
+                            BackLink = string.Empty,
+                            CurrentUser = currentUser,
+                        },
                     });
                 }
 

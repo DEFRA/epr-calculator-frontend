@@ -29,7 +29,7 @@ namespace EPR.Calculator.Frontend.Models
         /// Gets the suggested invoice amount for the producer.
         /// </summary>
         [JsonPropertyName("suggestedInvoiceAmount")]
-        public decimal SuggestedInvoiceAmount { get; init; }
+        public decimal? SuggestedInvoiceAmount { get; init; }
 
         /// <summary>
         /// Gets the accept/reject status of the billing instruction.
