@@ -37,6 +37,7 @@
 	  <Content Include="assets\js\common.js" />
 	  <Content Include="assets\js\Refresh.js" />
 	  <Content Include="assets\js\site.js" />
+	  <Content Include="assets\SchemeParameterTemplates\**\*.xlsx" />
 	</ItemGroup>
 
 	<ItemGroup>
