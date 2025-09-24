@@ -6,35 +6,60 @@ using System.Runtime.Serialization;
 
 namespace EPR.Calculator.Frontend.Extensions
 {
+    /// <summary>
+    /// Extension methods for Enum types.
+    /// </summary>
     public static class EnumExtension
     {
-        public static string GetDisplayName(this Enum enumValue)
+        /// <summary>
+        /// Retrieves a user-friendly name for an enum value by checking for attributes like Display, Description, or EnumMember.
+        /// </summary>
+        /// <param name="enumValue">The enum value for which the display name is to be retrieved.</param>
+        /// <param name="skipDisplayAttribute">Indicates whether to skip checking the Display attribute.</param>
+        /// <param name="skipDescriptionAttribute">Indicates whether to skip checking the Description attribute.</param>
+        /// <param name="skipEnumMemberAttribute">Indicates whether to skip checking the EnumMember attribute.</param>
+        /// <returns>The user-friendly name of the enum value, or the enum name if no attributes are found.</returns>
+        public static string GetDisplayName(
+            this Enum enumValue,
+            bool skipDisplayAttribute = false,
+            bool skipDescriptionAttribute = false,
+            bool skipEnumMemberAttribute = false)
         {
-            var memberInfo = enumValue.GetType().GetMember(enumValue.ToString()).FirstOrDefault();
-            if (memberInfo == null)
+            MemberInfo? memberInfo = enumValue.GetType().GetMember(enumValue.ToString()).FirstOrDefault();
+
+            if (memberInfo is null)
             {
                 return enumValue.ToString();
             }
 
-            // Check for DisplayAttribute
-            var displayAttribute = memberInfo.GetCustomAttribute<DisplayAttribute>();
-            if (!string.IsNullOrEmpty(displayAttribute?.GetName()))
+            if (!skipDisplayAttribute)
             {
-                return displayAttribute.GetName()!;
+                // Check for DisplayAttribute
+                var displayAttribute = memberInfo.GetCustomAttribute<DisplayAttribute>();
+                if (!string.IsNullOrEmpty(displayAttribute?.GetName()))
+                {
+                    return displayAttribute.GetName()!;
+                }
             }
 
-            // Check for DescriptionAttribute
-            var descriptionAttribute = memberInfo.GetCustomAttribute<DescriptionAttribute>();
-            if (!string.IsNullOrEmpty(descriptionAttribute?.Description))
+            if (!skipDescriptionAttribute)
             {
-                return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(descriptionAttribute.Description!.ToLower());
+                // Check for DescriptionAttribute
+                var descriptionAttribute = memberInfo.GetCustomAttribute<DescriptionAttribute>();
+                if (!string.IsNullOrEmpty(descriptionAttribute?.Description))
+                {
+                    return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(descriptionAttribute.Description!.ToLower());
+                }
             }
 
-            // Check for EnumMemberAttribute
-            var enumMemberAttribute = memberInfo.GetCustomAttribute<EnumMemberAttribute>();
-            if (!string.IsNullOrEmpty(enumMemberAttribute?.Value))
+            if (!skipEnumMemberAttribute)
             {
-                return enumMemberAttribute.Value!;
+                // Check for EnumMemberAttribute
+                var enumMemberAttribute = memberInfo.GetCustomAttribute<EnumMemberAttribute>();
+                if (!string.IsNullOrEmpty(enumMemberAttribute?.Value))
+                {
+                    return enumMemberAttribute.Value!;
+                }
             }
 
             // Fallback to the enum name
