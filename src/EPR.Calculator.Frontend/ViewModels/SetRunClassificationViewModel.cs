@@ -28,5 +28,10 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets the classification status information toggles.
         /// </summary>
         public ClassificationStatusInformationViewModel? ClassificationStatusInformation { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Importanti information information box.
+        /// </summary>
+        public ImportantSectionViewModel ImportantiewModel { get; set; } = new ImportantSectionViewModel();
     }
 }
