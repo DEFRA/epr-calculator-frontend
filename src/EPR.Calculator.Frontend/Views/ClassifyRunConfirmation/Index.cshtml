@@ -96,7 +96,7 @@
                     </fieldset>
                 </div>
 
-                @if (Model.CalculatorRunDetails.RunClassificationId == RunClassification.TEST_RUN)
+                @if (Model.CalculatorRunDetails.RunClassificationId != RunClassification.TEST_RUN)
                 {
                     <div class="govuk-button-group">
                         <div class="govuk-button-group">
