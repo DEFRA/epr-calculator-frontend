@@ -923,12 +923,12 @@
             var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
             var controller = CreateControllerWithFactory(mockFactory);
 
-            var result = controller.SelectAll(model, currentPage, pageSize, 0, null, BillingInstruction.Cancelbill) as RedirectToRouteResult;
+            var result = controller.SelectAll(model, currentPage, pageSize, 0, null, BillingInstruction.Cancel) as RedirectToRouteResult;
 
             Assert.IsNotNull(result);
             Assert.IsTrue(result.RouteName.Contains("Index"));
             Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
-            Assert.AreEqual(BillingInstruction.Cancelbill, result.RouteValues["BillingInstruction"]);
+            Assert.AreEqual(BillingInstruction.Cancel, result.RouteValues["BillingInstruction"]);
             Assert.IsNull(result.RouteValues["BillingStatus"]);
         }
 

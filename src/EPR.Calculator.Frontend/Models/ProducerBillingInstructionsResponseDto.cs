@@ -40,7 +40,7 @@ public record ProducerBillingInstructionsResponseDto
     /// <summary>
     /// Gets the total number of records with No Action billing instruction.
     /// </summary>
-    [JsonPropertyName("totalNoactionRecords")]
+    [JsonPropertyName("totalNoActionRecords")]
     public int TotalNoactionRecords { get; init; }
 
     /// <summary>
@@ -64,7 +64,7 @@ public record ProducerBillingInstructionsResponseDto
     /// <summary>
     /// Gets the total number of records with Cancel Bill billing instruction.
     /// </summary>
-    [JsonPropertyName("totalCancelbillRecords")]
+    [JsonPropertyName("totalCancelBillRecords")]
     public int TotalCancelbillRecords { get; init; }
 
     /// <summary>
