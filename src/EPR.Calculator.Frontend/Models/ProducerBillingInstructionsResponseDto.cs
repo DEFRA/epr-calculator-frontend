@@ -38,6 +38,36 @@ public record ProducerBillingInstructionsResponseDto
     public int TotalPendingRecords { get; init; }
 
     /// <summary>
+    /// Gets the total number of records with No Action billing instruction.
+    /// </summary>
+    [JsonPropertyName("totalNoActionRecords")]
+    public int TotalNoactionRecords { get; init; }
+
+    /// <summary>
+    /// Gets the total number of records with Initial billing instruction.
+    /// </summary>
+    [JsonPropertyName("totalInitialRecords")]
+    public int TotalInitialRecords { get; init; }
+
+    /// <summary>
+    /// Gets the total number of records with Delta billing instruction.
+    /// </summary>
+    [JsonPropertyName("totalDeltaRecords")]
+    public int TotalDeltaRecords { get; init; }
+
+    /// <summary>
+    /// Gets the total number of records with Rebill billing instruction.
+    /// </summary>
+    [JsonPropertyName("totalRebillRecords")]
+    public int TotalRebillRecords { get; init; }
+
+    /// <summary>
+    /// Gets the total number of records with Cancel Bill billing instruction.
+    /// </summary>
+    [JsonPropertyName("totalCancelBillRecords")]
+    public int TotalCancelbillRecords { get; init; }
+
+    /// <summary>
     /// Gets the unique identifier for the calculation run.
     /// </summary>
     [JsonPropertyName("calculatorRunId")]

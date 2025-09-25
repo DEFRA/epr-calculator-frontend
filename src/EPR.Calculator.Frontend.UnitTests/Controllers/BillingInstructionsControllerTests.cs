@@ -403,7 +403,7 @@
             var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
             var controller = CreateControllerWithFactory(mockFactory);
             // Act
-            var result = controller.SelectAll(model, currentPage, pageSize, 0, null) as RedirectToRouteResult;
+            var result = controller.SelectAll(model, currentPage, pageSize, 0, null, null) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -436,7 +436,7 @@
             var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
             var controller = CreateControllerWithFactory(mockFactory);
             // Act
-            var result = controller.SelectAll(model, currentPage, pageSize, 0, BillingStatus.Accepted) as RedirectToRouteResult;
+            var result = controller.SelectAll(model, currentPage, pageSize, 0, BillingStatus.Accepted, null) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -469,7 +469,7 @@
             var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
             var controller = CreateControllerWithFactory(mockFactory);
             // Act
-            var result = controller.SelectAll(model, currentPage, pageSize, 0, BillingStatus.Rejected) as RedirectToRouteResult;
+            var result = controller.SelectAll(model, currentPage, pageSize, 0, BillingStatus.Rejected, null) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -502,7 +502,7 @@
             var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
             var controller = CreateControllerWithFactory(mockFactory);
             // Act
-            var result = controller.SelectAll(model, currentPage, pageSize, 0, BillingStatus.Pending) as RedirectToRouteResult;
+            var result = controller.SelectAll(model, currentPage, pageSize, 0, BillingStatus.Pending, null) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -537,7 +537,7 @@
             var controller = CreateControllerWithFactory(mockFactory);
 
             // Act
-            var result = controller.SelectAll(model, currentPage, pageSize, organisationId, null) as RedirectToRouteResult;
+            var result = controller.SelectAll(model, currentPage, pageSize, organisationId, null, null) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -582,7 +582,7 @@
             controller.ControllerContext = new ControllerContext { HttpContext = context };
 
             // Act
-            var result = controller.SelectAll(model, currentPage, pageSize, organisationId, null) as RedirectToRouteResult;
+            var result = controller.SelectAll(model, currentPage, pageSize, organisationId, null, null) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -638,7 +638,7 @@
             var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
 
             // Act
-            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, null) as RedirectToRouteResult;
+            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, null, null) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -669,7 +669,7 @@
             var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
 
             // Act
-            var result = await controller.SelectAllPage(model, currentPage, pageSize, organisationId, null) as RedirectToRouteResult;
+            var result = await controller.SelectAllPage(model, currentPage, pageSize, organisationId, null, null) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -700,7 +700,7 @@
             var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
 
             // Act
-            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, BillingStatus.Pending) as RedirectToRouteResult;
+            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, BillingStatus.Pending, null) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -731,7 +731,7 @@
             var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
 
             // Act
-            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, BillingStatus.Accepted) as RedirectToRouteResult;
+            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, BillingStatus.Accepted, null) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -762,7 +762,7 @@
             var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
 
             // Act
-            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, BillingStatus.Rejected) as RedirectToRouteResult;
+            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, BillingStatus.Rejected, null) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -797,12 +797,170 @@
             var controller = BuildTestClass(this.Fixture, HttpStatusCode.OK, billingData);
 
             // Act
-            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, null) as RedirectToRouteResult;
+            var result = await controller.SelectAllPage(model, currentPage, pageSize, 0, null, null) as RedirectToRouteResult;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.IsTrue(result.RouteName.Contains("Index"));
             Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+        }
+
+        [TestMethod]
+        public void CanCallSelectAll_FilterInitialInstruction()
+        {
+            // Arrange
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var model = fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = fixture.Create<int>();
+            var pageSize = fixture.Create<int>();
+
+            var calculationRunId = 1;
+            var billingData = CreateDefaultBillingData(calculationRunId);
+
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            // Act
+            var result = controller.SelectAll(model, currentPage, pageSize, 0, null, BillingInstruction.Initial) as RedirectToRouteResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.AreEqual(BillingInstruction.Initial, result.RouteValues["BillingInstruction"]);
+            Assert.IsNull(result.RouteValues["BillingStatus"]);
+        }
+
+        [TestMethod]
+        public void CanCallSelectAll_FilterDeltaInstruction()
+        {
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var model = fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = fixture.Create<int>();
+            var pageSize = fixture.Create<int>();
+
+            var calculationRunId = 1;
+            var billingData = CreateDefaultBillingData(calculationRunId);
+
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            var result = controller.SelectAll(model, currentPage, pageSize, 0, null, BillingInstruction.Delta) as RedirectToRouteResult;
+
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.AreEqual(BillingInstruction.Delta, result.RouteValues["BillingInstruction"]);
+            Assert.IsNull(result.RouteValues["BillingStatus"]);
+        }
+
+        [TestMethod]
+        public void CanCallSelectAll_FilterRebillInstruction()
+        {
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var model = fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = fixture.Create<int>();
+            var pageSize = fixture.Create<int>();
+
+            var calculationRunId = 1;
+            var billingData = CreateDefaultBillingData(calculationRunId);
+
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            var result = controller.SelectAll(model, currentPage, pageSize, 0, null, BillingInstruction.Rebill) as RedirectToRouteResult;
+
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.AreEqual(BillingInstruction.Rebill, result.RouteValues["BillingInstruction"]);
+            Assert.IsNull(result.RouteValues["BillingStatus"]);
+        }
+
+        [TestMethod]
+        public void CanCallSelectAll_FilterCancelBillInstruction()
+        {
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var model = fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = fixture.Create<int>();
+            var pageSize = fixture.Create<int>();
+
+            var calculationRunId = 1;
+            var billingData = CreateDefaultBillingData(calculationRunId);
+
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            var result = controller.SelectAll(model, currentPage, pageSize, 0, null, BillingInstruction.Cancel) as RedirectToRouteResult;
+
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.AreEqual(BillingInstruction.Cancel, result.RouteValues["BillingInstruction"]);
+            Assert.IsNull(result.RouteValues["BillingStatus"]);
+        }
+
+        [TestMethod]
+        public void CanCallSelectAll_FilterNoActionInstruction()
+        {
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var model = fixture.Create<BillingInstructionsViewModel>();
+            var currentPage = fixture.Create<int>();
+            var pageSize = fixture.Create<int>();
+
+            var calculationRunId = 1;
+            var billingData = CreateDefaultBillingData(calculationRunId);
+
+            _mockMapper.Setup(m => m.MapToViewModel(
+                    It.IsAny<ProducerBillingInstructionsResponseDto>(),
+                    It.IsAny<PaginationRequestViewModel>(),
+                    It.IsAny<string>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(new BillingInstructionsViewModel());
+
+            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
+            var controller = CreateControllerWithFactory(mockFactory);
+
+            var result = controller.SelectAll(model, currentPage, pageSize, 0, null, BillingInstruction.Noaction) as RedirectToRouteResult;
+
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.RouteName.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.AreEqual(BillingInstruction.Noaction, result.RouteValues["BillingInstruction"]);
+            Assert.IsNull(result.RouteValues["BillingStatus"]);
         }
 
         [TestMethod]
