@@ -11,6 +11,7 @@
     var routesWithoutFilters = new Dictionary<string, object?>(Model.TablePaginationModel.RouteValues);
     routesWithoutFilters.Remove(BillingInstructionConstants.BillingInstruction);
     routesWithoutFilters.Remove(BillingInstructionConstants.BillingStatus);
+    routesWithoutFilters.Remove(BillingInstructionConstants.OrganisationIdKey);
 
     // by setting these values to null, the "All" links on the filters will be highlighted
     string? selectedStatus = null;
