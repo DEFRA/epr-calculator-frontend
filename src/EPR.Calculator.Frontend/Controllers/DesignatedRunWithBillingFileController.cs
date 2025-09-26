@@ -33,7 +33,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
-            var viewModel = await this.CreateViewModel(runId);
+            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
+                this.HttpContext,
+                runId);
+
+            var viewModel = await CalculatorRunOverviewHelper.CreateViewModel(runDetails, this.GetBackLink(), this.HttpContext);
             if (viewModel.CalculatorRunDetails.RunId <= 0)
             {
                 this.TelemetryClient.TrackTrace($"No run details found for runId: {runId}");
@@ -53,32 +57,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return this.RedirectToAction(ActionNames.Index, ControllerNames.SendBillingFile, new { runId = runId });
-        }
-
-        private async Task<CalculatorRunOverviewViewModel> CreateViewModel(int runId)
-        {
-            var currentUser = CommonUtil.GetUserName(this.HttpContext);
-            var viewModel = new CalculatorRunOverviewViewModel()
-            {
-                CurrentUser = currentUser,
-                CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = string.Empty,
-                    CurrentUser = currentUser,
-                    HideBackLink = this.GetBackLink() != ControllerNames.Dashboard,
-                },
-            };
-
-            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
-                this.HttpContext,
-                runId);
-            if (runDetails != null && runDetails!.RunId > 0)
-            {
-                viewModel.CalculatorRunDetails = runDetails;
-            }
-
-            return viewModel;
         }
     }
 }

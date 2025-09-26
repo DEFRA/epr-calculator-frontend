@@ -39,6 +39,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
 
+            if (runDetails.IsBillingFileGeneratedLatest.HasValue && !runDetails.IsBillingFileGeneratedLatest.Value)
+            {
+                var viewModel = await CalculatorRunOverviewHelper.CreateViewModel(runDetails, ControllerNames.Dashboard, this.HttpContext);
+                return this.View(ViewNames.CalculationRunOverviewIndex, viewModel);
+            }
+
             var currentUser = CommonUtil.GetUserName(this.HttpContext);
             var billingFileViewModel = new SendBillingFileViewModel()
             {
