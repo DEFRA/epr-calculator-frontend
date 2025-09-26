@@ -83,7 +83,7 @@
                 </div>
 
                 <div class="govuk-button-group">
-                    <button type="submit" class="govuk-button" data-module="govuk-button">
+                    <button type="submit" @(!Model.IsBillingFileLatest == true ? "disabled" : "") class="govuk-button" data-module="govuk-button">
                         @ActionLinkLabels.SendBillingFile
                     </button>
                     <a href="@Url.Action(ActionNames.Index, ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">
