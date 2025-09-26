@@ -118,7 +118,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public async Task Index_WithBillingFileNotGeneratedLatest_ReturnsViewResult()
+        public async Task Index_WithBillingFileNotGeneratedLatest_RedirectsToIndex()
         {
             // Arrange
             int runId = 123;
@@ -137,13 +137,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 configurationItems: _configuration);
 
             // Act
-            var result = await controller.Index(runId);
+            var result = await controller.Index(runId) as RedirectToActionResult;
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(ViewResult));
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-            Assert.IsInstanceOfType(viewResult.Model, typeof(CalculatorRunOverviewViewModel));
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.CalculationRunOverview, result.ControllerName);
         }
 
         [TestMethod]

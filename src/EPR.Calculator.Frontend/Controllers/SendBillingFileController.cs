@@ -41,8 +41,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (runDetails.IsBillingFileGeneratedLatest.HasValue && !runDetails.IsBillingFileGeneratedLatest.Value)
             {
-                var viewModel = await CalculatorRunOverviewHelper.CreateViewModel(runDetails, ControllerNames.Dashboard, this.HttpContext);
-                return this.View(ViewNames.CalculationRunOverviewIndex, viewModel);
+                return this.RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId });
             }
 
             var currentUser = CommonUtil.GetUserName(this.HttpContext);

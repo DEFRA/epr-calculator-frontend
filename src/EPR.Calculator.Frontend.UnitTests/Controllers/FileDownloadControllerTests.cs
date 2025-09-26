@@ -220,7 +220,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public async Task DownloadBillingFile_WithBillingFileNotGeneratedLatest_ReturnsViewResult()
+        public async Task DownloadBillingFile_WithBillingFileNotGeneratedLatest_RedirectsToIndex()
         {
             // Arrange
             var runId = 789;
@@ -245,19 +245,13 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
                .ReturnsAsync(expectedResult);
 
-            _controller.ControllerContext.HttpContext = new DefaultHttpContext()
-            {
-                Session = TestMockUtils.BuildMockSession(new Fixture()).Object,
-            };
-
             // Act
-            var result = await _controller.DownloadBillingFile(runId, isBillingFile, isDraft);
+            var result = await _controller.DownloadBillingFile(runId, isBillingFile, isDraft) as RedirectToActionResult;
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(ViewResult));
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-            Assert.IsInstanceOfType(viewResult.Model, typeof(CalculatorRunOverviewViewModel));
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.CalculationRunOverview, result.ControllerName);
         }
     }
 }
