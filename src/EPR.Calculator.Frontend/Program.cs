@@ -124,12 +124,12 @@ if (!app.Environment.IsDevelopment() && !string.Equals(environmentName, EPR.Calc
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-//app.UseDirectoryBrowser(new DirectoryBrowserOptions
-//{
+// app.UseDirectoryBrowser(new DirectoryBrowserOptions
+// {
 //    FileProvider = new PhysicalFileProvider(
 //        Path.Combine(Directory.GetCurrentDirectory(), "assets")),
 //    RequestPath = "/assets",
-//});
+// });
 
 app.UseRouting();
 
