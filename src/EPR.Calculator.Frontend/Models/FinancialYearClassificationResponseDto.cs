@@ -1,8 +1,11 @@
-﻿namespace EPR.Calculator.Frontend.Models
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace EPR.Calculator.Frontend.Models
 {
     /// <summary>
     /// Represents the classification response for a financial year, including classifications and classified runs.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class FinancialYearClassificationResponseDto
     {
         /// <summary>
