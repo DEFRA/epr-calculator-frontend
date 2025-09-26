@@ -118,6 +118,34 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
+        public async Task Index_WithBillingFileNotGeneratedLatest_RedirectsToIndex()
+        {
+            // Arrange
+            int runId = 123;
+            var runDetails = new CalculatorRunDetailsViewModel
+            {
+                RunId = runId,
+                RunName = Fixture.Create<string>(),
+                IsBillingFileGeneratedLatest = false
+            };
+
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.OK,
+                runDetails,
+                runDetails,
+                configurationItems: _configuration);
+
+            // Act
+            var result = await controller.Index(runId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.CalculationRunOverview, result.ControllerName);
+        }
+
+        [TestMethod]
         public async Task Submit_ModelStateInvalid_RedirectsToIndex()
         {
             // Arrange
