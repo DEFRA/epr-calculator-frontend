@@ -124,12 +124,12 @@ if (!app.Environment.IsDevelopment() && environmentName != EPR.Calculator.Fronte
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseDirectoryBrowser(new DirectoryBrowserOptions
-{
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "assets")),
-    RequestPath = "/assets",
-});
+//app.UseDirectoryBrowser(new DirectoryBrowserOptions
+//{
+//    FileProvider = new PhysicalFileProvider(
+//        Path.Combine(Directory.GetCurrentDirectory(), "assets")),
+//    RequestPath = "/assets",
+//});
 
 app.UseRouting();
 
