@@ -31,6 +31,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// </summary>
         public int? DownloadTimeout { get; set; }
 
-        public ErrorViewModel Errors { get; set; }
+        public ErrorViewModel Errors { get; set; } = null!;
     }
 }
