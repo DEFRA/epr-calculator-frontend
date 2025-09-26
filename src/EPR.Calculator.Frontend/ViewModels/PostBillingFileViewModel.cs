@@ -4,7 +4,7 @@ namespace EPR.Calculator.Frontend.ViewModels
 {
     public record PostBillingFileViewModel : ViewModelCommonData
     {
-        public CalculatorRunPostBillingFileDto CalculatorRunStatus { get; set; }
+        public CalculatorRunPostBillingFileDto CalculatorRunStatus { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets download result URL.
