@@ -22,7 +22,7 @@
                     @foreach (ParameterType name in (ParameterType[])Enum.GetValues(typeof(ParameterType)))
                     {
                         var schemeparameterValue = @Model.SchemeParameters.First(t => t.SchemeParameterName == name.GetDisplayName());
-                        if (name == ParameterType.BadDebtProvision && schemeparameterValue.DefaultSchemeParameters.Count() <= 0) { continue; }
+                        if (name == ParameterType.BadDebtProvision && !schemeparameterValue.DefaultSchemeParameters.Any()) { continue; }
 
                         <h2 class="govuk-heading-l">@name.GetDisplayName()</h2>
                         <partial name="_ItemListPartial" model="schemeparameterValue" />

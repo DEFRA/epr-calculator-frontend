@@ -27,15 +27,13 @@ namespace EPR.Calculator.Frontend.UnitTests
     [TestClass]
     public class CalculationRunDetailsNewControllerTests
     {
-        private static readonly string[] Separator = new string[] { @"bin\" };
+        private static readonly string[] Separator = [@"bin\"];
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
-        private Mock<IHttpClientFactory> _mockClientFactory;
-        private Mock<ILogger<CalculationRunDetailsNewController>> _mockLogger;
-        private Mock<ITokenAcquisition> _mockTokenAcquisition;
-        private TelemetryClient _mockTelemetryClient;
-        private CalculationRunDetailsNewController _controller;
-        private Mock<HttpMessageHandler> _mockMessageHandler;
-        private Mock<HttpContext> _mockHttpContext;
+        private Mock<ITokenAcquisition> _mockTokenAcquisition = null!;
+        private TelemetryClient _mockTelemetryClient = null!;
+        private CalculationRunDetailsNewController _controller = null!;
+        private Mock<HttpMessageHandler> _mockMessageHandler = null!;
+        private Mock<HttpContext> _mockHttpContext = null!;
 
         private Fixture Fixture { get; } = new Fixture();
 
@@ -43,8 +41,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void Setup()
         {
             _mockHttpContext = new Mock<HttpContext>();
-            _mockClientFactory = new Mock<IHttpClientFactory>();
-            _mockLogger = new Mock<ILogger<CalculationRunDetailsNewController>>();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
             _mockMessageHandler = new Mock<HttpMessageHandler>();
@@ -105,7 +101,6 @@ namespace EPR.Calculator.Frontend.UnitTests
                        StatusCode = HttpStatusCode.NotFound,
                        Content = new StringContent(string.Empty),
                    });
-            _mockClientFactory = TestMockUtils.BuildMockHttpClientFactory(_mockMessageHandler.Object);
 
             _controller = new CalculationRunDetailsNewController(
                 _configuration,

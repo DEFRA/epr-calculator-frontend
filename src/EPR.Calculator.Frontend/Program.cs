@@ -71,7 +71,7 @@ builder.Services.AddSession(options =>
     options.Cookie.Name = builder.Configuration.GetValue<string>("SessionCookieName");
 });
 
-if (environmentName != EPR.Calculator.Frontend.Constants.Environment.Local.ToLower())
+if (!string.Equals(environmentName, EPR.Calculator.Frontend.Constants.Environment.Local, StringComparison.InvariantCultureIgnoreCase))
 {
     builder.Services.AddDataProtection()
     .PersistKeysToAzureBlobStorage(builder.Configuration.GetSection("BlobStorage:ConnectionString").Value, SessionConstants.Paycal, SessionConstants.PaycalDataProtection)
@@ -115,7 +115,7 @@ app.Use(async (context, next) =>
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler("/StandardError/Index");
 
-if (!app.Environment.IsDevelopment() && environmentName != EPR.Calculator.Frontend.Constants.Environment.Local.ToLower())
+if (!app.Environment.IsDevelopment() && !string.Equals(environmentName, EPR.Calculator.Frontend.Constants.Environment.Local, StringComparison.InvariantCultureIgnoreCase))
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();

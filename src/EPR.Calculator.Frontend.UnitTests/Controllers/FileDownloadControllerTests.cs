@@ -17,14 +17,14 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         private const string ResultFileUrl = "https://fake-api.com/result";
         private const string BillingFileUrl = "https://fake-api.com/billing";
 
-        private Mock<IConfiguration> _mockConfiguration;
-        private Mock<ITokenAcquisition> _mockTokenAcquisition;
-        private Mock<IHttpClientFactory> _mockHttpClientFactory;
-        private Mock<IResultBillingFileService> _mockFileDownloadService;
-        private Mock<ICalculatorRunDetailsService> _mockRunDetailsService;
-        private TelemetryClient _telemetryClient;
+        private Mock<IConfiguration> _mockConfiguration = null!;
+        private Mock<ITokenAcquisition> _mockTokenAcquisition = null!;
+        private Mock<IHttpClientFactory> _mockHttpClientFactory = null!;
+        private Mock<IResultBillingFileService> _mockFileDownloadService = null!;
+        private Mock<ICalculatorRunDetailsService> _mockRunDetailsService = null!;
+        private TelemetryClient _telemetryClient = null!;
 
-        private FileDownloadController _controller;
+        private FileDownloadController _controller = null!;
 
         [TestInitialize]
         public void Setup()
