@@ -18,5 +18,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         [Required(ErrorMessage = "You must confirm that you’ve checked the billing file before sending it.")]
         [Display(Name = "ConfirmSend")]
         public bool? ConfirmSend { get; set; }
+
+        public bool IsBillingFileLatest { get; set; } = true;
     }
 }

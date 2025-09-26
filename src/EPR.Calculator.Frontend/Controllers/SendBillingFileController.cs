@@ -45,13 +45,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 RunId = runId,
                 CalcRunName = runDetails.RunName,
                 CurrentUser = currentUser,
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = ControllerNames.CalculationRunOverview,
-                    RunId = runId,
-                    CurrentUser = currentUser,
-                },
             };
+
+            billingFileViewModel.BackLinkViewModel = this.BacklinkModel(billingFileViewModel);
 
             return this.View(billingFileViewModel);
         }
@@ -60,6 +56,8 @@ namespace EPR.Calculator.Frontend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Submit(SendBillingFileViewModel viewModel)
         {
+            viewModel.BackLinkViewModel = this.BacklinkModel(viewModel);
+
             if (viewModel.ConfirmSend != true || !this.ModelState.IsValid)
             {
                 return this.View(ViewNames.SendBillingFileIndex, viewModel);
@@ -72,6 +70,12 @@ namespace EPR.Calculator.Frontend.Controllers
                 if (response.StatusCode == HttpStatusCode.Accepted)
                 {
                     return this.RedirectToAction(ActionNames.BillingFileSuccess, CommonUtil.GetControllerName(typeof(BillingInstructionsController)));
+                }
+
+                if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
+                {
+                    viewModel.IsBillingFileLatest = false;
+                    return this.View(ActionNames.Index, viewModel);
                 }
 
                 this.TelemetryClient.TrackTrace($"1.Request (send billing file) not accepted response code:{response.StatusCode}");
@@ -98,6 +102,16 @@ namespace EPR.Calculator.Frontend.Controllers
                 ConfigSection.PrepareBillingFileSendToFSS);
 
             return await this.ApiService.CallApi(this.HttpContext, HttpMethod.Post, apiUrl, runId.ToString(), null);
+        }
+
+        private BackLinkViewModel BacklinkModel(SendBillingFileViewModel viewModel)
+        {
+            return new BackLinkViewModel
+            {
+                BackLink = ControllerNames.CalculationRunOverview,
+                RunId = viewModel.RunId,
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+            };
         }
     }
 }
