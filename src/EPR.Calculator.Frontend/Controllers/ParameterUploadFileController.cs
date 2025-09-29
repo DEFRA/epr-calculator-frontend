@@ -54,11 +54,15 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        public IActionResult DownloadCsvTemplate()
+        public async Task<IActionResult> DownloadCsvTemplate()
         {
             try
             {
-                return this.PhysicalFile(StaticHelpers.CsvTemplatePath, StaticHelpers.MimeType, StaticHelpers.CsvTemplateFileName);
+                using (var client = new HttpClient())
+                {
+                    var fileBytes = await client.GetByteArrayAsync(StaticHelpers.CsvTemplatePath);
+                    return this.File(fileBytes, "application/octet-stream", StaticHelpers.CsvTemplateFileName);
+                }
             }
             catch (Exception ex)
             {
