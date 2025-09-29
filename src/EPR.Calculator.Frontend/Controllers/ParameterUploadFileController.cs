@@ -58,10 +58,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var templateFilePath = Path.Combine(Directory.GetCurrentDirectory(), StaticHelpers.Path);
-                var templateFileName = Path.GetFileName(templateFilePath);
-
-                return this.PhysicalFile(templateFilePath, StaticHelpers.MimeType, templateFileName);
+                return this.PhysicalFile(StaticHelpers.CsvTemplatePath, StaticHelpers.MimeType, StaticHelpers.CsvTemplateFileName);
             }
             catch (Exception ex)
             {
