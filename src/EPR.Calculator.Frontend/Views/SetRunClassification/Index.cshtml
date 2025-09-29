@@ -76,46 +76,82 @@
                         </div>
                     </fieldset>
                     <br />
-
-                    <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
-                        <div class="govuk-notification-banner__header">
-                            <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                    <div id="divNotification" class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title-classify-final" data-module="govuk-notification-banner">
+                        <div id="divNotificationHeader" class="govuk-notification-banner__header">
+                            <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title-classify-final">
                                 Important
                             </h2>
                         </div>
-                        <div class="govuk-notification-banner__content">
-                            @if (classificationStatusInformation != null)
-                            {
-                                @if (classificationStatusInformation.ShowInitialRunDescription)
+                        @if (Model.ImportantiewModel.HasAnyDesigRun && !Model.ImportantiewModel.IsAnyRunInProgress)
+                        {
+                            <div id="divNotificationContent" class="govuk-notification-banner__content">
+
+                                @if (Model.ImportantiewModel.IsDisplayInitialRun)
                                 {
-                                    <p class="govuk-body-s">
+                                    <p id="pNotificationContent" class="govuk-body-s">
                                         <strong>Initial run</strong><br />
-                                        @classificationStatusInformation.InitialRunDescription
+                                        @Model.ImportantiewModel.IsDisplayInitialRunMessage
                                     </p>
                                 }
-                                @if (classificationStatusInformation.ShowInterimRecalculationRunDescription)
+
+                                @if (Model.ImportantiewModel.IsDisplayInterimRun)
                                 {
-                                    <p class="govuk-body-s">
-                                        <strong>Interim recalculation run</strong><br />
-                                        @classificationStatusInformation.InterimRecalculationRunDescription
-                                    </p>
-                                }                           
-                                @if (classificationStatusInformation.ShowFinalRecalculationRunDescription)
-                                {
-                                    <p class="govuk-body-s">
-                                        <strong>Final recalculation run</strong><br />
-                                        @classificationStatusInformation.FinalRecalculationRunDescription
+
+                                    <p id="pNotificationContentInteremRun" class="govuk-body-s">
+                                        <strong>Interim re-calculation run</strong><br />
+                                        @Model.ImportantiewModel.IsDisplayInterimRunMessage
                                     </p>
                                 }
-                                @if (classificationStatusInformation.ShowFinalRunDescription)
+
+                                @if (Model.ImportantiewModel.IsDisplayFinalRecallRun)
                                 {
-                                    <p class="govuk-body-s">
+
+                                    <p id="pNotificationContentFinalRecalRun" class="govuk-body-s">
+                                        <strong>Final re-calculation run</strong><br />
+                                        @Model.ImportantiewModel.IsDisplayFinalRecallRunMessage
+                                    </p>
+                                }
+
+                                @if (Model.ImportantiewModel.IsDisplayFinalRun)
+                                {
+                                    <p id="pNotificationContentFinalRun" class="govuk-body-s">
                                         <strong>Final run</strong><br />
-                                        @classificationStatusInformation.FinalRunDescription
+                                        @Model.ImportantiewModel.IsDisplayFinalRunMessage
                                     </p>
                                 }
-                            }
-                        </div>
+                            </div>
+}
+                        else if (Model.ImportantiewModel.IsAnyRunInProgress)
+                        {
+                            <div id="divNotificationContent" class="govuk-notification-banner__content">
+                                <p id="pNotificationContent" class="govuk-body-s">
+                                    Run <b>@Model.ImportantiewModel.RunIdInProgress</b> is already classified, but its billing file has not yet been sent to the FSS.
+                                    </p>
+                                    <p id="pNotificationContent" class="govuk-body-s">
+                                    While that run is still active, you can only create test runs.
+                                    </p>
+                                <p id="pNotificationContent" class="govuk-body-s">
+                                    If you want to make this an official run that can generate a billing file, you will need to either send the  billing file for the run <b>@Model.ImportantiewModel.RunIdInProgress</b> to the FSS or remove the run's classification.
+                                </p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div id="divNotificationContent" class="govuk-notification-banner__content">
+                                <p id="pNotificationContent" class="govuk-body-s">
+                                    <strong>Interim recalculation run</strong><br />
+                                    An optional run, only available after the initial run.
+                                </p>
+                                <p id="pNotificationContentReclacRun" class="govuk-body-s">
+                                    <strong>Final recalculation run</strong><br />
+                                    An optional run, only available if no other final recalculation or later run has been classified this year.
+                                </p>
+                                <p id="pNotificationContentFinalRun" class="govuk-body-s">
+                                    <strong>Final run</strong><br />
+                                    A mandatory run, only available if no other final run or later run has been classified this year.
+                                </p>
+                            </div>
+                        }
                     </div>
                     <div class="govuk-warning-text">
                         <span class="govuk-warning-text__icon" aria-hidden="true">!</span>

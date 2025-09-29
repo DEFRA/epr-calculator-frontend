@@ -17,24 +17,24 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
         [DataRow("Initial", BillingInstruction.Initial)]
         [DataRow("Delta", BillingInstruction.Delta)]
         [DataRow("Rebill", BillingInstruction.Rebill)]
-        [DataRow("Cancelbill", BillingInstruction.Cancelbill)]
+        [DataRow("Cancel", BillingInstruction.Cancel)]
         [DataRow("noaction", BillingInstruction.Noaction)]
         [DataRow("initial", BillingInstruction.Initial)]
         [DataRow("delta", BillingInstruction.Delta)]
         [DataRow("rebill", BillingInstruction.Rebill)]
-        [DataRow("cancelbill", BillingInstruction.Cancelbill)]
+        [DataRow("cancel", BillingInstruction.Cancel)]
         [DataRow("No Action", BillingInstruction.Noaction)]
         [DataRow("Initial ", BillingInstruction.Initial)]
         [DataRow(" DELTA", BillingInstruction.Delta)]
         [DataRow("Re-bill", BillingInstruction.Rebill)]
-        [DataRow("cancel_bill", BillingInstruction.Cancelbill)]
+        [DataRow("Cancel", BillingInstruction.Cancel)]
         [DataRow("", BillingInstruction.Noaction)]
         [DataRow(null, BillingInstruction.Noaction)]
         [DataRow("unknown", BillingInstruction.Noaction)]
         public void MapBillingInstruction_Handles_All_Values(string input, BillingInstruction expected)
         {
             // Use reflection to call the private method
-            var method = typeof(BillingInstructionsMapper).GetMethod("MapBillingInstruction", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var method = typeof(BillingInstructionsMapper).GetMethod("MapBillingInstruction", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
             var result = (BillingInstruction)method.Invoke(_mapper, new object[] { input });
             Assert.AreEqual(expected, result);
         }
@@ -59,7 +59,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
         public void MapBillingStatus_Handles_All_Values(string input, BillingStatus expected)
         {
             // Use reflection to call the private method
-            var method = typeof(BillingInstructionsMapper).GetMethod("MapBillingStatus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var method = typeof(BillingInstructionsMapper).GetMethod("MapBillingStatus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
             var result = (BillingStatus)method.Invoke(_mapper, new object[] { input });
             Assert.AreEqual(expected, result);
         }

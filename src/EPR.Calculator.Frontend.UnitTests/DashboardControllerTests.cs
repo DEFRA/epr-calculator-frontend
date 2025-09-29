@@ -77,7 +77,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             var resultModel = result.Model as DashboardViewModel;
             Assert.IsNotNull(resultModel);
-            Assert.AreEqual(3, resultModel.Calculations.Count());
+            Assert.AreEqual(10, resultModel.Calculations.Count());
             Assert.AreEqual(0, resultModel.Calculations.Count(x => x.Id == 12));
         }
 
@@ -102,7 +102,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             var resultModel = result.Model as IEnumerable<CalculationRunViewModel>;
             Assert.IsNotNull(resultModel);
-            Assert.AreEqual(3, resultModel.Count());
+            Assert.AreEqual(10, resultModel.Count());
             Assert.AreEqual(0, resultModel.Count(x => x.Id == 12));
         }
 
@@ -687,7 +687,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             return GetMockHttpMessageHandler(HttpStatusCode.BadRequest, content);
         }
 
-        private DashboardController BuildTestClass(
+        private static DashboardController BuildTestClass(
             Fixture fixture,
             Dictionary<(HttpMethod Method, string Url, string Argument), (HttpStatusCode StatusCode, string Response)> apiResponses,
             CalculatorRunDetailsViewModel details = null,

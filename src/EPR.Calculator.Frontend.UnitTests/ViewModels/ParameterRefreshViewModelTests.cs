@@ -11,7 +11,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
     [TestClass]
     public class ParameterRefreshViewModelTests
     {
-        private ParameterRefreshViewModel _testClass;
+        private ParameterRefreshViewModel _testClass = null!;
 
         [TestInitialize]
         public void SetUp()

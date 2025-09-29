@@ -9,8 +9,8 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
     [TestClass]
     public class CalculationRunViewModelTests
     {
-        private CalculationRunViewModel _testClass;
-        private CalculationRun _calculationRun;
+        private CalculationRunViewModel _testClass = null!;
+        private CalculationRun _calculationRun = null!;
 
         [TestInitialize]
         public void SetUp()
@@ -165,7 +165,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Assert
             Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
 
-            Assert.AreEqual(_testClass.TurnOnFeatureUrl, "Dashboard");
+            Assert.AreEqual("Dashboard", _testClass.TurnOnFeatureUrl);
         }
 
         [TestMethod]
@@ -278,6 +278,43 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
 
             Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/CompletedRun/{_calculationRun.Id}");
+        }
+
+        [DataTestMethod]
+        [DataRow(RunClassification.RUNNING, "govuk-tag govuk-tag--green")]
+        [DataRow(RunClassification.UNCLASSIFIED, "govuk-tag govuk-tag--blue")]
+        [DataRow(RunClassification.TEST_RUN, "govuk-tag govuk-tag--yellow")]
+        [DataRow(RunClassification.ERROR, "govuk-tag govuk-tag--red")]
+        [DataRow(RunClassification.INITIAL_RUN, "govuk-tag govuk-tag--purple")]
+        [DataRow(RunClassification.INITIAL_RUN_COMPLETED, "govuk-tag govuk-tag--purple")]
+        [DataRow(RunClassification.INTERIM_RECALCULATION_RUN, "govuk-tag govuk-tag--purple")]
+        [DataRow(RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED, "govuk-tag govuk-tag--purple")]
+        [DataRow(RunClassification.FINAL_RECALCULATION_RUN, "govuk-tag govuk-tag--purple")]
+        [DataRow(RunClassification.FINAL_RECALCULATION_RUN_COMPLETED, "govuk-tag govuk-tag--purple")]
+        [DataRow(RunClassification.FINAL_RUN, "govuk-tag govuk-tag--purple")]
+        [DataRow(RunClassification.FINAL_RUN_COMPLETED, "govuk-tag govuk-tag--purple")]
+        [DataRow(RunClassification.None, "govuk-tag")]
+        [DataRow(RunClassification.QUEUE, "govuk-tag")]
+        [DataRow(RunClassification.DELETED, "govuk-tag")]
+        public void GetStatusTagStyle_ShouldReturnExpectedStyleClassNames(
+            RunClassification runClassification,
+            string expectedTagStyle)
+        {
+            // Arrange
+            _calculationRun = new CalculationRun
+            {
+                Id = 1,
+                Name = "Test1",
+                Financial_Year = "2024-25",
+                CreatedBy = "TestUser",
+                CalculatorRunClassificationId = runClassification
+            };
+
+            // Act
+            _testClass = new CalculationRunViewModel(_calculationRun);
+
+            // Assert
+            Assert.AreEqual(_testClass.TagStyle, expectedTagStyle);
         }
     }
 }
