@@ -1,0 +1,104 @@
+﻿@using EPR.Calculator.Frontend.Enums
+@using EPR.Calculator.Frontend.ViewModels.Enums
+@using EPR.Calculator.Frontend.Helpers
+@using EPR.Calculator.Frontend.Extensions
+@model SetRunClassificationViewModel
+@{
+    var calcDetails = Model.CalculatorRunDetails;
+   // var classificationStatusInformation = Model.ClassificationStatusInformation;
+}
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/common.js"></script>
+<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
+
+<main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            @using (Html.BeginForm(ActionNames.Submit, ControllerNames.RemoveClassification, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.CalculatorRunDetails.RunId)
+                @Html.HiddenFor(m => m.CurrentUser)
+
+                <partial name="_ValidationSummaryPartial" />
+
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
+                        <legend></legend>
+                        <span id="approval-code-hint" class="govuk-caption-l">@calcDetails.RunName</span>
+                        <h1 class="govuk-heading-l">Remove @calcDetails.RunClassificationId.GetDisplayName() classification</h1>
+
+                        <table class="govuk-table" aria-describedby="table-description-calc">
+                            <caption id="table-description-calc" class="govuk-visually-hidden">
+                                Details of the calculation run including financial year, calculation ID, run date, and time.
+                            </caption>
+                            <tbody class="govuk-table__body">
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Financial year</th>
+                                    <td class="govuk-table__cell">@calcDetails.FinancialYear</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Classification</th>
+                                    <td class="govuk-table__cell">@calcDetails.RunClassificationId.GetDisplayName()</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Calculation ID</th>
+                                    <td class="govuk-table__cell">@calcDetails.RunId</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Run date and time</th>
+                                    <td class="govuk-table__cell">@calcDetails.CreatedAt.ToUKDateTimeDisplay()</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                     </fieldset>
+                    <div class="govuk-form-group @(ViewData.HasErrorFor(nameof(Model.ClassifyRunType)) ? "govuk-form-group--error" : "")">
+                        <fieldset class="govuk-fieldset" id="SelectedCalcRunOption">
+                            @Html.ValidationMessageFor(model => model.ClassifyRunType, "", new { @class = "govuk-error-message" })
+
+                            <div class="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    @Html.RadioButtonFor(model => model.ClassifyRunType, (int)RunClassification.TEST_RUN, new { @class = "govuk-radios__input", id = "SelectedCalcRunOptionTestrun" })
+                                    <label class="govuk-label govuk-radios__label" for="SelectedCalcRunOptionTestrun">
+                                        <strong>Test Run</strong><br />
+                                        <span class="govuk-body-s">View the calculation results without generating a billing file for invoicing.</span>
+                                    </label>
+                                </div>
+
+                                <div class="govuk-radios__item">
+                                    @Html.RadioButtonFor(model => model.ClassifyRunType, (int)RunClassification.DELETED, new { @class = "govuk-radios__input", id = "SelectedCalcRunOptionDelete" })
+                                    <label class="govuk-label govuk-radios__label" for="SelectedCalcRunOptionDelete">
+                                        <strong>Delete</strong><br />
+                                        <span class="govuk-body-s">Remove this calculation run if it's no longer needed.</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+
+                    <div class="govuk-warning-text">
+                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                        <strong class="govuk-warning-text__text">
+                            <span class="govuk-visually-hidden">Warning</span>
+                            You cannot remove a run's classification after the billing file has been issued. Once classified, any previous unclassified runs can no longer be classified.
+                        </strong>
+                    </div>
+                </div>
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button" data-module="govuk-button">
+                        Continue
+                    </button>
+                    <a href="@Url.Action(ActionNames.Index, ControllerNames.RemoveClassification, new { runId = Model.CalculatorRunDetails.RunId })"
+                       class="govuk-button govuk-button--secondary"
+                       role="button">
+                        Cancel
+                    </a>
+
+                    <a href="@Url.Action(ActionNames.Index, ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
+                </div>
+            }
+        </div>
+    </div>
+</main>
