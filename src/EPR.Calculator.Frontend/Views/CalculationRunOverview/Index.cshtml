@@ -16,7 +16,7 @@
     <partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
 }
 
-@if (calcDetails.IsBillingFileGeneratedLatest.HasValue && !calcDetails.IsBillingFileGeneratedLatest.Value)
+@if (calcDetails.IsBillingFileGeneratedLatest.HasValue && !calcDetails.IsBillingFileGeneratedLatest.Value && !calcDetails.IsBillingFileGenerating == true)
 {
     <partial name="_BillingInstructionsPartial" model="null" />
 }
@@ -34,7 +34,7 @@
                     </div>
                     <div class="govuk-notification-banner__content">
                         <p class="govuk-notification-banner__heading govuk-notification-banner__heading--large">
-                            Your draft billing file is still generating. You’ll be able to continue once it’s ready. Please refesh your page.
+                            Your draft billing file is still generating. You’ll be able to continue once it’s ready. Please refresh your page.
                         </p>
                     </div>
                 </div>
