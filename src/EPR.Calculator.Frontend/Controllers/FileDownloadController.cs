@@ -1,5 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Services;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
@@ -52,6 +53,20 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
+                this.HttpContext,
+                runId);
+
+                if (runDetails == null || runDetails.RunName == null)
+                {
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                }
+
+                if (runDetails.IsBillingFileGeneratedLatest.HasValue && !runDetails.IsBillingFileGeneratedLatest.Value)
+                {
+                    return this.RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId });
+                }
+
                 var apiUrl = this.apiService.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.DownloadCsvBillingApi);
 
                 var accessToken = await this.AcquireToken();

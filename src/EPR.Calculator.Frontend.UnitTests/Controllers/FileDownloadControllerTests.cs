@@ -1,9 +1,14 @@
 ﻿using System.Security.Claims;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Services;
+using EPR.Calculator.Frontend.ViewModels;
 using global::EPR.Calculator.Frontend.Common.Constants;
 using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
@@ -130,6 +135,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var isDraft = false;
             var expectedResult = new FileContentResult(new byte[] { 9, 8, 7 }, "text/csv");
 
+            _mockRunDetailsService.Setup(s => s.GetCalculatorRundetailsAsync(It.IsAny<HttpContext>(), It.IsAny<int>()))
+                .ReturnsAsync(new CalculatorRunDetailsViewModel() { RunId = 1, RunClassificationId = RunClassification.INITIAL_RUN, RunName = "Test" });
+
             _mockTokenAcquisition
              .Setup(t => t.GetAccessTokenForUserAsync(
                  It.IsAny<IEnumerable<string>>(),
@@ -158,6 +166,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var isBillingFile = false;
             var isDraft = true;
 
+            _mockRunDetailsService.Setup(s => s.GetCalculatorRundetailsAsync(It.IsAny<HttpContext>(), It.IsAny<int>()))
+               .ReturnsAsync(new CalculatorRunDetailsViewModel() { RunId = 1, RunClassificationId = RunClassification.INITIAL_RUN, RunName = "Test" });
+
             _mockTokenAcquisition.Setup(x =>
                 x.GetAccessTokenForUserAsync(
                     It.IsAny<IEnumerable<string>>(),
@@ -173,6 +184,74 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.AreEqual(ControllerNames.DownloadFileErrorNewController, redirect.ControllerName);
             Assert.AreEqual(ActionNames.IndexNew, redirect.ActionName);
             Assert.AreEqual(runId, redirect.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public async Task DownloadBillingFile_WithNullRunDetails_RedirectsToStandardError()
+        {
+            // Arrange
+            var runId = 789;
+            var fakeToken = "mock-token";
+            var isBillingFile = true;
+            var isDraft = false;
+            var expectedResult = new FileContentResult(new byte[] { 9, 8, 7 }, "text/csv");
+
+            _mockTokenAcquisition
+             .Setup(t => t.GetAccessTokenForUserAsync(
+                 It.IsAny<IEnumerable<string>>(),
+                 It.IsAny<string>(),
+                 It.IsAny<string>(),
+                 It.IsAny<ClaimsPrincipal>(),
+                 It.IsAny<TokenAcquisitionOptions>()))
+             .ReturnsAsync(fakeToken);
+
+            _mockFileDownloadService.Setup(x =>
+               x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+               .ReturnsAsync(expectedResult);
+
+            // Act
+            var result = await _controller.DownloadBillingFile(runId, isBillingFile, isDraft);
+
+            // Assert
+            var redirect = result as RedirectToActionResult;
+            Assert.IsNotNull(redirect);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirect.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), redirect.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task DownloadBillingFile_WithBillingFileNotGeneratedLatest_RedirectsToIndex()
+        {
+            // Arrange
+            var runId = 789;
+            var fakeToken = "mock-token";
+            var isBillingFile = true;
+            var isDraft = false;
+            var expectedResult = new FileContentResult(new byte[] { 9, 8, 7 }, "text/csv");
+
+            _mockRunDetailsService.Setup(s => s.GetCalculatorRundetailsAsync(It.IsAny<HttpContext>(), It.IsAny<int>()))
+                .ReturnsAsync(new CalculatorRunDetailsViewModel() { RunId = 1, RunClassificationId = RunClassification.INITIAL_RUN, RunName = "Test", IsBillingFileGeneratedLatest = false });
+
+            _mockTokenAcquisition
+             .Setup(t => t.GetAccessTokenForUserAsync(
+                 It.IsAny<IEnumerable<string>>(),
+                 It.IsAny<string>(),
+                 It.IsAny<string>(),
+                 It.IsAny<ClaimsPrincipal>(),
+                 It.IsAny<TokenAcquisitionOptions>()))
+             .ReturnsAsync(fakeToken);
+
+            _mockFileDownloadService.Setup(x =>
+               x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+               .ReturnsAsync(expectedResult);
+
+            // Act
+            var result = await _controller.DownloadBillingFile(runId, isBillingFile, isDraft) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.CalculationRunOverview, result.ControllerName);
         }
     }
 }

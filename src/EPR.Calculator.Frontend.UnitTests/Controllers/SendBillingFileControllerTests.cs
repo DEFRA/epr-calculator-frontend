@@ -118,6 +118,34 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
+        public async Task Index_WithBillingFileNotGeneratedLatest_RedirectsToIndex()
+        {
+            // Arrange
+            int runId = 123;
+            var runDetails = new CalculatorRunDetailsViewModel
+            {
+                RunId = runId,
+                RunName = Fixture.Create<string>(),
+                IsBillingFileGeneratedLatest = false
+            };
+
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.OK,
+                runDetails,
+                runDetails,
+                configurationItems: _configuration);
+
+            // Act
+            var result = await controller.Index(runId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(ControllerNames.CalculationRunOverview, result.ControllerName);
+        }
+
+        [TestMethod]
         public async Task Submit_ModelStateInvalid_RedirectsToIndex()
         {
             // Arrange
@@ -159,6 +187,48 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(redirect);
             Assert.AreEqual(ActionNames.BillingFileSuccess, redirect.ActionName);
             Assert.AreEqual(CommonUtil.GetControllerName(typeof(BillingInstructionsController)), redirect.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task Submit_ApiUnprocessableEntity_BillingFileOutdated()
+        {
+            // Arrange
+            Fixture.Customize<SendBillingFileViewModel>(c => c.With(c => c.ConfirmSend, true));
+            SendBillingFileViewModel model = Fixture.Create<SendBillingFileViewModel>();
+
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.UnprocessableEntity);
+
+            // Act
+            var result = await controller.Submit(model);
+
+            // Assert
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            Assert.AreEqual(ActionNames.Index, viewResult.ViewName);
+            Assert.AreEqual(model, viewResult.Model);
+        }
+
+        [TestMethod]
+        public async Task Submit_ApiResponse_InternalServerError()
+        {
+            // Arrange
+            Fixture.Customize<SendBillingFileViewModel>(c => c.With(c => c.ConfirmSend, true));
+            SendBillingFileViewModel model = Fixture.Create<SendBillingFileViewModel>();
+
+            var controller = BuildTestClass(
+                Fixture,
+                HttpStatusCode.InternalServerError);
+
+            // Act
+            var result = await controller.Submit(model);
+
+            // Assert
+            var redirect = result as RedirectToActionResult;
+            Assert.IsNotNull(redirect);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, redirect.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), redirect.ControllerName);
         }
 
         [TestMethod]

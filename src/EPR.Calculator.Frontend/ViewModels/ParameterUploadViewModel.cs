@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
@@ -26,5 +27,15 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or Sets the lapcap data template value.
         /// </summary>
         public List<SchemeParameterTemplateValue>? ParameterDataTemplateValue { get; set; }
+
+        /// <summary>
+        /// Gets the CSV template path.
+        /// </summary>
+        public string CsvTemplatePath => StaticHelpers.CsvTemplatePath;
+
+        /// <summary>
+        /// Gets the CSV template file name.
+        /// </summary>
+        public string CsvTemplateFileName => StaticHelpers.CsvTemplateFileName;
     }
 }
