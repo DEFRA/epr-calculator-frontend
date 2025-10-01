@@ -54,14 +54,15 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        public IActionResult DownloadCsvTemplate()
+        public async Task<IActionResult> DownloadCsvTemplate()
         {
             try
             {
-                var templateFilePath = Path.Combine(Directory.GetCurrentDirectory(), StaticHelpers.Path);
-                var templateFileName = Path.GetFileName(templateFilePath);
-
-                return this.PhysicalFile(templateFilePath, StaticHelpers.MimeType, templateFileName);
+                using (var client = new HttpClient())
+                {
+                    var fileBytes = await client.GetByteArrayAsync(StaticHelpers.CsvTemplatePath);
+                    return this.File(fileBytes, "application/octet-stream", StaticHelpers.CsvTemplateFileName);
+                }
             }
             catch (Exception ex)
             {
@@ -104,7 +105,7 @@ namespace EPR.Calculator.Frontend.Controllers
         private ParameterUploadViewModel CreateParameterUploadViewModel()
         {
             var errors = this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors] != null
-                ? JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors]?.ToString())
+                ? JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors]?.ToString() ?? string.Empty)
                 : null;
 
             if (errors != null)

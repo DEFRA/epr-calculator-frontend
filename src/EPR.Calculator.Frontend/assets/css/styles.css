@@ -148,3 +148,8 @@
 .align-center {
     align-items: center;
 }
+
+.govuk-notification-banner--failure {
+    border-color: #FF0000;
+    background-color: #FF0000;
+}

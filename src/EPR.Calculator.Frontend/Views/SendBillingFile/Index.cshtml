@@ -6,7 +6,10 @@
 }
 
 <partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
-
+@if (!Model.IsBillingFileLatest)
+{
+    <partial name="_BillingInstructionsPartial" model="Model.BackLinkViewModel" />
+}
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -80,7 +83,7 @@
                 </div>
 
                 <div class="govuk-button-group">
-                    <button type="submit" class="govuk-button" data-module="govuk-button">
+                    <button type="submit" @(!Model.IsBillingFileLatest == true ? "disabled" : "") class="govuk-button" data-module="govuk-button">
                         @ActionLinkLabels.SendBillingFile
                     </button>
                     <a href="@Url.Action(ActionNames.Index, ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">

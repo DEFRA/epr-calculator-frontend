@@ -687,7 +687,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             return GetMockHttpMessageHandler(HttpStatusCode.BadRequest, content);
         }
 
-        private DashboardController BuildTestClass(
+        private static DashboardController BuildTestClass(
             Fixture fixture,
             Dictionary<(HttpMethod Method, string Url, string Argument), (HttpStatusCode StatusCode, string Response)> apiResponses,
             CalculatorRunDetailsViewModel details = null,
