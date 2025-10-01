@@ -20,7 +20,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
     public class RemoveClassificationControllerTests
     {
         private Mock<HttpMessageHandler> mockMessageHandler;
-        private Fixture fixture;
 
         private Mock<IConfiguration> configurationMock;
         private Mock<IApiService> apiServiceMock;
