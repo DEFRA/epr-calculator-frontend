@@ -5,7 +5,6 @@
 @model SetRunClassificationViewModel
 @{
     var calcDetails = Model.CalculatorRunDetails;
-   // var classificationStatusInformation = Model.ClassificationStatusInformation;
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
@@ -52,9 +51,10 @@
                                 </tr>
                             </tbody>
                         </table>
-                     </fieldset>
+                    </fieldset>
                     <div class="govuk-form-group @(ViewData.HasErrorFor(nameof(Model.ClassifyRunType)) ? "govuk-form-group--error" : "")">
                         <fieldset class="govuk-fieldset" id="SelectedCalcRunOption">
+                            <legend></legend>
                             @Html.ValidationMessageFor(model => model.ClassifyRunType, "", new { @class = "govuk-error-message" })
 
                             <div class="govuk-radios">

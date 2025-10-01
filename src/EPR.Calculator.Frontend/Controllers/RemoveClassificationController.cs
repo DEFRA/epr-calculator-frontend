@@ -55,7 +55,6 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session);
                 var currentUser = CommonUtil.GetUserName(this.HttpContext);
 
                 var viewModel = new SetRunClassificationViewModel
@@ -140,7 +139,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     }
                     else
                     {
-                        this.logger.LogError($"API did not return successful ({result.StatusCode}).");
+                        this.logger.LogError("API did not return successful ({StatusCode})", result.StatusCode);
                         return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                     }
                 }
