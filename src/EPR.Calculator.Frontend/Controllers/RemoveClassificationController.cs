@@ -102,8 +102,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// - If "Test Run" is selected, calls the API to update classification.
         /// - If "Delete" is selected, redirects to the delete confirmation view.
         /// </remarks>
-        [Route("Submit")]
         [HttpPost]
+        [Route("Submit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Submit(SetRunClassificationViewModel model)
         {
@@ -115,51 +115,75 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.View(ViewNames.RemoveClassification, viewModel);
                 }
 
-                // If Test Run is selected, mark it as classified
-                if (model.ClassifyRunType == (int)RunClassification.TEST_RUN)
-                {
-                    var apiUrl = this.ApiService.GetApiUrl(
-                        ConfigSection.DashboardCalculatorRun,
-                        ConfigSection.DashboardCalculatorRunV2);
-
-                    var result = await this.ApiService.CallApi(
-                        this.HttpContext,
-                        HttpMethod.Put,
-                        apiUrl,
-                        string.Empty,
-                        new ClassificationDto
-                        {
-                            RunId = model.CalculatorRunDetails.RunId,
-                            ClassificationId = (int)RunClassification.TEST_RUN,
-                        });
-
-                    if (result.StatusCode == HttpStatusCode.Created)
-                    {
-                        return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
-                    }
-                    else
-                    {
-                        this.logger.LogError("API did not return successful ({StatusCode})", result.StatusCode);
-                        return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                    }
-                }
-
-                // If Delete Run is selected, redirect to delete controller
-                else if (model.ClassifyRunType == (int)RunClassification.DELETED)
-                {
-                    return this.RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { runId = model.CalculatorRunDetails.RunId });
-                }
-                else
-                {
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                }
+                return await this.HandleClassificationSubmission(model);
             }
             catch (Exception ex)
             {
                 this.logger.LogError(ex, "An error occurred while processing the request.");
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                return this.RedirectToAction(
+                    ActionNames.StandardErrorIndex,
+                    CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }
+
+        //[Route("Submit")]
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Submit(SetRunClassificationViewModel model)
+        //{
+        //    try
+        //    {
+        //        if (!this.ModelState.IsValid)
+        //        {
+        //            var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
+        //            return this.View(ViewNames.RemoveClassification, viewModel);
+        //        }
+
+        //        // If Test Run is selected, mark it as classified
+        //        if (model.ClassifyRunType == (int)RunClassification.TEST_RUN)
+        //        {
+        //            var apiUrl = this.ApiService.GetApiUrl(
+        //                ConfigSection.DashboardCalculatorRun,
+        //                ConfigSection.DashboardCalculatorRunV2);
+
+        //            var result = await this.ApiService.CallApi(
+        //                this.HttpContext,
+        //                HttpMethod.Put,
+        //                apiUrl,
+        //                string.Empty,
+        //                new ClassificationDto
+        //                {
+        //                    RunId = model.CalculatorRunDetails.RunId,
+        //                    ClassificationId = (int)RunClassification.TEST_RUN,
+        //                });
+
+        //            if (result.StatusCode == HttpStatusCode.Created)
+        //            {
+        //                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
+        //            }
+        //            else
+        //            {
+        //                this.logger.LogError("API did not return successful ({StatusCode})", result.StatusCode);
+        //                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+        //            }
+        //        }
+
+        //        // If Delete Run is selected, redirect to delete controller
+        //        else if (model.ClassifyRunType == (int)RunClassification.DELETED)
+        //        {
+        //            return this.RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { runId = model.CalculatorRunDetails.RunId });
+        //        }
+        //        else
+        //        {
+        //            return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        this.logger.LogError(ex, "An error occurred while processing the request.");
+        //        return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+        //    }
+        //}
 
         private async Task<SetRunClassificationViewModel> CreateViewModel(int runId)
         {
@@ -185,5 +209,53 @@ namespace EPR.Calculator.Frontend.Controllers
 
             return viewModel;
         }
+
+        private async Task<IActionResult> HandleClassificationSubmission(SetRunClassificationViewModel model)
+        {
+            if (model.ClassifyRunType == (int)RunClassification.TEST_RUN)
+            {
+                var apiUrl = this.ApiService.GetApiUrl(
+                    ConfigSection.DashboardCalculatorRun,
+                    ConfigSection.DashboardCalculatorRunV2);
+
+                var result = await this.ApiService.CallApi(
+                    this.HttpContext,
+                    HttpMethod.Put,
+                    apiUrl,
+                    string.Empty,
+                    new ClassificationDto
+                    {
+                        RunId = model.CalculatorRunDetails.RunId,
+                        ClassificationId = (int)RunClassification.TEST_RUN,
+                    });
+
+                if (result.StatusCode == HttpStatusCode.Created)
+                {
+                    return this.RedirectToAction(
+                        ActionNames.Index,
+                        ControllerNames.ClassifyRunConfirmation,
+                        new { runId = model.CalculatorRunDetails.RunId });
+                }
+
+                this.logger.LogError("API did not return successful ({StatusCode})", result.StatusCode);
+                return this.RedirectToAction(
+                    ActionNames.StandardErrorIndex,
+                    CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
+
+            if (model.ClassifyRunType == (int)RunClassification.DELETED)
+            {
+                return this.RedirectToAction(
+                    ActionNames.Index,
+                    ControllerNames.CalculationRunDelete,
+                    new { runId = model.CalculatorRunDetails.RunId });
+            }
+
+            // Unexpected type
+            return this.RedirectToAction(
+                ActionNames.StandardErrorIndex,
+                CommonUtil.GetControllerName(typeof(StandardErrorController)));
+        }
+
     }
 }
