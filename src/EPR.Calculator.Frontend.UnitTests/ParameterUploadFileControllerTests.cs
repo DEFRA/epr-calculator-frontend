@@ -252,12 +252,12 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void ParameterUploadFileController_DownloadCSVTemplate_Test()
+        public async Task ParameterUploadFileController_DownloadCSVTemplate_Test()
         {
             var controller = new ParameterUploadFileController();
-            var result = controller.DownloadCsvTemplate() as PhysicalFileResult;
+            var result = await controller.DownloadCsvTemplate() as FileContentResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(Path.GetFileName(StaticHelpers.Path), result.FileDownloadName);
+            Assert.AreEqual(StaticHelpers.CsvTemplateFileName, result.FileDownloadName);
         }
     }
 }

@@ -31,8 +31,13 @@
         public const string MimeType = "test/csv";
 
         /// <summary>
-        /// Static helper for path.
+        /// Scheme parameter CSV template file name.
         /// </summary>
-        public const string Path = @"wwwroot/assets/SchemeParameterTemplates/SchemeParameterTemplate.v1.1.xlsx";
+        public const string CsvTemplateFileName = "SchemeParameterTemplate.xlsx";
+
+        /// <summary>
+        /// Scheme parameter CSV template path.
+        /// </summary>
+        public const string CsvTemplatePath = "https://github.com/DEFRA/epr-calculator-frontend/blob/main/src/EPR.Calculator.Frontend/Templates/SchemeParameterTemplate.xlsx";
     }
 }
