@@ -126,65 +126,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        //[Route("Submit")]
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Submit(SetRunClassificationViewModel model)
-        //{
-        //    try
-        //    {
-        //        if (!this.ModelState.IsValid)
-        //        {
-        //            var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
-        //            return this.View(ViewNames.RemoveClassification, viewModel);
-        //        }
-
-        //        // If Test Run is selected, mark it as classified
-        //        if (model.ClassifyRunType == (int)RunClassification.TEST_RUN)
-        //        {
-        //            var apiUrl = this.ApiService.GetApiUrl(
-        //                ConfigSection.DashboardCalculatorRun,
-        //                ConfigSection.DashboardCalculatorRunV2);
-
-        //            var result = await this.ApiService.CallApi(
-        //                this.HttpContext,
-        //                HttpMethod.Put,
-        //                apiUrl,
-        //                string.Empty,
-        //                new ClassificationDto
-        //                {
-        //                    RunId = model.CalculatorRunDetails.RunId,
-        //                    ClassificationId = (int)RunClassification.TEST_RUN,
-        //                });
-
-        //            if (result.StatusCode == HttpStatusCode.Created)
-        //            {
-        //                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
-        //            }
-        //            else
-        //            {
-        //                this.logger.LogError("API did not return successful ({StatusCode})", result.StatusCode);
-        //                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-        //            }
-        //        }
-
-        //        // If Delete Run is selected, redirect to delete controller
-        //        else if (model.ClassifyRunType == (int)RunClassification.DELETED)
-        //        {
-        //            return this.RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunDelete, new { runId = model.CalculatorRunDetails.RunId });
-        //        }
-        //        else
-        //        {
-        //            return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        this.logger.LogError(ex, "An error occurred while processing the request.");
-        //        return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-        //    }
-        //}
-
         private async Task<SetRunClassificationViewModel> CreateViewModel(int runId)
         {
             var viewModel = new SetRunClassificationViewModel()
@@ -256,6 +197,5 @@ namespace EPR.Calculator.Frontend.Controllers
                 ActionNames.StandardErrorIndex,
                 CommonUtil.GetControllerName(typeof(StandardErrorController)));
         }
-
     }
 }
