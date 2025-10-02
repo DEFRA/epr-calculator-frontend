@@ -45,8 +45,6 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var lapcapRunApi = this.Configuration.GetSection(ConfigSection.LapcapSettings).GetSection(ConfigSection.LapcapSettingsApi).Value;
-
                 var year = CommonUtil.GetFinancialYear(this.HttpContext.Session);
 
                 if (string.IsNullOrWhiteSpace(year))
