@@ -111,7 +111,7 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 if (!this.ModelState.IsValid)
                 {
-                    var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
+                    var viewModel = await this.UpdateViewModel(model.CalculatorRunDetails.RunId);
                     return this.View(ViewNames.RemoveClassification, viewModel);
                 }
 
@@ -126,7 +126,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private async Task<SetRunClassificationViewModel> CreateViewModel(int runId)
+        private async Task<SetRunClassificationViewModel> UpdateViewModel(int runId)
         {
             var viewModel = new SetRunClassificationViewModel()
             {
