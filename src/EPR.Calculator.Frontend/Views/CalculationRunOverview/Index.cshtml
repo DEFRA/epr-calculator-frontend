@@ -16,13 +16,30 @@
     <partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
 }
 
-@if (calcDetails.IsBillingFileGeneratedLatest.HasValue && !calcDetails.IsBillingFileGeneratedLatest.Value)
+@if (calcDetails.IsBillingFileGeneratedLatest.HasValue && !calcDetails.IsBillingFileGeneratedLatest.Value && !calcDetails.IsBillingFileGenerating == true)
 {
     <partial name="_BillingInstructionsPartial" model="null" />
 }
 
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row CalculationRunOverview">
+        @if (calcDetails.IsBillingFileGenerating == true)
+        {
+            <div class="govuk-grid-column-full">
+                <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+                    <div class="govuk-notification-banner__header">
+                        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                            Important
+                        </h2>
+                    </div>
+                    <div class="govuk-notification-banner__content">
+                        <p class="govuk-notification-banner__heading govuk-notification-banner__heading--large">
+                            Your draft billing file is still generating. You’ll be able to continue once it’s ready. Please refresh the page.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
         <div class="govuk-grid-column-two-thirds">
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.CalculationRunOverview, FormMethod.Post))
             {
