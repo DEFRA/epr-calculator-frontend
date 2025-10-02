@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using System.Security.Claims;
-using AutoFixture;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -155,6 +155,40 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.AreEqual("Index", redirectResult.ActionName);
             Assert.AreEqual("CalculationRunDelete", redirectResult.ControllerName);
             Assert.AreEqual(runId, redirectResult.RouteValues["runId"]);
+        }
+
+        [TestMethod]
+        public async Task Submit_WhenTestRunSelected_AndApiFails_ReturnsErrorRedirect()
+        {
+            // Arrange
+            var model = new SetRunClassificationViewModel
+            {
+                ClassifyRunType = (int)RunClassification.TEST_RUN,
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel { RunId = 123 },
+                CurrentUser = "TestUser"
+            };
+
+            var failedResponse = new HttpResponseMessage(HttpStatusCode.BadRequest); // Simulates failure
+            apiServiceMock
+                .Setup(s => s.GetApiUrl(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new Uri("http://test.test"));
+            apiServiceMock
+                .Setup(s => s.CallApi(
+                    It.IsAny<HttpContext>(),
+                    HttpMethod.Put,
+                    It.IsAny<Uri>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ClassificationDto>()))
+                .ReturnsAsync(failedResponse);
+
+            // Act
+            var result = await controller.Submit(model);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+            var redirect = (RedirectToActionResult)result;
+            Assert.AreEqual("Index", redirect.ActionName);
+            Assert.AreEqual("StandardError", redirect.ControllerName);
         }
 
         [TestMethod]
