@@ -1,21 +1,21 @@
 html {
-  font-size: 14px;
-  position: relative;
-  min-height: 100%;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }
 
 .header-left-cell {
@@ -71,12 +71,12 @@ body {
 .search-panel {
     background-color: #f3f2f1;
     padding: 20px;
-    border: 1px solid #b1b4b6;    
+    border: 1px solid #b1b4b6;
 }
 
 .search-input-group {
     display: flex;
-    gap: 10px;    
+    gap: 10px;
 }
 
 .govuk-link--selected-status {
@@ -104,8 +104,15 @@ body {
 
 .col-billing-status {
     min-width: 120px;
+    line-height: 1.25;
+    font-size: 1rem;
+}
+
+.govuk-notification-banner__heading--large {
+    font-size: 22px;
+    max-width: 100%;
+    word-wrap: break-word;
     line-height:1.25;
-    font-size:1rem;
 }
 
 .width-max-content {
