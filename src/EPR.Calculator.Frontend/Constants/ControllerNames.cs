@@ -119,5 +119,10 @@
         /// Parameter upload file controller.
         /// </summary>
         public const string ParameterUploadFile = "ParameterUploadFile";
+
+        /// <summary>
+        /// Remove classification controller name.
+        /// </summary>
+        public const string RemoveClassification = "RemoveClassification";
     }
 }

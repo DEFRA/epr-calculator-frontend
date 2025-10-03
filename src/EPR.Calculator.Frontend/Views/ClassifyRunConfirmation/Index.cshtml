@@ -1,4 +1,5 @@
 ﻿@inject IHttpContextAccessor HttpContextAccessor
+@using EPR.Calculator.Frontend.Enums
 @using EPR.Calculator.Frontend.Extensions
 @model ClassifyRunConfirmationViewModel
 
@@ -64,28 +65,49 @@
                         </a>
 
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-                        <h2 class="govuk-heading-m">Remove this run's classification</h2>
-                        <p class="govuk-body">Mark this run as a test or delete it to remove its classification.</p>
-                        <div class="govuk-button-group">
-                            <a asp-action=@ActionNames.Index asp-controller=@ControllerNames.CalculationRunDelete asp-route-runId="@Model.CalculatorRunDetails.RunId" class="govuk-button govuk-button--secondary">
-                                Remove classification
-                            </a>
-                        </div>
-                        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-                        <h2 class="govuk-heading-m">Next step</h2>
-                        <p class="govuk-body">Review and confirm the billing instructions from the results file.</p>
+
+                        @if (Model.CalculatorRunDetails.RunClassificationId == RunClassification.TEST_RUN)
+                        {
+                            <h2 class="govuk-heading-m">Delete this run</h2>
+                            <p class="govuk-body">Remove this calculation if you no longer need it.</p>
+                            <div class="govuk-button-group">
+                                <div class="govuk-button-group">
+                                    <a asp-action=@ActionNames.Index asp-controller=@ControllerNames.CalculationRunDelete asp-route-runId="@Model.CalculatorRunDetails.RunId" class="govuk-button govuk-button--secondary">
+                                        Delete run
+                                    </a>
+                                </div>
+                                <a href="@Url.Action(ActionNames.Index, ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
+                            </div>
+                        }
+                        else
+                        {
+                            <h2 class="govuk-heading-m">Remove this run's classification</h2>
+                            <p class="govuk-body">Mark this run as a test or delete it to remove its classification.</p>
+                            <div class="govuk-button-group">
+                                <a asp-action=@ActionNames.Index asp-controller=@ControllerNames.RemoveClassification asp-route-runId="@Model.CalculatorRunDetails.RunId" class="govuk-button govuk-button--secondary">
+                                    Remove classification
+                                </a>
+                            </div>
+                            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                            <h2 class="govuk-heading-m">Next step</h2>
+                            <p class="govuk-body">Review and confirm the billing instructions from the results file.</p>
+                        }
+
                     </fieldset>
                 </div>
 
-                <div class="govuk-button-group">
+                @if (Model.CalculatorRunDetails.RunClassificationId != RunClassification.TEST_RUN)
+                {
                     <div class="govuk-button-group">
-                        <button class="govuk-button" data-module="govuk-button">
-                            Continue
-                        </button>
-                    </div>
+                        <div class="govuk-button-group">
+                            <button class="govuk-button" data-module="govuk-button">
+                                Continue
+                            </button>
+                        </div>
 
-                    <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
-                </div>
+                        <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
+                    </div>
+                }
             }
         </div>
     </div>

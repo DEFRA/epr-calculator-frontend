@@ -5,5 +5,6 @@
         None,
         OutputClassify,
         OutputDelete,
+        OutputTest,
     }
 }
