@@ -12,5 +12,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         public int? OrganisationId { get; init; }
 
         public BillingStatus? BillingStatus { get; init; }
+
+        public BillingInstruction? BillingInstruction { get; init; }
     }
 }
