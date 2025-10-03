@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Security.Claims;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
@@ -207,6 +208,45 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var redirectResult = (RedirectToActionResult)result;
             Assert.AreEqual("Index", redirectResult.ActionName);
             Assert.AreEqual("StandardError", redirectResult.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task Submit_WhenTestRunSelected_AndApiReturnsCreated_RedirectsToConfirmation()
+        {
+            // Arrange
+            var runId = 123;
+
+            var model = new SetRunClassificationViewModel
+            {
+                ClassifyRunType = (int)RunClassification.TEST_RUN,
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel { RunId = runId },
+                CurrentUser = "TestUser"
+            };
+
+            var successfulResponse = new HttpResponseMessage(HttpStatusCode.Created);
+
+            apiServiceMock
+                .Setup(s => s.GetApiUrl(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new Uri("http://test.test"));
+
+            apiServiceMock
+                .Setup(s => s.CallApi(
+                    It.IsAny<HttpContext>(),
+                    HttpMethod.Put,
+                    It.IsAny<Uri>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ClassificationDto>()))
+                .ReturnsAsync(successfulResponse);
+
+            // Act
+            var result = await controller.Submit(model);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+            var redirect = (RedirectToActionResult)result;
+            Assert.AreEqual("Index", redirect.ActionName);
+            Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, redirect.ControllerName);
+            Assert.AreEqual(runId, redirect.RouteValues["runId"]);
         }
 
         [TestMethod]
