@@ -7,7 +7,7 @@
 
     var routeValues = new Dictionary<string, object?>(Model.TablePaginationModel.RouteValues);
 
-    // filtering is allowed on either status or billing instructions, but not both
+    // filtering is allowed on either status or billing instructions or Ogranisation ID, but not combinations
     var routesWithoutFilters = new Dictionary<string, object?>(Model.TablePaginationModel.RouteValues);
     routesWithoutFilters.Remove(BillingInstructionConstants.BillingInstruction);
     routesWithoutFilters.Remove(BillingInstructionConstants.BillingStatus);
@@ -18,7 +18,7 @@
     string? selectedBillingInstruction = null;
 
     // determine billing status in order to highlight the chosen value
-    if (routeValues.ContainsKey(BillingInstructionConstants.BillingStatus)
+    if (routeValues != null && routeValues.ContainsKey(BillingInstructionConstants.BillingStatus)
         && routeValues[BillingInstructionConstants.BillingStatus] != null)
     {
         selectedStatus = routeValues?[BillingInstructionConstants.BillingStatus]?.ToString();
@@ -26,7 +26,7 @@
     }
 
     // determine billing instructions in order to highlight the chosen value
-    if (routeValues.ContainsKey(BillingInstructionConstants.BillingInstruction)
+    if (routeValues != null && routeValues.ContainsKey(BillingInstructionConstants.BillingInstruction)
         && routeValues[BillingInstructionConstants.BillingInstruction] != null)
     {
         selectedStatus = "Not selected";
@@ -34,13 +34,10 @@
     }
 
     // the "All" links should not be highlighted unless all rows are returned
-    if (selectedStatus == null)
+    if (selectedStatus == null && (selectableCount.GetValueOrDefault(-1) != Model.TotalRecords))
     {
-        if (selectableCount.GetValueOrDefault(-1) != Model.TotalRecords)
-        {
-            // non null value "Not selected" prevents highlighting
-            selectedStatus = selectedBillingInstruction = "Not selected";
-        }
+      // non null value "Not selected" prevents highlighting
+      selectedStatus = selectedBillingInstruction = "Not selected";
     }
 
     string HighlightIfSelected(string? status) =>
@@ -100,25 +97,25 @@
                                 </caption>
                                 <thead class="govuk-table__head">
                                     <tr class="govuk-table__row">
-                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
+                                        <th scope="col" class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
                                             <a class="@HighlightIfBillingInstructionSelected(null)"
                                                href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routesWithoutFilters) { [BillingInstructionConstants.BillingInstruction] = (string?)null })">
                                                 All (@Model.TotalRecords)
                                             </a>
                                         </th>
-                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
+                                        <th scope="col" class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
                                             <a class="@HighlightIfBillingInstructionSelected(BillingInstruction.Noaction.ToString())"
                                                href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routesWithoutFilters) { [BillingInstructionConstants.BillingInstruction] = BillingInstruction.Noaction.ToString() })">
                                                 No Action (@Model.TotalNoactionRecords)
                                             </a>
                                         </th>
-                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
+                                        <th scope="col" class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
                                             <a class="@HighlightIfBillingInstructionSelected(BillingInstruction.Initial.ToString())"
                                                href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routesWithoutFilters) { [BillingInstructionConstants.BillingInstruction] = BillingInstruction.Initial.ToString() })">
                                                 Initial (@Model.TotalInitialRecords)
                                             </a>
                                         </th>
-                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
+                                        <th scope="col" class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
                                             <a class="@HighlightIfBillingInstructionSelected(BillingInstruction.Delta.ToString())"
                                                href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routesWithoutFilters) { [BillingInstructionConstants.BillingInstruction] = BillingInstruction.Delta.ToString() })">
                                                 Delta (@Model.TotalDeltaRecords)
@@ -126,21 +123,21 @@
                                         </th>
                                     </tr>
                                     <tr class="govuk-table__row">
-                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
+                                        <th scope="col" class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
                                         </th>
-                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
+                                        <th scope="col" class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
                                             <a class="@HighlightIfBillingInstructionSelected(BillingInstruction.Rebill.ToString())"
                                                href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routesWithoutFilters) { [BillingInstructionConstants.BillingInstruction] = BillingInstruction.Rebill.ToString() })">
                                                 Rebill (@Model.TotalRebillRecords)
                                             </a>
                                         </th>
-                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
+                                        <th scope="col" class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
                                             <a class="@HighlightIfBillingInstructionSelected(BillingInstruction.Cancel.ToString())"
                                                href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary(routesWithoutFilters) { [BillingInstructionConstants.BillingInstruction] = BillingInstruction.Cancel.ToString() })">
                                                 Cancel Bill (@Model.TotalCancelbillRecords)
                                             </a>
                                         </th>
-                                        <th class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
+                                        <th scope="col" class="govuk-table__header filter-by-status__cell" style=" border: none !important;">
                                         </th>
                                     </tr>
                                 </thead>
