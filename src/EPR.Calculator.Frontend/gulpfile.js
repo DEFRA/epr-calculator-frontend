@@ -44,7 +44,7 @@ gulp.task('copy-images', function () {
     gulp.src(path.join(paths.govuk, 'assets/images/*'))
         .pipe(gulp.dest('wwwroot/images', { overwrite: true }));
 
-    return gulp.src(path.join(paths.images, '**/*'), {encoding:false})
+    return gulp.src(path.join(paths.images, '**/*'))
         .pipe(gulp.dest('wwwroot/images', { overwrite: true }));
 });
 

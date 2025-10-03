@@ -113,12 +113,5 @@ body {
     max-width: 100%;
     word-wrap: break-word;
     line-height:1.25;
-}
-
-.width-max-content {
-    width: max-content;
-}
-
-.govuk-button--secondary[disabled] {
-    opacity: 0.65; /*Fix accessibility contrast issue*/
+    font-size:1rem;
 }
