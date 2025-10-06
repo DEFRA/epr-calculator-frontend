@@ -14,4 +14,9 @@ public record ProducerBillingInstructionsSearchQueryDto
     /// Gets the collection of status values to filter the billing instructions.
     /// </summary>
     public IEnumerable<string>? Status { get; init; } = new List<string>();
+
+    /// <summary>
+    /// Gets the collection of billing instruction values to filter the billing instructions.
+    /// </summary>
+    public IEnumerable<string>? BillingInstruction { get; init; } = new List<string>();
 }
