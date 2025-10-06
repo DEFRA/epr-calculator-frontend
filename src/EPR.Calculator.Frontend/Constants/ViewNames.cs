@@ -189,5 +189,10 @@
         /// Send Billing File index.
         /// </summary>
         public const string SendBillingFileIndex = "~/Views/SendBillingFile/Index.cshtml";
+
+        /// <summary>
+        /// Remove classification page view.
+        /// </summary>
+        public const string RemoveClassification = "~/Views/RemoveClassification/Index.cshtml";
     }
 }
