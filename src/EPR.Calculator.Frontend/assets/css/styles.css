@@ -14,10 +14,6 @@
     }
 }
 
-.govuk-tag {
-    max-width: inherit !important;
-}
-
 .dashboard-page {
     .tile-group {
         .tile {
