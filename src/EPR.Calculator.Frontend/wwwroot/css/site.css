@@ -113,6 +113,7 @@ body {
     max-width: 100%;
     word-wrap: break-word;
     line-height:1.25;
+    font-size:1rem;
 }
 
 .width-max-content {
