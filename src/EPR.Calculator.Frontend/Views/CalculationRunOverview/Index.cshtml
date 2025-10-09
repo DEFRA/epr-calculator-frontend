@@ -124,7 +124,12 @@
                                 <h2 class="govuk-heading-m">Remove this run's classification</h2>
                                 <p class="govuk-body">Mark this run as a test or delete it to remove its classification.</p>
                                 <div class="govuk-button-group">
-                                    <a asp-action=@ActionNames.Index asp-controller=@ControllerNames.CalculationRunDelete asp-route-runId="@Model.CalculatorRunDetails.RunId" class="govuk-button govuk-button--secondary">
+                                    <a  class="govuk-button govuk-button--secondary"
+                                        role="button"
+                                        draggable="false"
+                                    @(calcDetails.IsBillingFileGenerating == true ? "disabled" : null)
+                                       onclick="return @(calcDetails.IsBillingFileGenerating == true ? "false" : "true");"
+                                       href="@Url.Action(@ActionNames.Index, @ControllerNames.CalculationRunDelete, new { runId = @Model.CalculatorRunDetails.RunId })">
                                         Remove classification
                                     </a>
                                 </div>
