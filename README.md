@@ -1,2 +1,2 @@
 # epr-calculator-frontend
-EPR Calculator Frontend2
+EPR Calculator Frontend
