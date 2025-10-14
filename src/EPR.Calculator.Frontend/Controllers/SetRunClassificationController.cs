@@ -265,6 +265,12 @@ namespace EPR.Calculator.Frontend.Controllers
                         classificationStatusInformationViewModel.ShowFinalRunDescription = true;
                         classificationStatusInformationViewModel.FinalRunDescription = $"{string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, financialYear)}";
                     }
+
+                    // check if list doesn't have test run status
+                    if (classificationList.Exists(n => n.Id == (int)RunClassification.TEST_RUN))
+                    {
+                        classificationStatusInformationViewModel.ShowTestRunDescription = true;
+                    }
                 }
             }
 

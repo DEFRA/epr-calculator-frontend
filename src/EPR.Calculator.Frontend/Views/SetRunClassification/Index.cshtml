@@ -135,6 +135,17 @@
                                 </p>
                             </div>
                         }
+                        else if (Model.ClassificationStatusInformation.ShowTestRunDescription)
+                        {
+                            <div class="govuk-warning-text">
+                                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                                <strong class="govuk-warning-text__text">
+                                    <span class="govuk-visually-hidden">Warning</span>
+                                    This run is out of date, the invoice position used for this run has been superseded through the classification of other runs as designated runs in this financial year . The classification as a Test run is the only option available.
+                                </strong>
+                            </div>
+
+                        }
                         else
                         {
                             <div id="divNotificationContent" class="govuk-notification-banner__content">

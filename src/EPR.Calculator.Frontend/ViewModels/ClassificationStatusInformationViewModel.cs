@@ -49,5 +49,15 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// Gets or sets a value indicating whether gets or sets final run status description.
         /// </summary>
         public string? FinalRunDescription { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether gets or sets show final run description.
+        /// </summary>
+        public bool ShowTestRunDescription { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value Test informatopm if try to classify run on wrong date
+        /// </summary>
+        public string? TestRunDescription { get; set; }
     }
 }
