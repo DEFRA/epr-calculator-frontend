@@ -57,10 +57,15 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var responseContent = await classificationsResponse.Content.ReadAsStringAsync();
                 var financialYearClassificationResponseDto = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(responseContent);
+                if (financialYearClassificationResponseDto == null)
+                {
+                    this.TelemetryClient.TrackTrace($"API did not return successful.");
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                }
 
                 var viewModel = await this.CreateViewModel(runId);
                 var classifyViewModel = ImportantRunclassificationHelper.CreateclassificationViewModel(
-                    financialYearClassificationResponseDto.ClassifiedRuns,
+                    financialYearClassificationResponseDto!.ClassifiedRuns,
                     financialYear);
 
                 viewModel.ImportantiewModel = classifyViewModel;
@@ -71,11 +76,6 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0)
                 {
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                }
-                else if (financialYearClassificationResponseDto == null)
-                {
-                    this.TelemetryClient.TrackTrace($"API did not return successful.");
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
                 else
