@@ -82,60 +82,60 @@
                                 Important
                             </h2>
                         </div>
-                        @if (Model.ImportantiewModel.HasAnyDesigRun && !Model.ImportantiewModel.IsAnyRunInProgress && !Model.ImportantiewModel.IsDisplayTestRun)
+                        @if (Model.ImportantViewModel.HasAnyDesigRun && !Model.ImportantViewModel.IsAnyRunInProgress && !Model.ImportantViewModel.IsDisplayTestRun)
                         {
                             <div id="divNotificationContent" class="govuk-notification-banner__content">
 
-                                @if (Model.ImportantiewModel.IsDisplayInitialRun)
+                                @if (Model.ImportantViewModel.IsDisplayInitialRun)
                                 {
                                     <p id="pNotificationContent" class="govuk-body-s">
                                         <strong>Initial run</strong><br />
-                                        @Model.ImportantiewModel.IsDisplayInitialRunMessage
+                                        @Model.ImportantViewModel.IsDisplayInitialRunMessage
                                     </p>
                                 }
 
-                                @if (Model.ImportantiewModel.IsDisplayInterimRun)
+                                @if (Model.ImportantViewModel.IsDisplayInterimRun)
                                 {
 
                                     <p id="pNotificationContentInteremRun" class="govuk-body-s">
                                         <strong>Interim re-calculation run</strong><br />
-                                        @Model.ImportantiewModel.IsDisplayInterimRunMessage
+                                        @Model.ImportantViewModel.IsDisplayInterimRunMessage
                                     </p>
                                 }
 
-                                @if (Model.ImportantiewModel.IsDisplayFinalRecallRun)
+                                @if (Model.ImportantViewModel.IsDisplayFinalRecallRun)
                                 {
 
                                     <p id="pNotificationContentFinalRecalRun" class="govuk-body-s">
                                         <strong>Final re-calculation run</strong><br />
-                                        @Model.ImportantiewModel.IsDisplayFinalRecallRunMessage
+                                        @Model.ImportantViewModel.IsDisplayFinalRecallRunMessage
                                     </p>
                                 }
 
-                                @if (Model.ImportantiewModel.IsDisplayFinalRun)
+                                @if (Model.ImportantViewModel.IsDisplayFinalRun)
                                 {
                                     <p id="pNotificationContentFinalRun" class="govuk-body-s">
                                         <strong>Final run</strong><br />
-                                        @Model.ImportantiewModel.IsDisplayFinalRunMessage
+                                        @Model.ImportantViewModel.IsDisplayFinalRunMessage
                                     </p>
                                 }
                             </div>
 }
-                        else if (Model.ImportantiewModel.IsAnyRunInProgress)
+                        else if (Model.ImportantViewModel.IsAnyRunInProgress)
                         {
                             <div id="divNotificationContent" class="govuk-notification-banner__content">
                                 <p id="pNotificationContent" class="govuk-body-s">
-                                    Run <b>@Model.ImportantiewModel.RunIdInProgress</b> is already classified, but its billing file has not yet been sent to the FSS.
+                                    Run <b>@Model.ImportantViewModel.RunIdInProgress</b> is already classified, but its billing file has not yet been sent to the FSS.
                                     </p>
                                     <p id="pNotificationContent" class="govuk-body-s">
                                     While that run is still active, you can only create test runs.
                                     </p>
                                 <p id="pNotificationContent" class="govuk-body-s">
-                                    If you want to make this an official run that can generate a billing file, you will need to either send the  billing file for the run <b>@Model.ImportantiewModel.RunIdInProgress</b> to the FSS or remove the run's classification.
+                                    If you want to make this an official run that can generate a billing file, you will need to either send the  billing file for the run <b>@Model.ImportantViewModel.RunIdInProgress</b> to the FSS or remove the run's classification.
                                 </p>
                             </div>
                         }
-                        else if (Model.ImportantiewModel.IsDisplayTestRun)
+                        else if (Model.ImportantViewModel.IsDisplayTestRun)
                         {
                            <div id="divNotificationContent" class="govuk-notification-banner__content">
                                 <p id="pNotificationContent" class="govuk-body-s">

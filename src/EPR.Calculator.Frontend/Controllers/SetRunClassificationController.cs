@@ -64,11 +64,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
 
                 var viewModel = await this.CreateViewModel(runId);
-                var classifyViewModel = ImportantRunclassificationHelper.CreateclassificationViewModel(
+                var classifyViewModel = ImportantRunClassificationHelper.CreateclassificationViewModel(
                     financialYearClassificationResponseDto!.ClassifiedRuns,
                     financialYear);
 
-                viewModel.ImportantiewModel = classifyViewModel;
+                viewModel.ImportantViewModel = classifyViewModel;
                 if (!await this.SetClassifications(runId, viewModel))
                 {
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
@@ -87,7 +87,7 @@ namespace EPR.Calculator.Frontend.Controllers
                         classifyViewModel.IsDisplayTestRun = true;
                     }
 
-                    viewModel.ImportantiewModel = classifyViewModel;
+                    viewModel.ImportantViewModel = classifyViewModel;
                     return this.View(ViewNames.SetRunClassificationIndex, viewModel);
                 }
             }
