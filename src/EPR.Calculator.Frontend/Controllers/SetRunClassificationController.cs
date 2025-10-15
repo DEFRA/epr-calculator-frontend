@@ -84,18 +84,11 @@ namespace EPR.Calculator.Frontend.Controllers
                     if (financialYearClassificationResponseDto.Classifications.Count == 1 &&
                         financialYearClassificationResponseDto.Classifications.Exists(x => x.Id == (int)RunClassification.TEST_RUN) && !classifyViewModel.IsAnyRunInProgress)
                     {
-                        viewModel.ImportantiewModel = new ImportantSectionViewModel
-                        {
-                            IsDisplayTestRun = true,
-                        };
-                        return this.View(ViewNames.SetRunClassificationIndex, viewModel);
+                        classifyViewModel.IsDisplayTestRun = true;
                     }
-                    else
-                    {
-                        var classifyAfterFinalRunViewModel = ImportantRunclassificationHelper.CreateclassificationViewModel(financialYearClassificationResponseDto.ClassifiedRuns, financialYear);
-                        viewModel.ImportantiewModel = classifyAfterFinalRunViewModel;
-                        return this.View(ViewNames.SetRunClassificationIndex, viewModel);
-                    }
+
+                    viewModel.ImportantiewModel = classifyViewModel;
+                    return this.View(ViewNames.SetRunClassificationIndex, viewModel);
                 }
             }
             catch (Exception ex)
@@ -129,10 +122,10 @@ namespace EPR.Calculator.Frontend.Controllers
                     apiUrl,
                     string.Empty,
                     new ClassificationDto
-                {
-                    RunId = model.CalculatorRunDetails.RunId,
-                    ClassificationId = (int)model.ClassifyRunType,
-                });
+                    {
+                        RunId = model.CalculatorRunDetails.RunId,
+                        ClassificationId = (int)model.ClassifyRunType,
+                    });
 
                 if (result.StatusCode == HttpStatusCode.Created)
                 {
