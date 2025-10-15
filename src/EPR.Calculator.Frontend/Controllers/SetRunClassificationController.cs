@@ -59,6 +59,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 var financialYearClassificationResponseDto = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(responseContent);
 
                 var viewModel = await this.CreateViewModel(runId);
+                var classifyViewModel = ImportantRunclassificationHelper.CreateclassificationViewModel(
+                    financialYearClassificationResponseDto.ClassifiedRuns,
+                    financialYear);
+
+                viewModel.ImportantiewModel = classifyViewModel;
                 if (!await this.SetClassifications(runId, viewModel))
                 {
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
@@ -75,9 +80,22 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
                 else
                 {
-                    var classifyAfterFinalRunViewModel = ImportantRunclassificationHelper.CreateclassificationViewModel(financialYearClassificationResponseDto.ClassifiedRuns, financialYear);
-                    viewModel.ImportantiewModel = classifyAfterFinalRunViewModel;
-                    return this.View(ViewNames.SetRunClassificationIndex, viewModel);
+                    // Only Test Run available
+                    if (financialYearClassificationResponseDto.Classifications.Count == 1 &&
+                        financialYearClassificationResponseDto.Classifications.Exists(x => x.Id == (int)RunClassification.TEST_RUN) && !classifyViewModel.IsAnyRunInProgress)
+                    {
+                        viewModel.ImportantiewModel = new ImportantSectionViewModel
+                        {
+                            IsDisplayTestRun = true,
+                        };
+                        return this.View(ViewNames.SetRunClassificationIndex, viewModel);
+                    }
+                    else
+                    {
+                        var classifyAfterFinalRunViewModel = ImportantRunclassificationHelper.CreateclassificationViewModel(financialYearClassificationResponseDto.ClassifiedRuns, financialYear);
+                        viewModel.ImportantiewModel = classifyAfterFinalRunViewModel;
+                        return this.View(ViewNames.SetRunClassificationIndex, viewModel);
+                    }
                 }
             }
             catch (Exception ex)
@@ -264,12 +282,6 @@ namespace EPR.Calculator.Frontend.Controllers
                     {
                         classificationStatusInformationViewModel.ShowFinalRunDescription = true;
                         classificationStatusInformationViewModel.FinalRunDescription = $"{string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, financialYear)}";
-                    }
-
-                    // check if list doesn't have test run status
-                    if (classificationList.Exists(n => n.Id == (int)RunClassification.TEST_RUN))
-                    {
-                        classificationStatusInformationViewModel.ShowTestRunDescription = true;
                     }
                 }
             }

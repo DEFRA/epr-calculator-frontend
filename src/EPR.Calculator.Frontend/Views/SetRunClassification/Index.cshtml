@@ -135,15 +135,16 @@
                                 </p>
                             </div>
                         }
-                        else if (Model.ClassificationStatusInformation.ShowTestRunDescription)
+                        else if (Model.ImportantiewModel.IsDisplayTestRun)
                         {
-                            <div class="govuk-warning-text">
-                                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                                <strong class="govuk-warning-text__text">
-                                    <span class="govuk-visually-hidden">Warning</span>
+                           <div id="divNotificationContent" class="govuk-notification-banner__content">
+                                <p id="pNotificationContent" class="govuk-body-s">
+                                     <b>Test run</b>
+                                </p>
+                                <p id="pNotificationContent" class="govuk-body-s">
                                     This run is out of date, the invoice position used for this run has been superseded through the classification of other runs as designated runs in this financial year . The classification as a Test run is the only option available.
-                                </strong>
-                            </div>
+                                </p>
+                                </div>
 
                         }
                         else
