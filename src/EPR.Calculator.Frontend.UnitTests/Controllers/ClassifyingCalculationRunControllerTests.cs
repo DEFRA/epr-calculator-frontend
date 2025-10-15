@@ -1,7 +1,4 @@
-﻿using System.Net;
-using System.Security.Claims;
-using System.Text.Json;
-using AutoFixture;
+﻿using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
@@ -17,8 +14,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Moq;
 using Moq.Protected;
+using System.Net;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
@@ -544,6 +546,39 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
+            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
+        }
+
+        [TestMethod]
+        public async Task Index_ReturnsStandardError_WhenRunIdIsZero_AndResponseDtoIsNull()
+        {
+            // Arrange
+            int runId = 1;
+
+            // Simulate API returning JSON "null" (which deserializes to null)
+            var incorrecteHttpResponse = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("null", Encoding.UTF8, "application/json")
+            };
+
+            // Create a CalculatorRunDetailsViewModel with RunId = 0 to simulate the failure condition
+            var runDetails = Fixture.Create<CalculatorRunDetailsViewModel>();
+            runDetails.RunId = 0;
+
+            // Setup the controller with the mocked response and run details
+            (_, _, _controller) = BuildTestClass(
+               this.Fixture,
+               HttpStatusCode.OK,
+               null,
+               runDetails,
+               _configuration);
+
+            // Act
+            var result = await _controller.Index(runId) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
             Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
         }
 
