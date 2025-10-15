@@ -1,4 +1,8 @@
-﻿using AutoFixture;
+﻿using System.Net;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
@@ -14,13 +18,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Moq;
 using Moq.Protected;
-using System.Net;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
