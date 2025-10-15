@@ -57,8 +57,18 @@ namespace EPR.Calculator.Frontend.Controllers
 
                 var responseContent = await classificationsResponse.Content.ReadAsStringAsync();
                 var financialYearClassificationResponseDto = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(responseContent);
+                if (financialYearClassificationResponseDto == null)
+                {
+                    this.TelemetryClient.TrackTrace($"API did not return successful.");
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                }
 
                 var viewModel = await this.CreateViewModel(runId);
+                var classifyViewModel = ImportantRunClassificationHelper.CreateclassificationViewModel(
+                    financialYearClassificationResponseDto!.ClassifiedRuns,
+                    financialYear);
+
+                viewModel.ImportantViewModel = classifyViewModel;
                 if (!await this.SetClassifications(runId, viewModel))
                 {
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
@@ -68,15 +78,16 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
-                else if (financialYearClassificationResponseDto == null)
-                {
-                    this.TelemetryClient.TrackTrace($"API did not return successful.");
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                }
                 else
                 {
-                    var classifyAfterFinalRunViewModel = ImportantRunclassificationHelper.CreateclassificationViewModel(financialYearClassificationResponseDto.ClassifiedRuns, financialYear);
-                    viewModel.ImportantiewModel = classifyAfterFinalRunViewModel;
+                    // Only Test Run available
+                    if (financialYearClassificationResponseDto.Classifications.Count == 1 &&
+                        financialYearClassificationResponseDto.Classifications.Exists(x => x.Id == (int)RunClassification.TEST_RUN) && !classifyViewModel.IsAnyRunInProgress)
+                    {
+                        classifyViewModel.IsDisplayTestRun = true;
+                    }
+
+                    viewModel.ImportantViewModel = classifyViewModel;
                     return this.View(ViewNames.SetRunClassificationIndex, viewModel);
                 }
             }
@@ -111,10 +122,10 @@ namespace EPR.Calculator.Frontend.Controllers
                     apiUrl,
                     string.Empty,
                     new ClassificationDto
-                {
-                    RunId = model.CalculatorRunDetails.RunId,
-                    ClassificationId = (int)model.ClassifyRunType,
-                });
+                    {
+                        RunId = model.CalculatorRunDetails.RunId,
+                        ClassificationId = (int)model.ClassifyRunType,
+                    });
 
                 if (result.StatusCode == HttpStatusCode.Created)
                 {

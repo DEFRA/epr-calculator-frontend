@@ -37,6 +37,6 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// <summary>
         /// Gets or sets the Importanti information information box.
         /// </summary>
-        public ImportantSectionViewModel ImportantiewModel { get; set; } = new ImportantSectionViewModel();
+        public ImportantSectionViewModel ImportantViewModel { get; set; } = new ImportantSectionViewModel();
     }
 }

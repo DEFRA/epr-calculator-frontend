@@ -5,7 +5,7 @@ using EPR.Calculator.Frontend.Models;
 namespace EPR.Calculator.Frontend.UnitTests.Helpers
 {
     [TestClass]
-    public class ImportantRunclassificationHelperTests
+    public class ImportantRunClassificationHelperTests
     {
         [DataTestMethod]
         [DataRow(RunClassification.INITIAL_RUN, 101)]
@@ -19,7 +19,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
         CreateRun(classification, DateTime.UtcNow, runId)
     };
 
-            var result = ImportantRunclassificationHelper.CreateclassificationViewModel(runs, "2025");
+            var result = ImportantRunClassificationHelper.CreateclassificationViewModel(runs, "2025");
 
             Assert.IsTrue(result.IsAnyRunInProgress);
             Assert.IsTrue(result.HasAnyDesigRun);
@@ -35,7 +35,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
         CreateRun(RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED, date)
     };
 
-            var result = ImportantRunclassificationHelper.CreateclassificationViewModel(runs, "2025");
+            var result = ImportantRunClassificationHelper.CreateclassificationViewModel(runs, "2025");
 
             Assert.IsTrue(result.IsDisplayInterimRun);
             StringAssert.Contains(result.IsDisplayInterimRunMessage, "01 May 2025");
@@ -50,7 +50,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
         CreateRun(RunClassification.FINAL_RECALCULATION_RUN_COMPLETED, date)
     };
 
-            var result = ImportantRunclassificationHelper.CreateclassificationViewModel(runs, "2025");
+            var result = ImportantRunClassificationHelper.CreateclassificationViewModel(runs, "2025");
 
             Assert.IsTrue(result.IsDisplayFinalRecallRun);
             StringAssert.Contains(result.IsDisplayFinalRecallRunMessage, "01 Jun 2025");
@@ -65,7 +65,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
         CreateRun(RunClassification.FINAL_RUN_COMPLETED, date)
     };
 
-            var result = ImportantRunclassificationHelper.CreateclassificationViewModel(runs, "2025");
+            var result = ImportantRunClassificationHelper.CreateclassificationViewModel(runs, "2025");
 
             Assert.IsTrue(result.IsDisplayFinalRun);
             Assert.IsTrue(result.IsDisplayFinalRecallRun); // fallback
@@ -92,7 +92,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
     };
 
             // Act
-            var result = ImportantRunclassificationHelper.CreateclassificationViewModel(runs, financialYear);
+            var result = ImportantRunClassificationHelper.CreateclassificationViewModel(runs, financialYear);
 
             // Assert
             Assert.IsTrue(result.IsDisplayInitialRun);

@@ -59,5 +59,10 @@
         /// Gets or sets message associated with the display of the final run.
         /// </summary>
         public string? IsDisplayFinalRunMessage { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether indicates whether the final run should be displayed.
+        /// </summary>
+        public bool IsDisplayTestRun { get; set; }
     }
 }
