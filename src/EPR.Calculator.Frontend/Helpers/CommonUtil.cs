@@ -68,7 +68,7 @@ namespace EPR.Calculator.Frontend.Helpers
 
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
-                parameterYear = CommonUtil.GetDefaultFinancialYear(DateTime.Now);
+                parameterYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow);
             }
 
             return parameterYear;
