@@ -73,7 +73,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     isSelectAllPage);
                 billingInstructionsViewModel.BackLinkViewModel = new BackLinkViewModel()
                 {
-                    BackLink = this.GetBackLink(),
+                    BackLink = string.Empty,
+                    HideBackLink = true,
                     RunId = calculationRunId,
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
                 };
