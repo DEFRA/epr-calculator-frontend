@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace EPR.Calculator.Frontend.Helpers
 {
-    public static class ImportantRunclassificationHelper
+    public static class ImportantRunClassificationHelper
     {
         public static ImportantSectionViewModel CreateclassificationViewModel(List<ClassifiedCalculatorRunDto> classifiedCalculatorRuns, string financialYear)
         {
