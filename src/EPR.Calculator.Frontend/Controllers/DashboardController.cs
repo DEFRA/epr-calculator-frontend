@@ -192,7 +192,7 @@ namespace EPR.Calculator.Frontend.Controllers
             financialYears = GetFilteredFinancialYears(financialYears);
 
             // Ensure current year is first
-            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.Now);
+            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow);
             financialYears.Remove(currentYear);
             financialYears.Insert(0, currentYear);
 
