@@ -8,6 +8,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.FeatureManagement;
@@ -89,6 +90,7 @@ builder.Services.AddScoped<IResultBillingFileService, ResultBillingFileService>(
 
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
 
+
 // Register services.
 builder.Services.AddTransient<ICalculatorRunDetailsService, CalculatorRunDetailsService>();
 builder.Services.AddTransient<IApiService, ApiService>();
@@ -109,6 +111,11 @@ app.Use(async (context, next) =>
     context.Response.Headers.Append("Content-Security-Policy", "font-src 'self';frame-src 'self'; img-src 'self';frame-ancestors 'self';");
     context.Response.Headers.Append("X-Frame-Options", "DENY");
     await next();
+});
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto,
 });
 
 // Configure the HTTP request pipeline.
