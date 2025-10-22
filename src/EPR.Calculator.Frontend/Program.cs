@@ -90,7 +90,6 @@ builder.Services.AddScoped<IResultBillingFileService, ResultBillingFileService>(
 
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
 
-
 // Register services.
 builder.Services.AddTransient<ICalculatorRunDetailsService, CalculatorRunDetailsService>();
 builder.Services.AddTransient<IApiService, ApiService>();
