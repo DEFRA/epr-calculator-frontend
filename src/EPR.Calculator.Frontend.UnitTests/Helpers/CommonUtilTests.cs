@@ -16,7 +16,7 @@
         {
             // Arrange
             var date = DateTime.UtcNow;
-            DateTime thisTime = DateTime.Now;
+            DateTime thisTime = DateTime.UtcNow;
             bool isDaylight = TimeZoneInfo.FindSystemTimeZoneById(CommonConstants.TimeZone).IsDaylightSavingTime(thisTime);
 
             var expectedDate = isDaylight ? date.AddHours(1) : date;
@@ -56,7 +56,7 @@
             var sessionMock = new Mock<ISession>();
             sessionMock.Setup(s => s.TryGetValue(key, out byteValue)).Returns(false);
 
-            var expectedDefault = CommonUtil.GetDefaultFinancialYear(DateTime.Now);
+            var expectedDefault = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow);
 
             // Act
             var result = CommonUtil.GetFinancialYear(sessionMock.Object);

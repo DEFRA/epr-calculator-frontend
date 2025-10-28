@@ -118,7 +118,7 @@ namespace EPR.Calculator.Frontend.Controllers
                                 ErrorMessage = await this.ExtractErrorMessageAsync(response),
                                 BackLinkViewModel = new BackLinkViewModel()
                                 {
-                                    BackLink = ControllerNames.RunANewCalculation,
+                                    BackLink = string.Empty,
                                     CurrentUser = currentUser,
                                 },
                             });
