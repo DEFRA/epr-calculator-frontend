@@ -16,3 +16,6 @@
 /src/EPR.Calculator.Frontend.Common.UnitTests/bin/Release/net8.0
 **/appsettings.development.json
 
+.idea
+**/*.user
+.env
