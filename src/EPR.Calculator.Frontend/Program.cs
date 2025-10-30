@@ -22,6 +22,9 @@ builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration,
     .EnableTokenAcquisitionToCallDownstreamApi(builder.Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' '))
     .AddInMemoryTokenCaches();
 
+Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+Microsoft.IdentityModel.Logging.IdentityModelEventSource.LogCompleteSecurityArtifact = true;
+
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     // Ensures that SameSite=None is respected
