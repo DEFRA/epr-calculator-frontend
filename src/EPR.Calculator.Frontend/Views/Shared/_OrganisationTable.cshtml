@@ -62,7 +62,7 @@
                            class="record-checkbox"
                            data-organisation-id="@org.OrganisationId"
                     @(org.IsSelected ? "checked" : null)
-                    @(org.Status == BillingStatus.Noaction ? "disabled" : null) />
+                           @(org.BillingInstruction == BillingInstruction.Noaction ? "disabled" : null) />
                 </td>
 
                 <td class="govuk-table__cell govuk-!-text-align-center vertical-middle" id="checkbox-label-@org.Id">@org.OrganisationName</td>
@@ -76,8 +76,18 @@
                         <partial name="_InvoiceAmountCell" model="org.InvoiceAmount" />
                     }
                 </td>
+                
+                
                 <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">
-                    <partial name="_BillingStatusTag" model="org.Status" />
+                    @if (org.BillingInstruction != BillingInstruction.Noaction)
+                    {
+                        <partial name="_BillingStatusTag" model="org.Status" />
+                    }
+                    else
+                    {
+                        <span>&nbsp;</span>
+
+                    }
                 </td>
             </tr>
         }
