@@ -224,7 +224,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 });
 
             var producerIdsFromResponse =
-                producerBillingInstructionsResponseDto?.Records?.Select(t => t.ProducerId).ToList();
+                producerBillingInstructionsResponseDto?.Records?.Where(t => t.SuggestedBillingInstruction != BillingInstructionConstants.NoSuggestedBillingInstructionPlaceholder).Select(t => t.ProducerId).ToList();
 
             if (producerIdsFromResponse != null)
             {
