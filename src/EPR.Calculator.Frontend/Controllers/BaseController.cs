@@ -61,8 +61,6 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             var accessToken = $"Bearer {token}";
-            this.TelemetryClient.TrackTrace($"accessToken is {accessToken}", SeverityLevel.Information);
-            this.TelemetryClient.TrackTrace($"accessToken length {accessToken.Length}", SeverityLevel.Information);
             return accessToken;
         }
 
