@@ -124,7 +124,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     new ClassificationDto
                     {
                         RunId = model.CalculatorRunDetails.RunId,
-                        ClassificationId = (int)model.ClassifyRunType,
+                        ClassificationId = model.ClassifyRunType.GetValueOrDefault(),
                     });
 
                 if (result.StatusCode == HttpStatusCode.Created)
