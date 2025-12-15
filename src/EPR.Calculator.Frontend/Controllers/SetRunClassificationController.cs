@@ -133,7 +133,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
                 else
                 {
-                    var message = $"API did not return successful ({result.StatusCode}).";
+                    string? message = $"API did not return successful ({result.StatusCode}).";
                     this.logger.LogError(message);
                     return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
                 }
