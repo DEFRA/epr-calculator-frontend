@@ -160,7 +160,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private static string GetStatus(CalculatorRunClassificationDto classificationDto)
         {
-            TextInfo myTi = new CultureInfo("en-GB", false).TextInfo;
+            TextInfo textInfo = new CultureInfo("en-GB", false).TextInfo;
             return classificationDto.Id switch
             {
                 (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunStatus,
@@ -168,7 +168,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunStatus,
                 (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunStatus,
                 (int)RunClassification.FINAL_RUN => CommonConstants.FinalRunStatus,
-                _ => myTi.ToFirstLetterCap(classificationDto.Status),
+                _ => textInfo.ToFirstLetterCap(classificationDto.Status),
             };
         }
 
@@ -212,7 +212,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private void SetStatusDescriptions(SetRunClassificationViewModel model)
         {
-            foreach (var classification in model.FinancialYearClassifications.Classifications)
+            foreach (var classification in model.FinancialYearClassifications!.Classifications)
             {
                 classification.Description = GetStatusDescription(classification.Id);
                 classification.Status = GetStatus(classification);
