@@ -160,7 +160,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private static string GetStatus(CalculatorRunClassificationDto classificationDto)
         {
-            TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
+            TextInfo myTi = new CultureInfo("en-GB", false).TextInfo;
             return classificationDto.Id switch
             {
                 (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunStatus,
@@ -168,7 +168,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunStatus,
                 (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunStatus,
                 (int)RunClassification.FINAL_RUN => CommonConstants.FinalRunStatus,
-                _ => myTI.ToFirstLetterCap(classificationDto.Status),
+                _ => myTi.ToFirstLetterCap(classificationDto.Status),
             };
         }
 
