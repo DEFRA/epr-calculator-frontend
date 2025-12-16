@@ -145,6 +145,33 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+        private static string GetStatusDescription(int classificationId)
+        {
+            return classificationId switch
+            {
+                (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunDescription,
+                (int)RunClassification.TEST_RUN => CommonConstants.TestRunDescription,
+                (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunDescription,
+                (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunDescription,
+                (int)RunClassification.FINAL_RUN => CommonConstants.FinalRecalculationRunDescription,
+                _ => string.Empty,
+            };
+        }
+
+        private static string GetStatus(CalculatorRunClassificationDto classificationDto)
+        {
+            TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
+            return classificationDto.Id switch
+            {
+                (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunStatus,
+                (int)RunClassification.TEST_RUN => CommonConstants.TestRunStatus,
+                (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunStatus,
+                (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunStatus,
+                (int)RunClassification.FINAL_RUN => CommonConstants.FinalRunStatus,
+                _ => myTI.ToFirstLetterCap(classificationDto.Status),
+            };
+        }
+
         private async Task<SetRunClassificationViewModel> CreateViewModel(int runId)
         {
             var viewModel = new SetRunClassificationViewModel()
@@ -187,36 +214,9 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             foreach (var classification in model.FinancialYearClassifications.Classifications)
             {
-                classification.Description = this.GetStatusDescription(classification.Id);
-                classification.Status = this.GetStatus(classification);
+                classification.Description = GetStatusDescription(classification.Id);
+                classification.Status = GetStatus(classification);
             }
-        }
-
-        private string GetStatusDescription(int classificationId)
-        {
-            return classificationId switch
-            {
-                (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunDescription,
-                (int)RunClassification.TEST_RUN => CommonConstants.TestRunDescription,
-                (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunDescription,
-                (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunDescription,
-                (int)RunClassification.FINAL_RUN => CommonConstants.FinalRecalculationRunDescription,
-                _ => string.Empty,
-            };
-        }
-
-        private string GetStatus(CalculatorRunClassificationDto classificationDto)
-        {
-            TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
-            return classificationDto.Id switch
-            {
-                (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunStatus,
-                (int)RunClassification.TEST_RUN => CommonConstants.TestRunStatus,
-                (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunStatus,
-                (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunStatus,
-                (int)RunClassification.FINAL_RUN => CommonConstants.FinalRunStatus,
-                _ => myTI.ToFirstLetterCap(classificationDto.Status),
-            };
         }
 
         private async Task<bool> SetClassifications(int runId, SetRunClassificationViewModel viewModel)
