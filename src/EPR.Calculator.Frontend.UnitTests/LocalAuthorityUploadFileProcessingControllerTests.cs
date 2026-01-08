@@ -32,8 +32,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             this.MockHttpContext.Setup(c => c.Session).Returns(this.MockSesion.Object);
 
             this.Configuration = TestMockUtils.BuildConfiguration();
-            this.Configuration
-                .GetSection("ParameterSettings")["ParameterYear"] = this.Fixture.Create<string>();
 
             this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Accepted, new StringContent("response content"));
             Mock<IHttpClientFactory> mockHttpClientFactory = TestMockUtils.BuildMockHttpClientFactory(
@@ -144,50 +142,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
 
             var task = controller.Index(viewModel);
-            var result = task.Result as RedirectToActionResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
-        }
-
-        [TestMethod]
-        public void LocalAuthorityUploadFileProcessingController_ArgumentNullExceptionForYearConfig_Test()
-        {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                    {
-                        StatusCode = HttpStatusCode.BadRequest,
-                        Content = new StringContent("response content"),
-                    });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                    .Returns(httpClient);
-            var config = TestMockUtils.BuildConfiguration();
-            config.GetSection("LapcapSettings").GetSection("ParameterYear").Value = string.Empty;
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new LocalAuthorityUploadFileProcessingController(
-                config,
-                new Mock<IApiService>().Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object);
-
-            var viewModel = new LapcapRefreshViewModel()
-            {
-                LapcapTemplateValue = MockData.GetLocalAuthorityDisposalCostsToUpload().ToList(),
-                FileName = "Test Name",
-            };
-
-            var task = controller.Index(viewModel);
-            task.Wait();
             var result = task.Result as RedirectToActionResult;
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);

@@ -33,11 +33,6 @@
         public const string CalculationRunApi = "CalculationRunApi";
 
         /// <summary>
-        /// The key for the run parameter year within the dashboard calculator run settings section.
-        /// </summary>
-        public const string RunParameterYear = "RunParameterYear";
-
-        /// <summary>
         /// The configuration section for dashboard calculator run settings.
         /// </summary>
         public const string ParameterSettings = "ParameterSettings";
@@ -46,11 +41,6 @@
         /// The key for the dashboard calculator run API within the dashboard calculator run settings section.
         /// </summary>
         public const string DefaultParameterSettingsApi = "DefaultParameterSettingsApi";
-
-        /// <summary>
-        /// The key for the run parameter year within the dashboard calculator run settings section.
-        /// </summary>
-        public const string ParameterYear = "ParameterYear";
 
         /// <summary>
         /// The configuration section for Lapcap settings.

@@ -196,11 +196,6 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var year = CommonUtil.GetFinancialYear(this.HttpContext.Session);
 
-            if (string.IsNullOrEmpty(year))
-            {
-                throw new ArgumentNullException(year, "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
-            }
-
             var runParms = new CreateCalculatorRunDto
             {
                 CalculatorRunName = calculatorRunName,
