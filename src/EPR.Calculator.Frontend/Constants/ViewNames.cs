@@ -126,11 +126,6 @@
         public const string CalculationRunDeleteConfirmationSuccess = "~/Views/CalculationRunDelete/ConfirmationSuccess.cshtml";
 
         /// <summary>
-        /// Calculation Run Classification index page view.
-        /// </summary>
-        public const string CalculationRunClassification = "~/Views/ClassifyCalculationRun/Index.cshtml";
-
-        /// <summary>
         /// Payment Calculator Billing Confirmation index page view.
         /// </summary>
         public const string PaymentCalculatorIndex = "~/Views/PaymentCalculator/Index.cshtml";
