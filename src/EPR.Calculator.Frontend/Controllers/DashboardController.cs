@@ -154,12 +154,6 @@ namespace EPR.Calculator.Frontend.Controllers
             var apiUrl = this.ApiService.GetApiUrl(
                 ConfigSection.DashboardCalculatorRun,
                 ConfigSection.DashboardCalculatorRunApi);
-            if (string.IsNullOrEmpty(financialYear))
-            {
-                throw new ArgumentNullException(
-                    financialYear,
-                    "RunParameterYear is null or empty. Check the configuration settings for calculatorRun.");
-            }
 
             return await this.ApiService.CallApi(
                 this.HttpContext,

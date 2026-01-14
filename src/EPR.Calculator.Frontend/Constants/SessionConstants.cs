@@ -16,8 +16,6 @@
 
         public const string FinancialYear = "FinancialYear";
 
-        public const string RunParameterYear = "RunParameterYear";
-
         public const string IsSelectAll = "IsSelectAll";
 
         public const string IsSelectAllPage = "IsSelectAllPage";

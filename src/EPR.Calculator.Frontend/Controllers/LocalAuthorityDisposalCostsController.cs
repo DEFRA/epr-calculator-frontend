@@ -47,11 +47,6 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 var year = CommonUtil.GetFinancialYear(this.HttpContext.Session);
 
-                if (string.IsNullOrWhiteSpace(year))
-                {
-                    throw new ConfigurationErrorsException("RunParameterYear missing");
-                }
-
                 var response = this.GetLapcapDataAsync(year);
 
                 var currentUser = CommonUtil.GetUserName(this.HttpContext);

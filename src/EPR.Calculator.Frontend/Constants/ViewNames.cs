@@ -126,11 +126,6 @@
         public const string CalculationRunDeleteConfirmationSuccess = "~/Views/CalculationRunDelete/ConfirmationSuccess.cshtml";
 
         /// <summary>
-        /// Calculation Run Classification index page view.
-        /// </summary>
-        public const string CalculationRunClassification = "~/Views/ClassifyCalculationRun/Index.cshtml";
-
-        /// <summary>
         /// Payment Calculator Billing Confirmation index page view.
         /// </summary>
         public const string PaymentCalculatorIndex = "~/Views/PaymentCalculator/Index.cshtml";
@@ -149,16 +144,6 @@
         /// Calculation Run Classification confirmation page view.
         /// </summary>
         public const string CalculationRunOverviewIndex = "~/Views/CalculationRunOverview/Index.cshtml";
-
-        /// <summary>
-        /// classifying calculation run controller scenario2 index page view.
-        /// </summary>
-        public const string ClassifyingCalculationRunScenario2Index = "~/Views/ClassifyingCalculationRunScenario2/Index.cshtml";
-
-        /// <summary>
-        /// classifying calculation run controller scenario4 index page view.
-        /// </summary>
-        public const string ClassifyAfterFinalRunIndex = "~/Views/ClassifyAfterFinalRun/Index.cshtml";
 
         /// <summary>
         /// Calculator run details new error page view.
