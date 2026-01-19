@@ -6,9 +6,9 @@ using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
@@ -23,17 +23,40 @@ builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration,
     .AddDownstreamApi("DownstreamApi", builder.Configuration.GetSection("DownstreamApi"))
     .AddInMemoryTokenCaches();
 
+builder.Services.Configure<CookieAuthenticationOptions>(
+    "Cookies",
+    options =>
+    {
+        var timeout = builder.Configuration.GetValue<int>("SessionTimeOut");
+
+        options.Cookie.SameSite = SameSiteMode.None;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.HttpOnly = true;
+
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(timeout);
+        options.SlidingExpiration = true;
+
+        options.Events.OnRedirectToLogin = context =>
+        {
+            context.Response.Redirect("/MicrosoftIdentity/Account/SignIn");
+            return Task.CompletedTask;
+        };
+    });
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(builder.Configuration.GetValue<int>("SessionTimeOut"));
+    options.Cookie.Name = builder.Configuration.GetValue<string>("SessionCookieName");
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     // Ensures that SameSite=None is respected
     options.MinimumSameSitePolicy = SameSiteMode.None;
-});
-
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.Cookie.SameSite = SameSiteMode.None;             // Required for Azure AD redirects
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // HTTPS only
-    options.Cookie.HttpOnly = true;                          // Prevent JS access
 });
 
 builder.Services.AddRazorPages().AddMvcOptions(options =>
@@ -60,15 +83,6 @@ builder.Services.AddFeatureManagement();
 
 builder.Services.AddHealthChecks();
 
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(builder.Configuration.GetValue<int>("SessionTimeOut"));
-    options.Cookie.SameSite = SameSiteMode.None;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-    options.Cookie.Name = builder.Configuration.GetValue<string>("SessionCookieName");
-});
 
 if (!string.Equals(environmentName, EPR.Calculator.Frontend.Constants.Environment.Local, StringComparison.InvariantCultureIgnoreCase))
 {
@@ -124,12 +138,11 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
-app.UseSession();
-
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
