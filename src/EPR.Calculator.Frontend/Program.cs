@@ -83,7 +83,6 @@ builder.Services.AddFeatureManagement();
 
 builder.Services.AddHealthChecks();
 
-
 if (!string.Equals(environmentName, EPR.Calculator.Frontend.Constants.Environment.Local, StringComparison.InvariantCultureIgnoreCase))
 {
     builder.Services.AddDataProtection()
