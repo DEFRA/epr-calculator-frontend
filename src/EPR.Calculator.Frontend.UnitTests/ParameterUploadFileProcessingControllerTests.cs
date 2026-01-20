@@ -148,7 +148,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                    It.Is<CreateDefaultParameterSettingDto>(dto =>
                        dto.ParameterTemplateValues.SequenceEqual(data.ParameterTemplateValues) &&
                        dto.FileName == data.FileName &&
-                       dto.ParameterYear == CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow))),
+                       dto.ParameterYear == CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, 4))),
                Times.Once);
         }
 

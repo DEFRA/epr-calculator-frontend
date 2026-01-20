@@ -56,13 +56,24 @@
             var sessionMock = new Mock<ISession>();
             sessionMock.Setup(s => s.TryGetValue(key, out byteValue)).Returns(false);
 
-            var expectedDefault = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow);
+            var expectedDefault = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, 4);
 
             // Act
             var result = CommonUtil.GetFinancialYear(sessionMock.Object);
 
             // Assert
             Assert.AreEqual(expectedDefault, result);
+        }
+
+        [TestMethod]
+        public void GetDefaultFinancialYear()
+        {
+            var resultBeforeMonth = CommonUtil.GetDefaultFinancialYear(DateTime.Parse("2026-01-20"), 6);
+            var resultAfterMonth = CommonUtil.GetDefaultFinancialYear(DateTime.Parse("2026-10-20"), 6);
+
+            // Assert
+            Assert.AreEqual("2025-26", resultBeforeMonth);
+            Assert.AreEqual("2026-27", resultAfterMonth);
         }
     }
 }

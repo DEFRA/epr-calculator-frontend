@@ -16,6 +16,8 @@
 
         public const string FinancialYear = "FinancialYear";
 
+        public const string FinancialYearStartingMonth = "FinancialYearStartingMonth";
+
         public const string IsSelectAll = "IsSelectAll";
 
         public const string IsSelectAllPage = "IsSelectAllPage";

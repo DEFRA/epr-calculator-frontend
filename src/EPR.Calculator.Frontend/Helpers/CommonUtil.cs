@@ -35,16 +35,17 @@ namespace EPR.Calculator.Frontend.Helpers
         /// Gets the financial year based on the date input.
         /// </summary>
         /// <param name="date">Any date.</param>
+        /// <param name="financialYearStartingMonth">Month from which the financial year starts.</param>
         /// <returns>The financial year in the format YYYY-YY.</returns>
-        public static string GetDefaultFinancialYear(DateTime date)
+        public static string GetDefaultFinancialYear(DateTime date, int financialYearStartingMonth)
         {
             var year = date.Year;
 
-            var startYear = date.Month >= 4
+            var startYear = date.Month >= financialYearStartingMonth
                 ? year
                 : year - 1;
 
-            var endYear = date.Month >= 4
+            var endYear = date.Month >= financialYearStartingMonth
                 ? year + 1
                 : year;
 
@@ -65,13 +66,20 @@ namespace EPR.Calculator.Frontend.Helpers
         public static string GetFinancialYear(ISession session)
         {
             var parameterYear = session.GetString(SessionConstants.FinancialYear);
+            var startingMonth = GetFinancialYearStartingMonth(session);
 
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
-                parameterYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow);
+                parameterYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, startingMonth);
             }
 
             return parameterYear;
+        }
+
+        public static int GetFinancialYearStartingMonth(ISession session)
+        {
+            var maybeFinancialStartingMonth = session.GetInt32(SessionConstants.FinancialYearStartingMonth);
+            return maybeFinancialStartingMonth is >= 1 and <= 12 ? maybeFinancialStartingMonth.Value : CommonConstants.DefaultFinancialYearStartingMonth;
         }
     }
 }
