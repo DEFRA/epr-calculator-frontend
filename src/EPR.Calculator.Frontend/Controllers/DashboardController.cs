@@ -38,8 +38,6 @@ namespace EPR.Calculator.Frontend.Controllers
             apiService,
             calculatorRunDetailsService)
     {
-        private bool ShowDetailedError { get; set; }
-
         /// <summary>
         /// Handles the Index action for the controller.
         /// </summary>
@@ -50,22 +48,9 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
-            try
-            {
-                SessionExtensions.ClearAllSession(this.HttpContext.Session);
-                this.IsShowDetailedError();
-                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
-                return await this.GoToDashboardView(CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth));
-            }
-            catch (Exception)
-            {
-                if (this.ShowDetailedError)
-                {
-                    throw;
-                }
-
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
+            SessionExtensions.ClearAllSession(this.HttpContext.Session);
+            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
+            return await this.GoToDashboardView(CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth));
         }
 
         /// <summary>
@@ -76,21 +61,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("Dashboard/GetCalculations")]
         public async Task<IActionResult> GetCalculations(string financialYear)
         {
-            try
-            {
-                this.IsShowDetailedError();
-
-                return await this.GoToDashboardView(financialYear, true);
-            }
-            catch (Exception)
-            {
-                if (this.ShowDetailedError)
-                {
-                    throw;
-                }
-
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
+            return await this.GoToDashboardView(financialYear, true);
         }
 
         private static List<string> GetFilteredFinancialYears(List<string> allYears, int financialYearStartingMonth)
@@ -104,15 +75,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 .ToList();
 
             return filteredYears;
-        }
-
-        private void IsShowDetailedError()
-        {
-            var showDetailedError = this.Configuration.GetValue(typeof(bool), CommonConstants.ShowDetailedError);
-            if (showDetailedError != null)
-            {
-                this.ShowDetailedError = (bool)showDetailedError;
-            }
         }
 
         private async Task<ActionResult> GoToDashboardView(string financialYear, bool returnPartialView = false)

@@ -2,6 +2,7 @@
 using EPR.Calculator.Frontend.Constants;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using System.Configuration;
 using System.Text;
@@ -63,27 +64,31 @@ namespace EPR.Calculator.Frontend.Services
         protected async Task<string> AcquireToken(HttpContext httpContext)
         {
             this.TelemetryClient.TrackTrace("AcquireToken");
-            var token = httpContext.Session.GetString("accessToken");
-            if (string.IsNullOrEmpty(token))
-            {
-                try
-                {
-                    var scope = this.Configuration.GetSection("DownstreamApi:Scopes").Value!;
-                    this.TelemetryClient.TrackTrace($"GetAccessTokenForUserAsync with scope- {scope}");
-                    token = await this.TokenAcquisition.GetAccessTokenForUserAsync([scope]);
-                }
-                catch (Exception ex)
-                {
-                    this.TelemetryClient.TrackException(ex);
-                    throw;
-                }
 
-                this.TelemetryClient.TrackTrace("after generating..");
-                httpContext.Session.SetString("accessToken", token);
+            var scopesValue = this.Configuration
+                ?.GetSection("DownstreamApi:Scopes")
+                ?.Value;
+
+            if (string.IsNullOrWhiteSpace(scopesValue))
+            {
+                throw new ConfigurationErrorsException(
+                    "DownstreamApi:Scopes is null or empty. Please check the configuration settings.");
             }
 
-            var accessToken = $"Bearer {token}";
-            return accessToken;
+            var scopes = scopesValue.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            try
+            {
+                this.TelemetryClient.TrackTrace($"GetAccessTokenForUserAsync with scopes: {string.Join(",", scopes)}");
+
+                var token = await this.TokenAcquisition.GetAccessTokenForUserAsync(scopes);
+
+                return $"Bearer {token}";
+            }
+            catch (MsalUiRequiredException ex)
+            {
+                throw new MicrosoftIdentityWebChallengeUserException(ex, scopes);
+            }
         }
 
         /// <summary>

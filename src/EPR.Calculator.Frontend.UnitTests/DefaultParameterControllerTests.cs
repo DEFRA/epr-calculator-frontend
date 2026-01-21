@@ -73,42 +73,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(false, defaultParametersViewModel.IsDataAvailable);
         }
 
-        [TestMethod]
-        public async Task DefaultParameterController_Failure_View_Test()
-        {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Content = new StringContent("Sample content")
-                });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            // Mock IHttpClientFactory
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new DefaultParametersController(
-                ConfigurationItems.GetConfigurationValues(),
-                new Mock<IApiService>().Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object);
-
-            var result = await controller.Index() as RedirectToActionResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
-        }
-
         private DefaultParametersController BuildTestClass(
             Fixture fixture,
             HttpStatusCode httpStatusCode,

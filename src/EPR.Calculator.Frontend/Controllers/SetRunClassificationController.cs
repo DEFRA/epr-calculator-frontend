@@ -45,58 +45,50 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int runId)
         {
-            try
+            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
+            var financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
+
+            var classificationsResponse = await this.GetClassfications(new CalcFinancialYearRequestDto
             {
-                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
-                var financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
+                RunId = runId,
+                FinancialYear = financialYear,
+            });
 
-                var classificationsResponse = await this.GetClassfications(new CalcFinancialYearRequestDto
-                {
-                    RunId = runId,
-                    FinancialYear = financialYear,
-                });
-
-                var responseContent = await classificationsResponse.Content.ReadAsStringAsync();
-                var financialYearClassificationResponseDto = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(responseContent);
-                if (financialYearClassificationResponseDto == null)
-                {
-                    this.TelemetryClient.TrackTrace($"API did not return successful.");
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                }
-
-                var viewModel = await this.CreateViewModel(runId);
-                var classifyViewModel = ImportantRunClassificationHelper.CreateclassificationViewModel(
-                    financialYearClassificationResponseDto!.ClassifiedRuns,
-                    financialYear);
-
-                viewModel.ImportantViewModel = classifyViewModel;
-                if (!await this.SetClassifications(runId, viewModel))
-                {
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                }
-
-                if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0)
-                {
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                }
-                else
-                {
-                    // Only Test Run available
-                    if (financialYearClassificationResponseDto.Classifications.Count == 1 &&
-                        financialYearClassificationResponseDto.Classifications.Exists(x => x.Id == (int)RunClassification.TEST_RUN) && !classifyViewModel.IsAnyRunInProgress)
-                    {
-                        classifyViewModel.IsDisplayTestRun = true;
-                    }
-
-                    viewModel.ImportantViewModel = classifyViewModel;
-                    return this.View(ViewNames.SetRunClassificationIndex, viewModel);
-                }
-            }
-            catch (Exception ex)
+            var responseContent = await classificationsResponse.Content.ReadAsStringAsync();
+            var financialYearClassificationResponseDto = JsonConvert.DeserializeObject<FinancialYearClassificationResponseDto>(responseContent);
+            if (financialYearClassificationResponseDto == null)
             {
-                this.logger.LogError(ex, "An error occurred while processing the request.");
+                this.TelemetryClient.TrackTrace($"API did not return successful.");
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
+
+            var viewModel = await this.CreateViewModel(runId);
+            var classifyViewModel = ImportantRunClassificationHelper.CreateclassificationViewModel(
+                financialYearClassificationResponseDto!.ClassifiedRuns,
+                financialYear);
+
+            viewModel.ImportantViewModel = classifyViewModel;
+            if (!await this.SetClassifications(runId, viewModel))
+            {
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
+
+            if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0)
+            {
+                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
+            else
+            {
+                // Only Test Run available
+                if (financialYearClassificationResponseDto.Classifications.Count == 1 &&
+                    financialYearClassificationResponseDto.Classifications.Exists(x => x.Id == (int)RunClassification.TEST_RUN) && !classifyViewModel.IsAnyRunInProgress)
+                {
+                    classifyViewModel.IsDisplayTestRun = true;
+                }
+
+                viewModel.ImportantViewModel = classifyViewModel;
+                return this.View(ViewNames.SetRunClassificationIndex, viewModel);
+                }
         }
 
         [Route("Submit")]
@@ -104,44 +96,36 @@ namespace EPR.Calculator.Frontend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Submit(SetRunClassificationViewModel model)
         {
-            try
+            if (!this.ModelState.IsValid)
             {
-                if (!this.ModelState.IsValid)
-                {
-                    var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
-                    await this.SetClassifications(model.CalculatorRunDetails.RunId, viewModel);
+                var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
+                await this.SetClassifications(model.CalculatorRunDetails.RunId, viewModel);
 
-                    return this.View(ViewNames.SetRunClassificationIndex, viewModel);
-                }
-
-                var apiUrl = this.ApiService.GetApiUrl(
-                ConfigSection.DashboardCalculatorRun,
-                ConfigSection.DashboardCalculatorRunV2);
-                var result = await this.ApiService.CallApi(
-                    this.HttpContext,
-                    HttpMethod.Put,
-                    apiUrl,
-                    string.Empty,
-                    new ClassificationDto
-                    {
-                        RunId = model.CalculatorRunDetails.RunId,
-                        ClassificationId = (int)model.ClassifyRunType,
-                    });
-
-                if (result.StatusCode == HttpStatusCode.Created)
-                {
-                    return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
-                }
-                else
-                {
-                    var message = $"API did not return successful ({result.StatusCode}).";
-                    this.logger.LogError(message);
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                }
+                return this.View(ViewNames.SetRunClassificationIndex, viewModel);
             }
-            catch (Exception ex)
+
+            var apiUrl = this.ApiService.GetApiUrl(
+            ConfigSection.DashboardCalculatorRun,
+            ConfigSection.DashboardCalculatorRunV2);
+            var result = await this.ApiService.CallApi(
+                this.HttpContext,
+                HttpMethod.Put,
+                apiUrl,
+                string.Empty,
+                new ClassificationDto
+                {
+                    RunId = model.CalculatorRunDetails.RunId,
+                    ClassificationId = (int)model.ClassifyRunType,
+                });
+
+            if (result.StatusCode == HttpStatusCode.Created)
             {
-                this.logger.LogError(ex, "An error occurred while processing the request.");
+                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
+            }
+            else
+            {
+                var message = $"API did not return successful ({result.StatusCode}).";
+                this.logger.LogError(message);
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
             }
         }

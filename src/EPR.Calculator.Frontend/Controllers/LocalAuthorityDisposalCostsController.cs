@@ -43,61 +43,54 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("ViewLocalAuthorityDisposalCosts")]
         public IActionResult Index()
         {
-            try
+            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
+            var year = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
+
+            var response = this.GetLapcapDataAsync(year);
+
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
+
+            if (response.Result.IsSuccessStatusCode)
             {
-                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
-                var year = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
+                var deserializedlapcapdata = JsonConvert.DeserializeObject<List<LocalAuthorityDisposalCost>>(response.Result.Content.ReadAsStringAsync().Result);
 
-                var response = this.GetLapcapDataAsync(year);
+                // Ensure deserializedRuns is not null
+                var localAuthorityDisposalCosts = deserializedlapcapdata ?? new List<LocalAuthorityDisposalCost>();
+                var localAuthorityData = LocalAuthorityDataUtil.GetLocalAuthorityData(localAuthorityDisposalCosts, MaterialTypes.Other);
 
-                var currentUser = CommonUtil.GetUserName(this.HttpContext);
+                var localAuthorityDataGroupedByCountry = localAuthorityData?.GroupBy((data) => data.Country).ToList();
 
-                if (response.Result.IsSuccessStatusCode)
-                {
-                    var deserializedlapcapdata = JsonConvert.DeserializeObject<List<LocalAuthorityDisposalCost>>(response.Result.Content.ReadAsStringAsync().Result);
-
-                    // Ensure deserializedRuns is not null
-                    var localAuthorityDisposalCosts = deserializedlapcapdata ?? new List<LocalAuthorityDisposalCost>();
-                    var localAuthorityData = LocalAuthorityDataUtil.GetLocalAuthorityData(localAuthorityDisposalCosts, MaterialTypes.Other);
-
-                    var localAuthorityDataGroupedByCountry = localAuthorityData?.GroupBy((data) => data.Country).ToList();
-
-                    return this.View(
-                        ViewNames.LocalAuthorityDisposalCostsIndex,
-                        new LocalAuthorityViewModel
-                        {
-                            CurrentUser = currentUser,
-                            LastUpdatedBy = deserializedlapcapdata?.First().CreatedBy ?? ErrorMessages.UnknownUser,
-                            ByCountry = localAuthorityDataGroupedByCountry,
-                            BackLinkViewModel = new BackLinkViewModel()
-                            {
-                                BackLink = string.Empty,
-                                CurrentUser = currentUser,
-                            },
-                        });
-                }
-
-                if (response.Result.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return this.View(ViewNames.LocalAuthorityDisposalCostsIndex, new LocalAuthorityViewModel
+                return this.View(
+                    ViewNames.LocalAuthorityDisposalCostsIndex,
+                    new LocalAuthorityViewModel
                     {
-                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                        LastUpdatedBy = ErrorMessages.UnknownUser,
-                        ByCountry = new List<IGrouping<string, LocalAuthorityViewModel.LocalAuthorityData>>(),
+                        CurrentUser = currentUser,
+                        LastUpdatedBy = deserializedlapcapdata?.First().CreatedBy ?? ErrorMessages.UnknownUser,
+                        ByCountry = localAuthorityDataGroupedByCountry,
                         BackLinkViewModel = new BackLinkViewModel()
                         {
                             BackLink = string.Empty,
                             CurrentUser = currentUser,
                         },
                     });
-                }
+            }
 
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
-            catch (Exception)
+            if (response.Result.StatusCode == HttpStatusCode.NotFound)
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                return this.View(ViewNames.LocalAuthorityDisposalCostsIndex, new LocalAuthorityViewModel
+                {
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    LastUpdatedBy = ErrorMessages.UnknownUser,
+                    ByCountry = new List<IGrouping<string, LocalAuthorityViewModel.LocalAuthorityData>>(),
+                    BackLinkViewModel = new BackLinkViewModel()
+                    {
+                        BackLink = string.Empty,
+                        CurrentUser = currentUser,
+                    },
+                });
             }
+
+            return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
         }
 
         private async Task<HttpResponseMessage> GetLapcapDataAsync(string parameterYear)

@@ -39,28 +39,22 @@ namespace EPR.Calculator.Frontend.Controllers
         public async Task<IActionResult> Index([FromBody] LapcapRefreshViewModel lapcapRefreshViewModel)
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            try
+
+            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
+            var response = this.PostLapcapDataAsync(new CreateLapcapDataDto(
+                lapcapRefreshViewModel,
+                CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth)));
+
+            response.Wait();
+
+            if (response.Result.IsSuccessStatusCode && response.Result.StatusCode == HttpStatusCode.Created)
             {
-                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
-                var response = this.PostLapcapDataAsync(new CreateLapcapDataDto(
-                    lapcapRefreshViewModel,
-                    CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth)));
-
-                response.Wait();
-
-                if (response.Result.IsSuccessStatusCode && response.Result.StatusCode == HttpStatusCode.Created)
-                {
-                    return this.Ok(response.Result);
-                }
-
-                this.TelemetryClient.TrackTrace($"2.File name before BadRequest :{lapcapRefreshViewModel.FileName}");
-                this.TelemetryClient.TrackTrace($"3.Reason for BadRequest :{response.Result.Content.ReadAsStringAsync().Result}");
-                return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
+                return this.Ok(response.Result);
             }
-            catch (Exception)
-            {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
-            }
+
+            this.TelemetryClient.TrackTrace($"2.File name before BadRequest :{lapcapRefreshViewModel.FileName}");
+            this.TelemetryClient.TrackTrace($"3.Reason for BadRequest :{response.Result.Content.ReadAsStringAsync().Result}");
+            return this.BadRequest(response.Result.Content.ReadAsStringAsync().Result);
         }
 
         /// <summary>

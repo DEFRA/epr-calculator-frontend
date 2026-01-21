@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Common.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -87,6 +88,25 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             return viewModel;
+        }
+
+        /// <summary>
+        /// Retrieves the calculation run with billing details.
+        /// </summary>
+        /// <param name="runId">run id.</param>
+        /// <returns>calculator run post billing file data transfer objet.</returns>
+        private async Task<CalculatorRunPostBillingFileDto?> GetCalculatorRunWithBillingdetails(int runId)
+        {
+            var response = await this.ApiService.CallApi(
+                this.HttpContext,
+                HttpMethod.Get,
+                this.ApiService.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.CalculationRunApiV2),
+                runId.ToString(),
+                null);
+
+            return response.StatusCode == System.Net.HttpStatusCode.OK
+                ? response.Content.ReadFromJsonAsync<CalculatorRunPostBillingFileDto>().Result
+                : new CalculatorRunPostBillingFileDto();
         }
     }
 }

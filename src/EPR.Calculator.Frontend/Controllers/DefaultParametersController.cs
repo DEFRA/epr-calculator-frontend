@@ -45,65 +45,58 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("ViewDefaultParameters")]
         public async Task<IActionResult> Index()
         {
-            try
+            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
+            var parameterYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
+
+            var response = await this.GetDefaultParametersAsync(parameterYear);
+
+            if (response.IsSuccessStatusCode)
             {
-                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
-                var parameterYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
-                var currentUser = CommonUtil.GetUserName(this.HttpContext);
-
-                var response = await this.GetDefaultParametersAsync(parameterYear);
-
-                if (response.IsSuccessStatusCode)
+                var viewModel = new DefaultParametersViewModel
                 {
-                    var viewModel = new DefaultParametersViewModel
+                    CurrentUser = currentUser,
+                    LastUpdatedBy = CommonUtil.GetUserName(this.HttpContext),
+                    SchemeParameters = new List<SchemeParametersViewModel>(),
+                    BackLinkViewModel = new BackLinkViewModel()
                     {
+                        BackLink = string.Empty,
                         CurrentUser = currentUser,
-                        LastUpdatedBy = CommonUtil.GetUserName(this.HttpContext),
-                        SchemeParameters = new List<SchemeParametersViewModel>(),
-                        BackLinkViewModel = new BackLinkViewModel()
-                        {
-                            BackLink = string.Empty,
-                            CurrentUser = currentUser,
-                        },
-                    };
-                    var data = await response.Content.ReadAsStringAsync();
-                    var defaultSchemeParameters = JsonConvert.DeserializeObject<List<DefaultSchemeParameters>>(data);
+                    },
+                };
+                var data = await response.Content.ReadAsStringAsync();
+                var defaultSchemeParameters = JsonConvert.DeserializeObject<List<DefaultSchemeParameters>>(data);
 
-                    if (defaultSchemeParameters != null)
+                if (defaultSchemeParameters != null)
+                {
+                    foreach (ParameterType name in (ParameterType[])Enum.GetValues(typeof(ParameterType)))
                     {
-                        foreach (ParameterType name in (ParameterType[])Enum.GetValues(typeof(ParameterType)))
-                        {
-                            viewModel.SchemeParameters.Add(GetSchemeParametersBasedonCategory(defaultSchemeParameters, name));
-                        }
-
-                        viewModel.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
-                        viewModel.IsDataAvailable = true;
-
-                        return this.View(viewModel);
+                        viewModel.SchemeParameters.Add(GetSchemeParametersBasedonCategory(defaultSchemeParameters, name));
                     }
-                }
 
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return this.View(new DefaultParametersViewModel
-                    {
-                        CurrentUser = currentUser,
-                        LastUpdatedBy = string.Empty,
-                        IsDataAvailable = false,
-                        BackLinkViewModel = new BackLinkViewModel()
-                        {
-                            BackLink = string.Empty,
-                            CurrentUser = currentUser,
-                        },
-                    });
-                }
+                    viewModel.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
+                    viewModel.IsDataAvailable = true;
 
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                    return this.View(viewModel);
+                }
             }
-            catch (Exception)
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.View(new DefaultParametersViewModel
+                {
+                    CurrentUser = currentUser,
+                    LastUpdatedBy = string.Empty,
+                    IsDataAvailable = false,
+                    BackLinkViewModel = new BackLinkViewModel()
+                    {
+                        BackLink = string.Empty,
+                        CurrentUser = currentUser,
+                    },
+                });
             }
+
+            return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
         }
 
         private static SchemeParametersViewModel GetSchemeParametersBasedonCategory(List<DefaultSchemeParameters> defaultSchemeParameters, ParameterType parameterType)

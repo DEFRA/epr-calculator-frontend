@@ -43,56 +43,48 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("ViewCalculationRunDetails/{runId}")]
         public async Task<IActionResult> IndexAsync(int runId)
         {
-            try
+            using var getCalculationDetailsResponse = await this.GetCalculatorRunAsync(runId);
+
+            if (!getCalculationDetailsResponse.IsSuccessStatusCode)
             {
-                using var getCalculationDetailsResponse = await this.GetCalculatorRunAsync(runId);
+                this.Logger.LogError(
+                    "Request failed with status code {StatusCode}", getCalculationDetailsResponse.StatusCode);
 
-                if (!getCalculationDetailsResponse.IsSuccessStatusCode)
-                {
-                    this.Logger.LogError(
-                        "Request failed with status code {StatusCode}", getCalculationDetailsResponse.StatusCode);
+                return this.RedirectToAction(
+                    ActionNames.StandardErrorIndex,
+                    CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            }
 
-                    return this.RedirectToAction(
-                        ActionNames.StandardErrorIndex,
-                        CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                }
+            var calculatorRun = JsonConvert.DeserializeObject<CalculatorRunDto>(getCalculationDetailsResponse.Content.ReadAsStringAsync().Result);
 
-                var calculatorRun = JsonConvert.DeserializeObject<CalculatorRunDto>(getCalculationDetailsResponse.Content.ReadAsStringAsync().Result);
-
-                if (calculatorRun == null)
-                {
-                    throw new ArgumentNullException($"Calculator with run id {runId} not found");
-                }
-                else if (!IsRunEligibleForDisplay(calculatorRun))
-                {
-                    return this.View(ViewNames.CalculationRunDetailsErrorPage, new ViewModelCommonData
-                    {
-                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    });
-                }
-
-                var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
+            if (calculatorRun == null)
+            {
+                throw new ArgumentNullException($"Calculator with run id {runId} not found");
+            }
+            else if (!IsRunEligibleForDisplay(calculatorRun))
+            {
+                return this.View(ViewNames.CalculationRunDetailsErrorPage, new ViewModelCommonData
                 {
                     CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                    Data = new CalculatorRunStatusUpdateDto
-                    {
-                        RunId = runId,
-                        ClassificationId = calculatorRun!.RunClassificationId,
-                        CalcName = calculatorRun.RunName,
-                        CreatedDate = calculatorRun.CreatedAt.ToString("dd MMM yyyy"),
-                        CreatedTime = calculatorRun.CreatedAt.ToString("HH:mm"),
-                    },
-                };
-
-                this.SetDownloadParameters(statusUpdateViewModel);
-
-                return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
+                });
             }
-            catch (Exception ex)
+
+            var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
             {
-                this.Logger.LogError(ex, "An error occurred while processing the request.");
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                Data = new CalculatorRunStatusUpdateDto
+                {
+                    RunId = runId,
+                    ClassificationId = calculatorRun!.RunClassificationId,
+                    CalcName = calculatorRun.RunName,
+                    CreatedDate = calculatorRun.CreatedAt.ToString("dd MMM yyyy"),
+                    CreatedTime = calculatorRun.CreatedAt.ToString("HH:mm"),
+                },
+            };
+
+            this.SetDownloadParameters(statusUpdateViewModel);
+
+            return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
         }
 
         /// <summary>
@@ -107,52 +99,44 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("DeleteCalculationRun")]
         public async Task<IActionResult> DeleteCalculation(int runId, string calcName, string createdTime, string createdDate, bool deleteChecked)
         {
-            try
+            var dashboardCalculatorRunApi = this.Configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetSection(ConfigSection.DashboardCalculatorRunApi).Value;
+
+            if (dashboardCalculatorRunApi != null)
             {
-                var dashboardCalculatorRunApi = this.Configuration.GetSection(ConfigSection.DashboardCalculatorRun).GetSection(ConfigSection.DashboardCalculatorRunApi).Value;
-
-                if (dashboardCalculatorRunApi != null)
+                var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
                 {
-                    var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
-                    {
-                        RunId = runId,
-                        CalcName = calcName,
-                        ClassificationId = (int)RunClassification.DELETED,
-                        CreatedDate = createdDate,
-                        CreatedTime = createdTime,
-                    };
-                    var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
-                    {
-                        CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                        Data = calculatorRunStatusUpdate,
-                    };
+                    RunId = runId,
+                    CalcName = calcName,
+                    ClassificationId = (int)RunClassification.DELETED,
+                    CreatedDate = createdDate,
+                    CreatedTime = createdTime,
+                };
+                var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
+                {
+                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+                    Data = calculatorRunStatusUpdate,
+                };
 
-                    this.SetDownloadParameters(statusUpdateViewModel);
+                this.SetDownloadParameters(statusUpdateViewModel);
 
-                    if (!deleteChecked)
-                    {
-                        statusUpdateViewModel.Errors = CreateErrorViewModel(ErrorMessages.SelectDeleteCalculation);
-                        return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
-                    }
-
-                    using var response = await this.PutCalculatorRunsAsync(runId, RunClassification.DELETED);
-
-                    if (response.StatusCode != HttpStatusCode.Created)
-                    {
-                        statusUpdateViewModel.Errors = CreateErrorViewModel(ErrorMessages.DeleteCalculationError);
-                        return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
-                    }
-
-                    return this.View(ViewNames.DeleteConfirmation, statusUpdateViewModel);
+                if (!deleteChecked)
+                {
+                    statusUpdateViewModel.Errors = CreateErrorViewModel(ErrorMessages.SelectDeleteCalculation);
+                    return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
                 }
 
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                using var response = await this.PutCalculatorRunsAsync(runId, RunClassification.DELETED);
+
+                if (response.StatusCode != HttpStatusCode.Created)
+                {
+                    statusUpdateViewModel.Errors = CreateErrorViewModel(ErrorMessages.DeleteCalculationError);
+                    return this.View(ViewNames.CalculationRunDetailsIndex, statusUpdateViewModel);
+                }
+
+                return this.View(ViewNames.DeleteConfirmation, statusUpdateViewModel);
             }
-            catch (Exception ex)
-            {
-                this.Logger.LogError(ex, "An error occurred while processing the request.");
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
+
+            return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
         }
 
         /// <summary>

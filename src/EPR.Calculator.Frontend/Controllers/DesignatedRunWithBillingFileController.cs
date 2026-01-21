@@ -26,14 +26,6 @@ namespace EPR.Calculator.Frontend.Controllers
             apiService,
             calculatorRunDetailsService)
     {
-        private IActionResult RedirectToStandardError
-        {
-            get
-            {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
-        }
-
         [Route("{runId}")]
         public async Task<IActionResult> Index(int runId)
         {
@@ -77,10 +69,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     runId = id,
                 });
             }
-            else
-            {
-                return this.RedirectToStandardError;
-            }
+
+            throw new InvalidOperationException($"Failed to generate draft billing file for calculation run {id}.");
         }
 
         private async Task<bool> TryGenerateDraftBillingFile(int id)

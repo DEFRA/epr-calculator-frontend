@@ -97,23 +97,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public async Task Index_WhenExceptionThrown_RedirectsToError()
-        {
-            int runId = 123;
-
-            runDetailsServiceMock
-                .Setup(s => s.GetCalculatorRundetailsAsync(It.IsAny<HttpContext>(), runId))
-                .ThrowsAsync(new Exception("Test Exception"));
-
-            var result = await controller.Index(runId);
-
-            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
-            var redirectResult = (RedirectToActionResult)result;
-            Assert.AreEqual("Index", redirectResult.ActionName);
-            Assert.AreEqual("StandardError", redirectResult.ControllerName);
-        }
-
-        [TestMethod]
         public async Task Submit_ModelStateInvalid_ReturnsViewWithViewModel()
         {
             controller.ModelState.AddModelError("ClassifyRunType", "Required");
@@ -247,28 +230,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.AreEqual("Index", redirect.ActionName);
             Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, redirect.ControllerName);
             Assert.AreEqual(runId, redirect.RouteValues["runId"]);
-        }
-
-        [TestMethod]
-        public async Task Submit_WhenExceptionThrown_RedirectsToError()
-        {
-            var model = new SetRunClassificationViewModel
-            {
-                ClassifyRunType = (int)RunClassification.TEST_RUN,
-                CalculatorRunDetails = new CalculatorRunDetailsViewModel { RunId = 123 },
-                CurrentUser = "TestUser"
-            };
-
-            apiServiceMock
-                .Setup(s => s.GetApiUrl(It.IsAny<string>(), It.IsAny<string>()))
-                .Throws(new Exception("Test Exception"));
-
-            var result = await controller.Submit(model);
-
-            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
-            var redirectResult = (RedirectToActionResult)result;
-            Assert.AreEqual("Index", redirectResult.ActionName);
-            Assert.AreEqual("StandardError", redirectResult.ControllerName);
         }
 
         // Helper method to setup mocked HTTP responses

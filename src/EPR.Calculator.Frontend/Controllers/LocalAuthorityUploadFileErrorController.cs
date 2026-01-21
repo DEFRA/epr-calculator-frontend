@@ -11,54 +11,47 @@ namespace EPR.Calculator.Frontend.Controllers
     {
         public IActionResult Index()
         {
-            try
+            var lapcapErrors = this.HttpContext.Session.GetString(UploadFileErrorIds.LocalAuthorityUploadErrors);
+
+            if (!string.IsNullOrEmpty(lapcapErrors))
             {
-                var lapcapErrors = this.HttpContext.Session.GetString(UploadFileErrorIds.LocalAuthorityUploadErrors);
-
-                if (!string.IsNullOrEmpty(lapcapErrors))
+                var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors);
+                var currentUser = CommonUtil.GetUserName(this.HttpContext);
+                var lapcapUploadViewModel = new LapcapUploadViewModel()
                 {
-                    var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors);
-                    var currentUser = CommonUtil.GetUserName(this.HttpContext);
-                    var lapcapUploadViewModel = new LapcapUploadViewModel()
+                    CurrentUser = currentUser,
+                    BackLinkViewModel = new BackLinkViewModel()
                     {
+                        BackLink = ControllerNames.LocalAuthorityUploadFile,
                         CurrentUser = currentUser,
-                        BackLinkViewModel = new BackLinkViewModel()
-                        {
-                            BackLink = ControllerNames.LocalAuthorityUploadFile,
-                            CurrentUser = currentUser,
-                        },
-                    };
+                    },
+                };
 
-                    if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
-                    {
-                        lapcapUploadViewModel.ValidationErrors = validationErrors;
-                    }
-                    else
-                    {
-                        lapcapUploadViewModel.LapcapErrors = JsonConvert.DeserializeObject<List<CreateLapcapDataErrorDto>>(lapcapErrors);
-                    }
-
-                    if (lapcapUploadViewModel.ValidationErrors is null && lapcapUploadViewModel.LapcapErrors is not null)
-                    {
-                        lapcapUploadViewModel.ValidationErrors =
-                        [
-                            new ValidationErrorDto()
-                            {
-                                ErrorMessage = lapcapUploadViewModel.LapcapErrors.Count > 1 ? $"The file contained {lapcapUploadViewModel.LapcapErrors.Count} errors." : $"The file contained {lapcapUploadViewModel.LapcapErrors.Count} error.",
-                            },
-                        ];
-                    }
-
-                    return this.View(
-                        ViewNames.LocalAuthorityUploadFileErrorIndex,
-                        lapcapUploadViewModel);
+                if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
+                {
+                    lapcapUploadViewModel.ValidationErrors = validationErrors;
                 }
                 else
                 {
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                    lapcapUploadViewModel.LapcapErrors = JsonConvert.DeserializeObject<List<CreateLapcapDataErrorDto>>(lapcapErrors);
                 }
+
+                if (lapcapUploadViewModel.ValidationErrors is null && lapcapUploadViewModel.LapcapErrors is not null)
+                {
+                    lapcapUploadViewModel.ValidationErrors =
+                    [
+                        new ValidationErrorDto()
+                        {
+                            ErrorMessage = lapcapUploadViewModel.LapcapErrors.Count > 1 ? $"The file contained {lapcapUploadViewModel.LapcapErrors.Count} errors." : $"The file contained {lapcapUploadViewModel.LapcapErrors.Count} error.",
+                        },
+                    ];
+                }
+
+                return this.View(
+                    ViewNames.LocalAuthorityUploadFileErrorIndex,
+                    lapcapUploadViewModel);
             }
-            catch (Exception)
+            else
             {
                 return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
             }

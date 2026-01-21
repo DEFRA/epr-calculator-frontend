@@ -343,40 +343,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task CheckIfCalculationNameExistsAsync_ApiUrlIsNull_ShouldThrowArgumentNullException()
-        {
-            var mockApiSection = new Mock<IConfigurationSection>();
-            mockApiSection.Setup(s => s.Value).Returns(string.Empty);
-
-            var mockSettingsSection = new Mock<IConfigurationSection>();
-            mockSettingsSection
-                .Setup(s => s.GetSection(ConfigSection.CalculationRunNameApi))
-                .Returns(mockApiSection.Object);
-
-            mockConfiguration = new Mock<IConfiguration>();
-            mockConfiguration
-                .Setup(c => c.GetSection(ConfigSection.CalculationRunSettings))
-                .Returns(mockSettingsSection.Object);
-
-            var model = new InitiateCalculatorRunModel
-            {
-                CurrentUser = Fixture.Create<string>(),
-                CalculationName = "TestCalculation",
-            };
-            _controller = new CalculationRunNameController(
-                mockConfiguration.Object,
-                new Mock<IApiService>().Object,
-                mockLogger.Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object);
-            var redirectResult = await _controller.RunCalculator(model) as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
-            Assert.AreEqual("StandardError", redirectResult.ControllerName);
-        }
-
-        [TestMethod]
         public async Task RunCalculatorConfirmation_ValidModel_RedirectsToConfirmation()
         {
             var model = new InitiateCalculatorRunModel
@@ -436,137 +402,12 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task RunCalculator_HttpPostToCalculatorRunAPI_Failure_RedirectsToStandardError()
-        {
-            var model = new InitiateCalculatorRunModel
-            {
-                CurrentUser = Fixture.Create<string>(),
-                CalculationName = "TestName",
-            };
-            var mockHttpContext = new Mock<HttpContext>();
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = mockHttpContext.Object
-            };
-
-            // Mock the first API call to return NotFound
-            var mockHttpMessageHandler1 = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler1
-                .Protected()
-                        .Setup<Task<HttpResponseMessage>>(
-                            "SendAsync",
-                            ItExpr.IsAny<HttpRequestMessage>(),
-                            ItExpr.IsAny<CancellationToken>())
-                        .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
-            var mockHttpClient1 = new HttpClient(mockHttpMessageHandler1.Object);
-            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient1);
-
-            // Mock the second API call to return Accepted
-            var mockHttpMessageHandler2 = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler2
-                .Protected()
-                        .Setup<Task<HttpResponseMessage>>(
-                            "SendAsync",
-                            ItExpr.IsAny<HttpRequestMessage>(),
-                            ItExpr.IsAny<CancellationToken>())
-                        .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
-
-            var mockHttpClient2 = new HttpClient(mockHttpMessageHandler2.Object);
-            mockClientFactory.SetupSequence(x => x.CreateClient(It.IsAny<string>()))
-                                     .Returns(mockHttpClient1)
-                                     .Returns(mockHttpClient2);
-
-            // Act
-            var result = await _controller.RunCalculator(model) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
-            var redirectResult = result as RedirectToActionResult;
-            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
-            Assert.AreEqual("StandardError", redirectResult.ControllerName);
-        }
-
-        [TestMethod]
-        public async Task RunCalculator_ValidModel_ApiCallFails_RedirectsToStandardError()
-        {
-            var model = new InitiateCalculatorRunModel
-            {
-                CurrentUser = Fixture.Create<string>(),
-                CalculationName = "TestRun",
-            };
-
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
-
-            var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
-            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient);
-
-            var result = await _controller.RunCalculator(model) as RedirectToActionResult;
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-        }
-
-        [TestMethod]
         public void Confirmation_ReturnsViewResult()
         {
             var result = _controller.Confirmation("Test") as ViewResult;
 
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunConfirmation, result.ViewName);
-        }
-
-        [TestMethod]
-        public async Task RunCalculatorConfirmation_NullExceptionForAPIConfig_RedirectsToErrorPage()
-        {
-            var model = new InitiateCalculatorRunModel
-            {
-                CurrentUser = Fixture.Create<string>(),
-                CalculationName = "TestRun",
-            };
-            mockConfiguration = new Mock<IConfiguration>();
-            mockConfiguration.Setup(config => config[$"{ConfigSection.CalculationRunSettings}:{ConfigSection.CalculationRunApi}"])
-                             .Returns((string)null);
-
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                    .Setup<Task<HttpResponseMessage>>(
-                        "SendAsync",
-                        ItExpr.IsAny<HttpRequestMessage>(),
-                        ItExpr.IsAny<CancellationToken>())
-                    .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
-
-            var mockHttpContext = new Mock<HttpContext>();
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new CalculationRunNameController(
-                mockConfiguration.Object,
-                new Mock<IApiService>().Object,
-                mockLogger.Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = mockHttpContext.Object
-                }
-            };
-
-            var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
-            mockClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockHttpClient);
-            var result = await controller.RunCalculator(model);
-
-            var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
-            Assert.AreEqual("StandardError", redirectResult.ControllerName);
         }
 
         [TestMethod]
