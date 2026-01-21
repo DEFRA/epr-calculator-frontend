@@ -1,3 +1,4 @@
+﻿
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
@@ -33,27 +34,20 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> Index([FromBody] ParameterRefreshViewModel parameterRefreshViewModel)
         {
-            try
-            {
-                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
-                var response = await this.PostDefaultParametersAsync(
-                    new CreateDefaultParameterSettingDto(
-                        parameterRefreshViewModel,
-                        CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth)));
+            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
+            var response = await this.PostDefaultParametersAsync(
+                new CreateDefaultParameterSettingDto(
+                    parameterRefreshViewModel,
+                    CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth)));
 
-                if (response.IsSuccessStatusCode && response.StatusCode == HttpStatusCode.Created)
-                {
-                    return this.Ok(response);
-                }
-
-                this.TelemetryClient.TrackTrace($"2.File name before BadRequest :{parameterRefreshViewModel.FileName}");
-                this.TelemetryClient.TrackTrace($"3.Reason for BadRequest :{response.Content.ReadAsStringAsync().Result}");
-                return this.BadRequest(response.Content.ReadAsStringAsync().Result);
-            }
-            catch (Exception)
+            if (response.IsSuccessStatusCode && response.StatusCode == HttpStatusCode.Created)
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+                return this.Ok(response);
             }
+
+            this.TelemetryClient.TrackTrace($"2.File name before BadRequest :{parameterRefreshViewModel.FileName}");
+            this.TelemetryClient.TrackTrace($"3.Reason for BadRequest :{response.Content.ReadAsStringAsync().Result}");
+            return this.BadRequest(response.Content.ReadAsStringAsync().Result);
         }
 
         /// <summary>

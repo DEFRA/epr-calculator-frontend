@@ -4,6 +4,7 @@
     using System.Net;
     using System.Security.Claims;
     using System.Text;
+    using System.Text.Json;
     using AutoFixture;
     using AutoFixture.AutoMoq;
     using EPR.Calculator.Frontend.Constants;
@@ -76,18 +77,43 @@
         private Fixture Fixture { get; init; }
 
         [TestMethod]
-        public async Task Index_InvalidCalculationRunId_RedirectsToError()
+        public async Task Index_InvalidCalculationRunId_ThrowsArgumentOutOfRangeException()
         {
             // Arrange
             var calculationRunId = -1;
             var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
 
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<ArgumentOutOfRangeException>(async () =>
+            {
+                await _controller.IndexAsync(calculationRunId, request);
+            });
+        }
+
+        [TestMethod]
+        public async Task Index_WhenBillingApiReturnsNonSuccess_ThrowsHttpRequestException()
+        {
+            // Arrange
+            var calculationRunId = 1;
+            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+
+            const string errorContent = "API failure response";
+
+            // Build controller with failing API response
+            var controller = this.BuildTestClass(
+                this.Fixture,
+                HttpStatusCode.InternalServerError,
+                errorContent);
+
             // Act
-            var result = await _controller.IndexAsync(calculationRunId, request) as RedirectToActionResult;
+            Func<Task> act = async () => await controller.IndexAsync(calculationRunId, request);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+            var exception = await Assert.ThrowsExceptionAsync<HttpRequestException>(act);
+
+            StringAssert.Contains(exception.Message, $"BillingInstructions API call failed for run {calculationRunId}");
+            StringAssert.Contains(exception.Message, "InternalServerError");
+            StringAssert.Contains(exception.Message, errorContent);
         }
 
         [TestMethod]
@@ -211,65 +237,71 @@
         }
 
         [TestMethod]
-        public async Task IndexAsync_ApiCallFails_RedirectsToError()
+        public async Task IndexAsync_ApiReturnsNull_ThrowsInvalidOperationException()
         {
             // Arrange
             var calculationRunId = 1;
             var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
 
-            // Use the helper to simulate a failed API response
-            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(null, HttpStatusCode.InternalServerError);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var mockApiService = new Mock<IApiService>();
+            mockApiService.Setup(s => s.CallApi(
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<HttpMethod>(),
+                    It.IsAny<Uri>(),
+                    It.IsAny<string>(),
+                    It.IsAny<object?>()))
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent("null") // simulates JSON null
+                });
 
-            // Act
-            var result = await controller.IndexAsync(calculationRunId, request) as RedirectToActionResult;
+            var controller = new BillingInstructionsController(
+                Mock.Of<IConfiguration>(),
+                Mock.Of<ITokenAcquisition>(),
+                new TelemetryClient(),
+                Mock.Of<IBillingInstructionsMapper>(),
+                mockApiService.Object,
+                Mock.Of<ICalculatorRunDetailsService>());
 
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+            controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+            {
+                await controller.IndexAsync(calculationRunId, request);
+            });
         }
 
         [TestMethod]
-        public async Task IndexAsync_ApiReturnsNull_RedirectsToError()
+        public async Task GenerateBillingFile_Fails_ThrowsInvalidOperationException()
         {
             // Arrange
-            var calculationRunId = 1;
-            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
+            var runId = 1;
 
-            // Simulate API returns empty/invalid JSON (so deserialization returns null)
-            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(null, HttpStatusCode.OK);
-            var controller = CreateControllerWithFactory(mockFactory);
+            var apiServiceMock = new Mock<IApiService>();
+            apiServiceMock.Setup(s => s.CallApi(
+                    It.IsAny<HttpContext>(),
+                    HttpMethod.Put,
+                    It.IsAny<Uri>(),
+                    runId.ToString(),
+                    null))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
 
-            // Act
-            var result = await controller.IndexAsync(calculationRunId, request) as RedirectToActionResult;
+            var controller = new BillingInstructionsController(
+                Mock.Of<IConfiguration>(),
+                Mock.Of<ITokenAcquisition>(),
+                new TelemetryClient(),
+                _mockMapper.Object,
+                apiServiceMock.Object,
+                Mock.Of<ICalculatorRunDetailsService>());
+            controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-        }
-
-        [TestMethod]
-        public async Task IndexAsync_MapperThrowsException_RedirectsToError()
-        {
-            // Arrange
-            var calculationRunId = 1;
-            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
-            var billingData = CreateDefaultBillingData(calculationRunId);
-
-            // Mapper throws exception
-            _mockMapper.Setup(m => m.MapToViewModel(It.IsAny<ProducerBillingInstructionsResponseDto>(), It.IsAny<PaginationRequestViewModel>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
-                .Throws(new Exception("Mapper failed"));
-
-            // Use the helper to simulate a successful API response
-            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(billingData);
-            var controller = CreateControllerWithFactory(mockFactory);
-
-            // Act
-            var result = await controller.IndexAsync(calculationRunId, request) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+            {
+                await controller.GenerateDraftBillingFile(runId);
+            });
         }
 
         [TestMethod]
@@ -324,31 +356,6 @@
                         r.Page == request.Page && r.PageSize == request.PageSize),
                     "Test User", false, false),
                 Times.Once);
-        }
-
-        [TestMethod]
-        public async Task IndexAsync_PaginationEdgeCases_HandledGracefully()
-        {
-            // Arrange
-            var calculationRunId = 1;
-            var request = new PaginationRequestViewModel { Page = 0, PageSize = int.MaxValue };
-
-            // Simulate API returns 400 Bad Request with a message
-            var errorMessage = "Page Number must be higher than 0";
-            var mockFactory = GetMockHttpClientFactoryWithObjectResponse(
-                responseObject: errorMessage,
-                code: HttpStatusCode.BadRequest);
-
-            var controller = CreateControllerWithFactory(mockFactory);
-
-            // Act
-            var result = await controller.IndexAsync(calculationRunId, request);
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
-            var redirectResult = (RedirectToActionResult)result;
-            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
         }
 
         [TestMethod]
@@ -1114,7 +1121,7 @@
         }
 
         [TestMethod]
-        public async Task GenerateBillingFile_Returns_Failure()
+        public async Task GenerateBillingFile_Failure_ThrowsInvalidOperationException()
         {
             // Arrange
             int testRunId = 1;
@@ -1126,13 +1133,11 @@
                 null,
                 this._configuration);
 
-            // Act
-            var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+            {
+                await controller.GenerateDraftBillingFile(testRunId);
+            });
         }
 
         [TestMethod]

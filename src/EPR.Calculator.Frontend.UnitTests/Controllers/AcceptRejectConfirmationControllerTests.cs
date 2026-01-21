@@ -26,14 +26,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
     {
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
         private Mock<ITokenAcquisition> _mockTokenAcquisition;
-        private Mock<IBillingInstructionsApiService> _billingInstructionsApiService;
         private TelemetryClient _telemetryClient;
 
         public AcceptRejectConfirmationControllerTests()
         {
             this.Fixture = new Fixture();
             _mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            _billingInstructionsApiService = new Mock<IBillingInstructionsApiService>();
             _telemetryClient = new TelemetryClient();
         }
 
@@ -220,10 +218,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         [TestMethod]
         public async Task Submit_ApiReturnsFalse_RedirectsToStandardError()
         {
-            // Arrange
-            _billingInstructionsApiService.Setup(x => x.PutAcceptRejectBillingInstructions(It.IsAny<int>(), It.IsAny<ProducerBillingInstructionsHttpPutRequestDto>()))
-                .ReturnsAsync(false);
-
             var controller = CreateController();
             var model = new AcceptRejectConfirmationViewModel
             {
@@ -243,38 +237,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         [TestMethod]
-        public async Task Submit_ApiThrowsException_ReturnsInternalServerError()
-        {
-            // Arrange
-            _billingInstructionsApiService.Setup(x => x.PutAcceptRejectBillingInstructions(It.IsAny<int>(), It.IsAny<ProducerBillingInstructionsHttpPutRequestDto>()))
-                .ThrowsAsync(new Exception("API error"));
-
-            var controller = CreateController(billingApiThrowException: true);
-            var model = new AcceptRejectConfirmationViewModel
-            {
-                CalculationRunId = 1,
-                CalculationRunName = "Test",
-                Status = BillingStatus.Accepted,
-                ApproveData = true
-            };
-
-            // Act
-            var result = await controller.Submit(model);
-
-            // Assert
-            var statusResult = result as ObjectResult;
-            Assert.IsNotNull(statusResult);
-            Assert.AreEqual(StatusCodes.Status500InternalServerError, statusResult.StatusCode);
-            Assert.AreEqual("An error occurred while processing your request.", statusResult.Value);
-        }
-
-        [TestMethod]
         public async Task Submit_Success_RedirectsToBillingInstructions()
         {
-            // Arrange
-            _billingInstructionsApiService.Setup(x => x.PutAcceptRejectBillingInstructions(It.IsAny<int>(), It.IsAny<ProducerBillingInstructionsHttpPutRequestDto>()))
-                .ReturnsAsync(true);
-
             var controller = CreateController();
             var model = new AcceptRejectConfirmationViewModel
             {
@@ -321,37 +285,20 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     .ReturnsAsync(calculatorRunDetails);
             }
 
-            var billingApiService = new Mock<IBillingInstructionsApiService>();
-            if(billingApiThrowException)
-            {
-                billingApiService.Setup(service
-                    => service.PutAcceptRejectBillingInstructions(
-                        It.IsAny<int>(),
-                        It.IsAny<ProducerBillingInstructionsHttpPutRequestDto>()))
-                    .Throws<InvalidOperationException>();
-            }
-            else
-            {
-                billingApiService.Setup(service
-                    => service.PutAcceptRejectBillingInstructions(
-                        It.IsAny<int>(),
-                        It.IsAny<ProducerBillingInstructionsHttpPutRequestDto>()))
-                    .ReturnsAsync(true);
-            }
-
             var controller = new AcceptRejectConfirmationController(
                 _configuration,
                 _mockTokenAcquisition.Object,
                 _telemetryClient,
                 TestMockUtils.BuildMockApiService(apiReturnCode).Object,
-                calculatorRunDetailsService.Object,
-                billingApiService.Object)
+                calculatorRunDetailsService.Object)
             {
                 ControllerContext = new ControllerContext
                 {
                     HttpContext = context
                 }
             };
+
+            controller.HttpContext.Request.Headers["Authorization"] = "Bearer test-token";
 
             return controller;
         }

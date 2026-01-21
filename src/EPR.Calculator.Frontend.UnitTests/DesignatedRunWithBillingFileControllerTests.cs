@@ -239,7 +239,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task GenerateBillingFile_Returns_Failure()
+        public async Task GenerateBillingFile_Throws_WhenGenerationFails()
         {
             // Arrange
             int testRunId = 1;
@@ -252,13 +252,11 @@ namespace EPR.Calculator.Frontend.UnitTests
                 HttpContext = _mockHttpContext.Object
             };
 
-            // Act
-            var result = await controller.GenerateDraftBillingFile(testRunId) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+            {
+                await controller.GenerateDraftBillingFile(testRunId);
+            });
         }
 
         private DesignatedRunWithBillingFileController BuildTestClass(

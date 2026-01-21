@@ -24,10 +24,5 @@ namespace EPR.Calculator.Frontend.Models
         /// This field is optional and may be null if the status is not "Rejected".
         /// </summary>
         public string? ReasonForRejection { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Authorisaion token for the request, typically used for API authentication.
-        /// </summary>
-        public required string AuthorizationToken { get; set; }
     }
 }

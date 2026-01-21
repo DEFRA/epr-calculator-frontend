@@ -53,36 +53,28 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int runId)
         {
-            try
-            {
-                var currentUser = CommonUtil.GetUserName(this.HttpContext);
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
 
-                var viewModel = new SetRunClassificationViewModel
+            var viewModel = new SetRunClassificationViewModel
+            {
+                CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
+                CurrentUser = currentUser,
+                BackLinkViewModel = new BackLinkViewModel
                 {
-                    CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
+                    BackLink = this.GetBackLink(),
+                    RunId = runId,
                     CurrentUser = currentUser,
-                    BackLinkViewModel = new BackLinkViewModel
-                    {
-                        BackLink = this.GetBackLink(),
-                        RunId = runId,
-                        CurrentUser = currentUser,
-                    },
-                    ClassifyRunType = null,
-                };
+                },
+                ClassifyRunType = null,
+            };
 
-                var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(this.HttpContext, runId);
-                if (runDetails != null && runDetails.RunId > 0)
-                {
-                    viewModel.CalculatorRunDetails = runDetails;
-                }
-
-                return this.View(ViewNames.RemoveClassification, viewModel);
-           }
-            catch (Exception ex)
+            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(this.HttpContext, runId);
+            if (runDetails != null && runDetails.RunId > 0)
             {
-                this.logger.LogError(ex, "An error occurred while processing the request.");
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                viewModel.CalculatorRunDetails = runDetails;
             }
+
+            return this.View(ViewNames.RemoveClassification, viewModel);
         }
 
         /// <summary>
@@ -107,23 +99,13 @@ namespace EPR.Calculator.Frontend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Submit(SetRunClassificationViewModel model)
         {
-            try
+            if (!this.ModelState.IsValid)
             {
-                if (!this.ModelState.IsValid)
-                {
-                    var viewModel = await this.UpdateViewModel(model.CalculatorRunDetails.RunId);
-                    return this.View(ViewNames.RemoveClassification, viewModel);
-                }
+                var viewModel = await this.UpdateViewModel(model.CalculatorRunDetails.RunId);
+                return this.View(ViewNames.RemoveClassification, viewModel);
+            }
 
-                return await this.HandleClassificationSubmission(model);
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "An error occurred while processing the request.");
-                return this.RedirectToAction(
-                    ActionNames.StandardErrorIndex,
-                    CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
+            return await this.HandleClassificationSubmission(model);
         }
 
         private async Task<SetRunClassificationViewModel> UpdateViewModel(int runId)

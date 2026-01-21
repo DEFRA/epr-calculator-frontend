@@ -98,13 +98,10 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = BuildTestClass(HttpStatusCode.OK, null);
             int runId = 1;
 
-            // Act
-            var result = await controller.IndexAsync(runId) as RedirectToActionResult;
+            // Act & Assert
+            var exception = await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => controller.IndexAsync(runId));
 
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
+            Assert.AreEqual("Calculator with run id 1 not found", exception.ParamName);
         }
 
         [TestMethod]
@@ -217,67 +214,6 @@ namespace EPR.Calculator.Frontend.UnitTests
                    null,
                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
                Times.Once);
-        }
-
-        [TestMethod]
-        public async Task IndexAsync_GetCalculationDetails_Exception_ShouldLogErrorAndRedirect()
-        {
-            // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.InternalServerError, MockData.GetCalculationRuns());
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-
-            var mockClient = new Mock<ITokenAcquisition>();
-            var controller =
-                new CalculationRunDetailsController(
-                    null,
-                    null,
-                    _mockLogger.Object,
-                    mockClient.Object,
-                    new TelemetryClient(),
-                    new Mock<ICalculatorRunDetailsService>().Object);
-            int runId = 1;
-
-            // Act
-            var result = await controller.IndexAsync(runId) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
-        }
-
-        [TestMethod]
-        public async Task DeleteAsync_GetCalculationDetails_Exception_ShouldLogErrorAndRedirect()
-        {
-            // Arrange
-            var mockHttpMessageHandler = CreateMockHttpMessageHandler(HttpStatusCode.InternalServerError, MockData.GetCalculationRuns());
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            _mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-
-            var controller = new CalculationRunDetailsController(
-                null,
-                null,
-                _mockLogger.Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object);
-            int runId = 1;
-            string calcName = "TestCalc";
-            string calDate = "21 June 2024";
-            string calTime = "12:09";
-
-            // Act
-            var task = controller.DeleteCalculation(runId, calcName, calDate, calTime, true);
-            task.Wait();
-
-            var result = task.Result as RedirectToActionResult;
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
         }
 
         [TestMethod]

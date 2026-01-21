@@ -28,15 +28,6 @@ namespace EPR.Calculator.Frontend.Controllers
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(configuration, tokenAcquisition, telemetryClient, apiService, calculatorRunDetailsService)
     {
-        private IActionResult RedirectToStandardError
-        {
-            get
-            {
-                var controllerName = CommonUtil.GetControllerName(typeof(StandardErrorController));
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, controllerName);
-            }
-        }
-
         /// <summary>
         /// Handles the HTTP GET request to display billing instructions for the specified calculation run.
         /// </summary>
@@ -51,65 +42,57 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             if (calculationRunId <= 0)
             {
-                return this.RedirectToStandardError;
+                throw new ArgumentOutOfRangeException(nameof(calculationRunId), "CalculationRunId must be greater than zero.");
             }
 
-            try
+            bool isSelectAll = this.HttpContext.Session.GetBooleanFlag(SessionConstants.IsSelectAll);
+            bool isSelectAllPage = false;
+            if (this.HttpContext.Session.Keys.Contains(SessionConstants.IsRedirected))
             {
-                bool isSelectAll = this.HttpContext.Session.GetBooleanFlag(SessionConstants.IsSelectAll);
-                bool isSelectAllPage = false;
-                if (this.HttpContext.Session.Keys.Contains(SessionConstants.IsRedirected))
-                {
-                    isSelectAllPage = this.HttpContext.Session.GetBooleanFlag(SessionConstants.IsSelectAllPage);
-                    this.HttpContext.Session.Remove(SessionConstants.IsRedirected);
-                }
-
-                var producerBillingInstructionsResponseDto = await this.GetBillingData(calculationRunId, request);
-                var billingInstructionsViewModel = mapper.MapToViewModel(
-                    producerBillingInstructionsResponseDto ?? new ProducerBillingInstructionsResponseDto(),
-                    request,
-                    CommonUtil.GetUserName(this.HttpContext),
-                    isSelectAll,
-                    isSelectAllPage);
-                billingInstructionsViewModel.BackLinkViewModel = new BackLinkViewModel()
-                {
-                    BackLink = string.Empty,
-                    HideBackLink = true,
-                    RunId = calculationRunId,
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                };
-
-                if (isSelectAll &&
-                    billingInstructionsViewModel.ProducerIds != null &&
-                    billingInstructionsViewModel.ProducerIds.Any())
-                {
-                    ARJourneySessionHelper.AddToSession(this.HttpContext.Session, billingInstructionsViewModel.ProducerIds);
-                }
-
-                var existingSelectedIds = ARJourneySessionHelper.GetFromSession(this.HttpContext.Session);
-
-                if (!isSelectAll &&
-                    producerBillingInstructionsResponseDto is not null &&
-                    producerBillingInstructionsResponseDto.Records.Count > 0 &&
-                    producerBillingInstructionsResponseDto.Records.TrueForAll(t => existingSelectedIds.Contains(t.ProducerId)) &&
-                    billingInstructionsViewModel.TotalRecords > 0)
-                {
-                    billingInstructionsViewModel.OrganisationSelections.SelectPage = true;
-                    this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, "true");
-                }
-
-                foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions.Where(t => existingSelectedIds.Contains(t.OrganisationId)))
-                {
-                    item.IsSelected = true;
-                }
-
-                return this.View(billingInstructionsViewModel);
+                isSelectAllPage = this.HttpContext.Session.GetBooleanFlag(SessionConstants.IsSelectAllPage);
+                this.HttpContext.Session.Remove(SessionConstants.IsRedirected);
             }
-            catch (Exception ex)
+
+            var producerBillingInstructionsResponseDto = await this.GetBillingData(calculationRunId, request);
+            var billingInstructionsViewModel = mapper.MapToViewModel(
+                producerBillingInstructionsResponseDto ?? new ProducerBillingInstructionsResponseDto(),
+                request,
+                CommonUtil.GetUserName(this.HttpContext),
+                isSelectAll,
+                isSelectAllPage);
+            billingInstructionsViewModel.BackLinkViewModel = new BackLinkViewModel()
             {
-                this.TelemetryClient.TrackException(ex);
-                return this.RedirectToStandardError;
+                BackLink = string.Empty,
+                HideBackLink = true,
+                RunId = calculationRunId,
+                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
+            };
+
+            if (isSelectAll &&
+                billingInstructionsViewModel.ProducerIds != null &&
+                billingInstructionsViewModel.ProducerIds.Any())
+            {
+                ARJourneySessionHelper.AddToSession(this.HttpContext.Session, billingInstructionsViewModel.ProducerIds);
             }
+
+            var existingSelectedIds = ARJourneySessionHelper.GetFromSession(this.HttpContext.Session);
+
+            if (!isSelectAll &&
+                producerBillingInstructionsResponseDto is not null &&
+                producerBillingInstructionsResponseDto.Records.Count > 0 &&
+                producerBillingInstructionsResponseDto.Records.TrueForAll(t => existingSelectedIds.Contains(t.ProducerId)) &&
+                billingInstructionsViewModel.TotalRecords > 0)
+            {
+                billingInstructionsViewModel.OrganisationSelections.SelectPage = true;
+                this.HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, "true");
+            }
+
+            foreach (var item in billingInstructionsViewModel.OrganisationBillingInstructions.Where(t => existingSelectedIds.Contains(t.OrganisationId)))
+            {
+                item.IsSelected = true;
+            }
+
+            return this.View(billingInstructionsViewModel);
         }
 
         /// <summary>
@@ -266,30 +249,22 @@ namespace EPR.Calculator.Frontend.Controllers
         [HttpPost("UpdateOrganisationSelection", Name = "BillingInstructions_OrganisationSelection")]
         public IActionResult UpdateOrganisationSelectionAsync([FromBody] BillingSelectionOrgDto orgDto)
         {
-            try
+            if (orgDto.IsSelected)
             {
-                if (orgDto.IsSelected)
-                {
-                    ARJourneySessionHelper.AddToSession(this.HttpContext.Session, [orgDto.Id]);
-                }
-                else
-                {
-                    ARJourneySessionHelper.RemoveFromSession(this.HttpContext.Session, [orgDto.Id]);
-                }
-
-                // If they just unselected an item then it clearly means we must untick the all is selected flag
-                if (!orgDto.IsSelected)
-                {
-                    this.HttpContext.Session.SetBooleanFlag(SessionConstants.IsSelectAll, false);
-                }
-
-                return this.Ok();
+                ARJourneySessionHelper.AddToSession(this.HttpContext.Session, [orgDto.Id]);
             }
-            catch (Exception ex)
+            else
             {
-                this.TelemetryClient.TrackException(ex);
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+                ARJourneySessionHelper.RemoveFromSession(this.HttpContext.Session, [orgDto.Id]);
             }
+
+            // If they just unselected an item then it clearly means we must untick the all is selected flag
+            if (!orgDto.IsSelected)
+            {
+                this.HttpContext.Session.SetBooleanFlag(SessionConstants.IsSelectAll, false);
+            }
+
+            return this.Ok();
         }
 
         /// <summary>
@@ -300,6 +275,7 @@ namespace EPR.Calculator.Frontend.Controllers
         public async Task<IActionResult> GenerateDraftBillingFile(int runId)
         {
             var result = await this.TryGenerateBillingFile(runId);
+
             if (result)
             {
                 return this.RedirectToRoute(new
@@ -309,10 +285,8 @@ namespace EPR.Calculator.Frontend.Controllers
                     runId,
                 });
             }
-            else
-            {
-                return this.RedirectToStandardError;
-            }
+
+            throw new InvalidOperationException($"Failed to generate draft billing file for calculation run {runId}.");
         }
 
         /// <summary>
@@ -337,13 +311,12 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.View(ViewNames.BillingConfirmationSuccess, model);
         }
 
-        private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(
+        private async Task<ProducerBillingInstructionsResponseDto> GetBillingData(
             int calculationRunId,
             PaginationRequestViewModel request)
         {
             var apiUrl = this.ApiService.GetApiUrl(ConfigSection.ProducerBillingInstructions, ConfigSection.ProducerBillingInstructionsV1);
 
-            // Build the request DTO
             var requestDto = new ProducerBillingInstructionsRequestDto
             {
                 PageNumber = request.Page,
@@ -356,7 +329,6 @@ namespace EPR.Calculator.Frontend.Controllers
                 },
             };
 
-            // Pass the calculationRunId as the route argument, and the DTO as the body
             var response = await this.ApiService.CallApi(
                 this.HttpContext,
                 HttpMethod.Post,
@@ -366,16 +338,14 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (!response.IsSuccessStatusCode)
             {
-                this.TelemetryClient.TrackTrace($"BillingInstructions API call failed. StatusCode: {response.StatusCode}");
                 var errorContent = await response.Content.ReadAsStringAsync();
-                this.TelemetryClient.TrackTrace($"BillingInstructions API error content: {errorContent}");
-                return null;
+                this.TelemetryClient.TrackTrace($"BillingInstructions API call failed. StatusCode: {response.StatusCode} content: {errorContent}");
+                throw new HttpRequestException(
+                    $"BillingInstructions API call failed for run {calculationRunId}. StatusCode: {response.StatusCode}. Content: {errorContent}");
             }
 
             var json = await response.Content.ReadAsStringAsync();
-            var billingData = JsonSerializer.Deserialize<ProducerBillingInstructionsResponseDto>(json);
-
-            return billingData;
+            return JsonSerializer.Deserialize<ProducerBillingInstructionsResponseDto>(json)!;
         }
 
         private async Task<bool> TryGenerateBillingFile(int runId)
