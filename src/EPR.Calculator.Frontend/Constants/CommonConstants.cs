@@ -3,6 +3,7 @@
     public static class CommonConstants
     {
         public const string ShowDetailedError = "ShowDetailedError";
+        public const string FinancialYearStartingMonth = "FinancialYearStartingMonth";
 
         public const string SendBillingFile = "Send the billing file";
         public const string ConfirmationContent = "You've confirmed all billing instructions. To review the billing file before sending it to the FSS, go back to the previous step. You won’t be able to make changes after sending.";
@@ -38,7 +39,6 @@
         public const int DefaultBlockSize = 3;
         public const int DefaultPageSize = 10;
         public const int DefaultPage = 1;
-        public const int DefaultFinancialYearStartingMonth = 4;
         public static readonly int[] PageSizeOptions = new[] { 10, 25, 50 };
     }
 }

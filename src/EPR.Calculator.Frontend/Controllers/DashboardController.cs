@@ -54,8 +54,8 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 SessionExtensions.ClearAllSession(this.HttpContext.Session);
                 this.IsShowDetailedError();
-
-                return await this.GoToDashboardView(CommonUtil.GetFinancialYear(this.HttpContext.Session));
+                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
+                return await this.GoToDashboardView(CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth));
             }
             catch (Exception)
             {
@@ -118,7 +118,6 @@ namespace EPR.Calculator.Frontend.Controllers
         private async Task<ActionResult> GoToDashboardView(string financialYear, bool returnPartialView = false)
         {
             this.HttpContext.Session.SetString(SessionConstants.FinancialYear, financialYear);
-            this.HttpContext.Session.SetInt32(SessionConstants.FinancialYearStartingMonth, this.Configuration.GetValue<int?>("FinancialYearStartingMonth") ?? CommonConstants.DefaultFinancialYearStartingMonth);
 
             var financialYears = await this.GetFinancialYearsAsync(financialYear);
             var dashboardViewModel = new DashboardViewModel
@@ -178,7 +177,7 @@ namespace EPR.Calculator.Frontend.Controllers
             var content = await response.Content.ReadAsStringAsync();
             var years = JsonConvert.DeserializeObject<List<FinancialYearDto>>(content) ?? new List<FinancialYearDto>();
             var financialYears = years.Select(x => x.Name).ToList();
-            var financialYearStartingMonth = CommonUtil.GetFinancialYearStartingMonth(this.HttpContext.Session);
+            var financialYearStartingMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
 
             // Sort by starting year descending
             financialYears = financialYears

@@ -47,7 +47,8 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var parameterYear = CommonUtil.GetFinancialYear(this.HttpContext.Session);
+                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
+                var parameterYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
                 var currentUser = CommonUtil.GetUserName(this.HttpContext);
 
                 var response = await this.GetDefaultParametersAsync(parameterYear);

@@ -45,7 +45,8 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var year = CommonUtil.GetFinancialYear(this.HttpContext.Session);
+                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
+                var year = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
 
                 var response = this.GetLapcapDataAsync(year);
 

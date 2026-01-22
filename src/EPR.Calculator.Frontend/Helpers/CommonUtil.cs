@@ -63,10 +63,9 @@ namespace EPR.Calculator.Frontend.Helpers
         /// </summary>
         /// <returns>Returns the financial year.</returns>
         /// <exception cref="ArgumentNullException">Returns error if financial year is null or empty.</exception>
-        public static string GetFinancialYear(ISession session)
+        public static string GetFinancialYear(ISession session, int startingMonth)
         {
             var parameterYear = session.GetString(SessionConstants.FinancialYear);
-            var startingMonth = GetFinancialYearStartingMonth(session);
 
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
@@ -76,10 +75,19 @@ namespace EPR.Calculator.Frontend.Helpers
             return parameterYear;
         }
 
-        public static int GetFinancialYearStartingMonth(ISession session)
+        public static int GetFinancialYearStartingMonth(IConfiguration configuration)
         {
-            var maybeFinancialStartingMonth = session.GetInt32(SessionConstants.FinancialYearStartingMonth);
-            return maybeFinancialStartingMonth is >= 1 and <= 12 ? maybeFinancialStartingMonth.Value : CommonConstants.DefaultFinancialYearStartingMonth;
+            var value = configuration[CommonConstants.FinancialYearStartingMonth]
+                ?? throw new InvalidOperationException(
+                    "FinancialYearStartingMonth configuration is missing");
+
+            if (!int.TryParse(value, out var month) || month is < 1 or > 12)
+            {
+                throw new InvalidOperationException(
+                    "FinancialYearStartingMonth must be between 1 and 12");
+            }
+
+            return month;
         }
     }
 }
