@@ -194,7 +194,8 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown.</exception>
         private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
         {
-            var year = CommonUtil.GetFinancialYear(this.HttpContext.Session);
+            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
+            var year = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
 
             var runParms = new CreateCalculatorRunDto
             {

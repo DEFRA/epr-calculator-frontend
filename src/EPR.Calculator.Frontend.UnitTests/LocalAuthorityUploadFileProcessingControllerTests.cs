@@ -152,7 +152,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task Index_SendDateFromSession()
         {
             // Arrange
-            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow);
+            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, 4);
             var viewModel = new LapcapRefreshViewModel();
             var (controller, mockApiService) = BuildTestClass(
                 Fixture,
@@ -173,7 +173,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         [TestMethod]
         public async Task Index_DefaultToCurrentYearWhenNoFinancialYearInSession()
         {
-            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow);
+            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, 4);
             var viewModel = new LapcapRefreshViewModel();
 
             var (controller, mockApiService) = BuildTestClass(

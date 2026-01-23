@@ -35,16 +35,17 @@ namespace EPR.Calculator.Frontend.Helpers
         /// Gets the financial year based on the date input.
         /// </summary>
         /// <param name="date">Any date.</param>
+        /// <param name="financialYearStartingMonth">Month from which the financial year starts.</param>
         /// <returns>The financial year in the format YYYY-YY.</returns>
-        public static string GetDefaultFinancialYear(DateTime date)
+        public static string GetDefaultFinancialYear(DateTime date, int financialYearStartingMonth)
         {
             var year = date.Year;
 
-            var startYear = date.Month >= 4
+            var startYear = date.Month >= financialYearStartingMonth
                 ? year
                 : year - 1;
 
-            var endYear = date.Month >= 4
+            var endYear = date.Month >= financialYearStartingMonth
                 ? year + 1
                 : year;
 
@@ -62,16 +63,31 @@ namespace EPR.Calculator.Frontend.Helpers
         /// </summary>
         /// <returns>Returns the financial year.</returns>
         /// <exception cref="ArgumentNullException">Returns error if financial year is null or empty.</exception>
-        public static string GetFinancialYear(ISession session)
+        public static string GetFinancialYear(ISession session, int startingMonth)
         {
             var parameterYear = session.GetString(SessionConstants.FinancialYear);
 
             if (string.IsNullOrWhiteSpace(parameterYear))
             {
-                parameterYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow);
+                parameterYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, startingMonth);
             }
 
             return parameterYear;
+        }
+
+        public static int GetFinancialYearStartingMonth(IConfiguration configuration)
+        {
+            var value = configuration[CommonConstants.FinancialYearStartingMonth]
+                ?? throw new InvalidOperationException(
+                    "FinancialYearStartingMonth configuration is missing");
+
+            if (!int.TryParse(value, out var month) || month is < 1 or > 12)
+            {
+                throw new InvalidOperationException(
+                    "FinancialYearStartingMonth must be between 1 and 12");
+            }
+
+            return month;
         }
     }
 }

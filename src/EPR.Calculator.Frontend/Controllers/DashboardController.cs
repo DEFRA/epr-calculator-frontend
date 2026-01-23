@@ -54,8 +54,8 @@ namespace EPR.Calculator.Frontend.Controllers
             {
                 SessionExtensions.ClearAllSession(this.HttpContext.Session);
                 this.IsShowDetailedError();
-
-                return await this.GoToDashboardView(CommonUtil.GetFinancialYear(this.HttpContext.Session));
+                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
+                return await this.GoToDashboardView(CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth));
             }
             catch (Exception)
             {
@@ -93,10 +93,10 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
-        private static List<string> GetFilteredFinancialYears(List<string> allYears)
+        private static List<string> GetFilteredFinancialYears(List<string> allYears, int financialYearStartingMonth)
         {
             var today = DateTime.Today;
-            int currentStartYear = today.Month >= 4 ? today.Year : today.Year - 1;
+            int currentStartYear = today.Month >= financialYearStartingMonth ? today.Year : today.Year - 1;
 
             var filteredYears = allYears
                 .Where(fy => int.Parse(fy.Split('-')[0]) <= currentStartYear)
@@ -177,16 +177,17 @@ namespace EPR.Calculator.Frontend.Controllers
             var content = await response.Content.ReadAsStringAsync();
             var years = JsonConvert.DeserializeObject<List<FinancialYearDto>>(content) ?? new List<FinancialYearDto>();
             var financialYears = years.Select(x => x.Name).ToList();
+            var financialYearStartingMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
 
             // Sort by starting year descending
             financialYears = financialYears
                 .OrderByDescending(fy => int.Parse(fy.Substring(0, 4)))
                 .ToList();
 
-            financialYears = GetFilteredFinancialYears(financialYears);
+            financialYears = GetFilteredFinancialYears(financialYears, financialYearStartingMonth);
 
             // Ensure current year is first
-            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow);
+            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, financialYearStartingMonth);
             financialYears.Remove(currentYear);
             financialYears.Insert(0, currentYear);
 

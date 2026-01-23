@@ -35,10 +35,11 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
                 var response = await this.PostDefaultParametersAsync(
                     new CreateDefaultParameterSettingDto(
                         parameterRefreshViewModel,
-                        CommonUtil.GetFinancialYear(this.HttpContext.Session)));
+                        CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth)));
 
                 if (response.IsSuccessStatusCode && response.StatusCode == HttpStatusCode.Created)
                 {

@@ -41,9 +41,10 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
+                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
                 var response = this.PostLapcapDataAsync(new CreateLapcapDataDto(
                     lapcapRefreshViewModel,
-                    CommonUtil.GetFinancialYear(this.HttpContext.Session)));
+                    CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth)));
 
                 response.Wait();
 

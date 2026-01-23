@@ -47,7 +47,8 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session);
+                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
+                var financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
 
                 var classificationsResponse = await this.GetClassfications(new CalcFinancialYearRequestDto
                 {
@@ -221,7 +222,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<bool> SetClassifications(int runId, SetRunClassificationViewModel viewModel)
         {
-            var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session) });
+            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
+            var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth) });
             if (!classifications.IsSuccessStatusCode)
             {
                 return false;
@@ -244,7 +246,8 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (classificationList != null && classificationList.Count > 0)
             {
-                string financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session);
+                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
+                string financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
 
                 // check if calculator classification list have initial run
                 if (classificationList.Exists(n => n.Id == (int)RunClassification.INITIAL_RUN))
