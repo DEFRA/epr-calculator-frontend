@@ -34,16 +34,16 @@ namespace EPR.Calculator.Frontend.Controllers
             apiService,
             calculatorRunDetailsService)
     {
+        private readonly int financialMonth = CommonUtil.GetFinancialYearStartingMonth(configuration);
+
         [HttpPost]
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<IActionResult> Index([FromBody] LapcapRefreshViewModel lapcapRefreshViewModel)
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-
-            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
             var response = this.PostLapcapDataAsync(new CreateLapcapDataDto(
                 lapcapRefreshViewModel,
-                CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth)));
+                CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth)));
 
             response.Wait();
 

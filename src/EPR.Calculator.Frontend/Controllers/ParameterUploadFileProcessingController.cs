@@ -1,7 +1,5 @@
-﻿
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
@@ -31,14 +29,15 @@ namespace EPR.Calculator.Frontend.Controllers
             apiService,
             calculatorRunDetailsService)
     {
+        private readonly int financialMonth = CommonUtil.GetFinancialYearStartingMonth(configuration);
+
         [HttpPost]
         public async Task<IActionResult> Index([FromBody] ParameterRefreshViewModel parameterRefreshViewModel)
         {
-            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
             var response = await this.PostDefaultParametersAsync(
                 new CreateDefaultParameterSettingDto(
                     parameterRefreshViewModel,
-                    CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth)));
+                    CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth)));
 
             if (response.IsSuccessStatusCode && response.StatusCode == HttpStatusCode.Created)
             {
