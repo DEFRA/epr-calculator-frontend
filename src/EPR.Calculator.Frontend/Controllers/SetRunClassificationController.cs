@@ -40,13 +40,13 @@ namespace EPR.Calculator.Frontend.Controllers
             calculatorRunDetailsService)
     {
         private readonly ILogger<SetRunClassificationController> logger = logger;
+        private readonly int financialMonth = CommonUtil.GetFinancialYearStartingMonth(configuration);
 
         [Route("{runId}")]
         [HttpGet]
         public async Task<IActionResult> Index(int runId)
         {
-            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
-            var financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
+            var financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth);
 
             var classificationsResponse = await this.GetClassfications(new CalcFinancialYearRequestDto
             {
@@ -206,8 +206,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<bool> SetClassifications(int runId, SetRunClassificationViewModel viewModel)
         {
-            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
-            var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth) });
+            var classifications = await this.GetClassfications(new CalcFinancialYearRequestDto() { RunId = runId, FinancialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth) });
             if (!classifications.IsSuccessStatusCode)
             {
                 return false;
@@ -230,8 +229,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
             if (classificationList != null && classificationList.Count > 0)
             {
-                var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
-                string financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
+                string financialYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth);
 
                 // check if calculator classification list have initial run
                 if (classificationList.Exists(n => n.Id == (int)RunClassification.INITIAL_RUN))

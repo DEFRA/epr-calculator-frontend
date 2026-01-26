@@ -33,6 +33,8 @@ namespace EPR.Calculator.Frontend.Controllers
             apiService,
             calculatorRunDetailsService)
     {
+        private readonly int financialMonth = CommonUtil.GetFinancialYearStartingMonth(configuration);
+
         /// <summary>
         /// Handles the Index action asynchronously. Sends an HTTP request and processes the response to display local authority disposal costs.
         /// </summary>
@@ -43,8 +45,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("ViewLocalAuthorityDisposalCosts")]
         public IActionResult Index()
         {
-            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
-            var year = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
+            var year = CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth);
 
             var response = this.GetLapcapDataAsync(year);
 

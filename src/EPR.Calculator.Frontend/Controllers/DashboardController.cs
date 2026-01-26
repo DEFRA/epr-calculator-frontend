@@ -38,6 +38,8 @@ namespace EPR.Calculator.Frontend.Controllers
             apiService,
             calculatorRunDetailsService)
     {
+        private readonly int financialMonth = CommonUtil.GetFinancialYearStartingMonth(configuration);
+
         /// <summary>
         /// Handles the Index action for the controller.
         /// </summary>
@@ -49,8 +51,7 @@ namespace EPR.Calculator.Frontend.Controllers
         public async Task<IActionResult> Index()
         {
             SessionExtensions.ClearAllSession(this.HttpContext.Session);
-            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
-            return await this.GoToDashboardView(CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth));
+            return await this.GoToDashboardView(CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth));
         }
 
         /// <summary>
@@ -139,17 +140,16 @@ namespace EPR.Calculator.Frontend.Controllers
             var content = await response.Content.ReadAsStringAsync();
             var years = JsonConvert.DeserializeObject<List<FinancialYearDto>>(content) ?? new List<FinancialYearDto>();
             var financialYears = years.Select(x => x.Name).ToList();
-            var financialYearStartingMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
 
             // Sort by starting year descending
             financialYears = financialYears
                 .OrderByDescending(fy => int.Parse(fy.Substring(0, 4)))
                 .ToList();
 
-            financialYears = GetFilteredFinancialYears(financialYears, financialYearStartingMonth);
+            financialYears = GetFilteredFinancialYears(financialYears, this.financialMonth);
 
             // Ensure current year is first
-            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, financialYearStartingMonth);
+            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, this.financialMonth);
             financialYears.Remove(currentYear);
             financialYears.Insert(0, currentYear);
 

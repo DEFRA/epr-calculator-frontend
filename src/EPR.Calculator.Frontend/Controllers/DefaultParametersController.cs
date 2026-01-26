@@ -36,6 +36,8 @@ namespace EPR.Calculator.Frontend.Controllers
             apiService,
             calculatorRunDetailsService)
     {
+        private readonly int financialMonth = CommonUtil.GetFinancialYearStartingMonth(configuration);
+
         /// <summary>
         /// Handles the Index action for retrieving and displaying default scheme parameters.
         /// </summary>
@@ -45,8 +47,7 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("ViewDefaultParameters")]
         public async Task<IActionResult> Index()
         {
-            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
-            var parameterYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
+            var parameterYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth);
             var currentUser = CommonUtil.GetUserName(this.HttpContext);
 
             var response = await this.GetDefaultParametersAsync(parameterYear);

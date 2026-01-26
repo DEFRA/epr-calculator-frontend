@@ -18,6 +18,7 @@ namespace EPR.Calculator.Frontend.Controllers
     public class CalculationRunNameController : BaseController
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
+        private readonly int financialMonth;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CalculationRunNameController"/> class.
@@ -40,6 +41,7 @@ namespace EPR.Calculator.Frontend.Controllers
                   calculatorRunDetailsService)
         {
             this.Logger = logger;
+            this.financialMonth = CommonUtil.GetFinancialYearStartingMonth(configuration);
         }
 
         private ILogger<CalculationRunNameController> Logger { get; init; }
@@ -187,8 +189,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown.</exception>
         private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
         {
-            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
-            var year = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
+            var year = CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth);
 
             var runParms = new CreateCalculatorRunDto
             {
