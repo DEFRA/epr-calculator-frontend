@@ -51,7 +51,8 @@ namespace EPR.Calculator.Frontend.Controllers
         public async Task<IActionResult> Index()
         {
             SessionExtensions.ClearAllSession(this.HttpContext.Session);
-            return await this.GoToDashboardView(CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth));
+            var model = await this.GetDashboardViewModel(CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth));
+            return this.View(ViewNames.DashboardIndex, model);
         }
 
         /// <summary>
@@ -62,7 +63,8 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("Dashboard/GetCalculations")]
         public async Task<IActionResult> GetCalculations(string financialYear)
         {
-            return await this.GoToDashboardView(financialYear, true);
+            var model = await this.GetDashboardViewModel(financialYear);
+            return this.PartialView("_CalculationRunsPartial", model.Calculations);
         }
 
         private static List<string> GetFilteredFinancialYears(List<string> allYears, int financialYearStartingMonth)
@@ -78,7 +80,7 @@ namespace EPR.Calculator.Frontend.Controllers
             return filteredYears;
         }
 
-        private async Task<ActionResult> GoToDashboardView(string financialYear, bool returnPartialView = false)
+        private async Task<DashboardViewModel> GetDashboardViewModel(string financialYear)
         {
             this.HttpContext.Session.SetString(SessionConstants.FinancialYear, financialYear);
 
@@ -103,9 +105,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 dashboardViewModel.Calculations = dashboardRunData;
             }
 
-            return returnPartialView
-                ? this.PartialView("_CalculationRunsPartial", dashboardViewModel.Calculations)
-                : this.View(dashboardViewModel);
+            return dashboardViewModel;
         }
 
         /// <summary>
