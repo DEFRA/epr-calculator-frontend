@@ -68,31 +68,23 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(ViewNames.SendBillingFileIndex, viewModel);
             }
 
-            try
+            var response = await this.PrepareBillingFileSendToFSSAsync(viewModel.RunId);
+
+            if (response.StatusCode == HttpStatusCode.Accepted)
             {
-                var response = await this.PrepareBillingFileSendToFSSAsync(viewModel.RunId);
-
-                if (response.StatusCode == HttpStatusCode.Accepted)
-                {
-                    return this.RedirectToAction(ActionNames.BillingFileSuccess, CommonUtil.GetControllerName(typeof(BillingInstructionsController)));
-                }
-
-                if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
-                {
-                    viewModel.IsBillingFileLatest = false;
-                    return this.View(ActionNames.Index, viewModel);
-                }
-
-                this.TelemetryClient.TrackTrace($"1.Request (send billing file) not accepted response code:{response.StatusCode}");
-                var contentString = await response.Content.ReadAsStringAsync();
-                this.TelemetryClient.TrackTrace($"2.Request (send billing file) not accepted response message:{contentString}");
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                return this.RedirectToAction(ActionNames.BillingFileSuccess, CommonUtil.GetControllerName(typeof(BillingInstructionsController)));
             }
-            catch (Exception e)
+
+            if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
             {
-                this.TelemetryClient.TrackException(e);
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                viewModel.IsBillingFileLatest = false;
+                return this.View(ActionNames.Index, viewModel);
             }
+
+            this.TelemetryClient.TrackTrace($"1.Request (send billing file) not accepted response code:{response.StatusCode}");
+            var contentString = await response.Content.ReadAsStringAsync();
+            this.TelemetryClient.TrackTrace($"2.Request (send billing file) not accepted response message:{contentString}");
+            return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
         }
 
         /// <summary>

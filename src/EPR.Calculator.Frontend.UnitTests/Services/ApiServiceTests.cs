@@ -1,9 +1,8 @@
-﻿namespace EPR.Calculator.Frontend.UnitTests.Services
+﻿﻿namespace EPR.Calculator.Frontend.UnitTests.Services
 {
     using System;
     using System.Configuration;
     using System.Net.Http;
-    using System.Reflection;
     using System.Security.Claims;
     using System.Threading.Tasks;
     using AutoFixture;
@@ -39,6 +38,7 @@
                 .ReturnsAsync(this.Token);
 
             this.Configuration = TestMockUtils.BuildConfiguration();
+            (this.Configuration as IConfigurationRoot)!.GetSection("DownstreamApi")["Scopes"] = "scope1";
             var messageHandler = TestMockUtils.BuildMockMessageHandler();
 
             this.TestClass = new ApiService(

@@ -18,6 +18,7 @@ namespace EPR.Calculator.Frontend.Controllers
     public class CalculationRunNameController : BaseController
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
+        private readonly int financialMonth;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CalculationRunNameController"/> class.
@@ -40,6 +41,7 @@ namespace EPR.Calculator.Frontend.Controllers
                   calculatorRunDetailsService)
         {
             this.Logger = logger;
+            this.financialMonth = CommonUtil.GetFinancialYearStartingMonth(configuration);
         }
 
         private ILogger<CalculationRunNameController> Logger { get; init; }
@@ -85,73 +87,66 @@ namespace EPR.Calculator.Frontend.Controllers
                 return this.View(CalculationRunNameIndexView, calculationRunModel);
             }
 
-            try
+            if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
             {
-                if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
+                var currentUser = CommonUtil.GetUserName(this.HttpContext);
+                var calculationName = calculationRunModel.CalculationName.Trim();
+                var calculationNameExistsResponse = await this.CheckIfCalculationNameExistsAsync(calculationName);
+                if (calculationNameExistsResponse.IsSuccessStatusCode)
                 {
-                    var currentUser = CommonUtil.GetUserName(this.HttpContext);
-                    var calculationName = calculationRunModel.CalculationName.Trim();
-                    var calculationNameExistsResponse = await this.CheckIfCalculationNameExistsAsync(calculationName);
-                    if (calculationNameExistsResponse.IsSuccessStatusCode)
+                    return this.View(CalculationRunNameIndexView, new InitiateCalculatorRunModel
                     {
-                        return this.View(CalculationRunNameIndexView, new InitiateCalculatorRunModel
+                        CurrentUser = currentUser,
+                        Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists),
+                        BackLinkViewModel = new BackLinkViewModel()
+                        {
+                            BackLink = string.Empty,
+                            CurrentUser = currentUser,
+                        },
+                    });
+                }
+
+                var response = await this.HttpPostToCalculatorRunApi(calculationName);
+
+                if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
+                {
+                    return this.View(
+                        ViewNames.CalculationRunErrorIndex,
+                        new CalculationRunErrorViewModel
                         {
                             CurrentUser = currentUser,
-                            Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists),
+                            ErrorMessage = await this.ExtractErrorMessageAsync(response),
                             BackLinkViewModel = new BackLinkViewModel()
                             {
                                 BackLink = string.Empty,
                                 CurrentUser = currentUser,
                             },
                         });
-                    }
-
-                    var response = await this.HttpPostToCalculatorRunApi(calculationName);
-
-                    if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
-                    {
-                        return this.View(
-                            ViewNames.CalculationRunErrorIndex,
-                            new CalculationRunErrorViewModel
-                            {
-                                CurrentUser = currentUser,
-                                ErrorMessage = await this.ExtractErrorMessageAsync(response),
-                                BackLinkViewModel = new BackLinkViewModel()
-                                {
-                                    BackLink = string.Empty,
-                                    CurrentUser = currentUser,
-                                },
-                            });
-                    }
-
-                    if (response.StatusCode == HttpStatusCode.FailedDependency)
-                    {
-                        return this.View(
-                            ViewNames.CalculationRunErrorIndex,
-                            new CalculationRunErrorViewModel
-                            {
-                                CurrentUser = currentUser,
-                                ErrorMessage = await response.Content.ReadAsStringAsync(),
-                                BackLinkViewModel = new BackLinkViewModel()
-                                {
-                                    BackLink = string.Empty,
-                                    CurrentUser = currentUser,
-                                },
-                            });
-                    }
-
-                    if (!response.IsSuccessStatusCode || response.StatusCode != HttpStatusCode.Accepted)
-                    {
-                        return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                    }
                 }
 
-                return this.RedirectToAction(ActionNames.RunCalculatorConfirmation, new { calculationName = calculationRunModel.CalculationName });
+                if (response.StatusCode == HttpStatusCode.FailedDependency)
+                {
+                    return this.View(
+                        ViewNames.CalculationRunErrorIndex,
+                        new CalculationRunErrorViewModel
+                        {
+                            CurrentUser = currentUser,
+                            ErrorMessage = await response.Content.ReadAsStringAsync(),
+                            BackLinkViewModel = new BackLinkViewModel()
+                            {
+                                BackLink = string.Empty,
+                                CurrentUser = currentUser,
+                            },
+                        });
+                }
+
+                if (!response.IsSuccessStatusCode || response.StatusCode != HttpStatusCode.Accepted)
+                {
+                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                }
             }
-            catch (Exception)
-            {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
+
+            return this.RedirectToAction(ActionNames.RunCalculatorConfirmation, new { calculationName = calculationRunModel.CalculationName });
         }
 
         /// <summary>
@@ -194,8 +189,7 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown.</exception>
         private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
         {
-            var financialMonth = CommonUtil.GetFinancialYearStartingMonth(this.Configuration);
-            var year = CommonUtil.GetFinancialYear(this.HttpContext.Session, financialMonth);
+            var year = CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth);
 
             var runParms = new CreateCalculatorRunDto
             {

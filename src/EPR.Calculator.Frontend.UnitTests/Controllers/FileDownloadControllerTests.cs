@@ -92,7 +92,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             .ReturnsAsync(fakeToken);
 
             _mockFileDownloadService.Setup(x =>
-               x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+               x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
                .ReturnsAsync(expectedResult);
 
             // Act
@@ -108,11 +108,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             // Arrange
             var runId = 456;
 
-            _mockTokenAcquisition.Setup(x =>
-                x.GetAccessTokenForUserAsync(
-                    It.IsAny<IEnumerable<string>>(),
-                    null, null, (ClaimsPrincipal)null, null))
-                .ThrowsAsync(new Exception("Auth error"));
+            _mockFileDownloadService
+                .Setup(s => s.DownloadFileAsync(It.IsAny<Uri>(), runId, It.IsAny<HttpContext>(),
+                                                It.IsAny<bool>(), It.IsAny<bool>()))
+                .ThrowsAsync(new Exception("Download error"));
 
             // Act
             var result = await _controller.DownloadResultFile(runId);
@@ -148,7 +147,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
              .ReturnsAsync(fakeToken);
 
             _mockFileDownloadService.Setup(x =>
-               x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+               x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
                .ReturnsAsync(expectedResult);
 
             // Act
@@ -162,21 +161,14 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public async Task DownloadBillingFile_WhenException_ReturnsRedirect()
         {
             // Arrange
-            var runId = 987;
-            var isBillingFile = false;
-            var isDraft = true;
+            var runId = 789;
 
-            _mockRunDetailsService.Setup(s => s.GetCalculatorRundetailsAsync(It.IsAny<HttpContext>(), It.IsAny<int>()))
-               .ReturnsAsync(new CalculatorRunDetailsViewModel() { RunId = 1, RunClassificationId = RunClassification.INITIAL_RUN, RunName = "Test" });
-
-            _mockTokenAcquisition.Setup(x =>
-                x.GetAccessTokenForUserAsync(
-                    It.IsAny<IEnumerable<string>>(),
-                    null, null, (ClaimsPrincipal)null, null))
-                .ThrowsAsync(new Exception("Billing failure"));
+            _mockRunDetailsService
+                .Setup(s => s.GetCalculatorRundetailsAsync(It.IsAny<HttpContext>(), runId))
+                .ThrowsAsync(new Exception("Download billing error"));
 
             // Act
-            var result = await _controller.DownloadBillingFile(runId, isBillingFile, isDraft);
+            var result = await _controller.DownloadBillingFile(runId, true, true);
 
             // Assert
             var redirect = result as RedirectToActionResult;
@@ -206,7 +198,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
              .ReturnsAsync(fakeToken);
 
             _mockFileDownloadService.Setup(x =>
-               x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+               x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
                .ReturnsAsync(expectedResult);
 
             // Act
@@ -242,7 +234,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
              .ReturnsAsync(fakeToken);
 
             _mockFileDownloadService.Setup(x =>
-               x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+               x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
                .ReturnsAsync(expectedResult);
 
             // Act

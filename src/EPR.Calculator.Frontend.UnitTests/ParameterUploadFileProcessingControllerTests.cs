@@ -87,49 +87,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public void ParameterUploadFileProcessingController_ArgumentNullExceptionForAPIConfig_Test()
-        {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                    {
-                        StatusCode = HttpStatusCode.BadRequest,
-                        Content = new StringContent("response content"),
-                    });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                    .Returns(httpClient);
-            var config = GetConfigurationValues();
-            config.GetSection("ParameterSettings").GetSection("DefaultParameterSettingsApi").Value = string.Empty;
-            var mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            var controller = new ParameterUploadFileProcessingController(
-                config,
-                new Mock<IApiService>().Object,
-                mockTokenAcquisition.Object,
-                new TelemetryClient(),
-                new Mock<ICalculatorRunDetailsService>().Object);
-            var viewModel = new ParameterRefreshViewModel()
-            {
-                ParameterTemplateValues = MockData.GetSchemeParameterTemplateValues().ToList(),
-                FileName = "Test Name",
-            };
-
-            var task = controller.Index(viewModel);
-            task.Wait();
-            var result = task.Result as RedirectToActionResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-            Assert.AreEqual("StandardError", result.ControllerName);
-        }
-
-        [TestMethod]
         public async Task Index_SendDateFromSession()
         {
             // Arrange

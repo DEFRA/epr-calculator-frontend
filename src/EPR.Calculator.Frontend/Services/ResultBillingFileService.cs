@@ -9,18 +9,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace EPR.Calculator.Frontend.Services
 {
     public class ResultBillingFileService(
-        IHttpClientFactory httpClientFactory,
-        IConfiguration configuration,
+        IApiService apiService,
         TelemetryClient telemetryClient) : IResultBillingFileService
     {
-        private readonly IHttpClientFactory httpClientFactory = httpClientFactory;
-        private readonly IConfiguration configuration = configuration;
+        private readonly IApiService apiService = apiService;
         private readonly TelemetryClient telemetryClient = telemetryClient;
 
         public async Task<FileResult> DownloadFileAsync(
             Uri apiUrl,
             int runId,
-            string accessToken,
+            HttpContext httpContext,
             bool isBillingFile = false,
             bool isDraftBillingFile = false)
         {
@@ -29,11 +27,15 @@ namespace EPR.Calculator.Frontend.Services
                 throw new ArgumentException("Invalid runId", nameof(runId));
             }
 
-            var timeout = this.configuration.GetValue<int>($"{ConfigSection.CalculationRunSettings}:{ConfigSection.DownloadResultTimeoutInMilliSeconds}");
-
             try
             {
-                var response = await this.CallApi(HttpMethod.Get, apiUrl, runId.ToString(), accessToken, null, timeout);
+                // Call the ApiService; it handles token acquisition for the current user
+                var response = await this.apiService.CallApi(
+                    httpContext,
+                    HttpMethod.Get,
+                    apiUrl,
+                    runId.ToString(),
+                    body: null);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -84,49 +86,6 @@ namespace EPR.Calculator.Frontend.Services
             }
 
             return fileName;
-        }
-
-        private async Task<HttpResponseMessage> CallApi(
-         HttpMethod httpMethod,
-         Uri apiUrl,
-         string argument,
-         string accessToken,
-         object? body,
-         int? timeout = 100000)
-        {
-            var argsString = !string.IsNullOrEmpty(argument)
-                ? $"/{argument}"
-                : string.Empty;
-            argsString = !argument.Contains('&') ? argsString : $"?{argument}";
-            var contentString = JsonSerializer.Serialize(body);
-            var request = new HttpRequestMessage(
-                httpMethod,
-                new Uri($"{apiUrl}{argsString}"));
-            if (body is not null)
-            {
-                request.Content = new StringContent(
-                    contentString,
-                    Encoding.UTF8,
-                    StaticHelpers.MediaType);
-            }
-
-            var client = await this.GetHttpClient(accessToken, timeout);
-            return await client.SendAsync(request);
-        }
-
-        private async Task<HttpClient> GetHttpClient(string accessToken, int? timeout)
-        {
-            var client = this.httpClientFactory.CreateClient();
-            client.Timeout = TimeSpan.FromMilliseconds(timeout ?? 100000); // fallback timeout
-
-            if (client.DefaultRequestHeaders is not null && !client.DefaultRequestHeaders.Contains("Authorization"))
-            {
-                client.DefaultRequestHeaders.Add("Authorization", accessToken);
-            }
-
-            await Task.CompletedTask;
-
-            return client;
         }
     }
 }

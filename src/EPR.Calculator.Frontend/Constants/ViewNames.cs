@@ -6,11 +6,6 @@
     public static class ViewNames
     {
         /// <summary>
-        /// Calculator run details controller index page view.
-        /// </summary>
-        public const string CalculationRunDetailsIndex = "~/Views/CalculationRunDetails/Index.cshtml";
-
-        /// <summary>
         /// Classify run confirmation controller index page view.
         /// </summary>
         public const string ClassifyRunConfirmationIndex = "~/Views/ClassifyRunConfirmation/Index.cshtml";
@@ -19,11 +14,6 @@
         /// Calculator run details controller index new page view.
         /// </summary>
         public const string CalculationRunDetailsNewIndex = "~/Views/CalculationRunDetailsNew/Index.cshtml";
-
-        /// <summary>
-        /// Calculator run details error page view.
-        /// </summary>
-        public const string CalculationRunDetailsErrorPage = "~/Views/CalculationRunDetails/ErrorPage.cshtml";
 
         /// <summary>
         /// Calculation run name index page view.
@@ -81,11 +71,6 @@
         public const string ParameterUploadFileIndex = "~/Views/ParameterUploadFile/Index.cshtml";
 
         /// <summary>
-        /// Default parameters upload file processing index page view.
-        /// </summary>
-        public const string ParameterUploadFileProcessingIndex = "~/Views/ParameterUploadFileProcessing/Index.cshtml";
-
-        /// <summary>
         /// Default parameters upload file refresh page view.
         /// </summary>
         public const string ParameterUploadFileRefresh = "~/Views/ParameterUploadFile/Refresh.cshtml";
@@ -124,11 +109,6 @@
         /// Calculator run delete confirmation success page view.
         /// </summary>
         public const string CalculationRunDeleteConfirmationSuccess = "~/Views/CalculationRunDelete/ConfirmationSuccess.cshtml";
-
-        /// <summary>
-        /// Payment Calculator Billing Confirmation index page view.
-        /// </summary>
-        public const string PaymentCalculatorIndex = "~/Views/PaymentCalculator/Index.cshtml";
 
         /// <summary>
         /// Payment Calculator Billing Confirmation index page view.
