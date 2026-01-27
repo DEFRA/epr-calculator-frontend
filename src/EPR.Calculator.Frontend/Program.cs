@@ -87,8 +87,6 @@ if (!string.Equals(environmentName, EPR.Calculator.Frontend.Constants.Environmen
 
 builder.Services.AddHttpClient();
 
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-
 builder.Services.AddScoped<IBillingInstructionsMapper, BillingInstructionsMapper>();
 
 builder.Services.AddScoped<IResultBillingFileService, ResultBillingFileService>();
@@ -106,6 +104,8 @@ builder.Services.AddHsts(options =>
     options.IncludeSubDomains = true;
     options.MaxAge = TimeSpan.FromDays(365);
 });
+
+builder.Logging.AddConsole();
 
 var app = builder.Build();
 
