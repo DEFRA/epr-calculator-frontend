@@ -1,7 +1,5 @@
-﻿using System.Configuration;
-using System.Net;
+﻿using System.Net;
 using AutoFixture;
-using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
@@ -15,7 +13,6 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Build.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
@@ -32,7 +29,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         private CalculationRunNameController _controller = null!;
         private CalculatorRunNameValidator _validationRules = null!;
         private Mock<IHttpClientFactory> mockClientFactory = null!;
-        private Mock<IConfiguration> mockConfiguration = null!;
         private Mock<ILogger<CalculationRunNameController>> mockLogger = null!;
         private Mock<ITempDataDictionary> _tempDataMock = null!;
         private Mock<ITokenAcquisition> mockTokenAcquisition = null!;

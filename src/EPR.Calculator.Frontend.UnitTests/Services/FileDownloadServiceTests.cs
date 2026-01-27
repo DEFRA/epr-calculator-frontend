@@ -6,7 +6,6 @@ using EPR.Calculator.Frontend.Services;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests.Services
@@ -15,10 +14,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
     public class FileDownloadServiceTests
     {
         private const int TimeoutMs = 5000;
-        private Mock<IHttpClientFactory> _httpClientFactoryMock;
-        private Mock<IConfiguration> _configurationMock;
         private TelemetryClient _telemetryClient;
-        private Mock<HttpMessageHandler> _httpMessageHandlerMock;
         private ResultBillingFileService _fileDownloadService;
         private Mock<IApiService> _apiServiceMock;
         private HttpContext _httpContext;
