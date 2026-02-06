@@ -7,10 +7,7 @@ using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.Classification;
-using Microsoft.Identity.Web;
 using System.Net;
-using System.Reflection;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -20,17 +17,14 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="configuration">The configuration settings.</param>
     /// <param name="clientFactory">The HTTP client factory.</param>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="tokenAcquisition">The token acquisition service.</param>
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     [Route("[controller]")]
     public class CalculationRunDeleteController(
         IConfiguration configuration,
         IApiService apiService,
-        ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(configuration,
-            tokenAcquisition,
             telemetryClient,
             apiService,
             calculatorRunDetailsService)

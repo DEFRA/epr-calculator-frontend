@@ -6,9 +6,7 @@ using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web;
 using Newtonsoft.Json;
-using System.Configuration;
 using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -18,17 +16,14 @@ namespace EPR.Calculator.Frontend.Controllers
     /// </summary>
     /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
     /// <param name="clientFactory">The HTTP client factory to create an HTTP client.</param>
-    /// <param name="tokenAcquisition">The token acquisition service.</param>
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     public class LocalAuthorityDisposalCostsController(
         IConfiguration configuration,
         IApiService apiService,
-        ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
-            tokenAcquisition,
             telemetryClient,
             apiService,
             calculatorRunDetailsService)

@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -27,7 +26,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
         private Mock<IHttpClientFactory> _mockClientFactory;
         private Mock<ILogger<DesignatedRunController>> _mockLogger;
-        private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private TelemetryClient _mockTelemetryClient;
         private DesignatedRunController _controller;
         private Mock<HttpMessageHandler> _mockMessageHandler;
@@ -40,7 +38,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockHttpContext = new Mock<HttpContext>();
             _mockClientFactory = new Mock<IHttpClientFactory>();
             _mockLogger = new Mock<ILogger<DesignatedRunController>>();
-            _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
             _mockMessageHandler = new Mock<HttpMessageHandler>();
             _mockCalculatorRunDetailsService = new Mock<ICalculatorRunDetailsService>();
@@ -48,7 +45,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new DesignatedRunController(
                        _configuration,
                        new Mock<IApiService>().Object,
-                       _mockTokenAcquisition.Object,
                        _mockTelemetryClient,
                        _mockCalculatorRunDetailsService.Object);
 
@@ -86,7 +82,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new DesignatedRunController(
                 _configuration,
                 new Mock<IApiService>().Object,
-                _mockTokenAcquisition.Object,
                 _mockTelemetryClient,
                 new Mock<ICalculatorRunDetailsService>().Object);
 
@@ -143,7 +138,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new DesignatedRunController(
                 _configuration,
                 new Mock<IApiService>().Object,
-                _mockTokenAcquisition.Object,
                 _mockTelemetryClient,
                 new Mock<ICalculatorRunDetailsService>().Object);
 
@@ -192,7 +186,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new DesignatedRunController(
                 _configuration,
                 new Mock<IApiService>().Object,
-                _mockTokenAcquisition.Object,
                 _mockTelemetryClient,
                 new Mock<ICalculatorRunDetailsService>().Object);
 
@@ -370,7 +363,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var testClass = new DesignatedRunController(
                 ConfigurationItems.GetConfigurationValues(),
                 mockApiService,
-                _mockTokenAcquisition.Object,
                 _mockTelemetryClient,
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext.HttpContext = new DefaultHttpContext();

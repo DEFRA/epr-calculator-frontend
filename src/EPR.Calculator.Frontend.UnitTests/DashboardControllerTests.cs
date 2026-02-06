@@ -1,15 +1,10 @@
 ﻿using System.Globalization;
 using System.Net;
-using System.Security.Claims;
-using System.Security.Principal;
 using AutoFixture;
-using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
-using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -18,8 +13,6 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -450,7 +443,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var testClass = new DashboardController(
                 configurationItems,
                 mockApiService,
-                new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(TelemetryConfiguration.CreateDefault()),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
 

@@ -12,7 +12,6 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -23,7 +22,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
     public class SendBillingFileControllerTests
     {
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
-        private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private TelemetryClient _telemetryClient;
         private SendBillingFileController _controller;
         private Mock<HttpContext> _mockHttpContext;
@@ -31,7 +29,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public SendBillingFileControllerTests()
         {
             this.Fixture = new Fixture();
-            _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _telemetryClient = new TelemetryClient();
 
             var identity = new ClaimsIdentity();
@@ -257,14 +254,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
         private SendBillingFileController CreateController(
             IConfiguration configuration = null,
-            ITokenAcquisition tokenAcquisition = null,
             TelemetryClient telemetryClient = null,
             IHttpClientFactory httpClientFactory = null,
             HttpContext httpContext = null)
         {
             var controller = new SendBillingFileController(
                 configuration ?? _configuration,
-                tokenAcquisition ?? _mockTokenAcquisition.Object,
                 telemetryClient ?? _telemetryClient,
                 new Mock<IApiService>().Object,
                 new Mock<ICalculatorRunDetailsService>().Object)
@@ -294,7 +289,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             var testClass = new SendBillingFileController(
                 configurationItems,
-                new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(),
                 mockApiService,
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);

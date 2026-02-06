@@ -12,9 +12,7 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Identity.Web;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Moq;
 
     [TestClass]
     public class CompletedRunControllerTests
@@ -77,7 +75,6 @@
 
             var testClass = new CompletedRunController(
                 configurationItems,
-                new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(),
                 mockApiService,
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);

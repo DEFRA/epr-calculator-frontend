@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using AspNetCoreGeneratedDocument;
 using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
@@ -11,7 +10,6 @@ using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web;
 using SessionExtensions = EPR.Calculator.Frontend.Extensions.SessionExtensions;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -21,12 +19,11 @@ namespace EPR.Calculator.Frontend.Controllers
     /// </summary>
     public class BillingInstructionsController(
         IConfiguration configuration,
-        ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
         IBillingInstructionsMapper mapper,
         IApiService apiService,
         ICalculatorRunDetailsService calculatorRunDetailsService)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, apiService, calculatorRunDetailsService)
+        : BaseController(configuration, telemetryClient, apiService, calculatorRunDetailsService)
     {
         /// <summary>
         /// Handles the HTTP GET request to display billing instructions for the specified calculation run.

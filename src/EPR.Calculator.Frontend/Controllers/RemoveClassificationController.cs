@@ -1,16 +1,12 @@
 ﻿using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web;
-using Newtonsoft.Json;
-using System.Globalization;
 using System.Net;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -21,19 +17,16 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="configuration">The configuration settings.</param>
     /// <param name="clientFactory">The HTTP client factory.</param>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="tokenAcquisition">token acquisition.</param>
     /// <param name="telemetryClient">telemetry client.</param>
     [Route("[controller]")]
     public class RemoveClassificationController(
         IConfiguration configuration,
         IApiService apiService,
         ILogger<RemoveClassificationController> logger,
-        ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
-            tokenAcquisition,
             telemetryClient,
             apiService,
             calculatorRunDetailsService)

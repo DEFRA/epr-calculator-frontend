@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using AutoFixture;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
@@ -11,7 +9,6 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Web;
 using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers
@@ -23,7 +20,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         private const string BillingFileUrl = "https://fake-api.com/billing";
 
         private Mock<IConfiguration> _mockConfiguration = null!;
-        private Mock<ITokenAcquisition> _mockTokenAcquisition = null!;
         private Mock<IHttpClientFactory> _mockHttpClientFactory = null!;
         private Mock<IResultBillingFileService> _mockFileDownloadService = null!;
         private Mock<ICalculatorRunDetailsService> _mockRunDetailsService = null!;
@@ -35,7 +31,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public void Setup()
         {
             _mockConfiguration = new Mock<IConfiguration>();
-            _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _mockFileDownloadService = new Mock<IResultBillingFileService>();
             _mockRunDetailsService = new Mock<ICalculatorRunDetailsService>();
@@ -66,7 +61,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 .Returns(mockDownstreamApiSection.Object);
 
             _controller = new FileDownloadController(
-                tokenAcquisition: _mockTokenAcquisition.Object,
                 configuration: _mockConfiguration.Object,
                 apiService: new Mock<IApiService>().Object,
                 telemetryClient: _telemetryClient,
@@ -81,15 +75,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var runId = 123;
             var fakeToken = "mock-token";
             var expectedResult = new FileContentResult(new byte[] { 1, 2, 3 }, "application/octet-stream");
-
-            _mockTokenAcquisition
-            .Setup(t => t.GetAccessTokenForUserAsync(
-                It.IsAny<IEnumerable<string>>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<ClaimsPrincipal>(),
-                It.IsAny<TokenAcquisitionOptions>()))
-            .ReturnsAsync(fakeToken);
 
             _mockFileDownloadService.Setup(x =>
                x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
@@ -137,15 +122,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             _mockRunDetailsService.Setup(s => s.GetCalculatorRundetailsAsync(It.IsAny<HttpContext>(), It.IsAny<int>()))
                 .ReturnsAsync(new CalculatorRunDetailsViewModel() { RunId = 1, RunClassificationId = RunClassification.INITIAL_RUN, RunName = "Test" });
 
-            _mockTokenAcquisition
-             .Setup(t => t.GetAccessTokenForUserAsync(
-                 It.IsAny<IEnumerable<string>>(),
-                 It.IsAny<string>(),
-                 It.IsAny<string>(),
-                 It.IsAny<ClaimsPrincipal>(),
-                 It.IsAny<TokenAcquisitionOptions>()))
-             .ReturnsAsync(fakeToken);
-
             _mockFileDownloadService.Setup(x =>
                x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
                .ReturnsAsync(expectedResult);
@@ -188,15 +164,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var isDraft = false;
             var expectedResult = new FileContentResult(new byte[] { 9, 8, 7 }, "text/csv");
 
-            _mockTokenAcquisition
-             .Setup(t => t.GetAccessTokenForUserAsync(
-                 It.IsAny<IEnumerable<string>>(),
-                 It.IsAny<string>(),
-                 It.IsAny<string>(),
-                 It.IsAny<ClaimsPrincipal>(),
-                 It.IsAny<TokenAcquisitionOptions>()))
-             .ReturnsAsync(fakeToken);
-
             _mockFileDownloadService.Setup(x =>
                x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
                .ReturnsAsync(expectedResult);
@@ -223,15 +190,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             _mockRunDetailsService.Setup(s => s.GetCalculatorRundetailsAsync(It.IsAny<HttpContext>(), It.IsAny<int>()))
                 .ReturnsAsync(new CalculatorRunDetailsViewModel() { RunId = 1, RunClassificationId = RunClassification.INITIAL_RUN, RunName = "Test", IsBillingFileGeneratedLatest = false });
-
-            _mockTokenAcquisition
-             .Setup(t => t.GetAccessTokenForUserAsync(
-                 It.IsAny<IEnumerable<string>>(),
-                 It.IsAny<string>(),
-                 It.IsAny<string>(),
-                 It.IsAny<ClaimsPrincipal>(),
-                 It.IsAny<TokenAcquisitionOptions>()))
-             .ReturnsAsync(fakeToken);
 
             _mockFileDownloadService.Setup(x =>
                x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))

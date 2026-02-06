@@ -8,11 +8,9 @@ using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 using System.Globalization;
 using System.Net;
-using System.Reflection;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -22,19 +20,16 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="configuration">The configuration settings.</param>
     /// <param name="clientFactory">The HTTP client factory.</param>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="tokenAcquisition">token acquisition.</param>
     /// <param name="telemetryClient">telemetry client.</param>
     [Route("[controller]")]
     public class SetRunClassificationController(
         IConfiguration configuration,
         IApiService apiService,
         ILogger<SetRunClassificationController> logger,
-        ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
-            tokenAcquisition,
             telemetryClient,
             apiService,
             calculatorRunDetailsService)

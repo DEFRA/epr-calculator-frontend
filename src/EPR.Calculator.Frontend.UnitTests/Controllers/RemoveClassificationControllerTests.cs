@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 
@@ -25,7 +24,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         private Mock<IConfiguration> configurationMock;
         private Mock<IApiService> apiServiceMock;
         private Mock<ILogger<RemoveClassificationController>> loggerMock;
-        private Mock<ITokenAcquisition> tokenAcquisitionMock;
         private TelemetryClient telemetryClient;
         private Mock<ICalculatorRunDetailsService> runDetailsServiceMock;
 
@@ -42,7 +40,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 configurationMock = new Mock<IConfiguration>();
                 apiServiceMock = new Mock<IApiService>();
                 loggerMock = new Mock<ILogger<RemoveClassificationController>>();
-                tokenAcquisitionMock = new Mock<ITokenAcquisition>();
                 telemetryClient = new TelemetryClient();
                 runDetailsServiceMock = new Mock<ICalculatorRunDetailsService>();
 
@@ -55,7 +52,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     configurationMock.Object,
                     apiServiceMock.Object,
                     loggerMock.Object,
-                    tokenAcquisitionMock.Object,
                     telemetryClient,
                     runDetailsServiceMock.Object);
 

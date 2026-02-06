@@ -1,15 +1,10 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
-using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web;
-using System.Configuration;
-using System.Drawing;
-using System.Net.Http;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -19,11 +14,10 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class ReasonForRejectionController(
         IConfiguration configuration,
-        ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
         IApiService apiService,
         ICalculatorRunDetailsService calculatorRunDetailsService)
-        : BaseController(configuration, tokenAcquisition, telemetryClient, apiService, calculatorRunDetailsService)
+        : BaseController(configuration, telemetryClient, apiService, calculatorRunDetailsService)
     {
         [Route("{calculationRunId}")]
         public async Task<IActionResult> Index(int calculationRunId)

@@ -4,14 +4,12 @@
     using System.Net;
     using System.Security.Claims;
     using System.Text;
-    using System.Text.Json;
     using AutoFixture;
     using AutoFixture.AutoMoq;
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Controllers;
     using EPR.Calculator.Frontend.Enums;
     using EPR.Calculator.Frontend.Extensions;
-    using EPR.Calculator.Frontend.Helpers;
     using EPR.Calculator.Frontend.Mappers;
     using EPR.Calculator.Frontend.Models;
     using EPR.Calculator.Frontend.Services;
@@ -23,7 +21,6 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.ViewFeatures;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Identity.Web;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Moq.Protected;
@@ -32,7 +29,6 @@
     public class BillingInstructionsControllerTests
     {
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
-        private readonly Mock<ITokenAcquisition> _mockTokenAcquisition;
         private readonly TelemetryClient _mockTelemetryClient;
         private readonly Mock<IHttpClientFactory> _mockClientFactory;
         private readonly BillingInstructionsController _controller;
@@ -42,8 +38,6 @@
         public BillingInstructionsControllerTests()
         {
             this.Fixture = new Fixture();
-            // _mockConfiguration = new Mock<IConfiguration>();
-            _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
             _mockClientFactory = new Mock<IHttpClientFactory>();
             _mockMapper = new Mock<IBillingInstructionsMapper>();
@@ -258,7 +252,6 @@
 
             var controller = new BillingInstructionsController(
                 Mock.Of<IConfiguration>(),
-                Mock.Of<ITokenAcquisition>(),
                 new TelemetryClient(),
                 Mock.Of<IBillingInstructionsMapper>(),
                 mockApiService.Object,
@@ -290,7 +283,6 @@
 
             var controller = new BillingInstructionsController(
                 Mock.Of<IConfiguration>(),
-                Mock.Of<ITokenAcquisition>(),
                 new TelemetryClient(),
                 _mockMapper.Object,
                 apiServiceMock.Object,
@@ -1322,7 +1314,6 @@
         {
             var controller = new BillingInstructionsController(
                 _configuration,
-                _mockTokenAcquisition.Object,
                 _mockTelemetryClient,
                 _mockMapper.Object,
                 new Mock<IApiService>().Object,
@@ -1348,7 +1339,6 @@
 
             var testClass = new BillingInstructionsController(
                 configurationItems,
-                new Mock<ITokenAcquisition>().Object,
                 _mockTelemetryClient,
                 _mockMapper.Object,
                 mockApiService,

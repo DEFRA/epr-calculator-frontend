@@ -5,7 +5,6 @@ using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -16,12 +15,10 @@ namespace EPR.Calculator.Frontend.Controllers
     public class DesignatedRunWithBillingFileController(
         IConfiguration configuration,
         IApiService apiService,
-        ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
-            tokenAcquisition,
             telemetryClient,
             apiService,
             calculatorRunDetailsService)

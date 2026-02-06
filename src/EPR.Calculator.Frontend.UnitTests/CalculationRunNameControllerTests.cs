@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 
@@ -31,7 +30,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         private Mock<IHttpClientFactory> mockClientFactory = null!;
         private Mock<ILogger<CalculationRunNameController>> mockLogger = null!;
         private Mock<ITempDataDictionary> _tempDataMock = null!;
-        private Mock<ITokenAcquisition> mockTokenAcquisition = null!;
 
         private Fixture Fixture { get; } = new Fixture();
 
@@ -40,15 +38,10 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             mockClientFactory = new Mock<IHttpClientFactory>();
             mockLogger = new Mock<ILogger<CalculationRunNameController>>();
-            mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            mockTokenAcquisition
-                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
-                .ReturnsAsync("somevalue");
             _controller = new CalculationRunNameController(
                 configuration,
                 new Mock<IApiService>().Object,
                 mockLogger.Object,
-                mockTokenAcquisition.Object,
                 new TelemetryClient(),
                 new Mock<ICalculatorRunDetailsService>().Object);
             _validationRules = new CalculatorRunNameValidator();
@@ -508,10 +501,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             mockClientFactory = new Mock<IHttpClientFactory>();
             mockLogger = new Mock<ILogger<CalculationRunNameController>>();
-            mockTokenAcquisition = new Mock<ITokenAcquisition>();
-            mockTokenAcquisition
-                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
-                .ReturnsAsync("somevalue");
 
             details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
             var mockApiService = TestMockUtils.BuildMockApiService(apiReturn)
@@ -521,7 +510,6 @@ namespace EPR.Calculator.Frontend.UnitTests
                 ConfigurationItems.GetConfigurationValues(),
                 mockApiService,
                 mockLogger.Object,
-                mockTokenAcquisition.Object,
                 new TelemetryClient(),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext = new ControllerContext

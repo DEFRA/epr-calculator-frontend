@@ -15,7 +15,6 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.ViewFeatures;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Identity.Web;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
 
@@ -53,7 +52,6 @@
 
             var controller = new ReasonForRejectionController(
                 this.Configuration,
-                new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(),
                 new Mock<IApiService>().Object,
                 new Mock<ICalculatorRunDetailsService>().Object);
@@ -86,7 +84,6 @@
             var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
             var controller = new ReasonForRejectionController(
                 this.Configuration,
-                new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(),
                 new Mock<IApiService>().Object,
                 new Mock<ICalculatorRunDetailsService>().Object);
@@ -122,7 +119,6 @@
             var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
             var controller = new ReasonForRejectionController(
                 this.Configuration,
-                new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(),
                 new Mock<IApiService>().Object,
                 new Mock<ICalculatorRunDetailsService>().Object);

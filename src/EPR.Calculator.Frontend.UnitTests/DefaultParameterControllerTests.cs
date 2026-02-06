@@ -3,7 +3,6 @@ using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Extensions;
-using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
@@ -12,9 +11,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
-using Moq;
-using Moq.Protected;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -90,7 +86,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var testClass = new DefaultParametersController(
                 configurationItems,
                 mockApiService,
-                new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext.HttpContext = new DefaultHttpContext()
