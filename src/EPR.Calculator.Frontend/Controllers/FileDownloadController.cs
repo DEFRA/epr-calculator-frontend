@@ -4,7 +4,6 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Services;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -19,11 +18,10 @@ namespace EPR.Calculator.Frontend.Controllers
         public FileDownloadController(
             IConfiguration configuration,
             IApiService apiService,
-            ITokenAcquisition tokenAcquisition,
             TelemetryClient telemetryClient,
             IResultBillingFileService fileDownloadService,
             ICalculatorRunDetailsService calculatorRunDetailsService)
-            : base(configuration, tokenAcquisition, telemetryClient, apiService, calculatorRunDetailsService)
+            : base(configuration, telemetryClient, apiService, calculatorRunDetailsService)
         {
             this.apiService = apiService;
             this.fileDownloadService = fileDownloadService;

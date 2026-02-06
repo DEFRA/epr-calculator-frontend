@@ -5,7 +5,6 @@ using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
@@ -14,7 +13,6 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -25,13 +23,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
     public class AcceptRejectConfirmationControllerTests
     {
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
-        private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private TelemetryClient _telemetryClient;
 
         public AcceptRejectConfirmationControllerTests()
         {
             this.Fixture = new Fixture();
-            _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _telemetryClient = new TelemetryClient();
         }
 
@@ -287,7 +283,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             var controller = new AcceptRejectConfirmationController(
                 _configuration,
-                _mockTokenAcquisition.Object,
                 _telemetryClient,
                 TestMockUtils.BuildMockApiService(apiReturnCode).Object,
                 calculatorRunDetailsService.Object)

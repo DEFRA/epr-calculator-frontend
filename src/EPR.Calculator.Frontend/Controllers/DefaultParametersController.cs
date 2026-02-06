@@ -21,17 +21,14 @@ namespace EPR.Calculator.Frontend.Controllers
     /// </remarks>
     /// <param name="configuration">The configuration settings for the application.</param>
     /// <param name="clientFactory">The factory for creating HTTP clients.</param>
-    /// <param name="tokenAcquisition">The token acquisition service.</param>
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     public class DefaultParametersController(
         IConfiguration configuration,
         IApiService apiService,
-        ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
-            tokenAcquisition,
             telemetryClient,
             apiService,
             calculatorRunDetailsService)

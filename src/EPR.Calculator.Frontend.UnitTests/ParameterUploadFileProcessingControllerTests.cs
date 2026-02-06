@@ -1,7 +1,5 @@
 ﻿using System.Net;
-using System.Text;
 using AutoFixture;
-using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -12,11 +10,8 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Web;
 using Moq;
-using Moq.Protected;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -137,7 +132,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var testClass = new ParameterUploadFileProcessingController(
                 configurationItems,
                 mockApiService.Object,
-                new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext.HttpContext = new DefaultHttpContext()

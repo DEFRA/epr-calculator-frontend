@@ -8,7 +8,6 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Identity.Web;
 using Newtonsoft.Json;
 using SessionExtensions = EPR.Calculator.Frontend.Extensions.SessionExtensions;
 
@@ -22,18 +21,15 @@ namespace EPR.Calculator.Frontend.Controllers
     /// </remarks>
     /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
     /// <param name="apiService">The api service.</param>
-    /// <param name="tokenAcquisition">The token acquisition service.</param>
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     [Route("/")]
     public class DashboardController(
         IConfiguration configuration,
         IApiService apiService,
-        ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
-            tokenAcquisition,
             telemetryClient,
             apiService,
             calculatorRunDetailsService)

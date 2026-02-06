@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -26,7 +25,6 @@ namespace EPR.Calculator.Frontend.UnitTests
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
         private Mock<IHttpClientFactory> _mockHttpClientFactory;
         private Mock<ILogger<DesignatedRunWithBillingFileController>> _mockLogger;
-        private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private TelemetryClient _telemetryClient;
         private DesignatedRunWithBillingFileController _controller;
         private Mock<HttpContext> _mockHttpContext;
@@ -38,7 +36,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             this.Fixture = new Fixture();
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _mockLogger = new Mock<ILogger<DesignatedRunWithBillingFileController>>();
-            _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _telemetryClient = new TelemetryClient();
             _mockHttpContext = new Mock<HttpContext>();
             _mockMessageHandler = new Mock<HttpMessageHandler>();
@@ -47,7 +44,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new DesignatedRunWithBillingFileController(
                    _configuration,
                    new Mock<IApiService>().Object,
-                   _mockTokenAcquisition.Object,
                    _telemetryClient,
                    _mockCalculatorRunDetailsService.Object)
             {
@@ -126,7 +122,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             _controller = new DesignatedRunWithBillingFileController(
                 _configuration,
                 new Mock<IApiService>().Object,
-                _mockTokenAcquisition.Object,
                 _telemetryClient,
                 new Mock<ICalculatorRunDetailsService>().Object);
 
@@ -273,7 +268,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var testClass = new DesignatedRunWithBillingFileController(
                 ConfigurationItems.GetConfigurationValues(),
                 mockApiService,
-                _mockTokenAcquisition.Object,
                 new TelemetryClient(),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext.HttpContext = new DefaultHttpContext();

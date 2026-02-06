@@ -9,7 +9,6 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Web;
 using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests
@@ -114,7 +113,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var testClass = new CalculationRunDeleteController(
                 this.Configuration,
                 TestMockUtils.BuildMockApiService(httpStatusCode).Object,
-                new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(),
                 new Mock<ICalculatorRunDetailsService>().Object);
             testClass.ControllerContext.HttpContext = this.MockHttpContext.Object;

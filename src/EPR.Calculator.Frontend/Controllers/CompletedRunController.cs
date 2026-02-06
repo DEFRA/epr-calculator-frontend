@@ -7,7 +7,6 @@ using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -17,13 +16,11 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class CompletedRunController(
         IConfiguration configuration,
-        ITokenAcquisition tokenAcquisition,
         TelemetryClient telemetryClient,
         IApiService apiService,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
-            tokenAcquisition,
             telemetryClient,
             apiService,
             calculatorRunDetailsService)

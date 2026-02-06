@@ -17,7 +17,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Web;
 using Moq;
 using Moq.Protected;
 
@@ -29,7 +28,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
         private Mock<ILogger<SetRunClassificationController>> _mockLogger;
         private Mock<IHttpClientFactory> _mockHttpClientFactory;
-        private Mock<ITokenAcquisition> _mockTokenAcquisition;
         private TelemetryClient _mockTelemetryClient;
         private SetRunClassificationController _controller;
         private Mock<HttpContext> _mockHttpContext;
@@ -42,19 +40,13 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             SetMessageHandlerResponses(true, HttpStatusCode.OK);
             _mockHttpClientFactory = TestMockUtils.BuildMockHttpClientFactory(this.MockMessageHandler.Object);
             _mockLogger = new Mock<ILogger<SetRunClassificationController>>();
-            _mockTokenAcquisition = new Mock<ITokenAcquisition>();
             _mockTelemetryClient = new TelemetryClient();
             _mockCalculatorRunDetailsService = new Mock<ICalculatorRunDetailsService>();
-
-            _mockTokenAcquisition
-                .Setup(x => x.GetAccessTokenForUserAsync(It.IsAny<IEnumerable<string>>(), null, null, null, null))
-                .ReturnsAsync("somevalue");
 
             _controller = new SetRunClassificationController(
                        _configuration,
                        new Mock<IApiService>().Object,
                        _mockLogger.Object,
-                       _mockTokenAcquisition.Object,
                        _mockTelemetryClient,
                        _mockCalculatorRunDetailsService.Object);
 
@@ -547,7 +539,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 configurationItems,
                 mockApiService.Object,
                 mockLogger.Object,
-                new Mock<ITokenAcquisition>().Object,
                 new TelemetryClient(),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext.HttpContext = new DefaultHttpContext()

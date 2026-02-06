@@ -7,7 +7,6 @@ using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web;
 using Newtonsoft.Json.Linq;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -30,12 +29,10 @@ namespace EPR.Calculator.Frontend.Controllers
             IConfiguration configuration,
             IApiService apiService,
             ILogger<CalculationRunNameController> logger,
-            ITokenAcquisition tokenAcquisition,
             TelemetryClient telemetryClient,
             ICalculatorRunDetailsService calculatorRunDetailsService)
             : base(
                   configuration,
-                  tokenAcquisition,
                   telemetryClient,
                   apiService,
                   calculatorRunDetailsService)
