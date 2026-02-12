@@ -17,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -40,9 +41,9 @@ namespace EPR.Calculator.Frontend.UnitTests
             mockLogger = new Mock<ILogger<CalculationRunNameController>>();
             _controller = new CalculationRunNameController(
                 configuration,
-                new Mock<IApiService>().Object,
+                new Mock<IEprCalculatorApiService>().Object,
                 mockLogger.Object,
-                new TelemetryClient(),
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 new Mock<ICalculatorRunDetailsService>().Object);
             _validationRules = new CalculatorRunNameValidator();
             _tempDataMock = new Mock<ITempDataDictionary>();
@@ -77,7 +78,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(viewResult);
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, viewResult.ViewName);
             var initiateCalculatorRunModel = viewResult.Model as InitiateCalculatorRunModel;
-            Assert.IsNotNull(initiateCalculatorRunModel.Errors);
+            Assert.IsNotNull(initiateCalculatorRunModel!.Errors);
             Assert.AreEqual(ViewControlNames.CalculationRunName, initiateCalculatorRunModel.Errors.DOMElementId);
             Assert.AreEqual(ErrorMessages.CalculationRunNameEmpty, initiateCalculatorRunModel.Errors.ErrorMessage);
         }
@@ -180,7 +181,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             var initiateCalculatorRunModel = result.Model as InitiateCalculatorRunModel;
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
-            Assert.IsTrue(initiateCalculatorRunModel.Errors is ErrorViewModel);
+            Assert.IsTrue(initiateCalculatorRunModel!.Errors is ErrorViewModel);
             var errorViewModel = initiateCalculatorRunModel.Errors as ErrorViewModel;
             Assert.AreEqual(ErrorMessages.CalculationRunNameEmpty, errorViewModel.ErrorMessage);
         }
@@ -199,7 +200,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var initiateCalculatorRunModel = result.Model as InitiateCalculatorRunModel;
 
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
-            Assert.IsTrue(initiateCalculatorRunModel.Errors is ErrorViewModel);
+            Assert.IsTrue(initiateCalculatorRunModel!.Errors is ErrorViewModel);
             var errorViewModel = initiateCalculatorRunModel.Errors as ErrorViewModel;
             Assert.AreEqual(ErrorMessages.CalculationRunNameMaxLengthExceeded, errorViewModel.ErrorMessage);
         }
@@ -218,7 +219,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var initiateCalculatorRunModel = result.Model as InitiateCalculatorRunModel;
 
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
-            Assert.IsTrue(initiateCalculatorRunModel.Errors is ErrorViewModel);
+            Assert.IsTrue(initiateCalculatorRunModel!.Errors is ErrorViewModel);
             var errorViewModel = initiateCalculatorRunModel.Errors as ErrorViewModel;
             Assert.AreEqual(ErrorMessages.CalculationRunNameMustBeAlphaNumeric, errorViewModel.ErrorMessage);
         }
@@ -307,7 +308,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             var calculatorRunModel = result.Model as InitiateCalculatorRunModel;
             Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
-            Assert.IsNotNull(calculatorRunModel.Errors);
+            Assert.IsNotNull(calculatorRunModel!.Errors);
             Assert.AreEqual(ErrorMessages.CalculationRunNameExists, ((ErrorViewModel)calculatorRunModel.Errors).ErrorMessage);
         }
 
@@ -341,7 +342,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            mockSession.SetInt32(SessionConstants.RelativeYear, 2024);
             var context = new DefaultHttpContext()
             {
                 Session = mockSession
@@ -415,7 +416,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.RunCalculator(calculationRunModel) as ViewResult;
 
             // Assert
-            Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", result.ViewName);
+            Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", result!.ViewName);
         }
 
         [TestMethod]
@@ -440,7 +441,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", result.ViewName);
             Assert.AreEqual(
                 "{ \"message\": \"Default parameter settings and Lapcap data not available for the financial year 2024-2025.\" }",
-                model.ErrorMessage);
+                model!.ErrorMessage);
         }
 
         [TestMethod]
@@ -460,7 +461,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Assert
             var redirectResult = result as ViewResult;
-            Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", redirectResult.ViewName);
+            Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", redirectResult!.ViewName);
         }
 
         /// <summary>
@@ -471,12 +472,12 @@ namespace EPR.Calculator.Frontend.UnitTests
         private CalculationRunNameController BuildTestClass(
             Fixture fixture,
             HttpStatusCode apiReturnStatusCode,
-            CalculatorRunDto apiResponseData = null,
-            CalculatorRunDetailsViewModel details = null)
+            CalculatorRunDto? apiResponseData = null,
+            CalculatorRunDetailsViewModel? details = null)
             => BuildTestClass(
                 fixture,
                 apiReturnStatusCode,
-                System.Text.Json.JsonSerializer.Serialize(apiResponseData ?? MockData.GetCalculatorRun()),
+                JsonConvert.SerializeObject(apiResponseData ?? MockData.GetCalculatorRun()),
                 details);
 
         /// <summary>
@@ -487,7 +488,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Fixture fixture,
             HttpStatusCode apiReturnStatusCode,
             string apiResponseMessage,
-            CalculatorRunDetailsViewModel details = null)
+            CalculatorRunDetailsViewModel? details = null)
             => BuildTestClass(fixture, [(apiReturnStatusCode, apiResponseMessage)], details);
 
         /// <summary>
@@ -497,12 +498,12 @@ namespace EPR.Calculator.Frontend.UnitTests
         private CalculationRunNameController BuildTestClass(
             Fixture fixture,
             (HttpStatusCode ReturnStatusCode, string ResponseMessage)[] apiReturn,
-            CalculatorRunDetailsViewModel details = null)
+            CalculatorRunDetailsViewModel? details = null)
         {
             mockClientFactory = new Mock<IHttpClientFactory>();
             mockLogger = new Mock<ILogger<CalculationRunNameController>>();
 
-            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            details ??= Fixture.Create<CalculatorRunDetailsViewModel>();
             var mockApiService = TestMockUtils.BuildMockApiService(apiReturn)
                 .Object;
 
@@ -510,7 +511,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 ConfigurationItems.GetConfigurationValues(),
                 mockApiService,
                 mockLogger.Object,
-                new TelemetryClient(),
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext = new ControllerContext
             {

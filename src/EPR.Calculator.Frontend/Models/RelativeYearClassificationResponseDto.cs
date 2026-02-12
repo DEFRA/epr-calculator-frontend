@@ -3,15 +3,15 @@
 namespace EPR.Calculator.Frontend.Models
 {
     /// <summary>
-    /// Represents the classification response for a financial year, including classifications and classified runs.
+    /// Represents the classification response for a relative year, including classifications and classified runs.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public class FinancialYearClassificationResponseDto
+    public class RelativeYearClassificationResponseDto
     {
         /// <summary>
-        /// Gets or sets the financial year for which the classifications apply.
+        /// Gets or sets the relative year for which the classifications apply.
         /// </summary>
-        public required string FinancialYear { get; set; }
+        public required RelativeYear RelativeYear { get; set; }
 
         /// <summary>
         /// Gets or sets the list of classifications for calculator runs.

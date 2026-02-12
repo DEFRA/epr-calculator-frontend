@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -20,7 +21,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             this.Fixture = new Fixture();
             this.MockHttpContext = new Mock<HttpContext>();
-            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            this.MockHttpContext.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
         }
 
         private Fixture Fixture { get; init; }
@@ -39,7 +40,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 ConfigurationItems.GetConfigurationValues());
 
             // Act
-            var result = controller.Index() as ViewResult;
+            var result = await controller.Index() as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -58,7 +59,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 ConfigurationItems.GetConfigurationValues());
 
             // Act
-            var result = controller.Index() as ViewResult;
+            var result = await controller.Index() as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -76,7 +77,7 @@ namespace EPR.Calculator.Frontend.UnitTests
                 ConfigurationItems.GetConfigurationValues());
 
             // Act
-            var result = controller.Index() as ViewResult;
+            var result = await controller.Index() as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -87,21 +88,21 @@ namespace EPR.Calculator.Frontend.UnitTests
         private LocalAuthorityDisposalCostsController BuildTestClass(
             Fixture fixture,
             HttpStatusCode httpStatusCode,
-            object data = null,
-            CalculatorRunDetailsViewModel details = null,
-            IConfiguration configurationItems = null)
+            object? data = null,
+            CalculatorRunDetailsViewModel? details = null,
+            IConfiguration? configurationItems = null)
         {
-            data = data ?? MockData.GetCalculatorRun();
-            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
-            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            data ??= MockData.GetCalculatorRun();
+            configurationItems ??= ConfigurationItems.GetConfigurationValues();
+            details ??= Fixture.Create<CalculatorRunDetailsViewModel>();
             var mockApiService = TestMockUtils.BuildMockApiService(
                 httpStatusCode,
-                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+                JsonConvert.SerializeObject(data ?? MockData.GetCalculatorRun())).Object;
 
             var testClass = new LocalAuthorityDisposalCostsController(
                 configurationItems,
                 mockApiService,
-                new TelemetryClient(),
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext.HttpContext = new DefaultHttpContext()
             {

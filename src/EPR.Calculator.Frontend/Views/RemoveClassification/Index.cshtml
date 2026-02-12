@@ -35,7 +35,7 @@
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@calcDetails.FinancialYear</td>
+                                    <td class="govuk-table__cell">@calcDetails.RelativeYear.ToFinancialYear()</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Classification</th>
@@ -90,7 +90,7 @@
                     <button type="submit" class="govuk-button" data-module="govuk-button">
                         Continue
                     </button>
-                    <a href="@Url.Action(ActionNames.Index, ControllerNames.RemoveClassification, new { runId = Model.CalculatorRunDetails.RunId })"
+                    <a href="@Url.Action(ActionNames.Index, ControllerNames.RemoveClassification, new { runId = Model.CalculatorRunDetails.RunId})"
                        class="govuk-button govuk-button--secondary"
                        role="button">
                         Cancel

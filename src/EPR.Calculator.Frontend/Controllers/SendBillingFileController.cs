@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Services;
@@ -16,12 +15,12 @@ namespace EPR.Calculator.Frontend.Controllers
     public class SendBillingFileController(
         IConfiguration configuration,
         TelemetryClient telemetryClient,
-        IApiService apiService,
+        IEprCalculatorApiService eprCalculatorApiService,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
             telemetryClient,
-            apiService,
+            eprCalculatorApiService,
             calculatorRunDetailsService)
     {
         [Route("{runId}")]
@@ -90,11 +89,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The response message returned by the endpoint.</returns>
         protected async Task<HttpResponseMessage> PrepareBillingFileSendToFSSAsync(int runId)
         {
-            var apiUrl = this.ApiService.GetApiUrl(
-                ConfigSection.CalculationRunSettings,
-                ConfigSection.PrepareBillingFileSendToFSS);
-
-            return await this.ApiService.CallApi(this.HttpContext, HttpMethod.Post, apiUrl, runId.ToString(), null);
+            return await this.EprCalculatorApiService.CallApi(
+                httpContext: this.HttpContext,
+                httpMethod: HttpMethod.Post,
+                relativePath: $"v2/prepareBillingFileSendToFSS/{runId}");
         }
 
         private BackLinkViewModel BacklinkModel(SendBillingFileViewModel viewModel)

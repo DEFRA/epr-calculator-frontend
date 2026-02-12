@@ -6,8 +6,8 @@ using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Moq;
 using Newtonsoft.Json;
+using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -18,7 +18,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             this.Fixture = new Fixture();
             this.MockHttpContext = new Mock<HttpContext>();
-            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            this.MockHttpContext.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
         }
 
         private Fixture Fixture { get; init; }
@@ -197,29 +197,11 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task ParameterUploadCSVErrorController_View_Get_Test()
+        public void ParameterUploadCSVErrorController_View_Get_Test()
         {
             var mockHttpSession = new MockHttpSession();
 
             var errors = new List<ValidationErrorDto>() { new ValidationErrorDto { ErrorMessage = ErrorMessages.FileMustBeCSV } };
-            mockHttpSession.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, JsonConvert.SerializeObject(errors).ToString());
-
-            var controller = new ParameterUploadFileErrorController();
-            controller.ControllerContext = new ControllerContext();
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
-            controller.ControllerContext.HttpContext.Session = mockHttpSession;
-
-            var result = controller.Index() as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.ParameterUploadFileErrorIndex, result.ViewName);
-        }
-
-        [TestMethod]
-        public async Task ParameterUploadCSVErrorController_View_Get_Error_Test()
-        {
-            var mockHttpSession = new MockHttpSession();
-
-            var errors = new List<CreateDefaultParameterSettingErrorDto>() { new CreateDefaultParameterSettingErrorDto { Message = "Some message" } };
             mockHttpSession.SetString(UploadFileErrorIds.DefaultParameterUploadErrors, JsonConvert.SerializeObject(errors).ToString());
 
             var controller = new ParameterUploadFileErrorController();

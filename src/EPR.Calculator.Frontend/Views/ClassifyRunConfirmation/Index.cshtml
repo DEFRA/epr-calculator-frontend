@@ -33,7 +33,7 @@
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.FinancialYear</td>
+                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.RelativeYear.ToFinancialYear()</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Classification</th>

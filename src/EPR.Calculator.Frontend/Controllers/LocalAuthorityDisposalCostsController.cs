@@ -1,13 +1,12 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -19,16 +18,16 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     public class LocalAuthorityDisposalCostsController(
         IConfiguration configuration,
-        IApiService apiService,
+        IEprCalculatorApiService eprCalculatorApiService,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
             telemetryClient,
-            apiService,
+            eprCalculatorApiService,
             calculatorRunDetailsService)
     {
-        private readonly int financialMonth = CommonUtil.GetFinancialYearStartingMonth(configuration);
+        private readonly int relativeYearStartingMonth = CommonUtil.GetRelativeYearStartingMonth(configuration);
 
         /// <summary>
         /// Handles the Index action asynchronously. Sends an HTTP request and processes the response to display local authority disposal costs.
@@ -38,21 +37,20 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Redirects to the StandardErrorIndex action in case of an error.
         /// </returns>
         [Route("ViewLocalAuthorityDisposalCosts")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var year = CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth);
+            var relativeYear = CommonUtil.GetRelativeYear(this.HttpContext.Session, this.relativeYearStartingMonth);
 
-            var response = this.GetLapcapDataAsync(year);
+            var response = await this.GetLapcapDataAsync(relativeYear);
 
             var currentUser = CommonUtil.GetUserName(this.HttpContext);
 
-            if (response.Result.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode)
             {
-                var deserializedlapcapdata = JsonConvert.DeserializeObject<List<LocalAuthorityDisposalCost>>(response.Result.Content.ReadAsStringAsync().Result);
+                var deserializedLapcapData = await response.Content.ReadFromJsonAsync<List<LocalAuthorityDisposalCost>>() ?? new List<LocalAuthorityDisposalCost>();
 
                 // Ensure deserializedRuns is not null
-                var localAuthorityDisposalCosts = deserializedlapcapdata ?? new List<LocalAuthorityDisposalCost>();
-                var localAuthorityData = LocalAuthorityDataUtil.GetLocalAuthorityData(localAuthorityDisposalCosts, MaterialTypes.Other);
+                var localAuthorityData = LocalAuthorityDataUtil.GetLocalAuthorityData(deserializedLapcapData, MaterialTypes.Other);
 
                 var localAuthorityDataGroupedByCountry = localAuthorityData?.GroupBy((data) => data.Country).ToList();
 
@@ -61,7 +59,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     new LocalAuthorityViewModel
                     {
                         CurrentUser = currentUser,
-                        LastUpdatedBy = deserializedlapcapdata?.First().CreatedBy ?? ErrorMessages.UnknownUser,
+                        LastUpdatedBy = deserializedLapcapData.FirstOrDefault()?.CreatedBy ?? ErrorMessages.UnknownUser,
                         ByCountry = localAuthorityDataGroupedByCountry,
                         BackLinkViewModel = new BackLinkViewModel()
                         {
@@ -71,7 +69,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     });
             }
 
-            if (response.Result.StatusCode == HttpStatusCode.NotFound)
+            if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 return this.View(ViewNames.LocalAuthorityDisposalCostsIndex, new LocalAuthorityViewModel
                 {
@@ -89,17 +87,12 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
         }
 
-        private async Task<HttpResponseMessage> GetLapcapDataAsync(string parameterYear)
+        private async Task<HttpResponseMessage> GetLapcapDataAsync(RelativeYear relativeYear)
         {
-            var apiUrl = this.ApiService.GetApiUrl(
-                ConfigSection.LapcapSettings,
-                ConfigSection.LapcapSettingsApi);
-            return await this.ApiService.CallApi(
-                this.HttpContext,
-                HttpMethod.Get,
-                apiUrl,
-                parameterYear,
-                null);
+            return await this.EprCalculatorApiService.CallApi(
+                httpContext: this.HttpContext,
+                httpMethod: HttpMethod.Get,
+                relativePath: $"v1/lapcapData/{relativeYear}");
         }
     }
 }

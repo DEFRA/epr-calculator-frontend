@@ -33,9 +33,9 @@ namespace EPR.Calculator.Frontend.Models
         public string? CreatedBy { get; init; }
 
         /// <summary>
-        /// Gets the unique identifier of the financial year.
+        /// Gets the unique identifier of the relative year.
         /// </summary>
-        public string FinancialYear { get; init; } = null!;
+        public RelativeYear RelativeYear { get; init; } = null!;
 
         /// <summary>
         /// Gets the unique identifier of the run classification id.

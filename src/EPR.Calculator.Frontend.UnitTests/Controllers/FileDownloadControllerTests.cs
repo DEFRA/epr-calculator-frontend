@@ -4,7 +4,6 @@ using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using global::EPR.Calculator.Frontend.Common.Constants;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -34,7 +33,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _mockFileDownloadService = new Mock<IResultBillingFileService>();
             _mockRunDetailsService = new Mock<ICalculatorRunDetailsService>();
-            _telemetryClient = new TelemetryClient();
+            _telemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
 
             // Setup for DownloadResultApi
             var mockResultApiSection = new Mock<IConfigurationSection>();
@@ -42,15 +41,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             var mockBillingApiSection = new Mock<IConfigurationSection>();
             mockBillingApiSection.Setup(x => x.Value).Returns(BillingFileUrl);
-
-            var mockCalcRunSettingsSection = new Mock<IConfigurationSection>();
-            mockCalcRunSettingsSection.Setup(x => x.GetSection(ConfigSection.DownloadResultApi))
-                .Returns(mockResultApiSection.Object);
-            mockCalcRunSettingsSection.Setup(x => x.GetSection(ConfigSection.DownloadCsvBillingApi))
-                .Returns(mockBillingApiSection.Object);
-
-            _mockConfiguration.Setup(x => x.GetSection(ConfigSection.CalculationRunSettings))
-                .Returns(mockCalcRunSettingsSection.Object);
 
             // Setup the nested section "DownstreamApi:Scopes"
             var mockDownstreamApiSection = new Mock<IConfigurationSection>();
@@ -62,7 +52,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             _controller = new FileDownloadController(
                 configuration: _mockConfiguration.Object,
-                apiService: new Mock<IApiService>().Object,
+                eprCalculatorApiService: new Mock<IEprCalculatorApiService>().Object,
                 telemetryClient: _telemetryClient,
                 fileDownloadService: _mockFileDownloadService.Object,
                 calculatorRunDetailsService: _mockRunDetailsService.Object);
@@ -73,11 +63,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             var runId = 123;
-            var fakeToken = "mock-token";
             var expectedResult = new FileContentResult(new byte[] { 1, 2, 3 }, "application/octet-stream");
 
             _mockFileDownloadService.Setup(x =>
-               x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
+               x.DownloadFileAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
                .ReturnsAsync(expectedResult);
 
             // Act
@@ -94,7 +83,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var runId = 456;
 
             _mockFileDownloadService
-                .Setup(s => s.DownloadFileAsync(It.IsAny<Uri>(), runId, It.IsAny<HttpContext>(),
+                .Setup(s => s.DownloadFileAsync(It.IsAny<string>(), runId, It.IsAny<HttpContext>(),
                                                 It.IsAny<bool>(), It.IsAny<bool>()))
                 .ThrowsAsync(new Exception("Download error"));
 
@@ -106,7 +95,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(redirect);
             Assert.AreEqual(ControllerNames.DownloadFileErrorNewController, redirect.ControllerName);
             Assert.AreEqual(ActionNames.IndexNew, redirect.ActionName);
-            Assert.AreEqual(runId, redirect.RouteValues["runId"]);
+            Assert.AreEqual(runId, redirect!.RouteValues!["runId"]);
         }
 
         [TestMethod]
@@ -114,7 +103,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             var runId = 789;
-            var fakeToken = "mock-token";
             var isBillingFile = true;
             var isDraft = false;
             var expectedResult = new FileContentResult(new byte[] { 9, 8, 7 }, "text/csv");
@@ -123,7 +111,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 .ReturnsAsync(new CalculatorRunDetailsViewModel() { RunId = 1, RunClassificationId = RunClassification.INITIAL_RUN, RunName = "Test" });
 
             _mockFileDownloadService.Setup(x =>
-               x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
+               x.DownloadFileAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
                .ReturnsAsync(expectedResult);
 
             // Act
@@ -151,7 +139,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(redirect);
             Assert.AreEqual(ControllerNames.DownloadFileErrorNewController, redirect.ControllerName);
             Assert.AreEqual(ActionNames.IndexNew, redirect.ActionName);
-            Assert.AreEqual(runId, redirect.RouteValues["runId"]);
+            Assert.AreEqual(runId, redirect!.RouteValues!["runId"]);
         }
 
         [TestMethod]
@@ -159,13 +147,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             var runId = 789;
-            var fakeToken = "mock-token";
             var isBillingFile = true;
             var isDraft = false;
             var expectedResult = new FileContentResult(new byte[] { 9, 8, 7 }, "text/csv");
 
             _mockFileDownloadService.Setup(x =>
-               x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
+               x.DownloadFileAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
                .ReturnsAsync(expectedResult);
 
             // Act
@@ -183,7 +170,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         {
             // Arrange
             var runId = 789;
-            var fakeToken = "mock-token";
             var isBillingFile = true;
             var isDraft = false;
             var expectedResult = new FileContentResult(new byte[] { 9, 8, 7 }, "text/csv");
@@ -192,7 +178,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 .ReturnsAsync(new CalculatorRunDetailsViewModel() { RunId = 1, RunClassificationId = RunClassification.INITIAL_RUN, RunName = "Test", IsBillingFileGeneratedLatest = false });
 
             _mockFileDownloadService.Setup(x =>
-               x.DownloadFileAsync(It.IsAny<Uri>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
+               x.DownloadFileAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<HttpContext>(), It.IsAny<bool>(), It.IsAny<bool>()))
                .ReturnsAsync(expectedResult);
 
             // Act

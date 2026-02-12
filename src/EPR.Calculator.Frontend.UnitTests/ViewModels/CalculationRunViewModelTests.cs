@@ -175,7 +175,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             {
                 Id = 1,
                 Name = "Test1",
-                Financial_Year = "2024-25",
+                RelativeYear = new RelativeYear(2024),
                 CreatedBy = "TestUser",
                 CalculatorRunClassificationId = RunClassification.ERROR,
                 HasBillingFileGenerated = false
@@ -198,7 +198,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             {
                 Id = 1,
                 Name = "Test1",
-                Financial_Year = "2024-25",
+                RelativeYear = new RelativeYear(2024),
                 CreatedBy = "TestUser",
                 CalculatorRunClassificationId = runClassification,
                 HasBillingFileGenerated = true
@@ -221,7 +221,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             {
                 Id = 1,
                 Name = "Test1",
-                Financial_Year = "2024-25",
+                RelativeYear = new RelativeYear(2024),
                 CreatedBy = "TestUser",
                 CalculatorRunClassificationId = runClassification,
                 HasBillingFileGenerated = false
@@ -244,7 +244,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             {
                 Id = 1,
                 Name = "Test1",
-                Financial_Year = "2024-25",
+                RelativeYear = new RelativeYear(2024),
                 CreatedBy = "TestUser",
                 CalculatorRunClassificationId = runClassification,
                 HasBillingFileGenerated = false,
@@ -268,7 +268,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             {
                 Id = 1,
                 Name = "Test1",
-                Financial_Year = "2024-25",
+                RelativeYear = new RelativeYear(2024),
                 CreatedBy = "TestUser",
                 CalculatorRunClassificationId = runClassification,
                 HasBillingFileGenerated = false,
@@ -305,7 +305,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             {
                 Id = 1,
                 Name = "Test1",
-                Financial_Year = "2024-25",
+                RelativeYear = new RelativeYear(2024),
                 CreatedBy = "TestUser",
                 CalculatorRunClassificationId = runClassification
             };

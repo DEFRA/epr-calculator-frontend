@@ -12,11 +12,11 @@ namespace EPR.Calculator.Frontend.Models
         /// Initializes a new instance of the <see cref="CreateLapcapDataDto"/> class.
         /// </summary>
         [SetsRequiredMembers]
-        public CreateLapcapDataDto(LapcapRefreshViewModel original, string parameterYear)
+        public CreateLapcapDataDto(LapcapRefreshViewModel original, RelativeYear relativeYear)
         {
             this.LapcapDataTemplateValues = original.LapcapTemplateValue;
             this.LapcapFileName = original.FileName;
-            this.ParameterYear = parameterYear;
+            this.RelativeYear = relativeYear;
         }
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace EPR.Calculator.Frontend.Models
         /// <value>
         /// The year for which the parameters are set.
         /// </value>
-        public required string ParameterYear { get; set; }
+        public required RelativeYear RelativeYear { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of lapcap parameter template values.

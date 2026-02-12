@@ -15,17 +15,5 @@ namespace EPR.Calculator.Frontend.UnitTests.HelpersTest
 
             return config;
         }
-
-        public static IConfiguration GetConfigurationValuesWithEmptyStrings()
-        {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.Test.Blank.json", optional: false, reloadOnChange: true)
-                .AddEnvironmentVariables();
-
-            IConfiguration config = builder.Build();
-
-            return config;
-        }
     }
 }

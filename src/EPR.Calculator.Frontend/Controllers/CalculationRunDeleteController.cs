@@ -1,5 +1,4 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -21,12 +20,12 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class CalculationRunDeleteController(
         IConfiguration configuration,
-        IApiService apiService,
+        IEprCalculatorApiService eprCalculatorApiService,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(configuration,
             telemetryClient,
-            apiService,
+            eprCalculatorApiService,
             calculatorRunDetailsService)
     {
         /// <summary>
@@ -77,16 +76,11 @@ namespace EPR.Calculator.Frontend.Controllers
                 CalculatorRunDetails = model,
             };
 
-            var apiUrl = this.ApiService.GetApiUrl(
-                ConfigSection.DashboardCalculatorRun,
-                ConfigSection.DashboardCalculatorRunV2);
-
-            var result = await this.ApiService.CallApi(
-                this.HttpContext,
-                HttpMethod.Put,
-                apiUrl,
-                string.Empty,
-                new ClassificationDto
+            var result = await this.EprCalculatorApiService.CallApi(
+                httpContext: this.HttpContext,
+                httpMethod: HttpMethod.Put,
+                relativePath: "v2/calculatorRuns",
+                body: new ClassificationDto
                 {
                     RunId = model.RunId,
                     ClassificationId = (int)RunClassification.DELETED,

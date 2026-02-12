@@ -24,6 +24,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Moq.Protected;
+    using Newtonsoft.Json;
 
     [TestClass]
     public class BillingInstructionsControllerTests
@@ -38,7 +39,7 @@
         public BillingInstructionsControllerTests()
         {
             this.Fixture = new Fixture();
-            _mockTelemetryClient = new TelemetryClient();
+            _mockTelemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
             _mockClientFactory = new Mock<IHttpClientFactory>();
             _mockMapper = new Mock<IBillingInstructionsMapper>();
 
@@ -58,7 +59,7 @@
 
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            mockSession.SetInt32(SessionConstants.RelativeYear, 2024);
             var context = new DefaultHttpContext()
             {
                 Session = mockSession
@@ -227,7 +228,7 @@
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual("Index", result.ActionName);
-            Assert.AreEqual(calculationRunId, result.RouteValues[BillingInstructionConstants.CalculationRunIdKey]);
+            Assert.AreEqual(calculationRunId, result!.RouteValues![BillingInstructionConstants.CalculationRunIdKey]);
         }
 
         [TestMethod]
@@ -237,12 +238,12 @@
             var calculationRunId = 1;
             var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
 
-            var mockApiService = new Mock<IApiService>();
+            var mockApiService = new Mock<IEprCalculatorApiService>();
             mockApiService.Setup(s => s.CallApi(
                     It.IsAny<HttpContext>(),
                     It.IsAny<HttpMethod>(),
-                    It.IsAny<Uri>(),
                     It.IsAny<string>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<object?>()))
                 .ReturnsAsync(new HttpResponseMessage
                 {
@@ -252,7 +253,7 @@
 
             var controller = new BillingInstructionsController(
                 Mock.Of<IConfiguration>(),
-                new TelemetryClient(),
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 Mock.Of<IBillingInstructionsMapper>(),
                 mockApiService.Object,
                 Mock.Of<ICalculatorRunDetailsService>());
@@ -272,20 +273,20 @@
             // Arrange
             var runId = 1;
 
-            var apiServiceMock = new Mock<IApiService>();
-            apiServiceMock.Setup(s => s.CallApi(
+            var eprCalculatorApiServiceMock = new Mock<IEprCalculatorApiService>();
+            eprCalculatorApiServiceMock.Setup(s => s.CallApi(
                     It.IsAny<HttpContext>(),
                     HttpMethod.Put,
-                    It.IsAny<Uri>(),
-                    runId.ToString(),
+                    It.IsAny<string>(),
+                    null,
                     null))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
 
             var controller = new BillingInstructionsController(
                 Mock.Of<IConfiguration>(),
-                new TelemetryClient(),
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 _mockMapper.Object,
-                apiServiceMock.Object,
+                eprCalculatorApiServiceMock.Object,
                 Mock.Of<ICalculatorRunDetailsService>());
             controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
@@ -378,7 +379,7 @@
         }
 
         [TestMethod]
-        public async Task CanCallSelectAll()
+        public void CanCallSelectAll()
         {
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
@@ -406,12 +407,12 @@
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
-        public async Task CanCallSelectAll_FilterAccepted()
+        public void CanCallSelectAll_FilterAccepted()
         {
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
@@ -439,12 +440,12 @@
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
-        public async Task CanCallSelectAll_FilterRejected()
+        public void CanCallSelectAll_FilterRejected()
         {
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
@@ -472,12 +473,12 @@
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
-        public async Task CanCallSelectAll_FilterPending()
+        public void CanCallSelectAll_FilterPending()
         {
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
@@ -505,12 +506,12 @@
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
-        public async Task CanSelectAll_WhenOrgIdIsPresent()
+        public void CanSelectAll_WhenOrgIdIsPresent()
         {
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
@@ -540,12 +541,12 @@
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
-        public async Task CanCallSelectAll_Page()
+        public void CanCallSelectAll_Page()
         {
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
@@ -585,8 +586,8 @@
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
@@ -619,7 +620,7 @@
 
             var model = redirectResult.Model as BillingInstructionsViewModel;
 
-            Assert.IsFalse(model.OrganisationSelections.SelectAll);
+            Assert.IsFalse(model!.OrganisationSelections.SelectAll);
             Assert.IsFalse(model.OrganisationSelections.SelectPage);
             Assert.IsTrue(model.OrganisationBillingInstructions.First().IsSelected);
             Assert.AreEqual(1, model.OrganisationBillingInstructions.First().OrganisationId);
@@ -641,8 +642,8 @@
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
@@ -672,8 +673,8 @@
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
@@ -703,8 +704,8 @@
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
@@ -734,8 +735,8 @@
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
@@ -765,8 +766,8 @@
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
@@ -800,8 +801,8 @@
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
@@ -832,9 +833,9 @@
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
-            Assert.AreEqual(BillingInstruction.Initial, result.RouteValues["BillingInstruction"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
+            Assert.AreEqual(BillingInstruction.Initial, result!.RouteValues!["BillingInstruction"]);
             Assert.IsNull(result.RouteValues["BillingStatus"]);
         }
 
@@ -863,9 +864,9 @@
             var result = controller.SelectAll(model, currentPage, pageSize, 0, null, BillingInstruction.Delta) as RedirectToRouteResult;
 
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
-            Assert.AreEqual(BillingInstruction.Delta, result.RouteValues["BillingInstruction"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
+            Assert.AreEqual(BillingInstruction.Delta, result!.RouteValues!["BillingInstruction"]);
             Assert.IsNull(result.RouteValues["BillingStatus"]);
         }
 
@@ -894,9 +895,9 @@
             var result = controller.SelectAll(model, currentPage, pageSize, 0, null, BillingInstruction.Rebill) as RedirectToRouteResult;
 
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
-            Assert.AreEqual(BillingInstruction.Rebill, result.RouteValues["BillingInstruction"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
+            Assert.AreEqual(BillingInstruction.Rebill, result!.RouteValues!["BillingInstruction"]);
             Assert.IsNull(result.RouteValues["BillingStatus"]);
         }
 
@@ -925,9 +926,9 @@
             var result = controller.SelectAll(model, currentPage, pageSize, 0, null, BillingInstruction.Cancel) as RedirectToRouteResult;
 
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
-            Assert.AreEqual(BillingInstruction.Cancel, result.RouteValues["BillingInstruction"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
+            Assert.AreEqual(BillingInstruction.Cancel, result!.RouteValues!["BillingInstruction"]);
             Assert.IsNull(result.RouteValues["BillingStatus"]);
         }
 
@@ -956,9 +957,9 @@
             var result = controller.SelectAll(model, currentPage, pageSize, 0, null, BillingInstruction.Noaction) as RedirectToRouteResult;
 
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.RouteName.Contains("Index"));
-            Assert.AreEqual(model.CalculationRun.Id, result.RouteValues["calculationRunId"]);
-            Assert.AreEqual(BillingInstruction.Noaction, result.RouteValues["BillingInstruction"]);
+            Assert.IsTrue(result!.RouteName!.Contains("Index"));
+            Assert.AreEqual(model.CalculationRun.Id, result!.RouteValues!["calculationRunId"]);
+            Assert.AreEqual(BillingInstruction.Noaction, result!.RouteValues!["BillingInstruction"]);
             Assert.IsNull(result.RouteValues["BillingStatus"]);
         }
 
@@ -1018,7 +1019,7 @@
             var mockSession = new MockHttpSession();
             mockSession.SetString(SessionConstants.IsSelectAll, "true");
             mockSession.SetString("accessToken", "something");
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            mockSession.SetInt32(SessionConstants.RelativeYear, 2024);
             var context = new DefaultHttpContext { Session = mockSession };
             context.Request.Headers.Append("Referer", "https://calculator/details/4");
 
@@ -1071,7 +1072,7 @@
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.AcceptRejectConfirmationController, result.ControllerName);
-            Assert.AreEqual(testRunId, result.RouteValues["calculationRunId"]);
+            Assert.AreEqual(testRunId, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
@@ -1089,7 +1090,7 @@
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.ReasonForRejectionController, result.ControllerName);
-            Assert.AreEqual(testRunId, result.RouteValues["calculationRunId"]);
+            Assert.AreEqual(testRunId, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
@@ -1107,7 +1108,7 @@
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.RouteValues["action"]);
+            Assert.AreEqual(ActionNames.Index, result!.RouteValues!["action"]);
             Assert.AreEqual(ControllerNames.CalculationRunOverview, result.RouteValues["controller"]);
             Assert.AreEqual(testRunId, result.RouteValues["runId"]);
         }
@@ -1141,7 +1142,7 @@
             // Set up session with IsSelectAll = true
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            mockSession.SetInt32(SessionConstants.RelativeYear, 2024);
             var context = new DefaultHttpContext { Session = mockSession };
 
             // Act
@@ -1150,14 +1151,14 @@
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.RouteName);
-            Assert.AreEqual(testRunId, result.RouteValues["calculationRunId"]);
+            Assert.AreEqual(testRunId, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
         public void Index_ReturnsViewResult_WithCorrectViewName()
         {
             // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+            _mockHttpContext.Setup(ctx => ctx!.User!.Identity!.Name).Returns("TestUser");
 
             // Assert
             var viewResult = _controller.BillingFileSuccess() as ViewResult;
@@ -1169,7 +1170,7 @@
         public void BillingFileSuccess_ReturnsViewResult_WithCorrectViewModel()
         {
             // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+            _mockHttpContext.Setup(ctx => ctx!.User!.Identity!.Name).Returns("TestUser");
 
             // Act
             var result = _controller.BillingFileSuccess() as ViewResult;
@@ -1191,14 +1192,14 @@
 
         private static DefaultHttpContext CreateTestHttpContext(string userName = "Test User")
         {
-            var claims = new List<Claim> { new Claim(ClaimTypes.Name, userName) };
+            var claims = new List<Claim> { new(ClaimTypes.Name, userName) };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
             var principal = new ClaimsPrincipal(identity);
             var prodIds = new List<int>() { 1, 2, 3 };
 
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            mockSession.SetInt32(SessionConstants.RelativeYear, 2024);
             mockSession.SetObject(SessionConstants.ProducerIds, prodIds);
             mockSession.SetObject(SessionConstants.IsRedirected, "true");
 
@@ -1229,7 +1230,7 @@
 
                     if (responseObject != null)
                     {
-                        var json = System.Text.Json.JsonSerializer.Serialize(responseObject);
+                        var json = JsonConvert.SerializeObject(responseObject);
                         response.Content = new StringContent(json, Encoding.UTF8, "application/json");
                     }
 
@@ -1316,7 +1317,7 @@
                 _configuration,
                 _mockTelemetryClient,
                 _mockMapper.Object,
-                new Mock<IApiService>().Object,
+                new Mock<IEprCalculatorApiService>().Object,
                 new Mock<ICalculatorRunDetailsService>().Object);
 
             controller.ControllerContext = new ControllerContext { HttpContext = CreateTestHttpContext() };
@@ -1326,16 +1327,16 @@
         private BillingInstructionsController BuildTestClass(
             Fixture fixture,
             HttpStatusCode httpStatusCode,
-            object data = null,
-            CalculatorRunDetailsViewModel details = null,
-            IConfiguration configurationItems = null)
+            object? data = null,
+            CalculatorRunDetailsViewModel? details = null,
+            IConfiguration? configurationItems = null)
         {
-            data = data ?? MockData.GetCalculatorRun();
-            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
-            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            data ??= MockData.GetCalculatorRun();
+            configurationItems ??= ConfigurationItems.GetConfigurationValues();
+            details ??= Fixture.Create<CalculatorRunDetailsViewModel>();
             var mockApiService = TestMockUtils.BuildMockApiService(
                 httpStatusCode,
-                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+                JsonConvert.SerializeObject(data ?? MockData.GetCalculatorRun())).Object;
 
             var testClass = new BillingInstructionsController(
                 configurationItems,

@@ -95,7 +95,7 @@ builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
 
 // Register services.
 builder.Services.AddTransient<ICalculatorRunDetailsService, CalculatorRunDetailsService>();
-builder.Services.AddTransient<IApiService, ApiService>();
+builder.Services.AddTransient<IEprCalculatorApiService, EprCalculatorApiService>();
 
 // Add Hsts
 builder.Services.AddHsts(options =>

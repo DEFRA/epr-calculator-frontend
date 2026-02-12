@@ -11,7 +11,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
             mock.Protected()
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
-                    ItExpr.Is<HttpRequestMessage>(m => m.Method == method && m.RequestUri.ToString() == url),
+                    ItExpr.Is<HttpRequestMessage>(m => m.Method == method && m.RequestUri!.ToString() == url),
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(response);
         }
@@ -21,7 +21,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
             mock.Protected()
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
-                    ItExpr.Is<HttpRequestMessage>(m => m.Method == method && m.RequestUri.ToString() == url),
+                    ItExpr.Is<HttpRequestMessage>(m => m.Method == method && m.RequestUri!.ToString() == url),
                     ItExpr.IsAny<CancellationToken>())
                 .ThrowsAsync(ex);
         }

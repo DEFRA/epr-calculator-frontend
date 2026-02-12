@@ -18,13 +18,13 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class DesignatedRunController(
         IConfiguration configuration,
-        IApiService apiService,
+        IEprCalculatorApiService eprCalculatorApiService,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
             telemetryClient,
-            apiService,
+            eprCalculatorApiService,
             calculatorRunDetailsService)
     {
         [HttpGet("{runId}")]

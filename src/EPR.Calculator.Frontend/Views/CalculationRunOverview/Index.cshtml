@@ -63,7 +63,7 @@
                                     <tbody class="govuk-table__body">
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Financial year</th>
-                                            <td class="govuk-table__cell">@calcDetails.FinancialYear</td>
+                                            <td class="govuk-table__cell">@calcDetails.RelativeYear.ToFinancialYear()</td>
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Classification</th>
@@ -108,7 +108,7 @@
 
                                     <p class="govuk-body">
                                         @(calcDetails.IsBillingFileGenerating == true ? BillingInstructionConstants.GenerateFileMessage : string.Empty)
-                                    </p>                                        
+                                    </p>
                                 </div>
 
                                 <a class="govuk-button govuk-button--secondary"

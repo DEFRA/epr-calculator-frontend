@@ -19,15 +19,13 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
     [TestClass]
     public class RemoveClassificationControllerTests
     {
-        private Mock<HttpMessageHandler> mockMessageHandler;
-
-        private Mock<IConfiguration> configurationMock;
-        private Mock<IApiService> apiServiceMock;
-        private Mock<ILogger<RemoveClassificationController>> loggerMock;
-        private TelemetryClient telemetryClient;
-        private Mock<ICalculatorRunDetailsService> runDetailsServiceMock;
-
-        private RemoveClassificationController controller;
+        private Mock<HttpMessageHandler> mockMessageHandler = null!;
+        private Mock<IConfiguration> configurationMock = null!;
+        private Mock<IEprCalculatorApiService> eprCalculatorApiServiceMock = null!;
+        private Mock<ILogger<RemoveClassificationController>> loggerMock = null!;
+        private TelemetryClient telemetryClient = null!;
+        private Mock<ICalculatorRunDetailsService> runDetailsServiceMock = null!;
+        private RemoveClassificationController controller = null!;
 
         [TestInitialize]
         public void Setup()
@@ -38,19 +36,15 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
                 // Setup other mocks
                 configurationMock = new Mock<IConfiguration>();
-                apiServiceMock = new Mock<IApiService>();
+                eprCalculatorApiServiceMock = new Mock<IEprCalculatorApiService>();
                 loggerMock = new Mock<ILogger<RemoveClassificationController>>();
-                telemetryClient = new TelemetryClient();
+                telemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
                 runDetailsServiceMock = new Mock<ICalculatorRunDetailsService>();
-
-                // Setup IApiService GetApiUrl method (return a Uri object)
-                apiServiceMock.Setup(s => s.GetApiUrl(It.IsAny<string>(), It.IsAny<string>()))
-                    .Returns(new Uri("http://test.test"));
 
             // Create controller instance
                 controller = new RemoveClassificationController(
                     configurationMock.Object,
-                    apiServiceMock.Object,
+                    eprCalculatorApiServiceMock.Object,
                     loggerMock.Object,
                     telemetryClient,
                     runDetailsServiceMock.Object);
@@ -134,7 +128,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var redirectResult = (RedirectToActionResult)result;
             Assert.AreEqual("Index", redirectResult.ActionName);
             Assert.AreEqual("CalculationRunDelete", redirectResult.ControllerName);
-            Assert.AreEqual(runId, redirectResult.RouteValues["runId"]);
+            Assert.AreEqual(runId, redirectResult!.RouteValues!["runId"]);
         }
 
         [TestMethod]
@@ -149,15 +143,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             };
 
             var failedResponse = new HttpResponseMessage(HttpStatusCode.BadRequest); // Simulates failure
-            apiServiceMock
-                .Setup(s => s.GetApiUrl(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(new Uri("http://test.test"));
-            apiServiceMock
+            eprCalculatorApiServiceMock
                 .Setup(s => s.CallApi(
                     It.IsAny<HttpContext>(),
                     HttpMethod.Put,
-                    It.IsAny<Uri>(),
                     It.IsAny<string>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<ClassificationDto>()))
                 .ReturnsAsync(failedResponse);
 
@@ -204,16 +195,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             var successfulResponse = new HttpResponseMessage(HttpStatusCode.Created);
 
-            apiServiceMock
-                .Setup(s => s.GetApiUrl(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(new Uri("http://test.test"));
-
-            apiServiceMock
+            eprCalculatorApiServiceMock
                 .Setup(s => s.CallApi(
                     It.IsAny<HttpContext>(),
                     HttpMethod.Put,
-                    It.IsAny<Uri>(),
                     It.IsAny<string>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<ClassificationDto>()))
                 .ReturnsAsync(successfulResponse);
 
@@ -225,15 +212,15 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var redirect = (RedirectToActionResult)result;
             Assert.AreEqual("Index", redirect.ActionName);
             Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, redirect.ControllerName);
-            Assert.AreEqual(runId, redirect.RouteValues["runId"]);
+            Assert.AreEqual(runId, redirect!.RouteValues!["runId"]);
         }
 
         // Helper method to setup mocked HTTP responses
         private void SetupMockResponses(bool isUnclassified, HttpStatusCode httpStatusCode)
         {
             var responseContent = isUnclassified
-                ? "{ \"runId\": 1, \"runClassificationId\": 3, \"runClassificationStatus\": \"UNCLASSIFIED\", \"financialYear\": \"2025-26\" }"
-                : "{ \"runId\": 1, \"runClassificationId\": 7, \"runName\": \"Test Calculator1702\", \"runClassificationStatus\": \"UNCLASSIFIED\", \"financialYear\": \"2025-26\" }";
+                ? "{ \"runId\": 1, \"runClassificationId\": 3, \"runClassificationStatus\": \"UNCLASSIFIED\", \"relativeYear\": \"2025-26\" }"
+                : "{ \"runId\": 1, \"runClassificationId\": 7, \"runName\": \"Test Calculator1702\", \"runClassificationStatus\": \"UNCLASSIFIED\", \"relativeYear\": \"2025-26\" }";
 
             mockMessageHandler
                 .Protected()
@@ -256,7 +243,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                .ReturnsAsync(new HttpResponseMessage
                {
                    StatusCode = httpStatusCode,
-                   Content = new StringContent("{ \"financialYear\": \"2025-26\", \"classifications\": [{\"id\":4,\"status\":\"TEST RUN\"},{\"id\":8,\"status\":\"INITIAL RUN\"}]}")
+                   Content = new StringContent("{ \"relativeYear\": \"2025-26\", \"classifications\": [{\"id\":4,\"status\":\"TEST RUN\"},{\"id\":8,\"status\":\"INITIAL RUN\"}]}")
                });
         }
     }

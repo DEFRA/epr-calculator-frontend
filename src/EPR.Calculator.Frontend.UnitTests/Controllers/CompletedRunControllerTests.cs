@@ -13,6 +13,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Newtonsoft.Json;
 
     [TestClass]
     public class CompletedRunControllerTests
@@ -62,20 +63,20 @@
         private CompletedRunController BuildTestClass(
                 Fixture fixture,
                 HttpStatusCode httpStatusCode,
-                object data = null,
-                CalculatorRunDetailsViewModel details = null,
-                IConfiguration configurationItems = null)
+                object? data = null,
+                CalculatorRunDetailsViewModel? details = null,
+                IConfiguration? configurationItems = null)
         {
-            data = data ?? MockData.GetCalculatorRun();
-            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
-            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            data ??= MockData.GetCalculatorRun();
+            configurationItems ??= ConfigurationItems.GetConfigurationValues();
+            details ??= Fixture.Create<CalculatorRunDetailsViewModel>();
             var mockApiService = TestMockUtils.BuildMockApiService(
                 httpStatusCode,
-                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+                JsonConvert.SerializeObject(data ?? MockData.GetCalculatorRun())).Object;
 
             var testClass = new CompletedRunController(
                 configurationItems,
-                new TelemetryClient(),
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 mockApiService,
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext.HttpContext = new DefaultHttpContext()

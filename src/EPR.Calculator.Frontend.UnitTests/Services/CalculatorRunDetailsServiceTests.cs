@@ -1,58 +1,55 @@
 ﻿namespace EPR.Calculator.Frontend.UnitTests.Services
 {
-    using System;
-    using System.Text.Json;
+    using System.Collections.Generic;
+    using System.Net;
     using System.Threading.Tasks;
     using AutoFixture;
-    using AutoFixture.AutoMoq;
     using EPR.Calculator.Frontend.Services;
     using Microsoft.AspNetCore.Http;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Text.Json;
     using Moq;
+    using Newtonsoft.Json;
 
     [TestClass]
     public class CalculatorRunDetailsServiceTests
     {
+        private readonly Fixture fixture;
+
         public CalculatorRunDetailsServiceTests()
         {
-            this.Fixture = new Fixture(); // .Customize(new AutoMoqCustomization());
-            this.ApiService = new Mock<IApiService>();
-            this.ApiService.Setup(s => s.GetApiUrl(
-                It.IsAny<string>(),
-                It.IsAny<string>())).Returns(Fixture.Create<Uri>());
-            this.ApiService.Setup(s => s.CallApi(
-                It.IsAny<HttpContext>(),
-                HttpMethod.Get,
-                It.IsAny<Uri>(),
-                It.IsAny<string>(),
-                It.IsAny<object?>()))
-                .ReturnsAsync(
-                    (HttpContext _, HttpMethod _, Uri _, string runId, object _) => new HttpResponseMessage
-                    {
-                        StatusCode = System.Net.HttpStatusCode.OK,
-                        Content = new StringContent($"{{\"RunId\" : \"{runId}\"}}"),
-                    });
-            this.TestClass = new CalculatorRunDetailsService(this.ApiService.Object);
+            this.fixture = new Fixture();
         }
-
-        private CalculatorRunDetailsService TestClass { get; init; }
-
-        private IFixture Fixture { get; init; }
-
-        private Mock<IApiService> ApiService { get; init; }
 
         [TestMethod]
         public async Task CallGetCalculatorRundetails_Succeeds()
         {
             // Arrange
-            var runId = Fixture.Create<int>();
+            var runId = this.fixture.Create<int>();
+
+            var responseObject = new
+            {
+                RunId = runId
+            };
+
+            var apiResponses = new Dictionary<(HttpMethod, string, string), (HttpStatusCode, string)>
+            {
+                {
+                    (HttpMethod.Get, $"v1/calculatorRuns/{runId}", string.Empty),
+                    (HttpStatusCode.OK, JsonConvert.SerializeObject(responseObject))
+                }
+            };
+
+            var mockApiService = TestMockUtils.BuildMockApiService(apiResponses).Object;
+            var service = new CalculatorRunDetailsService(mockApiService);
 
             // Act
-            var result = await this.TestClass.GetCalculatorRundetailsAsync(
+            var result = await service.GetCalculatorRundetailsAsync(
                 new Mock<HttpContext>().Object,
                 runId);
 
             // Assert
+            Assert.IsNotNull(result);
             Assert.AreEqual(runId, result.RunId);
         }
 
@@ -60,34 +57,24 @@
         public async Task CalculatorRundetailsAsync_ThrowsExceptionWhenApiReturnsNoData()
         {
             // Arrange
-            var runId = Fixture.Create<int>();
-            this.ApiService.Setup(s => s.CallApi(
-                It.IsAny<HttpContext>(),
-                HttpMethod.Get,
-                It.IsAny<Uri>(),
-                It.IsAny<string>(),
-                It.IsAny<object?>()))
-                .ReturnsAsync(new HttpResponseMessage
+            var runId = this.fixture.Create<int>();
+
+            var apiResponses = new Dictionary<(HttpMethod, string, string), (HttpStatusCode, string)>
+            {
                 {
-                    StatusCode = System.Net.HttpStatusCode.BadRequest,
-                    Content = new StringContent("{}"),
-                });
+                    (HttpMethod.Get, $"v1/calculatorRuns/{runId}", string.Empty),
+                    (HttpStatusCode.BadRequest, "{}")
+                }
+            };
 
-            // Act
-            Exception result = null;
-            try
-            {
-                await this.TestClass.GetCalculatorRundetailsAsync(
+            var mockApiService = TestMockUtils.BuildMockApiService(apiResponses).Object;
+            var service = new CalculatorRunDetailsService(mockApiService);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<HttpRequestException>(
+                async () => await service.GetCalculatorRundetailsAsync(
                     new Mock<HttpContext>().Object,
-                    runId);
-            }
-            catch (Exception ex)
-            {
-                result = ex;
-            }
-
-            // Assert
-            Assert.IsInstanceOfType<HttpRequestException>(result);
+                    runId));
         }
     }
 }

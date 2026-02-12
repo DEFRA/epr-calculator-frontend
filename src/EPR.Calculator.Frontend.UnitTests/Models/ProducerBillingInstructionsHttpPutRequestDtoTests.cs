@@ -1,5 +1,6 @@
-﻿using System.Text.Json;
-using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Models;
+using Newtonsoft.Json;
+
 
 namespace EPR.Calculator.Frontend.UnitTests.Models
 {
@@ -31,8 +32,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
                 ReasonForRejection = "Invalid data",
             };
 
-            var json = JsonSerializer.Serialize(dto);
-            var deserialized = JsonSerializer.Deserialize<ProducerBillingInstructionsHttpPutRequestDto>(json);
+            var json = JsonConvert.SerializeObject(dto);
+            var deserialized = JsonConvert.DeserializeObject<ProducerBillingInstructionsHttpPutRequestDto>(json);
 
             Assert.IsNotNull(deserialized);
             CollectionAssert.AreEqual(new List<int> { 10, 20 }, new List<int>(deserialized.OrganisationIds));

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -33,11 +34,11 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Act
             var result = await controller.Index() as ViewResult;
-            var resultModel = result.ViewData.Model as DefaultParametersViewModel;
+            var resultModel = result!.ViewData.Model as DefaultParametersViewModel;
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(TotalRecords, resultModel.SchemeParameters.Count);
+            Assert.AreEqual(TotalRecords, resultModel!.SchemeParameters.Count);
             Assert.AreEqual(1, resultModel.SchemeParameters.Count(t => t.SchemeParameterName == ParameterType.CommunicationCostsByCountry.GetDisplayName()));
             Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.CommunicationCostsByMaterial.GetDisplayName()));
             Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.BadDebtProvision.GetDisplayName()));
@@ -62,7 +63,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Act
             var result = await controller.Index() as ViewResult;
-            var defaultParametersViewModel = (DefaultParametersViewModel)result.Model as DefaultParametersViewModel;
+            var defaultParametersViewModel = (DefaultParametersViewModel)result!.Model! as DefaultParametersViewModel;
 
             // Assert
             Assert.IsNotNull(result);
@@ -72,21 +73,21 @@ namespace EPR.Calculator.Frontend.UnitTests
         private DefaultParametersController BuildTestClass(
             Fixture fixture,
             HttpStatusCode httpStatusCode,
-            object data = null,
-            CalculatorRunDetailsViewModel details = null,
-            IConfiguration configurationItems = null)
+            object? data = null,
+            CalculatorRunDetailsViewModel? details = null,
+            IConfiguration? configurationItems = null)
         {
-            data = data ?? MockData.GetCalculatorRun();
-            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
-            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            data ??= MockData.GetCalculatorRun();
+            configurationItems ??= ConfigurationItems.GetConfigurationValues();
+            details ??= Fixture.Create<CalculatorRunDetailsViewModel>();
             var mockApiService = TestMockUtils.BuildMockApiService(
                 httpStatusCode,
-                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+                JsonConvert.SerializeObject(data ?? MockData.GetCalculatorRun())).Object;
 
             var testClass = new DefaultParametersController(
                 configurationItems,
                 mockApiService,
-                new TelemetryClient(),
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext.HttpContext = new DefaultHttpContext()
             {

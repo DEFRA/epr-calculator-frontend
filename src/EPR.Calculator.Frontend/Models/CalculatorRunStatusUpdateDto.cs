@@ -36,8 +36,8 @@
         public string? UpdatedTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the financial year associated with the calculator run.
+        /// Gets or sets the relative year associated with the calculator run.
         /// </summary>
-        public string? FinancialYear { get; set; }
+        public RelativeYear RelativeYear { get; set; } = null!;
     }
 }

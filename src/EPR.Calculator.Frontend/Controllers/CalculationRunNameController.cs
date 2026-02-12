@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -7,7 +6,6 @@ using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -17,7 +15,7 @@ namespace EPR.Calculator.Frontend.Controllers
     public class CalculationRunNameController : BaseController
     {
         private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
-        private readonly int financialMonth;
+        private readonly int relativeYearStartingMonth;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CalculationRunNameController"/> class.
@@ -27,18 +25,18 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <param name="logger">The logger instance.</param>
         public CalculationRunNameController(
             IConfiguration configuration,
-            IApiService apiService,
+            IEprCalculatorApiService eprCalculatorApiService,
             ILogger<CalculationRunNameController> logger,
             TelemetryClient telemetryClient,
             ICalculatorRunDetailsService calculatorRunDetailsService)
             : base(
                   configuration,
                   telemetryClient,
-                  apiService,
+                  eprCalculatorApiService,
                   calculatorRunDetailsService)
         {
             this.Logger = logger;
-            this.financialMonth = CommonUtil.GetFinancialYearStartingMonth(configuration);
+            this.relativeYearStartingMonth = CommonUtil.GetRelativeYearStartingMonth(configuration);
         }
 
         private ILogger<CalculationRunNameController> Logger { get; init; }
@@ -186,16 +184,12 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown.</exception>
         private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
         {
-            var year = CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth);
-
-            var runParms = new CreateCalculatorRunDto
+            return await this.PostCalculatorRunAsync(new CreateCalculatorRunDto
             {
                 CalculatorRunName = calculatorRunName,
-                FinancialYear = year,
+                RelativeYear = CommonUtil.GetRelativeYear(this.HttpContext.Session, this.relativeYearStartingMonth),
                 CreatedBy = CommonUtil.GetUserName(this.HttpContext),
-            };
-
-            return await this.PostCalculatorRunAsync(runParms);
+            });
         }
 
         /// <summary>
@@ -210,18 +204,17 @@ namespace EPR.Calculator.Frontend.Controllers
             return response;
         }
 
-        /// <summary>
-        /// Extracts the error message coming in api response.
-        /// </summary>
-        /// <param name="response">Http response from api.</param>
-        /// <returns>Error message.</returns>
+        private class ErrorResponse
+        {
+            public string? Message { get; }
+        }
+
         private async Task<string> ExtractErrorMessageAsync(HttpResponseMessage response)
         {
             try
             {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                var json = JObject.Parse(responseBody);
-                return json["message"]?.ToString() ?? "An error occurred. Please try again.";
+                var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+                return error?.Message ?? "An error occurred. Please try again.";
             }
             catch (Exception ex)
             {
@@ -230,6 +223,7 @@ namespace EPR.Calculator.Frontend.Controllers
             }
         }
 
+
         /// <summary>
         /// Calls the "calculatorRun" POST endpoint.
         /// </summary>
@@ -237,28 +231,19 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The response message returned by the endpoint.</returns>
         private async Task<HttpResponseMessage> PostCalculatorRunAsync(CreateCalculatorRunDto dto)
         {
-            var apiUrl = this.ApiService.GetApiUrl(
-                ConfigSection.CalculationRunSettings,
-                ConfigSection.CalculationRunApi);
-            return await this.ApiService.CallApi(
-                this.HttpContext,
-                HttpMethod.Post,
-                apiUrl,
-                string.Empty,
-                dto);
+            return await this.EprCalculatorApiService.CallApi(
+                httpContext: this.HttpContext,
+                httpMethod: HttpMethod.Post,
+                relativePath: "v1/calculatorRun",
+                body: dto);
         }
 
         private async Task<HttpResponseMessage> CheckCalcNameExistsAsync(string calculationName)
         {
-            var apiUrl = this.ApiService.GetApiUrl(
-                ConfigSection.CalculationRunSettings,
-                ConfigSection.CalculationRunNameApi);
-            return await this.ApiService.CallApi(
-                this.HttpContext,
-                HttpMethod.Get,
-                apiUrl,
-                calculationName,
-                null);
+            return await this.EprCalculatorApiService.CallApi(
+                httpContext: this.HttpContext,
+                httpMethod: HttpMethod.Get,
+                relativePath: $"v1/CheckCalcNameExists/{calculationName}");
         }
     }
 }

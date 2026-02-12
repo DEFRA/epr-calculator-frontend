@@ -28,6 +28,6 @@
         /// <summary>
         /// Gets the date and time when the run was last updated, if available.
         /// </summary>
-        public DateTime? UpdatedAt { get; init; }
+        public DateTime UpdatedAt { get; init; }
     }
 }

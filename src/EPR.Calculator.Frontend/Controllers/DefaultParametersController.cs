@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
@@ -9,7 +8,6 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers
 {
@@ -24,16 +22,16 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     public class DefaultParametersController(
         IConfiguration configuration,
-        IApiService apiService,
+        IEprCalculatorApiService eprCalculatorApiService,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
             telemetryClient,
-            apiService,
+            eprCalculatorApiService,
             calculatorRunDetailsService)
     {
-        private readonly int financialMonth = CommonUtil.GetFinancialYearStartingMonth(configuration);
+        private readonly int relativeYearStartingMonth = CommonUtil.GetRelativeYearStartingMonth(configuration);
 
         /// <summary>
         /// Handles the Index action for retrieving and displaying default scheme parameters.
@@ -44,10 +42,10 @@ namespace EPR.Calculator.Frontend.Controllers
         [Route("ViewDefaultParameters")]
         public async Task<IActionResult> Index()
         {
-            var parameterYear = CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth);
+            var relativeYear = CommonUtil.GetRelativeYear(this.HttpContext.Session, this.relativeYearStartingMonth);
             var currentUser = CommonUtil.GetUserName(this.HttpContext);
 
-            var response = await this.GetDefaultParametersAsync(parameterYear);
+            var response = await this.GetDefaultParametersAsync(relativeYear);
 
             if (response.IsSuccessStatusCode)
             {
@@ -63,7 +61,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     },
                 };
                 var data = await response.Content.ReadAsStringAsync();
-                var defaultSchemeParameters = JsonConvert.DeserializeObject<List<DefaultSchemeParameters>>(data);
+                var defaultSchemeParameters = await response.Content.ReadFromJsonAsync<List<DefaultSchemeParameters>>() ?? new List<DefaultSchemeParameters>();
 
                 if (defaultSchemeParameters != null)
                 {
@@ -115,17 +113,12 @@ namespace EPR.Calculator.Frontend.Controllers
             return parameterType == ParameterType.LateReportingTonnage || parameterType == ParameterType.BadDebtProvision;
         }
 
-        private async Task<HttpResponseMessage> GetDefaultParametersAsync(string parameterYear)
+        private async Task<HttpResponseMessage> GetDefaultParametersAsync(RelativeYear relativeYear)
         {
-            var apiUrl = this.ApiService.GetApiUrl(
-                ConfigSection.ParameterSettings,
-                ConfigSection.DefaultParameterSettingsApi);
-            return await this.ApiService.CallApi(
-                this.HttpContext,
-                HttpMethod.Get,
-                apiUrl,
-                parameterYear,
-                null);
+            return await this.EprCalculatorApiService.CallApi(
+                httpContext: this.HttpContext,
+                httpMethod: HttpMethod.Get,
+                relativePath: $"v1/defaultParameterSetting/{relativeYear}");
         }
     }
 }

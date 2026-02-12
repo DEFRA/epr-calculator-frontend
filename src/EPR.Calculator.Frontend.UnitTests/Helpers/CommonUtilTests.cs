@@ -1,9 +1,9 @@
 ﻿namespace EPR.Calculator.Frontend.UnitTests.Helpers
 {
     using System;
-    using System.Text;
     using EPR.Calculator.Frontend.Constants;
     using EPR.Calculator.Frontend.Helpers;
+    using EPR.Calculator.Frontend.Models;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,6 +12,9 @@
     [TestClass]
     public class CommonUtilTests
     {
+        // Delegate for Moq Callback to match TryGetValue signature
+        private delegate void TryGetValueCallback(string key, out byte[] value);
+
         [TestMethod]
         public void CanCallGetDateTime()
         {
@@ -30,79 +33,95 @@
         }
 
         [TestMethod]
-        public void GetFinancialYear_ReturnsYearFromSession_WhenSessionHasValue()
+        public void GetRelativeYear_ReturnsYearFromSession_WhenSessionHasValue()
         {
             // Arrange
-            var expectedYear = "2024-2025";
-            var key = SessionConstants.FinancialYear;
-            var byteValue = Encoding.UTF8.GetBytes(expectedYear);
+            var expectedYear = 2024;
+            var key = SessionConstants.RelativeYear;
+
+            // Encode int in big-endian order (same as SessionExtensions.SetInt32)
+            var intBytes = new byte[]
+            {
+                (byte)(expectedYear >> 24),
+                (byte)((expectedYear >> 16) & 0xFF),
+                (byte)((expectedYear >> 8) & 0xFF),
+                (byte)(expectedYear & 0xFF)
+            };
 
             var sessionMock = new Mock<ISession>();
-            sessionMock.Setup(s => s.TryGetValue(key, out byteValue)).Returns(true);
+
+            // Setup TryGetValue to return our big-endian byte array
+            sessionMock
+                .Setup(s => s.TryGetValue(key, out It.Ref<byte[]>.IsAny!))
+                .Returns(true)
+                .Callback(new TryGetValueCallback((string k, out byte[] v) =>
+                {
+                    v = intBytes;
+                }));
 
             // Act
-            var result = CommonUtil.GetFinancialYear(sessionMock.Object, 4);
+            var result = CommonUtil.GetRelativeYear(sessionMock.Object, 4);
 
             // Assert
-            Assert.AreEqual(expectedYear, result);
+            Assert.AreEqual(new RelativeYear(expectedYear), result);
         }
 
         [TestMethod]
-        public void GetFinancialYear_ReturnsDefaultYear_WhenSessionIsEmpty()
+        public void GetRelativeYear_ReturnsDefaultYear_WhenSessionIsEmpty()
         {
             // Arrange
-            var key = SessionConstants.FinancialYear;
-            byte[] byteValue;
+            var key = SessionConstants.RelativeYear;
+            byte[]? byteValue;
 
             var sessionMock = new Mock<ISession>();
             sessionMock.Setup(s => s.TryGetValue(key, out byteValue)).Returns(false);
 
-            var expectedDefault = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, 4);
+            var expectedDefault = CommonUtil.GetDefaultRelativeYear(DateTime.UtcNow, 4);
 
             // Act
-            var result = CommonUtil.GetFinancialYear(sessionMock.Object, 4);
+            var result = CommonUtil.GetRelativeYear(sessionMock.Object, 4);
 
             // Assert
             Assert.AreEqual(expectedDefault, result);
         }
 
         [TestMethod]
-        public void GetDefaultFinancialYear()
+        public void GetDefaultRelativeYear()
         {
-            var resultBeforeMonth = CommonUtil.GetDefaultFinancialYear(DateTime.Parse("2026-01-20"), 6);
-            var resultAfterMonth = CommonUtil.GetDefaultFinancialYear(DateTime.Parse("2026-10-20"), 6);
+            var resultBeforeMonth = CommonUtil.GetDefaultRelativeYear(DateTime.Parse("2026-01-20"), 6);
+            var resultAfterMonth = CommonUtil.GetDefaultRelativeYear(DateTime.Parse("2026-10-20"), 6);
 
             // Assert
-            Assert.AreEqual("2025-26", resultBeforeMonth);
-            Assert.AreEqual("2026-27", resultAfterMonth);
+            Assert.AreEqual(new RelativeYear(2025), resultBeforeMonth);
+            Assert.AreEqual(new RelativeYear(2026), resultAfterMonth);
         }
 
         [TestMethod]
-        public void GetFinancialYearStartingMonth()
+        public void GetRelativeYearStartingMonth()
         {
-            IConfiguration BuildConfig(string value)
+            IConfiguration BuildConfig(string? value)
             {
                 var values = new Dictionary<string, string>();
 
                 if (value != null)
                 {
-                    values[CommonConstants.FinancialYearStartingMonth] = value;
+                    values[CommonConstants.RelativeYearStartingMonth] = value;
                 }
 
-                return new ConfigurationBuilder().AddInMemoryCollection(values).Build();
+                return new ConfigurationBuilder().AddInMemoryCollection(values!).Build();
             }
 
             var validConfig = BuildConfig("4");
-            var validResult = CommonUtil.GetFinancialYearStartingMonth(validConfig);
+            var validResult = CommonUtil.GetRelativeYearStartingMonth(validConfig);
             Assert.AreEqual(4, validResult);
 
             var missingConfig = BuildConfig(null);
-            var missingEx = Assert.ThrowsException<InvalidOperationException>(() => CommonUtil.GetFinancialYearStartingMonth(missingConfig));
-            Assert.AreEqual("FinancialYearStartingMonth configuration is missing", missingEx.Message);
+            var missingEx = Assert.ThrowsException<InvalidOperationException>(() => CommonUtil.GetRelativeYearStartingMonth(missingConfig));
+            Assert.AreEqual("RelativeYearStartingMonth configuration is missing", missingEx.Message);
 
             var invalidConfig = BuildConfig("13");
-            var invalidEx = Assert.ThrowsException<InvalidOperationException>(() => CommonUtil.GetFinancialYearStartingMonth(invalidConfig));
-            Assert.AreEqual("FinancialYearStartingMonth must be between 1 and 12", invalidEx.Message);
+            var invalidEx = Assert.ThrowsException<InvalidOperationException>(() => CommonUtil.GetRelativeYearStartingMonth(invalidConfig));
+            Assert.AreEqual("RelativeYearStartingMonth must be between 1 and 12", invalidEx.Message);
         }
     }
 }

@@ -14,11 +14,11 @@ namespace EPR.Calculator.Frontend.Controllers
     /// </summary>
     [Route("[controller]")]
     public class CalculationRunDetailsNewController(IConfiguration configuration,
-           IApiService apiService,
+           IEprCalculatorApiService eprCalculatorApiService,
            TelemetryClient telemetryClient,
            ICalculatorRunDetailsService calculatorRunDetailsService) : BaseController(configuration,
                  telemetryClient,
-                 apiService,
+                 eprCalculatorApiService,
                  calculatorRunDetailsService)
     {
         [Route("{runId}")]

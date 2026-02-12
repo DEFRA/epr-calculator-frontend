@@ -14,7 +14,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             this.Fixture = new Fixture();
             this.MockHttpContext = new Mock<HttpContext>();
-            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            this.MockHttpContext.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
         }
 
         private Fixture Fixture { get; init; }

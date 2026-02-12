@@ -1,5 +1,6 @@
-﻿using System.Text.Json;
-using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Models;
+using Newtonsoft.Json;
+
 
 namespace EPR.Calculator.Frontend.UnitTests.Models
 {
@@ -45,13 +46,13 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
                 PageSize = 10
             };
 
-            var json = JsonSerializer.Serialize(dto);
-            var deserialized = JsonSerializer.Deserialize<ProducerBillingInstructionsRequestDto>(json);
+            var json = JsonConvert.SerializeObject(dto);
+            var deserialized = JsonConvert.DeserializeObject<ProducerBillingInstructionsRequestDto>(json);
 
             Assert.IsNotNull(deserialized);
             Assert.IsNotNull(deserialized.SearchQuery);
             Assert.AreEqual(99, deserialized.SearchQuery.OrganisationId);
-            CollectionAssert.AreEqual(new List<string> { "Pending" }, new List<string>(deserialized.SearchQuery.Status));
+            CollectionAssert.AreEqual(new List<string> { "Pending" }, new List<string>(deserialized!.SearchQuery!.Status!));
             Assert.AreEqual(1, deserialized.PageNumber);
             Assert.AreEqual(10, deserialized.PageSize);
         }

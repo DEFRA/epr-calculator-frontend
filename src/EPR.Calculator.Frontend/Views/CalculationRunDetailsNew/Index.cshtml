@@ -6,7 +6,7 @@
 @model CalculatorRunDetailsNewViewModel
 @{
     ViewData["Title"] = "Index";
-    var calcDetails = Model.CalculatorRunDetails;
+    CalculatorRunDetailsViewModel? calcDetails = Model.CalculatorRunDetails;
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -40,7 +40,7 @@
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@calcDetails.FinancialYear</td>
+                                    <td class="govuk-table__cell">@calcDetails.RelativeYear.ToFinancialYear()</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>

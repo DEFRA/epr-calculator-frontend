@@ -6,7 +6,7 @@ namespace EPR.Calculator.Frontend.Models
     {
         public required string CalculatorRunName { get; init; }
 
-        public required string FinancialYear { get; init; }
+        public required RelativeYear RelativeYear { get; init; }
 
         public required string CreatedBy { get; init; }
     }

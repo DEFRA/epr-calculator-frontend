@@ -12,10 +12,10 @@ namespace EPR.Calculator.Frontend.Controllers
     public class BaseController(
         IConfiguration configuration,
         TelemetryClient telemetryClient,
-        IApiService apiService,
+        IEprCalculatorApiService eprCalculatorApiService,
         ICalculatorRunDetailsService calculatorRunDetailsService) : Controller
     {
-        protected IApiService ApiService { get; init; } = apiService;
+        protected IEprCalculatorApiService EprCalculatorApiService { get; init; } = eprCalculatorApiService;
 
         protected ICalculatorRunDetailsService CalculatorRunDetailsService { get; init; }
             = calculatorRunDetailsService;

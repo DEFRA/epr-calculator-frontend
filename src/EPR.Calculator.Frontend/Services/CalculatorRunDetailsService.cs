@@ -1,27 +1,20 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.ViewModels;
+﻿using EPR.Calculator.Frontend.ViewModels;
 using System.Net;
 
 namespace EPR.Calculator.Frontend.Services
 {
     public class CalculatorRunDetailsService(
-        IApiService apiService) : ICalculatorRunDetailsService
+        IEprCalculatorApiService eprCalculatorApiService) : ICalculatorRunDetailsService
     {
         /// <inheritdoc />
         public async Task<CalculatorRunDetailsViewModel> GetCalculatorRundetailsAsync(
             HttpContext httpContext,
             int runId)
         {
-            var apiUrl = apiService.GetApiUrl(
-                    ConfigSection.DashboardCalculatorRun,
-                    ConfigSection.DashboardCalculatorRunApi);
-
-            var response = await apiService.CallApi(
-                httpContext,
-                HttpMethod.Get,
-                apiUrl,
-                runId.ToString(),
-                null);
+            var response = await eprCalculatorApiService.CallApi(
+                httpContext: httpContext,
+                httpMethod: HttpMethod.Get,
+                relativePath: $"v1/calculatorRuns/{runId}");
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -29,10 +22,8 @@ namespace EPR.Calculator.Frontend.Services
                     $"Failed to retrieve calculator run details. Status code: {response.StatusCode}");
             }
 
-            var runDetails = await response.Content.ReadFromJsonAsync<CalculatorRunDetailsViewModel>()
+            return await response.Content.ReadFromJsonAsync<CalculatorRunDetailsViewModel>()
                 ?? new CalculatorRunDetailsViewModel();
-
-            return runDetails;
         }
     }
 }

@@ -13,55 +13,48 @@ namespace EPR.Calculator.Frontend.Controllers
 
         public IActionResult Index()
         {
-            try
-            {
-                var errors = this.HttpContext.Session.GetString(UploadFileErrorIds.DefaultParameterUploadErrors);
+            var errors = this.HttpContext.Session.GetString(UploadFileErrorIds.DefaultParameterUploadErrors);
 
-                if (string.IsNullOrEmpty(errors))
-                {
-                    return this.RedirectToErrorPage;
-                }
-
-                var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(errors);
-                var currentUser = CommonUtil.GetUserName(this.HttpContext);
-                var parameterUploadViewModel = new ParameterUploadViewModel()
-                {
-                    CurrentUser = currentUser,
-                    BackLinkViewModel = new BackLinkViewModel()
-                    {
-                        BackLink = ControllerNames.ParameterUploadFile,
-                        CurrentUser = currentUser,
-                    },
-                };
-
-                if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
-                {
-                    parameterUploadViewModel.ValidationErrors = validationErrors;
-                }
-                else
-                {
-                    parameterUploadViewModel.ParamterErrors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
-                }
-
-                if (parameterUploadViewModel.ValidationErrors == null && parameterUploadViewModel.ParamterErrors != null)
-                {
-                    parameterUploadViewModel.ValidationErrors =
-                    [
-                        new ValidationErrorDto()
-                            {
-                                ErrorMessage = parameterUploadViewModel.ParamterErrors.Count > 1 ? $"The file contained {parameterUploadViewModel.ParamterErrors.Count} errors." : $"The file contained {parameterUploadViewModel.ParamterErrors.Count} error.",
-                            },
-                        ];
-                }
-
-                return this.View(
-                    ViewNames.ParameterUploadFileErrorIndex,
-                    parameterUploadViewModel);
-            }
-            catch (Exception)
+            if (string.IsNullOrEmpty(errors))
             {
                 return this.RedirectToErrorPage;
             }
+
+            var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(errors);
+            var currentUser = CommonUtil.GetUserName(this.HttpContext);
+            var parameterUploadViewModel = new ParameterUploadViewModel()
+            {
+                CurrentUser = currentUser,
+                BackLinkViewModel = new BackLinkViewModel()
+                {
+                    BackLink = ControllerNames.ParameterUploadFile,
+                    CurrentUser = currentUser,
+                },
+            };
+
+            if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
+            {
+                parameterUploadViewModel.ValidationErrors = validationErrors;
+            }
+            else
+            {
+                parameterUploadViewModel.ParamterErrors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
+            }
+
+            if (parameterUploadViewModel.ValidationErrors == null && parameterUploadViewModel.ParamterErrors != null)
+            {
+                parameterUploadViewModel.ValidationErrors =
+                [
+                    new ValidationErrorDto()
+                        {
+                            ErrorMessage = parameterUploadViewModel.ParamterErrors.Count > 1 ? $"The file contained {parameterUploadViewModel.ParamterErrors.Count} errors." : $"The file contained {parameterUploadViewModel.ParamterErrors.Count} error.",
+                        },
+                    ];
+            }
+
+            return this.View(
+                ViewNames.ParameterUploadFileErrorIndex,
+                parameterUploadViewModel);
         }
 
         [HttpPost]

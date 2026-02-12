@@ -14,9 +14,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Moq;
 using Moq.Protected;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -38,13 +38,13 @@ namespace EPR.Calculator.Frontend.UnitTests
             _mockHttpContext = new Mock<HttpContext>();
             _mockClientFactory = new Mock<IHttpClientFactory>();
             _mockLogger = new Mock<ILogger<DesignatedRunController>>();
-            _mockTelemetryClient = new TelemetryClient();
+            _mockTelemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
             _mockMessageHandler = new Mock<HttpMessageHandler>();
             _mockCalculatorRunDetailsService = new Mock<ICalculatorRunDetailsService>();
 
             _controller = new DesignatedRunController(
                        _configuration,
-                       new Mock<IApiService>().Object,
+                       new Mock<IEprCalculatorApiService>().Object,
                        _mockTelemetryClient,
                        _mockCalculatorRunDetailsService.Object);
 
@@ -81,7 +81,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             _controller = new DesignatedRunController(
                 _configuration,
-                new Mock<IApiService>().Object,
+                new Mock<IEprCalculatorApiService>().Object,
                 _mockTelemetryClient,
                 new Mock<ICalculatorRunDetailsService>().Object);
 
@@ -104,11 +104,11 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Act
             var result = await controller.Index(data.RunId) as ViewResult;
-            var resultViewModel = result.Model as ClassifyRunConfirmationViewModel;
+            var resultViewModel = result!.Model as ClassifyRunConfirmationViewModel;
 
             // Assert
             Assert.AreEqual(ViewNames.ClassifyRunConfirmationIndex, result.ViewName);
-            Assert.AreEqual(data.RunId, resultViewModel.CalculatorRunDetails.RunId);
+            Assert.AreEqual(data.RunId, resultViewModel!.CalculatorRunDetails.RunId);
         }
 
         [TestMethod]
@@ -137,7 +137,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             _controller = new DesignatedRunController(
                 _configuration,
-                new Mock<IApiService>().Object,
+                new Mock<IEprCalculatorApiService>().Object,
                 _mockTelemetryClient,
                 new Mock<ICalculatorRunDetailsService>().Object);
 
@@ -185,7 +185,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             _controller = new DesignatedRunController(
                 _configuration,
-                new Mock<IApiService>().Object,
+                new Mock<IEprCalculatorApiService>().Object,
                 _mockTelemetryClient,
                 new Mock<ICalculatorRunDetailsService>().Object);
 
@@ -216,7 +216,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(runId, result.RouteValues["runId"]);
+            Assert.AreEqual(runId, result!.RouteValues!["runId"]);
         }
 
         [TestMethod]
@@ -231,7 +231,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.RouteName);
-            Assert.AreEqual(runId, result.RouteValues["calculationRunId"]);
+            Assert.AreEqual(runId, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
@@ -241,7 +241,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = BuildTestClass(HttpStatusCode.OK, MockData.GetCalculatorRun());
 
             _mockHttpContext = new Mock<HttpContext>();
-            _mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            _mockHttpContext.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
             var headers = new HeaderDictionary
             {
                 { "Referer", "https://calculator/" }
@@ -287,11 +287,11 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Act
             var result = await controller.Index(data.RunId) as ViewResult;
-            var resultViewModel = result.Model as ClassifyRunConfirmationViewModel;
+            var resultViewModel = result!.Model as ClassifyRunConfirmationViewModel;
 
             // Assert
             Assert.AreEqual(ViewNames.ClassifyRunConfirmationIndex, result.ViewName);
-            Assert.AreEqual(data.RunId, resultViewModel.CalculatorRunDetails.RunId);
+            Assert.AreEqual(data.RunId, resultViewModel!.CalculatorRunDetails.RunId);
         }
 
         [TestMethod]
@@ -351,14 +351,14 @@ namespace EPR.Calculator.Frontend.UnitTests
 
         private DesignatedRunController BuildTestClass(
             HttpStatusCode httpStatusCode,
-            CalculatorRunDto data = null,
-            CalculatorRunDetailsViewModel details = null)
+            CalculatorRunDto? data = null,
+            CalculatorRunDetailsViewModel? details = null)
         {
-            data = data ?? MockData.GetCalculatorRun();
-            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            data ??= MockData.GetCalculatorRun();
+            details ??= Fixture.Create<CalculatorRunDetailsViewModel>();
             var mockApiService = TestMockUtils.BuildMockApiService(
                 httpStatusCode,
-                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+                JsonConvert.SerializeObject(data ?? MockData.GetCalculatorRun())).Object;
 
             var testClass = new DesignatedRunController(
                 ConfigurationItems.GetConfigurationValues(),

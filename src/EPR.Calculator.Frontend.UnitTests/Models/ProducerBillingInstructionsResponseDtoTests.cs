@@ -1,5 +1,6 @@
-﻿using System.Text.Json;
-using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Models;
+using Newtonsoft.Json;
+
 
 namespace EPR.Calculator.Frontend.UnitTests.Models
 {
@@ -67,8 +68,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
                 Records = new List<ProducerBillingInstructionsDto> { record }
             };
 
-            var json = JsonSerializer.Serialize(response);
-            var deserialized = JsonSerializer.Deserialize<ProducerBillingInstructionsResponseDto>(json);
+            var json = JsonConvert.SerializeObject(response);
+            var deserialized = JsonConvert.DeserializeObject<ProducerBillingInstructionsResponseDto>(json);
 
             Assert.IsNotNull(deserialized);
             Assert.AreEqual(response.CalculatorRunId, deserialized.CalculatorRunId);

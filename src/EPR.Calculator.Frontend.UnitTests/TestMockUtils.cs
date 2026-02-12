@@ -5,9 +5,9 @@ using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Moq;
 using Moq.Protected;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -45,9 +45,9 @@ namespace EPR.Calculator.Frontend.UnitTests
 
         public static Mock<HttpMessageHandler> BuildMockMessageHandler(
             HttpStatusCode? statusCode = null,
-            object content = null,
+            object? content = null,
             bool shouldThrowException = false,
-            Exception exceptionToThrow = null)
+            Exception? exceptionToThrow = null)
         {
             // Mock HttpMessageHandler
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -92,8 +92,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
                        .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
 
-            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                .Returns((string key, out byte[] value) =>
+            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]?>.IsAny))
+                .Returns((string key, out byte[]? value) =>
                 {
                     var success = sessionStorage.TryGetValue(key, out var storedValue);
                     value = storedValue;
@@ -115,32 +115,28 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         /// <summary>
-        /// Creates a mock <see cref="IApiService"/> and configures it's methods to return values.
+        /// Creates a mock <see cref="IEprCalculatorApiService"/> and configures it's methods to return values.
         /// </summary>
         /// <param name="httpStatusCode">The HTTP status code to return in the response.</param>
         /// <param name="callApiResponse">The JSON content to return in the response.</param>
-        /// <returns>A mock <see cref="IApiService"/>.</returns>
-        public static Mock<IApiService> BuildMockApiService(
+        /// <returns>A mock <see cref="IEprCalculatorApiService"/>.</returns>
+        public static Mock<IEprCalculatorApiService> BuildMockApiService(
             HttpStatusCode httpStatusCode,
             string callApiResponse = "{}")
             => BuildMockApiService([(httpStatusCode, callApiResponse)]);
 
         /// <summary>
-        /// Creates a mock <see cref="IApiService"/> and configures it's methods to return values.
+        /// Creates a mock <see cref="IEprCalculatorApiService"/> and configures it's methods to return values.
         /// </summary>
         /// <param name="responses">
         /// A sequence of responses for CallApi to return in order.
         /// The final value is returned indfinitely for subsequent calls.
         /// </param>
-        /// <returns>A mock <see cref="IApiService"/>.</returns>
-        public static Mock<IApiService> BuildMockApiService(
+        /// <returns>A mock <see cref="IEprCalculatorApiService"/>.</returns>
+        public static Mock<IEprCalculatorApiService> BuildMockApiService(
             IEnumerable<(HttpStatusCode StatusCode, string CallApiResponse)> responses)
         {
-            var service = new Mock<IApiService>();
-
-            // Mock the GetApiUrl method.
-            service.SetupSequence(s => s.GetApiUrl(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(new Uri("http://test.test"));
+            var service = new Mock<IEprCalculatorApiService>();
 
             // Mock the CallApi method to return a sequence of responses.
             var messages = responses.Select(r => new HttpResponseMessage
@@ -151,8 +147,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             var setup = service.SetupSequence(s => s.CallApi(
                 It.IsAny<HttpContext>(),
                 It.IsAny<HttpMethod>(),
-                It.IsAny<Uri>(),
                 It.IsAny<string>(),
+                It.IsAny<IDictionary<string, string?>>(),
                 It.IsAny<object>()).Result);
 
             // Queue up the response messages.
@@ -168,8 +164,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                 service.Setup(s => s.CallApi(
                 It.IsAny<HttpContext>(),
                 It.IsAny<HttpMethod>(),
-                It.IsAny<Uri>(),
                 It.IsAny<string>(),
+                It.IsAny<IDictionary<string, string?>>(),
                 It.IsAny<object>()).Result).Returns(messages.Last());
                 return messages.Last();
             });
@@ -177,26 +173,22 @@ namespace EPR.Calculator.Frontend.UnitTests
             return service;
         }
 
-        public static Mock<IApiService> BuildMockApiService(
-            Dictionary<(HttpMethod Method, string Url, string Argument), (HttpStatusCode StatusCode, string Response)> responses)
+        public static Mock<IEprCalculatorApiService> BuildMockApiService(
+            Dictionary<(HttpMethod Method, string RelativePath, string Argument), (HttpStatusCode StatusCode, string Response)> responses)
         {
-            var service = new Mock<IApiService>();
-
-            service.Setup(s => s.GetApiUrl(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns((string section, string key) => new Uri($"http://test/{section}/{key}"));
-
-            service.Setup(s => s.GetApiUrl(It.IsAny<string>()))
-                .Returns((string key) => new Uri($"http://test/{key}"));
+            var service = new Mock<IEprCalculatorApiService>();
 
             service.Setup(s => s.CallApi(
                     It.IsAny<HttpContext>(),
                     It.IsAny<HttpMethod>(),
-                    It.IsAny<Uri>(),
                     It.IsAny<string>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<object>()))
-                .ReturnsAsync((HttpContext ctx, HttpMethod method, Uri uri, string argument, object body) =>
+                .ReturnsAsync((HttpContext ctx, HttpMethod method, string relativePath, IDictionary<string, string?>? queryParams, object? body) =>
                 {
-                    var key = (method, uri.AbsoluteUri, argument ?? string.Empty);
+                    var argument = body is null ? string.Empty : JsonConvert.SerializeObject(body);
+                    var key = (method, relativePath, argument);
+
                     if (responses.TryGetValue(key, out var resp))
                     {
                         return new HttpResponseMessage

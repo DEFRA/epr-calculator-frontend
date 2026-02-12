@@ -1,5 +1,4 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
@@ -14,13 +13,13 @@ namespace EPR.Calculator.Frontend.Controllers
     [Route("[controller]")]
     public class DesignatedRunWithBillingFileController(
         IConfiguration configuration,
-        IApiService apiService,
+        IEprCalculatorApiService eprCalculatorApiService,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
             telemetryClient,
-            apiService,
+            eprCalculatorApiService,
             calculatorRunDetailsService)
     {
         [Route("{runId}")]
@@ -72,16 +71,10 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<bool> TryGenerateDraftBillingFile(int id)
         {
-            var acceptApiUrl = this.ApiService.GetApiUrl(
-                ConfigSection.CalculationRunSettings,
-                ConfigSection.ProducerBillingInstructionsAcceptApi);
-
-            var responseDto = await this.ApiService.CallApi(
-                this.HttpContext,
-                HttpMethod.Put,
-                acceptApiUrl,
-                id.ToString(),
-                null);
+            var responseDto = await this.EprCalculatorApiService.CallApi(
+                httpContext: this.HttpContext,
+                httpMethod: HttpMethod.Put,
+                relativePath: $"v1/producerBillingInstructionsAccept/{id}");
 
             if (!responseDto.IsSuccessStatusCode)
             {

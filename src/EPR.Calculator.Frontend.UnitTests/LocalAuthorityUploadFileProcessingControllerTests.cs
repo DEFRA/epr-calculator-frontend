@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -25,7 +26,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             this.Fixture = new Fixture();
             this.MockSesion = TestMockUtils.BuildMockSession(this.Fixture);
             this.MockHttpContext = new Mock<HttpContext>();
-            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            this.MockHttpContext.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
             this.MockHttpContext.Setup(c => c.Session).Returns(this.MockSesion.Object);
 
             this.Configuration = TestMockUtils.BuildConfiguration();
@@ -35,8 +36,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                 this.MockMessageHandler.Object);
             this.TestClass = new LocalAuthorityUploadFileProcessingController(
                 this.Configuration,
-                new Mock<IApiService>().Object,
-                new TelemetryClient(),
+                new Mock<IEprCalculatorApiService>().Object,
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 new Mock<ICalculatorRunDetailsService>().Object)
             {
                 TempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>()),
@@ -106,7 +107,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public async Task Index_SendDateFromSession()
         {
             // Arrange
-            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, 4);
+            var currentYear = CommonUtil.GetDefaultRelativeYear(DateTime.UtcNow, 4);
             var viewModel = new LapcapRefreshViewModel();
             var (controller, mockApiService) = BuildTestClass(
                 Fixture,
@@ -118,16 +119,16 @@ namespace EPR.Calculator.Frontend.UnitTests
                 s => s.CallApi(
                     It.IsAny<HttpContext>(),
                     It.IsAny<HttpMethod>(),
-                    It.IsAny<Uri>(),
                     It.IsAny<string>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     new CreateLapcapDataDto(new LapcapRefreshViewModel(), currentYear)),
                 Times.Once());
         }
 
         [TestMethod]
-        public async Task Index_DefaultToCurrentYearWhenNoFinancialYearInSession()
+        public async Task Index_DefaultToCurrentYearWhenNoRelativeYearInSession()
         {
-            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, 4);
+            var currentYear = CommonUtil.GetDefaultRelativeYear(DateTime.UtcNow, 4);
             var viewModel = new LapcapRefreshViewModel();
 
             var (controller, mockApiService) = BuildTestClass(
@@ -138,37 +139,37 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Index(viewModel);
 
             // Assert
-            Assert.IsFalse(this.MockSesion.Object.Keys.Contains(SessionConstants.FinancialYear));
+            Assert.IsFalse(this.MockSesion.Object.Keys.Contains(SessionConstants.RelativeYear));
             mockApiService.Verify(
                 s => s.CallApi(
                     It.IsAny<HttpContext>(),
                     It.IsAny<HttpMethod>(),
-                    It.IsAny<Uri>(),
                     It.IsAny<string>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     new CreateLapcapDataDto(viewModel, currentYear)),
                 Times.Once());
         }
 
         private (
             LocalAuthorityUploadFileProcessingController Controller,
-            Mock<IApiService> MockApiService) BuildTestClass(
+            Mock<IEprCalculatorApiService> MockApiService) BuildTestClass(
             Fixture fixture,
             HttpStatusCode httpStatusCode,
-            object data = null,
-            CalculatorRunDetailsViewModel details = null,
-            IConfiguration configurationItems = null)
+            object? data = null,
+            CalculatorRunDetailsViewModel? details = null,
+            IConfiguration? configurationItems = null)
         {
-            data = data ?? MockData.GetCalculatorRun();
-            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
-            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            data ??= MockData.GetCalculatorRun();
+            configurationItems ??= ConfigurationItems.GetConfigurationValues();
+            details ??= Fixture.Create<CalculatorRunDetailsViewModel>();
             var mockApiService = TestMockUtils.BuildMockApiService(
                 httpStatusCode,
-                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun()));
+                JsonConvert.SerializeObject(data ?? MockData.GetCalculatorRun()));
 
             var testClass = new LocalAuthorityUploadFileProcessingController(
                 configurationItems,
                 mockApiService.Object,
-                new TelemetryClient(),
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext.HttpContext = new DefaultHttpContext()
             {

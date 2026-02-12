@@ -33,7 +33,7 @@
         {
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
-            Assert.ThrowsException<ArgumentNullException>(() => default(ISession).GetBooleanFlag(fixture.Create<string>()));
+            Assert.ThrowsException<ArgumentNullException>(() => default(ISession)!.GetBooleanFlag(fixture.Create<string>()));
         }
 
         [TestMethod]
@@ -41,7 +41,7 @@
         {
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
-            Assert.ThrowsException<ArgumentNullException>(() => default(ISession).SetBooleanFlag(fixture.Create<string>(), fixture.Create<bool>()));
+            Assert.ThrowsException<ArgumentNullException>(() => default(ISession)!.SetBooleanFlag(fixture.Create<string>(), fixture.Create<bool>()));
         }
 
         [TestMethod]
@@ -49,7 +49,7 @@
         {
             // Arrange
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
-            Assert.ThrowsException<ArgumentNullException>(() => default(ISession).RemoveKeyIfExists(fixture.Create<string>()));
+            Assert.ThrowsException<ArgumentNullException>(() => default(ISession)!.RemoveKeyIfExists(fixture.Create<string>()));
         }
 
         [TestMethod]
@@ -105,15 +105,6 @@
             Assert.IsTrue(sessionData.ContainsKey(testKey));
             string storedValue = Encoding.UTF8.GetString(sessionData[testKey]);
             Assert.AreEqual("True", storedValue);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void SetBooleanFlag_ShouldThrowIfSessionIsNull()
-        {
-            // Act
-            ISession nullSession = null;
-            nullSession.SetBooleanFlag("SomeKey", true);
         }
     }
 }

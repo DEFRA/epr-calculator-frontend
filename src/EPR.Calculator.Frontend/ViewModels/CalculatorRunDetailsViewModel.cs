@@ -1,4 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
@@ -19,7 +20,7 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public string? RunClassificationStatus { get; set; }
 
-        public string? FinancialYear { get; set; }
+        public RelativeYear RelativeYear { get; set; } = new RelativeYear(0);
 
         /// <summary>
         /// gets or sets the billing file generating flag.

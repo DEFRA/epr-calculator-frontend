@@ -14,7 +14,7 @@
 
         public const string PaycalAppName = "PaycalFrontend";
 
-        public const string FinancialYear = "FinancialYear";
+        public const string RelativeYear = "RelativeYear";
 
         public const string IsSelectAll = "IsSelectAll";
 

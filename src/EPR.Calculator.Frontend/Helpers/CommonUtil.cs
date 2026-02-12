@@ -3,6 +3,7 @@
 // </copyright>
 
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.Helpers
 {
@@ -32,24 +33,16 @@ namespace EPR.Calculator.Frontend.Helpers
             => context.User.Identity?.Name ?? ErrorMessages.UnknownUser;
 
         /// <summary>
-        /// Gets the financial year based on the date input.
+        /// Gets the relative year based on the date input.
         /// </summary>
         /// <param name="date">Any date.</param>
-        /// <param name="financialYearStartingMonth">Month from which the financial year starts.</param>
-        /// <returns>The financial year in the format YYYY-YY.</returns>
-        public static string GetDefaultFinancialYear(DateTime date, int financialYearStartingMonth)
+        /// <param name="relativeYearStartingMonth">Month from which the relative year starts.</param>
+        /// <returns>The relative year.</returns>
+        public static RelativeYear GetDefaultRelativeYear(DateTime date, int relativeYearStartingMonth)
         {
-            var year = date.Year;
-
-            var startYear = date.Month >= financialYearStartingMonth
-                ? year
-                : year - 1;
-
-            var endYear = date.Month >= financialYearStartingMonth
-                ? year + 1
-                : year;
-
-            return $"{startYear}-{endYear.ToString().Substring(2, 2)}";
+            return date.Month >= relativeYearStartingMonth
+                ? new RelativeYear(date.Year)
+                : new RelativeYear(date.Year - 1);
         }
 
         public static DateTime GetDateTime(DateTime date)
@@ -59,32 +52,28 @@ namespace EPR.Calculator.Frontend.Helpers
         }
 
         /// <summary>
-        /// Returns the financial year from session if feature enabled, else from config.
+        /// Returns the relative year from session if feature enabled, else from config.
         /// </summary>
-        /// <returns>Returns the financial year.</returns>
-        /// <exception cref="ArgumentNullException">Returns error if financial year is null or empty.</exception>
-        public static string GetFinancialYear(ISession session, int startingMonth)
+        /// <returns>Returns the relative year.</returns>
+        /// <exception cref="ArgumentNullException">Returns error if relative year is null or empty.</exception>
+        public static RelativeYear GetRelativeYear(ISession session, int startingMonth)
         {
-            var parameterYear = session.GetString(SessionConstants.FinancialYear);
-
-            if (string.IsNullOrWhiteSpace(parameterYear))
-            {
-                parameterYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, startingMonth);
-            }
-
-            return parameterYear;
+            var yearValue = session.GetInt32(SessionConstants.RelativeYear);
+            return yearValue.HasValue
+                ? new RelativeYear(yearValue.Value)
+                : GetDefaultRelativeYear(DateTime.UtcNow, startingMonth);
         }
 
-        public static int GetFinancialYearStartingMonth(IConfiguration configuration)
+        public static int GetRelativeYearStartingMonth(IConfiguration configuration)
         {
-            var value = configuration[CommonConstants.FinancialYearStartingMonth]
+            var value = configuration[CommonConstants.RelativeYearStartingMonth]
                 ?? throw new InvalidOperationException(
-                    "FinancialYearStartingMonth configuration is missing");
+                    "RelativeYearStartingMonth configuration is missing");
 
             if (!int.TryParse(value, out var month) || month is < 1 or > 12)
             {
                 throw new InvalidOperationException(
-                    "FinancialYearStartingMonth must be between 1 and 12");
+                    "RelativeYearStartingMonth must be between 1 and 12");
             }
 
             return month;
