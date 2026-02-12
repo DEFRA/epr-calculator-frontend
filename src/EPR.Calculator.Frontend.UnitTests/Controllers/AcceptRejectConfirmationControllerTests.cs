@@ -13,9 +13,9 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Moq;
 using Moq.Protected;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
@@ -28,7 +28,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public AcceptRejectConfirmationControllerTests()
         {
             this.Fixture = new Fixture();
-            _telemetryClient = new TelemetryClient();
+            _telemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
+;
         }
 
         private Fixture Fixture { get; init; }
@@ -65,7 +66,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage
                 {
-                    Content = new StringContent(JsonConvert.SerializeObject(null)),
+                    Content = new StringContent(JsonConvert.SerializeObject(null))
                 });
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
@@ -108,7 +109,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(viewResult);
             Assert.IsInstanceOfType(viewResult.Model, typeof(AcceptRejectConfirmationViewModel));
             var model = viewResult.Model as AcceptRejectConfirmationViewModel;
-            Assert.AreEqual(runDetails.RunId, model.CalculationRunId);
+            Assert.AreEqual(runDetails.RunId, model!.CalculationRunId);
             Assert.AreEqual(runDetails.RunName, model.CalculationRunName);
             Assert.AreEqual(BillingStatus.Accepted, model.Status);
         }
@@ -161,7 +162,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsTrue(controller.ModelState.ContainsKey($"Summary_{nameof(model.ApproveData)}"));
             Assert.AreEqual(
                ErrorMessages.AcceptRejectConfirmationApproveDataRequiredSummary,
-               controller.ModelState[$"Summary_{nameof(model.ApproveData)}"].Errors.First().ErrorMessage);
+               controller!.ModelState[$"Summary_{nameof(model.ApproveData)}"]!.Errors.First().ErrorMessage);
         }
 
         [TestMethod]
@@ -184,7 +185,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.BillingInstructionsController, result.ControllerName);
-            Assert.AreEqual(model.CalculationRunId, result.RouteValues["calculationRunId"]);
+            Assert.AreEqual(model.CalculationRunId, result!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
@@ -208,7 +209,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(redirectResult);
             Assert.AreEqual(ActionNames.Index, redirectResult.ActionName);
             Assert.AreEqual(ControllerNames.BillingInstructionsController, redirectResult.ControllerName);
-            Assert.AreEqual(model.CalculationRunId, redirectResult.RouteValues["calculationRunId"]);
+            Assert.AreEqual(model.CalculationRunId, redirectResult!.RouteValues!["calculationRunId"]);
         }
 
         [TestMethod]
@@ -252,13 +253,13 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(redirectResult);
             Assert.AreEqual(ActionNames.Index, redirectResult.ActionName);
             Assert.AreEqual(ControllerNames.BillingInstructionsController, redirectResult.ControllerName);
-            Assert.AreEqual(model.CalculationRunId, redirectResult.RouteValues["calculationRunId"]);
+            Assert.AreEqual(model.CalculationRunId, redirectResult!.RouteValues!["calculationRunId"]);
         }
 
         private AcceptRejectConfirmationController CreateController(
             HttpStatusCode apiReturnCode = HttpStatusCode.OK,
             bool billingApiThrowException = false,
-            CalculatorRunDetailsViewModel calculatorRunDetails = null)
+            CalculatorRunDetailsViewModel? calculatorRunDetails = null)
         {
             var identity = new GenericIdentity("TestUser");
             identity.AddClaim(new Claim("name", "TestUser"));

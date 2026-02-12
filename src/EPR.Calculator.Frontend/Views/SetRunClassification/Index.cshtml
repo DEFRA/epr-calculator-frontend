@@ -18,7 +18,7 @@
             {
                 @Html.AntiForgeryToken()
                 @Html.HiddenFor(m => m.CalculatorRunDetails.RunId)
-                @Html.HiddenFor(m => m.CurrentUser) 
+                @Html.HiddenFor(m => m.CurrentUser)
 
                 <partial name="_ValidationSummaryPartial" />
 
@@ -35,7 +35,7 @@
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@calcDetails.FinancialYear</td>
+                                    <td class="govuk-table__cell">@calcDetails.RelativeYear.ToFinancialYear()</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
@@ -56,11 +56,11 @@
                                 @Html.ValidationMessageFor(model => model.ClassifyRunType, "", new { @class = "govuk-error-message" })
 
                                 <div class="govuk-radios" data-module="govuk-radios">
-                                    @if(Model.FinancialYearClassifications?.Classifications != null && Model.FinancialYearClassifications.Classifications.Any())
+                                    @if(Model.RelativeYearClassifications?.Classifications != null && Model.RelativeYearClassifications.Classifications.Any())
                                     {
-                                        @foreach (var classfication in Model.FinancialYearClassifications.Classifications)
-                                        {  
-                                          <div class="govuk-radios__item">                                            
+                                        @foreach (CalculatorRunClassificationDto classfication in Model.RelativeYearClassifications.Classifications)
+                                        {
+                                          <div class="govuk-radios__item">
                                                 @Html.RadioButtonFor(model => model.ClassifyRunType, classfication.Id, new { @class = "govuk-radios__input", id = classfication.Status })
                                             <label class="govuk-label govuk-radios__label" for="@classfication.Status">
                                                     <strong>@classfication.Status</strong><br />
@@ -68,7 +68,7 @@
                                                         @classfication.Description
                                                 </p>
                                             </label>
-                                          </div>   
+                                          </div>
                                         }
                                     }
                                 </div>

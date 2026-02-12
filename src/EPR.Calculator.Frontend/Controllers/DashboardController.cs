@@ -1,5 +1,4 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
@@ -8,7 +7,6 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
 using SessionExtensions = EPR.Calculator.Frontend.Extensions.SessionExtensions;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -20,21 +18,21 @@ namespace EPR.Calculator.Frontend.Controllers
     /// Initializes a new instance of the <see cref="DashboardController"/> class.
     /// </remarks>
     /// <param name="configuration">The configuration object to retrieve API URL and parameters.</param>
-    /// <param name="apiService">The api service.</param>
+    /// <param name="eprCalculatorApiService">The api service.</param>
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     [Route("/")]
     public class DashboardController(
         IConfiguration configuration,
-        IApiService apiService,
+        IEprCalculatorApiService eprCalculatorApiService,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
             telemetryClient,
-            apiService,
+            eprCalculatorApiService,
             calculatorRunDetailsService)
     {
-        private readonly int financialMonth = CommonUtil.GetFinancialYearStartingMonth(configuration);
+        private readonly int relativeYearStartingMonth = CommonUtil.GetRelativeYearStartingMonth(configuration);
 
         /// <summary>
         /// Handles the Index action for the controller.
@@ -47,53 +45,53 @@ namespace EPR.Calculator.Frontend.Controllers
         public async Task<IActionResult> Index()
         {
             SessionExtensions.ClearAllSession(this.HttpContext.Session);
-            var model = await this.GetDashboardViewModel(CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth));
+            var model = await this.GetDashboardViewModel(CommonUtil.GetRelativeYear(this.HttpContext.Session, this.relativeYearStartingMonth));
             return this.View(ViewNames.DashboardIndex, model);
         }
 
         /// <summary>
-        /// Returns the list of calculation runs for the given financial year.
+        /// Returns the list of calculation runs for the given relative year.
         /// </summary>
-        /// <param name="financialYear">The financial year to filter the calculation runs.</param>
+        /// <param name="relativeYear">The relative year to filter the calculation runs.</param>
         /// <returns>The list of calculation runs.</returns>
         [Route("Dashboard/GetCalculations")]
-        public async Task<IActionResult> GetCalculations(string financialYear)
+        public async Task<IActionResult> GetCalculations(int relativeYear) // matches query param name
         {
-            var model = await this.GetDashboardViewModel(financialYear);
+            var model = await this.GetDashboardViewModel(new RelativeYear(relativeYear));
             return this.PartialView("_CalculationRunsPartial", model.Calculations);
         }
 
-        private static List<string> GetFilteredFinancialYears(List<string> allYears, int financialYearStartingMonth)
+        private static List<RelativeYear> GetFilteredRelativeYears(List<RelativeYear> allYears, int relativeYearStartingMonth)
         {
             var today = DateTime.Today;
-            int currentStartYear = today.Month >= financialYearStartingMonth ? today.Year : today.Year - 1;
+            int currentStartYear = today.Month >= relativeYearStartingMonth ? today.Year : today.Year - 1;
 
             var filteredYears = allYears
-                .Where(fy => int.Parse(fy.Split('-')[0]) <= currentStartYear)
-                .OrderByDescending(fy => int.Parse(fy.Split('-')[0]))
+                .Where(y => y.Value <= currentStartYear)
+                .OrderByDescending(y => y.Value)
                 .ToList();
 
             return filteredYears;
         }
 
-        private async Task<DashboardViewModel> GetDashboardViewModel(string financialYear)
+        private async Task<DashboardViewModel> GetDashboardViewModel(RelativeYear relativeYear)
         {
-            this.HttpContext.Session.SetString(SessionConstants.FinancialYear, financialYear);
+            this.HttpContext.Session.SetInt32(SessionConstants.RelativeYear, relativeYear.Value);
 
-            var financialYears = await this.GetFinancialYearsAsync(financialYear);
+            var relativeYears = await this.GetRelativeYearsAsync(relativeYear);
             var dashboardViewModel = new DashboardViewModel
             {
                 CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                FinancialYear = financialYear,
+                RelativeYear = relativeYear,
                 Calculations = null,
-                FinancialYearSelectList = financialYears,
+                RelativeYearSelectList = relativeYears,
             };
 
-            using var response = await this.PostCalculatorRunsAsync(financialYear);
+            using var response = await this.PostCalculatorRunsAsync(relativeYear);
             if (response.IsSuccessStatusCode)
             {
-                var content = await response.Content.ReadAsStringAsync();
-                var deserializedRuns = JsonConvert.DeserializeObject<List<CalculationRun>>(content);
+                var deserializedRuns =
+                    await response.Content.ReadFromJsonAsync<List<CalculationRun>>();
 
                 // Ensure deserializedRuns is not null
                 var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
@@ -108,54 +106,45 @@ namespace EPR.Calculator.Frontend.Controllers
         /// Calls the "calculatorRuns" POST endpoint.
         /// </summary>
         /// <returns>The response message returned by the endpoint.</returns>
-        private async Task<HttpResponseMessage> PostCalculatorRunsAsync(string financialYear)
+        private async Task<HttpResponseMessage> PostCalculatorRunsAsync(RelativeYear relativeYear)
         {
-            var apiUrl = this.ApiService.GetApiUrl(
-                ConfigSection.DashboardCalculatorRun,
-                ConfigSection.DashboardCalculatorRunApi);
-
-            return await this.ApiService.CallApi(
+            return await this.EprCalculatorApiService.CallApi(
                 this.HttpContext,
-                HttpMethod.Post,
-                apiUrl,
-                string.Empty,
-                (CalculatorRunParamsDto)financialYear);
+                httpMethod: HttpMethod.Post,
+                relativePath: "v1/calculatorRuns",
+                body: new { RelativeYear = relativeYear });
         }
 
-        private async Task<List<SelectListItem>> GetFinancialYearsAsync(string selectedFinancialYear)
+        private async Task<List<SelectListItem>> GetRelativeYearsAsync(RelativeYear selectedRelativeYear)
         {
-            var apiUrl = this.ApiService.GetApiUrl(ConfigSection.FinancialYearListApi);
-            var response = await this.ApiService.CallApi(this.HttpContext, HttpMethod.Get, apiUrl, string.Empty, null);
+            var response = await this.EprCalculatorApiService.CallApi(
+                httpContext: this.HttpContext,
+                httpMethod: HttpMethod.Get,
+                relativePath: "v1/RelativeYears");
 
             if (!response.IsSuccessStatusCode)
             {
-                this.TelemetryClient.TrackTrace("Unable to fetch financial years from API", SeverityLevel.Error);
-                throw new InvalidOperationException("Failed to fetch financial years.");
+                this.TelemetryClient.TrackTrace("Unable to fetch relative years from API", SeverityLevel.Error);
+                throw new InvalidOperationException("Failed to fetch relative years.");
             }
 
-            var content = await response.Content.ReadAsStringAsync();
-            var years = JsonConvert.DeserializeObject<List<FinancialYearDto>>(content) ?? new List<FinancialYearDto>();
-            var financialYears = years.Select(x => x.Name).ToList();
-
-            // Sort by starting year descending
-            financialYears = financialYears
-                .OrderByDescending(fy => int.Parse(fy.Substring(0, 4)))
-                .ToList();
-
-            financialYears = GetFilteredFinancialYears(financialYears, this.financialMonth);
+            var relativeYearsList = await response.Content.ReadFromJsonAsync<List<int>>() ?? new List<int>();
+            var relativeYears = GetFilteredRelativeYears(
+                relativeYearsList.Select(year => new RelativeYear(year)).ToList(),
+                this.relativeYearStartingMonth);
 
             // Ensure current year is first
-            var currentYear = CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, this.financialMonth);
-            financialYears.Remove(currentYear);
-            financialYears.Insert(0, currentYear);
+            var currentYear = CommonUtil.GetDefaultRelativeYear(DateTime.UtcNow, this.relativeYearStartingMonth);
+            relativeYears.Remove(currentYear);
+            relativeYears.Insert(0, currentYear);
 
             // Build SelectListItem list
-            var selectList = financialYears
-                .Select(fy => new SelectListItem
+            var selectList = relativeYears
+                .Select(y => new SelectListItem
                 {
-                    Value = fy,
-                    Text = fy,
-                    Selected = fy == selectedFinancialYear,
+                    Value = y.Value.ToString(),
+                    Text = y.ToFinancialYear(),
+                    Selected = y == selectedRelativeYear,
                 })
                 .ToList();
 

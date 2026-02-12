@@ -21,23 +21,23 @@ namespace EPR.Calculator.Frontend.Models
         /// <param name="original">
         /// The <see cref="ParameterRefreshViewModel"/> to copy the parameter list and file name from.
         /// </param>
-        /// <param name="parameterYear">The parameter year.</param>
+        /// <param name="relativeYear">The relative year.</param>
         [SetsRequiredMembers]
         public CreateDefaultParameterSettingDto(
             ParameterRefreshViewModel original,
-            string parameterYear)
+            RelativeYear relativeYear)
         {
             this.ParameterTemplateValues = original.ParameterTemplateValues;
             this.FileName = original.FileName;
-            this.ParameterYear = parameterYear;
+            this.RelativeYear = relativeYear;
         }
 
         /// <summary>
-        /// Gets the parameter year.
+        /// Gets the relative year.
         /// </summary>
         /// <value>
         /// The year for which the parameters are set.
         /// </value>
-        public required string ParameterYear { get; init; }
+        public required RelativeYear RelativeYear { get; init; }
     }
 }

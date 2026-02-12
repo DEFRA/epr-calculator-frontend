@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using EPR.Calculator.Frontend.Common.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
@@ -17,16 +16,16 @@ namespace EPR.Calculator.Frontend.Controllers
     /// <param name="telemetryClient">The telemetry client for logging and monitoring.</param>
     public class LocalAuthorityUploadFileProcessingController(
         IConfiguration configuration,
-        IApiService apiService,
+        IEprCalculatorApiService eprCalculatorApiService,
         TelemetryClient telemetryClient,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
             telemetryClient,
-            apiService,
+            eprCalculatorApiService,
             calculatorRunDetailsService)
     {
-        private readonly int financialMonth = CommonUtil.GetFinancialYearStartingMonth(configuration);
+        private readonly int relativeYearStartingMonth = CommonUtil.GetRelativeYearStartingMonth(configuration);
 
         [HttpPost]
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -35,7 +34,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             var response = this.PostLapcapDataAsync(new CreateLapcapDataDto(
                 lapcapRefreshViewModel,
-                CommonUtil.GetFinancialYear(this.HttpContext.Session, this.financialMonth)));
+                CommonUtil.GetRelativeYear(this.HttpContext.Session, this.relativeYearStartingMonth)));
 
             response.Wait();
 
@@ -56,15 +55,11 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>The response message returned by the endpoint.</returns>
         private async Task<HttpResponseMessage> PostLapcapDataAsync(CreateLapcapDataDto dto)
         {
-            var apiUrl = this.ApiService.GetApiUrl(
-                ConfigSection.LapcapSettings,
-                ConfigSection.LapcapSettingsApi);
-            return await this.ApiService.CallApi(
-                this.HttpContext,
-                HttpMethod.Post,
-                apiUrl,
-                string.Empty,
-                dto);
+            return await this.EprCalculatorApiService.CallApi(
+                httpContext: this.HttpContext,
+                httpMethod: HttpMethod.Post,
+                relativePath: "v1/lapcapData",
+                body: dto);
         }
     }
 }

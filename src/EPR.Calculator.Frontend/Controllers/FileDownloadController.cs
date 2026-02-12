@@ -1,5 +1,4 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Services;
 using Microsoft.ApplicationInsights;
@@ -12,18 +11,16 @@ namespace EPR.Calculator.Frontend.Controllers
     /// </summary>
     public class FileDownloadController : BaseController
     {
-        private readonly IApiService apiService;
         private readonly IResultBillingFileService fileDownloadService;
 
         public FileDownloadController(
             IConfiguration configuration,
-            IApiService apiService,
+            IEprCalculatorApiService eprCalculatorApiService,
             TelemetryClient telemetryClient,
             IResultBillingFileService fileDownloadService,
             ICalculatorRunDetailsService calculatorRunDetailsService)
-            : base(configuration, telemetryClient, apiService, calculatorRunDetailsService)
+            : base(configuration, telemetryClient, eprCalculatorApiService, calculatorRunDetailsService)
         {
-            this.apiService = apiService;
             this.fileDownloadService = fileDownloadService;
         }
 
@@ -33,8 +30,7 @@ namespace EPR.Calculator.Frontend.Controllers
         {
             try
             {
-                var apiUrl = this.apiService.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.DownloadResultApi);
-                return await this.fileDownloadService.DownloadFileAsync(apiUrl, runId, this.HttpContext);
+                return await this.fileDownloadService.DownloadFileAsync($"v1/DownloadResult/{runId}", runId, this.HttpContext);
             }
             catch (Exception ex)
             {
@@ -63,8 +59,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     return this.RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId });
                 }
 
-                var apiUrl = this.apiService.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.DownloadCsvBillingApi);
-                return await this.fileDownloadService.DownloadFileAsync(apiUrl, runId, this.HttpContext, isBillingFile, isDraftBillingFile);
+                return await this.fileDownloadService.DownloadFileAsync($"v1/DownloadBillingFile/{runId}", runId, this.HttpContext, isBillingFile, isDraftBillingFile);
             }
             catch (Exception ex)
             {

@@ -46,7 +46,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
                 return true;
             }
 
-            value = null;
+            value = Array.Empty<byte>();;
             return false;
         }
     }

@@ -46,8 +46,8 @@
                         Select a financial year
                     </label>
                     @Html.DropDownListFor(
-                        m => m.FinancialYear,
-                        Model.FinancialYearSelectList ?? new List<SelectListItem>(),
+                        m => m.RelativeYear,
+                        Model.RelativeYearSelectList ?? new List<SelectListItem>(),
                         new { @class = "govuk-select", id = "financial-year-list" }
                     )
                 </div>
@@ -60,20 +60,20 @@
 </div>
 
 <script type="text/javascript">
-    $(document).ready(() => {        
-        var financialYearListDropdown = $('#financial-year-list');
-        
-        financialYearListDropdown.change(function () {
-            var selectedFinancialYear = $(this).val();
+    $(document).ready(() => {
+        var relativeYearListDropdown = $('#financial-year-list');
+
+        relativeYearListDropdown.change(function () {
+            var selectedRelativeYear = $(this).val();
             $.ajax({
                 url: '@Url.Action("GetCalculations", ControllerNames.Dashboard)',
                 type: 'GET',
-                data: { financialYear: selectedFinancialYear },
+                data: { relativeYear: selectedRelativeYear },
                 success: function (data) {
                     $('#calculation-runs').html(data);
                 },
                 error: function (error) {
-                    console.warn(`Unable to get the calculator runs for the financial year ${selectedFinancialYear}`);
+                    console.warn(`Unable to get the calculator runs for the financial year ${selectedRelativeYear}`);
                     window.location.href = '/StandardError';
                 }
             });

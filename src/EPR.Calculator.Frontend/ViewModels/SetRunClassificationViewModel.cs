@@ -27,7 +27,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         /// </summary>
         public string? SelectedCalcRunOption { get; set; }
 
-        public FinancialYearClassificationResponseDto? FinancialYearClassifications { get; set; }
+        public RelativeYearClassificationResponseDto? RelativeYearClassifications { get; set; }
 
         /// <summary>
         /// Gets or sets the classification status information toggles.

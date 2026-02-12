@@ -7,7 +7,7 @@ namespace EPR.Calculator.Frontend.Models
     {
         public int Id { get; set; }
 
-        public required string ProjectionYear { get; set; }
+        public required RelativeYear RelativeYear { get; set; }
 
         public required DateTime EffectiveFrom { get; set; }
 

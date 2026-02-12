@@ -1,5 +1,6 @@
-﻿using System.Text.Json;
-using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Models;
+using Newtonsoft.Json;
+
 
 namespace EPR.Calculator.Frontend.UnitTests.Models
 {
@@ -37,8 +38,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Models
                 BillingInstructionAcceptReject = "Rejected"
             };
 
-            var json = JsonSerializer.Serialize(dto);
-            var deserialized = JsonSerializer.Deserialize<ProducerBillingInstructionsDto>(json);
+            var json = JsonConvert.SerializeObject(dto);
+            var deserialized = JsonConvert.DeserializeObject<ProducerBillingInstructionsDto>(json);
 
             Assert.IsNotNull(deserialized);
             Assert.AreEqual(dto.ProducerName, deserialized.ProducerName);

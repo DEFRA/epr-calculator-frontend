@@ -1,5 +1,4 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
@@ -18,11 +17,11 @@ namespace EPR.Calculator.Frontend.Controllers
     public class AcceptRejectConfirmationController(
         IConfiguration configuration,
         TelemetryClient telemetryClient,
-        IApiService apiService,
+        IEprCalculatorApiService eprCalculatorApiService,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(configuration,
             telemetryClient,
-            apiService,
+            eprCalculatorApiService,
             calculatorRunDetailsService)
     {
         /// <summary>
@@ -110,11 +109,10 @@ namespace EPR.Calculator.Frontend.Controllers
                 ReasonForRejection = model.Reason,
             };
 
-            var response = await this.ApiService.CallApi(
-                this.HttpContext,
-                HttpMethod.Put,
-                this.ApiService.GetApiUrl(ConfigSection.ProducerBillingInstructions, ConfigSection.ProducerBillingInstructionsV2),
-                model.CalculationRunId.ToString(),
+            var response = await this.EprCalculatorApiService.CallApi(
+                httpContext: this.HttpContext,
+                httpMethod: HttpMethod.Put,
+                relativePath: $"v2/producerBillingInstructions/{model.CalculationRunId}",
                 body: requestDto);
 
             response.EnsureSuccessStatusCode();

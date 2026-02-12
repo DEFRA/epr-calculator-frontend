@@ -26,7 +26,7 @@
             this.Fixture = new Fixture();
             this.Configuration = ConfigurationItems.GetConfigurationValues();
             this.MockHttpContext = new Mock<HttpContext>();
-            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            this.MockHttpContext.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
             this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Created);
             MockClientFactory = TestMockUtils.BuildMockHttpClientFactory(MockMessageHandler.Object);
         }
@@ -52,8 +52,8 @@
 
             var controller = new ReasonForRejectionController(
                 this.Configuration,
-                new TelemetryClient(),
-                new Mock<IApiService>().Object,
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
+                new Mock<IEprCalculatorApiService>().Object,
                 new Mock<ICalculatorRunDetailsService>().Object);
 
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
@@ -64,12 +64,12 @@
             // Act
             var result = await controller.Index(runId) as ViewResult;
 
-            var resultModel = result.Model as AcceptRejectConfirmationViewModel;
+            var resultModel = result!.Model as AcceptRejectConfirmationViewModel;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ReasonForRejectionIndex, result.ViewName);
-            Assert.AreEqual(runId, resultModel.CalculationRunId);
+            Assert.AreEqual(runId, resultModel!.CalculationRunId);
             Assert.AreEqual(tempData[nameof(AcceptRejectConfirmationViewModel.Reason)], resultModel.Reason);
         }
 
@@ -84,8 +84,8 @@
             var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
             var controller = new ReasonForRejectionController(
                 this.Configuration,
-                new TelemetryClient(),
-                new Mock<IApiService>().Object,
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
+                new Mock<IEprCalculatorApiService>().Object,
                 new Mock<ICalculatorRunDetailsService>().Object);
             controller.TempData = tempData;
 
@@ -119,8 +119,8 @@
             var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
             var controller = new ReasonForRejectionController(
                 this.Configuration,
-                new TelemetryClient(),
-                new Mock<IApiService>().Object,
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
+                new Mock<IEprCalculatorApiService>().Object,
                 new Mock<ICalculatorRunDetailsService>().Object);
 
             controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
@@ -129,12 +129,12 @@
 
             // Act
             var result = controller.IndexPost(runId, model) as ViewResult;
-            var resultModel = result.Model as AcceptRejectConfirmationViewModel;
+            var resultModel = result!.Model as AcceptRejectConfirmationViewModel;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.ReasonForRejectionIndex, result.ViewName);
-            Assert.AreEqual(runId, resultModel.CalculationRunId);
+            Assert.AreEqual(runId, resultModel!.CalculationRunId);
         }
     }
 }

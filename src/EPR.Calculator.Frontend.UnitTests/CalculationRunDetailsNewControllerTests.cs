@@ -15,9 +15,9 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Moq;
 using Moq.Protected;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -37,15 +37,15 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void Setup()
         {
             _mockHttpContext = new Mock<HttpContext>();
-            _mockTelemetryClient = new TelemetryClient();
+            _mockTelemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
             _mockMessageHandler = new Mock<HttpMessageHandler>();
 
             var mockSession = new MockHttpSession();
             _mockHttpContext.Setup(s => s.Session).Returns(mockSession);
-            _mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            _mockHttpContext.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
             _controller = new CalculationRunDetailsNewController(
                        _configuration,
-                       new Mock<IApiService>().Object,
+                       new Mock<IEprCalculatorApiService>().Object,
                        _mockTelemetryClient,
                        new Mock<ICalculatorRunDetailsService>().Object);
 
@@ -93,7 +93,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             _controller = new CalculationRunDetailsNewController(
                 _configuration,
-                new Mock<IApiService>().Object,
+                new Mock<IEprCalculatorApiService>().Object,
                 _mockTelemetryClient,
                 new Mock<ICalculatorRunDetailsService>().Object);
 
@@ -252,8 +252,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             var config = GetConfigurationValues();
             var controller = new CalculationRunDetailsNewController(
                 config,
-                new Mock<IApiService>().Object,
-                new TelemetryClient(),
+                new Mock<IEprCalculatorApiService>().Object,
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 new Mock<ICalculatorRunDetailsService>().Object);
             // Act
             var result = await _controller.Submit(model) as RedirectToActionResult;
@@ -262,7 +262,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.ClassifyingCalculationRun, result.ControllerName);
-            Assert.AreEqual(1, result.RouteValues["runId"]);
+            Assert.AreEqual(1, result!.RouteValues!["runId"]);
         }
 
         [TestMethod]
@@ -299,8 +299,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             var config = GetConfigurationValues();
             var controller = new CalculationRunDetailsNewController(
                 config,
-                new Mock<IApiService>().Object,
-                new TelemetryClient(),
+                new Mock<IEprCalculatorApiService>().Object,
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 new Mock<ICalculatorRunDetailsService>().Object);
             // Act
             var result = await _controller.Submit(model) as RedirectToActionResult;
@@ -309,7 +309,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.CalculationRunDelete, result.ControllerName);
-            Assert.AreEqual(1, result.RouteValues["runId"]);
+            Assert.AreEqual(1, result!.RouteValues!["runId"]);
         }
 
         [TestMethod]
@@ -346,8 +346,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             var config = GetConfigurationValues();
             var controller = new CalculationRunDetailsNewController(
                 config,
-                new Mock<IApiService>().Object,
-                new TelemetryClient(),
+                new Mock<IEprCalculatorApiService>().Object,
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 new Mock<ICalculatorRunDetailsService>().Object);
             // Act
             var result = await _controller.Submit(model) as RedirectToActionResult;
@@ -355,7 +355,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(1, result.RouteValues["runId"]);
+            Assert.AreEqual(1, result!.RouteValues!["runId"]);
         }
 
         private static IConfiguration GetConfigurationValues()
@@ -371,14 +371,14 @@ namespace EPR.Calculator.Frontend.UnitTests
 
         private CalculationRunDetailsNewController BuildTestClass(
             HttpStatusCode httpStatusCode,
-            CalculatorRunDto data = null,
-            CalculatorRunDetailsViewModel details = null)
+            CalculatorRunDto? data = null,
+            CalculatorRunDetailsViewModel? details = null)
         {
-            data = data ?? MockData.GetCalculatorRun();
-            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            data ??= MockData.GetCalculatorRun();
+            details ??= Fixture.Create<CalculatorRunDetailsViewModel>();
             var mockApiService = TestMockUtils.BuildMockApiService(
                 httpStatusCode,
-                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+                JsonConvert.SerializeObject(data ?? MockData.GetCalculatorRun())).Object;
 
             var testClass = new CalculationRunDetailsNewController(
                 ConfigurationItems.GetConfigurationValues(),

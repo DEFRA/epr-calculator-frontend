@@ -1,22 +1,23 @@
 ﻿using System.Net;
-using System.Text;
-using System.Text.Json;
-using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Services
 {
+    public interface IResultBillingFileService
+    {
+        Task<FileResult> DownloadFileAsync(string relativePath, int runId, HttpContext httpContext, bool isBillingFile = false, bool isDraftBillingFile = false);
+    }
+
     public class ResultBillingFileService(
-        IApiService apiService,
+        IEprCalculatorApiService eprCalculatorApiService,
         TelemetryClient telemetryClient) : IResultBillingFileService
     {
-        private readonly IApiService apiService = apiService;
+        private readonly IEprCalculatorApiService eprCalculatorApiService = eprCalculatorApiService;
         private readonly TelemetryClient telemetryClient = telemetryClient;
 
         public async Task<FileResult> DownloadFileAsync(
-            Uri apiUrl,
+            string relativePath,
             int runId,
             HttpContext httpContext,
             bool isBillingFile = false,
@@ -30,12 +31,10 @@ namespace EPR.Calculator.Frontend.Services
             try
             {
                 // Call the ApiService; it handles token acquisition for the current user
-                var response = await this.apiService.CallApi(
-                    httpContext,
-                    HttpMethod.Get,
-                    apiUrl,
-                    runId.ToString(),
-                    body: null);
+                var response = await this.eprCalculatorApiService.CallApi(
+                    httpContext: httpContext,
+                    httpMethod: HttpMethod.Get,
+                    relativePath: relativePath);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {

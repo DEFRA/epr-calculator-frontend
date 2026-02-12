@@ -10,7 +10,7 @@ namespace EPR.Calculator.Frontend.Helpers
 {
     public static class CsvFileHelper
     {
-        public static ErrorViewModel ValidateCSV(IFormFile fileUpload)
+        public static ErrorViewModel ValidateCSV(IFormFile? fileUpload)
         {
             if (fileUpload == null)
             {

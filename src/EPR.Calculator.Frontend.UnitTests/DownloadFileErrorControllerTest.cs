@@ -16,7 +16,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             this.Fixture = new Fixture();
             this.MockHttpContext = new Mock<HttpContext>();
-            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            this.MockHttpContext.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
         }
 
         private Fixture Fixture { get; init; }
@@ -49,7 +49,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Mock HttpContext to simulate a user
             var httpContextMock = new Mock<Microsoft.AspNetCore.Http.HttpContext>();
-            httpContextMock.Setup(c => c.User.Identity.Name).Returns("TestUser");
+            httpContextMock.Setup(c => c.User.Identity!.Name).Returns("TestUser");
             controller.ControllerContext = new ControllerContext
             {
                 HttpContext = httpContextMock.Object

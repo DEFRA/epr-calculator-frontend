@@ -16,7 +16,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             this.Fixture = new Fixture();
             this.MockHttpContext = new Mock<HttpContext>();
-            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            this.MockHttpContext.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
         }
 
         private Fixture Fixture { get; init; }
@@ -54,8 +54,8 @@ namespace EPR.Calculator.Frontend.UnitTests
             sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
                        .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
 
-            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
-                       .Returns((string key, out byte[] value) =>
+            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]?>.IsAny))
+                       .Returns((string key, out byte[]? value) =>
                        {
                            var success = sessionStorage.TryGetValue(key, out var storedValue);
                            value = storedValue;
@@ -67,7 +67,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(ctx => ctx.Session).Returns(sessionMock.Object);
-            httpContextMock.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            httpContextMock.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
             controller.ControllerContext.HttpContext = httpContextMock.Object;
             controller.HttpContext.Session.SetString(SessionConstants.LapcapFileName, fileUploadFileName);
 

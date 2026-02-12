@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -17,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Moq;
 using Moq.Protected;
 
@@ -26,9 +26,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
     public class ClassifyingCalculationRunControllerTests
     {
         private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
-        private Mock<ILogger<SetRunClassificationController>> _mockLogger;
-        private Mock<IHttpClientFactory> _mockHttpClientFactory;
-        private TelemetryClient _mockTelemetryClient;
+        private readonly Mock<ILogger<SetRunClassificationController>> _mockLogger;
+        private readonly TelemetryClient _mockTelemetryClient;
         private SetRunClassificationController _controller;
         private Mock<HttpContext> _mockHttpContext;
         private Mock<ICalculatorRunDetailsService> _mockCalculatorRunDetailsService;
@@ -38,14 +37,13 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             this.Fixture = new Fixture();
             this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler();
             SetMessageHandlerResponses(true, HttpStatusCode.OK);
-            _mockHttpClientFactory = TestMockUtils.BuildMockHttpClientFactory(this.MockMessageHandler.Object);
             _mockLogger = new Mock<ILogger<SetRunClassificationController>>();
-            _mockTelemetryClient = new TelemetryClient();
+            _mockTelemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
             _mockCalculatorRunDetailsService = new Mock<ICalculatorRunDetailsService>();
 
             _controller = new SetRunClassificationController(
                        _configuration,
-                       new Mock<IApiService>().Object,
+                       new Mock<IEprCalculatorApiService>().Object,
                        _mockLogger.Object,
                        _mockTelemetryClient,
                        _mockCalculatorRunDetailsService.Object);
@@ -59,7 +57,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             var mockSession = new MockHttpSession();
             mockSession.SetString("accessToken", "something");
-            mockSession.SetString(SessionConstants.FinancialYear, "2024-25");
+            mockSession.SetInt32(SessionConstants.RelativeYear, 2024);
             var context = new DefaultHttpContext()
             {
                 Session = mockSession
@@ -75,18 +73,16 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             (_, _, _controller) = BuildTestClass(
                 this.Fixture,
                 HttpStatusCode.Created,
-                Fixture.Create<FinancialYearClassificationResponseDto>(),
+                Fixture.Create<RelativeYearClassificationResponseDto>(),
                 details,
                 _configuration);
         }
 
         private Fixture Fixture { get; init; }
 
-        private Mock<IApiService> MockApiService { get; init; }
+        private Mock<IEprCalculatorApiService> MockApiService { get; init; } = null!;
 
         private Mock<HttpMessageHandler> MockMessageHandler { get; set; }
-
-        private CalculatorRunDetailsViewModel CalculatorRunDetails { get; init; }
 
         [TestMethod]
         public async Task Index_ReturnsViewResult_WithValidViewModel()
@@ -113,7 +109,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var details = Fixture.Create<CalculatorRunDetailsViewModel>();
             details.RunId = runId;
 
-            var classificationResponse = Fixture.Create<FinancialYearClassificationResponseDto>();
+            var classificationResponse = Fixture.Create<RelativeYearClassificationResponseDto>();
 
             SetMessageHandlerResponses(true, HttpStatusCode.OK); // Simulate success
             (_, _, _controller) = BuildTestClass(
@@ -150,7 +146,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             (_, _, _controller) = BuildTestClass(
                 Fixture,
                 HttpStatusCode.OK,
-                Fixture.Create<FinancialYearClassificationResponseDto>(),
+                Fixture.Create<RelativeYearClassificationResponseDto>(),
                 details,
                 _configuration);
 
@@ -158,9 +154,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var result = await _controller.Index(runId);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
             var redirect = result as RedirectToActionResult;
-            Assert.AreEqual("Index", redirect.ActionName);
+            Assert.IsNotNull(redirect, "Expected result to be RedirectToActionResult");
+            Assert.AreEqual("Index", redirect!.ActionName);
             Assert.AreEqual("StandardError", redirect.ControllerName);
         }
 
@@ -181,7 +177,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             (_, _, _controller) = BuildTestClass(
                 Fixture,
                 HttpStatusCode.OK,
-                Fixture.Create<FinancialYearClassificationResponseDto>(),
+                Fixture.Create<RelativeYearClassificationResponseDto>(),
                 details,
                 _configuration);
 
@@ -189,9 +185,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var result = await _controller.Index(runId);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
             var redirect = result as RedirectToActionResult;
-            Assert.AreEqual("Index", redirect.ActionName);
+            Assert.IsNotNull(redirect, "Expected result to be RedirectToActionResult");
+            Assert.AreEqual("Index", redirect!.ActionName);
             Assert.AreEqual("StandardError", redirect.ControllerName);
         }
 
@@ -241,7 +237,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             (var mockApiService, _, var controller) = BuildTestClass(
                 this.Fixture,
                 HttpStatusCode.Created,
-                Fixture.Create<FinancialYearClassificationResponseDto>(),
+                Fixture.Create<RelativeYearClassificationResponseDto>(),
                 null,
                 _configuration);
 
@@ -252,13 +248,13 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, result.ControllerName);
-            Assert.AreEqual(runId, result.RouteValues["runId"]);
+            Assert.AreEqual(runId, result?.RouteValues?["runId"]);
             mockApiService.Verify(
                 MockApiService => MockApiService.CallApi(
                     controller.HttpContext,
                     HttpMethod.Put,
-                    It.IsAny<Uri>(),
                     It.IsAny<string>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.Is<ClassificationDto>(dto => dto.RunId == runId)),
                 Times.Once);
         }
@@ -312,7 +308,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             (_, _, _controller) = BuildTestClass(
                 this.Fixture,
                 HttpStatusCode.Created,
-                Fixture.Create<FinancialYearClassificationResponseDto>(),
+                Fixture.Create<RelativeYearClassificationResponseDto>(),
                 details,
                 _configuration);
             // Arrange
@@ -369,8 +365,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         [DataRow(RunClassification.FINAL_RUN, CommonConstants.FinalRecalculationRunDescription)]
         public async Task Index_CheckClassificationStatusDescription_IsValid(RunClassification runClassification, string description)
         {
-            var responseContent = "{\r\n  \"runId\": 1,\r\n  \"runClassificationId\": 7,\r\n  \"runName\": \"Test Calculator1702\",\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"financialYear\": \"2025-26\"\r\n}";
-            var classificationResponseContent = "{\r\n\"financialYear\": \"2025-26\",\r\n  \"classifications\": [\r\n    {\r\n      \"id\":" + (int)runClassification + ",\r\n\"status\": \"INITIAL RUN\"\r\n    }\r\n  ]\r\n}";
+            var responseContent = "{\r\n  \"runId\": 1,\r\n  \"runClassificationId\": 7,\r\n  \"runName\": \"Test Calculator1702\",\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"relativeYear\": \"2025-26\"\r\n}";
+            var classificationResponseContent = "{\r\n\"relativeYear\": \"2025-26\",\r\n  \"classifications\": [\r\n    {\r\n      \"id\":" + (int)runClassification + ",\r\n\"status\": \"INITIAL RUN\"\r\n    }\r\n  ]\r\n}";
 
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
 
@@ -402,9 +398,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var details = Fixture.Create<CalculatorRunDetailsViewModel>();
             details.RunId = runId;
 
-            var financialYearDto = Fixture.Create<FinancialYearClassificationResponseDto>();
+            var relativeYearDto = Fixture.Create<RelativeYearClassificationResponseDto>();
 
-            financialYearDto.Classifications = new List<CalculatorRunClassificationDto>
+            relativeYearDto.Classifications = new List<CalculatorRunClassificationDto>
             {
                 new CalculatorRunClassificationDto
                 {
@@ -417,17 +413,17 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             (_, _, _controller) = BuildTestClass(
                 this.Fixture,
                 HttpStatusCode.Created,
-                financialYearDto,
+                relativeYearDto,
                 details,
                 _configuration);
 
             // Act
             var result = await _controller.Index(runId) as ViewResult;
-            var model = result.Model as SetRunClassificationViewModel;
+            var model = result!.Model as SetRunClassificationViewModel;
             // Assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result.Model, typeof(SetRunClassificationViewModel));
-            Assert.AreEqual(description, model.FinancialYearClassifications.Classifications.First().Description);
+            Assert.AreEqual(description, model!.RelativeYearClassifications!.Classifications.First().Description);
         }
 
         [TestMethod]
@@ -442,9 +438,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             var details = Fixture.Create<CalculatorRunDetailsViewModel>();
             details.RunId = runId;
 
-            var financialYearDto = Fixture.Create<FinancialYearClassificationResponseDto>();
+            var relativeYearDto = Fixture.Create<RelativeYearClassificationResponseDto>();
 
-            financialYearDto.Classifications = new List<CalculatorRunClassificationDto>
+            relativeYearDto.Classifications = new List<CalculatorRunClassificationDto>
             {
                 new CalculatorRunClassificationDto
                 {
@@ -457,13 +453,13 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
             (_, _, _controller) = BuildTestClass(
                 this.Fixture,
                 HttpStatusCode.Created,
-                financialYearDto,
+                relativeYearDto,
                 details,
                 _configuration);
 
             // Act
             var result = await _controller.Index(runId) as ViewResult;
-            var model = result.Model as SetRunClassificationViewModel;
+            var model = result!.Model as SetRunClassificationViewModel;
 
             // Assert
             Assert.IsNotNull(result);
@@ -471,7 +467,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             if(runClassification == RunClassification.INITIAL_RUN)
             {
-               Assert.IsFalse(model.ClassificationStatusInformation.ShowInitialRunDescription);
+               Assert.IsFalse(model!.ClassificationStatusInformation!.ShowInitialRunDescription);
                Assert.IsTrue(model.ClassificationStatusInformation.ShowInterimRecalculationRunDescription);
                Assert.IsTrue(model.ClassificationStatusInformation.ShowFinalRecalculationRunDescription);
                Assert.IsTrue(model.ClassificationStatusInformation.ShowFinalRunDescription);
@@ -479,21 +475,21 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
 
             if (runClassification == RunClassification.FINAL_RECALCULATION_RUN)
             {
-                Assert.IsTrue(model.ClassificationStatusInformation.ShowInitialRunDescription);
+                Assert.IsTrue(model!.ClassificationStatusInformation!.ShowInitialRunDescription);
                 Assert.IsFalse(model.ClassificationStatusInformation.ShowFinalRecalculationRunDescription);
             }
 
             if (runClassification == RunClassification.FINAL_RUN)
             {
-                Assert.IsTrue(model.ClassificationStatusInformation.ShowInitialRunDescription);
+                Assert.IsTrue(model!.ClassificationStatusInformation!.ShowInitialRunDescription);
                 Assert.IsFalse(model.ClassificationStatusInformation.ShowFinalRunDescription);
             }
         }
 
         private void SetMessageHandlerResponses(bool isUnclassified, HttpStatusCode httpStatusCode)
         {
-            var responseContent = isUnclassified ? "{\r\n  \"runId\": 1,\r\n  \"runClassificationId\": 3,\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"financialYear\": \"2025-26\"\r\n}"
-                : "{\r\n  \"runId\": 1,\r\n  \"runClassificationId\": 7,\r\n  \"runName\": \"Test Calculator1702\",\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"financialYear\": \"2025-26\"\r\n}";
+            var responseContent = isUnclassified ? "{\r\n  \"runId\": 1,\r\n  \"runClassificationId\": 3,\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"relativeYear\": \"2025-26\"\r\n}"
+                : "{\r\n  \"runId\": 1,\r\n  \"runClassificationId\": 7,\r\n  \"runName\": \"Test Calculator1702\",\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"relativeYear\": \"2025-26\"\r\n}";
             this.MockMessageHandler
                 .Protected()
                 .Setup<Task<HttpResponseMessage>>(
@@ -513,25 +509,25 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
                    {
                        StatusCode = httpStatusCode,
-                       Content = new StringContent("{\r\n\"financialYear\": \"2025-26\",\r\n  \"classifications\": [\r\n    {\r\n      \"id\": 4,\r\n      \"status\": \"TEST RUN\"\r\n    },\r\n    {\r\n      \"id\": 8,\r\n      \"status\": \"INITIAL RUN\"\r\n    }\r\n  ]\r\n}"),
+                       Content = new StringContent("{\r\n\"relativeYear\": \"2025-26\",\r\n  \"classifications\": [\r\n    {\r\n      \"id\": 4,\r\n      \"status\": \"TEST RUN\"\r\n    },\r\n    {\r\n      \"id\": 8,\r\n      \"status\": \"INITIAL RUN\"\r\n    }\r\n  ]\r\n}"),
                    });
         }
 
         private (
-            Mock<IApiService> MockApiService,
+            Mock<IEprCalculatorApiService> MockApiService,
             Mock<ILogger<SetRunClassificationController>> MockLogger,
             SetRunClassificationController TestClass) BuildTestClass(
                 Fixture fixture,
                 HttpStatusCode httpStatusCode,
-                object callApiResponse,
-                CalculatorRunDetailsViewModel details = null,
-                IConfiguration configurationItems = null)
+                object? callApiResponse,
+                CalculatorRunDetailsViewModel? details = null,
+                IConfiguration? configurationItems = null)
         {
-            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
-            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            configurationItems ??= configurationItems ?? ConfigurationItems.GetConfigurationValues();
+            details ??= Fixture.Create<CalculatorRunDetailsViewModel>();
             var mockApiService = TestMockUtils.BuildMockApiService(
                 httpStatusCode,
-                JsonSerializer.Serialize(callApiResponse));
+                JsonConvert.SerializeObject(callApiResponse));
 
             var mockLogger = new Mock<ILogger<SetRunClassificationController>>();
 
@@ -539,7 +535,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
                 configurationItems,
                 mockApiService.Object,
                 mockLogger.Object,
-                new TelemetryClient(),
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext.HttpContext = new DefaultHttpContext()
             {

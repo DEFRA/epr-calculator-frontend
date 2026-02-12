@@ -19,7 +19,7 @@
                 FileName = TestClass.LapcapFileName,
                 LapcapTemplateValue = TestClass.LapcapDataTemplateValues,
             };
-            this.ParameterYear = TestClass.ParameterYear;
+            this.RelativeYear = TestClass.RelativeYear;
         }
 
         private CreateLapcapDataDto TestClass { get; init; }
@@ -28,13 +28,13 @@
 
         private LapcapRefreshViewModel Original { get; init; }
 
-        private string ParameterYear { get; init; }
+        private RelativeYear RelativeYear { get; init; }
 
         [TestMethod]
         public void CanConstruct()
         {
             // Act
-            var instance = new CreateLapcapDataDto(this.Original, this.ParameterYear);
+            var instance = new CreateLapcapDataDto(this.Original, this.RelativeYear);
 
             // Assert
             Assert.IsNotNull(instance);
@@ -44,7 +44,7 @@
         public void ImplementsIEquatable_CreateLapcapDataDto()
         {
             // Arrange
-            var same = new CreateLapcapDataDto(this.Original, this.ParameterYear);
+            var same = new CreateLapcapDataDto(this.Original, this.RelativeYear);
             var different = Fixture.Create<CreateLapcapDataDto>();
 
             // Assert
@@ -63,16 +63,16 @@
         }
 
         [TestMethod]
-        public void CanSetAndGetParameterYear()
+        public void CanSetAndGetRelativeYear()
         {
             // Arrange
-            var testValue = Fixture.Create<string>();
+            var testValue = Fixture.Create<RelativeYear>();
 
             // Act
-            this.TestClass.ParameterYear = testValue;
+            this.TestClass.RelativeYear = testValue;
 
             // Assert
-            Assert.AreEqual(testValue, this.TestClass.ParameterYear);
+            Assert.AreEqual(testValue, this.TestClass.RelativeYear);
         }
 
         [TestMethod]

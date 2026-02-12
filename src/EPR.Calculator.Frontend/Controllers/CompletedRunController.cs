@@ -1,5 +1,4 @@
-﻿using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -17,12 +16,12 @@ namespace EPR.Calculator.Frontend.Controllers
     public class CompletedRunController(
         IConfiguration configuration,
         TelemetryClient telemetryClient,
-        IApiService apiService,
+        IEprCalculatorApiService eprCalculatorApiService,
         ICalculatorRunDetailsService calculatorRunDetailsService)
         : BaseController(
             configuration,
             telemetryClient,
-            apiService,
+            eprCalculatorApiService,
             calculatorRunDetailsService)
     {
         /// <summary>
@@ -94,12 +93,10 @@ namespace EPR.Calculator.Frontend.Controllers
         /// <returns>calculator run post billing file data transfer objet.</returns>
         private async Task<CalculatorRunPostBillingFileDto?> GetCalculatorRunWithBillingdetails(int runId)
         {
-            var response = await this.ApiService.CallApi(
-                this.HttpContext,
-                HttpMethod.Get,
-                this.ApiService.GetApiUrl(ConfigSection.CalculationRunSettings, ConfigSection.CalculationRunApiV2),
-                runId.ToString(),
-                null);
+            var response = await this.EprCalculatorApiService.CallApi(
+                httpContext: this.HttpContext,
+                httpMethod: HttpMethod.Get,
+                relativePath: $"v2/calculatorRuns/{runId}");
 
             return response.StatusCode == System.Net.HttpStatusCode.OK
                 ? response.Content.ReadFromJsonAsync<CalculatorRunPostBillingFileDto>().Result

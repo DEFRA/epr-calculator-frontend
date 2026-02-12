@@ -15,9 +15,9 @@ namespace EPR.Calculator.Frontend.Controllers
     public class ReasonForRejectionController(
         IConfiguration configuration,
         TelemetryClient telemetryClient,
-        IApiService apiService,
+        IEprCalculatorApiService eprCalculatorApiService,
         ICalculatorRunDetailsService calculatorRunDetailsService)
-        : BaseController(configuration, telemetryClient, apiService, calculatorRunDetailsService)
+        : BaseController(configuration, telemetryClient, eprCalculatorApiService, calculatorRunDetailsService)
     {
         [Route("{calculationRunId}")]
         public async Task<IActionResult> Index(int calculationRunId)

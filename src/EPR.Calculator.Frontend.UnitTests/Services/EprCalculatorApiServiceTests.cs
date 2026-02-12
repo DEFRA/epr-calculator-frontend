@@ -16,11 +16,11 @@
     using Moq;
 
     [TestClass]
-    public class ApiServiceTests
+    public class EprCalculatorApiServiceTests
     {
         private readonly IConfiguration configuration = ConfigurationItems.GetConfigurationValues();
 
-        public ApiServiceTests()
+        public EprCalculatorApiServiceTests()
         {
             this.Fixture = new Fixture();
 
@@ -41,7 +41,7 @@
             (this.Configuration as IConfigurationRoot)!.GetSection("DownstreamApi")["Scopes"] = "scope1";
             var messageHandler = TestMockUtils.BuildMockMessageHandler();
 
-            this.TestClass = new ApiService(
+            this.TestClass = new EprCalculatorApiService(
                 this.Configuration,
                 Fixture.Create<TelemetryClient>(),
                 TestMockUtils.BuildMockHttpClientFactory(messageHandler.Object).Object,
@@ -50,7 +50,7 @@
 
         private Fixture Fixture { get; init; }
 
-        private ApiService TestClass { get; init; }
+        private EprCalculatorApiService TestClass { get; init; }
 
         private Mock<HttpContext> MockHttpContext { get; init; }
 
@@ -67,16 +67,16 @@
         {
             // Arrange
             var httpMethod = HttpMethod.Get;
-            var apiUrl = Fixture.Create<Uri>();
-            var argument = Fixture.Create<string>();
+            var relativePath = Fixture.Create<string>();
+            var queryParams = Fixture.Create<IDictionary<string, string?>>();
             var body = Fixture.Create<object>();
 
             // Act
             var result = await this.TestClass.CallApi(
                 this.MockHttpContext.Object,
                 httpMethod,
-                apiUrl,
-                argument,
+                relativePath,
+                queryParams,
                 body);
 
             // Assert
@@ -88,8 +88,8 @@
         {
             // Arrange
             var httpMethod = HttpMethod.Get;
-            var apiUrl = Fixture.Create<Uri>();
-            var argument = Fixture.Create<string>();
+            var relativePath = Fixture.Create<string>();
+            var queryParams = Fixture.Create<IDictionary<string, string?>>();
             var body = Fixture.Create<object>();
             byte[]? a = null;
             this.MockSession.Setup(s => s.TryGetValue("accessToken", out a))
@@ -99,8 +99,8 @@
             var result = await this.TestClass.CallApi(
                 this.MockHttpContext.Object,
                 httpMethod,
-                apiUrl,
-                argument,
+                relativePath,
+                queryParams,
                 body).Result.Content.ReadAsStringAsync();
 
             // Assert
@@ -112,29 +112,32 @@
         {
             // Arrange
             var httpMethod = HttpMethod.Get;
-            var apiUrl = Fixture.Create<Uri>();
-            var argument = Fixture.Create<string>();
+            var relativePath = Fixture.Create<string>();
+            var queryParams = Fixture.Create<IDictionary<string, string?>>();
             var body = Fixture.Create<object>();
             byte[]? a = null;
             this.MockSession.Setup(s => s.TryGetValue("accessToken", out a))
                 .Returns(false);
-            this.Configuration.GetSection("DownstreamApi:Scopes").Value = null;
 
-            var testClass = new ApiService(
-                null,
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.Test.json")
+                .Build();
+
+            var testClass = new EprCalculatorApiService(
+                configuration,
                 Fixture.Create<TelemetryClient>(),
                 TestMockUtils.BuildMockHttpClientFactory(TestMockUtils.BuildMockMessageHandler().Object).Object,
                 this.MockTokenAcquisition.Object);
 
             // Act
-            Exception result = null;
+            Exception? result = null;
             try
             {
                 await testClass.CallApi(
                     this.MockHttpContext.Object,
                     httpMethod,
-                    apiUrl,
-                    argument,
+                    relativePath,
+                    queryParams,
                     body).Result.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
@@ -144,68 +147,6 @@
 
             // Assert
             Assert.IsNotNull(result);
-        }
-
-        [TestMethod]
-        public void CanCallGetApiUrl()
-        {
-            // Arrange
-            var configSection = this.Configuration;
-            var configKey = Fixture.Create<string>();
-
-            // Act
-            var result = this.TestClass.GetApiUrl("ParameterSettings", "DefaultParameterSettingsApi");
-
-            // Assert
-            Assert.AreEqual(
-                Configuration.GetSection("ParameterSettings").GetValue<string>("DefaultParameterSettingsApi"),
-                result.ToString());
-        }
-
-        [TestMethod]
-        public void CanCallGetApiUrl_FlatKey()
-        {
-            // Arrange
-            var expectedUrl = Configuration.GetValue<string>("FinancialYearListApi");
-
-            // Act
-            var result = this.TestClass.GetApiUrl("FinancialYearListApi");
-
-            // Assert
-            Assert.AreEqual(expectedUrl, result.ToString());
-        }
-
-        [TestMethod]
-        public void GetApiUrl_ThrowsException_WhenConfigValueIsNullOrWhitespace_FlatKey()
-        {
-            // Arrange
-            var configKey = "MissingKey";
-            var apiService = new ApiService(
-                configuration,
-                Fixture.Create<TelemetryClient>(),
-                TestMockUtils.BuildMockHttpClientFactory(TestMockUtils.BuildMockMessageHandler().Object).Object,
-                MockTokenAcquisition.Object);
-
-            // Act & Assert
-            Assert.ThrowsException<ConfigurationErrorsException>(() =>
-                apiService.GetApiUrl(configKey));
-        }
-
-        [TestMethod]
-        public void GetApiUrl_ThrowsException_WhenConfigValueIsNullOrWhitespace_SectionKey()
-        {
-            // Arrange
-            var configSection = "SomeMissingSectionThatDoesntExist";
-            var configKey = "MissingKey";
-            var apiService = new ApiService(
-                configuration,
-                Fixture.Create<TelemetryClient>(),
-                TestMockUtils.BuildMockHttpClientFactory(TestMockUtils.BuildMockMessageHandler().Object).Object,
-                MockTokenAcquisition.Object);
-
-            // Act & Assert
-            Assert.ThrowsException<ConfigurationErrorsException>(() =>
-                apiService.GetApiUrl(configSection, configKey));
         }
     }
 }

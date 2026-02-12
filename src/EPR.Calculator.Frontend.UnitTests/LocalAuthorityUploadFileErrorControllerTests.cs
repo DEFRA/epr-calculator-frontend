@@ -6,8 +6,8 @@ using EPR.Calculator.Frontend.UnitTests.Mocks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Moq;
 using Newtonsoft.Json;
+using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -18,7 +18,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             this.Fixture = new Fixture();
             this.MockHttpContext = new Mock<HttpContext>();
-            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            this.MockHttpContext.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
         }
 
         private Fixture Fixture { get; init; }
@@ -184,7 +184,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var mockHttpContext = new Mock<HttpContext>();
             var mockSession = new Mock<ISession>();
             mockHttpContext.Setup(s => s.Session).Returns(mockSession.Object);
-            mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            mockHttpContext.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
             controller.ControllerContext = new ControllerContext
             {
                 HttpContext = mockHttpContext.Object
@@ -196,7 +196,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task LocalAuthorityUploadFileErrorController_View_Get_Test()
+        public void LocalAuthorityUploadFileErrorController_View_Get_Test()
         {
             var mockHttpSession = new MockHttpSession();
 
@@ -214,7 +214,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         }
 
         [TestMethod]
-        public async Task LocalAuthorityUploadFileErrorController_View_Get_Error_Test()
+        public void LocalAuthorityUploadFileErrorController_View_Get_Error_Test()
         {
             var mockHttpSession = new MockHttpSession();
 

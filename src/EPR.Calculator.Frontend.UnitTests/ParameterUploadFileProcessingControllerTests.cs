@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -36,7 +37,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
         private ParameterUploadFileProcessingController TestClass { get; init; }
 
-        private Mock<IApiService> MockApiService { get; init; }
+        private Mock<IEprCalculatorApiService> MockApiService { get; init; }
 
         [TestMethod]
         public async Task ParameterUploadFileProcessingController_Success_Result_Test()
@@ -95,12 +96,12 @@ namespace EPR.Calculator.Frontend.UnitTests
                x => x.CallApi(
                    TestClass.HttpContext,
                    HttpMethod.Post,
-                   It.IsAny<Uri>(),
                    It.IsAny<string>(),
+                   It.IsAny<IDictionary<string, string?>>(),
                    It.Is<CreateDefaultParameterSettingDto>(dto =>
                        dto.ParameterTemplateValues.SequenceEqual(data.ParameterTemplateValues) &&
                        dto.FileName == data.FileName &&
-                       dto.ParameterYear == CommonUtil.GetDefaultFinancialYear(DateTime.UtcNow, 4))),
+                       dto.RelativeYear == CommonUtil.GetDefaultRelativeYear(DateTime.UtcNow, 4))),
                Times.Once);
         }
 
@@ -115,24 +116,24 @@ namespace EPR.Calculator.Frontend.UnitTests
             return config;
         }
 
-        private (ParameterUploadFileProcessingController Controller, Mock<IApiService> MockApiService) BuildTestClass(
+        private (ParameterUploadFileProcessingController Controller, Mock<IEprCalculatorApiService> MockApiService) BuildTestClass(
             Fixture fixture,
             HttpStatusCode httpStatusCode,
-            object data = null,
-            CalculatorRunDetailsViewModel details = null,
-            IConfiguration configurationItems = null)
+            object? data = null,
+            CalculatorRunDetailsViewModel? details = null,
+            IConfiguration? configurationItems = null)
         {
-            data = data ?? MockData.GetCalculatorRun();
-            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
-            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            data ??= MockData.GetCalculatorRun();
+            configurationItems ??= ConfigurationItems.GetConfigurationValues();
+            details ??= Fixture.Create<CalculatorRunDetailsViewModel>();
             var mockApiService = TestMockUtils.BuildMockApiService(
                 httpStatusCode,
-                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun()));
+                JsonConvert.SerializeObject(data ?? MockData.GetCalculatorRun()));
 
             var testClass = new ParameterUploadFileProcessingController(
                 configurationItems,
                 mockApiService.Object,
-                new TelemetryClient(),
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext.HttpContext = new DefaultHttpContext()
             {

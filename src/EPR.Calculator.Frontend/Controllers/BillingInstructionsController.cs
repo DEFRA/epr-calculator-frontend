@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-using EPR.Calculator.Frontend.Common.Constants;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
@@ -10,6 +8,7 @@ using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using SessionExtensions = EPR.Calculator.Frontend.Extensions.SessionExtensions;
 
 namespace EPR.Calculator.Frontend.Controllers
@@ -21,9 +20,9 @@ namespace EPR.Calculator.Frontend.Controllers
         IConfiguration configuration,
         TelemetryClient telemetryClient,
         IBillingInstructionsMapper mapper,
-        IApiService apiService,
+        IEprCalculatorApiService eprCalculatorApiService,
         ICalculatorRunDetailsService calculatorRunDetailsService)
-        : BaseController(configuration, telemetryClient, apiService, calculatorRunDetailsService)
+        : BaseController(configuration, telemetryClient, eprCalculatorApiService, calculatorRunDetailsService)
     {
         /// <summary>
         /// Handles the HTTP GET request to display billing instructions for the specified calculation run.
@@ -312,8 +311,6 @@ namespace EPR.Calculator.Frontend.Controllers
             int calculationRunId,
             PaginationRequestViewModel request)
         {
-            var apiUrl = this.ApiService.GetApiUrl(ConfigSection.ProducerBillingInstructions, ConfigSection.ProducerBillingInstructionsV1);
-
             var requestDto = new ProducerBillingInstructionsRequestDto
             {
                 PageNumber = request.Page,
@@ -326,11 +323,10 @@ namespace EPR.Calculator.Frontend.Controllers
                 },
             };
 
-            var response = await this.ApiService.CallApi(
-                this.HttpContext,
-                HttpMethod.Post,
-                apiUrl,
-                calculationRunId.ToString(),
+            var response = await this.EprCalculatorApiService.CallApi(
+                httpContext: this.HttpContext,
+                httpMethod: HttpMethod.Post,
+                relativePath: $"v1/producerBillingInstructions/{calculationRunId}",
                 body: requestDto);
 
             if (!response.IsSuccessStatusCode)
@@ -342,21 +338,15 @@ namespace EPR.Calculator.Frontend.Controllers
             }
 
             var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<ProducerBillingInstructionsResponseDto>(json)!;
+            return JsonConvert.DeserializeObject<ProducerBillingInstructionsResponseDto>(json)!;
         }
 
         private async Task<bool> TryGenerateBillingFile(int runId)
         {
-            var acceptApiUrl = this.ApiService.GetApiUrl(
-                ConfigSection.CalculationRunSettings,
-                ConfigSection.ProducerBillingInstructionsAcceptApi);
-
-            var responseDto = await this.ApiService.CallApi(
-                this.HttpContext,
-                HttpMethod.Put,
-                acceptApiUrl,
-                runId.ToString(),
-                null);
+            var responseDto = await this.EprCalculatorApiService.CallApi(
+                httpContext: this.HttpContext,
+                httpMethod: HttpMethod.Put,
+                relativePath: $"v1/producerBillingInstructionsAccept/{runId}");
 
             if (!responseDto.IsSuccessStatusCode)
             {

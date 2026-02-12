@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using EPR.Calculator.Frontend.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Diagnostics.CodeAnalysis;
 
 namespace EPR.Calculator.Frontend.ViewModels
@@ -10,9 +11,9 @@ namespace EPR.Calculator.Frontend.ViewModels
     public record DashboardViewModel : ViewModelCommonData
     {
         /// <summary>
-        /// Gets or sets the financial year.
+        /// Gets or sets the relative year.
         /// </summary>
-        public required string FinancialYear { get; set; }
+        public required RelativeYear RelativeYear { get; set; }
 
         /// <summary>
         /// Gets or sets the calculation run list.
@@ -20,8 +21,8 @@ namespace EPR.Calculator.Frontend.ViewModels
         public IEnumerable<CalculationRunViewModel>? Calculations { get; set; }
 
         /// <summary>
-        /// Gets or sets the financial years.
+        /// Gets or sets the relative years.
         /// </summary>
-        public List<SelectListItem>? FinancialYearSelectList { get; set; }
+        public List<SelectListItem>? RelativeYearSelectList { get; set; }
     }
 }

@@ -12,9 +12,9 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Moq;
 using Moq.Protected;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers
 {
@@ -29,7 +29,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         public SendBillingFileControllerTests()
         {
             this.Fixture = new Fixture();
-            _telemetryClient = new TelemetryClient();
+            _telemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
 
             var identity = new ClaimsIdentity();
             identity.AddClaim(new Claim(ClaimTypes.Name, "TestUser"));
@@ -253,15 +253,15 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         }
 
         private SendBillingFileController CreateController(
-            IConfiguration configuration = null,
-            TelemetryClient telemetryClient = null,
-            IHttpClientFactory httpClientFactory = null,
-            HttpContext httpContext = null)
+            IConfiguration? configuration = null,
+            TelemetryClient? telemetryClient = null,
+            IHttpClientFactory? httpClientFactory = null,
+            HttpContext? httpContext = null)
         {
             var controller = new SendBillingFileController(
                 configuration ?? _configuration,
                 telemetryClient ?? _telemetryClient,
-                new Mock<IApiService>().Object,
+                new Mock<IEprCalculatorApiService>().Object,
                 new Mock<ICalculatorRunDetailsService>().Object)
             {
                 ControllerContext = new ControllerContext
@@ -276,20 +276,20 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers
         private SendBillingFileController BuildTestClass(
                 Fixture fixture,
                 HttpStatusCode httpStatusCode,
-                object data = null,
-                CalculatorRunDetailsViewModel details = null,
-                IConfiguration configurationItems = null)
+                object? data = null,
+                CalculatorRunDetailsViewModel? details = null,
+                IConfiguration? configurationItems = null)
         {
-            data = data ?? MockData.GetCalculatorRun();
-            configurationItems = configurationItems ?? ConfigurationItems.GetConfigurationValues();
-            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            data ??= MockData.GetCalculatorRun();
+            configurationItems ??= ConfigurationItems.GetConfigurationValues();
+            details ??= Fixture.Create<CalculatorRunDetailsViewModel>();
             var mockApiService = TestMockUtils.BuildMockApiService(
                 httpStatusCode,
-                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+                JsonConvert.SerializeObject(data ?? MockData.GetCalculatorRun())).Object;
 
             var testClass = new SendBillingFileController(
                 configurationItems,
-                new TelemetryClient(),
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 mockApiService,
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext.HttpContext = new DefaultHttpContext()

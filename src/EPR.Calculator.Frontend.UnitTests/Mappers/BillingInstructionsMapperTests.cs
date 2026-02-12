@@ -35,7 +35,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
         {
             // Use reflection to call the private method
             var method = typeof(BillingInstructionsMapper).GetMethod("MapBillingInstruction", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            var result = (BillingInstruction)method.Invoke(_mapper, new object[] { input });
+            var result = (BillingInstruction)method!.Invoke(_mapper, [input])!;
             Assert.AreEqual(expected, result);
         }
 
@@ -60,7 +60,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
         {
             // Use reflection to call the private method
             var method = typeof(BillingInstructionsMapper).GetMethod("MapBillingStatus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            var result = (BillingStatus)method.Invoke(_mapper, new object[] { input });
+            var result = (BillingStatus)method!.Invoke(_mapper, new object[] { input })!;
             Assert.AreEqual(expected, result);
         }
 
@@ -203,7 +203,6 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
                     {
                         ProducerId = 0,
                         ProducerName = null,
-                        SuggestedBillingInstruction = null,
                         SuggestedInvoiceAmount = 0,
                         BillingInstructionAcceptReject = null
                     }

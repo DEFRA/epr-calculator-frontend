@@ -12,7 +12,7 @@ namespace EPR.Calculator.Frontend.Models
 
         public required string Name { get; set; }
 
-        public required string Financial_Year { get; set; }
+        public required RelativeYear RelativeYear { get; set; }
 
         public required string CreatedBy { get; set; }
 

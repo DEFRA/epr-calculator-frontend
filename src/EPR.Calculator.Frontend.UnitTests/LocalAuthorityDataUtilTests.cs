@@ -41,7 +41,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             new LocalAuthorityDisposalCost
             {
-                Id = 1, ProjectionYear = "2024-25", EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
+                Id = 1, RelativeYear = new RelativeYear(2024), EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
                 CreatedBy = "Test User", CreatedAt = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc), LapcapDataMasterId = 1,
                 LapcapTempUniqueRef = "ENG-AL", Country = "England", Material = "Aluminium", TotalCost = 2210.45m
             },
@@ -64,19 +64,19 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             new LocalAuthorityDisposalCost
             {
-                Id = 1, ProjectionYear = "2024-25", EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
+                Id = 1, RelativeYear = new RelativeYear(2024), EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
                 CreatedBy = "Test User", CreatedAt = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc), LapcapDataMasterId = 1,
                 LapcapTempUniqueRef = "ENG-AL", Country = "England", Material = "Aluminium", TotalCost = 2210.45m
             },
             new LocalAuthorityDisposalCost
             {
-                Id = 9, ProjectionYear = "2024-25", EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
+                Id = 9, RelativeYear = new RelativeYear(2024), EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
                 CreatedBy = "Test User", CreatedAt = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc), LapcapDataMasterId = 1,
                 LapcapTempUniqueRef = "NI-AL", Country = "Northern Ireland", Material = "Aluminium", TotalCost = 10m
             },
             new LocalAuthorityDisposalCost
             {
-                Id = 20, ProjectionYear = "2024-25", EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
+                Id = 20, RelativeYear = new RelativeYear(2024), EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
                 CreatedBy = "Test User", CreatedAt = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
                 LapcapDataMasterId = 1, LapcapTempUniqueRef = "SCT-PC", Country = "Scotland", Material = "Paper or card", TotalCost = 23.01m
             },
@@ -101,13 +101,13 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             new LocalAuthorityDisposalCost
             {
-                Id = 1, ProjectionYear = "2024-25", EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
+                Id = 1, RelativeYear = new RelativeYear(2024), EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
                 CreatedBy = "Test User", CreatedAt = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc), LapcapDataMasterId = 1,
                 LapcapTempUniqueRef = "ENG-AL", Country = "England", Material = "Aluminium", TotalCost = 2210.45m
             },
             new LocalAuthorityDisposalCost
             {
-                Id = 2, ProjectionYear = "2024-25", EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
+                Id = 2, RelativeYear = new RelativeYear(2024), EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
                 CreatedBy = "Test User", CreatedAt = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc), LapcapDataMasterId = 1,
                 LapcapTempUniqueRef = "ENG-FC", Country = "England", Material = "Fibre composite", TotalCost = 2210m
             },
@@ -131,13 +131,13 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             new LocalAuthorityDisposalCost
             {
-                Id = 1, ProjectionYear = "2024-25", EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
+                Id = 1, RelativeYear = new RelativeYear(2024), EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
                 CreatedBy = "Test User", CreatedAt = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc), LapcapDataMasterId = 1,
                 LapcapTempUniqueRef = "ENG-AL", Country = "England", Material = "Aluminium", TotalCost = 2210.45m
             },
             new LocalAuthorityDisposalCost
             {
-                Id = 2, ProjectionYear = "2024-25", EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
+                Id = 2, RelativeYear = new RelativeYear(2024), EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
                 CreatedBy = "Test User", CreatedAt = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc), LapcapDataMasterId = 1,
                 LapcapTempUniqueRef = "ENG-FC", Country = "England", Material = "Other", TotalCost = 2210m
             },

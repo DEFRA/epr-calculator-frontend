@@ -21,7 +21,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             this.Fixture = new Fixture();
             this.Configuration = ConfigurationItems.GetConfigurationValues();
             this.MockHttpContext = new Mock<HttpContext>();
-            this.MockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            this.MockHttpContext.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
             var headers = new HeaderDictionary
             {
                 { "Referer", "https://calculator/details/4" }
@@ -52,11 +52,11 @@ namespace EPR.Calculator.Frontend.UnitTests
             var result = await controller.Index(runId) as ViewResult;
 
             // Assert
-            var resultModel = result.Model as CalculationRunDeleteViewModel;
+            var resultModel = result!.Model as CalculationRunDeleteViewModel;
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDeleteIndex, result.ViewName);
-            Assert.AreEqual(runId, resultModel.CalculatorRunStatusData.RunId);
-            Assert.AreEqual("details", resultModel.BackLinkViewModel.BackLink);
+            Assert.AreEqual(runId, resultModel!.CalculatorRunStatusData.RunId);
+            Assert.AreEqual("details", resultModel!.BackLinkViewModel!.BackLink);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ViewNames.CalculationRunDeleteConfirmationSuccess, result.ViewName);
-            Assert.IsTrue(typeof(CalculatorRunDetailsNewViewModel) == result.Model.GetType());
+            Assert.IsTrue(typeof(CalculatorRunDetailsNewViewModel) == result.Model!.GetType());
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var testClass = new CalculationRunDeleteController(
                 this.Configuration,
                 TestMockUtils.BuildMockApiService(httpStatusCode).Object,
-                new TelemetryClient(),
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 new Mock<ICalculatorRunDetailsService>().Object);
             testClass.ControllerContext.HttpContext = this.MockHttpContext.Object;
             return testClass;

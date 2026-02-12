@@ -14,8 +14,8 @@ using Moq;
 [TestClass]
 public class GlobalExceptionFilterTests
 {
-    private Mock<ILogger<GlobalExceptionFilter>> _mockLogger;
-    private GlobalExceptionFilter _filter;
+    private Mock<ILogger<GlobalExceptionFilter>> _mockLogger = null!;
+    private GlobalExceptionFilter _filter = null!;
 
     [TestInitialize]
     public void Setup()
@@ -97,9 +97,9 @@ public class GlobalExceptionFilterTests
             x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Unexpected error")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Unexpected error")),
                 exception,
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
     }
 }

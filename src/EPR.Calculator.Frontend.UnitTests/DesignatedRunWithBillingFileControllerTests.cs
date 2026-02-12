@@ -13,9 +13,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Moq;
 using Moq.Protected;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.UnitTests
 {
@@ -36,14 +36,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             this.Fixture = new Fixture();
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _mockLogger = new Mock<ILogger<DesignatedRunWithBillingFileController>>();
-            _telemetryClient = new TelemetryClient();
+            _telemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
             _mockHttpContext = new Mock<HttpContext>();
             _mockMessageHandler = new Mock<HttpMessageHandler>();
             _mockCalculatorRunDetailsService = new Mock<ICalculatorRunDetailsService>();
 
             _controller = new DesignatedRunWithBillingFileController(
                    _configuration,
-                   new Mock<IApiService>().Object,
+                   new Mock<IEprCalculatorApiService>().Object,
                    _telemetryClient,
                    _mockCalculatorRunDetailsService.Object)
             {
@@ -62,7 +62,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         {
             // Arrange
             int invalidRunId = -1;
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+            _mockHttpContext.Setup(ctx => ctx.User.Identity!.Name).Returns("TestUser");
 
             // Act
             var result = await _controller.Index(invalidRunId) as RedirectToActionResult;
@@ -121,7 +121,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             _controller = new DesignatedRunWithBillingFileController(
                 _configuration,
-                new Mock<IApiService>().Object,
+                new Mock<IEprCalculatorApiService>().Object,
                 _telemetryClient,
                 new Mock<ICalculatorRunDetailsService>().Object);
 
@@ -132,7 +132,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             };
 
             // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+            _mockHttpContext.Setup(ctx => ctx.User.Identity!.Name).Returns("TestUser");
 
             var result = await _controller.Index(1) as RedirectToActionResult;
 
@@ -146,7 +146,7 @@ namespace EPR.Calculator.Frontend.UnitTests
         public void Submit_ModelStateInvalid_RedirectsToIndex()
         {
             // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+            _mockHttpContext.Setup(ctx => ctx.User.Identity!.Name).Returns("TestUser");
 
             // Arrange
             _controller.ModelState.AddModelError("Error", "Model state is invalid");
@@ -157,14 +157,14 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(1, result.RouteValues["runId"]);
+            Assert.AreEqual(1, result!.RouteValues!["runId"]);
         }
 
         [TestMethod]
         public void Submit_ModelStateValid_RedirectsToSendBillingFile()
         {
             // Mocking HttpContext.User.Identity.Name to simulate a logged-in user
-            _mockHttpContext.Setup(ctx => ctx.User.Identity.Name).Returns("TestUser");
+            _mockHttpContext.Setup(ctx => ctx.User.Identity!.Name).Returns("TestUser");
 
             // Act
             var result = _controller.Submit(1) as RedirectToActionResult;
@@ -173,7 +173,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(result);
             Assert.AreEqual(ActionNames.Index, result.ActionName);
             Assert.AreEqual(ControllerNames.SendBillingFile, result.ControllerName);
-            Assert.AreEqual(1, result.RouteValues["runId"]);
+            Assert.AreEqual(1, result!.RouteValues!["runId"]);
         }
 
         [TestMethod]
@@ -183,7 +183,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             var controller = BuildTestClass(HttpStatusCode.OK, MockData.GetCalculatorRun());
 
             _mockHttpContext = new Mock<HttpContext>();
-            _mockHttpContext.Setup(c => c.User.Identity.Name).Returns(Fixture.Create<string>);
+            _mockHttpContext.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
             var headers = new HeaderDictionary
             {
                 { "Referer", "https://calculator/" }
@@ -228,7 +228,7 @@ namespace EPR.Calculator.Frontend.UnitTests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.RouteValues["action"]);
+            Assert.AreEqual(ActionNames.Index, result!.RouteValues!["action"]);
             Assert.AreEqual(ControllerNames.CalculationRunOverview, result.RouteValues["controller"]);
             Assert.AreEqual(testRunId, result.RouteValues["runId"]);
         }
@@ -256,19 +256,19 @@ namespace EPR.Calculator.Frontend.UnitTests
 
         private DesignatedRunWithBillingFileController BuildTestClass(
            HttpStatusCode httpStatusCode,
-           CalculatorRunDto data = null,
-           CalculatorRunDetailsViewModel details = null)
+           CalculatorRunDto? data = null,
+           CalculatorRunDetailsViewModel? details = null)
         {
-            data = data ?? MockData.GetCalculatorRun();
-            details = details ?? Fixture.Create<CalculatorRunDetailsViewModel>();
+            data ??= MockData.GetCalculatorRun();
+            details ??= Fixture.Create<CalculatorRunDetailsViewModel>();
             var mockApiService = TestMockUtils.BuildMockApiService(
                 httpStatusCode,
-                System.Text.Json.JsonSerializer.Serialize(data ?? MockData.GetCalculatorRun())).Object;
+                JsonConvert.SerializeObject(data ?? MockData.GetCalculatorRun())).Object;
 
             var testClass = new DesignatedRunWithBillingFileController(
                 ConfigurationItems.GetConfigurationValues(),
                 mockApiService,
-                new TelemetryClient(),
+                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
                 TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
             testClass.ControllerContext.HttpContext = new DefaultHttpContext();
 
