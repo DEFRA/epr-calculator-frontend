@@ -151,25 +151,16 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         }
 
         [TestMethod]
-        public void CanGetTurnOffFeatureUrl()
+        public void CanGetRunDetailLink()
         {
             // Assert
-            Assert.IsInstanceOfType(_testClass.TurnOffFeatureUrl, typeof(string));
+            Assert.IsInstanceOfType(_testClass.RunDetailLink, typeof(string));
 
-            Assert.AreEqual(_testClass.TurnOffFeatureUrl, $"/ViewCalculationRunDetails/{_testClass.Id}");
+            Assert.AreEqual("Dashboard", _testClass.RunDetailLink);
         }
 
         [TestMethod]
-        public void CanGetTurnOnFeatureUrl()
-        {
-            // Assert
-            Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
-
-            Assert.AreEqual("Dashboard", _testClass.TurnOnFeatureUrl);
-        }
-
-        [TestMethod]
-        public void GetTurnOnFeatureUrl_ShouldReturnErrorPage_WhenRunClassificationStatusIsError()
+        public void GetRunDetailLink_ShouldReturnErrorPage_WhenRunClassificationStatusIsError()
         {
             _calculationRun = new CalculationRun
             {
@@ -181,9 +172,9 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
                 HasBillingFileGenerated = false
             };
             _testClass = new CalculationRunViewModel(_calculationRun);
-            Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
+            Assert.IsInstanceOfType(_testClass.RunDetailLink, typeof(string));
 
-            Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/CalculationRunDetailsNew/{_calculationRun.Id}");
+            Assert.AreEqual(_testClass.RunDetailLink, $"/CalculationRunDetailsNew/{_calculationRun.Id}");
         }
 
         [TestMethod]
@@ -191,7 +182,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         [DataRow(RunClassification.INTERIM_RECALCULATION_RUN)]
         [DataRow(RunClassification.FINAL_RECALCULATION_RUN)]
         [DataRow(RunClassification.FINAL_RUN)]
-        public void GetTurnOnFeatureUrl_ShouldReturnDesignatedRunWithBillingFile_WhenSelectedRunAndBillingFileGeneratedTrue(RunClassification runClassification)
+        public void GetRunDetailLink_ShouldReturnDesignatedRunWithBillingFile_WhenSelectedRunAndBillingFileGeneratedTrue(RunClassification runClassification)
         {
             // Assert
             _calculationRun = new CalculationRun
@@ -204,9 +195,9 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
                 HasBillingFileGenerated = true
             };
             _testClass = new CalculationRunViewModel(_calculationRun);
-            Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
+            Assert.IsInstanceOfType(_testClass.RunDetailLink, typeof(string));
 
-            Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/DesignatedRunWithBillingFile/{_calculationRun.Id}");
+            Assert.AreEqual(_testClass.RunDetailLink, $"/DesignatedRunWithBillingFile/{_calculationRun.Id}");
         }
 
         [TestMethod]
@@ -215,7 +206,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         [DataRow(RunClassification.INTERIM_RECALCULATION_RUN)]
         [DataRow(RunClassification.FINAL_RECALCULATION_RUN)]
         [DataRow(RunClassification.FINAL_RUN)]
-        public void GetTurnOnFeatureUrl_ShouldReturnDesignatedRun_WhenSelectedRunAndBillingFileGeneratedFalse(RunClassification runClassification)
+        public void GetRunDetailLink_ShouldReturnDesignatedRun_WhenSelectedRunAndBillingFileGeneratedFalse(RunClassification runClassification)
         {
             _calculationRun = new CalculationRun
             {
@@ -227,9 +218,9 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
                 HasBillingFileGenerated = false
             };
             _testClass = new CalculationRunViewModel(_calculationRun);
-            Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
+            Assert.IsInstanceOfType(_testClass.RunDetailLink, typeof(string));
 
-            Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/DesignatedRun/{_calculationRun.Id}");
+            Assert.AreEqual(_testClass.RunDetailLink, $"/DesignatedRun/{_calculationRun.Id}");
         }
 
         [TestMethod]
@@ -237,7 +228,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         [DataRow(RunClassification.INTERIM_RECALCULATION_RUN)]
         [DataRow(RunClassification.FINAL_RECALCULATION_RUN)]
         [DataRow(RunClassification.FINAL_RUN)]
-        public void GetTurnOnFeatureUrl_ShouldReturnDesignatedRunWithBillingFile_WhenSelectedRunAndIsBillingFileGeneratingTrue(RunClassification runClassification)
+        public void GetRunDetailLink_ShouldReturnDesignatedRunWithBillingFile_WhenSelectedRunAndIsBillingFileGeneratingTrue(RunClassification runClassification)
         {
             // Assert
             _calculationRun = new CalculationRun
@@ -251,9 +242,9 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
                 IsBillingFileGenerating = true
             };
             _testClass = new CalculationRunViewModel(_calculationRun);
-            Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
+            Assert.IsInstanceOfType(_testClass.RunDetailLink, typeof(string));
 
-            Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/DesignatedRunWithBillingFile/{_calculationRun.Id}");
+            Assert.AreEqual(_testClass.RunDetailLink, $"/DesignatedRunWithBillingFile/{_calculationRun.Id}");
         }
 
         [TestMethod]
@@ -261,7 +252,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         [DataRow(RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED)]
         [DataRow(RunClassification.FINAL_RECALCULATION_RUN_COMPLETED)]
         [DataRow(RunClassification.FINAL_RUN_COMPLETED)]
-        public void GetTurnOnFeatureUrl_ShouldReturnCompletedRun_WhenSelectedRun(RunClassification runClassification)
+        public void GetRunDetailLink_ShouldReturnCompletedRun_WhenSelectedRun(RunClassification runClassification)
         {
             // Assert
             _calculationRun = new CalculationRun
@@ -275,9 +266,9 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
                 IsBillingFileGenerating = true
             };
             _testClass = new CalculationRunViewModel(_calculationRun);
-            Assert.IsInstanceOfType(_testClass.TurnOnFeatureUrl, typeof(string));
+            Assert.IsInstanceOfType(_testClass.RunDetailLink, typeof(string));
 
-            Assert.AreEqual(_testClass.TurnOnFeatureUrl, $"/CompletedRun/{_calculationRun.Id}");
+            Assert.AreEqual(_testClass.RunDetailLink, $"/CompletedRun/{_calculationRun.Id}");
         }
 
         [DataTestMethod]
