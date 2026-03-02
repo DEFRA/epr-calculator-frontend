@@ -6,16 +6,16 @@
 	<partial name="_CurrentUserPartial" model="@Model.CurrentUser" />
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            
+
                 <div class="govuk-form-group ">
                     <h1 class="govuk-heading-l">There was a problem downloading this file</h1>
                     <h1 class="govuk-body-m">This file has not been downloaded. </h1>
-                    <a href="/ViewCalculationRunDetails/@Model.Data.RunId" class="govuk-button" type="submit">Try again</a>
+                    <a href="@string.Format(ActionNames.CalculationRunNewDetails, Model.Data.RunId)" class="govuk-button" type="submit">Try again</a>
                     <p class="govuk-body">
                         <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
-                    </p>                    
+                    </p>
                 </div>
-            
+
         </div>
     </div>
 </main>

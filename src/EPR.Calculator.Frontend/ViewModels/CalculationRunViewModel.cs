@@ -80,14 +80,9 @@ namespace EPR.Calculator.Frontend.ViewModels
         public bool IsBillingFileGenerating { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether gets or sets the calculation run details link.
-        /// </summary>
-        public string TurnOffFeatureUrl => string.Format(ActionNames.ViewCalculationRunDetails, this.Id);
-
-        /// <summary>
         /// Gets a value indicating whether the run detail link should be displayed.
         /// </summary>
-        public string TurnOnFeatureUrl => GetTurnOnFeatureUrl(this.Status, this.Id, this.HasBillingFileGenerated, this.IsBillingFileGenerating);
+        public string RunDetailLink  => GetRunDetailLink(this.Status, this.Id, this.HasBillingFileGenerated, this.IsBillingFileGenerating);
 
         private static string GetStatusTagStyle(RunClassification status) => status switch
         {
@@ -112,7 +107,7 @@ namespace EPR.Calculator.Frontend.ViewModels
         private static bool ShouldShowErrorLink(RunClassification status) =>
             status == RunClassification.ERROR;
 
-        private static string GetTurnOnFeatureUrl(RunClassification status, int id, bool hasBillingFileGenerated, bool isBillingFileGenerating)
+        private static string GetRunDetailLink(RunClassification status, int id, bool hasBillingFileGenerated, bool isBillingFileGenerating)
         {
             return status switch
             {
