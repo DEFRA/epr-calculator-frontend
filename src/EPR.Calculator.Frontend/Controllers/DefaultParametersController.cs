@@ -63,18 +63,16 @@ namespace EPR.Calculator.Frontend.Controllers
                 var data = await response.Content.ReadAsStringAsync();
                 var defaultSchemeParameters = await response.Content.ReadFromJsonAsync<List<DefaultSchemeParameters>>() ?? new List<DefaultSchemeParameters>();
 
-                if (defaultSchemeParameters != null)
+                foreach (ParameterType name in (ParameterType[])Enum.GetValues(typeof(ParameterType)))
                 {
-                    foreach (ParameterType name in (ParameterType[])Enum.GetValues(typeof(ParameterType)))
-                    {
-                        viewModel.SchemeParameters.Add(GetSchemeParametersBasedonCategory(defaultSchemeParameters, name));
-                    }
-
-                    viewModel.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
-                    viewModel.IsDataAvailable = true;
-
-                    return this.View(viewModel);
+                    viewModel.SchemeParameters.Add(GetSchemeParametersBasedonCategory(defaultSchemeParameters, name));
                 }
+
+                viewModel.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
+                viewModel.IsDataAvailable = true;
+
+                return this.View(viewModel);
+
             }
 
             if (response.StatusCode == HttpStatusCode.NotFound)
