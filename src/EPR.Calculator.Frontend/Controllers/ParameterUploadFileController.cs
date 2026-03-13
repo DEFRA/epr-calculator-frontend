@@ -61,7 +61,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 using (var client = new HttpClient())
                 {
                     var fileBytes = await client.GetByteArrayAsync(StaticHelpers.CsvTemplatePath);
-                    return this.File(fileBytes, "application/octet-stream", StaticHelpers.CsvTemplateFileName);
+                    return this.File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", StaticHelpers.CsvTemplateFileName);
                 }
             }
             catch (Exception ex)

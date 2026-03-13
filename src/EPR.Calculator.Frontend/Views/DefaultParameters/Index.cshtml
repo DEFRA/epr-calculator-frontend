@@ -24,9 +24,36 @@
                         var schemeparameterValue = @Model.SchemeParameters.First(t => t.SchemeParameterName == name.GetDisplayName());
                         if (name == ParameterType.BadDebtProvision && !schemeparameterValue.DefaultSchemeParameters.Any()) { continue; }
 
-                        <h2 class="govuk-heading-l">@name.GetDisplayName()</h2>
-                        <partial name="_ItemListPartial" model="schemeparameterValue" />
-                        
+                        if(name == ParameterType.LateReportingTonnage)
+                        {
+                            <h2 class="govuk-heading-l">@name.GetDisplayName()</h2>
+                            <table class="govuk-table govuk-!-margin-bottom-9">
+                                <thead>
+                                    <tr class="govuk-table__row">
+                                        <th class="govuk-table__header"></th>
+                                        <th class="govuk-table__header">Red</th>
+                                        <th class="govuk-table__header">Amber</th>
+                                        <th class="govuk-table__header">Green</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var row in @Model.LateReportingTonnageParams)
+                                    {
+                                        <tr class="govuk-table__row">
+                                            <th class="govuk-table__header">@row.Material</th>
+                                            <td class="govuk-table__cell">@row.Red</td>
+                                            <td class="govuk-table__cell">@row.Amber</td>
+                                            <td class="govuk-table__cell">@row.Green</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <h2 class="govuk-heading-l">@name.GetDisplayName()</h2>
+                            <partial name="_ItemListPartial" model="schemeparameterValue" />
+                        }
                     }                    
                 }
                 else

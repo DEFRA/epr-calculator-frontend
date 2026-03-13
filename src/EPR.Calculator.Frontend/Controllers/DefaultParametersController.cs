@@ -54,6 +54,7 @@ namespace EPR.Calculator.Frontend.Controllers
                     CurrentUser = currentUser,
                     LastUpdatedBy = CommonUtil.GetUserName(this.HttpContext),
                     SchemeParameters = new List<SchemeParametersViewModel>(),
+                    LateReportingTonnageParams = new List<DefaultSchemeParametersLateReportingTonnage>(),
                     BackLinkViewModel = new BackLinkViewModel()
                     {
                         BackLink = string.Empty,
@@ -67,6 +68,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 {
                     viewModel.SchemeParameters.Add(GetSchemeParametersBasedonCategory(defaultSchemeParameters, name));
                 }
+                
+                var lateTonnage = viewModel.SchemeParameters.First(t => t.SchemeParameterName == ParameterType.LateReportingTonnage.GetDisplayName());
+                viewModel.LateReportingTonnageParams = GetModulatedLateReportingTonnageParams(lateTonnage?.DefaultSchemeParameters ?? new List<DefaultSchemeParameters>());
 
                 viewModel.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
                 viewModel.IsDataAvailable = true;
@@ -93,6 +97,19 @@ namespace EPR.Calculator.Frontend.Controllers
             return this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
         }
 
+        private static IEnumerable<DefaultSchemeParametersLateReportingTonnage> GetModulatedLateReportingTonnageParams(IEnumerable<DefaultSchemeParameters> parameters)
+        {
+            return parameters
+                .GroupBy(x => x.ParameterCategory.Split('-')[0].Trim())
+                .Select(group => new DefaultSchemeParametersLateReportingTonnage
+                {
+                    Material = group.Key,
+                    Red = group.FirstOrDefault(x => x.ParameterCategory.EndsWith("-R"))?.ParameterValue,
+                    Amber = group.FirstOrDefault(x => x.ParameterCategory.EndsWith("-A"))?.ParameterValue,
+                    Green = group.FirstOrDefault(x => x.ParameterCategory.EndsWith("-G"))?.ParameterValue
+                });
+        }
+
         private static SchemeParametersViewModel GetSchemeParametersBasedonCategory(List<DefaultSchemeParameters> defaultSchemeParameters, ParameterType parameterType)
         {
             var type = parameterType.GetDisplayName();
@@ -108,7 +125,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private static bool IsExcludedFromPrefixDisplay(ParameterType parameterType)
         {
-            return parameterType == ParameterType.LateReportingTonnage || parameterType == ParameterType.BadDebtProvision;
+            return parameterType == ParameterType.LateReportingTonnage || parameterType == ParameterType.BadDebtProvision || parameterType == ParameterType.RedModulationFactor;
         }
 
         private async Task<HttpResponseMessage> GetDefaultParametersAsync(RelativeYear relativeYear)

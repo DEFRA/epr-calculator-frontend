@@ -19,7 +19,7 @@ namespace EPR.Calculator.Frontend.UnitTests
     public class DefaultParameterControllerTests
     {
         private static readonly string[] Separator = new string[] { @"bin\" };
-        private static readonly int TotalRecords = 9;
+        private static readonly int TotalRecords = 10;
 
         private Fixture Fixture { get; } = new Fixture();
 
@@ -48,6 +48,21 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.SchemeAdministratorOperatingCosts.GetDisplayName()));
             Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.SchemeSetupCosts.GetDisplayName()));
             Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.TonnageChangeThreshold.GetDisplayName()));
+            Assert.AreEqual(true, resultModel.SchemeParameters.Any(t => t.SchemeParameterName == ParameterType.RedModulationFactor.GetDisplayName()));
+            Assert.AreEqual(1.200M, resultModel.SchemeParameters.FirstOrDefault(t => t.SchemeParameterName == ParameterType.RedModulationFactor.GetDisplayName())?.DefaultSchemeParameters.FirstOrDefault(t => t.ParameterUniqueRef == "REDM-RF")?.ParameterValue);
+
+            var lateReportingParams = resultModel.SchemeParameters.FirstOrDefault(t => t.SchemeParameterName == ParameterType.LateReportingTonnage.GetDisplayName())?.DefaultSchemeParameters;
+            var redAlLateReporting = lateReportingParams?.FirstOrDefault(t => t.ParameterUniqueRef == "LRET-AL-R")?.ParameterValue;
+            var amberAlLateReporting = lateReportingParams?.FirstOrDefault(t => t.ParameterUniqueRef == "LRET-AL")?.ParameterValue;
+            var greenAlLateReporting = lateReportingParams?.FirstOrDefault(t => t.ParameterUniqueRef == "LRET-AL-G")?.ParameterValue;
+
+            Assert.AreEqual(170.55M, redAlLateReporting);
+
+            Assert.AreEqual(8, resultModel.LateReportingTonnageParams.Count());
+            var alFormattedLateReportingParams = resultModel.LateReportingTonnageParams.FirstOrDefault(t => t.Material == "Aluminium");
+            Assert.AreEqual(redAlLateReporting, alFormattedLateReportingParams?.Red);
+            Assert.AreEqual(amberAlLateReporting, alFormattedLateReportingParams?.Amber);
+            Assert.AreEqual(greenAlLateReporting, alFormattedLateReportingParams?.Green);
         }
 
         [TestMethod]
