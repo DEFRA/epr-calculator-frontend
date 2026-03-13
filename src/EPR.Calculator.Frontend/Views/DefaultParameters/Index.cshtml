@@ -28,19 +28,22 @@
                         {
                             <h2 class="govuk-heading-l">@name.GetDisplayName()</h2>
                             <table class="govuk-table govuk-!-margin-bottom-9">
+                                <caption class="govuk-table__caption govuk-visually-hidden">
+                                    Late reporting tonnage default parameters with RAG modulation
+                                </caption>
                                 <thead>
                                     <tr class="govuk-table__row">
-                                        <th class="govuk-table__header"></th>
-                                        <th class="govuk-table__header">Red</th>
-                                        <th class="govuk-table__header">Amber</th>
-                                        <th class="govuk-table__header">Green</th>
+                                        <th id="material_tonnage_header" class="govuk-table__header"></th>
+                                        <th id="red_tonnage_header" class="govuk-table__header">Red</th>
+                                        <th id="amber_tonnage_header" class="govuk-table__header">Amber</th>
+                                        <th id="green_tonnage_header" class="govuk-table__header">Green</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var row in @Model.LateReportingTonnageParams)
                                     {
                                         <tr class="govuk-table__row">
-                                            <th class="govuk-table__header">@row.Material</th>
+                                            <th id="material_tonnage_header_row" class="govuk-table__header">@row.Material</th>
                                             <td class="govuk-table__cell">@row.Red</td>
                                             <td class="govuk-table__cell">@row.Amber</td>
                                             <td class="govuk-table__cell">@row.Green</td>
@@ -49,7 +52,7 @@
                                 </tbody>
                             </table>
                         }
-                        else
+                        else 
                         {
                             <h2 class="govuk-heading-l">@name.GetDisplayName()</h2>
                             <partial name="_ItemListPartial" model="schemeparameterValue" />

@@ -70,7 +70,7 @@ namespace EPR.Calculator.Frontend.Controllers
                 }
                 
                 var lateTonnage = viewModel.SchemeParameters.First(t => t.SchemeParameterName == ParameterType.LateReportingTonnage.GetDisplayName());
-                viewModel.LateReportingTonnageParams = GetModulatedLateReportingTonnageParams(lateTonnage?.DefaultSchemeParameters ?? new List<DefaultSchemeParameters>());
+                viewModel.LateReportingTonnageParams = GetModulatedLateReportingTonnageParams(lateTonnage.DefaultSchemeParameters);
 
                 viewModel.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
                 viewModel.IsDataAvailable = true;
@@ -104,9 +104,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 .Select(group => new DefaultSchemeParametersLateReportingTonnage
                 {
                     Material = group.Key,
-                    Red = group.FirstOrDefault(x => x.ParameterCategory.EndsWith("-R"))?.ParameterValue,
-                    Amber = group.FirstOrDefault(x => x.ParameterCategory.EndsWith("-A"))?.ParameterValue,
-                    Green = group.FirstOrDefault(x => x.ParameterCategory.EndsWith("-G"))?.ParameterValue
+                    Red = group.First(x => x.ParameterCategory.EndsWith("-R")).ParameterValue,
+                    Amber = group.First(x => x.ParameterCategory.EndsWith("-A")).ParameterValue,
+                    Green = group.First(x => x.ParameterCategory.EndsWith("-G")).ParameterValue
                 });
         }
 
