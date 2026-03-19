@@ -38,6 +38,6 @@
         /// <summary>
         /// Scheme parameter CSV template path.
         /// </summary>
-        public const string CsvTemplatePath = "https://github.com/DEFRA/epr-calculator-frontend/blob/main/src/EPR.Calculator.Frontend/Templates/SchemeParameterTemplate.xlsx";
+        public const string CsvTemplatePath = "https://raw.githubusercontent.com/DEFRA/epr-calculator-frontend/main/src/EPR.Calculator.Frontend/Templates/SchemeParameterTemplate.xlsx";
     }
 }

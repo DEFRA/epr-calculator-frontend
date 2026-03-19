@@ -30,5 +30,8 @@ namespace EPR.Calculator.Frontend.Constants
 
         [Display(Name = "Tonnage change threshold")]
         TonnageChangeThreshold,
+
+        [Display(Name = "Red modulation factor")]
+        RedModulationFactor,
     }
 }
