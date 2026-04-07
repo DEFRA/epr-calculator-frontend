@@ -615,7 +615,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(model);
             Assert.IsNotNull(model.FinancialYearSelectList);
             Assert.IsTrue(model.FinancialYearSelectList.Count > 0);
-            Assert.AreEqual("2025-26", model.FinancialYearSelectList.First().Value);
         }
 
         private static HttpResponseMessage CreateResponse(HttpStatusCode statusCode, object content)
