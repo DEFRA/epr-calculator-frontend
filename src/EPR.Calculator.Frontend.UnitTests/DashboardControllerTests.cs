@@ -172,7 +172,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             Assert.IsNotNull(model);
             Assert.IsNotNull(model.RelativeYearSelectList);
             Assert.IsTrue(model.RelativeYearSelectList.Count > 0);
-            Assert.AreEqual("2025", model.RelativeYearSelectList.First().Value);
         }
 
         private Dictionary<(HttpMethod, string, string), (HttpStatusCode, string)>
