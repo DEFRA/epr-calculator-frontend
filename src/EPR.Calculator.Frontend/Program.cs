@@ -8,6 +8,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
@@ -51,6 +52,12 @@ builder.Services.AddRazorPages().AddMvcOptions(options =>
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add<EPR.Calculator.Frontend.Exceptions.GlobalExceptionFilter>();
+
+    options.Filters.Add(new ResponseCacheAttribute
+    {
+        NoStore  = true,
+        Location = ResponseCacheLocation.None,
+    });
 }).AddMicrosoftIdentityUI();
 
 builder.Services.AddDistributedMemoryCache();
