@@ -17,6 +17,9 @@ using System.Reflection;
 var builder = WebApplication.CreateBuilder(args);
 var environmentName = builder.Environment.EnvironmentName?.ToLower() ?? string.Empty;
 
+// Suppress the default response header so the hosting server is not advertised.
+builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
+
 builder.Services
     .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(builder.Configuration, "AzureAd")
