@@ -139,14 +139,7 @@ builder.Logging.AddConsole();
 
 var app = builder.Build();
 
-// add csp headers
-app.Use(async (context, next) =>
-{
-    context.Response.Headers.Append("Content-Security-Policy", "font-src 'self';frame-src 'self'; img-src 'self';frame-ancestors 'self';");
-    context.Response.Headers.Append("X-Frame-Options", "DENY");
-    await next();
-});
-
+// HSTS and HTTPS redirection must run before any response-writing middleware.
 if (!app.Environment.IsDevelopment() && !string.Equals(environmentName, EPR.Calculator.Frontend.Constants.Environment.Local, StringComparison.InvariantCultureIgnoreCase))
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
@@ -154,6 +147,28 @@ if (!app.Environment.IsDevelopment() && !string.Equals(environmentName, EPR.Calc
 }
 
 app.UseHttpsRedirection();
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["Content-Security-Policy"] =
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline'; " +
+        "style-src  'self' 'unsafe-inline'; " +
+        "img-src    'self' data:; " +
+        "font-src   'self'; " +
+        "connect-src 'self'; " +
+        "frame-src  'self'; " +
+        "frame-ancestors 'self'; " +
+        "form-action 'self' https://login.microsoftonline.com; " + // allow AAD sign-in POST
+        "base-uri   'self'; " +
+        "object-src 'none'";
+
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+
+    await next();
+});
+
 app.UseStaticFiles();
 
 app.UseRouting();
