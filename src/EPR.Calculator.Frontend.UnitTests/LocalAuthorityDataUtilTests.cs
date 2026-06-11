@@ -133,7 +133,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             {
                 Id = 1, RelativeYear = new RelativeYear(2024), EffectiveFrom = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc),
                 CreatedBy = "Test User", CreatedAt = new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc), LapcapDataMasterId = 1,
-                LapcapTempUniqueRef = "ENG-AL", Country = "England", Material = "Aluminium", TotalCost = 2210.45m
+                LapcapTempUniqueRef = "ENG-AL", Country = "England", Material = "Aluminium", TotalCost = -2210.45m
             },
             new LocalAuthorityDisposalCost
             {
@@ -149,6 +149,12 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(2, result.Count);
+            Assert.AreEqual("England", result.First().Country);
+            Assert.AreEqual("Test User", result.First().CreatedBy);
+            Assert.AreEqual("28 Aug 2024  at 10:12", result.First().CreatedAt);
+            Assert.AreEqual(new DateTime(2024, 8, 28, 10, 12, 30, DateTimeKind.Utc), result.First().EffectiveFrom);
+            Assert.AreEqual("-£2210.45", result.First().TotalCost);
+            Assert.AreEqual("Aluminium", result.First().Material);
             Assert.AreEqual("England", result[1].Country);
             Assert.AreEqual("Test User", result[1].CreatedBy);
             Assert.AreEqual("28 Aug 2024  at 10:12", result[1].CreatedAt);

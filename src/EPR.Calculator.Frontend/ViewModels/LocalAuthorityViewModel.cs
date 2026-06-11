@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 using EPR.Calculator.Frontend.Enums;
@@ -47,7 +48,12 @@ namespace EPR.Calculator.Frontend.ViewModels
 
             private static string GetTotalCost(decimal totalCost)
             {
-                return totalCost == 0 ? string.Format("{0}{1:F0}", "£", totalCost) : string.Format("{0}{1:F2}", "£", totalCost);
+                var precision = totalCost == 0 ? 0 : 2;
+                var culture = CultureInfo.CreateSpecificCulture("en-GB");
+                culture.NumberFormat.CurrencySymbol = "£";
+                culture.NumberFormat.CurrencyPositivePattern = 0;
+                culture.NumberFormat.CurrencyGroupSeparator = string.Empty;
+                return totalCost.ToString($"C{precision}", culture);
             }
         }
     }
