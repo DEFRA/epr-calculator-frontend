@@ -454,7 +454,9 @@ namespace EPR.Calculator.Frontend.UnitTests
                 CalculationName = "TestRun"
             };
 
-            var controller = BuildTestClass(this.Fixture, HttpStatusCode.UnprocessableEntity);
+            var error = "Already a calculator run running, wait your turn.";
+            var errorJson = $$"""{ "message": "{{error}}" }""";
+            var controller = BuildTestClass(this.Fixture, HttpStatusCode.UnprocessableEntity, errorJson);
 
             // Act
             var result = await controller.RunCalculator(calculationRunModel);
@@ -462,6 +464,7 @@ namespace EPR.Calculator.Frontend.UnitTests
             // Assert
             var redirectResult = result as ViewResult;
             Assert.AreEqual("~/Views/Shared/_CalculationRunError.cshtml", redirectResult!.ViewName);
+            Assert.AreEqual(error, (redirectResult.Model as CalculationRunErrorViewModel)?.ErrorMessage);
         }
 
         /// <summary>

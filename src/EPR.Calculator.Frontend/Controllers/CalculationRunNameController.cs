@@ -206,7 +206,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private class ErrorResponse
         {
-            public string? Message { get; }
+            public string? Message { get; set; }
         }
 
         private async Task<string> ExtractErrorMessageAsync(HttpResponseMessage response)
