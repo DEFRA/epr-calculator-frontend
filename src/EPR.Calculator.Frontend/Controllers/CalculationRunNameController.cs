@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text.Json.Serialization;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -206,6 +207,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private class ErrorResponse
         {
+            [JsonInclude]
             public string? Message { get; set; }
         }
 
