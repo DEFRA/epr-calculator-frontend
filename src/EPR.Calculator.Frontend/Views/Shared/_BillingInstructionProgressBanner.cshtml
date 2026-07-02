@@ -1,0 +1,21 @@
+﻿@using EPR.Calculator.Frontend.Enums
+@model BillingInstructionsViewModel
+@{
+    Model.StatusCounts.TryGetValue(BillingStatus.Accepted, out var acceptedCount);
+    Model.StatusCounts.TryGetValue(BillingStatus.Rejected, out var rejectedCount);
+    Model.StatusCounts.TryGetValue(BillingStatus.Pending , out var pendingCount);
+    var message = string.Format(BillingInstructionConstants.BillingStatusBanner, acceptedCount, rejectedCount, pendingCount);
+}
+
+<div class="govuk-notification-banner govuk-notification-banner--success govuk-!-margin-bottom-0" role="alert" data-module="govuk-notification-banner">
+    <div class="govuk-notification-banner__header">
+        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+            Billing instructions progress
+        </h2>
+    </div>
+    <div class="govuk-notification-banner__content">
+        <h3 class="govuk-notification-banner__heading">
+            @Html.Raw(message)
+        </h3>
+    </div>
+</div>

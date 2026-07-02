@@ -35,7 +35,6 @@
         public const string AcceptViewText = "accept";
         public const string RejectViewText = "reject";
 
-        public const string BillingTableHeader = "Billing instructions";
         public const int DefaultBlockSize = 3;
         public const int DefaultPageSize = 10;
         public const int DefaultPage = 1;

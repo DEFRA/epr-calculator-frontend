@@ -1,6 +1,7 @@
-﻿@using Microsoft.AspNetCore.Http
+﻿@using EPR.Calculator.Frontend.Constants
+@using EPR.Calculator.Frontend.Enums
 @using EPR.Calculator.Frontend.Extensions
-@using EPR.Calculator.Frontend.Constants
+@using Microsoft.AspNetCore.Http
 
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunOverviewViewModel
@@ -86,6 +87,18 @@
                                 <h2 class="govuk-heading-m">Downloads</h2>
 
                                 <p class="govuk-body">Download files related to this calculation run.</p>
+
+
+                                @if (calcDetails.BillingRunStatus == BillingRunStatus.Errored) {
+                                    <div class="govuk-error-summary" data-module="govuk-error-summary">
+                                        <div role="alert">
+                                            <h2 class="govuk-error-summary__title">
+                                                There is a problem with generating the billing file - please try again.
+                                            </h2>
+                                        </div>
+                                    </div>
+                                }
+
                                 <div class="govuk-button-group width-max-content">
                                     <a class="govuk-button govuk-button--secondary"
                                        role="button"

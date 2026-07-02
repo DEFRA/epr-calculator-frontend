@@ -6,8 +6,6 @@ namespace EPR.Calculator.Frontend.ViewModels
     {
         public IEnumerable<object> Records { get; init; } = Enumerable.Empty<object>();
 
-        public string? Caption { get; init; }
-
         public int CurrentPage { get; init; }
 
         public int PageSize { get; init; }

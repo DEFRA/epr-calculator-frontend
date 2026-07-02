@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.ViewModels
 {
@@ -7,38 +8,26 @@ namespace EPR.Calculator.Frontend.ViewModels
     /// </summary>
     public record BillingInstructionsViewModel : ViewModelCommonData
     {
-        /// <summary>
-        /// Gets the calculation run details for the billing instructions.
-        /// </summary>
         public CalculationRunForBillingInstructionsDto CalculationRun { get; init; } = new();
 
-        public ICollection<Organisation> OrganisationBillingInstructions { get; init; } = [];
+        public int? OrganisationId { get; init; }
 
-        /// <summary>
-        /// Gets the pagination model containing the billing instruction records and pagination information.
-        /// </summary>
+        public List<BillingInstruction> BillingInstructions { get; init; } = [];
+
+        public List<BillingStatus> BillingStatuses { get; init; } = [];
+
+        public Dictionary<BillingInstruction, int> InstructionCounts { get; init; } = [];
+
+        public ICollection<Organisation> SelectedRows { get; init; } = [];
+
         public PaginationViewModel TablePaginationModel { get; init; } = new();
 
         public OrganisationSelectionsViewModel OrganisationSelections { get; set; } = new();
 
         public IEnumerable<int>? ProducerIds { get; init; }
 
+        public Dictionary<BillingStatus, int> StatusCounts { get; init; } = [];
+
         public int TotalRecords { get; set; }
-
-        public int TotalAcceptedRecords { get; set; }
-
-        public int TotalRejectedRecords { get; set; }
-
-        public int TotalPendingRecords { get; set; }
-
-        public int TotalNoactionRecords { get; set; }
-
-        public int TotalInitialRecords { get; set; }
-
-        public int TotalDeltaRecords { get; set; }
-
-        public int TotalRebillRecords { get; set; }
-
-        public int TotalCancelbillRecords { get; set; }
     }
 }

@@ -97,6 +97,10 @@
     margin-top: 20px;
 }
 
+.align-checkbox :last-child {
+    margin-left: auto;
+}
+
 .checkbox-item-label{
     width: 350px !important;
 }
@@ -137,15 +141,11 @@
     flex-wrap: wrap;
 }
 
-.custom-width-300 {
-    width: 300px;
-}
-
-.align-center {
-    align-items: center;
-}
-
 .govuk-notification-banner--failure {
     border-color: #FF0000;
     background-color: #FF0000;
+}
+
+.govuk-pagination__item--current {
+    color: white;
 }

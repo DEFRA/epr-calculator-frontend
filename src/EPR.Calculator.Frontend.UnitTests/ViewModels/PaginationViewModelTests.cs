@@ -9,25 +9,6 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         private static readonly int[] ExpectedPageSizes = { 10, 25, 50 };
 
         [TestMethod]
-        public void Caption_ShouldBeInitializedCorrectly()
-        {
-            // Arrange
-            var expectedCaption = "Test Caption";
-            var viewModel = new PaginationViewModel
-            {
-                Caption = expectedCaption
-            };
-
-            // Act
-            var actualCaption = viewModel.Caption;
-
-            // Assert
-            Assert.AreEqual(expectedCaption, actualCaption);
-
-            Assert.AreEqual(viewModel.GetType(), typeof(PaginationViewModel));
-        }
-
-        [TestMethod]
         public void TotalPages_ShouldCalculateCorrectly()
         {
             // Arrange

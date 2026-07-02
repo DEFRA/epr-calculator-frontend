@@ -3,9 +3,6 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using System.Configuration;
-using System.Text;
-using Newtonsoft.Json;
-
 namespace EPR.Calculator.Frontend.Services
 {
     public interface IEprCalculatorApiService

@@ -47,35 +47,48 @@ namespace EPR.Calculator.Frontend.Mappers
                 CurrentUser = currentUser,
                 CalculationRun = new CalculationRunForBillingInstructionsDto
                 {
-                    Id = billingData?.CalculatorRunId ?? 0,
-                    Name = billingData?.RunName ?? string.Empty,
+                    Id   = billingData?.CalculatorRunId ?? 0,
+                    Name = billingData?.RunName         ?? string.Empty,
                 },
-                OrganisationBillingInstructions = organisations,
+
+                OrganisationId       = request.OrganisationId,
+                BillingInstructions  = request.BillingInstructions,
+                BillingStatuses      = request.BillingStatuses,
+                SelectedRows         = organisations,
                 TablePaginationModel = new PaginationViewModel
                 {
-                    Caption = CommonConstants.BillingTableHeader,
-                    Records = organisations,
-                    CurrentPage = request.Page <= 0 ? CommonConstants.DefaultPage : request.Page,
-                    PageSize = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,
+                    Records           = organisations,
+                    CurrentPage       = request.Page     <= 0 ? CommonConstants.DefaultPage      : request.Page,
+                    PageSize          = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,
                     TotalTableRecords = billingData?.AllProducerIds?.Count() ?? 0,
-                    RouteName = RouteNames.BillingInstructionsIndex,
-                    RouteValues = new Dictionary<string, object?>
+                    RouteName         = RouteNames.BillingInstructionsIndex,
+                    RouteValues       = new Dictionary<string, object?>()
                     {
-                        { BillingInstructionConstants.CalculationRunIdKey, billingData?.CalculatorRunId ?? 0 },
-                        { BillingInstructionConstants.OrganisationIdKey, request.OrganisationId },
-                        { BillingInstructionConstants.BillingStatus, request.BillingStatus },
-                        { BillingInstructionConstants.BillingInstruction, request.BillingInstruction },
-                    },
+                        ["calculationRunId"]    = billingData?.CalculatorRunId ?? 0,
+                        ["pageSize"]            = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,
+                        ["organisationId"]      = request.OrganisationId,
+                        ["billingInstructions"] = request.BillingInstructions.ToArray(),
+                        ["billingStatuses"]     = request.BillingStatuses.ToArray()
+                    }
                 },
                 TotalRecords = billingData!.TotalRecords,
-                TotalAcceptedRecords = billingData!.TotalAcceptedRecords,
-                TotalRejectedRecords = billingData.TotalRejectedRecords,
-                TotalPendingRecords = billingData.TotalPendingRecords,
-                TotalNoactionRecords = billingData.TotalNoactionRecords,
-                TotalInitialRecords = billingData.TotalInitialRecords,
-                TotalDeltaRecords = billingData.TotalDeltaRecords,
-                TotalRebillRecords = billingData.TotalRebillRecords,
-                TotalCancelbillRecords = billingData.TotalCancelbillRecords,
+                StatusCounts = new Dictionary<BillingStatus, int>
+                {
+                    [BillingStatus.Accepted] = billingData.TotalAcceptedRecords,
+                    [BillingStatus.Rejected] = billingData.TotalRejectedRecords,
+                    [BillingStatus.Pending]  = billingData.TotalPendingRecords,
+                },
+
+                InstructionCounts = new Dictionary<BillingInstruction, int>
+                {
+                    [BillingInstruction.Noaction] = billingData.TotalNoactionRecords,
+                    [BillingInstruction.Initial] = billingData.TotalInitialRecords,
+                    [BillingInstruction.Delta] = billingData.TotalDeltaRecords,
+                    [BillingInstruction.Rebill] = billingData.TotalRebillRecords,
+                    [BillingInstruction.Cancel] = billingData.TotalCancelbillRecords,
+                },
+
+
                 ProducerIds = billingData.AllProducerIds,
                 OrganisationSelections = new OrganisationSelectionsViewModel { SelectAll = isSelectAll, SelectPage = isSelectAllPage },
             };
