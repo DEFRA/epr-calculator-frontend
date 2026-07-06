@@ -57,12 +57,12 @@ namespace EPR.Calculator.Frontend.Mappers
                 SelectedRows         = organisations,
                 TablePaginationModel = new PaginationViewModel
                 {
-                    Records           = organisations,
-                    CurrentPage       = request.Page     <= 0 ? CommonConstants.DefaultPage      : request.Page,
-                    PageSize          = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,
-                    TotalTableRecords = billingData?.AllProducerIds?.Count() ?? 0,
-                    RouteName         = RouteNames.BillingInstructionsIndex,
-                    RouteValues       = new Dictionary<string, object?>()
+                    Records     = organisations,
+                    CurrentPage = request.Page     <= 0 ? CommonConstants.DefaultPage      : request.Page,
+                    PageSize    = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,
+                    Total       = billingData?.TotalRecords ?? 0,
+                    RouteName   = RouteNames.BillingInstructionsIndex,
+                    RouteValues = new Dictionary<string, object?>()
                     {
                         ["calculationRunId"]    = billingData?.CalculatorRunId ?? 0,
                         ["pageSize"]            = request.PageSize <= 0 ? CommonConstants.DefaultBlockSize : request.PageSize,

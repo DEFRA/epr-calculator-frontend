@@ -98,7 +98,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
             Assert.AreEqual("Test Run", result.CalculationRun.Name);
             Assert.AreEqual(2, result.TablePaginationModel.CurrentPage);
             Assert.AreEqual(10, result.TablePaginationModel.PageSize);
-            Assert.AreEqual(1, result.TablePaginationModel.TotalTableRecords);
+            Assert.AreEqual(1, result.TablePaginationModel.Total);
             Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.TablePaginationModel.RouteName);
             Assert.AreEqual(123, result.TablePaginationModel.RouteValues["calculationRunId"]);
             Assert.AreEqual(null, result.TablePaginationModel.RouteValues["organisationId"]);
@@ -149,7 +149,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
             Assert.AreEqual("Test Run", result.CalculationRun.Name);
             Assert.AreEqual(2, result.TablePaginationModel.CurrentPage);
             Assert.AreEqual(10, result.TablePaginationModel.PageSize);
-            Assert.AreEqual(1, result.TablePaginationModel.TotalTableRecords);
+            Assert.AreEqual(1, result.TablePaginationModel.Total);
             Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.TablePaginationModel.RouteName);
             Assert.AreEqual(123, result.TablePaginationModel.RouteValues["calculationRunId"]);
             Assert.AreEqual(1, result.TablePaginationModel.RouteValues["organisationId"]);

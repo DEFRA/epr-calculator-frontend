@@ -36,7 +36,7 @@
                 <td class="govuk-table__cell govuk-!-text-align-center vertical-middle" id="checkbox-label-@org.Id">@org.OrganisationName</td>
                 <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">@org.OrganisationId</td>
                 <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">
-                    <strong class="govuk-tag govuk-tag--blue col-billing-status">
+                    <strong class="govuk-tag govuk-tag--blue">
                         @org.BillingInstruction?.GetDisplayName()
                     </strong>
                 </td>
@@ -69,7 +69,7 @@
                             }
                         }
 
-                        <strong class="govuk-tag @GetStatusClass(org.Status) col-billing-status">
+                        <strong class="govuk-tag @GetStatusClass(org.Status)">
                             @org.Status?.GetDisplayName()
                         </strong>
                     }
@@ -86,23 +86,21 @@
 
 @{
     // Calculate page block display
-    int blockSize      = Model.TablePaginationModel.BlockSize;
-    var blockStart = ((Model.TablePaginationModel.CurrentPage - 1) / blockSize) * blockSize + 1;
-    var blockEnd   = Math.Min(blockStart + blockSize - 1, Model.TablePaginationModel.TotalPages);
+    int blockSize  = Model.TablePaginationModel.BlockSize;
+    int blockStart = ((Model.TablePaginationModel.CurrentPage - 1) / blockSize) * blockSize + 1;
+    int blockEnd   = Math.Min(blockStart + blockSize - 1, Model.TablePaginationModel.TotalPages);
 
     if (blockEnd == Model.TablePaginationModel.TotalPages)
     {
         blockStart = Math.Max(1, Model.TablePaginationModel.TotalPages - blockSize + 1);
     }
 
-    RouteValueDictionary RouteValues(int? page = null, int? pageSize = null)
+    RouteValueDictionary RouteValues(int page, int? pageSize = null)
     {
-        var values = new RouteValueDictionary(Model.TablePaginationModel.RouteValues);
-
-        if (page.HasValue)
-        {
-            values["page"] = page.Value;
-        }
+        var values = new RouteValueDictionary(Model.TablePaginationModel.RouteValues)
+            {
+                ["page"] = page
+            };
 
         if (pageSize.HasValue)
         {
@@ -113,7 +111,7 @@
     }
 }
 
-<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
     <!-- Left side: pagination numbers + next -->
     <div style="display: flex; align-items: center; gap: 10px;">
         <ul class="govuk-pagination__list">
@@ -188,16 +186,6 @@
         </ul>
     </div>
 
-    <div>
-        @{
-            var recordCount = Model.TablePaginationModel.Records.Count();
-            var total       = Model.ProducerIds?.Count() ?? 0;
-            var start       = total == 0 || recordCount == 0 ? 0 : Model.TablePaginationModel.StartRecord;
-            var end         = total == 0 || recordCount == 0 ? 0 : start + recordCount - 1;
-        }
-        <span class="govuk-body">Showing <strong>@start</strong> to <strong>@end</strong> of @total</strong></span>
-    </div>
-
     <!-- Right side: items per page -->
     <div>
         <strong class="govuk-body">Items per page:</strong>
@@ -225,7 +213,17 @@
     </div>
 </div>
 
-<p class="govuk-body-m">
+@{
+    var recordCount = Model.TablePaginationModel.Records.Count();
+    var total       = Model.TotalRecords;
+    var start       = total == 0 || recordCount == 0 ? 0 : Model.TablePaginationModel.StartRecord;
+    var end         = total == 0 || recordCount == 0 ? 0 : Math.Min(start + recordCount - 1, total);
+}
+<p class="govuk-body govuk-!-margin-top-4">
+    Showing <strong>@start</strong> to <strong>@end</strong> of @total</strong>
+</p>
+
+<p class="govuk-body govuk-!-margin-top-6">
     Update billing instructions for <span id="totalCountText">@ARJourneySessionHelper.GetFromSession(Context.Session).Count</span> selected organisations.
 </p>
 

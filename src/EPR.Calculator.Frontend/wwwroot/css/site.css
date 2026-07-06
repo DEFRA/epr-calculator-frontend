@@ -105,12 +105,6 @@ body {
     white-space: nowrap;
 }
 
-.col-billing-status {
-    min-width: 120px;
-    line-height: 1.25;
-    font-size: 1rem;
-}
-
 .govuk-notification-banner__heading--large {
     font-size: 22px;
     max-width: 100%;

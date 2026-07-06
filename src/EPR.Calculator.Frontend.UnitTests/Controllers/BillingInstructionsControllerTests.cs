@@ -209,7 +209,7 @@
 
             var model = result.Model as BillingInstructionsViewModel;
             Assert.IsNotNull(model);
-            Assert.AreEqual(0, model.TablePaginationModel.TotalTableRecords);
+            Assert.AreEqual(0, model.TablePaginationModel.Total);
         }
 
         [TestMethod]
@@ -1132,7 +1132,7 @@
                     Records = billingData.Records,
                     CurrentPage = request.Page,
                     PageSize = request.PageSize,
-                    TotalTableRecords = billingData.TotalRecords,
+                    Total = billingData.TotalRecords,
                     RouteName = RouteNames.BillingInstructionsIndex,
                     RouteValues = new Dictionary<string, object?>
                     {

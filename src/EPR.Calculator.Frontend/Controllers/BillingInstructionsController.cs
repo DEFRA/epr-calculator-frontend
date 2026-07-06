@@ -323,6 +323,7 @@ namespace EPR.Calculator.Frontend.Controllers
 
         private async Task<bool> TryGenerateBillingFile(int runId)
         {
+
             var responseDto = await this.EprCalculatorApiService.CallApi(
                 httpContext: this.HttpContext,
                 httpMethod: HttpMethod.Put,
