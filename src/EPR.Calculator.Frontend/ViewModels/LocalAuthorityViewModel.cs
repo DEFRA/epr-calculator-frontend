@@ -1,61 +1,51 @@
-﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Reflection;
-using System.Runtime.Serialization;
-using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
 
-namespace EPR.Calculator.Frontend.ViewModels
+namespace EPR.Calculator.Frontend.ViewModels;
+
+public record LocalAuthorityViewModel : ViewModelCommonData
 {
-    /// <summary>
-    /// View model to display the local authority disposal costs.
-    /// </summary>
-    [ExcludeFromCodeCoverage]
-    public record LocalAuthorityViewModel : ViewModelCommonData
+    public required string LastUpdatedBy { get; init; }
+    public required List<IGrouping<string, LocalAuthorityData>>? ByCountry { get; init; }
+
+    public record LocalAuthorityData
     {
-        public required string LastUpdatedBy { get; init; }
-
-        public required List<IGrouping<string, LocalAuthorityData>>? ByCountry { get; init; }
-
-        public record LocalAuthorityData
+        public LocalAuthorityData(LocalAuthorityDisposalCost localAuthorityDisposalCost)
         {
-            public LocalAuthorityData(LocalAuthorityDisposalCost localAuthorityDisposalCost)
-            {
-                this.Country = localAuthorityDisposalCost.Country;
-                this.Material = localAuthorityDisposalCost.Material;
-                this.TotalCost = GetTotalCost(localAuthorityDisposalCost.TotalCost);
-                this.CreatedBy = localAuthorityDisposalCost.CreatedBy;
-                this.CreatedAt = GetFormattedCreatedAt(localAuthorityDisposalCost.CreatedAt);
-                this.EffectiveFrom = localAuthorityDisposalCost.EffectiveFrom;
-            }
+            Country = localAuthorityDisposalCost.Country;
+            Material = localAuthorityDisposalCost.Material;
+            TotalCost = GetTotalCost(localAuthorityDisposalCost.TotalCost);
+            CreatedBy = localAuthorityDisposalCost.CreatedBy;
+            CreatedAt = GetFormattedCreatedAt(localAuthorityDisposalCost.CreatedAt);
+            EffectiveFrom = localAuthorityDisposalCost.EffectiveFrom;
+        }
 
-            public string Country { get; set; }
+        public string Country { get; set; }
 
-            public string Material { get; set; }
+        public string Material { get; set; }
 
-            public string TotalCost { get; set; }
+        public string TotalCost { get; set; }
 
-            public string CreatedBy { get; set; }
+        public string CreatedBy { get; set; }
 
-            public string CreatedAt { get; set; }
+        public string CreatedAt { get; set; }
 
-            public DateTime EffectiveFrom { get; set; }
+        public DateTime EffectiveFrom { get; set; }
 
-            private static string GetFormattedCreatedAt(DateTime createdAt)
-            {
-                return createdAt.ToString("dd MMM yyyy ' at 'H:mm", new System.Globalization.CultureInfo("en-GB"));
-            }
+        private static string GetFormattedCreatedAt(DateTime createdAt)
+        {
+            return createdAt.ToString("dd MMM yyyy ' at 'H:mm", new CultureInfo("en-GB"));
+        }
 
-            private static string GetTotalCost(decimal totalCost)
-            {
-                var precision = totalCost == 0 ? 0 : 2;
-                var culture = CultureInfo.CreateSpecificCulture("en-GB");
-                culture.NumberFormat.CurrencySymbol = "£";
-                culture.NumberFormat.CurrencyPositivePattern = 0;
-                culture.NumberFormat.CurrencyGroupSeparator = ",";
+        private static string GetTotalCost(decimal totalCost)
+        {
+            var precision = totalCost == 0 ? 0 : 2;
+            var culture = CultureInfo.CreateSpecificCulture("en-GB");
+            culture.NumberFormat.CurrencySymbol = "£";
+            culture.NumberFormat.CurrencyPositivePattern = 0;
+            culture.NumberFormat.CurrencyGroupSeparator = ",";
 
-                return totalCost.ToString($"C{precision}", culture);
-            }
+            return totalCost.ToString($"C{precision}", culture);
         }
     }
 }

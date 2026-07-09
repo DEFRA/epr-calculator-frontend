@@ -1,28 +1,9 @@
-﻿namespace EPR.Calculator.Frontend.ViewModels
+﻿namespace EPR.Calculator.Frontend.ViewModels;
+
+public record BackLinkViewModel
 {
-    /// <summary>
-    /// View model used to hold the data for the back link partial view.
-    /// </summary>
-    public class BackLinkViewModel
-    {
-        /// <summary>
-        /// Gets or sets the back link URL.
-        /// </summary>
-        public required string BackLink { get; set; }
-
-        /// <summary>
-        /// Gets or sets the current user.
-        /// </summary>
-        public required string CurrentUser { get; set; }
-
-        /// <summary>
-        /// Gets or sets the run ID.
-        /// </summary>
-        public int? RunId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the flag to manually hide the back link.
-        /// </summary>
-        public bool HideBackLink { get; set; } = false;
-    }
+    public required string BackLink { get; set; }
+    public required string CurrentUser { get; set; }
+    public int? RunId { get; set; }
+    public bool HideBackLink { get; set; }
 }

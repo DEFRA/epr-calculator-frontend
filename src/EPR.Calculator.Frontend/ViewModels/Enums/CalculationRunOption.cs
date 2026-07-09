@@ -1,10 +1,9 @@
-﻿namespace EPR.Calculator.Frontend.ViewModels.Enums
+﻿namespace EPR.Calculator.Frontend.ViewModels.Enums;
+
+public enum CalculationRunOption
 {
-    public enum CalculationRunOption
-    {
-        None,
-        OutputClassify,
-        OutputDelete,
-        OutputTest,
-    }
+    None,
+    OutputClassify,
+    OutputDelete,
+    OutputTest
 }

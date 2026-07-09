@@ -1,90 +1,26 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
-using System.Diagnostics.CodeAnalysis;
 
-namespace EPR.Calculator.Frontend.ViewModels
+namespace EPR.Calculator.Frontend.ViewModels;
+
+public record CalculationRunViewModel(CalculationRun calculationRun)
 {
-    /// <summary>
-    /// View model to hold the calculation runs.
-    /// </summary>
-    [ExcludeFromCodeCoverage]
-    public class CalculationRunViewModel
+    public int Id { get; set; } = calculationRun.Id;
+    public string Name { get; set; } = calculationRun.Name;
+    public DateTime CreatedAt { get; set; } = calculationRun.CreatedAt;
+    public string CreatedBy { get; set; } = calculationRun.CreatedBy;
+    public RunClassification Status { get; set; } = calculationRun.CalculatorRunClassificationId;
+    public string? TagStyle { get; set; } = GetStatusTagStyle(calculationRun.CalculatorRunClassificationId);
+    public bool ShowRunDetailLink { get; set; } = ShouldShowRunDetailLink(calculationRun.CalculatorRunClassificationId);
+    public bool ShowErrorLink { get; set; } = ShouldShowErrorLink(calculationRun.CalculatorRunClassificationId);
+    public bool HasBillingFileGenerated { get; set; } = calculationRun.HasBillingFileGenerated;
+    public bool IsBillingFileGenerating { get; set; } = calculationRun.IsBillingFileGenerating ?? false;
+    public string RunDetailLink  => GetRunDetailLink(Status, Id, HasBillingFileGenerated, IsBillingFileGenerating);
+
+    private static string GetStatusTagStyle(RunClassification status)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CalculationRunViewModel"/> class.
-        /// </summary>
-        /// <param name="calculationRun">The calculation run.</param>
-        public CalculationRunViewModel(CalculationRun calculationRun)
-        {
-            this.Id = calculationRun.Id;
-            this.Name = calculationRun.Name;
-            this.CreatedAt = calculationRun.CreatedAt;
-            this.CreatedBy = calculationRun.CreatedBy;
-            this.Status = calculationRun.CalculatorRunClassificationId;
-            this.TagStyle = GetStatusTagStyle(calculationRun.CalculatorRunClassificationId);
-            this.ShowRunDetailLink = ShouldShowRunDetailLink(calculationRun.CalculatorRunClassificationId);
-            this.ShowErrorLink = ShouldShowErrorLink(calculationRun.CalculatorRunClassificationId);
-            this.HasBillingFileGenerated = calculationRun.HasBillingFileGenerated;
-            this.IsBillingFileGenerating = calculationRun.IsBillingFileGenerating ?? false;
-        }
-
-        /// <summary>
-        /// Gets or sets the run id.
-        /// </summary>
-        public int Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets the run name.
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Gets or sets the run created timestamp.
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
-
-        /// <summary>
-        /// Gets or sets the run created by user.
-        /// </summary>
-        public string CreatedBy { get; set; }
-
-        /// <summary>
-        /// Gets or sets the run status.
-        /// </summary>
-        public RunClassification Status { get; set; }
-
-        /// <summary>
-        /// Gets or sets the tag style.
-        /// </summary>
-        public string? TagStyle { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether gets or sets the show run detail link.
-        /// </summary>
-        public bool ShowRunDetailLink { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether gets or sets the show error link.
-        /// </summary>
-        public bool ShowErrorLink { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether gets or sets the has billing file generated.
-        /// </summary>
-        public bool HasBillingFileGenerated { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether gets or sets the has billing file generating.
-        /// </summary>
-        public bool IsBillingFileGenerating { get; set; }
-
-        /// <summary>
-        /// Gets a value indicating whether the run detail link should be displayed.
-        /// </summary>
-        public string RunDetailLink  => GetRunDetailLink(this.Status, this.Id, this.HasBillingFileGenerated, this.IsBillingFileGenerating);
-
-        private static string GetStatusTagStyle(RunClassification status) => status switch
+        return status switch
         {
             RunClassification.RUNNING => "govuk-tag govuk-tag--green",
             RunClassification.UNCLASSIFIED => "govuk-tag govuk-tag--blue",
@@ -98,39 +34,43 @@ namespace EPR.Calculator.Frontend.ViewModels
             RunClassification.FINAL_RECALCULATION_RUN_COMPLETED => "govuk-tag govuk-tag--purple",
             RunClassification.FINAL_RUN => "govuk-tag govuk-tag--purple",
             RunClassification.FINAL_RUN_COMPLETED => "govuk-tag govuk-tag--purple",
-            _ => "govuk-tag",
+            _ => "govuk-tag"
         };
+    }
 
-        private static bool ShouldShowRunDetailLink(RunClassification status) =>
-             status != RunClassification.QUEUE && status != RunClassification.RUNNING;
+    private static bool ShouldShowRunDetailLink(RunClassification status)
+    {
+        return status != RunClassification.QUEUE && status != RunClassification.RUNNING;
+    }
 
-        private static bool ShouldShowErrorLink(RunClassification status) =>
-            status == RunClassification.ERROR;
+    private static bool ShouldShowErrorLink(RunClassification status)
+    {
+        return status == RunClassification.ERROR;
+    }
 
-        private static string GetRunDetailLink(RunClassification status, int id, bool hasBillingFileGenerated, bool isBillingFileGenerating)
+    private static string GetRunDetailLink(RunClassification status, int id, bool hasBillingFileGenerated, bool isBillingFileGenerating)
+    {
+        return status switch
         {
-            return status switch
-            {
-                RunClassification.UNCLASSIFIED =>
-                    string.Format(ActionNames.CalculationRunNewDetails, id),
+            RunClassification.UNCLASSIFIED =>
+                string.Format(ActionNames.CalculationRunNewDetails, id),
 
-                RunClassification.TEST_RUN =>
-                    string.Format(ActionNames.DesignatedRun, id),
+            RunClassification.TEST_RUN =>
+                string.Format(ActionNames.DesignatedRun, id),
 
-                RunClassification.INITIAL_RUN or RunClassification.INTERIM_RECALCULATION_RUN or RunClassification.FINAL_RECALCULATION_RUN or RunClassification.FINAL_RUN when isBillingFileGenerating || hasBillingFileGenerated =>
-                   string.Format(ActionNames.DesignatedRunWithBillingFile, id),
+            RunClassification.INITIAL_RUN or RunClassification.INTERIM_RECALCULATION_RUN or RunClassification.FINAL_RECALCULATION_RUN or RunClassification.FINAL_RUN when isBillingFileGenerating || hasBillingFileGenerated =>
+                string.Format(ActionNames.DesignatedRunWithBillingFile, id),
 
-                RunClassification.INITIAL_RUN or RunClassification.INTERIM_RECALCULATION_RUN or RunClassification.FINAL_RECALCULATION_RUN or RunClassification.FINAL_RUN when !hasBillingFileGenerated =>
-                    string.Format(ActionNames.DesignatedRun, id),
+            RunClassification.INITIAL_RUN or RunClassification.INTERIM_RECALCULATION_RUN or RunClassification.FINAL_RECALCULATION_RUN or RunClassification.FINAL_RUN when !hasBillingFileGenerated =>
+                string.Format(ActionNames.DesignatedRun, id),
 
-                RunClassification.INITIAL_RUN_COMPLETED or RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED or RunClassification.FINAL_RECALCULATION_RUN_COMPLETED or RunClassification.FINAL_RUN_COMPLETED =>
-                    string.Format(ActionNames.CompletedRun, id),
+            RunClassification.INITIAL_RUN_COMPLETED or RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED or RunClassification.FINAL_RECALCULATION_RUN_COMPLETED or RunClassification.FINAL_RUN_COMPLETED =>
+                string.Format(ActionNames.CompletedRun, id),
 
-                RunClassification.ERROR =>
-                    string.Format(ActionNames.CalculationRunNewDetails, id),
+            RunClassification.ERROR =>
+                string.Format(ActionNames.CalculationRunNewDetails, id),
 
-                _ => ControllerNames.Dashboard,
-            };
-        }
+            _ => ControllerNames.Dashboard
+        };
     }
 }
