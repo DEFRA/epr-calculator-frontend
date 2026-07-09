@@ -1,61 +1,39 @@
 ﻿using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Services;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EPR.Calculator.Frontend.Controllers
+namespace EPR.Calculator.Frontend.Controllers;
+
+public class BaseController : Controller
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="BaseController"/> class.
-    /// </summary>
-    /// <param name="clientFactory">an HTTP client factory that will be used for making connections to the calculator API.</param>
-    public class BaseController(
-        IConfiguration configuration,
-        TelemetryClient telemetryClient,
-        IEprCalculatorApiService eprCalculatorApiService,
-        ICalculatorRunDetailsService calculatorRunDetailsService) : Controller
+    protected string GetBackLink()
     {
-        protected IEprCalculatorApiService EprCalculatorApiService { get; init; } = eprCalculatorApiService;
+        var referrer = Request.Headers.Referer.ToString();
 
-        protected ICalculatorRunDetailsService CalculatorRunDetailsService { get; init; }
-            = calculatorRunDetailsService;
+        if (string.IsNullOrEmpty(referrer))
+            return string.Empty;
 
-        protected TelemetryClient TelemetryClient { get; init; } = telemetryClient;
-
-        /// <summary>Gets the configuration object to retrieve API URL and parameters.</summary>
-        protected IConfiguration Configuration { get; init; } = configuration;
-
-        protected string GetBackLink()
+        try
         {
-            var referrer = this.Request.Headers.Referer.ToString();
+            var uri = new Uri(referrer);
+            var absolutePath = uri.AbsolutePath;
+            if (absolutePath == "/")
+                return ControllerNames.Dashboard;
 
-            if (string.IsNullOrEmpty(referrer))
-            {
-                return string.Empty;
-            }
+            var segments = absolutePath.TrimEnd('/').Split('/');
 
-            try
-            {
-                var uri = new Uri(referrer);
-                var absolutePath = uri.AbsolutePath;
-                if (absolutePath == "/")
-                {
-                    return ControllerNames.Dashboard;
-                }
-
-                var segments = absolutePath.TrimEnd('/').Split('/');
-
-                if (segments.Length >= 2)
-                {
-                    return segments[^2];
-                }
-            }
-            catch (UriFormatException)
-            {
-                return string.Empty;
-            }
-
+            if (segments.Length >= 2)
+                return segments[^2];
+        }
+        catch (UriFormatException)
+        {
             return string.Empty;
         }
+
+        return string.Empty;
+    }
+
+    protected RedirectToActionResult RedirectToError()
+    {
+        return RedirectToAction("Index", "StandardError");
     }
 }

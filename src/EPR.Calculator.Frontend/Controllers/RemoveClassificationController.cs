@@ -1,170 +1,152 @@
-﻿using EPR.Calculator.Frontend.Constants;
+using System.Net;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
-namespace EPR.Calculator.Frontend.Controllers
+namespace EPR.Calculator.Frontend.Controllers;
+
+[Route("[controller]")]
+public class RemoveClassificationController(
+    IEprCalculatorApiService eprCalculatorApiService,
+    ILogger<RemoveClassificationController> logger,
+    ICalculatorRunDetailsService calculatorRunDetailsService)
+    : BaseController
 {
     /// <summary>
-    /// Controller for handling classifying removecalculation run scenario 1.
+    ///     Displays the remove classification view for a specific calculation run.
     /// </summary>
-    /// <param name="configuration">The configuration settings.</param>
-    /// <param name="clientFactory">The HTTP client factory.</param>
-    /// <param name="logger">The logger instance.</param>
-    /// <param name="telemetryClient">telemetry client.</param>
-    [Route("[controller]")]
-    public class RemoveClassificationController(
-        IConfiguration configuration,
-        IEprCalculatorApiService eprCalculatorApiService,
-        ILogger<RemoveClassificationController> logger,
-        TelemetryClient telemetryClient,
-        ICalculatorRunDetailsService calculatorRunDetailsService)
-        : BaseController(
-            configuration,
-            telemetryClient,
-            eprCalculatorApiService,
-            calculatorRunDetailsService)
+    /// <param name="runId">The ID of the calculation run to be displayed.</param>
+    /// <returns>The remove classification view populated with run details.</returns>
+    /// <remarks>
+    ///     This method initializes the <see cref="SetRunClassificationViewModel" /> with run details and current user info.
+    ///     It is typically accessed via a GET request when a user wants to remove the classification of a specific run.
+    /// </remarks>
+    [Route("{runId}")]
+    [HttpGet]
+    public async Task<IActionResult> Index(int runId)
     {
-        private readonly ILogger<RemoveClassificationController> logger = logger;
+        var currentUser = CommonUtil.GetUserName(HttpContext);
 
-        /// <summary>
-        /// Displays the remove classification view for a specific calculation run.
-        /// </summary>
-        /// <param name="runId">The ID of the calculation run to be displayed.</param>
-        /// <returns>The remove classification view populated with run details.</returns>
-        /// <remarks>
-        /// This method initializes the <see cref="SetRunClassificationViewModel"/> with run details and current user info.
-        /// It is typically accessed via a GET request when a user wants to remove the classification of a specific run.
-        /// </remarks>
-        [Route("{runId}")]
-        [HttpGet]
-        public async Task<IActionResult> Index(int runId)
+        var viewModel = new SetRunClassificationViewModel
         {
-            var currentUser = CommonUtil.GetUserName(this.HttpContext);
-
-            var viewModel = new SetRunClassificationViewModel
+            CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
+            CurrentUser = currentUser,
+            BackLinkViewModel = new BackLinkViewModel
             {
-                CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-                CurrentUser = currentUser,
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = this.GetBackLink(),
-                    RunId = runId,
-                    CurrentUser = currentUser,
-                },
-                ClassifyRunType = null,
-            };
+                BackLink = GetBackLink(),
+                RunId = runId,
+                CurrentUser = currentUser
+            },
+            ClassifyRunType = null
+        };
 
-            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(this.HttpContext, runId);
-            if (runDetails != null && runDetails.RunId > 0)
-            {
-                viewModel.CalculatorRunDetails = runDetails;
-            }
+        var runDetails = await calculatorRunDetailsService.GetCalculatorRundetailsAsync(HttpContext, runId);
 
-            return this.View(ViewNames.RemoveClassification, viewModel);
+        if (runDetails != null && runDetails.RunId > 0)
+            viewModel.CalculatorRunDetails = runDetails;
+
+        return View(ViewNames.RemoveClassification, viewModel);
+    }
+
+    /// <summary>
+    ///     Handles form submission from the remove classification view.
+    /// </summary>
+    /// <param name="model">The submitted <see cref="SetRunClassificationViewModel" /> containing classification selection.</param>
+    /// <returns>
+    ///     Redirects to:
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <description>Confirmation page if "Test Run" is selected and classification is updated.</description>
+    ///         </item>
+    ///         <item>
+    ///             <description>Delete controller if "Delete" is selected.</description>
+    ///         </item>
+    ///         <item>
+    ///             <description>Error page if submission fails or unexpected input is encountered.</description>
+    ///         </item>
+    ///     </list>
+    /// </returns>
+    /// <remarks>
+    ///     - If the model state is invalid, re-renders the view without saving.
+    ///     - If "Test Run" is selected, calls the API to update classification.
+    ///     - If "Delete" is selected, redirects to the delete confirmation view.
+    /// </remarks>
+    [HttpPost]
+    [Route("Submit")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Submit(SetRunClassificationViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            var viewModel = await UpdateViewModel(model.CalculatorRunDetails.RunId);
+            return View(ViewNames.RemoveClassification, viewModel);
         }
 
-        /// <summary>
-        /// Handles form submission from the remove classification view.
-        /// </summary>
-        /// <param name="model">The submitted <see cref="SetRunClassificationViewModel"/> containing classification selection.</param>
-        /// <returns>
-        /// Redirects to:
-        /// <list type="bullet">
-        ///   <item><description>Confirmation page if "Test Run" is selected and classification is updated.</description></item>
-        ///   <item><description>Delete controller if "Delete" is selected.</description></item>
-        ///   <item><description>Error page if submission fails or unexpected input is encountered.</description></item>
-        /// </list>
-        /// </returns>
-        /// <remarks>
-        /// - If the model state is invalid, re-renders the view without saving.
-        /// - If "Test Run" is selected, calls the API to update classification.
-        /// - If "Delete" is selected, redirects to the delete confirmation view.
-        /// </remarks>
-        [HttpPost]
-        [Route("Submit")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Submit(SetRunClassificationViewModel model)
+        return await HandleClassificationSubmission(model);
+    }
+
+    private async Task<SetRunClassificationViewModel> UpdateViewModel(int runId)
+    {
+        var viewModel = new SetRunClassificationViewModel
         {
-            if (!this.ModelState.IsValid)
+            CurrentUser = CommonUtil.GetUserName(HttpContext),
+            CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
+            BackLinkViewModel = new BackLinkViewModel
             {
-                var viewModel = await this.UpdateViewModel(model.CalculatorRunDetails.RunId);
-                return this.View(ViewNames.RemoveClassification, viewModel);
+                BackLink = ControllerNames.CalculationRunDetails,
+                RunId = runId,
+                CurrentUser = CommonUtil.GetUserName(HttpContext)
             }
+        };
 
-            return await this.HandleClassificationSubmission(model);
-        }
+        var runDetails = await calculatorRunDetailsService.GetCalculatorRundetailsAsync(
+            HttpContext,
+            runId);
+        if (runDetails != null && runDetails!.RunId != 0)
+            viewModel.CalculatorRunDetails = runDetails;
 
-        private async Task<SetRunClassificationViewModel> UpdateViewModel(int runId)
+        return viewModel;
+    }
+
+    private async Task<IActionResult> HandleClassificationSubmission(SetRunClassificationViewModel model)
+    {
+        if (model.ClassifyRunType == (int)RunClassification.TEST_RUN)
         {
-            var viewModel = new SetRunClassificationViewModel()
-            {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-                BackLinkViewModel = new BackLinkViewModel
+            var result = await eprCalculatorApiService.CallApi(
+                HttpContext,
+                HttpMethod.Put,
+                "v2/calculatorRuns",
+                body: new ClassificationDto
                 {
-                    BackLink = ControllerNames.CalculationRunDetails,
-                    RunId = runId,
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                },
-            };
+                    RunId = model.CalculatorRunDetails.RunId,
+                    ClassificationId = (int)RunClassification.TEST_RUN
+                });
 
-            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
-                this.HttpContext,
-                runId);
-            if (runDetails != null && runDetails!.RunId != 0)
+            if (result.StatusCode == HttpStatusCode.Created)
             {
-                viewModel.CalculatorRunDetails = runDetails;
-            }
-
-            return viewModel;
-        }
-
-        private async Task<IActionResult> HandleClassificationSubmission(SetRunClassificationViewModel model)
-        {
-            if (model.ClassifyRunType == (int)RunClassification.TEST_RUN)
-            {
-                var result = await this.EprCalculatorApiService.CallApi(
-                    httpContext: this.HttpContext,
-                    httpMethod: HttpMethod.Put,
-                    relativePath: "v2/calculatorRuns",
-                    body: new ClassificationDto
-                    {
-                        RunId = model.CalculatorRunDetails.RunId,
-                        ClassificationId = (int)RunClassification.TEST_RUN,
-                    });
-
-                if (result.StatusCode == HttpStatusCode.Created)
-                {
-                    return this.RedirectToAction(
-                        ActionNames.Index,
-                        ControllerNames.ClassifyRunConfirmation,
-                        new { runId = model.CalculatorRunDetails.RunId });
-                }
-
-                this.logger.LogError("API did not return successful ({StatusCode})", result.StatusCode);
-                return this.RedirectToAction(
-                    ActionNames.StandardErrorIndex,
-                    CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
-
-            if (model.ClassifyRunType == (int)RunClassification.DELETED)
-            {
-                return this.RedirectToAction(
+                return RedirectToAction(
                     ActionNames.Index,
-                    ControllerNames.CalculationRunDelete,
+                    ControllerNames.ClassifyRunConfirmation,
                     new { runId = model.CalculatorRunDetails.RunId });
             }
 
-            // Unexpected type
-            return this.RedirectToAction(
-                ActionNames.StandardErrorIndex,
-                CommonUtil.GetControllerName(typeof(StandardErrorController)));
+            logger.LogError("API did not return successful ({StatusCode})", result.StatusCode);
+            return RedirectToError();
         }
+
+        if (model.ClassifyRunType == (int)RunClassification.DELETED)
+        {
+            return RedirectToAction(
+                ActionNames.Index,
+                ControllerNames.CalculationRunDelete,
+                new { runId = model.CalculatorRunDetails.RunId });
+        }
+
+        // Unexpected type
+        return RedirectToError();
     }
 }

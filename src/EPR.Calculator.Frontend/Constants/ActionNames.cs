@@ -6,11 +6,6 @@
     public static class ActionNames
     {
         /// <summary>
-        /// Standard error index action.
-        /// </summary>
-        public const string StandardErrorIndex = "Index";
-
-        /// <summary>
         /// Calculator run confirmation action.
         /// </summary>
         public const string RunCalculatorConfirmation = "Confirmation";
@@ -24,11 +19,6 @@
         /// Submit action.
         /// </summary>
         public const string Submit = "Submit";
-
-        /// <summary>
-        /// Confirmation Success action.
-        /// </summary>
-        public const string ConfirmationSuccess = "ConfirmationSuccess";
 
         /// <summary>
         /// Delete Confirmation Success action.
@@ -71,11 +61,6 @@
         public const string ProcessSelection = "ProcessSelection";
 
         /// <summary>
-        /// ClearSelection.
-        /// </summary>
-        public const string ClearSelection = "ClearSelection";
-
-        /// <summary>
         /// Select All.
         /// </summary>
         public const string SelectAll = "SelectAll";
@@ -89,16 +74,6 @@
         /// Generate Draft Billing File.
         /// </summary>
         public const string GenerateDraftBillingFile = "GenerateDraftBillingFile";
-
-        /// <summary>
-        /// Accept Selected.
-        /// </summary>
-        public const string AcceptSelected = "AcceptSelected";
-
-        /// <summary>
-        /// Reject Selected.
-        /// </summary>
-        public const string RejectSelected = "RejectSelected";
 
         /// <summary>
         /// Download Result File.

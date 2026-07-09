@@ -41,16 +41,6 @@
         public const string Dashboard = "Dashboard";
 
         /// <summary>
-        /// Organisation controller.
-        /// </summary>
-        public const string Organisation = "Organisation";
-
-        /// <summary>
-        /// Payment calculator controller.
-        /// </summary>
-        public const string PaymentCalculator = "PaymentCalculator";
-
-        /// <summary>
         /// Run a new calculation controller.
         /// </summary>
         public const string RunANewCalculation = "RunANewCalculation";
@@ -59,11 +49,6 @@
         /// Send billing file controller.
         /// </summary>
         public const string SendBillingFile = "SendBillingFile";
-
-        /// <summary>
-        /// Standard error controller.
-        /// </summary>
-        public const string StandardErrorController = "StandardErrorController";
 
         /// <summary>
         /// Billing Instructions controller.
@@ -79,16 +64,6 @@
         /// ReasonForRejection Controller.
         /// </summary>
         public const string ReasonForRejectionController = "ReasonForRejection";
-
-        /// <summary>
-        /// Accept Reject Confirmation Controller.
-        /// </summary>
-        public const string AcceptRejectConfirmation = "AcceptRejectConfirmation";
-
-        /// <summary>
-        /// Post Billing File Controller.
-        /// </summary>
-        public const string PostBillingFileController = "CompletedRun";
 
         /// <summary>
         /// File Download Controller.

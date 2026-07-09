@@ -3,33 +3,32 @@ using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EPR.Calculator.Frontend.Controllers
+namespace EPR.Calculator.Frontend.Controllers;
+
+/// <summary>
+///     Controller responsible for handling parameter confirmation.
+/// </summary>
+[Authorize(Roles = "SASuperUser")]
+public class ParameterConfirmationController : BaseController
 {
     /// <summary>
-    /// Controller responsible for handling parameter confirmation.
+    ///     Displays the parameter confirmation view.
     /// </summary>
+    /// <returns>The parameter confirmation view.</returns>
     [Authorize(Roles = "SASuperUser")]
-    public class ParameterConfirmationController : Controller
+    public IActionResult Index()
     {
-        /// <summary>
-        /// Displays the parameter confirmation view.
-        /// </summary>
-        /// <returns>The parameter confirmation view.</returns>
-        [Authorize(Roles = "SASuperUser")]
-        public IActionResult Index()
+        // Create a view model for parameter confirmation
+        var parameterConfirmationViewModel = new ConfirmationViewModel
         {
-            // Create a view model for parameter confirmation
-            var parameterConfirmationViewModel = new ConfirmationViewModel
-            {
-                Title = ParameterConfirmation.Title,
-                Body = ParameterConfirmation.Body,
-                AdditionalParagraphs = ParameterConfirmation.AdditionalParagraphs.ToList(),
-                RedirectController = ParameterConfirmation.RedirectController,
-                SubmitText = ParameterConfirmation.SubmitText,
-            };
+            Title = ParameterConfirmation.Title,
+            Body = ParameterConfirmation.Body,
+            AdditionalParagraphs = ParameterConfirmation.AdditionalParagraphs.ToList(),
+            RedirectController = ParameterConfirmation.RedirectController,
+            SubmitText = ParameterConfirmation.SubmitText
+        };
 
-            // Return the view with the view model
-            return this.View(ViewNames.ParameterConfirmationIndex, parameterConfirmationViewModel);
-        }
+        // Return the view with the view model
+        return View(ViewNames.ParameterConfirmationIndex, parameterConfirmationViewModel);
     }
 }

@@ -5,110 +5,98 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EPR.Calculator.Frontend.Controllers
+namespace EPR.Calculator.Frontend.Controllers;
+
+/// <summary>
+///     Controller for the calculation run overview page.
+/// </summary>
+[Route("[controller]")]
+public class DesignatedRunWithBillingFileController(
+    IEprCalculatorApiService eprCalculatorApiService,
+    TelemetryClient telemetryClient,
+    ICalculatorRunDetailsService calculatorRunDetailsService)
+    : BaseController
 {
-    /// <summary>
-    /// Controller for the calculation run overview page.
-    /// </summary>
-    [Route("[controller]")]
-    public class DesignatedRunWithBillingFileController(
-        IConfiguration configuration,
-        IEprCalculatorApiService eprCalculatorApiService,
-        TelemetryClient telemetryClient,
-        ICalculatorRunDetailsService calculatorRunDetailsService)
-        : BaseController(
-            configuration,
-            telemetryClient,
-            eprCalculatorApiService,
-            calculatorRunDetailsService)
+    [Route("{runId}")]
+    public async Task<IActionResult> Index(int runId)
     {
-        [Route("{runId}")]
-        public async Task<IActionResult> Index(int runId)
+        if (runId <= 0)
+            return RedirectToError();
+
+        var viewModel = await CreateViewModel(runId);
+        if (viewModel.CalculatorRunDetails.RunId <= 0)
         {
-            if (runId <= 0)
-            {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
-
-            var viewModel = await this.CreateViewModel(runId);
-            if (viewModel.CalculatorRunDetails.RunId <= 0)
-            {
-                this.TelemetryClient.TrackTrace($"No run details found for runId: {runId}");
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
-
-            return this.View(ViewNames.CalculationRunOverviewIndex, viewModel);
+            telemetryClient.TrackTrace($"No run details found for runId: {runId}");
+            return RedirectToError();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Submit(int runId)
-        {
-            if (!this.ModelState.IsValid)
-            {
-                return this.RedirectToAction(ActionNames.Index, new { runId });
-            }
+        return View(ViewNames.CalculationRunOverviewIndex, viewModel);
+    }
 
-            return this.RedirectToAction(ActionNames.Index, ControllerNames.SendBillingFile, new { runId = runId });
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Submit(int runId)
+    {
+        if (!ModelState.IsValid)
+            return RedirectToAction(ActionNames.Index, new { runId });
+
+        return RedirectToAction(ActionNames.Index, ControllerNames.SendBillingFile, new {   runId });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GenerateDraftBillingFile(int id)
+    {
+        var result = await TryGenerateDraftBillingFile(id);
+        if (result)
+        {
+            return RedirectToRoute(new
+            {
+                controller = ControllerNames.CalculationRunOverview,
+                action = "Index",
+                runId = id
+            });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GenerateDraftBillingFile(int id)
-        {
-            var result = await this.TryGenerateDraftBillingFile(id);
-            if (result)
-            {
-                return this.RedirectToRoute(new
-                {
-                    controller = ControllerNames.CalculationRunOverview,
-                    action = "Index",
-                    runId = id,
-                });
-            }
+        throw new InvalidOperationException($"Failed to generate draft billing file for calculation run {id}.");
+    }
 
-            throw new InvalidOperationException($"Failed to generate draft billing file for calculation run {id}.");
+    private async Task<bool> TryGenerateDraftBillingFile(int id)
+    {
+        var responseDto = await eprCalculatorApiService.CallApi(
+            HttpContext,
+            HttpMethod.Put,
+            $"v1/producerBillingInstructionsAccept/{id}");
+
+        if (!responseDto.IsSuccessStatusCode)
+        {
+            telemetryClient.TrackTrace($"Billing instructions acceptance failed for RunId {id}. StatusCode: {responseDto.StatusCode}, Reason: {responseDto.ReasonPhrase}");
+            return false;
         }
 
-        private async Task<bool> TryGenerateDraftBillingFile(int id)
+        return true;
+    }
+
+    private async Task<CalculatorRunOverviewViewModel> CreateViewModel(int runId)
+    {
+        var currentUser = CommonUtil.GetUserName(HttpContext);
+        var viewModel = new CalculatorRunOverviewViewModel
         {
-            var responseDto = await this.EprCalculatorApiService.CallApi(
-                httpContext: this.HttpContext,
-                httpMethod: HttpMethod.Put,
-                relativePath: $"v1/producerBillingInstructionsAccept/{id}");
-
-            if (!responseDto.IsSuccessStatusCode)
+            CurrentUser = currentUser,
+            CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
+            BackLinkViewModel = new BackLinkViewModel
             {
-                this.TelemetryClient.TrackTrace($"Billing instructions acceptance failed for RunId {id}. StatusCode: {responseDto.StatusCode}, Reason: {responseDto.ReasonPhrase}");
-                return false;
-            }
-
-            return true;
-        }
-
-        private async Task<CalculatorRunOverviewViewModel> CreateViewModel(int runId)
-        {
-            var currentUser = CommonUtil.GetUserName(this.HttpContext);
-            var viewModel = new CalculatorRunOverviewViewModel()
-            {
+                BackLink = string.Empty,
                 CurrentUser = currentUser,
-                CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = string.Empty,
-                    CurrentUser = currentUser,
-                    HideBackLink = this.GetBackLink() != ControllerNames.Dashboard,
-                },
-            };
-
-            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
-                this.HttpContext,
-                runId);
-            if (runDetails != null && runDetails!.RunId > 0)
-            {
-                viewModel.CalculatorRunDetails = runDetails;
+                HideBackLink = GetBackLink() != ControllerNames.Dashboard
             }
+        };
 
-            return viewModel;
-        }
+        var runDetails = await calculatorRunDetailsService.GetCalculatorRundetailsAsync(
+            HttpContext,
+            runId);
+        if (runDetails != null && runDetails!.RunId > 0)
+            viewModel.CalculatorRunDetails = runDetails;
+
+        return viewModel;
     }
 }

@@ -1,4 +1,6 @@
-﻿using EPR.Calculator.Frontend.Constants;
+using System.Globalization;
+using System.Net;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
@@ -7,259 +9,226 @@ using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
-using System.Net;
 using Newtonsoft.Json;
 
-namespace EPR.Calculator.Frontend.Controllers
+namespace EPR.Calculator.Frontend.Controllers;
+
+[Route("[controller]")]
+public class SetRunClassificationController(
+    IConfiguration configuration,
+    IEprCalculatorApiService eprCalculatorApiService,
+    ILogger<SetRunClassificationController> logger,
+    TelemetryClient telemetryClient,
+    ICalculatorRunDetailsService calculatorRunDetailsService)
+    : BaseController
 {
-    /// <summary>
-    /// Controller for handling classifying calculation run scenario 1.
-    /// </summary>
-    /// <param name="configuration">The configuration settings.</param>
-    /// <param name="clientFactory">The HTTP client factory.</param>
-    /// <param name="logger">The logger instance.</param>
-    /// <param name="telemetryClient">telemetry client.</param>
-    [Route("[controller]")]
-    public class SetRunClassificationController(
-        IConfiguration configuration,
-        IEprCalculatorApiService eprCalculatorApiService,
-        ILogger<SetRunClassificationController> logger,
-        TelemetryClient telemetryClient,
-        ICalculatorRunDetailsService calculatorRunDetailsService)
-        : BaseController(
-            configuration,
-            telemetryClient,
-            eprCalculatorApiService,
-            calculatorRunDetailsService)
+    private readonly int relativeYearStartingMonth = CommonUtil.GetRelativeYearStartingMonth(configuration);
+
+    [Route("{runId}")]
+    [HttpGet]
+    public async Task<IActionResult> Index(int runId)
     {
-        private readonly ILogger<SetRunClassificationController> logger = logger;
-        private readonly int relativeYearStartingMonth = CommonUtil.GetRelativeYearStartingMonth(configuration);
+        var relativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth);
 
-        [Route("{runId}")]
-        [HttpGet]
-        public async Task<IActionResult> Index(int runId)
+        var classificationsResponse = await GetClassfications(new CalcRelativeYearRequestDto
         {
-            var relativeYear = CommonUtil.GetRelativeYear(this.HttpContext.Session, this.relativeYearStartingMonth);
+            RunId = runId,
+            RelativeYear = relativeYear
+        });
 
-            var classificationsResponse = await this.GetClassfications(new CalcRelativeYearRequestDto
+        var responseContent = await classificationsResponse.Content.ReadAsStringAsync();
+        var relativeYearClassificationResponseDto = JsonConvert.DeserializeObject<RelativeYearClassificationResponseDto>(responseContent);
+        if (relativeYearClassificationResponseDto == null)
+        {
+            telemetryClient.TrackTrace("API did not return successful.");
+            return RedirectToError();
+        }
+
+        var viewModel = await CreateViewModel(runId);
+        var classifyViewModel = ImportantRunClassificationHelper.CreateclassificationViewModel(
+            relativeYearClassificationResponseDto!.ClassifiedRuns,
+            relativeYear);
+
+        viewModel.ImportantViewModel = classifyViewModel;
+
+        if (!await SetClassifications(runId, viewModel))
+            return RedirectToError();
+
+        if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0)
+            return RedirectToError();
+
+        // Only Test Run available
+        if (relativeYearClassificationResponseDto.Classifications.Count == 1 &&
+            relativeYearClassificationResponseDto.Classifications.Exists(x => x.Id == (int)RunClassification.TEST_RUN) && !classifyViewModel.IsAnyRunInProgress)
+            classifyViewModel.IsDisplayTestRun = true;
+
+        viewModel.ImportantViewModel = classifyViewModel;
+        return View(ViewNames.SetRunClassificationIndex, viewModel);
+    }
+
+    [Route("Submit")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Submit(SetRunClassificationViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            var viewModel = await CreateViewModel(model.CalculatorRunDetails.RunId);
+            await SetClassifications(model.CalculatorRunDetails.RunId, viewModel);
+
+            return View(ViewNames.SetRunClassificationIndex, viewModel);
+        }
+
+        var result = await eprCalculatorApiService.CallApi(
+            HttpContext,
+            HttpMethod.Put,
+            "v2/calculatorRuns",
+            body: new ClassificationDto
             {
-                RunId = runId,
-                RelativeYear = relativeYear,
+                RunId = model.CalculatorRunDetails.RunId,
+                ClassificationId = (int)model.ClassifyRunType!
             });
 
-            var responseContent = await classificationsResponse.Content.ReadAsStringAsync();
-            var relativeYearClassificationResponseDto = JsonConvert.DeserializeObject<RelativeYearClassificationResponseDto>(responseContent);
-            if (relativeYearClassificationResponseDto == null)
+        if (result.StatusCode == HttpStatusCode.Created)
+            return RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
+
+        logger.LogError( "API did not return successful ({ResultStatusCode})", result.StatusCode);
+        return RedirectToError();
+    }
+
+    private async Task<SetRunClassificationViewModel> CreateViewModel(int runId)
+    {
+        var viewModel = new SetRunClassificationViewModel
+        {
+            CurrentUser = CommonUtil.GetUserName(HttpContext),
+            CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
+            BackLinkViewModel = new BackLinkViewModel
             {
-                this.TelemetryClient.TrackTrace($"API did not return successful.");
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                BackLink = ControllerNames.CalculationRunDetails,
+                RunId = runId,
+                CurrentUser = CommonUtil.GetUserName(HttpContext)
             }
+        };
 
-            var viewModel = await this.CreateViewModel(runId);
-            var classifyViewModel = ImportantRunClassificationHelper.CreateclassificationViewModel(
-                relativeYearClassificationResponseDto!.ClassifiedRuns,
-                relativeYear);
+        var runDetails = await calculatorRunDetailsService.GetCalculatorRundetailsAsync(
+            HttpContext,
+            runId);
+        if (runDetails != null && runDetails!.RunId != 0)
+            viewModel.CalculatorRunDetails = runDetails;
 
-            viewModel.ImportantViewModel = classifyViewModel;
+        return viewModel;
+    }
 
-            if (!await this.SetClassifications(runId, viewModel))
+    private async Task<HttpResponseMessage> GetClassfications(CalcRelativeYearRequestDto dto)
+    {
+        return await eprCalculatorApiService.CallApi(
+            HttpContext,
+            HttpMethod.Get,
+            "v1/ClassificationByRelativeYear",
+            new Dictionary<string, string?>
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
+                ["RunId"] = dto.RunId.ToString(),
+                ["RelativeYearValue"] = dto.RelativeYear.ToString()
+            });
+    }
 
-            if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0)
+    private void SetStatusDescriptions(SetRunClassificationViewModel model)
+    {
+        foreach (var classification in model.RelativeYearClassifications?.Classifications ?? Enumerable.Empty<CalculatorRunClassificationDto>())
+        {
+            classification.Description = GetStatusDescription(classification.Id);
+            classification.Status = GetStatus(classification);
+        }
+    }
+
+    private string GetStatusDescription(int classificationId)
+    {
+        return classificationId switch
+        {
+            (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunDescription,
+            (int)RunClassification.TEST_RUN => CommonConstants.TestRunDescription,
+            (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunDescription,
+            (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunDescription,
+            (int)RunClassification.FINAL_RUN => CommonConstants.FinalRecalculationRunDescription,
+            _ => string.Empty
+        };
+    }
+
+    private string GetStatus(CalculatorRunClassificationDto classificationDto)
+    {
+        var myTI = new CultureInfo("en-GB", false).TextInfo;
+        return classificationDto.Id switch
+        {
+            (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunStatus,
+            (int)RunClassification.TEST_RUN => CommonConstants.TestRunStatus,
+            (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunStatus,
+            (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunStatus,
+            (int)RunClassification.FINAL_RUN => CommonConstants.FinalRunStatus,
+            _ => myTI.ToFirstLetterCap(classificationDto.Status)
+        };
+    }
+
+    private async Task<bool> SetClassifications(int runId, SetRunClassificationViewModel viewModel)
+    {
+        var classifications = await GetClassfications(new CalcRelativeYearRequestDto
+        {
+            RunId = runId,
+            RelativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth)
+        });
+
+        if (!classifications.IsSuccessStatusCode)
+            return false;
+
+        viewModel.RelativeYearClassifications = JsonConvert.DeserializeObject<RelativeYearClassificationResponseDto>(classifications.Content.ReadAsStringAsync().Result);
+        SetStatusDescriptions(viewModel);
+
+        if (viewModel.RelativeYearClassifications != null)
+            viewModel.ClassificationStatusInformation = GetClassificationStatusInformation(viewModel.RelativeYearClassifications.Classifications);
+
+        return true;
+    }
+
+    private ClassificationStatusInformationViewModel GetClassificationStatusInformation(List<CalculatorRunClassificationDto> classificationList)
+    {
+        var classificationStatusInformationViewModel = new ClassificationStatusInformationViewModel();
+
+        if (classificationList != null && classificationList.Count > 0)
+        {
+            var relativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth);
+
+            // check if calculator classification list have initial run
+            if (classificationList.Exists(n => n.Id == (int)RunClassification.INITIAL_RUN))
             {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
+                classificationStatusInformationViewModel.ShowInterimRecalculationRunDescription = true;
+                classificationStatusInformationViewModel.InterimRecalculationRunDescription = ClassifyCalculationRunStatusInformation.InterimReCalculationStatusDescription;
+
+                classificationStatusInformationViewModel.ShowFinalRecalculationRunDescription = true;
+                classificationStatusInformationViewModel.FinalRecalculationRunDescription = ClassifyCalculationRunStatusInformation.FinalRecalculationStatusDescription;
+
+                classificationStatusInformationViewModel.ShowFinalRunDescription = true;
+                classificationStatusInformationViewModel.FinalRunDescription = ClassifyCalculationRunStatusInformation.FinalRunStatusDescription;
             }
             else
             {
-                // Only Test Run available
-                if (relativeYearClassificationResponseDto.Classifications.Count == 1 &&
-                    relativeYearClassificationResponseDto.Classifications.Exists(x => x.Id == (int)RunClassification.TEST_RUN) && !classifyViewModel.IsAnyRunInProgress)
+                classificationStatusInformationViewModel.ShowInitialRunDescription = true;
+                classificationStatusInformationViewModel.InitialRunDescription = string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, relativeYear);
+
+                // check if calculator classification list does not have final recalculation run status to be initiated
+                if (!classificationList.Exists(n => n.Id == (int)RunClassification.FINAL_RECALCULATION_RUN))
                 {
-                    classifyViewModel.IsDisplayTestRun = true;
-                }
-
-                viewModel.ImportantViewModel = classifyViewModel;
-                return this.View(ViewNames.SetRunClassificationIndex, viewModel);
-                }
-        }
-
-        [Route("Submit")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Submit(SetRunClassificationViewModel model)
-        {
-            if (!this.ModelState.IsValid)
-            {
-                var viewModel = await this.CreateViewModel(model.CalculatorRunDetails.RunId);
-                await this.SetClassifications(model.CalculatorRunDetails.RunId, viewModel);
-
-                return this.View(ViewNames.SetRunClassificationIndex, viewModel);
-            }
-
-            var result = await this.EprCalculatorApiService.CallApi(
-                httpContext: this.HttpContext,
-                httpMethod: HttpMethod.Put,
-                relativePath: "v2/calculatorRuns",
-                body: new ClassificationDto
-                {
-                    RunId = model.CalculatorRunDetails.RunId,
-                    ClassificationId = (int)model.ClassifyRunType!,
-                });
-
-            if (result.StatusCode == HttpStatusCode.Created)
-            {
-                return this.RedirectToAction(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = model.CalculatorRunDetails.RunId });
-            }
-            else
-            {
-                var message = $"API did not return successful ({result.StatusCode}).";
-                this.logger.LogError(message);
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
-        }
-
-        private async Task<SetRunClassificationViewModel> CreateViewModel(int runId)
-        {
-            var viewModel = new SetRunClassificationViewModel()
-            {
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = ControllerNames.CalculationRunDetails,
-                    RunId = runId,
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                },
-            };
-
-            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
-                this.HttpContext,
-                runId);
-            if (runDetails != null && runDetails!.RunId != 0)
-            {
-                viewModel.CalculatorRunDetails = runDetails;
-            }
-
-            return viewModel;
-        }
-
-        private async Task<HttpResponseMessage> GetClassfications(CalcRelativeYearRequestDto dto)
-        {
-            return await this.EprCalculatorApiService.CallApi(
-                httpContext: this.HttpContext,
-                httpMethod: HttpMethod.Get,
-                relativePath: "v1/ClassificationByRelativeYear",
-                queryParams: new Dictionary<string, string?>
-                {
-                    ["RunId"] = dto.RunId.ToString(),
-                    ["RelativeYearValue"] = dto.RelativeYear.ToString(),
-                });
-        }
-
-        private void SetStatusDescriptions(SetRunClassificationViewModel model)
-        {
-            foreach (var classification in model.RelativeYearClassifications?.Classifications ?? Enumerable.Empty<CalculatorRunClassificationDto>())
-            {
-                classification.Description = this.GetStatusDescription(classification.Id);
-                classification.Status = this.GetStatus(classification);
-            }
-        }
-
-        private string GetStatusDescription(int classificationId)
-        {
-            return classificationId switch
-            {
-                (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunDescription,
-                (int)RunClassification.TEST_RUN => CommonConstants.TestRunDescription,
-                (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunDescription,
-                (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunDescription,
-                (int)RunClassification.FINAL_RUN => CommonConstants.FinalRecalculationRunDescription,
-                _ => string.Empty,
-            };
-        }
-
-        private string GetStatus(CalculatorRunClassificationDto classificationDto)
-        {
-            TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
-            return classificationDto.Id switch
-            {
-                (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunStatus,
-                (int)RunClassification.TEST_RUN => CommonConstants.TestRunStatus,
-                (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunStatus,
-                (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunStatus,
-                (int)RunClassification.FINAL_RUN => CommonConstants.FinalRunStatus,
-                _ => myTI.ToFirstLetterCap(classificationDto.Status),
-            };
-        }
-
-        private async Task<bool> SetClassifications(int runId, SetRunClassificationViewModel viewModel)
-        {
-            var classifications = await this.GetClassfications(new CalcRelativeYearRequestDto() {
-                RunId = runId,
-                RelativeYear = CommonUtil.GetRelativeYear(this.HttpContext.Session, this.relativeYearStartingMonth)
-            });
-
-            if (!classifications.IsSuccessStatusCode)
-            {
-                return false;
-            }
-
-            viewModel.RelativeYearClassifications = JsonConvert.DeserializeObject<RelativeYearClassificationResponseDto>(classifications.Content.ReadAsStringAsync().Result);
-            this.SetStatusDescriptions(viewModel);
-
-            if (viewModel.RelativeYearClassifications != null)
-            {
-                viewModel.ClassificationStatusInformation = this.GetClassificationStatusInformation(viewModel.RelativeYearClassifications.Classifications);
-            }
-
-            return true;
-        }
-
-        private ClassificationStatusInformationViewModel GetClassificationStatusInformation(List<CalculatorRunClassificationDto> classificationList)
-        {
-            ClassificationStatusInformationViewModel classificationStatusInformationViewModel = new ClassificationStatusInformationViewModel();
-
-            if (classificationList != null && classificationList.Count > 0)
-            {
-                var relativeYear = CommonUtil.GetRelativeYear(this.HttpContext.Session, this.relativeYearStartingMonth);
-
-                // check if calculator classification list have initial run
-                if (classificationList.Exists(n => n.Id == (int)RunClassification.INITIAL_RUN))
-                {
-                    classificationStatusInformationViewModel.ShowInterimRecalculationRunDescription = true;
-                    classificationStatusInformationViewModel.InterimRecalculationRunDescription = ClassifyCalculationRunStatusInformation.InterimReCalculationStatusDescription;
-
                     classificationStatusInformationViewModel.ShowFinalRecalculationRunDescription = true;
-                    classificationStatusInformationViewModel.FinalRecalculationRunDescription = ClassifyCalculationRunStatusInformation.FinalRecalculationStatusDescription;
-
-                    classificationStatusInformationViewModel.ShowFinalRunDescription = true;
-                    classificationStatusInformationViewModel.FinalRunDescription = ClassifyCalculationRunStatusInformation.FinalRunStatusDescription;
+                    classificationStatusInformationViewModel.FinalRecalculationRunDescription = $"{string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, relativeYear)}";
                 }
-                else
+
+                // check if list doesn't have initial run status
+                if (!classificationList.Exists(n => n.Id == (int)RunClassification.FINAL_RUN))
                 {
-                    classificationStatusInformationViewModel.ShowInitialRunDescription = true;
-                    classificationStatusInformationViewModel.InitialRunDescription = string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, relativeYear);
-
-                    // check if calculator classification list does not have final recalculation run status to be initiated
-                    if (!classificationList.Exists(n => n.Id == (int)RunClassification.FINAL_RECALCULATION_RUN))
-                    {
-                        classificationStatusInformationViewModel.ShowFinalRecalculationRunDescription = true;
-                        classificationStatusInformationViewModel.FinalRecalculationRunDescription = $"{string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, relativeYear)}";
-                    }
-
-                    // check if list doesn't have initial run status
-                    if (!classificationList.Exists(n => n.Id == (int)RunClassification.FINAL_RUN))
-                    {
-                        classificationStatusInformationViewModel.ShowFinalRunDescription = true;
-                        classificationStatusInformationViewModel.FinalRunDescription = $"{string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, relativeYear)}";
-                    }
+                    classificationStatusInformationViewModel.ShowFinalRunDescription = true;
+                    classificationStatusInformationViewModel.FinalRunDescription = $"{string.Format(ClassifyCalculationRunStatusInformation.RunStatusDescription, relativeYear)}";
                 }
             }
-
-            return classificationStatusInformationViewModel;
         }
+
+        return classificationStatusInformationViewModel;
     }
 }

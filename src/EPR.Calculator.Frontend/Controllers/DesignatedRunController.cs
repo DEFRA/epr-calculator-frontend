@@ -3,95 +3,71 @@ using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EPR.Calculator.Frontend.Controllers
+namespace EPR.Calculator.Frontend.Controllers;
+
+[Route("[controller]")]
+public class DesignatedRunController(
+    ICalculatorRunDetailsService calculatorRunDetailsService)
+    : BaseController
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DesignatedRunController"/> class.
-    /// </summary>
-    /// <param name="configuration">The configuration settings.</param>
-    /// <param name="clientFactory">The HTTP client factory.</param>
-    /// <param name="logger">The logger instance.</param>
-    /// <param name="telemetryClient">The telemetry client.</param>
-    [Route("[controller]")]
-    public class DesignatedRunController(
-        IConfiguration configuration,
-        IEprCalculatorApiService eprCalculatorApiService,
-        TelemetryClient telemetryClient,
-        ICalculatorRunDetailsService calculatorRunDetailsService)
-        : BaseController(
-            configuration,
-            telemetryClient,
-            eprCalculatorApiService,
-            calculatorRunDetailsService)
+    [HttpGet("{runId}")]
+    public async Task<IActionResult> Index(int runId)
     {
-        [HttpGet("{runId}")]
-        public async Task<IActionResult> Index(int runId)
-        {
-            var viewModel = await this.CreateViewModel(runId);
+        var viewModel = await CreateViewModel(runId);
 
-            if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0 || !IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
+        if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId == 0 || !IsRunEligibleForDisplay(viewModel.CalculatorRunDetails))
+            return RedirectToError();
+
+        return View(ViewNames.ClassifyRunConfirmationIndex, viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Submit(int runId)
+    {
+        if (!ModelState.IsValid)
+            return RedirectToAction(ActionNames.Index, new { runId });
+
+        return RedirectToRoute(RouteNames.BillingInstructionsIndex, new { runId });
+    }
+
+    private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
+    {
+        return calculatorRunDetails.RunClassificationId == RunClassification.INITIAL_RUN
+               ||
+               calculatorRunDetails.RunClassificationId == RunClassification.INTERIM_RECALCULATION_RUN
+               ||
+               calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RUN
+               ||
+               calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RECALCULATION_RUN
+               ||
+               calculatorRunDetails.RunClassificationId == RunClassification.TEST_RUN;
+    }
+
+    private async Task<ClassifyRunConfirmationViewModel> CreateViewModel(int runId)
+    {
+        var currentUser = CommonUtil.GetUserName(HttpContext);
+
+        var viewModel = new ClassifyRunConfirmationViewModel
+        {
+            CurrentUser = currentUser,
+            CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
+            BackLinkViewModel = new BackLinkViewModel
             {
-                return this.RedirectToAction(
-                    ActionNames.StandardErrorIndex,
-                    CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
-
-            return this.View(ViewNames.ClassifyRunConfirmationIndex, viewModel);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Submit(int runId)
-        {
-            if (!this.ModelState.IsValid)
-            {
-                return this.RedirectToAction(ActionNames.Index, new { runId });
-            }
-
-            return this.RedirectToRoute(RouteNames.BillingInstructionsIndex, new { calculationRunId = runId });
-        }
-
-        private static bool IsRunEligibleForDisplay(CalculatorRunDetailsViewModel calculatorRunDetails)
-        {
-            return calculatorRunDetails.RunClassificationId == RunClassification.INITIAL_RUN
-                ||
-                calculatorRunDetails.RunClassificationId == RunClassification.INTERIM_RECALCULATION_RUN
-                ||
-                calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RUN
-                ||
-                calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RECALCULATION_RUN
-                ||
-                calculatorRunDetails.RunClassificationId == RunClassification.TEST_RUN;
-        }
-
-        private async Task<ClassifyRunConfirmationViewModel> CreateViewModel(int runId)
-        {
-            var currentUser = CommonUtil.GetUserName(this.HttpContext);
-
-            var viewModel = new ClassifyRunConfirmationViewModel()
-            {
+                BackLink = string.Empty,
                 CurrentUser = currentUser,
-                CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = string.Empty,
-                    CurrentUser = currentUser,
-                    HideBackLink = this.GetBackLink() != ControllerNames.Dashboard,
-                },
-            };
-
-            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
-                this.HttpContext,
-                runId);
-            if (runDetails != null && runDetails!.RunId != 0)
-            {
-                viewModel.CalculatorRunDetails = runDetails;
+                HideBackLink = GetBackLink() != ControllerNames.Dashboard
             }
+        };
 
-            return viewModel;
-        }
+        var runDetails = await calculatorRunDetailsService.GetCalculatorRundetailsAsync(
+            HttpContext,
+            runId);
+        if (runDetails != null && runDetails!.RunId != 0)
+            viewModel.CalculatorRunDetails = runDetails;
+
+        return viewModel;
     }
 }

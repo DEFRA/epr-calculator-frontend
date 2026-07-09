@@ -6,103 +6,89 @@ using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EPR.Calculator.Frontend.Controllers
+namespace EPR.Calculator.Frontend.Controllers;
+
+/// <summary>
+///     Controller for sending billing files.
+/// </summary>
+[Route("[controller]")]
+public class SendBillingFileController(
+    TelemetryClient telemetryClient,
+    IEprCalculatorApiService eprCalculatorApiService,
+    ICalculatorRunDetailsService calculatorRunDetailsService)
+    : BaseController
 {
-    /// <summary>
-    /// Controller for sending billing files.
-    /// </summary>
-    [Route("[controller]")]
-    public class SendBillingFileController(
-        IConfiguration configuration,
-        TelemetryClient telemetryClient,
-        IEprCalculatorApiService eprCalculatorApiService,
-        ICalculatorRunDetailsService calculatorRunDetailsService)
-        : BaseController(
-            configuration,
-            telemetryClient,
-            eprCalculatorApiService,
-            calculatorRunDetailsService)
+    [Route("{runId}")]
+    public async Task<IActionResult> Index(int runId)
     {
-        [Route("{runId}")]
-        public async Task<IActionResult> Index(int runId)
+        var runDetails = await calculatorRunDetailsService.GetCalculatorRundetailsAsync(
+            HttpContext,
+            runId);
+        if (runDetails == null || runDetails.RunName == null)
+            return RedirectToError();
+
+        if (runDetails.IsBillingFileGeneratedLatest.HasValue && !runDetails.IsBillingFileGeneratedLatest.Value)
+            return RedirectToError();
+
+        var currentUser = CommonUtil.GetUserName(HttpContext);
+        var billingFileViewModel = new SendBillingFileViewModel
         {
-            var runDetails = await this.CalculatorRunDetailsService.GetCalculatorRundetailsAsync(
-                this.HttpContext,
-                runId);
-            if (runDetails == null || runDetails.RunName == null)
-            {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-            }
+            RunId = runId,
+            CalcRunName = runDetails.RunName,
+            CurrentUser = currentUser
+        };
 
-            if (runDetails.IsBillingFileGeneratedLatest.HasValue && !runDetails.IsBillingFileGeneratedLatest.Value)
-            {
-                return this.RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId });
-            }
+        billingFileViewModel.BackLinkViewModel = BacklinkModel(billingFileViewModel);
 
-            var currentUser = CommonUtil.GetUserName(this.HttpContext);
-            var billingFileViewModel = new SendBillingFileViewModel()
-            {
-                RunId = runId,
-                CalcRunName = runDetails.RunName,
-                CurrentUser = currentUser,
-            };
+        return View(billingFileViewModel);
+    }
 
-            billingFileViewModel.BackLinkViewModel = this.BacklinkModel(billingFileViewModel);
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Submit(SendBillingFileViewModel viewModel)
+    {
+        viewModel.BackLinkViewModel = BacklinkModel(viewModel);
 
-            return this.View(billingFileViewModel);
+        if (viewModel.ConfirmSend != true || !ModelState.IsValid)
+            return View(ViewNames.SendBillingFileIndex, viewModel);
+
+        var response = await PrepareBillingFileSendToFSSAsync(viewModel.RunId);
+
+        if (response.StatusCode == HttpStatusCode.Accepted)
+            return RedirectToAction(ActionNames.BillingFileSuccess, CommonUtil.GetControllerName(typeof(BillingInstructionsController)));
+
+        if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
+        {
+            viewModel.IsBillingFileLatest = false;
+            return View(ActionNames.Index, viewModel);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Submit(SendBillingFileViewModel viewModel)
+        telemetryClient.TrackTrace($"1.Request (send billing file) not accepted response code:{response.StatusCode}");
+        var contentString = await response.Content.ReadAsStringAsync();
+        telemetryClient.TrackTrace($"2.Request (send billing file) not accepted response message:{contentString}");
+        return RedirectToError();
+    }
+
+    /// <summary>
+    ///     Calls the "prepareBillingFileSendToFSS" POST endpoint.
+    /// </summary>
+    /// <param name="runId">The runId parameter to be used as url parameter.</param>
+    /// <returns>The response message returned by the endpoint.</returns>
+    private async Task<HttpResponseMessage> PrepareBillingFileSendToFSSAsync(int runId)
+    {
+        return await eprCalculatorApiService.CallApi(
+            HttpContext,
+            HttpMethod.Post,
+            $"v2/prepareBillingFileSendToFSS/{runId}");
+    }
+
+    private BackLinkViewModel BacklinkModel(SendBillingFileViewModel viewModel)
+    {
+        return new BackLinkViewModel
         {
-            viewModel.BackLinkViewModel = this.BacklinkModel(viewModel);
-
-            if (viewModel.ConfirmSend != true || !this.ModelState.IsValid)
-            {
-                return this.View(ViewNames.SendBillingFileIndex, viewModel);
-            }
-
-            var response = await this.PrepareBillingFileSendToFSSAsync(viewModel.RunId);
-
-            if (response.StatusCode == HttpStatusCode.Accepted)
-            {
-                return this.RedirectToAction(ActionNames.BillingFileSuccess, CommonUtil.GetControllerName(typeof(BillingInstructionsController)));
-            }
-
-            if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
-            {
-                viewModel.IsBillingFileLatest = false;
-                return this.View(ActionNames.Index, viewModel);
-            }
-
-            this.TelemetryClient.TrackTrace($"1.Request (send billing file) not accepted response code:{response.StatusCode}");
-            var contentString = await response.Content.ReadAsStringAsync();
-            this.TelemetryClient.TrackTrace($"2.Request (send billing file) not accepted response message:{contentString}");
-            return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-        }
-
-        /// <summary>
-        /// Calls the "prepareBillingFileSendToFSS" POST endpoint.
-        /// </summary>
-        /// <param name="runId">The runId parameter to be used as url parameter.</param>
-        /// <returns>The response message returned by the endpoint.</returns>
-        protected async Task<HttpResponseMessage> PrepareBillingFileSendToFSSAsync(int runId)
-        {
-            return await this.EprCalculatorApiService.CallApi(
-                httpContext: this.HttpContext,
-                httpMethod: HttpMethod.Post,
-                relativePath: $"v2/prepareBillingFileSendToFSS/{runId}");
-        }
-
-        private BackLinkViewModel BacklinkModel(SendBillingFileViewModel viewModel)
-        {
-            return new BackLinkViewModel
-            {
-                BackLink = ControllerNames.CalculationRunOverview,
-                RunId = viewModel.RunId,
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-            };
-        }
+            BackLink = ControllerNames.CalculationRunOverview,
+            RunId = viewModel.RunId,
+            CurrentUser = CommonUtil.GetUserName(HttpContext)
+        };
     }
 }
