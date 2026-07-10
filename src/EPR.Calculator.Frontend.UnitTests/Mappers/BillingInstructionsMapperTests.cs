@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Mappers;
 using EPR.Calculator.Frontend.Models;
@@ -87,22 +86,20 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
                 },
                 AllProducerIds = [1]
             };
-            var request = new PaginationRequestViewModel { Page = 2, PageSize = 10 };
-            var currentUser = "Test User";
+            var request = new BillingInstructionsIndexModel { Page = 2, PageSize = 10 };
 
-            var result = _mapper.MapToViewModel(billingData, request, currentUser, true, false);
+            var result = _mapper.MapToViewModel(billingData, request, true, false);
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(currentUser, result.CurrentUser);
-            Assert.AreEqual(123, result.CalculationRun.Id);
-            Assert.AreEqual("Test Run", result.CalculationRun.Name);
-            Assert.AreEqual(2, result.TablePaginationModel.CurrentPage);
+            Assert.AreEqual(123, result.RunId);
+            Assert.AreEqual("Test Run", result.RunName);
+            Assert.AreEqual(2, result.TablePaginationModel.Page);
             Assert.AreEqual(10, result.TablePaginationModel.PageSize);
             Assert.AreEqual(1, result.TablePaginationModel.Total);
             Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.TablePaginationModel.RouteName);
-            Assert.AreEqual(123, result.TablePaginationModel.RouteValues["calculationRunId"]);
-            Assert.AreEqual(null, result.TablePaginationModel.RouteValues["organisationId"]);
-            CollectionAssert.AreEqual(Array.Empty<BillingStatus>(), (BillingStatus[]?)result.TablePaginationModel.RouteValues["billingStatuses"]);
+            Assert.AreEqual(123, result.TablePaginationModel.RouteValues[nameof(BillingInstructionsViewModel.RunId)]);
+            Assert.AreEqual(null, result.TablePaginationModel.RouteValues[nameof(BillingInstructionsViewModel.OrganisationId)]);
+            CollectionAssert.AreEqual(Array.Empty<BillingStatus>(), (BillingStatus[]?)result.TablePaginationModel.RouteValues[nameof(BillingInstructionsViewModel.BillingStatuses)]);
 
             var orgs = result.TablePaginationModel.Records as List<Organisation>;
             Assert.IsNotNull(orgs);
@@ -138,22 +135,20 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
                 },
                 AllProducerIds = [1]
             };
-            var request = new PaginationRequestViewModel { Page = 2, PageSize = 10, OrganisationId = 1 };
-            var currentUser = "Test User";
+            var request = new BillingInstructionsIndexModel { Page = 2, PageSize = 10, OrganisationId = 1 };
 
-            var result = _mapper.MapToViewModel(billingData, request, currentUser, true, false);
+            var result = _mapper.MapToViewModel(billingData, request, true, false);
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(currentUser, result.CurrentUser);
-            Assert.AreEqual(123, result.CalculationRun.Id);
-            Assert.AreEqual("Test Run", result.CalculationRun.Name);
-            Assert.AreEqual(2, result.TablePaginationModel.CurrentPage);
+            Assert.AreEqual(123, result.RunId);
+            Assert.AreEqual("Test Run", result.RunName);
+            Assert.AreEqual(2, result.TablePaginationModel.Page);
             Assert.AreEqual(10, result.TablePaginationModel.PageSize);
             Assert.AreEqual(1, result.TablePaginationModel.Total);
             Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.TablePaginationModel.RouteName);
-            Assert.AreEqual(123, result.TablePaginationModel.RouteValues["calculationRunId"]);
-            Assert.AreEqual(1, result.TablePaginationModel.RouteValues["organisationId"]);
-            CollectionAssert.AreEqual(Array.Empty<BillingStatus>(), (BillingStatus[]?)result.TablePaginationModel.RouteValues["billingStatuses"]);
+            Assert.AreEqual(123, result.TablePaginationModel.RouteValues["runId"]);
+            Assert.AreEqual(1, result.TablePaginationModel.RouteValues[nameof(BillingInstructionsViewModel.OrganisationId)]);
+            CollectionAssert.AreEqual(Array.Empty<BillingStatus>(), (BillingStatus[]?)result.TablePaginationModel.RouteValues[nameof(BillingInstructionsViewModel.BillingStatuses)]);
 
             var orgs = result.TablePaginationModel.Records as List<Organisation>;
             Assert.IsNotNull(orgs);
@@ -178,10 +173,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
                 TotalRecords = 0,
                 Records = new List<ProducerBillingInstructionsDto>()
             };
-            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
-            var currentUser = "User";
+            var request = new BillingInstructionsIndexModel { Page = 1, PageSize = 10 };
 
-            var result = _mapper.MapToViewModel(billingData, request, currentUser, false, false);
+            var result = _mapper.MapToViewModel(billingData, request, false, false);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(0, ((List<Organisation>)result.TablePaginationModel.Records).Count);
@@ -208,13 +202,12 @@ namespace EPR.Calculator.Frontend.UnitTests.Mappers
                     }
                 }
             };
-            var request = new PaginationRequestViewModel { Page = 1, PageSize = 10 };
-            var currentUser = "User";
+            var request = new BillingInstructionsIndexModel { Page = 1, PageSize = 10 };
 
-            var result = _mapper.MapToViewModel(billingData, request, currentUser, false, true);
+            var result = _mapper.MapToViewModel(billingData, request, false, true);
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(string.Empty, result.CalculationRun.Name);
+            Assert.AreEqual(string.Empty, result.RunName);
             var orgs = result.TablePaginationModel.Records as List<Organisation>;
             Assert.IsNotNull(orgs);
             Assert.AreEqual(1, orgs.Count);

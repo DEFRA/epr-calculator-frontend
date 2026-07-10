@@ -14,7 +14,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
         [DataRow(RunClassification.FINAL_RUN, 104)]
         public void ShouldSetIsAnyRunInProgressWhenActiveRunExists(RunClassification classification, int runId)
         {
-            var runs = new List<ClassifiedCalculatorRunDto>
+            var runs = new List<CalculatorRunDto>
     {
         CreateRun(classification, DateTime.UtcNow, runId)
     };
@@ -30,7 +30,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
         public void Should_Set_InterimRunCompletedMessage_When_InterimRunCompletedExists()
         {
             var date = new DateTime(2025, 5, 1);
-            var runs = new List<ClassifiedCalculatorRunDto>
+            var runs = new List<CalculatorRunDto>
     {
         CreateRun(RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED, date)
     };
@@ -45,7 +45,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
         public void Should_Set_FinalRecalculationRunCompletedMessage_When_Exists()
         {
             var date = new DateTime(2025, 6, 1);
-            var runs = new List<ClassifiedCalculatorRunDto>
+            var runs = new List<CalculatorRunDto>
     {
         CreateRun(RunClassification.FINAL_RECALCULATION_RUN_COMPLETED, date)
     };
@@ -60,7 +60,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
         public void Should_Set_FinalRunCompletedMessage_And_FallbackFinalRecallMessage_When_FinalRunExistsOnly()
         {
             var date = new DateTime(2025, 7, 1);
-            var runs = new List<ClassifiedCalculatorRunDto>
+            var runs = new List<CalculatorRunDto>
     {
         CreateRun(RunClassification.FINAL_RUN_COMPLETED, date)
     };
@@ -79,11 +79,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
             // Arrange
             var relativeYear = new RelativeYear(2025);
             var updatedAt = new DateTime(2025, 4, 1);
-            var runs = new List<ClassifiedCalculatorRunDto>
+            var runs = new List<CalculatorRunDto>
     {
-        new ClassifiedCalculatorRunDto
+        new CalculatorRunDto
         {
-            RunClassificationId = (int)RunClassification.INITIAL_RUN_COMPLETED,
+            RunClassification = RunClassification.INITIAL_RUN_COMPLETED,
             UpdatedAt = updatedAt,
             RunId = 1,
             RunName = "Initial Run Completed",
@@ -99,11 +99,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
             StringAssert.Contains(result.IsDisplayInitialRunMessage, "Already completed for financial year 2025 on 01 Apr 2025");
         }
 
-        private static ClassifiedCalculatorRunDto CreateRun(RunClassification classification, DateTime updatedAt, int runId = 1)
+        private static CalculatorRunDto CreateRun(RunClassification classification, DateTime updatedAt, int runId = 1)
         {
-            return new ClassifiedCalculatorRunDto
+            return new CalculatorRunDto
             {
-                RunClassificationId = (int)classification,
+                RunClassification = classification,
                 UpdatedAt = updatedAt,
                 RunId = runId,
                 RunName = "Test Run",

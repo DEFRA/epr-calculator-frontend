@@ -2,7 +2,6 @@
 using System.Text;
 using AutoFixture;
 using EPR.Calculator.Frontend.Services;
-using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -145,7 +144,6 @@ namespace EPR.Calculator.Frontend.UnitTests
                 Content = new StringContent(r.CallApiResponse)
             });
             var setup = service.SetupSequence(s => s.CallApi(
-                It.IsAny<HttpContext>(),
                 It.IsAny<HttpMethod>(),
                 It.IsAny<string>(),
                 It.IsAny<IDictionary<string, string?>>(),
@@ -162,7 +160,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             setup.Returns(() =>
             {
                 service.Setup(s => s.CallApi(
-                It.IsAny<HttpContext>(),
                 It.IsAny<HttpMethod>(),
                 It.IsAny<string>(),
                 It.IsAny<IDictionary<string, string?>>(),
@@ -179,7 +176,6 @@ namespace EPR.Calculator.Frontend.UnitTests
             var service = new Mock<IEprCalculatorApiService>();
 
             service.Setup(s => s.CallApi(
-                    It.IsAny<HttpContext>(),
                     It.IsAny<HttpMethod>(),
                     It.IsAny<string>(),
                     It.IsAny<IDictionary<string, string?>>(),
@@ -204,18 +200,6 @@ namespace EPR.Calculator.Frontend.UnitTests
                         Content = new StringContent("{}")
                     };
                 });
-
-            return service;
-        }
-
-        public static Mock<ICalculatorRunDetailsService> BuildMockCalculatorRunDetailsService(
-            CalculatorRunDetailsViewModel data)
-        {
-            var service = new Mock<ICalculatorRunDetailsService>();
-            service.Setup(s => s.GetCalculatorRundetailsAsync(
-                It.IsAny<HttpContext>(),
-                It.IsAny<int>()))
-                .ReturnsAsync(data);
 
             return service;
         }
