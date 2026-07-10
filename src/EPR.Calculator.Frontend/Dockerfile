@@ -10,7 +10,6 @@ EXPOSE ${PORT}
 # Copy everything
 USER root
 COPY EPR.Calculator.Frontend/*.csproj ./EPR.Calculator.Frontend/
-COPY EPR.Calculator.Frontend.Common/*.csproj ./EPR.Calculator.Frontend.Common/
 COPY NuGet.Config ./
 
 # Use Build Argument to insert PAT into Nuget file
@@ -26,7 +25,6 @@ RUN dotnet restore "EPR.Calculator.Frontend/EPR.Calculator.Frontend.csproj" --co
 # Build and publish a release
 USER root
 COPY EPR.Calculator.Frontend/. ./EPR.Calculator.Frontend/.
-COPY EPR.Calculator.Frontend.Common/. ./EPR.Calculator.Frontend.Common/.
 WORKDIR /home/dotnet/EPR.Calculator.Frontend
 
 USER root
