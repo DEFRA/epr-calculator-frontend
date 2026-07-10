@@ -11,8 +11,8 @@ namespace EPR.Calculator.Frontend.ViewModels
 
         public int? OrganisationId { get; init; }
 
-        public BillingStatus? BillingStatus { get; init; }
+        public List<BillingStatus> BillingStatuses { get; init; } = [];
 
-        public BillingInstruction? BillingInstruction { get; init; }
+        public List<BillingInstruction> BillingInstructions { get; init; } = [];
     }
 }

@@ -1,0 +1,259 @@
+﻿@using System.Globalization
+@using EPR.Calculator.Frontend.Enums
+@using EPR.Calculator.Frontend.Extensions
+@using EPR.Calculator.Frontend.Helpers
+@model BillingInstructionsViewModel
+
+<!-- Main Data Table -->
+<table class="govuk-table" aria-describedby="table-description">
+    <caption id="table-description" class="govuk-visually-hidden">
+        Details of the Organisations and Billing status.
+    </caption>
+    <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header col-select"><span class="govuk-visually-hidden">Select</span></th>
+            <th scope="col" class="govuk-table__header col-org-name">Organisation name</th>
+            <th scope="col" class="govuk-table__header col-org-id">Organisation ID</th>
+            <th scope="col" class="govuk-table__header col-billing">Billing instruction</th>
+            <th scope="col" class="govuk-table__header col-invoice">Invoice amount</th>
+            <th scope="col" class="govuk-table__header col-status">Status</th>
+        </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+        @foreach (var org in Model.TablePaginationModel.Records.Cast<Organisation>())
+        {
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell govuk-!-text-align-center">
+                    <input type="checkbox" name="SelectedIds"
+                           value="@org.Id"
+                           aria-labelledby="checkbox-label-@org.Id"
+                           class="record-checkbox"
+                           data-organisation-id="@org.OrganisationId"
+                    @(org.IsSelected ? "checked" : null)
+                           @(org.BillingInstruction == BillingInstruction.Noaction ? "disabled" : null) />
+                </td>
+
+                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle" id="checkbox-label-@org.Id">@org.OrganisationName</td>
+                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">@org.OrganisationId</td>
+                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">
+                    <strong class="govuk-tag govuk-tag--blue">
+                        @org.BillingInstruction?.GetDisplayName()
+                    </strong>
+                </td>
+                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">
+                    @if (org.InvoiceAmount != null)
+                    {
+                        @org.InvoiceAmount.Value.ToString("C", CultureInfo.CreateSpecificCulture("en-GB"))
+                    }
+                </td>
+
+
+                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">
+                    @if (org.BillingInstruction != BillingInstruction.Noaction)
+                    {
+                        @functions {
+                            public string GetStatusClass(EPR.Calculator.Frontend.Enums.BillingStatus? status)
+                            {
+                                switch (status)
+                                {
+                                    case EPR.Calculator.Frontend.Enums.BillingStatus.Pending:
+                                        return "govuk-tag--yellow grey";
+                                    case EPR.Calculator.Frontend.Enums.BillingStatus.Accepted:
+                                        return "govuk-tag--green";
+                                    case EPR.Calculator.Frontend.Enums.BillingStatus.Rejected:
+                                        return "govuk-tag--red";
+                                    case EPR.Calculator.Frontend.Enums.BillingStatus.Noaction:
+                                    default:
+                                        return "govuk-tag--grey";
+                                }
+                            }
+                        }
+
+                        <strong class="govuk-tag @GetStatusClass(org.Status)">
+                            @org.Status?.GetDisplayName()
+                        </strong>
+                    }
+                    else
+                    {
+                        <span>&nbsp;</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@{
+    // Calculate page block display
+    int blockSize  = Model.TablePaginationModel.BlockSize;
+    int blockStart = ((Model.TablePaginationModel.CurrentPage - 1) / blockSize) * blockSize + 1;
+    int blockEnd   = Math.Min(blockStart + blockSize - 1, Model.TablePaginationModel.TotalPages);
+
+    if (blockEnd == Model.TablePaginationModel.TotalPages)
+    {
+        blockStart = Math.Max(1, Model.TablePaginationModel.TotalPages - blockSize + 1);
+    }
+
+    RouteValueDictionary RouteValues(int page, int? pageSize = null)
+    {
+        var values = new RouteValueDictionary(Model.TablePaginationModel.RouteValues)
+            {
+                ["page"] = page
+            };
+
+        if (pageSize.HasValue)
+        {
+            values["pageSize"] = pageSize.Value;
+        }
+
+        return values;
+    }
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+    <!-- Left side: pagination numbers + next -->
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <ul class="govuk-pagination__list">
+            @* Previous link *@
+            @if (Model.TablePaginationModel.CurrentPage > 1)
+            {
+                <li class="govuk-pagination__item govuk-pagination__item--prev">
+                    <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: Model.TablePaginationModel.CurrentPage - 1))" rel="prev" aria-label="Previous page">
+                        <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" width="15" height="13" viewBox="0 0 15 13" aria-hidden="true" focusable="false">
+                            <path d="M6.893 0 8.307 1.414 4.014 5.707H17v2H4.1l4.185 3.977-1.377 1.449L0.164 6.727 6.893 0z" />
+                        </svg>
+                        <strong class="govuk-pagination__link-title">Previous</strong>
+                    </a>
+                </li>
+            }
+
+            @* Ellipsis before block if needed *@
+            @if (blockStart > 1)
+            {
+                <li class="govuk-pagination__item">
+                    <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, RouteValues(1))">1</a>
+                </li>
+                @if (blockStart > 2)  // show ellipsis only if gap > 1 page
+                {
+                    <li class="govuk-pagination__item">…</li>
+                }
+            }
+
+            @* Pages in the block *@
+            @for (int i = blockStart; i <= blockEnd; i++)
+            {
+                <li class="govuk-pagination__item @(Model.TablePaginationModel.CurrentPage == i ? "govuk-pagination__item--current" : "")" @(Model.TablePaginationModel.CurrentPage == i ? "aria-current=\"page\"" : "") style="text-decoration: underline;">
+                    @if (Model.TablePaginationModel.CurrentPage == i)
+                    {
+                        @i
+                    }
+                    else
+                    {
+                        <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: i))">@i</a>
+                    }
+                </li>
+            }
+
+            @* Ellipsis and last page if needed *@
+            @if (blockEnd < Model.TablePaginationModel.TotalPages)
+            {
+                if (blockEnd < Model.TablePaginationModel.TotalPages - 1)
+                {
+                    <li class="govuk-pagination__item">…</li>
+                }
+                <li class="govuk-pagination__item">
+                    <a class="govuk-link govuk-pagination__link"
+                       href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: Model.TablePaginationModel.TotalPages))"> @Model.TablePaginationModel.TotalPages</a>
+                </li>
+            }
+
+            @* Next link *@
+            @if (Model.TablePaginationModel.CurrentPage < Model.TablePaginationModel.TotalPages)
+            {
+                <li class="govuk-pagination__item govuk-pagination__item--next">
+                    <a class="govuk-link govuk-pagination__link"
+                       href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: Model.TablePaginationModel.CurrentPage + 1))"
+                       rel="next"
+                       aria-label="Next page">
+                        <strong class="govuk-pagination__link-title">Next</strong>
+                        <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                            <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
+                        </svg>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <!-- Right side: items per page -->
+    <div>
+        <strong class="govuk-body">Items per page:</strong>
+        <ul class="govuk-pagination__list" style="display: inline-flex; list-style: none;">
+            @foreach (var size in Model.TablePaginationModel.PageSizeOptions)
+            {
+                if (Model.TablePaginationModel.PageSize == size)
+                {
+                    <li class="govuk-pagination__item" style="min-width:20px; padding-left: 5px; padding-right: 5px;">
+                        <strong>@size</strong>
+                    </li>
+                }
+                else
+                {
+                    <li class="govuk-pagination__item" style="min-width:20px; padding-left: 5px; padding-right: 5px">
+                        <a class="govuk-link govuk-pagination__link govuk-link--no-visited-state"
+                           href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(1, pageSize: size))"
+                           aria-label="Show @size items per page">
+                            @size
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+</div>
+
+@{
+    var recordCount = Model.TablePaginationModel.Records.Count();
+    var total       = Model.TotalRecords;
+    var start       = total == 0 || recordCount == 0 ? 0 : Model.TablePaginationModel.StartRecord;
+    var end         = total == 0 || recordCount == 0 ? 0 : Math.Min(start + recordCount - 1, total);
+}
+<p class="govuk-body govuk-!-margin-top-4">
+    Showing <strong>@start</strong> to <strong>@end</strong> of @total
+</p>
+
+<p class="govuk-body govuk-!-margin-top-6">
+    Update billing instructions for <span id="totalCountText">@ARJourneySessionHelper.GetFromSession(Context.Session).Count</span> selected organisations.
+</p>
+
+<script type="text/javascript">
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('record-checkbox')) {
+            var organisationId = event.target.getAttribute('data-organisation-id');
+            var isChecked = event.target.checked;
+
+            var span = document.getElementById('totalCountText');
+            var current = parseInt(span.textContent, 10) || 0;
+            span.textContent = isChecked ? current + 1 : Math.max(0, current - 1);
+
+            fetch('/UpdateOrganisationSelection', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: organisationId,
+                    isSelected: isChecked
+                })
+            }).then(function () {
+                if (!isChecked) {
+                    var selectPage = document.getElementById('OrganisationSelections_SelectPage');
+                    var selectAll = document.getElementById('OrganisationSelections_SelectAll');
+                    if (selectPage) selectPage.checked = false;
+                    if (selectAll) selectAll.checked = false;
+                }
+            });
+        }
+    });
+</script>

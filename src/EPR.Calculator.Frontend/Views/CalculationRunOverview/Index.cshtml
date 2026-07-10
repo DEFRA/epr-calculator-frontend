@@ -1,6 +1,7 @@
-﻿@using Microsoft.AspNetCore.Http
+﻿@using EPR.Calculator.Frontend.Constants
+@using EPR.Calculator.Frontend.Enums
 @using EPR.Calculator.Frontend.Extensions
-@using EPR.Calculator.Frontend.Constants
+@using Microsoft.AspNetCore.Http
 
 @inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunOverviewViewModel
@@ -86,6 +87,7 @@
                                 <h2 class="govuk-heading-m">Downloads</h2>
 
                                 <p class="govuk-body">Download files related to this calculation run.</p>
+
                                 <div class="govuk-button-group width-max-content">
                                     <a class="govuk-button govuk-button--secondary"
                                        role="button"

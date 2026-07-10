@@ -9,31 +9,12 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
         private static readonly int[] ExpectedPageSizes = { 10, 25, 50 };
 
         [TestMethod]
-        public void Caption_ShouldBeInitializedCorrectly()
-        {
-            // Arrange
-            var expectedCaption = "Test Caption";
-            var viewModel = new PaginationViewModel
-            {
-                Caption = expectedCaption
-            };
-
-            // Act
-            var actualCaption = viewModel.Caption;
-
-            // Assert
-            Assert.AreEqual(expectedCaption, actualCaption);
-
-            Assert.AreEqual(viewModel.GetType(), typeof(PaginationViewModel));
-        }
-
-        [TestMethod]
         public void TotalPages_ShouldCalculateCorrectly()
         {
             // Arrange
             var viewModel = new PaginationViewModel
             {
-                TotalTableRecords = 55,
+                Total = 55,
                 PageSize = 10
             };
 
@@ -50,7 +31,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Arrange
             var viewModel = new PaginationViewModel
             {
-                TotalTableRecords = 55,
+                Total = 55,
                 PageSize = 10,
                 CurrentPage = 2
             };
@@ -68,7 +49,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Arrange
             var viewModel = new PaginationViewModel
             {
-                TotalTableRecords = 55,
+                Total = 55,
                 PageSize = 10,
                 CurrentPage = 2
             };
@@ -86,7 +67,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Arrange
             var viewModel = new PaginationViewModel
             {
-                TotalTableRecords = 55,
+                Total = 55,
                 PageSize = 10,
                 CurrentPage = 6
             };
@@ -117,7 +98,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Arrange
             var viewModel = new PaginationViewModel
             {
-                TotalTableRecords = 0,
+                Total = 0,
                 CurrentPage = 1,
                 PageSize = 10
             };
@@ -135,7 +116,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             // Arrange
             var viewModel = new PaginationViewModel
             {
-                TotalTableRecords = 100,
+                Total = 100,
                 CurrentPage = 2,
                 PageSize = 10
             };
@@ -158,7 +139,7 @@ namespace EPR.Calculator.Frontend.UnitTests.ViewModels
             Assert.AreEqual(Enumerable.Empty<object>(), viewModel.Records);
             Assert.AreEqual("index", viewModel.RouteName);
             Assert.IsNotNull(viewModel.RouteValues);
-            Assert.AreEqual(0, viewModel.TotalTableRecords);
+            Assert.AreEqual(0, viewModel.Total);
             Assert.AreEqual(0, viewModel.CurrentPage);
             Assert.AreEqual(0, viewModel.PageSize);
             CollectionAssert.AreEqual(ExpectedPageSizes, viewModel.PageSizeOptions.ToList());

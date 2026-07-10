@@ -23,15 +23,6 @@ USER root
 COPY Directory.Build.props ./
 RUN dotnet restore "EPR.Calculator.Frontend/EPR.Calculator.Frontend.csproj" --configfile "NuGet.Config"
 
-# Install NPM
-RUN apk update && apk add --no-cache npm
-USER dotnet
-ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/internal-ca.crt
-
-USER root
-COPY EPR.Calculator.Frontend/package.json package.json
-RUN npm install --ignore-scripts
-
 # Build and publish a release
 USER root
 COPY EPR.Calculator.Frontend/. ./EPR.Calculator.Frontend/.
