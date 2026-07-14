@@ -47,7 +47,9 @@ namespace EPR.Calculator.Frontend.Controllers
                 [
                     new ValidationErrorDto()
                         {
-                            ErrorMessage = parameterUploadViewModel.ParamterErrors.Count > 1 ? $"The file contained {parameterUploadViewModel.ParamterErrors.Count} errors." : $"The file contained {parameterUploadViewModel.ParamterErrors.Count} error.",
+                            ErrorMessage = parameterUploadViewModel.ParamterErrors.Count > 1 ?
+                                $"The file has {parameterUploadViewModel.ParamterErrors.Count} errors." :
+                                $"The file has {parameterUploadViewModel.ParamterErrors.Count} error.",
                         },
                     ];
             }
