@@ -1,13 +1,15 @@
-﻿@model SchemeParametersViewModel;
-
-@{
-    var IsAmount = @Model.IsDisplayPrefix;
-}
+﻿@using System.Globalization
+@model SchemeParametersViewModel;
 
 <dl class="govuk-summary-list govuk-!-margin-bottom-9">
 
     @if (Model != null)
     {
+        var isAmount        = @Model.IsDisplayPrefix;
+        var culture = CultureInfo.CreateSpecificCulture("en-GB");
+        culture.NumberFormat.CurrencySymbol = "£";
+        culture.NumberFormat.CurrencyPositivePattern = 0;
+        culture.NumberFormat.CurrencyGroupSeparator = ",";
 
         @foreach (var item in Model.DefaultSchemeParameters)
         {
@@ -19,35 +21,28 @@
                     @{
                         if ((@item.ParameterCategory.Contains("Percent") || @item.ParameterType.Contains("percent")))
                         {
-                            string formattedValue = item.ParameterValue == 0 ? string.Format("{0:F0}{1}", item.ParameterValue, "%") : string.Format("{0:F2}{1}", item.ParameterValue, "%");
+                            string formattedValue = item.ParameterValue == 0
+                                ? string.Format("{0:F0}{1}", item.ParameterValue, "%")
+                                : string.Format("{0:F2}{1}", item.ParameterValue, "%");
 
                             @formattedValue
                         }
-                        else if ((@item.ParameterCategory.Contains("Amount") || IsAmount))
+                        else if ((@item.ParameterCategory.Contains("Amount") || isAmount))
                         {
-                            string formattedValue;
-                            if (item.ParameterValue < 0)
-                            {
-                                formattedValue = string.Format("{0}{1}{2}", "-", "£", item.ParameterValue.ToString("F2").Trim('-'));
-                            }
-                            else if (item.ParameterValue == 0)
-                            {
-                                formattedValue = string.Format("{0}{1:F0}", "£", item.ParameterValue);
-                            }
-                            else
-                            {
-                                formattedValue = string.Format("{0}{1:F2}", "£", item.ParameterValue);
-                            }
+                            var precision          = item.ParameterValue == 0 ? 0 : 2;
+                            var formattedValue = item.ParameterValue < 0
+                                ? "-" + Math.Abs(item.ParameterValue).ToString($"C{precision}", culture)
+                                : item.ParameterValue.ToString($"C{precision}", culture);
+
                             @formattedValue
-                           
                         }
                         else
                         {
                             @item.ParameterValue
                         }
-                    }                    
+                    }
                 </dd>
-               
+
             </div>
         }
     }

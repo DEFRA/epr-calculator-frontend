@@ -52,7 +52,8 @@ namespace EPR.Calculator.Frontend.ViewModels
                 var culture = CultureInfo.CreateSpecificCulture("en-GB");
                 culture.NumberFormat.CurrencySymbol = "£";
                 culture.NumberFormat.CurrencyPositivePattern = 0;
-                culture.NumberFormat.CurrencyGroupSeparator = string.Empty;
+                culture.NumberFormat.CurrencyGroupSeparator = ",";
+
                 return totalCost.ToString($"C{precision}", culture);
             }
         }

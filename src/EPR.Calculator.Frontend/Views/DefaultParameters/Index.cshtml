@@ -1,4 +1,5 @@
-﻿@using EPR.Calculator.Frontend.Extensions;
+﻿@using System.Globalization
+@using EPR.Calculator.Frontend.Extensions;
 @model DefaultParametersViewModel
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -44,20 +45,20 @@
                                     {
                                         <tr class="govuk-table__row">
                                             <th id="material_tonnage_header_row" class="govuk-table__header">@row.Material</th>
-                                            <td class="govuk-table__cell">@row.Red</td>
-                                            <td class="govuk-table__cell">@row.Amber</td>
-                                            <td class="govuk-table__cell">@row.Green</td>
+                                            <td class="govuk-table__cell">@row.Red.ToString("N3", CultureInfo.GetCultureInfo("en-GB"))</td>
+                                            <td class="govuk-table__cell">@row.Amber.ToString("N3", CultureInfo.GetCultureInfo("en-GB"))</td>
+                                            <td class="govuk-table__cell">@row.Green.ToString("N3", CultureInfo.GetCultureInfo("en-GB"))</td>
                                         </tr>
                                     }
                                 </tbody>
                             </table>
                         }
-                        else 
+                        else
                         {
                             <h2 class="govuk-heading-l">@name.GetDisplayName()</h2>
                             <partial name="_ItemListPartial" model="schemeparameterValue" />
                         }
-                    }                    
+                    }
                 }
                 else
                 {
@@ -92,7 +93,7 @@
         const [dateString, timeString] = ("@Model.EffectiveFrom").split(' ');
 
         var day = month = year = 0;
-        
+
         // MM/DD/YYYY is the date format in Azure portal
         // DD/MM/YYYY is the date format in local environment
         // This condition check is required to correctly get the values of day and month based on the environment
@@ -101,7 +102,7 @@
         } else {
             [month, day, year] = dateString.split('/');
         }
-        
+
         const [hour, minute, second] = timeString.split(':');
 
         const localDate = convertUTCDateToLocalDate(new Date(year, month - 1, day, hour, minute, second));
