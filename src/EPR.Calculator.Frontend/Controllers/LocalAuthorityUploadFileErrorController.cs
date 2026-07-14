@@ -29,7 +29,9 @@ public class LocalAuthorityUploadFileErrorController : BaseController
                 [
                     new ValidationErrorDto
                     {
-                        ErrorMessage = lapcapUploadViewModel.LapcapErrors.Count > 1 ? $"The file contained {lapcapUploadViewModel.LapcapErrors.Count} errors." : $"The file contained {lapcapUploadViewModel.LapcapErrors.Count} error."
+                        ErrorMessage = lapcapUploadViewModel.LapcapErrors.Count > 1
+                            ? $"The file has {lapcapUploadViewModel.LapcapErrors.Count} errors."
+                            : $"The file has {lapcapUploadViewModel.LapcapErrors.Count} error."
                     }
                 ];
             }
