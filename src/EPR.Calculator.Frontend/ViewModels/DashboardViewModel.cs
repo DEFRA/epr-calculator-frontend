@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record DashboardViewModel : ViewModelCommonData
+public record DashboardViewModel
 {
     public required RelativeYear RelativeYear { get; set; }
     public IEnumerable<CalculationRunViewModel>? Calculations { get; set; }

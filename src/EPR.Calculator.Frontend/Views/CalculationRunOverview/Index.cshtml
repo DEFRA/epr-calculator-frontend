@@ -1,9 +1,4 @@
-﻿@using EPR.Calculator.Frontend.Constants
-@using EPR.Calculator.Frontend.Enums
 @using EPR.Calculator.Frontend.Extensions
-@using Microsoft.AspNetCore.Http
-
-@inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunOverviewViewModel
 @{
     var calcDetails = Model.CalculatorRunDetails;
@@ -12,10 +7,7 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
 
-@if (Model.BackLinkViewModel != null)
-{
-    <partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
-}
+<vc:user-nav back-link="@Url.Action("Index", "Dashboard")"/>
 
 @if (calcDetails.IsBillingFileGeneratedLatest.HasValue && !calcDetails.IsBillingFileGeneratedLatest.Value && !calcDetails.IsBillingFileGenerating == true)
 {

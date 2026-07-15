@@ -3,7 +3,7 @@ using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record ParameterRefreshViewModel : ViewModelCommonData
+public record ParameterRefreshViewModel
 {
     [JsonPropertyName("schemeParameterTemplateValues")]
     public required List<SchemeParameterTemplateValue> ParameterTemplateValues { get; init; }

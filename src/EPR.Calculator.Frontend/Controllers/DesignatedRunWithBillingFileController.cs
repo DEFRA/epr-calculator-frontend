@@ -78,22 +78,15 @@ public class DesignatedRunWithBillingFileController(
 
     private async Task<CalculatorRunOverviewViewModel> CreateViewModel(int runId)
     {
-        var currentUser = CommonUtil.GetUserName(HttpContext);
         var viewModel = new CalculatorRunOverviewViewModel
         {
-            CurrentUser = currentUser,
             CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-            BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = string.Empty,
-                CurrentUser = currentUser,
-                HideBackLink = GetBackLink() != ControllerNames.Dashboard
-            }
         };
 
         var runDetails = await calculatorRunDetailsService.GetCalculatorRundetailsAsync(
             HttpContext,
             runId);
+
         if (runDetails != null && runDetails!.RunId > 0)
             viewModel.CalculatorRunDetails = runDetails;
 

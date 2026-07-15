@@ -2,7 +2,7 @@
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record LapcapRefreshViewModel : ViewModelCommonData
+public record LapcapRefreshViewModel
 {
     public IEnumerable<LapcapDataTemplateValueDto> LapcapTemplateValue { get; set; } = null!;
     public string FileName { get; set; } = null!;

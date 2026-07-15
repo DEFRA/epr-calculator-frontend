@@ -35,17 +35,9 @@ public class CalculationRunDeleteController(
             ClassificationId = (int)RunClassification.DELETED
         };
 
-        var currentUser = CommonUtil.GetUserName(HttpContext);
         var calculationRunDeleteViewModel = new CalculationRunDeleteViewModel
         {
-            CurrentUser = currentUser,
-            CalculatorRunStatusData = calculatorRunStatusUpdate,
-            BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = GetBackLink(),
-                RunId = runId,
-                CurrentUser = currentUser
-            }
+            CalculatorRunStatusData = calculatorRunStatusUpdate
         };
         return View(ViewNames.CalculationRunDeleteIndex, calculationRunDeleteViewModel);
     }
@@ -58,10 +50,8 @@ public class CalculationRunDeleteController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmationSuccess(CalculatorRunDetailsViewModel model)
     {
-        var currentUser = CommonUtil.GetUserName(HttpContext);
         var viewModel = new CalculatorRunDetailsNewViewModel
         {
-            CurrentUser = currentUser,
             CalculatorRunDetails = model
         };
 

@@ -11,18 +11,7 @@ public class LocalAuthorityUploadFileController : BaseController
 {
     public IActionResult Index()
     {
-        var currentUser = CommonUtil.GetUserName(HttpContext);
-        return View(
-            ViewNames.LocalAuthorityUploadFileIndex,
-            new LapcapUploadViewModel
-            {
-                CurrentUser = currentUser,
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = ControllerNames.ViewLocalAuthorityDisposalCosts,
-                    CurrentUser = currentUser
-                }
-            });
+        return View(ViewNames.LocalAuthorityUploadFileIndex, new LapcapUploadViewModel());
     }
 
     [HttpPost]
@@ -66,12 +55,7 @@ public class LocalAuthorityUploadFileController : BaseController
                 var viewModel = new LapcapRefreshViewModel
                 {
                     LapcapTemplateValue = localAuthorityDisposalCosts,
-                    FileName = fileUpload.FileName,
-                    BackLinkViewModel = new BackLinkViewModel
-                    {
-                        BackLink = ControllerNames.ViewLocalAuthorityDisposalCosts,
-                        CurrentUser = CommonUtil.GetUserName(HttpContext)
-                    }
+                    FileName = fileUpload.FileName
                 };
                 return View(viewName, viewModel);
             }
@@ -111,12 +95,7 @@ public class LocalAuthorityUploadFileController : BaseController
 
         return new LapcapUploadViewModel
         {
-            Errors = new List<ErrorViewModel> { errors! },
-            BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = ControllerNames.LocalAuthorityUploadFile,
-                CurrentUser = CommonUtil.GetUserName(HttpContext)
-            }
+            Errors = new List<ErrorViewModel> { errors! }
         };
     }
 }

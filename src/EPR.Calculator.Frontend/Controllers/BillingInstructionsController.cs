@@ -48,13 +48,6 @@ public class BillingInstructionsController(
             CommonUtil.GetUserName(HttpContext),
             isSelectAll,
             isSelectAllPage);
-        billingInstructionsViewModel.BackLinkViewModel = new BackLinkViewModel
-        {
-            BackLink = string.Empty,
-            HideBackLink = true,
-            RunId = runId,
-            CurrentUser = CommonUtil.GetUserName(HttpContext)
-        };
 
         if (isSelectAll &&
             billingInstructionsViewModel.ProducerIds != null &&
@@ -256,7 +249,6 @@ public class BillingInstructionsController(
     {
         var model = new BillingFileSuccessViewModel
         {
-            CurrentUser = CommonUtil.GetUserName(HttpContext),
             ConfirmationViewModel = new ConfirmationViewModel
             {
                 Title = ConfirmationMessages.BillingFileSuccessTitle,

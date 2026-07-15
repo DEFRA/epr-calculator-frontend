@@ -5,7 +5,7 @@ using EPR.Calculator.Frontend.ViewModels.Enums;
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record CalculatorRunDetailsNewViewModel : ViewModelCommonData
+public record CalculatorRunDetailsNewViewModel
 {
     [Required(ErrorMessage = ErrorMessages.CalcRunOptionNotSelected)]
     public CalculationRunOption? SelectedCalcRunOption { get; set; }

@@ -2,7 +2,7 @@
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record DefaultParametersViewModel : ViewModelCommonData
+public record DefaultParametersViewModel
 {
     public required string LastUpdatedBy { get; init; } = null!;
     public List<SchemeParametersViewModel> SchemeParameters { get; set; } = null!;

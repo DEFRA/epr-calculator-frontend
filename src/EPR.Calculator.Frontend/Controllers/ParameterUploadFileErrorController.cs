@@ -17,16 +17,7 @@ public class ParameterUploadFileErrorController : BaseController
             return RedirectToError();
 
         var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(errors);
-        var currentUser = CommonUtil.GetUserName(HttpContext);
-        var parameterUploadViewModel = new ParameterUploadViewModel
-        {
-            CurrentUser = currentUser,
-            BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = ControllerNames.ParameterUploadFile,
-                CurrentUser = currentUser
-            }
-        };
+        var parameterUploadViewModel = new ParameterUploadViewModel();
 
         if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
             parameterUploadViewModel.ValidationErrors = validationErrors;
@@ -61,16 +52,7 @@ public class ParameterUploadFileErrorController : BaseController
     public async Task<IActionResult> Upload(IFormFile fileUpload)
     {
         var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
-        var currentUser = CommonUtil.GetUserName(HttpContext);
-        var uploadViewModel = new ParameterUploadViewModel
-        {
-            CurrentUser = currentUser,
-            BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = ControllerNames.ParameterUploadFile,
-                CurrentUser = currentUser
-            }
-        };
+        var uploadViewModel = new ParameterUploadViewModel();
         if (csvErrors.ErrorMessage is not null)
         {
             uploadViewModel.Errors = csvErrors;

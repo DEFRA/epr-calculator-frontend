@@ -56,16 +56,7 @@ public class CompletedRunController(
     private async Task<PostBillingFileViewModel> CreateViewModel(int runId)
     {
         var runDetails = await GetCalculatorRunWithBillingdetails(runId);
-        var currentUser = CommonUtil.GetUserName(HttpContext);
-        var viewModel = new PostBillingFileViewModel
-        {
-            CurrentUser = currentUser,
-            BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = string.Empty,
-                CurrentUser = currentUser
-            }
-        };
+        var viewModel = new PostBillingFileViewModel();
 
         if (runDetails != null && runDetails!.RunId > 0)
             viewModel.CalculatorRunStatus = runDetails;

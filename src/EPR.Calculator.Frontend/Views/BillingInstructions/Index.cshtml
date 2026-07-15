@@ -1,8 +1,12 @@
-﻿@using EPR.Calculator.Frontend.Enums
+@using EPR.Calculator.Frontend.Enums
 @using EPR.Calculator.Frontend.Extensions
 @model BillingInstructionsViewModel
 
-<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
+<vc:user-nav
+    back-link="@Url.Action(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId = Model.CalculationRun.Id })"
+    allowed-back-links="@(new [] { Url.Action(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = Model.CalculationRun.Id })})"
+/>
+
 <partial name="_BillingInstructionProgressBanner" model="Model" />
 
 <div class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content">

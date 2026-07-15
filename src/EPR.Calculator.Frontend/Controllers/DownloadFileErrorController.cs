@@ -1,6 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +21,6 @@ public class DownloadFileErrorController : BaseController
     {
         var statusUpdateViewModel = new CalculatorRunStatusUpdateViewModel
         {
-            CurrentUser = CommonUtil.GetUserName(HttpContext),
             Data = new CalculatorRunStatusUpdateDto
             {
                 RunId = runId,
@@ -46,11 +44,6 @@ public class DownloadFileErrorController : BaseController
     [Route("DownloadFileErrorNew/{runId}")]
     public IActionResult IndexNew(int runId, string calcName, string createdDate, string createdTime)
     {
-        var commonDataModel = new ViewModelCommonData
-        {
-            CurrentUser = CommonUtil.GetUserName(HttpContext)
-        };
-
-        return View(ViewNames.DownloadFileErrorIndexNew, commonDataModel);
+        return View(ViewNames.DownloadFileErrorIndexNew);
     }
 }

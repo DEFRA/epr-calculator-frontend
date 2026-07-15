@@ -2,7 +2,7 @@
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record CalculationRunDeleteViewModel : ViewModelCommonData
+public record CalculationRunDeleteViewModel
 {
     public required CalculatorRunStatusUpdateDto CalculatorRunStatusData { get; init; }
 }

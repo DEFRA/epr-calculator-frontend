@@ -1,6 +1,6 @@
 ﻿namespace EPR.Calculator.Frontend.ViewModels;
 
-public record CalculationRunErrorViewModel : ViewModelCommonData
+public record CalculationRunErrorViewModel
 {
     public required string ErrorMessage { get; init; }
 }

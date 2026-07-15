@@ -24,18 +24,7 @@ public class CalculationRunNameController(
     [Route("RunANewCalculation")]
     public IActionResult Index()
     {
-        var currentUser = CommonUtil.GetUserName(HttpContext);
-        return View(
-            ViewNames.CalculationRunNameIndex,
-            new InitiateCalculatorRunModel
-            {
-                CurrentUser = currentUser,
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = string.Empty,
-                    CurrentUser = currentUser
-                }
-            });
+        return View(ViewNames.CalculationRunNameIndex, new InitiateCalculatorRunModel());
     }
 
     /// <summary>
@@ -50,11 +39,6 @@ public class CalculationRunNameController(
         {
             var errorMessages = ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
             calculationRunModel.Errors = CreateErrorViewModel(errorMessages.First());
-            calculationRunModel.BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = string.Empty,
-                CurrentUser = CommonUtil.GetUserName(HttpContext)
-            };
             return View(ViewNames.CalculationRunNameIndex, calculationRunModel);
         }
 
@@ -67,13 +51,7 @@ public class CalculationRunNameController(
             {
                 return View(ViewNames.CalculationRunNameIndex, new InitiateCalculatorRunModel
                 {
-                    CurrentUser = currentUser,
-                    Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists),
-                    BackLinkViewModel = new BackLinkViewModel
-                    {
-                        BackLink = string.Empty,
-                        CurrentUser = currentUser
-                    }
+                    Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists)
                 });
             }
 
@@ -85,13 +63,7 @@ public class CalculationRunNameController(
                     ViewNames.CalculationRunErrorIndex,
                     new CalculationRunErrorViewModel
                     {
-                        CurrentUser = currentUser,
-                        ErrorMessage = await ExtractErrorMessageAsync(response),
-                        BackLinkViewModel = new BackLinkViewModel
-                        {
-                            BackLink = string.Empty,
-                            CurrentUser = currentUser
-                        }
+                        ErrorMessage = await ExtractErrorMessageAsync(response)
                     });
             }
 
@@ -101,13 +73,7 @@ public class CalculationRunNameController(
                     ViewNames.CalculationRunErrorIndex,
                     new CalculationRunErrorViewModel
                     {
-                        CurrentUser = currentUser,
-                        ErrorMessage = await response.Content.ReadAsStringAsync(),
-                        BackLinkViewModel = new BackLinkViewModel
-                        {
-                            BackLink = string.Empty,
-                            CurrentUser = currentUser
-                        }
+                        ErrorMessage = await response.Content.ReadAsStringAsync()
                     });
             }
 

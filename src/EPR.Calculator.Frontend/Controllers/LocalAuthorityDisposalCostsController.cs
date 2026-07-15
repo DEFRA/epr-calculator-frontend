@@ -28,10 +28,7 @@ public class LocalAuthorityDisposalCostsController(
     public async Task<IActionResult> Index()
     {
         var relativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth);
-
         var response = await GetLapcapDataAsync(relativeYear);
-
-        var currentUser = CommonUtil.GetUserName(HttpContext);
 
         if (response.IsSuccessStatusCode)
         {
@@ -46,14 +43,8 @@ public class LocalAuthorityDisposalCostsController(
                 ViewNames.LocalAuthorityDisposalCostsIndex,
                 new LocalAuthorityViewModel
                 {
-                    CurrentUser = currentUser,
                     LastUpdatedBy = deserializedLapcapData.FirstOrDefault()?.CreatedBy ?? ErrorMessages.UnknownUser,
-                    ByCountry = localAuthorityDataGroupedByCountry,
-                    BackLinkViewModel = new BackLinkViewModel
-                    {
-                        BackLink = string.Empty,
-                        CurrentUser = currentUser
-                    }
+                    ByCountry = localAuthorityDataGroupedByCountry
                 });
         }
 
@@ -61,14 +52,8 @@ public class LocalAuthorityDisposalCostsController(
         {
             return View(ViewNames.LocalAuthorityDisposalCostsIndex, new LocalAuthorityViewModel
             {
-                CurrentUser = CommonUtil.GetUserName(HttpContext),
                 LastUpdatedBy = ErrorMessages.UnknownUser,
-                ByCountry = new List<IGrouping<string, LocalAuthorityViewModel.LocalAuthorityData>>(),
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = string.Empty,
-                    CurrentUser = currentUser
-                }
+                ByCountry = new List<IGrouping<string, LocalAuthorityViewModel.LocalAuthorityData>>()
             });
         }
 

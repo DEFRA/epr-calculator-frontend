@@ -20,11 +20,7 @@ public class CalculationRunDetailsNewController(
     public async Task<IActionResult> Index(int runId)
     {
         var viewModel = await CreateViewModel(runId);
-        viewModel.BackLinkViewModel = new BackLinkViewModel
-        {
-            BackLink = string.Empty,
-            CurrentUser = CommonUtil.GetUserName(HttpContext)
-        };
+
         if (viewModel.CalculatorRunDetails == null || viewModel.CalculatorRunDetails.RunId <= 0)
             return RedirectToError();
 
@@ -44,12 +40,6 @@ public class CalculationRunDetailsNewController(
         if (!ModelState.IsValid)
         {
             var viewModel = await CreateViewModel(model.CalculatorRunDetails.RunId);
-            viewModel.BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = ControllerNames.ClassifyingCalculationRun,
-                RunId = model.CalculatorRunDetails.RunId,
-                CurrentUser = CommonUtil.GetUserName(HttpContext)
-            };
             return View(ViewNames.CalculationRunDetailsNewIndex, viewModel);
         }
 
@@ -65,7 +55,6 @@ public class CalculationRunDetailsNewController(
     {
         var viewModel = new CalculatorRunDetailsNewViewModel
         {
-            CurrentUser = CommonUtil.GetUserName(HttpContext),
             CalculatorRunDetails = new CalculatorRunDetailsViewModel()
         };
 

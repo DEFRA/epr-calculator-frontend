@@ -2,7 +2,7 @@
 @using EPR.Calculator.Frontend.Controllers;
 @model AcceptRejectConfirmationViewModel
 
-<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
+<vc:user-nav back-link="@Url.Action("Index", "BillingInstructions", new { runId = Model.CalculationRunId })"/>
 
 @{
     var approveDataHasError = ViewData.ModelState.ContainsKey(nameof(Model.ApproveData)) &&
@@ -14,12 +14,10 @@
     @using (Html.BeginForm(ActionNames.Submit, CommonUtil.GetControllerName(typeof(AcceptRejectConfirmationController)), FormMethod.Post))
     {
         @Html.AntiForgeryToken()
-        @Html.HiddenFor(m => m.CurrentUser)
         @Html.HiddenFor(m => m.CalculationRunId)
         @Html.HiddenFor(m => m.CalculationRunName)
         @Html.HiddenFor(m => m.Status)
         @Html.HiddenFor(m => m.Reason)
-        @Html.HiddenFor(m => m.BackLinkViewModel)
 
         <!-- Error Summary -->
         @if (ViewData.ModelState[$"Summary_{nameof(Model.ApproveData)}"]?.Errors.Count > 0)

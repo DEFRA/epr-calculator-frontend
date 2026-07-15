@@ -17,15 +17,7 @@ public class LocalAuthorityUploadFileErrorController : BaseController
         {
             var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors);
             var currentUser = CommonUtil.GetUserName(HttpContext);
-            var lapcapUploadViewModel = new LapcapUploadViewModel
-            {
-                CurrentUser = currentUser,
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = ControllerNames.LocalAuthorityUploadFile,
-                    CurrentUser = currentUser
-                }
-            };
+            var lapcapUploadViewModel = new LapcapUploadViewModel();
 
             if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
                 lapcapUploadViewModel.ValidationErrors = validationErrors;
@@ -63,16 +55,7 @@ public class LocalAuthorityUploadFileErrorController : BaseController
     public async Task<IActionResult> Upload(IFormFile fileUpload)
     {
         var lapcapFileErrors = CsvFileHelper.ValidateCSV(fileUpload);
-        var currentUser = CommonUtil.GetUserName(HttpContext);
-        var lapcapUploadViewModel = new LapcapUploadViewModel
-        {
-            CurrentUser = currentUser,
-            BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = ControllerNames.LocalAuthorityUploadFile,
-                CurrentUser = currentUser
-            }
-        };
+        var lapcapUploadViewModel = new LapcapUploadViewModel();
 
         if (lapcapFileErrors.ErrorMessage is not null)
         {

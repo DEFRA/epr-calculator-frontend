@@ -3,7 +3,7 @@ using EPR.Calculator.Frontend.Constants;
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record SendBillingFileViewModel : ViewModelCommonData
+public record SendBillingFileViewModel
 {
     public required int RunId { get; set; }
     public required string CalcRunName { get; set; }

@@ -11,18 +11,7 @@ public class ParameterUploadFileController : BaseController
 {
     public IActionResult Index()
     {
-        var currentUser = CommonUtil.GetUserName(HttpContext);
-        return View(
-            ViewNames.ParameterUploadFileIndex,
-            new ParameterUploadViewModel
-            {
-                CurrentUser = currentUser,
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = ControllerNames.ViewDefaultParameters,
-                    CurrentUser = currentUser
-                }
-            });
+        return View(ViewNames.ParameterUploadFileIndex, new ParameterUploadViewModel());
     }
 
     [HttpPost]
@@ -82,12 +71,7 @@ public class ParameterUploadFileController : BaseController
                 var viewModel = new ParameterRefreshViewModel
                 {
                     ParameterTemplateValues = schemeTemplateParameterValues,
-                    FileName = fileUpload.FileName,
-                    BackLinkViewModel = new BackLinkViewModel
-                    {
-                        BackLink = ControllerNames.ViewDefaultParameters,
-                        CurrentUser = CommonUtil.GetUserName(HttpContext)
-                    }
+                    FileName = fileUpload.FileName
                 };
                 return View(viewName, viewModel);
             }
@@ -110,12 +94,7 @@ public class ParameterUploadFileController : BaseController
         ModelState.Clear();
         return new ParameterUploadViewModel
         {
-            Errors = errors,
-            BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = ControllerNames.ViewDefaultParameters,
-                CurrentUser = CommonUtil.GetUserName(HttpContext)
-            }
+            Errors = errors
         };
     }
 

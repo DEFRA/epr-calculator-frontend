@@ -1,6 +1,6 @@
 ﻿namespace EPR.Calculator.Frontend.ViewModels;
 
-public record ConfirmationViewModel : ViewModelCommonData
+public record ConfirmationViewModel
 {
     public required string Title { get; set; }
     public string? SubmitText { get; set; }

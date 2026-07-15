@@ -29,18 +29,9 @@ public class RemoveClassificationController(
     [HttpGet]
     public async Task<IActionResult> Index(int runId)
     {
-        var currentUser = CommonUtil.GetUserName(HttpContext);
-
         var viewModel = new SetRunClassificationViewModel
         {
             CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-            CurrentUser = currentUser,
-            BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = GetBackLink(),
-                RunId = runId,
-                CurrentUser = currentUser
-            },
             ClassifyRunType = null
         };
 
@@ -93,14 +84,7 @@ public class RemoveClassificationController(
     {
         var viewModel = new SetRunClassificationViewModel
         {
-            CurrentUser = CommonUtil.GetUserName(HttpContext),
-            CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-            BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = ControllerNames.CalculationRunDetails,
-                RunId = runId,
-                CurrentUser = CommonUtil.GetUserName(HttpContext)
-            }
+            CalculatorRunDetails = new CalculatorRunDetailsViewModel()
         };
 
         var runDetails = await calculatorRunDetailsService.GetCalculatorRundetailsAsync(

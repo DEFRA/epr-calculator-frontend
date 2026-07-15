@@ -32,20 +32,11 @@ public class AcceptRejectConfirmationController(
         if (runDetails == null)
             return RedirectToError();
 
-        var currentUser = CommonUtil.GetUserName(HttpContext);
-
         var viewModel = new AcceptRejectConfirmationViewModel
         {
-            CurrentUser = currentUser,
             CalculationRunId = runId,
             CalculationRunName = runDetails.RunName,
-            Status = BillingStatus.Accepted,
-            BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = ControllerNames.BillingInstructionsController,
-                RunId = runId,
-                CurrentUser = currentUser
-            }
+            Status = BillingStatus.Accepted
         };
 
         return View(ViewNames.AcceptRejectConfirmationIndex, viewModel);
@@ -64,15 +55,6 @@ public class AcceptRejectConfirmationController(
     {
         if (!ModelState.IsValid)
         {
-            var currentUser = CommonUtil.GetUserName(HttpContext);
-
-            model.BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = ControllerNames.BillingInstructionsController,
-                RunId = model.CalculationRunId,
-                CurrentUser = currentUser
-            };
-
             if (ModelState.ContainsKey(nameof(model.ApproveData)) && ModelState[nameof(model.ApproveData)]?.Errors?.Any() == true)
                 ModelState.AddModelError($"Summary_{nameof(model.ApproveData)}", ErrorMessages.AcceptRejectConfirmationApproveDataRequiredSummary); // Summary message
 

@@ -30,15 +30,11 @@ public class SendBillingFileController(
         if (runDetails.IsBillingFileGeneratedLatest.HasValue && !runDetails.IsBillingFileGeneratedLatest.Value)
             return RedirectToError();
 
-        var currentUser = CommonUtil.GetUserName(HttpContext);
         var billingFileViewModel = new SendBillingFileViewModel
         {
             RunId = runId,
             CalcRunName = runDetails.RunName,
-            CurrentUser = currentUser
         };
-
-        billingFileViewModel.BackLinkViewModel = BacklinkModel(billingFileViewModel);
 
         return View(billingFileViewModel);
     }
@@ -47,8 +43,6 @@ public class SendBillingFileController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Submit(SendBillingFileViewModel viewModel)
     {
-        viewModel.BackLinkViewModel = BacklinkModel(viewModel);
-
         if (viewModel.ConfirmSend != true || !ModelState.IsValid)
             return View(ViewNames.SendBillingFileIndex, viewModel);
 
@@ -80,15 +74,5 @@ public class SendBillingFileController(
             HttpContext,
             HttpMethod.Post,
             $"v2/prepareBillingFileSendToFSS/{runId}");
-    }
-
-    private BackLinkViewModel BacklinkModel(SendBillingFileViewModel viewModel)
-    {
-        return new BackLinkViewModel
-        {
-            BackLink = ControllerNames.CalculationRunOverview,
-            RunId = viewModel.RunId,
-            CurrentUser = CommonUtil.GetUserName(HttpContext)
-        };
     }
 }

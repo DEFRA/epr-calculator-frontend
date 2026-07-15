@@ -3,7 +3,7 @@ using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record BillingInstructionsViewModel : ViewModelCommonData
+public record BillingInstructionsViewModel
 {
     public CalculationRunForBillingInstructionsDto CalculationRun { get; init; } = new();
     public int? OrganisationId { get; init; }

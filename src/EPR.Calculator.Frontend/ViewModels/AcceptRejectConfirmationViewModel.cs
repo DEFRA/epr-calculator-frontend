@@ -3,7 +3,7 @@ using EPR.Calculator.Frontend.Enums;
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record AcceptRejectConfirmationViewModel : ViewModelCommonData
+public record AcceptRejectConfirmationViewModel
 {
     public int CalculationRunId { get; set; }
     public string? CalculationRunName { get; set; }

@@ -3,7 +3,7 @@ using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record ParameterUploadViewModel : ViewModelCommonData
+public record ParameterUploadViewModel
 {
     public ErrorViewModel? Errors { get; set; }
     public List<CreateDefaultParameterSettingErrorDto>? ParamterErrors { get; set; }

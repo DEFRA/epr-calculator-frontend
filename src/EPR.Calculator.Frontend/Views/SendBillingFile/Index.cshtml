@@ -5,11 +5,13 @@
     var formGroupClass = "govuk-form-group" + (hasError ? " govuk-form-group--error" : "");
 }
 
-<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
+<vc:user-nav back-link="@Url.Action("Index", "DesignatedRunWithBillingFile", new { runId = Model.RunId })"/>
+
 @if (!Model.IsBillingFileLatest)
 {
-    <partial name="_BillingInstructionsPartial" model="Model.BackLinkViewModel" />
+    <partial name="_BillingInstructionsPartial" model="Url.Action(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId = Model.RunId })" />
 }
+
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -37,10 +39,8 @@
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.SendBillingFile, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-                @Html.HiddenFor(m => m.CurrentUser)
                 @Html.HiddenFor(m => m.CalcRunName)
                 @Html.HiddenFor(m => m.RunId)
-                @Html.HiddenFor(m => m.BackLinkViewModel)                
 
                 <span class="govuk-caption-l">@Model.CalcRunName</span>
                 <h1 class="govuk-heading-l">@Model.SendBillFileHeading</h1>
@@ -64,7 +64,7 @@
                         }
 
                         <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-                            <div class="govuk-checkboxes__item">                                
+                            <div class="govuk-checkboxes__item">
                                 <input type="checkbox" class="govuk-checkboxes__input" id="ConfirmSend" name="ConfirmSend" value="true" @(Model.ConfirmSend == true ? "checked" : "") />
                                 <label class="govuk-label govuk-checkboxes__label" for="ConfirmSend">
                                     I’ve checked the billing file and I’m ready to send it to the FSS.

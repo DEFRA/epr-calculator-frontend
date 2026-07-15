@@ -1,17 +1,17 @@
-﻿@using EPR.Calculator.Frontend.ViewModels.Enums
-@using Microsoft.AspNetCore.Http
+@using EPR.Calculator.Frontend.ViewModels.Enums
 @using EPR.Calculator.Frontend.Helpers
 @using EPR.Calculator.Frontend.Extensions
-@inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunDetailsNewViewModel
 @{
     ViewData["Title"] = "Index";
-    CalculatorRunDetailsViewModel? calcDetails = Model.CalculatorRunDetails;
+    var calcDetails = Model.CalculatorRunDetails;
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
-<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
+
+<vc:user-nav back-link="@Url.Action("Index", "Dashboard")"/>
+
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row calculator-details">
         <div class="govuk-grid-column-two-thirds">
@@ -20,7 +20,6 @@
                 @Html.AntiForgeryToken()
 
                 @Html.HiddenFor(m => m.CalculatorRunDetails.RunId)
-                @Html.HiddenFor(m => m.CurrentUser)
 
                 <partial name="_ValidationSummaryPartial" />
 

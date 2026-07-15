@@ -20,20 +20,12 @@ public class ReasonForRejectionController(
     {
         var runDetails = await calculatorRunDetailsService
             .GetCalculatorRundetailsAsync(HttpContext, runId);
-        var currentUser = CommonUtil.GetUserName(HttpContext);
         var viewModel = new AcceptRejectConfirmationViewModel
         {
-            CurrentUser = currentUser,
             CalculationRunId = runId,
             CalculationRunName = runDetails.RunName,
             Reason = TempData[nameof(AcceptRejectConfirmationViewModel.Reason)]?.ToString() ?? string.Empty,
-            Status = BillingStatus.Rejected,
-            BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = ControllerNames.BillingInstructionsController,
-                RunId = runId,
-                CurrentUser = currentUser
-            }
+            Status = BillingStatus.Rejected
         };
 
         return View(ViewNames.ReasonForRejectionIndex, viewModel);
@@ -47,22 +39,10 @@ public class ReasonForRejectionController(
         if (string.IsNullOrEmpty(model.Reason))
         {
             ModelState.Remove("Reason");
-            model.BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = ControllerNames.BillingInstructionsController,
-                RunId = runId,
-                CurrentUser = CommonUtil.GetUserName(HttpContext)
-            };
             return View(ViewNames.ReasonForRejectionIndex, model);
         }
 
         ModelState.Clear();
-        model.BackLinkViewModel = new BackLinkViewModel
-        {
-            BackLink = ControllerNames.ReasonForRejectionController,
-            RunId = runId,
-            CurrentUser = CommonUtil.GetUserName(HttpContext)
-        };
         TempData[nameof(model.Reason)] = model.Reason;
         return View(ViewNames.AcceptRejectConfirmationIndex, model);
     }

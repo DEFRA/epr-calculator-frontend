@@ -4,7 +4,7 @@ using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record SetRunClassificationViewModel : ViewModelCommonData
+public record SetRunClassificationViewModel
 {
     public required CalculatorRunDetailsViewModel CalculatorRunDetails { get; set; }
 

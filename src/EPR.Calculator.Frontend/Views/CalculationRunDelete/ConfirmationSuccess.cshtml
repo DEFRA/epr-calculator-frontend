@@ -3,7 +3,8 @@
     ViewData["Title"] = "Confirmation Success";
 }
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
-    <partial name="_CurrentUserPartial" model="@Model.CurrentUser" />
+    <vc:user-nav show-back-link="false"/>
+
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <div class="govuk-panel govuk-panel--confirmation">
@@ -11,8 +12,8 @@
                     You have deleted calculation run @Model.CalculatorRunDetails.RunName
                 </h1>
             </div>
-            <br />
-            <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
+            <br/>
+            <a href="@Url.Action(ActionNames.Index, ControllerNames.Dashboard)" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
         </div>
     </div>
 </main>

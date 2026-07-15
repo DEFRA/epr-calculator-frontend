@@ -100,14 +100,7 @@ public class SetRunClassificationController(
     {
         var viewModel = new SetRunClassificationViewModel
         {
-            CurrentUser = CommonUtil.GetUserName(HttpContext),
-            CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-            BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = ControllerNames.CalculationRunDetails,
-                RunId = runId,
-                CurrentUser = CommonUtil.GetUserName(HttpContext)
-            }
+            CalculatorRunDetails = new CalculatorRunDetailsViewModel()
         };
 
         var runDetails = await calculatorRunDetailsService.GetCalculatorRundetailsAsync(

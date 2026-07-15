@@ -1,19 +1,13 @@
-﻿@inject IHttpContextAccessor HttpContextAccessor
-@using EPR.Calculator.Frontend.Extensions
+﻿@using EPR.Calculator.Frontend.Extensions
 @model PostBillingFileViewModel;
 @{
     ViewData["Title"] = "Index";
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
-@if (!Model.HideBackLink)
-{
-    <partial name="_BackLinkPartial" model="(@Model.BackLinkViewModel, @Model.CurrentUser)" />
-}
-else
-{
-    <partial name="_BackLinkUserInfoPartial" model="Model.CurrentUser" />
-}
+
+<vc:user-nav back-link="@Url.Action("Index", "Dashboard")"/>
+
 <div class="govuk-width-container ">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">

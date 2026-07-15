@@ -67,7 +67,6 @@ public class DashboardController(
         var relativeYears = await GetRelativeYearsAsync(relativeYear);
         var dashboardViewModel = new DashboardViewModel
         {
-            CurrentUser = CommonUtil.GetUserName(HttpContext),
             RelativeYear = relativeYear,
             Calculations = null,
             RelativeYearSelectList = relativeYears

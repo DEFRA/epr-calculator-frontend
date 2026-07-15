@@ -2,7 +2,7 @@
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record LapcapUploadViewModel : ViewModelCommonData
+public record LapcapUploadViewModel
 {
     public List<CreateLapcapDataErrorDto>? LapcapErrors { get; set; }
     public List<ValidationErrorDto>? ValidationErrors { get; set; }

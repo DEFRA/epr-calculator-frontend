@@ -48,23 +48,15 @@ public class DesignatedRunController(
 
     private async Task<ClassifyRunConfirmationViewModel> CreateViewModel(int runId)
     {
-        var currentUser = CommonUtil.GetUserName(HttpContext);
-
         var viewModel = new ClassifyRunConfirmationViewModel
         {
-            CurrentUser = currentUser,
-            CalculatorRunDetails = new CalculatorRunDetailsViewModel(),
-            BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = string.Empty,
-                CurrentUser = currentUser,
-                HideBackLink = GetBackLink() != ControllerNames.Dashboard
-            }
+            CalculatorRunDetails = new CalculatorRunDetailsViewModel()
         };
 
         var runDetails = await calculatorRunDetailsService.GetCalculatorRundetailsAsync(
             HttpContext,
             runId);
+
         if (runDetails != null && runDetails!.RunId != 0)
             viewModel.CalculatorRunDetails = runDetails;
 

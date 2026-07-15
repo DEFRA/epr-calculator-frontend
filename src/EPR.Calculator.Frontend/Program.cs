@@ -80,6 +80,10 @@ builder.Services
             Location = ResponseCacheLocation.None
         });
     })
+    .AddRazorOptions(options =>
+    {
+        options.ViewLocationFormats.Add("/{0}.cshtml");
+    })
     .AddMicrosoftIdentityUI();
 
 builder.Services.AddHttpContextAccessor();

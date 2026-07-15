@@ -26,23 +26,15 @@ public class DefaultParametersController(
     public async Task<IActionResult> Index()
     {
         var relativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth);
-        var currentUser = CommonUtil.GetUserName(HttpContext);
-
         var response = await GetDefaultParametersAsync(relativeYear);
 
         if (response.IsSuccessStatusCode)
         {
             var viewModel = new DefaultParametersViewModel
             {
-                CurrentUser = currentUser,
                 LastUpdatedBy = CommonUtil.GetUserName(HttpContext),
                 SchemeParameters = new List<SchemeParametersViewModel>(),
-                LateReportingTonnageParams = new List<DefaultSchemeParametersLateReportingTonnage>(),
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = string.Empty,
-                    CurrentUser = currentUser
-                }
+                LateReportingTonnageParams = new List<DefaultSchemeParametersLateReportingTonnage>()
             };
             var data = await response.Content.ReadAsStringAsync();
             var defaultSchemeParameters = await response.Content.ReadFromJsonAsync<List<DefaultSchemeParameters>>() ?? new List<DefaultSchemeParameters>();
@@ -63,14 +55,8 @@ public class DefaultParametersController(
         {
             return View(new DefaultParametersViewModel
             {
-                CurrentUser = currentUser,
                 LastUpdatedBy = string.Empty,
-                IsDataAvailable = false,
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = string.Empty,
-                    CurrentUser = currentUser
-                }
+                IsDataAvailable = false
             });
         }
 

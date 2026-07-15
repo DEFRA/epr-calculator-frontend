@@ -3,7 +3,7 @@ using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record LocalAuthorityViewModel : ViewModelCommonData
+public record LocalAuthorityViewModel
 {
     public required string LastUpdatedBy { get; init; }
     public required List<IGrouping<string, LocalAuthorityData>>? ByCountry { get; init; }
