@@ -28,6 +28,7 @@ public class LocalAuthorityDisposalCostsController(
     public async Task<IActionResult> Index()
     {
         var relativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth);
+
         var response = await GetLapcapDataAsync(relativeYear);
 
         if (response.IsSuccessStatusCode)
@@ -63,7 +64,6 @@ public class LocalAuthorityDisposalCostsController(
     private async Task<HttpResponseMessage> GetLapcapDataAsync(RelativeYear relativeYear)
     {
         return await eprCalculatorApiService.CallApi(
-            HttpContext,
             HttpMethod.Get,
             $"v1/lapcapData/{relativeYear}");
     }

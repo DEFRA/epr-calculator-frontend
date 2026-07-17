@@ -4,7 +4,6 @@
 @model CalculatorRunDetailsNewViewModel
 @{
     ViewData["Title"] = "Index";
-    var calcDetails = Model.CalculatorRunDetails;
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -19,14 +18,14 @@
             {
                 @Html.AntiForgeryToken()
 
-                @Html.HiddenFor(m => m.CalculatorRunDetails.RunId)
+                @Html.HiddenFor(m => m.RunId)
 
                 <partial name="_ValidationSummaryPartial" />
 
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset">
                         <legend class="govuk-caption-l">
-                            @calcDetails.RunName
+                            @Model.RunName
                         </legend>
                         <h1 class="govuk-heading-l">Calculation run details</h1>
                         <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
@@ -39,19 +38,19 @@
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@calcDetails.RelativeYear.ToFinancialYear()</td>
+                                    <td class="govuk-table__cell">@Model.RelativeYear.ToFinancialYear()</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                    <td class="govuk-table__cell">@calcDetails.RunId</td>
+                                    <td class="govuk-table__cell">@Model.RunId</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@calcDetails.CreatedAt.ToUKDateTimeDisplay()</td>
+                                    <td class="govuk-table__cell">@Model.CreatedAt.ToUKDateTimeDisplay()</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run by</th>
-                                    <td class="govuk-table__cell">@calcDetails.CreatedBy</td>
+                                    <td class="govuk-table__cell">@Model.CreatedBy</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -62,7 +61,7 @@
                         <a class="govuk-button govuk-button--secondary"
                            role="button"
                            draggable="false"
-                           href="@Url.Action(ActionNames.DownloadResultFile,ControllerNames.FileDownloadController, new { runId = Model.CalculatorRunDetails.RunId })">
+                           href="@Url.Action(ActionNames.DownloadResultFile,ControllerNames.FileDownloadController, new { runId = Model.RunId })">
                             Results file
                         </a>
 

@@ -1,4 +1,4 @@
-﻿@model SendBillingFileViewModel
+@model SendBillingFileViewModel
 
 @{
     var hasError = ViewData.ModelState["ConfirmSend"]?.Errors.Any() == true;
@@ -9,7 +9,7 @@
 
 @if (!Model.IsBillingFileLatest)
 {
-    <partial name="_BillingInstructionsPartial" model="Url.Action(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId = Model.RunId })" />
+    <partial name="_BillingInstructionsPartial" model="@Url.Action(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId = Model.RunId })" />
 }
 
 <div class="govuk-width-container">
@@ -39,7 +39,6 @@
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.SendBillingFile, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-                @Html.HiddenFor(m => m.CalcRunName)
                 @Html.HiddenFor(m => m.RunId)
 
                 <span class="govuk-caption-l">@Model.CalcRunName</span>

@@ -87,7 +87,7 @@
 @{
     // Calculate page block display
     int blockSize  = Model.TablePaginationModel.BlockSize;
-    int blockStart = ((Model.TablePaginationModel.CurrentPage - 1) / blockSize) * blockSize + 1;
+    int blockStart = ((Model.TablePaginationModel.Page - 1) / blockSize) * blockSize + 1;
     int blockEnd   = Math.Min(blockStart + blockSize - 1, Model.TablePaginationModel.TotalPages);
 
     if (blockEnd == Model.TablePaginationModel.TotalPages)
@@ -116,10 +116,10 @@
     <div style="display: flex; align-items: center; gap: 10px;">
         <ul class="govuk-pagination__list">
             @* Previous link *@
-            @if (Model.TablePaginationModel.CurrentPage > 1)
+            @if (Model.TablePaginationModel.Page > 1)
             {
                 <li class="govuk-pagination__item govuk-pagination__item--prev">
-                    <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: Model.TablePaginationModel.CurrentPage - 1))" rel="prev" aria-label="Previous page">
+                    <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: Model.TablePaginationModel.Page - 1))" rel="prev" aria-label="Previous page">
                         <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" width="15" height="13" viewBox="0 0 15 13" aria-hidden="true" focusable="false">
                             <path d="M6.893 0 8.307 1.414 4.014 5.707H17v2H4.1l4.185 3.977-1.377 1.449L0.164 6.727 6.893 0z" />
                         </svg>
@@ -143,8 +143,8 @@
             @* Pages in the block *@
             @for (int i = blockStart; i <= blockEnd; i++)
             {
-                <li class="govuk-pagination__item @(Model.TablePaginationModel.CurrentPage == i ? "govuk-pagination__item--current" : "")" @(Model.TablePaginationModel.CurrentPage == i ? "aria-current=\"page\"" : "") style="text-decoration: underline;">
-                    @if (Model.TablePaginationModel.CurrentPage == i)
+                <li class="govuk-pagination__item @(Model.TablePaginationModel.Page == i ? "govuk-pagination__item--current" : "")" @(Model.TablePaginationModel.Page == i ? "aria-current=\"page\"" : "") style="text-decoration: underline;">
+                    @if (Model.TablePaginationModel.Page == i)
                     {
                         @i
                     }
@@ -169,11 +169,11 @@
             }
 
             @* Next link *@
-            @if (Model.TablePaginationModel.CurrentPage < Model.TablePaginationModel.TotalPages)
+            @if (Model.TablePaginationModel.Page < Model.TablePaginationModel.TotalPages)
             {
                 <li class="govuk-pagination__item govuk-pagination__item--next">
                     <a class="govuk-link govuk-pagination__link"
-                       href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: Model.TablePaginationModel.CurrentPage + 1))"
+                       href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: Model.TablePaginationModel.Page + 1))"
                        rel="next"
                        aria-label="Next page">
                         <strong class="govuk-pagination__link-title">Next</strong>

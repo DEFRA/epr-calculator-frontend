@@ -1,10 +1,9 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SessionExtensions = EPR.Calculator.Frontend.Extensions.SessionExtensions;
@@ -14,8 +13,7 @@ namespace EPR.Calculator.Frontend.Controllers;
 [Route("/")]
 public class DashboardController(
     IConfiguration configuration,
-    IEprCalculatorApiService eprCalculatorApiService,
-    TelemetryClient telemetryClient)
+    IEprCalculatorApiService eprCalculatorApiService)
     : BaseController
 {
     private readonly int relativeYearStartingMonth = CommonUtil.GetRelativeYearStartingMonth(configuration);
@@ -64,59 +62,40 @@ public class DashboardController(
     {
         HttpContext.Session.SetInt32(SessionConstants.RelativeYear, relativeYear.Value);
 
-        var relativeYears = await GetRelativeYearsAsync(relativeYear);
         var dashboardViewModel = new DashboardViewModel
         {
             RelativeYear = relativeYear,
-            Calculations = null,
-            RelativeYearSelectList = relativeYears
+            RelativeYearSelectList = await GetRelativeYearsAsync(relativeYear),
+            Calculations = await FindCalculatorRunsAsync(relativeYear)
         };
-
-        using var response = await PostCalculatorRunsAsync(relativeYear);
-        if (response.IsSuccessStatusCode)
-        {
-            var deserializedRuns =
-                await response.Content.ReadFromJsonAsync<List<CalculationRun>>();
-
-            // Ensure deserializedRuns is not null
-            var calculationRuns = deserializedRuns ?? new List<CalculationRun>();
-            var dashboardRunData = DashboardHelper.GetCalulationRunsData(calculationRuns);
-            dashboardViewModel.Calculations = dashboardRunData;
-        }
 
         return dashboardViewModel;
     }
 
-    /// <summary>
-    ///     Calls the "calculatorRuns" POST endpoint.
-    /// </summary>
-    /// <returns>The response message returned by the endpoint.</returns>
-    private async Task<HttpResponseMessage> PostCalculatorRunsAsync(RelativeYear relativeYear)
+    private async Task<List<CalculationRunViewModel>> FindCalculatorRunsAsync(RelativeYear relativeYear)
     {
-        return await eprCalculatorApiService.CallApi(
-            HttpContext,
-            HttpMethod.Post,
-            "v1/calculatorRuns",
-            body: new { RelativeYear = relativeYear });
+        var runs = await eprCalculatorApiService.FindCalculatorRuns(relativeYear);
+
+        return runs
+            .Where(x => x.RunClassification
+                is not RunClassification.DELETED
+                and not RunClassification.QUEUE)
+            .Select(run => new CalculationRunViewModel
+            {
+                RunId = run.RunId,
+                RunName = run.RunName,
+                CreatedAt = run.CreatedAt,
+                CreatedBy = run.CreatedBy,
+                RunClassification = run.RunClassification,
+                BillingRunStatus = run.BillingRunStatus
+            })
+            .ToList();
     }
 
     private async Task<List<SelectListItem>> GetRelativeYearsAsync(RelativeYear selectedRelativeYear)
     {
-        var response = await eprCalculatorApiService.CallApi(
-            HttpContext,
-            HttpMethod.Get,
-            "v1/RelativeYears");
-
-        if (!response.IsSuccessStatusCode)
-        {
-            telemetryClient.TrackTrace("Unable to fetch relative years from API", SeverityLevel.Error);
-            throw new InvalidOperationException("Failed to fetch relative years.");
-        }
-
-        var relativeYearsList = await response.Content.ReadFromJsonAsync<List<int>>() ?? new List<int>();
-        var relativeYears = GetFilteredRelativeYears(
-            relativeYearsList.Select(year => new RelativeYear(year)).ToList(),
-            relativeYearStartingMonth);
+        var relativeYears = await eprCalculatorApiService.FindRelativeYears();
+        relativeYears = GetFilteredRelativeYears(relativeYears, relativeYearStartingMonth);
 
         // Ensure current year is first
         var currentYear = CommonUtil.GetDefaultRelativeYear(DateTime.UtcNow, relativeYearStartingMonth);

@@ -1,18 +1,15 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
-[Authorize(Roles = "SASuperUser")]
 public class LocalAuthorityConfirmationController : BaseController
 {
     /// <summary>
     ///     Displays the Local Authority parameter confirmation view.
     /// </summary>
     /// <returns>The Local Authority parameter confirmation view.</returns>
-    [Authorize(Roles = "SASuperUser")]
     public IActionResult Index()
     {
         // Create a view model for parameter confirmation

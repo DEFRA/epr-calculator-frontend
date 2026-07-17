@@ -3,13 +3,9 @@ using EPR.Calculator.Frontend.Enums;
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record AcceptRejectConfirmationViewModel
+public record AcceptRejectConfirmationViewModel : AcceptRejectConfirmationFormModel
 {
-    public int CalculationRunId { get; set; }
-    public string? CalculationRunName { get; set; }
-    public required BillingStatus Status { get; set; }
-    public bool? ApproveData { get; set; }
-    public string? Reason { get; set; }
+    public required string RunName { get; init; }
 
     public string AcceptRejectConfirmationText => Status switch
     {
@@ -17,4 +13,20 @@ public record AcceptRejectConfirmationViewModel
         BillingStatus.Rejected => CommonConstants.RejectViewText,
         _ => string.Empty
     };
+}
+
+// Validated by FluentValidation
+public record AcceptRejectConfirmationFormModel
+{
+    public required int RunId { get; init; }
+    public BillingStatus? Status { get; init; }
+    public bool? ApproveData { get; init; }
+    public string? Reason { get; init; }
+}
+
+// Validated by FluentValidation
+public record ReasonForRejectionFormModel
+{
+    public required int RunId { get; init; }
+    public string? Reason { get; init; }
 }

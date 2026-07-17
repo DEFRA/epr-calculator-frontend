@@ -1,13 +1,11 @@
-﻿@using EPR.Calculator.Frontend.Helpers
 @using EPR.Calculator.Frontend.Extensions
+@using EPR.Calculator.Frontend.Helpers
 @model SetRunClassificationViewModel
-@{
-    var calcDetails = Model.CalculatorRunDetails;
-}
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
 
-<vc:user-nav back-link="@Url.Action("Index", "CalculationRunDetailsNew", new { runId = Model.CalculatorRunDetails.RunId })"/>
+<vc:user-nav back-link="@Url.Action("Index", "CalculationRunDetailsNew", new { runId = Model.RunId })"/>
 
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
 
@@ -16,14 +14,14 @@
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.ClassifyingCalculationRun, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-                @Html.HiddenFor(m => m.CalculatorRunDetails.RunId)
+                @Html.HiddenFor(m => m.RunId)
 
                 <partial name="_ValidationSummaryPartial" />
 
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
                         <legend></legend>
-                        <span id="approval-code-hint" class="govuk-caption-l">@calcDetails.RunName</span>
+                        <span id="approval-code-hint" class="govuk-caption-l">@Model.RunName</span>
                         <h1 class="govuk-heading-l">Classify calculation run</h1>
 
                         <table class="govuk-table" aria-describedby="table-description-calc">
@@ -33,15 +31,15 @@
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@calcDetails.RelativeYear.ToFinancialYear()</td>
+                                    <td class="govuk-table__cell">@Model.RelativeYear.ToFinancialYear()</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                    <td class="govuk-table__cell">@calcDetails.RunId</td>
+                                    <td class="govuk-table__cell">@Model.RunId</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@calcDetails.CreatedAt.ToUKDateTimeDisplay()</td>
+                                    <td class="govuk-table__cell">@Model.CreatedAt.ToUKDateTimeDisplay()</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -54,7 +52,7 @@
                                 @Html.ValidationMessageFor(model => model.ClassifyRunType, "", new { @class = "govuk-error-message" })
 
                                 <div class="govuk-radios" data-module="govuk-radios">
-                                    @if(Model.RelativeYearClassifications?.Classifications != null && Model.RelativeYearClassifications.Classifications.Any())
+                                    @if(Model.RelativeYearClassifications.Classifications.Any())
                                     {
                                         @foreach (CalculatorRunClassificationDto classfication in Model.RelativeYearClassifications.Classifications)
                                         {

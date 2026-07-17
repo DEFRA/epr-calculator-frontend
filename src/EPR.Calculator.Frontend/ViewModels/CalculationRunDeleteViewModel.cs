@@ -1,8 +1,13 @@
-﻿using EPR.Calculator.Frontend.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record CalculationRunDeleteViewModel
+public record CalculationRunDeleteViewModel : CalculationRunDeleteFormModel
 {
-    public required CalculatorRunStatusUpdateDto CalculatorRunStatusData { get; init; }
+    public required string RunName { get; init; }
+}
+
+public record CalculationRunDeleteFormModel
+{
+    [Range(1, int.MaxValue)] public required int RunId { get; init; }
 }

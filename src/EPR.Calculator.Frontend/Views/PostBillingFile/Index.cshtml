@@ -1,4 +1,4 @@
-﻿@using EPR.Calculator.Frontend.Extensions
+@using EPR.Calculator.Frontend.Extensions
 @model PostBillingFileViewModel;
 @{
     ViewData["Title"] = "Index";
@@ -26,7 +26,7 @@
                             </tr>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Classification</th>
-                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.RunClassificationId.GetDisplayName()</td>
+                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.RunClassification.GetDisplayName()</td>
                             </tr>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Calculation ID</th>
@@ -38,7 +38,7 @@
                             </tr>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Billing file sent</th>
-                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.BillingFileAuthorisedDate?.ToUKDateTimeDisplay()</td>
+                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.BillingFile!.SentAt!.Value.ToUKDateTimeDisplay()</td>
                             </tr>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Run by</th>
@@ -46,7 +46,7 @@
                             </tr>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Sent by</th>
-                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.BillingFileAuthorisedBy</td>
+                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.BillingFile!.SentBy</td>
                             </tr>
                         </tbody>
                     </table>
@@ -64,10 +64,7 @@
                         <a class="govuk-button govuk-button--secondary"
                            role="button"
                            draggable="false"
-                           href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController,
-                            new { runId = Model.CalculatorRunStatus.RunId,
-                                isBillingFile= @CommonConstants.IsBillingFileTrue,
-                                isDraftBillingFile=@CommonConstants.IsDraftFileFalse })">
+                           href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController, new { runId = Model.CalculatorRunStatus.RunId })">
                             Billing file
                         </a>
                     </div>

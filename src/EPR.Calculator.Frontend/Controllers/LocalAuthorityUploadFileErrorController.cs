@@ -1,4 +1,4 @@
-﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -16,7 +16,6 @@ public class LocalAuthorityUploadFileErrorController : BaseController
         if (!string.IsNullOrEmpty(lapcapErrors))
         {
             var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors);
-            var currentUser = CommonUtil.GetUserName(HttpContext);
             var lapcapUploadViewModel = new LapcapUploadViewModel();
 
             if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)

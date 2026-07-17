@@ -5,56 +5,52 @@ using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
-/// <summary>
-///     Controller for sending billing files.
-/// </summary>
 [Route("[controller]")]
 public class SendBillingFileController(
     TelemetryClient telemetryClient,
-    IEprCalculatorApiService eprCalculatorApiService,
-    ICalculatorRunDetailsService calculatorRunDetailsService)
+    IEprCalculatorApiService eprCalculatorApiService)
     : BaseController
 {
-    [Route("{runId}")]
+    [Route("{runId:int}")]
     public async Task<IActionResult> Index(int runId)
     {
-        var runDetails = await calculatorRunDetailsService.GetCalculatorRundetailsAsync(
-            HttpContext,
-            runId);
-        if (runDetails == null || runDetails.RunName == null)
+        var viewModel = await CreateViewModel(runId);
+
+        if (viewModel is not { IsBillingFileLatest: true })
             return RedirectToError();
 
-        if (runDetails.IsBillingFileGeneratedLatest.HasValue && !runDetails.IsBillingFileGeneratedLatest.Value)
-            return RedirectToError();
-
-        var billingFileViewModel = new SendBillingFileViewModel
-        {
-            RunId = runId,
-            CalcRunName = runDetails.RunName,
-        };
-
-        return View(billingFileViewModel);
+        return View(ViewNames.SendBillingFileIndex, viewModel);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Submit(SendBillingFileViewModel viewModel)
+    public async Task<IActionResult> Submit(SendBillingFileFormModel model)
     {
-        if (viewModel.ConfirmSend != true || !ModelState.IsValid)
-            return View(ViewNames.SendBillingFileIndex, viewModel);
+        if (!ModelState.IsValid)
+        {
+            if (ModelState[nameof(model.RunId)] is { ValidationState: ModelValidationState.Invalid })
+                return RedirectToError();
 
-        var response = await PrepareBillingFileSendToFSSAsync(viewModel.RunId);
+            return await Index(model.RunId);
+        }
+
+        var response = await eprCalculatorApiService.CallApi(HttpMethod.Post, $"v2/prepareBillingFileSendToFSS/{model.RunId}");
 
         if (response.StatusCode == HttpStatusCode.Accepted)
             return RedirectToAction(ActionNames.BillingFileSuccess, CommonUtil.GetControllerName(typeof(BillingInstructionsController)));
 
         if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
         {
-            viewModel.IsBillingFileLatest = false;
-            return View(ActionNames.Index, viewModel);
+            var viewModel = await CreateViewModel(model.RunId);
+
+            if (viewModel == null)
+                return RedirectToError();
+
+            return View(ActionNames.Index, viewModel with { IsBillingFileLatest = false });
         }
 
         telemetryClient.TrackTrace($"1.Request (send billing file) not accepted response code:{response.StatusCode}");
@@ -63,16 +59,18 @@ public class SendBillingFileController(
         return RedirectToError();
     }
 
-    /// <summary>
-    ///     Calls the "prepareBillingFileSendToFSS" POST endpoint.
-    /// </summary>
-    /// <param name="runId">The runId parameter to be used as url parameter.</param>
-    /// <returns>The response message returned by the endpoint.</returns>
-    private async Task<HttpResponseMessage> PrepareBillingFileSendToFSSAsync(int runId)
+    private async Task<SendBillingFileViewModel?> CreateViewModel(int runId)
     {
-        return await eprCalculatorApiService.CallApi(
-            HttpContext,
-            HttpMethod.Post,
-            $"v2/prepareBillingFileSendToFSS/{runId}");
+        var runDto = await eprCalculatorApiService.GetCalculatorRun(runId);
+
+        if (runDto == null)
+            return null;
+
+        return new SendBillingFileViewModel
+        {
+            RunId = runId,
+            CalcRunName = runDto.RunName,
+            IsBillingFileLatest = runDto.BillingFile?.IsLatest == true
+        };
     }
 }

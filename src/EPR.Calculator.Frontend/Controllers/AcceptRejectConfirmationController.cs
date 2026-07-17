@@ -6,84 +6,97 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
 [Route("[controller]")]
 public class AcceptRejectConfirmationController(
     IEprCalculatorApiService eprCalculatorApiService,
-    ICalculatorRunDetailsService calculatorRunDetailsService)
+    ILogger<AcceptRejectConfirmationController> logger)
     : BaseController
 {
-    /// <summary>
-    ///     Displays the accept reject confirmation controller index view.
-    /// </summary>
-    /// <param name="runId">The ID of the calculation run.</param>
-    /// <returns>accept reject confirmation index view.</returns>
-    [Route("{runId}")]
+    [Route("{runId:int}")]
     public async Task<IActionResult> IndexAsync(int runId)
     {
-        if (runId <= 0)
+        var viewModel = await CreateViewModel(runId, BillingStatus.Accepted, null);
+
+        if (viewModel == null)
             return RedirectToError();
-
-        var runDetails = await calculatorRunDetailsService
-            .GetCalculatorRundetailsAsync(HttpContext, runId);
-
-        if (runDetails == null)
-            return RedirectToError();
-
-        var viewModel = new AcceptRejectConfirmationViewModel
-        {
-            CalculationRunId = runId,
-            CalculationRunName = runDetails.RunName,
-            Status = BillingStatus.Accepted
-        };
 
         return View(ViewNames.AcceptRejectConfirmationIndex, viewModel);
     }
 
-    /// <summary>
-    ///     Handles the submission of accept all selected yes or no billing instructions.
-    /// </summary>
-    /// <param name="model">The accept reject confirmation view model.</param>
-    /// <returns>
-    ///     A redirection to the organisation view on selection of yes or no.
-    /// </returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Submit(AcceptRejectConfirmationViewModel model)
+    public async Task<IActionResult> Submit(AcceptRejectConfirmationFormModel model)
     {
         if (!ModelState.IsValid)
         {
-            if (ModelState.ContainsKey(nameof(model.ApproveData)) && ModelState[nameof(model.ApproveData)]?.Errors?.Any() == true)
+            if (ModelState[nameof(model.RunId)] is { ValidationState: ModelValidationState.Invalid })
+                return RedirectToError();
+
+            if (ModelState[nameof(model.ApproveData)] is { ValidationState: ModelValidationState.Invalid })
                 ModelState.AddModelError($"Summary_{nameof(model.ApproveData)}", ErrorMessages.AcceptRejectConfirmationApproveDataRequiredSummary); // Summary message
 
-            // Return the same view with the model so errors display
-            return View(ViewNames.AcceptRejectConfirmationIndex, model);
+            // Redisplay preserving the posted Status/Reason so the Reject flow doesn't fall back to Accept.
+            var redisplay = await CreateViewModel(
+                model.RunId,
+                model.Status ?? BillingStatus.Accepted,
+                model.Reason);
+
+            if (redisplay == null)
+                return RedirectToError();
+
+            return View(ViewNames.AcceptRejectConfirmationIndex, redisplay);
         }
 
-        if (model.ApproveData is false)
-            return RedirectToAction(ActionNames.Index, ControllerNames.BillingInstructionsController, new { runId = model.CalculationRunId });
-
-        var requestDto = new ProducerBillingInstructionsHttpPutRequestDto
+        if (model.ApproveData is true)
         {
-            OrganisationIds = ARJourneySessionHelper.GetFromSession(HttpContext.Session),
-            Status = model.Status.ToString(),
-            ReasonForRejection = model.Reason
+            var requestDto = new ProducerBillingInstructionsHttpPutRequestDto
+            {
+                OrganisationIds = ARJourneySessionHelper.GetFromSession(HttpContext.Session),
+                Status = model.Status!.Value.ToString(),
+                ReasonForRejection = model.Reason
+            };
+
+            try
+            {
+                var response = await eprCalculatorApiService.CallApi(
+                    HttpMethod.Put,
+                    $"v2/producerBillingInstructions/{model.RunId}",
+                    body: requestDto);
+
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException ex)
+            {
+                logger.LogError(ex, "Error updating producer billing instructions for run {RunId}", model.RunId);
+                return RedirectToError();
+            }
+
+            HttpContext.Session.ClearAllSession();
+        }
+
+        return RedirectToAction("Index", "BillingInstructions", new { model.RunId });
+    }
+
+    private async Task<AcceptRejectConfirmationViewModel?> CreateViewModel(int runId, BillingStatus status, string? reason)
+    {
+        var run = await eprCalculatorApiService.GetCalculatorRun(runId);
+
+        if (run == null)
+        {
+            logger.LogInformation("Calculator run {RunId} was not found; redirecting to error page", runId);
+            return null;
+        }
+
+        return new AcceptRejectConfirmationViewModel
+        {
+            RunId = runId,
+            RunName = run.RunName,
+            Status = status,
+            Reason = reason
         };
-
-        var response = await eprCalculatorApiService.CallApi(
-            HttpContext,
-            HttpMethod.Put,
-            $"v2/producerBillingInstructions/{model.CalculationRunId}",
-            body: requestDto);
-
-        response.EnsureSuccessStatusCode();
-
-        ARJourneySessionHelper.ClearAllFromSession(HttpContext.Session);
-        HttpContext.Session.RemoveKeyIfExists(SessionConstants.IsSelectAll);
-        HttpContext.Session.RemoveKeyIfExists(SessionConstants.IsSelectAllPage);
-
-        return RedirectToAction(ActionNames.Index, ControllerNames.BillingInstructionsController, new { runId = model.CalculationRunId });
     }
 }

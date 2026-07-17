@@ -23,7 +23,7 @@ public class LocalAuthorityUploadFileProcessingController(
             lapcapRefreshViewModel,
             CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth)));
 
-        if (response.IsSuccessStatusCode && response.StatusCode == HttpStatusCode.Created)
+        if (response is { IsSuccessStatusCode: true, StatusCode: HttpStatusCode.Created })
             return Ok(response);
 
         telemetryClient.TrackTrace($"2.File name before BadRequest :{lapcapRefreshViewModel.FileName}");
@@ -39,7 +39,6 @@ public class LocalAuthorityUploadFileProcessingController(
     private async Task<HttpResponseMessage> PostLapcapDataAsync(CreateLapcapDataDto dto)
     {
         return await eprCalculatorApiService.CallApi(
-            HttpContext,
             HttpMethod.Post,
             "v1/lapcapData",
             body: dto);

@@ -68,27 +68,12 @@
         /// <summary>
         /// File Download Controller.
         /// </summary>
-        public const string DownloadFileErrorNewController = "DownloadFileErrorNew";
-
-        /// <summary>
-        /// File Download Controller.
-        /// </summary>
         public const string FileDownloadController = "FileDownload";
-
-        /// <summary>
-        /// View default parameters controller.
-        /// </summary>
-        public const string ViewDefaultParameters = "ViewDefaultParameters";
 
         /// <summary>
         /// Local Authority upload file controller.
         /// </summary>
         public const string LocalAuthorityUploadFile = "LocalAuthorityUploadFile";
-
-        /// <summary>
-        /// View Local Authority disposal costs controller.
-        /// </summary>
-        public const string ViewLocalAuthorityDisposalCosts = "ViewLocalAuthorityDisposalCosts";
 
         /// <summary>
         /// Parameter upload file controller.

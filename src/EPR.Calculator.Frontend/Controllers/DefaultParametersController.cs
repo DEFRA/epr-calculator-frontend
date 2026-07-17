@@ -26,6 +26,7 @@ public class DefaultParametersController(
     public async Task<IActionResult> Index()
     {
         var relativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth);
+
         var response = await GetDefaultParametersAsync(relativeYear);
 
         if (response.IsSuccessStatusCode)
@@ -97,7 +98,6 @@ public class DefaultParametersController(
     private async Task<HttpResponseMessage> GetDefaultParametersAsync(RelativeYear relativeYear)
     {
         return await eprCalculatorApiService.CallApi(
-            HttpContext,
             HttpMethod.Get,
             $"v1/defaultParameterSetting/{relativeYear}");
     }

@@ -1,5 +1,4 @@
 ﻿using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Mappers;
@@ -28,7 +27,7 @@ public class BillingInstructionsController(
     ///     or redirects to a standard error page if the calculation run ID is invalid.
     /// </returns>
     [HttpGet("BillingInstructions/{runId}", Name = RouteNames.BillingInstructionsIndex)]
-    public async Task<IActionResult> IndexAsync([FromRoute] int runId, [FromQuery] PaginationRequestViewModel request)
+    public async Task<IActionResult> IndexAsync([FromRoute] int runId, [FromQuery] BillingInstructionsIndexModel request)
     {
         if (runId <= 0)
             throw new ArgumentOutOfRangeException(nameof(runId), "RunId must be greater than zero.");
@@ -43,9 +42,8 @@ public class BillingInstructionsController(
 
         var producerBillingInstructionsResponseDto = await GetBillingData(runId, request);
         var billingInstructionsViewModel = mapper.MapToViewModel(
-            producerBillingInstructionsResponseDto ?? new ProducerBillingInstructionsResponseDto(),
+            producerBillingInstructionsResponseDto,
             request,
-            CommonUtil.GetUserName(HttpContext),
             isSelectAll,
             isSelectAllPage);
 
@@ -57,8 +55,7 @@ public class BillingInstructionsController(
         var existingSelectedIds = ARJourneySessionHelper.GetFromSession(HttpContext.Session);
 
         if (!isSelectAll &&
-            producerBillingInstructionsResponseDto is not null &&
-            producerBillingInstructionsResponseDto.Records.Count > 0 &&
+            producerBillingInstructionsResponseDto?.Records.Count > 0 &&
             producerBillingInstructionsResponseDto.Records.TrueForAll(t => existingSelectedIds.Contains(t.ProducerId)) &&
             billingInstructionsViewModel.TotalRecords > 0)
         {
@@ -89,15 +86,12 @@ public class BillingInstructionsController(
     /// <summary>
     ///     Clears all selected billing instructions from the session and redirects to the Billing Instructions index page.
     /// </summary>
-    /// <param name="runId">The ID of the calculation run.</param>
-    /// <param name="currentPage">The current page number for pagination.</param>
-    /// <param name="pageSize">The number of items displayed per page.</param>
     /// <returns>A redirect to the Billing Instructions index route.</returns>
     [HttpPost]
-    public IActionResult ClearSelection(int runId, int currentPage, int pageSize)
+    public IActionResult ClearSelection(BillingInstructionsClearModel model)
     {
         HttpContext.Session.ClearAllSession();
-        return RedirectToRoute(RouteNames.BillingInstructionsIndex, new { runId, page = currentPage, PageSize = pageSize });
+        return RedirectToRoute(RouteNames.BillingInstructionsIndex, model);
     }
 
     /// <summary>
@@ -119,12 +113,11 @@ public class BillingInstructionsController(
     [HttpPost]
     public IActionResult RejectSelected(int runId)
     {
-        TempData.Clear();
         return RedirectToAction(ActionNames.Index, ControllerNames.ReasonForRejectionController, new { runId });
     }
 
     [HttpPost]
-    public IActionResult SelectAll(BillingInstructionsViewModel model, int currentPage, int pageSize, int? organisationId, List<BillingInstruction> billingInstructions, List<BillingStatus> billingStatuses)
+    public IActionResult SelectAll(BillingInstructionsSelectModel model)
     {
         HttpContext.Session.SetString(SessionConstants.IsSelectAll, model.OrganisationSelections.SelectAll.ToString());
         if (!model.OrganisationSelections.SelectAll)
@@ -135,36 +128,22 @@ public class BillingInstructionsController(
             HttpContext.Session.SetString(SessionConstants.IsSelectAll, "false");
         }
 
-        return RedirectToRoute(RouteNames.BillingInstructionsIndex, new
-        {
-            runId               = model.CalculationRun.Id,
-            page                = currentPage,
-            PageSize            = pageSize,
-            OrganisationId      = organisationId,
-            BillingInstructions = billingInstructions,
-            BillingStatuses     = billingStatuses
-        });
+        return RedirectToRoute(RouteNames.BillingInstructionsIndex, model);
     }
 
     [HttpPost]
-    public async Task<IActionResult> SelectAllPage(BillingInstructionsViewModel model, int currentPage, int pageSize, int? organisationId, List<BillingInstruction> billingInstructions, List<BillingStatus> billingStatuses)
+    public async Task<IActionResult> SelectAllPage(BillingInstructionsSelectModel model)
     {
         // Sets the SelectAllPage flag to either true or false based on the model's selection state.
         HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, model.OrganisationSelections.SelectPage.ToString());
 
         // Makes an api request to get the instructions for the current calculation run.
-        var producerBillingInstructionsResponseDto =
-            await GetBillingData(model.CalculationRun.Id, new PaginationRequestViewModel
-            {
-                Page                = currentPage,
-                PageSize            = pageSize,
-                OrganisationId      = organisationId,
-                BillingInstructions = billingInstructions,
-                BillingStatuses     = billingStatuses
-            });
+        var producerBillingInstructionsResponseDto = await GetBillingData(model.RunId, model);
 
-        var producerIdsFromResponse =
-            producerBillingInstructionsResponseDto?.Records?.Where(t => t.SuggestedBillingInstruction != BillingInstructionConstants.NoSuggestedBillingInstructionPlaceholder).Select(t => t.ProducerId).ToList();
+        var producerIdsFromResponse = producerBillingInstructionsResponseDto?.Records
+            .Where(t => t.SuggestedBillingInstruction != BillingInstructionConstants.NoSuggestedBillingInstructionPlaceholder)
+            .Select(t => t.ProducerId)
+            .ToList();
 
         if (producerIdsFromResponse != null)
         {
@@ -181,15 +160,7 @@ public class BillingInstructionsController(
         }
 
         HttpContext.Session.SetString(SessionConstants.IsRedirected, "true");
-        return RedirectToRoute(RouteNames.BillingInstructionsIndex, new
-        {
-            runId               = model.CalculationRun.Id,
-            page                = currentPage,
-            PageSize            = pageSize,
-            OrganisationId      = organisationId,
-            BillingInstructions = billingInstructions,
-            BillingStatuses     = billingStatuses
-        });
+        return RedirectToRoute(RouteNames.BillingInstructionsIndex, model);
     }
 
     /// <summary>
@@ -261,9 +232,7 @@ public class BillingInstructionsController(
         return View(ViewNames.BillingConfirmationSuccess, model);
     }
 
-    private async Task<ProducerBillingInstructionsResponseDto> GetBillingData(
-        int runId,
-        PaginationRequestViewModel request)
+    private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(int runId, BillingInstructionsIndexModel request)
     {
         var requestDto = new ProducerBillingInstructionsRequestDto
         {
@@ -278,7 +247,6 @@ public class BillingInstructionsController(
         };
 
         var response = await eprCalculatorApiService.CallApi(
-            HttpContext,
             HttpMethod.Post,
             $"v1/producerBillingInstructions/{runId}",
             body: requestDto);
@@ -298,7 +266,6 @@ public class BillingInstructionsController(
     private async Task<bool> TryGenerateBillingFile(int runId)
     {
         var responseDto = await eprCalculatorApiService.CallApi(
-            HttpContext,
             HttpMethod.Put,
             $"v1/producerBillingInstructionsAccept/{runId}");
 

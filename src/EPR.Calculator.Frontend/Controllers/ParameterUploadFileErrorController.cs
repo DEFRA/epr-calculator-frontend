@@ -1,4 +1,4 @@
-﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
@@ -53,6 +53,7 @@ public class ParameterUploadFileErrorController : BaseController
     {
         var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
         var uploadViewModel = new ParameterUploadViewModel();
+
         if (csvErrors.ErrorMessage is not null)
         {
             uploadViewModel.Errors = csvErrors;

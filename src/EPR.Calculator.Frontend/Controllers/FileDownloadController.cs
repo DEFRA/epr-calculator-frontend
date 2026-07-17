@@ -6,48 +6,57 @@ using Microsoft.AspNetCore.Mvc;
 namespace EPR.Calculator.Frontend.Controllers;
 
 public class FileDownloadController(
-    TelemetryClient telemetryClient,
-    IResultBillingFileService fileDownloadService,
-    ICalculatorRunDetailsService calculatorRunDetailsService)
+    IEprCalculatorApiService api,
+    IFileDownloadService fileDownloads,
+    TelemetryClient telemetryClient)
     : BaseController
 {
     [HttpGet]
-    [Route("DownloadResultFile/{runId}")]
+    [Route("DownloadResultFile/{runId:int}")]
     public async Task<IActionResult> DownloadResultFile(int runId)
     {
         try
         {
-            return await fileDownloadService.DownloadFileAsync($"v1/DownloadResult/{runId}", runId, HttpContext);
+            var runDto = await api.GetCalculatorRun(runId);
+
+            if (runDto == null)
+                return RedirectToError();
+
+            return await fileDownloads.DownloadResultFile(runId);
         }
         catch (Exception ex)
         {
             telemetryClient.TrackException(ex);
-            return RedirectToAction(ActionNames.IndexNew, ControllerNames.DownloadFileErrorNewController, new { runId });
+            return RedirectToAction(nameof(DownloadError));
         }
     }
 
     [HttpGet]
-    [Route("DownloadBillingFile/{runId}")]
-    public async Task<IActionResult> DownloadBillingFile(int runId, bool isBillingFile, bool isDraftBillingFile)
+    [Route("DownloadBillingFile/{runId:int}")]
+    public async Task<IActionResult> DownloadBillingFile(int runId)
     {
         try
         {
-            var runDetails = await calculatorRunDetailsService.GetCalculatorRundetailsAsync(
-                HttpContext,
-                runId);
+            var runDto = await api.GetCalculatorRun(runId);
 
-            if (runDetails == null || runDetails.RunName == null)
+            if (runDto == null)
                 return RedirectToError();
 
-            if (runDetails.IsBillingFileGeneratedLatest.HasValue && !runDetails.IsBillingFileGeneratedLatest.Value)
+            if (runDto.BillingFile?.IsLatest != true)
                 return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId });
 
-            return await fileDownloadService.DownloadFileAsync($"v1/DownloadBillingFile/{runId}", runId, HttpContext, isBillingFile, isDraftBillingFile);
+            return await fileDownloads.DownloadBillingFile(runId, runDto.BillingFile!.HasBeenSentToFss);
         }
         catch (Exception ex)
         {
             telemetryClient.TrackException(ex);
-            return RedirectToAction(ActionNames.IndexNew, ControllerNames.DownloadFileErrorNewController, new { runId });
+            return RedirectToAction(nameof(DownloadError));
         }
+    }
+
+    [Route("DownloadError")]
+    public IActionResult DownloadError()
+    {
+        return View();
     }
 }

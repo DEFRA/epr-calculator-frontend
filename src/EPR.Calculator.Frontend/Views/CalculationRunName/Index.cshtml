@@ -1,4 +1,4 @@
-@model InitiateCalculatorRunModel
+@model InitiateCalculatorRunViewModel
 @{
     ViewData["Title"] = "Index";
 }
@@ -11,7 +11,6 @@
 {
     <partial name="_ValidationErrorBannerPartial" model="Model.Errors" />
 }
-
 
 @using (Html.BeginForm("RunCalculator", "CalculationRunName", FormMethod.Post))
 {

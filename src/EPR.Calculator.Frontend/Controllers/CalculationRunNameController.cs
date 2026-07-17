@@ -24,7 +24,7 @@ public class CalculationRunNameController(
     [Route("RunANewCalculation")]
     public IActionResult Index()
     {
-        return View(ViewNames.CalculationRunNameIndex, new InitiateCalculatorRunModel());
+        return View(ViewNames.CalculationRunNameIndex, CreateViewModel());
     }
 
     /// <summary>
@@ -33,27 +33,21 @@ public class CalculationRunNameController(
     /// <param name="calculationRunModel">The model containing calculation run details.</param>
     /// <returns>The result of the action.</returns>
     [HttpPost]
-    public async Task<IActionResult> RunCalculator(InitiateCalculatorRunModel calculationRunModel)
+    public async Task<IActionResult> RunCalculator(InitiateCalculatorRunFormModel calculationRunModel)
     {
         if (!ModelState.IsValid)
         {
             var errorMessages = ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
-            calculationRunModel.Errors = CreateErrorViewModel(errorMessages.First());
-            return View(ViewNames.CalculationRunNameIndex, calculationRunModel);
+            return View(ViewNames.CalculationRunNameIndex, CreateViewModel(CreateErrorViewModel(errorMessages.First())));
         }
 
         if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
         {
-            var currentUser = CommonUtil.GetUserName(HttpContext);
             var calculationName = calculationRunModel.CalculationName.Trim();
-            var calculationNameExistsResponse = await CheckIfCalculationNameExistsAsync(calculationName);
-            if (calculationNameExistsResponse.IsSuccessStatusCode)
-            {
-                return View(ViewNames.CalculationRunNameIndex, new InitiateCalculatorRunModel
-                {
-                    Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists)
-                });
-            }
+            var runDto = await eprCalculatorApiService.GetCalculatorRun(calculationName);
+
+            if (runDto != null)
+                return View(ViewNames.CalculationRunNameIndex, CreateViewModel(CreateErrorViewModel(ErrorMessages.CalculationRunNameExists)));
 
             var response = await HttpPostToCalculatorRunApi(calculationName);
 
@@ -90,7 +84,7 @@ public class CalculationRunNameController(
     /// <param name="calculationName">calculation run name.</param>
     /// <returns>The result of the action.</returns>
     [Route("Confirmation")]
-    public IActionResult Confirmation(string calculationName)
+    public IActionResult Confirmation(string? calculationName)
     {
         var calculationRunConfirmationViewModel = new ConfirmationViewModel
         {
@@ -116,6 +110,14 @@ public class CalculationRunNameController(
         };
     }
 
+    private static InitiateCalculatorRunViewModel CreateViewModel(ErrorViewModel? errors = null)
+    {
+        return new InitiateCalculatorRunViewModel
+        {
+            Errors = errors
+        };
+    }
+
     /// <summary>
     ///     Sends an HTTP request to the calculator run API.
     /// </summary>
@@ -132,21 +134,6 @@ public class CalculationRunNameController(
         });
     }
 
-    /// <summary>
-    ///     Checks if a calculation name exists asynchronously.
-    /// </summary>
-    /// <param name="calculationName">The name of the calculation to check.</param>
-    /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains the HTTP response message
-    ///     indicating whether the calculation name exists.
-    /// </returns>
-    private async Task<HttpResponseMessage> CheckIfCalculationNameExistsAsync(string calculationName)
-    {
-        var safeName = Uri.EscapeDataString(calculationName);
-        var response = await CheckCalcNameExistsAsync(safeName);
-        return response;
-    }
-
     private async Task<string> ExtractErrorMessageAsync(HttpResponseMessage response)
     {
         try
@@ -161,7 +148,6 @@ public class CalculationRunNameController(
         }
     }
 
-
     /// <summary>
     ///     Calls the "calculatorRun" POST endpoint.
     /// </summary>
@@ -170,18 +156,9 @@ public class CalculationRunNameController(
     private async Task<HttpResponseMessage> PostCalculatorRunAsync(CreateCalculatorRunDto dto)
     {
         return await eprCalculatorApiService.CallApi(
-            HttpContext,
             HttpMethod.Post,
             "v1/calculatorRun",
             body: dto);
-    }
-
-    private async Task<HttpResponseMessage> CheckCalcNameExistsAsync(string calculationName)
-    {
-        return await eprCalculatorApiService.CallApi(
-            HttpContext,
-            HttpMethod.Get,
-            $"v1/CheckCalcNameExists/{calculationName}");
     }
 
     private class ErrorResponse

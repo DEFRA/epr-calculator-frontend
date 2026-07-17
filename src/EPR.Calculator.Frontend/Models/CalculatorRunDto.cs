@@ -1,30 +1,33 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using EPR.Calculator.Frontend.Enums;
 
-namespace EPR.Calculator.Frontend.Models
+namespace EPR.Calculator.Frontend.Models;
+
+[ExcludeFromCodeCoverage]
+public record CalculatorRunDto
 {
-    [ExcludeFromCodeCoverage]
-    public class CalculatorRunDto
+    public int RunId { get; init; }
+    public RunClassification RunClassification { get; init; }
+    public RelativeYear RelativeYear { get; init; }
+    public string RunName { get; init; } = "";
+    public DateTime CreatedAt { get; init; }
+    public string CreatedBy { get; init; } = "";
+    public DateTime? UpdatedAt { get; init; }
+    public string? UpdatedBy { get; init; }
+    public BillingRunStatus BillingRunStatus { get; init; }
+    public DateTime? BillingRunStartedAt { get; init; }
+    public BillingFileDto? BillingFile { get; init; }
+
+    public record BillingFileDto
     {
-        public int RunId { get; set; }
-
-        public string CreatedBy { get; set; } = null!;
-
-        public DateTime CreatedAt { get; set; }
-
-        public string RunName { get; set; } = null!;
-
-        public string FileExtension { get; set; } = null!;
-
-        public string UpdatedBy { get; set; } = null!;
-
-        public DateTime? UpdatedAt { get; set; }
-
-        public int RunClassificationId { get; set; }
-
-        public string RunClassificationStatus { get; set; } = null!;
-
-        public string? Classification { get; set; }
-
-        public RelativeYear RelativeYear { get; set; } = null!;
+        public int Id { get ; init; }
+        public bool IsLatest { get ; init; }
+        public bool HasBeenSentToFss { get; init; }
+        public string CsvFileName { get; init; } = null!;
+        public string JsonFileName { get; init; } = null!;
+        public DateTime CreatedAt { get; init; }
+        public string CreatedBy { get; init; } = null!;
+        public DateTime? SentAt { get; init; }
+        public string? SentBy { get; init; }
     }
 }

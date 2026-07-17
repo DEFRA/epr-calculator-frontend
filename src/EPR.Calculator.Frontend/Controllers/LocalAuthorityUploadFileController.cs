@@ -1,6 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
-using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -66,7 +65,7 @@ public class LocalAuthorityUploadFileController : BaseController
         }
     }
 
-    private ErrorViewModel ValidateCSV(IFormFile fileUpload)
+    private ErrorViewModel ValidateCsv(IFormFile fileUpload)
     {
         var validationErrors = CsvFileHelper.ValidateCSV(fileUpload);
 
@@ -78,7 +77,7 @@ public class LocalAuthorityUploadFileController : BaseController
 
     private string GetViewName(IFormFile fileUpload)
     {
-        if (ValidateCSV(fileUpload).ErrorMessage is not null)
+        if (ValidateCsv(fileUpload).ErrorMessage is not null)
             return ViewNames.LocalAuthorityUploadFileIndex;
 
         return ViewNames.LocalAuthorityUploadFileRefresh;

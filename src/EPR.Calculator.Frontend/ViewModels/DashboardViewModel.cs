@@ -5,7 +5,7 @@ namespace EPR.Calculator.Frontend.ViewModels;
 
 public record DashboardViewModel
 {
-    public required RelativeYear RelativeYear { get; set; }
-    public IEnumerable<CalculationRunViewModel>? Calculations { get; set; }
-    public List<SelectListItem>? RelativeYearSelectList { get; set; }
+    public required RelativeYear RelativeYear { get; init; }
+    public required List<CalculationRunViewModel> Calculations { get; init; }
+    public required List<SelectListItem> RelativeYearSelectList { get; init; }
 }

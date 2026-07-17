@@ -38,6 +38,6 @@
         /// <summary>
         /// Gets or sets the relative year associated with the calculator run.
         /// </summary>
-        public RelativeYear RelativeYear { get; set; } = null!;
+        public RelativeYear RelativeYear { get; set; }
     }
 }

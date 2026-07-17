@@ -1,6 +1,4 @@
-﻿using EPR.Calculator.Frontend.Models;
-
-namespace EPR.Calculator.Frontend.ViewModels;
+﻿namespace EPR.Calculator.Frontend.ViewModels;
 
 public record BillingFileSuccessViewModel
 {

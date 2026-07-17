@@ -40,7 +40,6 @@ public class ParameterUploadFileProcessingController(
     protected async Task<HttpResponseMessage> PostDefaultParametersAsync(CreateDefaultParameterSettingDto dto)
     {
         return await eprCalculatorApiService.CallApi(
-            HttpContext,
             HttpMethod.Post,
             "v1/defaultParameterSetting",
             body: dto);

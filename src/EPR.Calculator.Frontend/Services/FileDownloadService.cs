@@ -4,35 +4,43 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Services
 {
-    public interface IResultBillingFileService
+    public interface IFileDownloadService
     {
-        Task<FileResult> DownloadFileAsync(string relativePath, int runId, HttpContext httpContext, bool isBillingFile = false, bool isDraftBillingFile = false);
+        Task<FileResult> DownloadResultFile(int runId);
+        Task<FileResult> DownloadBillingFile(int runId, bool hasBeenSentToFss);
     }
 
-    public class ResultBillingFileService(
+    public class FileDownloadService(
         IEprCalculatorApiService eprCalculatorApiService,
-        TelemetryClient telemetryClient) : IResultBillingFileService
+        TelemetryClient telemetryClient)
+        : IFileDownloadService
     {
-        private readonly IEprCalculatorApiService eprCalculatorApiService = eprCalculatorApiService;
-        private readonly TelemetryClient telemetryClient = telemetryClient;
-
-        public async Task<FileResult> DownloadFileAsync(
-            string relativePath,
-            int runId,
-            HttpContext httpContext,
-            bool isBillingFile = false,
-            bool isDraftBillingFile = false)
+        public Task<FileResult> DownloadResultFile(int runId)
         {
-            if (runId <= 0)
-            {
-                throw new ArgumentException("Invalid runId", nameof(runId));
-            }
+            var path = $"v1/DownloadResult/{runId}";
+            return DownloadFile(path, runId);
+        }
 
+        public async Task<FileResult> DownloadBillingFile(int runId, bool hasBeenSentToFss)
+        {
+            var path = $"v1/DownloadBillingFile/{runId}";
+            var result = await DownloadFile(path, runId);
+
+            var filename = Path.GetFileNameWithoutExtension(result.FileDownloadName);
+
+            result.FileDownloadName = hasBeenSentToFss
+                ? $"{filename}_AUTHORISED.csv"
+                : $"{filename}_DRAFT.csv";
+
+            return result;
+        }
+
+        private async Task<FileResult> DownloadFile(string relativePath, int runId)
+        {
             try
             {
                 // Call the ApiService; it handles token acquisition for the current user
-                var response = await this.eprCalculatorApiService.CallApi(
-                    httpContext: httpContext,
+                var response = await eprCalculatorApiService.CallApi(
                     httpMethod: HttpMethod.Get,
                     relativePath: relativePath);
 
@@ -46,19 +54,11 @@ namespace EPR.Calculator.Frontend.Services
                     if (response.Content.Headers.ContentDisposition != null)
                     {
                         fileName = HandleContentDisposition(response, fileName);
-
-                        if (isBillingFile)
-                        {
-                            var baseName = Path.GetFileNameWithoutExtension(fileName);
-                            fileName = isDraftBillingFile
-                                ? $"{baseName}_DRAFT.csv"
-                                : $"{baseName}_AUTHORISED.csv";
-                        }
                     }
 
                     return new FileContentResult(fileBytes, contentType)
                     {
-                        FileDownloadName = fileName,
+                        FileDownloadName = fileName
                     };
                 }
 
@@ -66,7 +66,7 @@ namespace EPR.Calculator.Frontend.Services
             }
             catch (Exception ex)
             {
-                this.telemetryClient.TrackException(ex);
+                telemetryClient.TrackException(ex);
                 throw;
             }
         }

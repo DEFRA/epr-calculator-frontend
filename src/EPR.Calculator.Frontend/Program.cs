@@ -104,8 +104,7 @@ if (!builder.Environment.IsLocal())
 }
 
 builder.Services.AddScoped<IBillingInstructionsMapper, BillingInstructionsMapper>();
-builder.Services.AddScoped<IResultBillingFileService, ResultBillingFileService>();
-builder.Services.AddScoped<ICalculatorRunDetailsService, CalculatorRunDetailsService>();
+builder.Services.AddScoped<IFileDownloadService, FileDownloadService>();
 builder.Services.AddScoped<IEprCalculatorApiService, EprCalculatorApiService>();
 
 // Add Hsts

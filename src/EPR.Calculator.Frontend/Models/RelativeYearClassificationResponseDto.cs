@@ -21,6 +21,6 @@ namespace EPR.Calculator.Frontend.Models
         /// <summary>
         /// Gets or sets the list of classified calculator runs.
         /// </summary>
-        public List<ClassifiedCalculatorRunDto> ClassifiedRuns { get; set; } = [];
+        public List<CalculatorRunDto> ClassifiedRuns { get; set; } = [];
     }
 }

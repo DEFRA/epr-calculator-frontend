@@ -1,8 +1,4 @@
-using System.Net;
 using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Helpers;
-using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
@@ -13,8 +9,7 @@ namespace EPR.Calculator.Frontend.Controllers;
 [Route("[controller]")]
 public class CalculationRunDeleteController(
     IEprCalculatorApiService eprCalculatorApiService,
-    TelemetryClient telemetryClient,
-    ICalculatorRunDetailsService calculatorRunDetailsService)
+    TelemetryClient telemetryClient)
     : BaseController
 {
     /// <summary>
@@ -22,24 +17,15 @@ public class CalculationRunDeleteController(
     /// </summary>
     /// <param name="runId">The ID of the calculation run.</param>
     /// <returns>The delete confirmation view.</returns>
-    [Route("{runId}")]
+    [Route("{runId:int}")]
     public async Task<IActionResult> Index(int runId)
     {
-        var runDetails = await calculatorRunDetailsService.GetCalculatorRundetailsAsync(
-            HttpContext,
-            runId);
-        var calculatorRunStatusUpdate = new CalculatorRunStatusUpdateDto
-        {
-            RunId = runId,
-            CalcName = runDetails?.RunName,
-            ClassificationId = (int)RunClassification.DELETED
-        };
+        var viewModel = await CreateViewModel(runId);
 
-        var calculationRunDeleteViewModel = new CalculationRunDeleteViewModel
-        {
-            CalculatorRunStatusData = calculatorRunStatusUpdate
-        };
-        return View(ViewNames.CalculationRunDeleteIndex, calculationRunDeleteViewModel);
+        if (viewModel == null)
+            return RedirectToAction(nameof(DashboardController.Index), "Dashboard");
+
+        return View(ViewNames.CalculationRunDeleteIndex, viewModel);
     }
 
     /// <summary>
@@ -48,27 +34,40 @@ public class CalculationRunDeleteController(
     /// <returns>The delete confirmation success view.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmationSuccess(CalculatorRunDetailsViewModel model)
+    public async Task<IActionResult> DeleteConfirmationSuccess(CalculationRunDeleteFormModel model)
     {
-        var viewModel = new CalculatorRunDetailsNewViewModel
+        if (!ModelState.IsValid)
+            return RedirectToError();
+
+        try
         {
-            CalculatorRunDetails = model
-        };
+            var viewModel = await CreateViewModel(model.RunId);
 
-        var result = await eprCalculatorApiService.CallApi(
-            HttpContext,
-            HttpMethod.Put,
-            "v2/calculatorRuns",
-            body: new ClassificationDto
-            {
-                RunId = model.RunId,
-                ClassificationId = (int)RunClassification.DELETED
-            });
+            if (viewModel == null)
+                return RedirectToError();
 
-        if (result.StatusCode == HttpStatusCode.Created)
+            await eprCalculatorApiService.DeleteCalculatorRun(model.RunId);
+
             return View(ViewNames.CalculationRunDeleteConfirmationSuccess, viewModel);
+        }
+        catch
+        {
+            telemetryClient.TrackTrace($"API was not able to delete the run {model.RunId}.");
+            return RedirectToError();
+        }
+    }
 
-        telemetryClient.TrackTrace($"API did not return successful ({result.StatusCode}).");
-        return RedirectToError();
+    private async Task<CalculationRunDeleteViewModel?> CreateViewModel(int runId)
+    {
+        var run = await eprCalculatorApiService.GetCalculatorRun(runId);
+
+        if (run == null)
+            return null;
+
+        return new CalculationRunDeleteViewModel
+        {
+            RunId = run.RunId,
+            RunName = run.RunName
+        };
     }
 }

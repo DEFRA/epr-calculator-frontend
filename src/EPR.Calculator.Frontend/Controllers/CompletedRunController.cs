@@ -1,7 +1,5 @@
-﻿using System.Net;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
@@ -9,12 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
-/// <summary>
-///     Controller for handling post billing file details.
-/// </summary>
 [Route("[controller]")]
-public class CompletedRunController(
-    IEprCalculatorApiService eprCalculatorApiService)
+public class CompletedRunController(IEprCalculatorApiService eprCalculatorApiService)
     : BaseController
 {
     /// <summary>
@@ -23,61 +17,41 @@ public class CompletedRunController(
     /// <param name="runId">The ID of the calculation run.</param>
     /// <returns>The post billing file index view.</returns>
     [HttpGet]
-    [Route("{runId}")]
+    [Route("{runId:int}")]
     public async Task<IActionResult> Index(int runId)
     {
         var viewModel = await CreateViewModel(runId);
 
-        if (viewModel.CalculatorRunStatus == null
-            || viewModel.CalculatorRunStatus.RunId <= 0
-            || !IsRunEligibleForDisplay(viewModel.CalculatorRunStatus))
+        if (viewModel == null || !IsRunEligibleForDisplay(viewModel.CalculatorRunStatus))
             return RedirectToError();
 
-        viewModel.HideBackLink = true;
         return View(ViewNames.PostBillingFileIndex, viewModel);
     }
 
-    private static bool IsRunEligibleForDisplay(CalculatorRunPostBillingFileDto calculatorRunDetails)
+    private static bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRunDetails)
     {
-        if (calculatorRunDetails.RunClassificationId == RunClassification.UNCLASSIFIED
-            || calculatorRunDetails.RunClassificationId == RunClassification.INITIAL_RUN
-            || calculatorRunDetails.RunClassificationId == RunClassification.INTERIM_RECALCULATION_RUN
-            || calculatorRunDetails.RunClassificationId == RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED
-            || calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RECALCULATION_RUN
-            || calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RECALCULATION_RUN_COMPLETED
-            || calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RUN
-            || calculatorRunDetails.RunClassificationId == RunClassification.FINAL_RUN_COMPLETED
-            || calculatorRunDetails.RunClassificationId == RunClassification.INITIAL_RUN_COMPLETED)
-            return true;
-
-        return false;
+        return calculatorRunDetails.RunClassification
+            is RunClassification.UNCLASSIFIED
+            or RunClassification.INITIAL_RUN
+            or RunClassification.INTERIM_RECALCULATION_RUN
+            or RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED
+            or RunClassification.FINAL_RECALCULATION_RUN
+            or RunClassification.FINAL_RECALCULATION_RUN_COMPLETED
+            or RunClassification.FINAL_RUN
+            or RunClassification.FINAL_RUN_COMPLETED
+            or RunClassification.INITIAL_RUN_COMPLETED;
     }
 
-    private async Task<PostBillingFileViewModel> CreateViewModel(int runId)
+    private async Task<PostBillingFileViewModel?> CreateViewModel(int runId)
     {
-        var runDetails = await GetCalculatorRunWithBillingdetails(runId);
-        var viewModel = new PostBillingFileViewModel();
+        var run = await eprCalculatorApiService.GetCalculatorRun(runId);
 
-        if (runDetails != null && runDetails!.RunId > 0)
-            viewModel.CalculatorRunStatus = runDetails;
+        if (run == null)
+            return null;
 
-        return viewModel;
-    }
-
-    /// <summary>
-    ///     Retrieves the calculation run with billing details.
-    /// </summary>
-    /// <param name="runId">run id.</param>
-    /// <returns>calculator run post billing file data transfer objet.</returns>
-    private async Task<CalculatorRunPostBillingFileDto?> GetCalculatorRunWithBillingdetails(int runId)
-    {
-        var response = await eprCalculatorApiService.CallApi(
-            HttpContext,
-            HttpMethod.Get,
-            $"v2/calculatorRuns/{runId}");
-
-        return response.StatusCode == HttpStatusCode.OK
-            ? response.Content.ReadFromJsonAsync<CalculatorRunPostBillingFileDto>().Result
-            : new CalculatorRunPostBillingFileDto();
+        return new PostBillingFileViewModel
+        {
+            CalculatorRunStatus = run
+        };
     }
 }

@@ -7,6 +7,7 @@ public record ParameterRefreshViewModel
 {
     [JsonPropertyName("schemeParameterTemplateValues")]
     public required List<SchemeParameterTemplateValue> ParameterTemplateValues { get; init; }
+
     [JsonPropertyName("parameterFileName")]
     public required string FileName { get; init; }
 }

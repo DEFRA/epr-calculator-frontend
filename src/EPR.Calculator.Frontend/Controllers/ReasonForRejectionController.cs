@@ -1,49 +1,54 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
-/// <summary>
-///     Controller for reason for rejection
-/// </summary>
 [Route("[controller]")]
-public class ReasonForRejectionController(
-    ICalculatorRunDetailsService calculatorRunDetailsService)
+public class ReasonForRejectionController(IEprCalculatorApiService eprCalculatorApiService)
     : BaseController
 {
-    [Route("{runId}")]
+    [HttpGet("{runId:int}")]
     public async Task<IActionResult> Index(int runId)
     {
-        var runDetails = await calculatorRunDetailsService
-            .GetCalculatorRundetailsAsync(HttpContext, runId);
-        var viewModel = new AcceptRejectConfirmationViewModel
-        {
-            CalculationRunId = runId,
-            CalculationRunName = runDetails.RunName,
-            Reason = TempData[nameof(AcceptRejectConfirmationViewModel.Reason)]?.ToString() ?? string.Empty,
-            Status = BillingStatus.Rejected
-        };
+        var viewModel = await CreateViewModel(runId, null);
+
+        if (viewModel == null)
+            return RedirectToError();
 
         return View(ViewNames.ReasonForRejectionIndex, viewModel);
     }
 
-    [HttpPost]
+    [HttpPost("{runId:int}")]
     [ActionName("Index")]
-    [Route("{runId}")]
-    public IActionResult IndexPost(int runId, AcceptRejectConfirmationViewModel model)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> IndexPost(int runId, ReasonForRejectionFormModel model)
     {
-        if (string.IsNullOrEmpty(model.Reason))
-        {
-            ModelState.Remove("Reason");
-            return View(ViewNames.ReasonForRejectionIndex, model);
-        }
+        var viewModel = await CreateViewModel(runId, model.Reason);
 
-        ModelState.Clear();
-        TempData[nameof(model.Reason)] = model.Reason;
-        return View(ViewNames.AcceptRejectConfirmationIndex, model);
+        if (viewModel == null)
+            return RedirectToError();
+
+        return ModelState.IsValid
+            ? View(ViewNames.AcceptRejectConfirmationIndex, viewModel)
+            : View(ViewNames.ReasonForRejectionIndex, viewModel);
+    }
+
+    private async Task<AcceptRejectConfirmationViewModel?> CreateViewModel(int runId, string? reason)
+    {
+        var run = await eprCalculatorApiService.GetCalculatorRun(runId);
+
+        if (run == null)
+            return null;
+
+        return new AcceptRejectConfirmationViewModel
+        {
+            RunId = runId,
+            RunName = run.RunName,
+            Status = BillingStatus.Rejected,
+            Reason = reason
+        };
     }
 }
