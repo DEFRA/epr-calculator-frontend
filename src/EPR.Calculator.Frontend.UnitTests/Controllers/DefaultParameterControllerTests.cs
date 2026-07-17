@@ -77,7 +77,7 @@ public class DefaultParameterControllerTests
             .Single(parameter => parameter.SchemeParameterName == ParameterType.RedModulationFactor.GetDisplayName())
             .DefaultSchemeParameters
             .Single(parameter => parameter.ParameterUniqueRef == "REDM-RF");
-        Assert.AreEqual(1.200m, redModulation.ParameterValue);
+        Assert.AreEqual(1.200m, redModulation.ParameterDecimalValue());
 
         Assert.AreEqual(2, model.LateReportingTonnageParams.Count());
         var aluminium = model.LateReportingTonnageParams.Single(material => material.Material == "Aluminium");
@@ -167,21 +167,21 @@ public class DefaultParameterControllerTests
 
         var parameters = new List<DefaultSchemeParameters>
         {
-            CreateDefaultParameter("COMC-AL", ParameterType.CommunicationCostsByMaterial.GetDisplayName(), "Aluminium", 2210.45m, effectiveFrom),
-            CreateDefaultParameter("COMC-UK", ParameterType.CommunicationCostsByCountry.GetDisplayName(), "United Kingdom", 250.00m, effectiveFrom),
-            CreateDefaultParameter("SAOC-ENG", ParameterType.SchemeAdministratorOperatingCosts.GetDisplayName(), "England", 500.00m, effectiveFrom),
-            CreateDefaultParameter("LAPC-ENG", ParameterType.LocalAuthorityDataPreparationCosts.GetDisplayName(), "England", 115.45m, effectiveFrom),
-            CreateDefaultParameter("SCSC-ENG", ParameterType.SchemeSetupCosts.GetDisplayName(), "England", 325.55m, effectiveFrom),
-            CreateDefaultParameter("BADEBT-P", ParameterType.BadDebtProvision.GetDisplayName(), "Percentage", 5.25m, effectiveFrom),
-            CreateDefaultParameter("MATT-AI", ParameterType.MaterialityThreshold.GetDisplayName(), "Amount Increase", 5000.00m, effectiveFrom),
-            CreateDefaultParameter("TONT-AI", ParameterType.TonnageChangeThreshold.GetDisplayName(), "Amount Increase", 50.00m, effectiveFrom),
-            CreateDefaultParameter("REDM-RF", ParameterType.RedModulationFactor.GetDisplayName(), "Modulation Factor", 1.200m, effectiveFrom),
-            CreateDefaultParameter("LRET-AL-R", parameterTypeName, "Aluminium-R", 170.55m, effectiveFrom),
-            CreateDefaultParameter("LRET-AL-A", parameterTypeName, "Aluminium-A", 70.55m, effectiveFrom),
-            CreateDefaultParameter("LRET-AL-G", parameterTypeName, "Aluminium-G", 270.55m, effectiveFrom),
-            CreateDefaultParameter("LRET-FC-R", parameterTypeName, "Fibre composite-R", 180.00m, effectiveFrom),
-            CreateDefaultParameter("LRET-FC-A", parameterTypeName, "Fibre composite-A", 80.00m, effectiveFrom),
-            CreateDefaultParameter("LRET-FC-G", parameterTypeName, "Fibre composite-G", 280.00m, effectiveFrom)
+            CreateDefaultParameter("COMC-AL", ParameterType.CommunicationCostsByMaterial.GetDisplayName(), "Aluminium", "2210.45", effectiveFrom),
+            CreateDefaultParameter("COMC-UK", ParameterType.CommunicationCostsByCountry.GetDisplayName(), "United Kingdom", "250.00", effectiveFrom),
+            CreateDefaultParameter("SAOC-ENG", ParameterType.SchemeAdministratorOperatingCosts.GetDisplayName(), "England", "500.00", effectiveFrom),
+            CreateDefaultParameter("LAPC-ENG", ParameterType.LocalAuthorityDataPreparationCosts.GetDisplayName(), "England", "115.45", effectiveFrom),
+            CreateDefaultParameter("SCSC-ENG", ParameterType.SchemeSetupCosts.GetDisplayName(), "England", "325.55", effectiveFrom),
+            CreateDefaultParameter("BADEBT-P", ParameterType.BadDebtProvision.GetDisplayName(), "Percentage", "5.25", effectiveFrom),
+            CreateDefaultParameter("MATT-AI", ParameterType.MaterialityThreshold.GetDisplayName(), "Amount Increase", "5000.00", effectiveFrom),
+            CreateDefaultParameter("TONT-AI", ParameterType.TonnageChangeThreshold.GetDisplayName(), "Amount Increase", "50.00", effectiveFrom),
+            CreateDefaultParameter("REDM-RF", ParameterType.RedModulationFactor.GetDisplayName(), "Modulation Factor", "1.200", effectiveFrom),
+            CreateDefaultParameter("LRET-AL-R", parameterTypeName, "Aluminium-R", "170.55", effectiveFrom),
+            CreateDefaultParameter("LRET-AL-A", parameterTypeName, "Aluminium-A", "70.55", effectiveFrom),
+            CreateDefaultParameter("LRET-AL-G", parameterTypeName, "Aluminium-G", "270.55", effectiveFrom),
+            CreateDefaultParameter("LRET-FC-R", parameterTypeName, "Fibre composite-R", "180.00", effectiveFrom),
+            CreateDefaultParameter("LRET-FC-A", parameterTypeName, "Fibre composite-A", "80.00", effectiveFrom),
+            CreateDefaultParameter("LRET-FC-G", parameterTypeName, "Fibre composite-G", "280.00", effectiveFrom)
         };
 
         return parameters;
@@ -191,7 +191,7 @@ public class DefaultParameterControllerTests
         string uniqueRef,
         string parameterType,
         string parameterCategory,
-        decimal value,
+        string value,
         DateTime effectiveFrom)
     {
         return new DefaultSchemeParameters

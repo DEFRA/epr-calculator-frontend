@@ -34,20 +34,24 @@ public class DefaultParametersController(
             var viewModel = new DefaultParametersViewModel
             {
                 LastUpdatedBy = CommonUtil.GetUserName(HttpContext),
-                SchemeParameters = new List<SchemeParametersViewModel>(),
-                LateReportingTonnageParams = new List<DefaultSchemeParametersLateReportingTonnage>()
+                SchemeParameters = [],
+                LateReportingTonnageParams = []
             };
             var data = await response.Content.ReadAsStringAsync();
-            var defaultSchemeParameters = await response.Content.ReadFromJsonAsync<List<DefaultSchemeParameters>>() ?? new List<DefaultSchemeParameters>();
+            var defaultSchemeParameters = await response.Content.ReadFromJsonAsync<List<DefaultSchemeParameters>>() ?? [];
 
             foreach (var name in (ParameterType[])Enum.GetValues(typeof(ParameterType)))
-                viewModel.SchemeParameters.Add(GetSchemeParametersBasedonCategory(defaultSchemeParameters, name));
+                viewModel.SchemeParameters.Add(new()
+                    {
+                        DefaultSchemeParameters = defaultSchemeParameters.Where(t => t.ParameterType == name.GetDisplayName()).ToList(),
+                        SchemeParameterName     = name.GetDisplayName(),
+                    });
 
             var lateTonnage = viewModel.SchemeParameters.First(t => t.SchemeParameterName == ParameterType.LateReportingTonnage.GetDisplayName());
-            viewModel.LateReportingTonnageParams = GetModulatedLateReportingTonnageParams(lateTonnage.DefaultSchemeParameters);
 
-            viewModel.EffectiveFrom = defaultSchemeParameters.First().EffectiveFrom;
-            viewModel.IsDataAvailable = true;
+            viewModel.LateReportingTonnageParams = GetModulatedLateReportingTonnageParams(lateTonnage.DefaultSchemeParameters);
+            viewModel.EffectiveFrom              = defaultSchemeParameters.First().EffectiveFrom;
+            viewModel.IsDataAvailable            = true;
 
             return View(viewModel);
         }
@@ -64,41 +68,19 @@ public class DefaultParametersController(
         return RedirectToError();
     }
 
-    private static IEnumerable<DefaultSchemeParametersLateReportingTonnage> GetModulatedLateReportingTonnageParams(IEnumerable<DefaultSchemeParameters> parameters)
-    {
-        return parameters
+    private static IEnumerable<DefaultSchemeParametersLateReportingTonnage> GetModulatedLateReportingTonnageParams(IEnumerable<DefaultSchemeParameters> parameters) =>
+        parameters
             .GroupBy(x => x.ParameterCategory.Split('-')[0].Trim())
             .Select(group => new DefaultSchemeParametersLateReportingTonnage
             {
                 Material = group.Key,
-                Red = group.First(x => x.ParameterCategory.EndsWith("-R")).ParameterValue,
-                Amber = group.First(x => x.ParameterCategory.EndsWith("-A")).ParameterValue,
-                Green = group.First(x => x.ParameterCategory.EndsWith("-G")).ParameterValue
+                Red   = group.First(x => x.ParameterCategory.EndsWith("-R")).ParameterDecimalValue(),
+                Amber = group.First(x => x.ParameterCategory.EndsWith("-A")).ParameterDecimalValue(),
+                Green = group.First(x => x.ParameterCategory.EndsWith("-G")).ParameterDecimalValue()
             });
-    }
 
-    private static SchemeParametersViewModel GetSchemeParametersBasedonCategory(List<DefaultSchemeParameters> defaultSchemeParameters, ParameterType parameterType)
-    {
-        var type = parameterType.GetDisplayName();
-        var shouldDisplayPrefix = !IsExcludedFromPrefixDisplay(parameterType);
-
-        return new SchemeParametersViewModel
-        {
-            DefaultSchemeParameters = defaultSchemeParameters.Where(t => t.ParameterType == type).ToList(),
-            IsDisplayPrefix = shouldDisplayPrefix,
-            SchemeParameterName = type
-        };
-    }
-
-    private static bool IsExcludedFromPrefixDisplay(ParameterType parameterType)
-    {
-        return parameterType == ParameterType.LateReportingTonnage || parameterType == ParameterType.BadDebtProvision || parameterType == ParameterType.RedModulationFactor;
-    }
-
-    private async Task<HttpResponseMessage> GetDefaultParametersAsync(RelativeYear relativeYear)
-    {
-        return await eprCalculatorApiService.CallApi(
+    private async Task<HttpResponseMessage> GetDefaultParametersAsync(RelativeYear relativeYear) =>
+        await eprCalculatorApiService.CallApi(
             HttpMethod.Get,
             $"v1/defaultParameterSetting/{relativeYear}");
-    }
 }

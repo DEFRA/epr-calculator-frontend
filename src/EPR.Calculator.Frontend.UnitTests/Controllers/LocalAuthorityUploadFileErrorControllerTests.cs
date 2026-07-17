@@ -105,7 +105,7 @@ public class LocalAuthorityUploadFileErrorControllerTests
         Assert.AreEqual(2, viewModel.LapcapErrors.Count);
         Assert.IsNotNull(viewModel.ValidationErrors);
         Assert.AreEqual(1, viewModel.ValidationErrors.Count);
-        Assert.AreEqual("The file contained 2 errors.", viewModel.ValidationErrors[0].ErrorMessage);
+        Assert.AreEqual("The file has 2 errors.", viewModel.ValidationErrors[0].ErrorMessage);
         CollectionAssert.AreEqual(
             lapcapErrors.Select(error => error.Message).ToList(),
             viewModel.LapcapErrors.Select(error => error.Message).ToList());
@@ -130,7 +130,7 @@ public class LocalAuthorityUploadFileErrorControllerTests
         Assert.AreEqual(ViewNames.LocalAuthorityUploadFileErrorIndex, result.ViewName);
         Assert.IsNotNull(viewModel);
         Assert.IsNotNull(viewModel.ValidationErrors);
-        Assert.AreEqual("The file contained 1 error.", viewModel.ValidationErrors[0].ErrorMessage);
+        Assert.AreEqual("The file has 1 error.", viewModel.ValidationErrors[0].ErrorMessage);
     }
 
     [TestMethod]

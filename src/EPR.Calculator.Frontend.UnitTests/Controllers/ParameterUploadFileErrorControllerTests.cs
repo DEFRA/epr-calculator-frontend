@@ -104,7 +104,7 @@ public class ParameterUploadFileErrorControllerTests
         Assert.IsNotNull(viewModel.ParamterErrors);
         Assert.AreEqual(2, viewModel.ParamterErrors.Count);
         Assert.AreEqual(1, viewModel.ValidationErrors?.Count);
-        Assert.AreEqual("The file contained 2 errors.", viewModel.ValidationErrors?[0].ErrorMessage);
+        Assert.AreEqual("The file has 2 errors.", viewModel.ValidationErrors?[0].ErrorMessage);
         CollectionAssert.AreEqual(
             parameterErrors.Select(error => error.Message).ToList(),
             viewModel.ParamterErrors.Select(error => error.Message).ToList());
