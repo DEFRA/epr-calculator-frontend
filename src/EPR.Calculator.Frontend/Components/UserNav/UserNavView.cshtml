@@ -1,16 +1,20 @@
-﻿@using EPR.Calculator.Frontend.Constants
-@model EPR.Calculator.Frontend.Components.UserNav.UserNavViewModel
+﻿@model EPR.Calculator.Frontend.Components.UserNav.UserNavViewModel
 
 <div class="govuk-grid-row govuk-!-margin-top-4 govuk-!-margin-bottom-4">
     <div class="govuk-grid-column-full epr-user-nav">
         @if (Model.BackLinkUrl is not null)
         {
-            <a href="@Model.BackLinkUrl" class="govuk-back-link govuk-!-margin-top-0 govuk-!-margin-bottom-0">Back</a>
+            <a href="@Model.BackLinkUrl"
+               class="govuk-back-link govuk-!-margin-top-0 govuk-!-margin-bottom-0">
+                Back
+            </a>
         }
         <nav aria-label="Account" class="epr-user-nav__account govuk-body-s">
             <span>@Model.CurrentUser</span>
-            <a asp-controller="@ControllerNames.Account" asp-action="@ActionNames.Signout"
-               asp-area="MicrosoftIdentity" class="govuk-link govuk-link--no-visited-state">Sign out</a>
+            <a href="@Url.Action("SignOut", "Account", new { area = "MicrosoftIdentity" })"
+               class="govuk-link govuk-link--no-visited-state">
+                Sign out
+            </a>
         </nav>
     </div>
 </div>
