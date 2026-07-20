@@ -31,11 +31,6 @@
         public const string BillingFileSuccess = "BillingFileSuccess";
 
         /// <summary>
-        /// Signout action.
-        /// </summary>
-        public const string Signout = "Signout";
-
-        /// <summary>
         /// Calculation Run New Details.
         /// </summary>
         public const string CalculationRunNewDetails = "/CalculationRunDetailsNew/{0}";
@@ -54,11 +49,6 @@
         /// Completed Run.
         /// </summary>
         public const string CompletedRun = "/CompletedRun/{0}";
-
-        /// <summary>
-        /// ProcessSelection.
-        /// </summary>
-        public const string ProcessSelection = "ProcessSelection";
 
         /// <summary>
         /// Select All.
@@ -84,10 +74,5 @@
         /// Download Billing File.
         /// </summary>
         public const string DownloadBillingFile = "DownloadBillingFile";
-
-        /// <summary>
-        /// Download Billing File Error.
-        /// </summary>
-        public const string IndexNew = "IndexNew";
     }
 }
