@@ -2,7 +2,7 @@
 @using EPR.Calculator.Frontend.Controllers;
 @model AcceptRejectConfirmationViewModel
 
-<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
+<vc:user-nav back-link="@Url.Action("Index", "BillingInstructions", new { runId = Model.RunId })"/>
 
 @{
     var approveDataHasError = ViewData.ModelState.ContainsKey(nameof(Model.ApproveData)) &&
@@ -14,12 +14,9 @@
     @using (Html.BeginForm(ActionNames.Submit, CommonUtil.GetControllerName(typeof(AcceptRejectConfirmationController)), FormMethod.Post))
     {
         @Html.AntiForgeryToken()
-        @Html.HiddenFor(m => m.CurrentUser)
-        @Html.HiddenFor(m => m.CalculationRunId)
-        @Html.HiddenFor(m => m.CalculationRunName)
+        @Html.HiddenFor(m => m.RunId)
         @Html.HiddenFor(m => m.Status)
         @Html.HiddenFor(m => m.Reason)
-        @Html.HiddenFor(m => m.BackLinkViewModel)
 
         <!-- Error Summary -->
         @if (ViewData.ModelState[$"Summary_{nameof(Model.ApproveData)}"]?.Errors.Count > 0)
@@ -35,7 +32,7 @@
         }
 
         <div class="@formGroupClass">
-            <span class="govuk-caption-xl">@Model.CalculationRunName</span>
+            <span class="govuk-caption-xl">@Model.RunName</span>
             <fieldset class="govuk-fieldset" aria-describedby="ApproveData-error">
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                     <h1 class="govuk-fieldset__heading">
@@ -52,7 +49,7 @@
                 <div class="govuk-radios" data-module="govuk-radios">
                     <div class="govuk-radios__item">
                         <input class="govuk-radios__input" id="ApproveData" name="ApproveData" type="radio" value="true" @(Model.ApproveData == true ? "checked" : "")>
-                        <label class="govuk-label govuk-radios__label" for="radio-yes">
+                        <label class="govuk-label govuk-radios__label" for="ApproveData">
                             Yes
                         </label>
                     </div>

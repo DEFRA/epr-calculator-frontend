@@ -1,14 +1,15 @@
-﻿@using EPR.Calculator.Frontend.Enums
-@using EPR.Calculator.Frontend.ViewModels.Enums
+@using EPR.Calculator.Frontend.Enums
 @using EPR.Calculator.Frontend.Helpers
 @using EPR.Calculator.Frontend.Extensions
-@model SetRunClassificationViewModel
-@{
-    var calcDetails = Model.CalculatorRunDetails;
-}
+@model RemoveRunClassificationViewModel
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/common.js"></script>
-<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
+
+<vc:user-nav
+    back-link="@Url.Action(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = Model.RunId })"
+    allowed-back-links="@(new [] { Url.Action(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId = Model.RunId }) })"
+/>
 
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
 
@@ -17,16 +18,15 @@
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.RemoveClassification, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-                @Html.HiddenFor(m => m.CalculatorRunDetails.RunId)
-                @Html.HiddenFor(m => m.CurrentUser)
+                @Html.HiddenFor(m => m.RunId)
 
                 <partial name="_ValidationSummaryPartial" />
 
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
                         <legend></legend>
-                        <span id="approval-code-hint" class="govuk-caption-l">@calcDetails.RunName</span>
-                        <h1 class="govuk-heading-l">Remove @calcDetails.RunClassificationId.GetDisplayName() classification</h1>
+                        <span id="approval-code-hint" class="govuk-caption-l">@Model.RunName</span>
+                        <h1 class="govuk-heading-l">Remove @Model.RunClassification.GetDisplayName() classification</h1>
 
                         <table class="govuk-table" aria-describedby="table-description-calc">
                             <caption id="table-description-calc" class="govuk-visually-hidden">
@@ -35,19 +35,19 @@
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@calcDetails.RelativeYear.ToFinancialYear()</td>
+                                    <td class="govuk-table__cell">@Model.RelativeYear.ToFinancialYear()</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Classification</th>
-                                    <td class="govuk-table__cell">@calcDetails.RunClassificationId.GetDisplayName()</td>
+                                    <td class="govuk-table__cell">@Model.RunClassification.GetDisplayName()</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                    <td class="govuk-table__cell">@calcDetails.RunId</td>
+                                    <td class="govuk-table__cell">@Model.RunId</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@calcDetails.CreatedAt.ToUKDateTimeDisplay()</td>
+                                    <td class="govuk-table__cell">@Model.CreatedAt.ToUKDateTimeDisplay()</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -90,7 +90,7 @@
                     <button type="submit" class="govuk-button" data-module="govuk-button">
                         Continue
                     </button>
-                    <a href="@Url.Action(ActionNames.Index, ControllerNames.RemoveClassification, new { runId = Model.CalculatorRunDetails.RunId})"
+                    <a href="@Url.Action(ActionNames.Index, ControllerNames.RemoveClassification, new { runId = Model.RunId})"
                        class="govuk-button govuk-button--secondary"
                        role="button">
                         Cancel

@@ -1,548 +1,325 @@
-﻿using System.Net;
+using System.Net;
 using System.Security.Claims;
-using System.Text;
-using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
-using EPR.Calculator.Frontend.UnitTests.HelpersTest;
-using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Moq;
-using Moq.Protected;
 
-namespace EPR.Calculator.Frontend.UnitTests.Controllers
+namespace EPR.Calculator.Frontend.UnitTests.Controllers;
+
+[TestClass]
+public class ClassifyingCalculationRunControllerTests
 {
-    [TestClass]
-    public class ClassifyingCalculationRunControllerTests
+    private const int RelativeYearValue = 2025;
+    private const int RunId = 123;
+    private Mock<IEprCalculatorApiService> apiService = null!;
+
+    private DefaultHttpContext httpContext = null!;
+    private Mock<ILogger<SetRunClassificationController>> logger = null!;
+
+    [TestInitialize]
+    public void TestInitialize()
     {
-        private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
-        private readonly Mock<ILogger<SetRunClassificationController>> _mockLogger;
-        private readonly TelemetryClient _mockTelemetryClient;
-        private SetRunClassificationController _controller;
-        private Mock<HttpContext> _mockHttpContext;
-        private Mock<ICalculatorRunDetailsService> _mockCalculatorRunDetailsService;
-
-        public ClassifyingCalculationRunControllerTests()
+        apiService = new Mock<IEprCalculatorApiService>();
+        logger = new Mock<ILogger<SetRunClassificationController>>();
+        httpContext = new DefaultHttpContext
         {
-            this.Fixture = new Fixture();
-            this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler();
-            SetMessageHandlerResponses(true, HttpStatusCode.OK);
-            _mockLogger = new Mock<ILogger<SetRunClassificationController>>();
-            _mockTelemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
-            _mockCalculatorRunDetailsService = new Mock<ICalculatorRunDetailsService>();
+            Session = BuildSession(),
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim(ClaimTypes.Name, "Test User")
+            ]))
+        };
+        httpContext.Session.SetInt32(SessionConstants.RelativeYear, RelativeYearValue);
+    }
 
-            _controller = new SetRunClassificationController(
-                       _configuration,
-                       new Mock<IEprCalculatorApiService>().Object,
-                       _mockLogger.Object,
-                       _mockTelemetryClient,
-                       _mockCalculatorRunDetailsService.Object);
-
-            _mockHttpContext = new Mock<HttpContext>();
-            _mockHttpContext.Setup(context => context.User)
-               .Returns(new ClaimsPrincipal(new ClaimsIdentity(
-           [
-               new Claim(ClaimTypes.Name, "Test User")
-           ])));
-
-            var mockSession = new MockHttpSession();
-            mockSession.SetString("accessToken", "something");
-            mockSession.SetInt32(SessionConstants.RelativeYear, 2024);
-            var context = new DefaultHttpContext()
+    [TestMethod]
+    public async Task Index_WhenDependenciesSucceed_ReturnsIndexViewWithExpectedModel()
+    {
+        // Arrange
+        var classificationResponse = BuildClassificationResponse(
+        [
+            new CalculatorRunClassificationDto
             {
-                Session = mockSession
-            };
+                Id = (int)RunClassification.INITIAL_RUN,
+                Status = "INITIAL RUN",
+                Description = string.Empty
+            }
+        ]);
+        SetupClassificationApiSequence(classificationResponse);
+        apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync(BuildRun(RunId));
+        var controller = BuildController();
 
-            // Setting the mocked HttpContext for the controller
-            _controller.ControllerContext = new ControllerContext { HttpContext = context };
+        // Act
+        var result = await controller.Index(RunId) as ViewResult;
 
-            var details = Fixture.Create<CalculatorRunDetailsViewModel>();
-            details.RunId = 1;
-            details.RunClassificationId = RunClassification.UNCLASSIFIED;
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ViewNames.SetRunClassificationIndex, result.ViewName);
 
-            (_, _, _controller) = BuildTestClass(
-                this.Fixture,
-                HttpStatusCode.Created,
-                Fixture.Create<RelativeYearClassificationResponseDto>(),
-                details,
-                _configuration);
-        }
+        var model = result.Model as SetRunClassificationViewModel;
+        Assert.IsNotNull(model);
+        Assert.AreEqual(RunId, model.RunId);
+        Assert.AreEqual(CommonConstants.InitialRunDescription, model.RelativeYearClassifications.Classifications[0].Description);
+        Assert.AreEqual(CommonConstants.InitialRunStatus, model.RelativeYearClassifications.Classifications[0].Status);
+        apiService.Verify(service => service.Get<RelativeYearClassificationResponseDto>(
+                "v1/ClassificationByRelativeYear",
+                It.Is<IDictionary<string, string?>?>(query =>
+                    query != null
+                    && query.ContainsKey("RunId")
+                    && query["RunId"] == RunId.ToString()
+                    && query.ContainsKey("RelativeYearValue")
+                    && query["RelativeYearValue"] == RelativeYearValue.ToString())),
+            Times.Exactly(1));
+    }
 
-        private Fixture Fixture { get; init; }
+    [TestMethod]
+    public async Task Index_WhenClassificationsApiReturnsNullPayload_RedirectsToStandardError()
+    {
+        // Arrange
+        SetupClassificationApiSequence([null]);
+        var controller = BuildController();
 
-        private Mock<IEprCalculatorApiService> MockApiService { get; init; } = null!;
+        // Act
+        var result = await controller.Index(RunId) as RedirectToActionResult;
 
-        private Mock<HttpMessageHandler> MockMessageHandler { get; set; }
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Index", result.ActionName);
+        Assert.AreEqual("StandardError", result.ControllerName);
+    }
 
-        [TestMethod]
-        public async Task Index_ReturnsViewResult_WithValidViewModel()
-        {
-            // Arrange
-            int runId = 1;
+    [TestMethod]
+    public async Task Index_WhenCalculatorRunIsMissing_RedirectsToStandardError()
+    {
+        // Arrange
+        SetupClassificationApiSequence(BuildClassificationResponse());
+        apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync((CalculatorRunDto?)null);
+        var controller = BuildController();
 
-            // Act
-            var result = await _controller.Index(runId) as ViewResult;
+        // Act
+        var result = await controller.Index(RunId) as RedirectToActionResult;
 
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.SetRunClassificationIndex, result.ViewName);
-            var viewModel = result.Model as SetRunClassificationViewModel;
-            Assert.IsNotNull(viewModel);
-            Assert.AreEqual(runId, viewModel.CalculatorRunDetails.RunId);
-        }
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Index", result.ActionName);
+        Assert.AreEqual("StandardError", result.ControllerName);
+    }
 
-        [TestMethod]
-        public async Task Index_ShouldReturnSetRunClassificationView_WhenAllDependenciesSucceed()
-        {
-            // Arrange
-            var runId = 1;
-            var details = Fixture.Create<CalculatorRunDetailsViewModel>();
-            details.RunId = runId;
+    [TestMethod]
+    public async Task Index_WhenSecondClassificationsApiCallFails_RedirectsToStandardError()
+    {
+        // Arrange
+        SetupClassificationApiSequence(BuildClassificationResponse(), null);
+        apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync(BuildRun(RunId));
+        var controller = BuildController();
 
-            var classificationResponse = Fixture.Create<RelativeYearClassificationResponseDto>();
+        // Act
+        var result = await controller.Index(RunId) as RedirectToActionResult;
 
-            SetMessageHandlerResponses(true, HttpStatusCode.OK); // Simulate success
-            (_, _, _controller) = BuildTestClass(
-                Fixture,
-                HttpStatusCode.OK,
-                classificationResponse,
-                details,
-                _configuration);
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Index", result.ActionName);
+        Assert.AreEqual("StandardError", result.ControllerName);
+    }
 
-            // Act
-            var result = await _controller.Index(runId);
-
-            // Assert
-            Assert.IsNotNull(result);
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-            Assert.AreEqual(ViewNames.SetRunClassificationIndex, viewResult.ViewName);
-            Assert.IsInstanceOfType(viewResult.Model, typeof(SetRunClassificationViewModel));
-        }
-
-        [TestMethod]
-        public async Task Index_ShouldRedirectToError_WhenCalculatorRunDetailsIsInvalid()
-        {
-            // Arrange
-            var runId = 1;
-
-            var details = new CalculatorRunDetailsViewModel
-            {
-                RunId = 0 // Invalid
-            };
-
-            SetMessageHandlerResponses(true, HttpStatusCode.OK);
-
-            (_, _, _controller) = BuildTestClass(
-                Fixture,
-                HttpStatusCode.OK,
-                Fixture.Create<RelativeYearClassificationResponseDto>(),
-                details,
-                _configuration);
-
-            // Act
-            var result = await _controller.Index(runId);
-
-            // Assert
-            var redirect = result as RedirectToActionResult;
-            Assert.IsNotNull(redirect, "Expected result to be RedirectToActionResult");
-            Assert.AreEqual("Index", redirect!.ActionName);
-            Assert.AreEqual("StandardError", redirect.ControllerName);
-        }
-
-        [TestMethod]
-        public async Task Index_ShouldRedirectToError_WhenSetClassificationsReturnsFalse()
-        {
-            // Arrange
-            var runId = 0;
-
-            var details = new CalculatorRunDetailsViewModel
-            {
-                RunId = 0,
-                RunClassificationStatus = "None"
-            };
-
-            SetMessageHandlerResponses(false, HttpStatusCode.OK);
-
-            (_, _, _controller) = BuildTestClass(
-                Fixture,
-                HttpStatusCode.OK,
-                Fixture.Create<RelativeYearClassificationResponseDto>(),
-                details,
-                _configuration);
-
-            // Act
-            var result = await _controller.Index(runId);
-
-            // Assert
-            var redirect = result as RedirectToActionResult;
-            Assert.IsNotNull(redirect, "Expected result to be RedirectToActionResult");
-            Assert.AreEqual("Index", redirect!.ActionName);
-            Assert.AreEqual("StandardError", redirect.ControllerName);
-        }
-
-        [TestMethod]
-        public async Task Submit_RedirectsToIndex_WhenModelStateIsInvalid()
-        {
-            // Arrange
-            int runId = 1;
-            SetRunClassificationViewModel model = new SetRunClassificationViewModel
-            {
-                CalculatorRunDetails = new CalculatorRunDetailsViewModel
-                {
-                    RunId = runId,
-                    RunName = "Test Run"
-                },
-                ClassifyRunType = (int)RunClassification.INITIAL_RUN
-            };
-
-            _controller.ModelState.AddModelError("TestError", "Test error message");
-
-            // Act
-            var result = await _controller.Submit(model) as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.SetRunClassificationIndex, result.ViewName);
-            var viewModel = result.Model as SetRunClassificationViewModel;
-            Assert.IsNotNull(viewModel);
-            Assert.AreEqual(runId, viewModel.CalculatorRunDetails.RunId);
-        }
-
-        [TestMethod]
-        public async Task Submit_RedirectsToClassifyRunConfirmation_WhenSubmitSuccessful()
-        {
-            // Arrange
-            int runId = 1;
-            SetRunClassificationViewModel model = new SetRunClassificationViewModel
-            {
-                CalculatorRunDetails = new CalculatorRunDetailsViewModel
-                {
-                    RunId = runId,
-                    RunName = "Test Run"
-                },
-                ClassifyRunType = (int)RunClassification.INITIAL_RUN
-            };
-
-            (var mockApiService, _, var controller) = BuildTestClass(
-                this.Fixture,
-                HttpStatusCode.Created,
-                Fixture.Create<RelativeYearClassificationResponseDto>(),
-                null,
-                _configuration);
-
-            // Act
-            var result = await controller.Submit(model) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, result.ControllerName);
-            Assert.AreEqual(runId, result?.RouteValues?["runId"]);
-            mockApiService.Verify(
-                MockApiService => MockApiService.CallApi(
-                    controller.HttpContext,
-                    HttpMethod.Put,
-                    It.IsAny<string>(),
-                    It.IsAny<IDictionary<string, string?>>(),
-                    It.Is<ClassificationDto>(dto => dto.RunId == runId)),
-                Times.Once);
-        }
-
-        [TestMethod]
-        public async Task Submit_InvalidModel_ReturnsViewResult_WithErrors()
-        {
-            // Arrange
-            var model = new SetRunClassificationViewModel { CalculatorRunDetails = new CalculatorRunDetailsViewModel { RunId = 1, RunName = "Test Run" } };
-            _controller.ModelState.AddModelError("ClassifyRunType", "Required");
-
-            // Act
-            var result = await _controller.Submit(model) as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result.Model, typeof(SetRunClassificationViewModel));
-            Assert.IsTrue(_controller.ModelState.ErrorCount > 0);
-        }
-
-        [TestMethod]
-        public async Task Submit_ValidModel_RedirectsToConfirmation()
-        {
-            // Arrange
-            SetMessageHandlerResponses(false, HttpStatusCode.Created);
-            var model = new SetRunClassificationViewModel
-            {
-                CalculatorRunDetails = new CalculatorRunDetailsViewModel
-                {
-                    RunId = 1,
-                    RunName = "Test Run"
-                },
-                ClassifyRunType = (int)RunClassification.INITIAL_RUN
-            };
-
-            // Act
-            var result = await _controller.Submit(model) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, result.ControllerName);
-        }
-
-        [TestMethod]
-        public async Task Index_ReturnsStandardError_WhenRunIdIsZero()
-        {
-            var details = Fixture.Create<CalculatorRunDetailsViewModel>();
-            details.RunId = 0;
-
-            (_, _, _controller) = BuildTestClass(
-                this.Fixture,
-                HttpStatusCode.Created,
-                Fixture.Create<RelativeYearClassificationResponseDto>(),
-                details,
-                _configuration);
-            // Arrange
-            int runId = 1;
-
-            // Act
-            var result = await _controller.Index(runId) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
-        }
-
-        [TestMethod]
-        public async Task Index_ReturnsStandardError_WhenRunIdIsZero_AndResponseDtoIsNull()
-        {
-            // Arrange
-            int runId = 1;
-
-            // Simulate API returning JSON "null" (which deserializes to null)
-            var incorrecteHttpResponse = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("null", Encoding.UTF8, "application/json")
-            };
-
-            // Create a CalculatorRunDetailsViewModel with RunId = 0 to simulate the failure condition
-            var runDetails = Fixture.Create<CalculatorRunDetailsViewModel>();
-            runDetails.RunId = 0;
-
-            // Setup the controller with the mocked response and run details
-            (_, _, _controller) = BuildTestClass(
-               this.Fixture,
-               HttpStatusCode.OK,
-               null,
-               runDetails,
-               _configuration);
-
-            // Act
-            var result = await _controller.Index(runId) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, result.ActionName);
-            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), result.ControllerName);
-        }
-
-        [TestMethod]
-
-        [DataRow(RunClassification.INITIAL_RUN, CommonConstants.InitialRunDescription)]
-        [DataRow(RunClassification.TEST_RUN, CommonConstants.TestRunDescription)]
-        [DataRow(RunClassification.INTERIM_RECALCULATION_RUN, CommonConstants.InterimRunDescription)]
-        [DataRow(RunClassification.FINAL_RECALCULATION_RUN, CommonConstants.FinalRecalculationRunDescription)]
-        [DataRow(RunClassification.FINAL_RUN, CommonConstants.FinalRecalculationRunDescription)]
-        public async Task Index_CheckClassificationStatusDescription_IsValid(RunClassification runClassification, string description)
-        {
-            var responseContent = "{\r\n  \"runId\": 1,\r\n  \"runClassificationId\": 7,\r\n  \"runName\": \"Test Calculator1702\",\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"relativeYear\": \"2025-26\"\r\n}";
-            var classificationResponseContent = "{\r\n\"relativeYear\": \"2025-26\",\r\n  \"classifications\": [\r\n    {\r\n      \"id\":" + (int)runClassification + ",\r\n\"status\": \"INITIAL RUN\"\r\n    }\r\n  ]\r\n}";
-
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                    {
-                        StatusCode = HttpStatusCode.OK,
-                        Content = new StringContent(responseContent)
-                    });
-
-            mockHttpMessageHandler
-               .Protected()
-               .Setup<Task<HttpResponseMessage>>(
-                   "SendAsync",
-                   ItExpr.Is<HttpRequestMessage>(k => k.RequestUri != null && k.RequestUri.ToString().Contains("Financial")),
-                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                   {
-                       StatusCode = HttpStatusCode.OK,
-                       Content = new StringContent(classificationResponseContent),
-                   });
-
-            // Arrange
-            int runId = 1;
-
-            var details = Fixture.Create<CalculatorRunDetailsViewModel>();
-            details.RunId = runId;
-
-            var relativeYearDto = Fixture.Create<RelativeYearClassificationResponseDto>();
-
-            relativeYearDto.Classifications = new List<CalculatorRunClassificationDto>
-            {
+    [TestMethod]
+    public async Task Index_WhenOnlyTestRunIsAvailable_SetsDisplayTestRun()
+    {
+        // Arrange
+        var testRunOnlyResponse = BuildClassificationResponse(
+            [
                 new CalculatorRunClassificationDto
                 {
-                    Id = (int)runClassification,
-                    Description = description,
-                    Status = runClassification.ToString()
+                    Id = (int)RunClassification.TEST_RUN,
+                    Status = "TEST RUN",
+                    Description = string.Empty
                 }
-            };
+            ],
+            []);
+        SetupClassificationApiSequence(testRunOnlyResponse);
+        apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync(BuildRun(RunId));
+        var controller = BuildController();
 
-            (_, _, _controller) = BuildTestClass(
-                this.Fixture,
-                HttpStatusCode.Created,
-                relativeYearDto,
-                details,
-                _configuration);
+        // Act
+        var result = await controller.Index(RunId) as ViewResult;
 
-            // Act
-            var result = await _controller.Index(runId) as ViewResult;
-            var model = result!.Model as SetRunClassificationViewModel;
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result.Model, typeof(SetRunClassificationViewModel));
-            Assert.AreEqual(description, model!.RelativeYearClassifications!.Classifications.First().Description);
-        }
+        // Assert
+        Assert.IsNotNull(result);
+        var model = result.Model as SetRunClassificationViewModel;
+        Assert.IsNotNull(model);
+        Assert.IsTrue(model.ImportantViewModel.IsDisplayTestRun);
+        Assert.IsFalse(model.ImportantViewModel.IsAnyRunInProgress);
+    }
 
-        [TestMethod]
-        [DataRow(RunClassification.INITIAL_RUN, CommonConstants.InitialRunDescription)]
-        [DataRow(RunClassification.FINAL_RECALCULATION_RUN, CommonConstants.FinalRecalculationRunDescription)]
-        [DataRow(RunClassification.FINAL_RUN, CommonConstants.FinalRecalculationRunDescription)]
-        public async Task Index_ValidModel_ClassificationStatusInformation_IsValid(RunClassification runClassification, string description)
+    [TestMethod]
+    public async Task Submit_WhenModelStateIsInvalid_ReturnsIndexViewWithRehydratedModel()
+    {
+        // Arrange
+        var model = BuildSubmitModel();
+        SetupClassificationApiSequence(BuildClassificationResponse());
+        apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync(BuildRun(RunId));
+        var controller = BuildController();
+        controller.ModelState.AddModelError(nameof(SetRunClassificationFormModel.ClassifyRunType), "Required");
+
+        // Act
+        var result = await controller.Submit(model) as ViewResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ViewNames.SetRunClassificationIndex, result.ViewName);
+        var returnedModel = result.Model as SetRunClassificationViewModel;
+        Assert.IsNotNull(returnedModel);
+        Assert.AreEqual(RunId, returnedModel.RunId);
+        apiService.Verify(service => service.CallApi(
+                HttpMethod.Put,
+                "v2/calculatorRuns",
+                It.IsAny<IDictionary<string, string?>?>(),
+                It.IsAny<object?>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Submit_WhenApiReturnsCreated_RedirectsToClassifyRunConfirmation()
+    {
+        // Arrange
+        var model = BuildSubmitModel();
+        ClassificationDto? capturedBody = null;
+        apiService
+            .Setup(service => service.CallApi(
+                HttpMethod.Put,
+                "v2/calculatorRuns",
+                It.IsAny<IDictionary<string, string?>?>(),
+                It.IsAny<object?>()))
+            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?>((_, _, _, body) => { capturedBody = body as ClassificationDto; })
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Created));
+        var controller = BuildController();
+
+        // Act
+        var result = await controller.Submit(model) as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ActionNames.Index, result.ActionName);
+        Assert.AreEqual(ControllerNames.ClassifyRunConfirmation, result.ControllerName);
+        Assert.AreEqual(RunId, result.RouteValues!["runId"]);
+        Assert.IsNotNull(capturedBody);
+        Assert.AreEqual(RunId, capturedBody.RunId);
+        Assert.AreEqual((int)RunClassification.INITIAL_RUN, capturedBody.ClassificationId);
+    }
+
+    [TestMethod]
+    public async Task Submit_WhenApiReturnsNonCreated_RedirectsToStandardError()
+    {
+        // Arrange
+        var model = BuildSubmitModel();
+        apiService
+            .Setup(service => service.CallApi(
+                HttpMethod.Put,
+                "v2/calculatorRuns",
+                It.IsAny<IDictionary<string, string?>?>(),
+                It.IsAny<object?>()))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
+        var controller = BuildController();
+
+        // Act
+        var result = await controller.Submit(model) as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Index", result.ActionName);
+        Assert.AreEqual("StandardError", result.ControllerName);
+    }
+
+    private SetRunClassificationController BuildController()
+    {
+        var controller = new SetRunClassificationController(apiService.Object, logger.Object);
+        controller.ControllerContext = new ControllerContext
         {
-            // Arrange
-            int runId = 1;
+            HttpContext = httpContext
+        };
+        return controller;
+    }
 
-            var details = Fixture.Create<CalculatorRunDetailsViewModel>();
-            details.RunId = runId;
+    private void SetupClassificationApiSequence(params RelativeYearClassificationResponseDto?[] responses)
+    {
+        var sequence = apiService
+            .Setup(service => service.Get<RelativeYearClassificationResponseDto>("v1/ClassificationByRelativeYear", It.IsAny<IDictionary<string, string?>?>()));
 
-            var relativeYearDto = Fixture.Create<RelativeYearClassificationResponseDto>();
+        foreach (var response in responses)
+            sequence.ReturnsAsync(response);
+    }
 
-            relativeYearDto.Classifications = new List<CalculatorRunClassificationDto>
-            {
-                new CalculatorRunClassificationDto
-                {
-                    Id = (int)runClassification,
-                    Description = description,
-                    Status = runClassification.ToString()
-                }
-            };
-
-            (_, _, _controller) = BuildTestClass(
-                this.Fixture,
-                HttpStatusCode.Created,
-                relativeYearDto,
-                details,
-                _configuration);
-
-            // Act
-            var result = await _controller.Index(runId) as ViewResult;
-            var model = result!.Model as SetRunClassificationViewModel;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result.Model, typeof(SetRunClassificationViewModel));
-
-            if(runClassification == RunClassification.INITIAL_RUN)
-            {
-               Assert.IsFalse(model!.ClassificationStatusInformation!.ShowInitialRunDescription);
-               Assert.IsTrue(model.ClassificationStatusInformation.ShowInterimRecalculationRunDescription);
-               Assert.IsTrue(model.ClassificationStatusInformation.ShowFinalRecalculationRunDescription);
-               Assert.IsTrue(model.ClassificationStatusInformation.ShowFinalRunDescription);
-            }
-
-            if (runClassification == RunClassification.FINAL_RECALCULATION_RUN)
-            {
-                Assert.IsTrue(model!.ClassificationStatusInformation!.ShowInitialRunDescription);
-                Assert.IsFalse(model.ClassificationStatusInformation.ShowFinalRecalculationRunDescription);
-            }
-
-            if (runClassification == RunClassification.FINAL_RUN)
-            {
-                Assert.IsTrue(model!.ClassificationStatusInformation!.ShowInitialRunDescription);
-                Assert.IsFalse(model.ClassificationStatusInformation.ShowFinalRunDescription);
-            }
-        }
-
-        private void SetMessageHandlerResponses(bool isUnclassified, HttpStatusCode httpStatusCode)
+    private static SetRunClassificationFormModel BuildSubmitModel()
+    {
+        return new SetRunClassificationFormModel
         {
-            var responseContent = isUnclassified ? "{\r\n  \"runId\": 1,\r\n  \"runClassificationId\": 3,\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"relativeYear\": \"2025-26\"\r\n}"
-                : "{\r\n  \"runId\": 1,\r\n  \"runClassificationId\": 7,\r\n  \"runName\": \"Test Calculator1702\",\r\n  \"runClassificationStatus\": \"UNCLASSIFIED\",\r\n  \"relativeYear\": \"2025-26\"\r\n}";
-            this.MockMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                    {
-                        StatusCode = httpStatusCode,
-                        Content = new StringContent(responseContent)
-                    });
+            RunId = RunId,
+            ClassifyRunType = (int)RunClassification.INITIAL_RUN
+        };
+    }
 
-            this.MockMessageHandler
-               .Protected()
-               .Setup<Task<HttpResponseMessage>>(
-                   "SendAsync",
-                   ItExpr.Is<HttpRequestMessage>(k => k.RequestUri != null && k.RequestUri.ToString().Contains("Financial")),
-                   ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                   {
-                       StatusCode = httpStatusCode,
-                       Content = new StringContent("{\r\n\"relativeYear\": \"2025-26\",\r\n  \"classifications\": [\r\n    {\r\n      \"id\": 4,\r\n      \"status\": \"TEST RUN\"\r\n    },\r\n    {\r\n      \"id\": 8,\r\n      \"status\": \"INITIAL RUN\"\r\n    }\r\n  ]\r\n}"),
-                   });
-        }
-
-        private (
-            Mock<IEprCalculatorApiService> MockApiService,
-            Mock<ILogger<SetRunClassificationController>> MockLogger,
-            SetRunClassificationController TestClass) BuildTestClass(
-                Fixture fixture,
-                HttpStatusCode httpStatusCode,
-                object? callApiResponse,
-                CalculatorRunDetailsViewModel? details = null,
-                IConfiguration? configurationItems = null)
+    private static CalculatorRunDto BuildRun(int runId, RunClassification classification = RunClassification.UNCLASSIFIED)
+    {
+        return new CalculatorRunDto
         {
-            configurationItems ??= configurationItems ?? ConfigurationItems.GetConfigurationValues();
-            details ??= Fixture.Create<CalculatorRunDetailsViewModel>();
-            var mockApiService = TestMockUtils.BuildMockApiService(
-                httpStatusCode,
-                JsonConvert.SerializeObject(callApiResponse));
+            RunId = runId,
+            RunName = $"Run {runId}",
+            RunClassification = classification,
+            RelativeYear = new RelativeYear(RelativeYearValue),
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = "Test User",
+            BillingRunStatus = BillingRunStatus.None
+        };
+    }
 
-            var mockLogger = new Mock<ILogger<SetRunClassificationController>>();
+    private static RelativeYearClassificationResponseDto BuildClassificationResponse(
+        IEnumerable<CalculatorRunClassificationDto>? classifications = null,
+        IEnumerable<CalculatorRunDto>? classifiedRuns = null)
+    {
+        return new RelativeYearClassificationResponseDto
+        {
+            RelativeYear = new RelativeYear(RelativeYearValue),
+            Classifications = classifications?.ToList()
+                              ??
+                              [
+                                  new CalculatorRunClassificationDto
+                                  {
+                                      Id = (int)RunClassification.TEST_RUN,
+                                      Status = "TEST RUN",
+                                      Description = string.Empty
+                                  }
+                              ],
+            ClassifiedRuns = classifiedRuns?.ToList() ?? []
+        };
+    }
 
-            var testClass = new SetRunClassificationController(
-                configurationItems,
-                mockApiService.Object,
-                mockLogger.Object,
-                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
-                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
-            testClass.ControllerContext.HttpContext = new DefaultHttpContext()
+    private static ISession BuildSession()
+    {
+        var storage = new Dictionary<string, byte[]>();
+        var session = new Mock<ISession>();
+        session.SetupGet(x => x.Id).Returns("unit-test-session");
+        session.SetupGet(x => x.IsAvailable).Returns(true);
+        session.SetupGet(x => x.Keys).Returns(() => storage.Keys);
+        session.Setup(x => x.Clear()).Callback(storage.Clear);
+        session.Setup(x => x.Remove(It.IsAny<string>())).Callback<string>(key => storage.Remove(key));
+        session.Setup(x => x.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+            .Callback<string, byte[]>((key, value) => storage[key] = value);
+        session.Setup(x => x.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]?>.IsAny))
+            .Returns((string key, out byte[]? value) =>
             {
-                Session = TestMockUtils.BuildMockSession(fixture).Object,
-            };
-
-            return (mockApiService, mockLogger, testClass);
-        }
+                var found = storage.TryGetValue(key, out var data);
+                value = data;
+                return found;
+            });
+        session.Setup(x => x.LoadAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        session.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        return session.Object;
     }
 }

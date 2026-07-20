@@ -1,150 +1,117 @@
-﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
-using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
-namespace EPR.Calculator.Frontend.Controllers
+namespace EPR.Calculator.Frontend.Controllers;
+
+public class ParameterUploadFileController : BaseController
 {
-    public class ParameterUploadFileController : Controller
+    public IActionResult Index()
     {
-        private IActionResult RedirectToErrorPage => this.RedirectToAction(ActionNames.StandardErrorIndex, "StandardError");
+        return View(ViewNames.ParameterUploadFileIndex, new ParameterUploadViewModel());
+    }
 
-        public IActionResult Index()
+    [HttpPost]
+    public async Task<IActionResult> Upload(IFormFile fileUpload)
+    {
+        return await ProcessUploadAsync(fileUpload);
+    }
+
+    public async Task<IActionResult> Upload()
+    {
+        try
         {
-            var currentUser = CommonUtil.GetUserName(this.HttpContext);
-            return this.View(
-                 ViewNames.ParameterUploadFileIndex,
-                 new ParameterUploadViewModel
-                 {
-                     CurrentUser = currentUser,
-                     BackLinkViewModel = new BackLinkViewModel()
-                     {
-                         BackLink = ControllerNames.ViewDefaultParameters,
-                         CurrentUser = currentUser,
-                     },
-                 });
+            var filePath = TempData["FilePath"]?.ToString();
+            if (string.IsNullOrEmpty(filePath))
+                return RedirectToError();
+
+            using var stream = System.IO.File.OpenRead(filePath);
+            var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
+
+            return await ProcessUploadAsync(fileUpload);
         }
-
-        [HttpPost]
-        public async Task<IActionResult> Upload(IFormFile fileUpload)
+        catch (Exception)
         {
-            return await this.ProcessUploadAsync(fileUpload);
+            return RedirectToError();
         }
+    }
 
-        public async Task<IActionResult> Upload()
+    public async Task<IActionResult> DownloadCsvTemplate()
+    {
+        try
         {
-            try
+            using (var client = new HttpClient())
             {
-                var filePath = this.TempData["FilePath"]?.ToString();
-                if (string.IsNullOrEmpty(filePath))
+                var fileBytes = await client.GetByteArrayAsync(StaticHelpers.CsvTemplatePath);
+                return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", StaticHelpers.CsvTemplateFileName);
+            }
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "An error occured while processing request" + ex.Message);
+        }
+    }
+
+    private async Task<IActionResult> ProcessUploadAsync(IFormFile fileUpload)
+    {
+        try
+        {
+            var viewName = GetViewName(fileUpload);
+            if (viewName == ViewNames.ParameterUploadFileIndex)
+            {
+                var viewModel = CreateParameterUploadViewModel();
+                return View(viewName, viewModel);
+            }
+            else
+            {
+                var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
+                var viewModel = new ParameterRefreshViewModel
                 {
-                    return this.RedirectToErrorPage;
-                }
-
-                using var stream = System.IO.File.OpenRead(filePath);
-                var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
-
-                return await this.ProcessUploadAsync(fileUpload);
-            }
-            catch (Exception)
-            {
-                return this.RedirectToErrorPage;
+                    ParameterTemplateValues = schemeTemplateParameterValues,
+                    FileName = fileUpload.FileName
+                };
+                return View(viewName, viewModel);
             }
         }
-
-        public async Task<IActionResult> DownloadCsvTemplate()
+        catch (Exception)
         {
-            try
-            {
-                using (var client = new HttpClient())
-                {
-                    var fileBytes = await client.GetByteArrayAsync(StaticHelpers.CsvTemplatePath);
-                    return this.File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", StaticHelpers.CsvTemplateFileName);
-                }
-            }
-            catch (Exception ex)
-            {
-                return this.StatusCode(500, "An error occured while processing request" + ex.Message);
-            }
+            return RedirectToError();
         }
+    }
 
-        private async Task<IActionResult> ProcessUploadAsync(IFormFile fileUpload)
+    private ParameterUploadViewModel CreateParameterUploadViewModel()
+    {
+        var errors = TempData[UploadFileErrorIds.DefaultParameterUploadErrors] != null
+            ? JsonConvert.DeserializeObject<ErrorViewModel>(TempData[UploadFileErrorIds.DefaultParameterUploadErrors]?.ToString() ?? string.Empty)
+            : null;
+
+        if (errors != null)
+            errors.DOMElementId = ViewControlNames.FileUpload;
+
+        ModelState.Clear();
+        return new ParameterUploadViewModel
         {
-            try
-            {
-                var viewName = this.GetViewName(fileUpload);
-                if (viewName == ViewNames.ParameterUploadFileIndex)
-                {
-                    var viewModel = this.CreateParameterUploadViewModel();
-                    return this.View(viewName, viewModel);
-                }
-                else
-                {
-                    var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
-                    var viewModel = new ParameterRefreshViewModel
-                    {
-                        ParameterTemplateValues = schemeTemplateParameterValues,
-                        FileName = fileUpload.FileName,
-                        BackLinkViewModel = new BackLinkViewModel()
-                        {
-                            BackLink = ControllerNames.ViewDefaultParameters,
-                            CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                        },
-                    };
-                    return this.View(viewName, viewModel);
-                }
-            }
-            catch (Exception)
-            {
-                return this.RedirectToErrorPage;
-            }
-        }
+            Errors = errors
+        };
+    }
 
-        private ParameterUploadViewModel CreateParameterUploadViewModel()
-        {
-            var errors = this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors] != null
-                ? JsonConvert.DeserializeObject<ErrorViewModel>(this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors]?.ToString() ?? string.Empty)
-                : null;
+    private string GetViewName(IFormFile fileUpload)
+    {
+        if (ValidateCSV(fileUpload).ErrorMessage is not null)
+            return ViewNames.ParameterUploadFileIndex;
 
-            if (errors != null)
-            {
-                errors.DOMElementId = ViewControlNames.FileUpload;
-            }
+        return ViewNames.ParameterUploadFileRefresh;
+    }
 
-            this.ModelState.Clear();
-            return new ParameterUploadViewModel
-            {
-                Errors = errors,
-                BackLinkViewModel = new BackLinkViewModel()
-                {
-                    BackLink = ControllerNames.ViewDefaultParameters,
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                },
-            };
-        }
+    private ErrorViewModel ValidateCSV(IFormFile fileUpload)
+    {
+        var validationErrors = CsvFileHelper.ValidateCSV(fileUpload);
 
-        private string GetViewName(IFormFile fileUpload)
-        {
-            if (this.ValidateCSV(fileUpload).ErrorMessage is not null)
-            {
-                return ViewNames.ParameterUploadFileIndex;
-            }
+        if (validationErrors.ErrorMessage != null)
+            TempData[UploadFileErrorIds.DefaultParameterUploadErrors] = JsonConvert.SerializeObject(validationErrors);
 
-            return ViewNames.ParameterUploadFileRefresh;
-        }
-
-        private ErrorViewModel ValidateCSV(IFormFile fileUpload)
-        {
-            ErrorViewModel validationErrors = CsvFileHelper.ValidateCSV(fileUpload);
-
-            if (validationErrors.ErrorMessage != null)
-            {
-                this.TempData[UploadFileErrorIds.DefaultParameterUploadErrors] = JsonConvert.SerializeObject(validationErrors);
-            }
-
-            return validationErrors;
-        }
+        return validationErrors;
     }
 }

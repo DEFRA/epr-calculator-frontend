@@ -6,56 +6,61 @@ namespace EPR.Calculator.Frontend.Helpers
 {
     public static class ImportantRunClassificationHelper
     {
-        public static ImportantSectionViewModel CreateclassificationViewModel(List<ClassifiedCalculatorRunDto> classifiedCalculatorRuns, RelativeYear relativeYear)
+        public static ImportantSectionViewModel CreateclassificationViewModel(List<CalculatorRunDto> classifiedCalculatorRuns, RelativeYear relativeYear)
         {
             ImportantSectionViewModel importantClassification = new ImportantSectionViewModel();
 
-            if (classifiedCalculatorRuns.Exists(x => x.RunClassificationId == (int)RunClassification.INITIAL_RUN
-            || x.RunClassificationId == (int)RunClassification.INTERIM_RECALCULATION_RUN
-            || x.RunClassificationId == (int)RunClassification.FINAL_RECALCULATION_RUN
-            || x.RunClassificationId == (int)RunClassification.FINAL_RUN))
+            if (classifiedCalculatorRuns.Exists(x => x.RunClassification
+                    is RunClassification.INITIAL_RUN
+                    or RunClassification.INTERIM_RECALCULATION_RUN
+                    or RunClassification.FINAL_RECALCULATION_RUN
+                    or RunClassification.FINAL_RUN))
             {
                 importantClassification.IsAnyRunInProgress = true;
                 importantClassification.HasAnyDesigRun = true;
-                importantClassification.RunIdInProgress = classifiedCalculatorRuns.Where(x => x.RunClassificationId == (int)RunClassification.INITIAL_RUN
-            || x.RunClassificationId == (int)RunClassification.INTERIM_RECALCULATION_RUN
-            || x.RunClassificationId == (int)RunClassification.FINAL_RECALCULATION_RUN
-            || x.RunClassificationId == (int)RunClassification.FINAL_RUN).OrderByDescending(x => x.UpdatedAt).First().RunId;
+                importantClassification.RunIdInProgress = classifiedCalculatorRuns.Where(x => x.RunClassification
+                    is RunClassification.INITIAL_RUN
+                    or RunClassification.INTERIM_RECALCULATION_RUN
+                    or RunClassification.FINAL_RECALCULATION_RUN
+                    or RunClassification.FINAL_RUN)
+                    .OrderByDescending(x => x.UpdatedAt)
+                    .First()
+                    .RunId;
             }
             else
             {
                 importantClassification.HasAnyDesigRun = false;
 
-                if (classifiedCalculatorRuns.Exists(x => x.RunClassificationId == (int)RunClassification.INITIAL_RUN_COMPLETED))
+                if (classifiedCalculatorRuns.Exists(x => x.RunClassification == RunClassification.INITIAL_RUN_COMPLETED))
                 {
                     importantClassification.IsDisplayInitialRun = true;
                     importantClassification.HasAnyDesigRun = true;
-                    ClassifiedCalculatorRunDto initialRunCompleted = classifiedCalculatorRuns.Where(x => x.RunClassificationId == (int)RunClassification.INITIAL_RUN_COMPLETED).OrderByDescending(x => x.UpdatedAt).First();
-                    importantClassification.IsDisplayInitialRunMessage = "Already completed for financial year " + relativeYear + " on " + initialRunCompleted.UpdatedAt.ToString("dd MMM yyyy");
+                    CalculatorRunDto initialRunCompleted = classifiedCalculatorRuns.Where(x => x.RunClassification == RunClassification.INITIAL_RUN_COMPLETED).OrderByDescending(x => x.UpdatedAt).First();
+                    importantClassification.IsDisplayInitialRunMessage = "Already completed for financial year " + relativeYear + " on " + initialRunCompleted.UpdatedAt?.ToString("dd MMM yyyy");
                 }
 
-                if (classifiedCalculatorRuns.Exists(x => x.RunClassificationId == (int)RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED))
+                if (classifiedCalculatorRuns.Exists(x => x.RunClassification == RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED))
                 {
                     importantClassification.HasAnyDesigRun = true;
                     importantClassification.IsDisplayInterimRun = true;
-                    ClassifiedCalculatorRunDto interimRunCompleted = classifiedCalculatorRuns.Where(x => x.RunClassificationId == (int)RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED).OrderByDescending(x => x.UpdatedAt).First();
-                    importantClassification.IsDisplayInterimRunMessage = "Already completed for financial year " + relativeYear + " on " + interimRunCompleted.UpdatedAt.ToString("dd MMM yyyy");
+                    CalculatorRunDto interimRunCompleted = classifiedCalculatorRuns.Where(x => x.RunClassification == RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED).OrderByDescending(x => x.UpdatedAt).First();
+                    importantClassification.IsDisplayInterimRunMessage = "Already completed for financial year " + relativeYear + " on " + interimRunCompleted.UpdatedAt?.ToString("dd MMM yyyy");
                 }
 
-                if (classifiedCalculatorRuns.Exists(x => x.RunClassificationId == (int)RunClassification.FINAL_RECALCULATION_RUN_COMPLETED))
+                if (classifiedCalculatorRuns.Exists(x => x.RunClassification == RunClassification.FINAL_RECALCULATION_RUN_COMPLETED))
                 {
                     importantClassification.HasAnyDesigRun = true;
                     importantClassification.IsDisplayFinalRecallRun = true;
-                    ClassifiedCalculatorRunDto finalRecalRuncompleted = classifiedCalculatorRuns.Where(x => x.RunClassificationId == (int)RunClassification.FINAL_RECALCULATION_RUN_COMPLETED).OrderByDescending(x => x.UpdatedAt).First();
-                    importantClassification.IsDisplayFinalRecallRunMessage = "Already completed for financial year " + relativeYear + " on " + finalRecalRuncompleted.UpdatedAt.ToString("dd MMM yyyy");
+                    CalculatorRunDto finalRecalRuncompleted = classifiedCalculatorRuns.Where(x => x.RunClassification == RunClassification.FINAL_RECALCULATION_RUN_COMPLETED).OrderByDescending(x => x.UpdatedAt).First();
+                    importantClassification.IsDisplayFinalRecallRunMessage = "Already completed for financial year " + relativeYear + " on " + finalRecalRuncompleted.UpdatedAt?.ToString("dd MMM yyyy");
                 }
 
-                if (classifiedCalculatorRuns.Exists(x => x.RunClassificationId == (int)RunClassification.FINAL_RUN_COMPLETED))
+                if (classifiedCalculatorRuns.Exists(x => x.RunClassification == RunClassification.FINAL_RUN_COMPLETED))
                 {
                     importantClassification.HasAnyDesigRun = true;
                     importantClassification.IsDisplayFinalRun = true;
-                    ClassifiedCalculatorRunDto finalCompleted = classifiedCalculatorRuns.Where(x => x.RunClassificationId == (int)RunClassification.FINAL_RUN_COMPLETED).OrderByDescending(x => x.UpdatedAt).First();
-                    importantClassification.IsDisplayFinalRunMessage = "Already completed for financial year " + relativeYear + " on " + finalCompleted.UpdatedAt.ToString("dd MMM yyyy");
+                    CalculatorRunDto finalCompleted = classifiedCalculatorRuns.Where(x => x.RunClassification == RunClassification.FINAL_RUN_COMPLETED).OrderByDescending(x => x.UpdatedAt).First();
+                    importantClassification.IsDisplayFinalRunMessage = "Already completed for financial year " + relativeYear + " on " + finalCompleted.UpdatedAt?.ToString("dd MMM yyyy");
 
                     if (!importantClassification.IsDisplayFinalRecallRun)
                     {

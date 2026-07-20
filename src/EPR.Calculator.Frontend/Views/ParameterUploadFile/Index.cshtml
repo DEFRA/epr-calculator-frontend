@@ -4,8 +4,7 @@
     var errors = Model.Errors;
 }
 
-<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
-
+<vc:user-nav back-link="@Url.Action("Index", "DefaultParameters")"/>
 
 @if (errors != null)
 {

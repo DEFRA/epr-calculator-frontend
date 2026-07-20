@@ -1,15 +1,6 @@
-﻿using EPR.Calculator.Frontend.Models;
+﻿namespace EPR.Calculator.Frontend.ViewModels;
 
-namespace EPR.Calculator.Frontend.ViewModels
+public record BillingFileSuccessViewModel
 {
-    /// <summary>
-    /// View model used to hold the data for the billing file success page.
-    /// </summary>
-    public record BillingFileSuccessViewModel : ViewModelCommonData
-    {
-        /// <summary>
-        /// Gets the confirmation view model for use in the partial.
-        /// </summary>
-        public required ConfirmationViewModel ConfirmationViewModel { get; init; }
-    }
+    public required ConfirmationViewModel ConfirmationViewModel { get; init; }
 }

@@ -1,303 +1,260 @@
-﻿using System.Net;
+using System.Net;
 using System.Security.Claims;
-using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
-using EPR.Calculator.Frontend.UnitTests.HelpersTest;
-using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using Moq;
-using Moq.Protected;
 
-namespace EPR.Calculator.Frontend.UnitTests.Controllers
+namespace EPR.Calculator.Frontend.UnitTests.Controllers;
+
+[TestClass]
+public class SendBillingFileControllerTests
 {
-    [TestClass]
-    public class SendBillingFileControllerTests
+    private const string TestUserName = "Test User";
+
+    private Mock<IEprCalculatorApiService> apiService = null!;
+    private DefaultHttpContext httpContext = null!;
+    private TelemetryClient telemetryClient = null!;
+
+    [TestInitialize]
+    public void TestInitialize()
     {
-        private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
-        private TelemetryClient _telemetryClient;
-        private SendBillingFileController _controller;
-        private Mock<HttpContext> _mockHttpContext;
+        apiService = new Mock<IEprCalculatorApiService>();
+        telemetryClient = new TelemetryClient(new TelemetryConfiguration());
+        httpContext = CreateHttpContext();
+    }
 
-        public SendBillingFileControllerTests()
-        {
-            this.Fixture = new Fixture();
-            _telemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
+    [TestMethod]
+    public async Task Index_RunNotFound_RedirectsToStandardError()
+    {
+        // Arrange
+        const int runId = 123;
+        apiService.Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync((CalculatorRunDto?)null);
+        var controller = BuildController();
 
-            var identity = new ClaimsIdentity();
-            identity.AddClaim(new Claim(ClaimTypes.Name, "TestUser"));
-            var user = new ClaimsPrincipal(identity);
-            _mockHttpContext = new Mock<HttpContext>();
-            _mockHttpContext.Setup(ctx => ctx.User).Returns(user);
+        // Act
+        var result = await controller.Index(runId) as RedirectToActionResult;
 
-            _controller = CreateController();
-        }
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Index", result.ActionName);
+        Assert.AreEqual("StandardError", result.ControllerName);
+    }
 
-        private Fixture Fixture { get; init; }
+    [TestMethod]
+    public async Task Index_BillingFileNotLatest_RedirectsToStandardError()
+    {
+        // Arrange
+        const int runId = 123;
+        apiService.Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync(CreateRunDto(runId, "Run 123", false));
+        var controller = BuildController();
 
-        [TestMethod]
-        public async Task Index_WithValidRunDetails_ReturnsViewWithViewModel()
-        {
-            // Arrange
-            int runId = 123;
-            var runDetails = new CalculatorRunDetailsViewModel
+        // Act
+        var result = await controller.Index(runId) as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Index", result.ActionName);
+        Assert.AreEqual("StandardError", result.ControllerName);
+    }
+
+    [TestMethod]
+    public async Task Index_BillingFileLatest_ReturnsViewModelWithBackLink()
+    {
+        // Arrange
+        const int runId = 456;
+        const string runName = "Quarterly Billing Run";
+        apiService.Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync(CreateRunDto(runId, runName, true));
+        var controller = BuildController();
+
+        // Act
+        var result = await controller.Index(runId) as ViewResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+
+        var model = result.Model as SendBillingFileViewModel;
+        Assert.IsNotNull(model);
+        Assert.AreEqual(runId, model.RunId);
+        Assert.AreEqual(runName, model.CalcRunName);
+    }
+
+    [TestMethod]
+    public async Task Submit_ModelStateInvalid_ReturnsViewAndDoesNotCallApi()
+    {
+        // Arrange
+        const int runId = 13;
+        apiService.Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync(CreateRunDto(runId, $"Run {runId}", true));
+        var controller = BuildController();
+        var model = CreateFormModel(runId, true);
+        controller.ModelState.AddModelError(nameof(model.ConfirmSend), "Invalid");
+
+        // Act
+        var result = await controller.Submit(model) as ViewResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ViewNames.SendBillingFileIndex, result.ViewName);
+
+        var resultModel = result.Model as SendBillingFileViewModel;
+        Assert.IsNotNull(resultModel);
+        Assert.AreEqual(runId, resultModel.RunId);
+        apiService.Verify(service => service.CallApi(
+            It.IsAny<HttpMethod>(),
+            It.IsAny<string>(),
+            It.IsAny<IDictionary<string, string?>?>(),
+            It.IsAny<object?>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Submit_ApiAccepted_RedirectsToBillingFileSuccess()
+    {
+        // Arrange
+        const int runId = 42;
+        var controller = BuildController();
+        var model = CreateFormModel(runId, true);
+
+        HttpMethod? capturedMethod = null;
+        string? capturedRelativePath = null;
+
+        apiService.Setup(service => service.CallApi(
+                It.IsAny<HttpMethod>(),
+                It.IsAny<string>(),
+                It.IsAny<IDictionary<string, string?>?>(),
+                It.IsAny<object?>()))
+            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?>((method, relativePath, _, _) =>
             {
-                RunId = runId,
-                RunName = Fixture.Create<string>(),
-            };
+                capturedMethod = method;
+                capturedRelativePath = relativePath;
+            })
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Accepted));
 
-            var controller = BuildTestClass(
-                Fixture,
-                HttpStatusCode.OK,
-                runDetails,
-                runDetails,
-                configurationItems: _configuration);
+        // Act
+        var result = await controller.Submit(model) as RedirectToActionResult;
 
-            // Act
-            var result = await controller.Index(runId);
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ActionNames.BillingFileSuccess, result.ActionName);
+        Assert.AreEqual(CommonUtil.GetControllerName(typeof(BillingInstructionsController)), result.ControllerName);
+        Assert.AreEqual(HttpMethod.Post, capturedMethod);
+        Assert.AreEqual($"v2/prepareBillingFileSendToFSS/{runId}", capturedRelativePath);
+    }
 
-            // Assert
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-            var model = viewResult.Model as SendBillingFileViewModel;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(runId, model.RunId);
-            Assert.AreEqual(runDetails.RunName, model.CalcRunName);
-        }
+    [TestMethod]
+    public async Task Submit_ApiUnprocessableEntity_ReturnsIndexViewAndFlagsStaleBillingFile()
+    {
+        // Arrange
+        const int runId = 43;
+        apiService.Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync(CreateRunDto(runId, $"Run {runId}", false));
+        var controller = BuildController();
+        var model = CreateFormModel(runId, true);
 
-        [TestMethod]
-        public async Task Index_WithNullRunDetails_RedirectsToStandardError()
-        {
-            // Arrange
-            int runId = 123;
-            var runDetails = new CalculatorRunDetailsViewModel
+        apiService.Setup(service => service.CallApi(
+                It.IsAny<HttpMethod>(),
+                It.IsAny<string>(),
+                It.IsAny<IDictionary<string, string?>?>(),
+                It.IsAny<object?>()))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.UnprocessableEntity));
+
+        // Act
+        var result = await controller.Submit(model) as ViewResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ActionNames.Index, result.ViewName);
+
+        var resultModel = result.Model as SendBillingFileViewModel;
+        Assert.IsNotNull(resultModel);
+        Assert.IsFalse(resultModel.IsBillingFileLatest);
+    }
+
+    [TestMethod]
+    public async Task Submit_ApiError_RedirectsToStandardError()
+    {
+        // Arrange
+        const int runId = 44;
+        var controller = BuildController();
+        var model = CreateFormModel(runId, true);
+
+        apiService.Setup(service => service.CallApi(
+                It.IsAny<HttpMethod>(),
+                It.IsAny<string>(),
+                It.IsAny<IDictionary<string, string?>?>(),
+                It.IsAny<object?>()))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError)
             {
-                RunId = runId,
-                RunName = "Test Run"
-            };
+                Content = new StringContent("error")
+            });
 
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    Content = new StringContent(JsonConvert.SerializeObject(null)),
-                });
+        // Act
+        var result = await controller.Submit(model) as RedirectToActionResult;
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Index", result.ActionName);
+        Assert.AreEqual("StandardError", result.ControllerName);
+    }
 
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-
-            var controller = CreateController(httpClientFactory: mockHttpClientFactory.Object);
-
-            // Act
-            var result = await controller.Index(runId);
-
-            // Assert
-            var redirect = result as RedirectToActionResult;
-            Assert.IsNotNull(redirect);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, redirect.ActionName);
-            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), redirect.ControllerName);
-        }
-
-        [TestMethod]
-        public async Task Index_WithBillingFileNotGeneratedLatest_RedirectsToIndex()
+    private SendBillingFileController BuildController()
+    {
+        return new SendBillingFileController(telemetryClient, apiService.Object)
         {
-            // Arrange
-            int runId = 123;
-            var runDetails = new CalculatorRunDetailsViewModel
+            ControllerContext = new ControllerContext
             {
-                RunId = runId,
-                RunName = Fixture.Create<string>(),
-                IsBillingFileGeneratedLatest = false
-            };
+                HttpContext = httpContext
+            }
+        };
+    }
 
-            var controller = BuildTestClass(
-                Fixture,
-                HttpStatusCode.OK,
-                runDetails,
-                runDetails,
-                configurationItems: _configuration);
-
-            // Act
-            var result = await controller.Index(runId) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(ControllerNames.CalculationRunOverview, result.ControllerName);
-        }
-
-        [TestMethod]
-        public async Task Submit_ModelStateInvalid_RedirectsToIndex()
+    private static SendBillingFileFormModel CreateFormModel(int runId, bool? confirmSend)
+    {
+        return new SendBillingFileFormModel
         {
-            // Arrange
-            SendBillingFileViewModel model = new SendBillingFileViewModel
+            RunId = runId,
+            ConfirmSend = confirmSend
+        };
+    }
+
+    private static CalculatorRunDto CreateRunDto(int runId, string runName, bool isBillingFileLatest)
+    {
+        return new CalculatorRunDto
+        {
+            RunId = runId,
+            RunName = runName,
+            RelativeYear = new RelativeYear(2026),
+            BillingFile = new CalculatorRunDto.BillingFileDto
             {
-                RunId = 1,
-                ConfirmSend = false, // Simulating invalid state
-                CalcRunName = "Test Run",
-            };
+                Id = 1,
+                IsLatest = isBillingFileLatest,
+                HasBeenSentToFss = false,
+                CsvFileName = "billing.csv",
+                JsonFileName = "billing.json",
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = "test-user"
+            }
+        };
+    }
 
-            _controller.ModelState.AddModelError("Error", "Invalid");
-
-            // Act
-            var result = await _controller.Submit(model);
-
-            // Assert
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-            Assert.AreEqual(ViewNames.SendBillingFileIndex, viewResult.ViewName);
-            Assert.AreEqual(model, viewResult.Model);
-        }
-
-        [TestMethod]
-        public async Task Submit_ApiAccepted_RedirectsToBillingFileSuccess()
+    private static DefaultHttpContext CreateHttpContext()
+    {
+        return new DefaultHttpContext
         {
-            // Arrange
-            Fixture.Customize<SendBillingFileViewModel>(c => c.With(c => c.ConfirmSend, true));
-            SendBillingFileViewModel model = Fixture.Create<SendBillingFileViewModel>();
-
-            var controller = BuildTestClass(
-                Fixture,
-                HttpStatusCode.Accepted);
-
-            // Act
-            var result = await controller.Submit(model);
-
-            // Assert
-            var redirect = result as RedirectToActionResult;
-            Assert.IsNotNull(redirect);
-            Assert.AreEqual(ActionNames.BillingFileSuccess, redirect.ActionName);
-            Assert.AreEqual(CommonUtil.GetControllerName(typeof(BillingInstructionsController)), redirect.ControllerName);
-        }
-
-        [TestMethod]
-        public async Task Submit_ApiUnprocessableEntity_BillingFileOutdated()
-        {
-            // Arrange
-            Fixture.Customize<SendBillingFileViewModel>(c => c.With(c => c.ConfirmSend, true));
-            SendBillingFileViewModel model = Fixture.Create<SendBillingFileViewModel>();
-
-            var controller = BuildTestClass(
-                Fixture,
-                HttpStatusCode.UnprocessableEntity);
-
-            // Act
-            var result = await controller.Submit(model);
-
-            // Assert
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-            Assert.AreEqual(ActionNames.Index, viewResult.ViewName);
-            Assert.AreEqual(model, viewResult.Model);
-        }
-
-        [TestMethod]
-        public async Task Submit_ApiResponse_InternalServerError()
-        {
-            // Arrange
-            Fixture.Customize<SendBillingFileViewModel>(c => c.With(c => c.ConfirmSend, true));
-            SendBillingFileViewModel model = Fixture.Create<SendBillingFileViewModel>();
-
-            var controller = BuildTestClass(
-                Fixture,
-                HttpStatusCode.InternalServerError);
-
-            // Act
-            var result = await controller.Submit(model);
-
-            // Assert
-            var redirect = result as RedirectToActionResult;
-            Assert.IsNotNull(redirect);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, redirect.ActionName);
-            Assert.AreEqual(CommonUtil.GetControllerName(typeof(StandardErrorController)), redirect.ControllerName);
-        }
-
-        private static Mock<IHttpClientFactory> GetMockHttpClientFactoryWithResponse(HttpStatusCode code)
-        {
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                   .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = code
-                });
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
-
-            return mockHttpClientFactory;
-        }
-
-        private SendBillingFileController CreateController(
-            IConfiguration? configuration = null,
-            TelemetryClient? telemetryClient = null,
-            IHttpClientFactory? httpClientFactory = null,
-            HttpContext? httpContext = null)
-        {
-            var controller = new SendBillingFileController(
-                configuration ?? _configuration,
-                telemetryClient ?? _telemetryClient,
-                new Mock<IEprCalculatorApiService>().Object,
-                new Mock<ICalculatorRunDetailsService>().Object)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = httpContext ?? _mockHttpContext.Object
-                }
-            };
-
-            return controller;
-        }
-
-        private SendBillingFileController BuildTestClass(
-                Fixture fixture,
-                HttpStatusCode httpStatusCode,
-                object? data = null,
-                CalculatorRunDetailsViewModel? details = null,
-                IConfiguration? configurationItems = null)
-        {
-            data ??= MockData.GetCalculatorRun();
-            configurationItems ??= ConfigurationItems.GetConfigurationValues();
-            details ??= Fixture.Create<CalculatorRunDetailsViewModel>();
-            var mockApiService = TestMockUtils.BuildMockApiService(
-                httpStatusCode,
-                JsonConvert.SerializeObject(data ?? MockData.GetCalculatorRun())).Object;
-
-            var testClass = new SendBillingFileController(
-                configurationItems,
-                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
-                mockApiService,
-                TestMockUtils.BuildMockCalculatorRunDetailsService(details).Object);
-            testClass.ControllerContext.HttpContext = new DefaultHttpContext()
-            {
-                Session = TestMockUtils.BuildMockSession(fixture).Object,
-            };
-
-            return testClass;
-        }
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim(ClaimTypes.Name, TestUserName)
+            ]))
+        };
     }
 }

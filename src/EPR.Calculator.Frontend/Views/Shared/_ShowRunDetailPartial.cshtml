@@ -1,6 +1,4 @@
-﻿@using EPR.Calculator.Frontend.ViewModels
-@using EPR.Calculator.Frontend.Enums
-@using EPR.Calculator.Frontend.Extensions
+﻿@using EPR.Calculator.Frontend.Extensions
 @model CalculationRunViewModel
 
 <div class="govuk-summary-list__row">
@@ -10,31 +8,28 @@
                 @if (Model.ShowRunDetailLink)
                 {
                     <a href="@Model.RunDetailLink" class="govuk-link govuk-link--no-visited-state">
-                        @Model.Name
+                        @Model.RunName
                     </a>
                 }
                 else
                 {
-                    @Model.Name
+                    @Model.RunName
                 }
             </h3>
 
             <p class="govuk-body">
-                Calculation ID: @Model.Id<br />
+                Calculation ID: @Model.RunId<br />
                 Date: @Model.CreatedAt.ToUKDateTimeDisplay()<br />
                 Run by: @Model.CreatedBy
             </p>
         </dt>
     </dl>
-    @{
-        bool isKnownStatus = Enum.IsDefined(typeof(RunClassification), (int)Model.Status);
-    }
 
-    @if (isKnownStatus && Model.Status != RunClassification.UNCLASSIFIED && Model.Status != RunClassification.None)
+    @if (Model.ShowStatus)
     {
         <dd class="govuk-summary-list__actions" style="text-align: center;">
             <strong class="@Model.TagStyle">
-                @Model.Status.GetDisplayName()
+                @Model.RunClassification.GetDisplayName()
             </strong>
         </dd>
     }

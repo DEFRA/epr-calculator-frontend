@@ -1,8 +1,12 @@
-﻿@using EPR.Calculator.Frontend.Enums
+@using EPR.Calculator.Frontend.Enums
 @using EPR.Calculator.Frontend.Extensions
 @model BillingInstructionsViewModel
 
-<partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
+<vc:user-nav
+    back-link="@Url.Action(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId = Model.RunId })"
+    allowed-back-links="@(new [] { Url.Action(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = Model.RunId }) })"
+/>
+
 <partial name="_BillingInstructionProgressBanner" model="Model" />
 
 <div class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content">
@@ -11,11 +15,13 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <br>
-            <span class="govuk-caption-l">@Model.CalculationRun.Name</span>
+            <span class="govuk-caption-l">@Model.RunName</span>
             <h1 class="govuk-heading-l">Confirm billing instructions</h1>
 
-            @using (Html.BeginRouteForm(routeName: RouteNames.BillingInstructionsIndex, routeValues: new { calculationRunId = Model.CalculationRun.Id, }, method: FormMethod.Get))
+            @using (Html.BeginRouteForm(routeName: RouteNames.BillingInstructionsIndex, routeValues: new { runId = Model.RunId, }, method: FormMethod.Get))
             {
+                <input type="hidden" name="@nameof(BillingInstructionsIndexModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
+
                 <p class="govuk-body-m">
                     These billing instructions match those in the results file. Use this screen to confirm
                     which instructions you want to accept or reject.
@@ -30,7 +36,7 @@
                         </label>
 
                         <div class="search-input-group">
-                            <input class="govuk-input" id="OrganisationId" name="organisationId" type="search" style="flex: 1;" value="@Model.OrganisationId" />
+                            <input class="govuk-input" id="OrganisationId" name="@nameof(BillingInstructionsIndexModel.OrganisationId)" type="search" style="flex: 1;" value="@Model.OrganisationId" />
                             <button type="submit" class="govuk-button" data-module="govuk-button" style="margin-bottom: 0px;">
                                 Search
                             </button>
@@ -49,7 +55,7 @@
                                     var isChecked = Model.BillingInstructions.Contains(item);
                                     Model.InstructionCounts.TryGetValue(item, out var count);
                                     <div class="govuk-checkboxes__item">
-                                        <input class="govuk-checkboxes__input" type="checkbox" id="billingInstructions@(item)" name="billingInstructions" value="@item" @(isChecked ? "checked" : "") onchange="this.form.submit();" />
+                                        <input class="govuk-checkboxes__input" type="checkbox" id="billingInstructions@(item)" name="@nameof(BillingInstructionsIndexModel.BillingInstructions)" value="@item" @(isChecked ? "checked" : "") onchange="this.form.submit();" />
                                         <label class="govuk-label govuk-checkboxes__label" for="billingInstructions@(item)">
                                             @item.GetDisplayName() (@count)
                                         </label>
@@ -71,7 +77,7 @@
                                     bool isChecked = Model.BillingStatuses.Contains(item);
                                     Model.StatusCounts.TryGetValue(item, out var count);
                                     <div class="govuk-checkboxes__item">
-                                        <input class="govuk-checkboxes__input" type="checkbox" id="billingStatuses@(item)" name="billingStatuses" value="@item" @(isChecked ? "checked" : "") onchange="this.form.submit();" />
+                                        <input class="govuk-checkboxes__input" type="checkbox" id="billingStatuses@(item)" name="@nameof(BillingInstructionsIndexModel.BillingStatuses)" value="@item" @(isChecked ? "checked" : "") onchange="this.form.submit();" />
                                         <label class="govuk-label govuk-checkboxes__label" for="billingStatuses@(item)">
                                             @item.GetDisplayName() (@count)
                                         </label>
@@ -84,14 +90,12 @@
                     <div class="govuk-form-group">
                         <a href="@Url.RouteUrl(
                             RouteNames.BillingInstructionsIndex, new RouteValueDictionary {
-                                ["calculationRunId"] = Model.CalculationRun.Id,
-                                ["pageSize"] = @Model.TablePaginationModel?.PageSize })" class="govuk-button govuk-button--inverse" style="margin-bottom: 0px;">
+                                ["runId"] = Model.RunId,
+                                [nameof(BillingInstructionsIndexModel.PageSize)] = Model.TablePaginationModel.PageSize })" class="govuk-button govuk-button--inverse" style="margin-bottom: 0px;">
                             Clear filters
                         </a>
                     </div>
                 </div>
-
-                <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
             }
         </div>
     </div>
@@ -108,17 +112,16 @@
                         </label>
                         @foreach (var status in Model.BillingStatuses)
                         {
-                            <input type="hidden" name="billingStatuses" value="@status" />
+                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingStatuses)" value="@status" />
                         }
                         @foreach (BillingInstruction billingInstruction in Model.BillingInstructions)
                         {
-                            <input type="hidden" name="billingInstructions" value="@billingInstruction" />
+                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingInstructions)" value="@billingInstruction" />
                         }
-                        <input type="hidden" name="organisationId" value="@Model.OrganisationId" />
-                        <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
-                        <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
-                        <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
-                        <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
+                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.OrganisationId)" value="@Model.OrganisationId" />
+                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
+                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.Page)" value="@Model.TablePaginationModel.Page" />
+                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.RunId)" value="@Model.RunId" />
                     </div>
                 </div>
             </div>
@@ -135,17 +138,16 @@
                         </label>
                         @foreach (var status in Model.BillingStatuses)
                         {
-                            <input type="hidden" name="billingStatuses" value="@status" />
+                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingStatuses)" value="@status" />
                         }
                         @foreach (BillingInstruction billingInstruction in Model.BillingInstructions)
                         {
-                            <input type="hidden" name="billingInstructions" value="@billingInstruction" />
+                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingInstructions)" value="@billingInstruction" />
                         }
-                        <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
-                        <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
-                        <input type="hidden" name="organisationId" value="@Model.OrganisationId" />
-                        <input type="hidden" name="CalculationRun.Id" value="@Model.CalculationRun.Id" />
-                        <input type="hidden" name="CalculationRun.Name" value="@Model.CalculationRun.Name" />
+                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.OrganisationId)" value="@Model.OrganisationId" />
+                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
+                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.Page)" value="@Model.TablePaginationModel.Page" />
+                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.RunId)" value="@Model.RunId" />
                     </div>
                 </div>
             </div>
@@ -159,21 +161,21 @@
             <button type="submit" class="govuk-button" data-module="govuk-button" id="accept-selection-btn">
                 Accept selected
             </button>
-            <input type="hidden" name="calculationRunId" value="@Model.CalculationRun.Id" />
+            <input type="hidden" name="runId" value="@Model.RunId" />
         </form>
         <form asp-action="RejectSelected" asp-controller="BillingInstructions" method="post" onsubmit="return checkHasProducerIds();">
             <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button" id="reject-selection-btn">
                 Reject selected
             </button>
-            <input type="hidden" name="calculationRunId" value="@Model.CalculationRun.Id" />
+            <input type="hidden" name="runId" value="@Model.RunId" />
         </form>
         <form asp-action="ClearSelection" asp-controller="BillingInstructions" method="post" onsubmit="return checkHasProducerIds();">
             <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" id="clear-selection-btn">
                 Clear selection
             </button>
-            <input type="hidden" name="calculationRunId" value="@Model.CalculationRun.Id" />
-            <input type="hidden" name="pageSize" value="@Model.TablePaginationModel?.PageSize" />
-            <input type="hidden" name="currentPage" value="@Model.TablePaginationModel?.CurrentPage" />
+            <input type="hidden" name="@nameof(BillingInstructionsClearModel.RunId)" value="@Model.RunId" />
+            <input type="hidden" name="@nameof(BillingInstructionsClearModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
+            <input type="hidden" name="@nameof(BillingInstructionsClearModel.Page)" value="@Model.TablePaginationModel.Page" />
         </form>
     </div>
 
@@ -191,7 +193,7 @@
             <button class="govuk-button" type="submit" data-module="govuk-button" id="generate-billing-instruction">
                 @BillingInstructionConstants.GenerateDraftBillingFile
             </button>
-            <input type="hidden" name="runId" value="@Model.CalculationRun.Id" />
+            <input type="hidden" name="runId" value="@Model.RunId" />
         }
     }
 
@@ -206,5 +208,3 @@
                Array.from(document.querySelectorAll('.record-checkbox')).some(checkbox => checkbox.checked)
     }
 </script>
-
-

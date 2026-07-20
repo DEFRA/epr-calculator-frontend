@@ -1,302 +1,285 @@
 ﻿using System.Net;
 using System.Security.Claims;
-using System.Security.Principal;
 using AutoFixture;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
-using EPR.Calculator.Frontend.UnitTests.HelpersTest;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 using Moq;
-using Moq.Protected;
 
-namespace EPR.Calculator.Frontend.UnitTests.Controllers
+namespace EPR.Calculator.Frontend.UnitTests.Controllers;
+
+[TestClass]
+public class AcceptRejectConfirmationControllerTests
 {
-    [TestClass]
-    public class AcceptRejectConfirmationControllerTests
+    private Mock<IEprCalculatorApiService> apiService = null!;
+    private Fixture fixture = null!;
+    private DefaultHttpContext httpContext = null!;
+
+    [TestInitialize]
+    public void TestInitialize()
     {
-        private readonly IConfiguration _configuration = ConfigurationItems.GetConfigurationValues();
-        private TelemetryClient _telemetryClient;
-
-        public AcceptRejectConfirmationControllerTests()
+        fixture = new Fixture();
+        apiService = new Mock<IEprCalculatorApiService>();
+        httpContext = new DefaultHttpContext
         {
-            this.Fixture = new Fixture();
-            _telemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
-;
-        }
+            Session = new MockHttpSession(),
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim(ClaimTypes.Name, "Test User")
+            ]))
+        };
+    }
 
-        private Fixture Fixture { get; init; }
+    [TestMethod]
+    public async Task IndexAsync_InvalidCalculationRunId_RedirectsToStandardError()
+    {
+        // Arrange
+        var controller = BuildController();
 
-        [TestMethod]
-        public async Task IndexAsync_InvalidCalculationRunId_RedirectsToStandardError()
-        {
-            // Arrange
-            int invalidRunId = 0;
-            var controller = CreateController();
+        // Act
+        var result = await controller.IndexAsync(0) as RedirectToActionResult;
 
-            // Act
-            var result = await controller.IndexAsync(invalidRunId);
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Index", result.ActionName);
+        Assert.AreEqual("StandardError", result.ControllerName);
+    }
 
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
-            var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
-        }
+    [TestMethod]
+    public async Task IndexAsync_RunNotFound_RedirectsToStandardError()
+    {
+        // Arrange
+        var runId = Math.Abs(fixture.Create<int>()) + 1;
+        apiService.Setup(service => service.GetCalculatorRun(runId)).ReturnsAsync((CalculatorRunDto?)null);
+        var controller = BuildController();
 
-        [TestMethod]
-        public async Task IndexAsync_NullRunDetails_RedirectsToStandardError()
-        {
-            // Arrange
-            int runId = 123;
+        // Act
+        var result = await controller.IndexAsync(runId) as RedirectToActionResult;
 
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    Content = new StringContent(JsonConvert.SerializeObject(null))
-                });
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Index", result.ActionName);
+        Assert.AreEqual("StandardError", result.ControllerName);
+    }
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+    [TestMethod]
+    public async Task IndexAsync_ValidRunId_ReturnsViewWithExpectedModel()
+    {
+        // Arrange
+        var runId = Math.Abs(fixture.Create<int>()) + 1;
+        var runName = fixture.Create<string>();
+        apiService.Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync(new CalculatorRunDto { RunId = runId, RunName = runName });
+        var controller = BuildController();
 
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory
-                .Setup(_ => _.CreateClient(It.IsAny<string>()))
-                .Returns(httpClient);
+        // Act
+        var result = await controller.IndexAsync(runId) as ViewResult;
 
-            var controller = CreateController();
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ViewNames.AcceptRejectConfirmationIndex, result.ViewName);
 
-            // Act
-            var result = await controller.IndexAsync(runId);
+        var model = result.Model as AcceptRejectConfirmationViewModel;
+        Assert.IsNotNull(model);
+        Assert.AreEqual(runId, model.RunId);
+        Assert.AreEqual(runName, model.RunName);
+        Assert.AreEqual(BillingStatus.Accepted, model.Status);
+    }
 
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
-            var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
-        }
+    [TestMethod]
+    public async Task Submit_InvalidModelStateWithApproveDataError_ReturnsViewAndAddsSummaryError()
+    {
+        // Arrange
+        var runId = Math.Abs(fixture.Create<int>()) + 1;
+        var runName = fixture.Create<string>();
+        apiService.Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync(new CalculatorRunDto { RunId = runId, RunName = runName });
+        var controller = BuildController();
+        var model = BuildModel(runId, approveData: null);
+        controller.ModelState.AddModelError(nameof(model.ApproveData), "ApproveData is required");
 
-        [TestMethod]
-        public async Task IndexAsync_ValidRunDetails_ReturnsViewWithModel()
-        {
-            // Arrange
-            var runDetails = new CalculatorRunDetailsViewModel
+        // Act
+        var result = await controller.Submit(model) as ViewResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ViewNames.AcceptRejectConfirmationIndex, result.ViewName);
+
+        var resultModel = result.Model as AcceptRejectConfirmationViewModel;
+        Assert.IsNotNull(resultModel);
+        Assert.AreEqual(runId, resultModel.RunId);
+        Assert.AreEqual(runName, resultModel.RunName);
+        Assert.IsTrue(controller.ModelState.ContainsKey($"Summary_{nameof(model.ApproveData)}"));
+        Assert.AreEqual(
+            ErrorMessages.AcceptRejectConfirmationApproveDataRequiredSummary,
+            controller.ModelState[$"Summary_{nameof(model.ApproveData)}"]!.Errors.First().ErrorMessage);
+        apiService.Verify(service => service.CallApi(
+            It.IsAny<HttpMethod>(),
+            It.IsAny<string>(),
+            It.IsAny<IDictionary<string, string?>>(),
+            It.IsAny<object>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Submit_InvalidModelStateWithRejectedStatus_PreservesStatusAndReasonOnRedisplay()
+    {
+        // Arrange
+        var runId = Math.Abs(fixture.Create<int>()) + 1;
+        var runName = fixture.Create<string>();
+        var reason = fixture.Create<string>();
+        apiService.Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync(new CalculatorRunDto { RunId = runId, RunName = runName });
+        var controller = BuildController();
+        var model = BuildModel(runId, BillingStatus.Rejected, null, reason);
+        controller.ModelState.AddModelError(nameof(model.ApproveData), "ApproveData is required");
+
+        // Act
+        var result = await controller.Submit(model) as ViewResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ViewNames.AcceptRejectConfirmationIndex, result.ViewName);
+
+        var resultModel = result.Model as AcceptRejectConfirmationViewModel;
+        Assert.IsNotNull(resultModel);
+        Assert.AreEqual(runId, resultModel.RunId);
+        Assert.AreEqual(runName, resultModel.RunName);
+        Assert.AreEqual(BillingStatus.Rejected, resultModel.Status);
+        Assert.AreEqual(reason, resultModel.Reason);
+    }
+
+    [TestMethod]
+    public async Task Submit_ApproveDataFalse_RedirectsWithoutCallingApiOrClearingSelectedOrganisations()
+    {
+        // Arrange
+        var runId = Math.Abs(fixture.Create<int>()) + 1;
+        var selectedOrganisationIds = new[] { 10, 20, 30 };
+        SeedSelectedOrganisations(selectedOrganisationIds);
+        var controller = BuildController();
+        var model = BuildModel(runId, approveData: false);
+
+        // Act
+        var result = await controller.Submit(model) as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ActionNames.Index, result.ActionName);
+        Assert.AreEqual(ControllerNames.BillingInstructionsController, result.ControllerName);
+        Assert.AreEqual(runId, result.RouteValues!["runId"]);
+        CollectionAssert.AreEquivalent(
+            selectedOrganisationIds,
+            ARJourneySessionHelper.GetFromSession(httpContext.Session).ToArray());
+        apiService.Verify(service => service.CallApi(
+            It.IsAny<HttpMethod>(),
+            It.IsAny<string>(),
+            It.IsAny<IDictionary<string, string?>>(),
+            It.IsAny<object>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Submit_ApproveDataTrue_CallsApiWithExpectedPayloadAndClearsSession()
+    {
+        // Arrange
+        var runId = Math.Abs(fixture.Create<int>()) + 1;
+        var selectedOrganisationIds = new[] { 11, 22, 33 };
+        SeedSelectedOrganisations(selectedOrganisationIds);
+        var model = BuildModel(runId, BillingStatus.Rejected, true, "Invalid billing data");
+        HttpMethod? actualMethod = null;
+        string? actualRelativePath = null;
+        ProducerBillingInstructionsHttpPutRequestDto? actualBody = null;
+        apiService.Setup(service => service.CallApi(
+                It.IsAny<HttpMethod>(),
+                It.IsAny<string>(),
+                It.IsAny<IDictionary<string, string?>>(),
+                It.IsAny<object>()))
+            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?>((method, path, _, body) =>
             {
-                RunId = this.Fixture.Create<int>(),
-                RunName = this.Fixture.Create<string>(),
-            };
+                actualMethod = method;
+                actualRelativePath = path;
+                actualBody = body as ProducerBillingInstructionsHttpPutRequestDto;
+            })
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+        var controller = BuildController();
 
-            var controller = CreateController(calculatorRunDetails: runDetails);
+        // Act
+        var result = await controller.Submit(model) as RedirectToActionResult;
 
-            // Act
-            var result = await controller.IndexAsync(runDetails.RunId);
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ActionNames.Index, result.ActionName);
+        Assert.AreEqual(ControllerNames.BillingInstructionsController, result.ControllerName);
+        Assert.AreEqual(runId, result.RouteValues!["runId"]);
+        Assert.AreEqual(HttpMethod.Put, actualMethod);
+        Assert.AreEqual($"v2/producerBillingInstructions/{runId}", actualRelativePath);
+        Assert.IsNotNull(actualBody);
+        CollectionAssert.AreEquivalent(selectedOrganisationIds, actualBody.OrganisationIds.ToArray());
+        Assert.AreEqual(BillingStatus.Rejected.ToString(), actualBody.Status);
+        Assert.AreEqual("Invalid billing data", actualBody.ReasonForRejection);
+        Assert.AreEqual(0, ARJourneySessionHelper.GetFromSession(httpContext.Session).Count);
+        apiService.Verify(service => service.CallApi(
+            It.IsAny<HttpMethod>(),
+            It.IsAny<string>(),
+            It.IsAny<IDictionary<string, string?>>(),
+            It.IsAny<object>()), Times.Once);
+    }
 
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(ViewResult));
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-            Assert.IsInstanceOfType(viewResult.Model, typeof(AcceptRejectConfirmationViewModel));
-            var model = viewResult.Model as AcceptRejectConfirmationViewModel;
-            Assert.AreEqual(runDetails.RunId, model!.CalculationRunId);
-            Assert.AreEqual(runDetails.RunName, model.CalculationRunName);
-            Assert.AreEqual(BillingStatus.Accepted, model.Status);
-        }
+    [TestMethod]
+    public async Task Submit_ApiFailure_RedirectsToError()
+    {
+        // Arrange
+        var runId = Math.Abs(fixture.Create<int>()) + 1;
+        var selectedOrganisationIds = new[] { 100, 200 };
+        SeedSelectedOrganisations(selectedOrganisationIds);
+        var model = BuildModel(runId, approveData: true);
+        apiService.Setup(service => service.CallApi(
+                It.IsAny<HttpMethod>(),
+                It.IsAny<string>(),
+                It.IsAny<IDictionary<string, string?>>(),
+                It.IsAny<object>()))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
+        var controller = BuildController();
 
-        [TestMethod]
-        public async Task Submit_InvalidModelState_ReturnsViewWithModel()
+        // Act
+        var result = await controller.Submit(model) as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Index", result.ActionName);
+        Assert.AreEqual("StandardError", result.ControllerName);
+    }
+
+    private void SeedSelectedOrganisations(IEnumerable<int> organisationIds)
+    {
+        ARJourneySessionHelper.AddToSession(httpContext.Session, organisationIds);
+    }
+
+    private static AcceptRejectConfirmationFormModel BuildModel(
+        int runId,
+        BillingStatus status = BillingStatus.Accepted,
+        bool? approveData = true,
+        string? reason = null)
+    {
+        return new AcceptRejectConfirmationFormModel
         {
-            // Arrange
-            var controller = CreateController();
-            controller.ModelState.AddModelError("CalculationRunId", "Required");
-            var model = new AcceptRejectConfirmationViewModel
-            {
-                CalculationRunId = 1,
-                CalculationRunName = "Test",
-                Status = BillingStatus.Accepted,
-                ApproveData = true
-            };
+            RunId = runId,
+            Status = status,
+            ApproveData = approveData,
+            Reason = reason
+        };
+    }
 
-            // Act
-            var result = await controller.Submit(model);
-
-            // Assert
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-            Assert.AreEqual(ViewNames.AcceptRejectConfirmationIndex, viewResult.ViewName);
-            Assert.AreEqual(model, viewResult.Model);
-        }
-
-        [TestMethod]
-        public async Task Submit_InvalidModelState_Summary_ReturnsViewWithModel()
-        {
-            // Arrange
-            var controller = CreateController();
-            var model = new AcceptRejectConfirmationViewModel
-            {
-                CalculationRunId = 1,
-                CalculationRunName = "Test",
-                Status = BillingStatus.Accepted
-            };
-
-            controller.ModelState.AddModelError(nameof(model.ApproveData), "ApproveData is required.");
-
-            // Act
-            var result = await controller.Submit(model) as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.AcceptRejectConfirmationIndex, result.ViewName);
-            Assert.AreEqual(model, result.Model);
-            Assert.IsTrue(controller.ModelState.ContainsKey($"Summary_{nameof(model.ApproveData)}"));
-            Assert.AreEqual(
-               ErrorMessages.AcceptRejectConfirmationApproveDataRequiredSummary,
-               controller!.ModelState[$"Summary_{nameof(model.ApproveData)}"]!.Errors.First().ErrorMessage);
-        }
-
-        [TestMethod]
-        public async Task Submit_ValidModelState_Summary_ReturnsViewWithModel()
-        {
-            // Arrange
-            var controller = CreateController();
-            var model = new AcceptRejectConfirmationViewModel
-            {
-                CalculationRunId = 1,
-                CalculationRunName = "Test",
-                Status = BillingStatus.Accepted,
-                ApproveData = false
-            };
-
-            // Act
-            var result = await controller.Submit(model) as RedirectToActionResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ActionNames.Index, result.ActionName);
-            Assert.AreEqual(ControllerNames.BillingInstructionsController, result.ControllerName);
-            Assert.AreEqual(model.CalculationRunId, result!.RouteValues!["calculationRunId"]);
-        }
-
-        [TestMethod]
-        public async Task Submit_ApproveDataFalse_RedirectsToBillingInstructions()
-        {
-            // Arrange
-            var controller = CreateController();
-            var model = new AcceptRejectConfirmationViewModel
-            {
-                CalculationRunId = 1,
-                CalculationRunName = "Test",
-                Status = BillingStatus.Accepted,
-                ApproveData = false
-            };
-
-            // Act
-            var result = await controller.Submit(model);
-
-            // Assert
-            var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual(ActionNames.Index, redirectResult.ActionName);
-            Assert.AreEqual(ControllerNames.BillingInstructionsController, redirectResult.ControllerName);
-            Assert.AreEqual(model.CalculationRunId, redirectResult!.RouteValues!["calculationRunId"]);
-        }
-
-        [TestMethod]
-        public async Task Submit_ApiReturnsFalse_RedirectsToStandardError()
-        {
-            var controller = CreateController();
-            var model = new AcceptRejectConfirmationViewModel
-            {
-                CalculationRunId = 1,
-                CalculationRunName = "Test",
-                Status = BillingStatus.Accepted,
-                ApproveData = true
-            };
-
-            // Act
-            var result = await controller.Submit(model);
-
-            // Assert
-            var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual(ActionNames.StandardErrorIndex, redirectResult.ActionName);
-        }
-
-        [TestMethod]
-        public async Task Submit_Success_RedirectsToBillingInstructions()
-        {
-            var controller = CreateController();
-            var model = new AcceptRejectConfirmationViewModel
-            {
-                CalculationRunId = 1,
-                CalculationRunName = "Test",
-                Status = BillingStatus.Accepted,
-                ApproveData = true
-            };
-
-            // Act
-            var result = await controller.Submit(model);
-
-            // Assert
-            var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual(ActionNames.Index, redirectResult.ActionName);
-            Assert.AreEqual(ControllerNames.BillingInstructionsController, redirectResult.ControllerName);
-            Assert.AreEqual(model.CalculationRunId, redirectResult!.RouteValues!["calculationRunId"]);
-        }
-
-        private AcceptRejectConfirmationController CreateController(
-            HttpStatusCode apiReturnCode = HttpStatusCode.OK,
-            bool billingApiThrowException = false,
-            CalculatorRunDetailsViewModel? calculatorRunDetails = null)
-        {
-            var identity = new GenericIdentity("TestUser");
-            identity.AddClaim(new Claim("name", "TestUser"));
-            var principal = new ClaimsPrincipal(identity);
-
-            var mockHttpSession = new MockHttpSession();
-            mockHttpSession.SetString("accessToken", "dummy-token");
-
-            var context = new DefaultHttpContext()
-            {
-                User = principal,
-                Session = mockHttpSession
-            };
-
-            var calculatorRunDetailsService = new Mock<ICalculatorRunDetailsService>();
-            if (calculatorRunDetails is not null)
-            {
-                calculatorRunDetailsService.Setup(service
-                    => service.GetCalculatorRundetailsAsync(It.IsAny<HttpContext>(), calculatorRunDetails.RunId))
-                    .ReturnsAsync(calculatorRunDetails);
-            }
-
-            var controller = new AcceptRejectConfirmationController(
-                _configuration,
-                _telemetryClient,
-                TestMockUtils.BuildMockApiService(apiReturnCode).Object,
-                calculatorRunDetailsService.Object)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = context
-                }
-            };
-
-            controller.HttpContext.Request.Headers["Authorization"] = "Bearer test-token";
-
-            return controller;
-        }
+    private AcceptRejectConfirmationController BuildController()
+    {
+        var controller = new AcceptRejectConfirmationController(apiService.Object, new Mock<ILogger<AcceptRejectConfirmationController>>().Object);
+        controller.ControllerContext.HttpContext = httpContext;
+        return controller;
     }
 }

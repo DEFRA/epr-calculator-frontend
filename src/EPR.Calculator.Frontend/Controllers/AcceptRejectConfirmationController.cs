@@ -5,123 +5,98 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace EPR.Calculator.Frontend.Controllers
+namespace EPR.Calculator.Frontend.Controllers;
+
+[Route("[controller]")]
+public class AcceptRejectConfirmationController(
+    IEprCalculatorApiService eprCalculatorApiService,
+    ILogger<AcceptRejectConfirmationController> logger)
+    : BaseController
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AcceptRejectConfirmationController"/> class.
-    /// </summary>
-    [Route("[controller]")]
-    public class AcceptRejectConfirmationController(
-        IConfiguration configuration,
-        TelemetryClient telemetryClient,
-        IEprCalculatorApiService eprCalculatorApiService,
-        ICalculatorRunDetailsService calculatorRunDetailsService)
-        : BaseController(configuration,
-            telemetryClient,
-            eprCalculatorApiService,
-            calculatorRunDetailsService)
+    [Route("{runId:int}")]
+    public async Task<IActionResult> IndexAsync(int runId)
     {
-        /// <summary>
-        /// Displays the accept reject confirmation controller index view.
-        /// </summary>
-        /// <param name="calculationRunId">The ID of the calculation run.</param>
-        /// <returns>accept reject confirmation index view.</returns>
-        [Route("{calculationRunId}")]
-        public async Task<IActionResult> IndexAsync(int calculationRunId)
+        var viewModel = await CreateViewModel(runId, BillingStatus.Accepted, null);
+
+        if (viewModel == null)
+            return RedirectToError();
+
+        return View(ViewNames.AcceptRejectConfirmationIndex, viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Submit(AcceptRejectConfirmationFormModel model)
+    {
+        if (!ModelState.IsValid)
         {
-            var errorControllerName = CommonUtil.GetControllerName(typeof(StandardErrorController));
+            if (ModelState[nameof(model.RunId)] is { ValidationState: ModelValidationState.Invalid })
+                return RedirectToError();
 
-            if (calculationRunId <= 0)
-            {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, errorControllerName);
-            }
+            if (ModelState[nameof(model.ApproveData)] is { ValidationState: ModelValidationState.Invalid })
+                ModelState.AddModelError($"Summary_{nameof(model.ApproveData)}", ErrorMessages.AcceptRejectConfirmationApproveDataRequiredSummary); // Summary message
 
-            var runDetails = await this.CalculatorRunDetailsService
-                .GetCalculatorRundetailsAsync(this.HttpContext, calculationRunId);
+            // Redisplay preserving the posted Status/Reason so the Reject flow doesn't fall back to Accept.
+            var redisplay = await CreateViewModel(
+                model.RunId,
+                model.Status ?? BillingStatus.Accepted,
+                model.Reason);
 
-            if (runDetails == null)
-            {
-                return this.RedirectToAction(ActionNames.StandardErrorIndex, errorControllerName);
-            }
+            if (redisplay == null)
+                return RedirectToError();
 
-            var currentUser = CommonUtil.GetUserName(this.HttpContext);
-
-            var viewModel = new AcceptRejectConfirmationViewModel
-            {
-                CurrentUser = currentUser,
-                CalculationRunId = calculationRunId,
-                CalculationRunName = runDetails.RunName,
-                Status = BillingStatus.Accepted,
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = ControllerNames.BillingInstructionsController,
-                    RunId = calculationRunId,
-                    CurrentUser = currentUser,
-                },
-            };
-
-            return this.View(ViewNames.AcceptRejectConfirmationIndex, viewModel);
+            return View(ViewNames.AcceptRejectConfirmationIndex, redisplay);
         }
 
-        /// <summary>
-        /// Handles the submission of accept all selected yes or no billing instructions.
-        /// </summary>
-        /// <param name="model">The accept reject confirmation view model.</param>
-        /// <returns>
-        /// A redirection to the organisation view on selection of yes or no.
-        /// </returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Submit(AcceptRejectConfirmationViewModel model)
+        if (model.ApproveData is true)
         {
-            if (!this.ModelState.IsValid)
-            {
-                var currentUser = CommonUtil.GetUserName(this.HttpContext);
-
-                model.BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = ControllerNames.BillingInstructionsController,
-                    RunId = model.CalculationRunId,
-                    CurrentUser = currentUser,
-                };
-
-                if (this.ModelState.ContainsKey(nameof(model.ApproveData)) && this.ModelState[nameof(model.ApproveData)]?.Errors?.Any() == true)
-                {
-                    this.ModelState.AddModelError($"Summary_{nameof(model.ApproveData)}", ErrorMessages.AcceptRejectConfirmationApproveDataRequiredSummary); // Summary message
-                }
-
-                // Return the same view with the model so errors display
-                return this.View(ViewNames.AcceptRejectConfirmationIndex, model);
-            }
-
-            if (model.ApproveData is false)
-            {
-                return this.RedirectToAction(ActionNames.Index, ControllerNames.BillingInstructionsController, routeValues: new { calculationRunId = model.CalculationRunId });
-            }
-
             var requestDto = new ProducerBillingInstructionsHttpPutRequestDto
             {
-                OrganisationIds = ARJourneySessionHelper.GetFromSession(this.HttpContext.Session),
-                Status = model.Status.ToString(),
-                ReasonForRejection = model.Reason,
+                OrganisationIds = ARJourneySessionHelper.GetFromSession(HttpContext.Session),
+                Status = model.Status!.Value.ToString(),
+                ReasonForRejection = model.Reason
             };
 
-            var response = await this.EprCalculatorApiService.CallApi(
-                httpContext: this.HttpContext,
-                httpMethod: HttpMethod.Put,
-                relativePath: $"v2/producerBillingInstructions/{model.CalculationRunId}",
-                body: requestDto);
+            try
+            {
+                var response = await eprCalculatorApiService.CallApi(
+                    HttpMethod.Put,
+                    $"v2/producerBillingInstructions/{model.RunId}",
+                    body: requestDto);
 
-            response.EnsureSuccessStatusCode();
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException ex)
+            {
+                logger.LogError(ex, "Error updating producer billing instructions for run {RunId}", model.RunId);
+                return RedirectToError();
+            }
 
-            ARJourneySessionHelper.ClearAllFromSession(this.HttpContext.Session);
-            this.HttpContext.Session.RemoveKeyIfExists(SessionConstants.IsSelectAll);
-            this.HttpContext.Session.RemoveKeyIfExists(SessionConstants.IsSelectAllPage);
-
-            return this.RedirectToAction(ActionNames.Index, ControllerNames.BillingInstructionsController, routeValues: new { calculationRunId = model.CalculationRunId });
+            HttpContext.Session.ClearAllSession();
         }
+
+        return RedirectToAction("Index", "BillingInstructions", new { model.RunId });
+    }
+
+    private async Task<AcceptRejectConfirmationViewModel?> CreateViewModel(int runId, BillingStatus status, string? reason)
+    {
+        var run = await eprCalculatorApiService.GetCalculatorRun(runId);
+
+        if (run == null)
+        {
+            logger.LogInformation("Calculator run {RunId} was not found; redirecting to error page", runId);
+            return null;
+        }
+
+        return new AcceptRejectConfirmationViewModel
+        {
+            RunId = runId,
+            RunName = run.RunName,
+            Status = status,
+            Reason = reason
+        };
     }
 }

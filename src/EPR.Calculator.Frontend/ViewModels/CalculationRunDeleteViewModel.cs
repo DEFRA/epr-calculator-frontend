@@ -1,16 +1,13 @@
-﻿using EPR.Calculator.Frontend.Models;
-using System.Diagnostics.CodeAnalysis;
+using System.ComponentModel.DataAnnotations;
 
-namespace EPR.Calculator.Frontend.ViewModels
+namespace EPR.Calculator.Frontend.ViewModels;
+
+public record CalculationRunDeleteViewModel : CalculationRunDeleteFormModel
 {
-    /// <summary>
-    /// The view model for the calculation run delete page.
-    /// </summary>
-    public record CalculationRunDeleteViewModel : ViewModelCommonData
-    {
-        /// <summary>
-        /// Gets the calculator run status data for the run status update.
-        /// </summary>
-        public required CalculatorRunStatusUpdateDto CalculatorRunStatusData { get; init; }
-    }
+    public required string RunName { get; init; }
+}
+
+public record CalculationRunDeleteFormModel
+{
+    [Range(1, int.MaxValue)] public required int RunId { get; init; }
 }

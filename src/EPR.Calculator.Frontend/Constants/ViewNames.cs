@@ -75,30 +75,10 @@
         /// </summary>
         public const string ParameterUploadFileRefresh = "~/Views/ParameterUploadFile/Refresh.cshtml";
 
-        /// <summary>
-        /// Standard error index page view.
-        /// </summary>
-        public const string StandardErrorIndex = "~/Views/StandardError/Index.cshtml";
-
-        /// <summary>
-        /// Delete calculator run confirmation page view.
-        /// </summary>
-        public const string DeleteConfirmation = "~/Views/DeleteConfirmation/Index.cshtml";
-
-        /// <summary>
+       /// <summary>
         /// Calculator run error index page view.
         /// </summary>
         public const string CalculationRunErrorIndex = "~/Views/Shared/_CalculationRunError.cshtml";
-
-        /// <summary>
-        /// Download file error index page view.
-        /// </summary>
-        public const string DownloadFileErrorIndex = "~/Views/DownloadFileError/Index.cshtml";
-
-        /// <summary>
-        /// Download file error index page view.
-        /// </summary>
-        public const string DownloadFileErrorIndexNew = "~/Views/DownloadFileError/IndexNew.cshtml";
 
         /// <summary>
         /// Calculator run delete confirmation page view.
@@ -140,12 +120,7 @@
         /// </summary>
         public const string AcceptRejectConfirmationIndex = "~/Views/AcceptRejectConfirmation/Index.cshtml";
 
-        /// <summary>
-        /// Organisation index controller page view.
-        /// </summary>
-        public const string BillingInstructionsIndex = "~/Views/BillingInstructions/Index.cshtml";
-
-        /// <summary>
+      /// <summary>
         /// Organisation index controller page view.
         /// </summary>
         public const string ReasonForRejectionIndex = "~/Views/ReasonForRejection/Index.cshtml";

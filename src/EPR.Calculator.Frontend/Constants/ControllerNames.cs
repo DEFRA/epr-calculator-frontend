@@ -41,16 +41,6 @@
         public const string Dashboard = "Dashboard";
 
         /// <summary>
-        /// Organisation controller.
-        /// </summary>
-        public const string Organisation = "Organisation";
-
-        /// <summary>
-        /// Payment calculator controller.
-        /// </summary>
-        public const string PaymentCalculator = "PaymentCalculator";
-
-        /// <summary>
         /// Run a new calculation controller.
         /// </summary>
         public const string RunANewCalculation = "RunANewCalculation";
@@ -59,11 +49,6 @@
         /// Send billing file controller.
         /// </summary>
         public const string SendBillingFile = "SendBillingFile";
-
-        /// <summary>
-        /// Standard error controller.
-        /// </summary>
-        public const string StandardErrorController = "StandardErrorController";
 
         /// <summary>
         /// Billing Instructions controller.
@@ -81,39 +66,14 @@
         public const string ReasonForRejectionController = "ReasonForRejection";
 
         /// <summary>
-        /// Accept Reject Confirmation Controller.
-        /// </summary>
-        public const string AcceptRejectConfirmation = "AcceptRejectConfirmation";
-
-        /// <summary>
-        /// Post Billing File Controller.
-        /// </summary>
-        public const string PostBillingFileController = "CompletedRun";
-
-        /// <summary>
-        /// File Download Controller.
-        /// </summary>
-        public const string DownloadFileErrorNewController = "DownloadFileErrorNew";
-
-        /// <summary>
         /// File Download Controller.
         /// </summary>
         public const string FileDownloadController = "FileDownload";
 
         /// <summary>
-        /// View default parameters controller.
-        /// </summary>
-        public const string ViewDefaultParameters = "ViewDefaultParameters";
-
-        /// <summary>
         /// Local Authority upload file controller.
         /// </summary>
         public const string LocalAuthorityUploadFile = "LocalAuthorityUploadFile";
-
-        /// <summary>
-        /// View Local Authority disposal costs controller.
-        /// </summary>
-        public const string ViewLocalAuthorityDisposalCosts = "ViewLocalAuthorityDisposalCosts";
 
         /// <summary>
         /// Parameter upload file controller.

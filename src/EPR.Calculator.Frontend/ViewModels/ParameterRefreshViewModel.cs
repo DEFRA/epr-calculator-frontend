@@ -1,26 +1,13 @@
-﻿using EPR.Calculator.Frontend.Models;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using EPR.Calculator.Frontend.Models;
 
-namespace EPR.Calculator.Frontend.ViewModels
+namespace EPR.Calculator.Frontend.ViewModels;
+
+public record ParameterRefreshViewModel
 {
-    /// <summary>
-    /// parameter refresh view model.
-    /// </summary>
-    public record ParameterRefreshViewModel : ViewModelCommonData
-    {
-        /// <summary>
-        /// Gets the collection of scheme parameter template values.
-        /// </summary>
-        /// <value>
-        /// A collection of <see cref="SchemeParameterTemplateValue"/> objects representing the template values for the scheme parameters.
-        /// </value>
-        [JsonPropertyName("schemeParameterTemplateValues")]
-        public required List<SchemeParameterTemplateValue> ParameterTemplateValues { get; init; }
+    [JsonPropertyName("schemeParameterTemplateValues")]
+    public required List<SchemeParameterTemplateValue> ParameterTemplateValues { get; init; }
 
-        /// <summary>
-        /// Gets the parameter file name.
-        /// </summary>
-        [JsonPropertyName("parameterFileName")]
-        public required string FileName { get; init; }
-    }
+    [JsonPropertyName("parameterFileName")]
+    public required string FileName { get; init; }
 }

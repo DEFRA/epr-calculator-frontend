@@ -1,30 +1,11 @@
 ﻿using EPR.Calculator.Frontend.Models;
 
-namespace EPR.Calculator.Frontend.ViewModels
+namespace EPR.Calculator.Frontend.ViewModels;
+
+public record LapcapUploadViewModel
 {
-    /// <summary>
-    /// lapcap upload view model.
-    /// </summary>
-    public record LapcapUploadViewModel : ViewModelCommonData
-    {
-        /// <summary>
-        /// Gets or Sets the lapcap errors.
-        /// </summary>
-        public List<CreateLapcapDataErrorDto>? LapcapErrors { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the lapcap validation errors.
-        /// </summary>
-        public List<ValidationErrorDto>? ValidationErrors { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the lapcap data template value.
-        /// </summary>
-        public List<LapcapDataTemplateValueDto>? LapcapDataTemplateValue { get; set; }
-
-        /// <summary>
-        /// Gets or sets the errors.
-        /// </summary>
-        public List<ErrorViewModel>? Errors { get; set; }
-    }
+    public List<CreateLapcapDataErrorDto>? LapcapErrors { get; set; }
+    public List<ValidationErrorDto>? ValidationErrors { get; set; }
+    public List<LapcapDataTemplateValueDto>? LapcapDataTemplateValue { get; set; }
+    public List<ErrorViewModel>? Errors { get; set; }
 }

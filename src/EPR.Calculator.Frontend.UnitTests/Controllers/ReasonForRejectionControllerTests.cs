@@ -1,140 +1,181 @@
-﻿namespace EPR.Calculator.Frontend.UnitTests.Controllers
+﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Enums;
+using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
+using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+
+namespace EPR.Calculator.Frontend.UnitTests.Controllers;
+
+[TestClass]
+public class ReasonForRejectionControllerTests
 {
-    using System.Net;
-    using System.Net.Http;
-    using System.Threading.Tasks;
-    using AutoFixture;
-    using AutoFixture.AutoMoq;
-    using EPR.Calculator.Frontend.Constants;
-    using EPR.Calculator.Frontend.Controllers;
-    using EPR.Calculator.Frontend.Services;
-    using EPR.Calculator.Frontend.UnitTests.HelpersTest;
-    using EPR.Calculator.Frontend.ViewModels;
-    using Microsoft.ApplicationInsights;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.ViewFeatures;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Moq;
+    private const int RelativeYearValue = 2025;
+    private const string TestUserName = "Test User";
 
-    [TestClass]
-    public class ReasonForRejectionControllerTests
+    private Mock<IEprCalculatorApiService> apiService = null!;
+    private DefaultHttpContext httpContext = null!;
+
+    [TestInitialize]
+    public void TestInitialize()
     {
-        public ReasonForRejectionControllerTests()
+        apiService = new Mock<IEprCalculatorApiService>();
+        httpContext = new DefaultHttpContext();
+    }
+
+    [TestMethod]
+    public async Task Index_WhenRunExists_ReturnsReasonForRejectionViewWithEmptyReason()
+    {
+        // Arrange
+        const int runId = 101;
+        const string runName = "Run 101";
+        apiService
+            .Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync(BuildRun(runId, runName));
+        var controller = BuildController();
+
+        // Act
+        var result = await controller.Index(runId) as ViewResult;
+        var model = result?.Model as AcceptRejectConfirmationViewModel;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ViewNames.ReasonForRejectionIndex, result.ViewName);
+        Assert.IsNotNull(model);
+        Assert.AreEqual(runId, model.RunId);
+        Assert.AreEqual(runName, model.RunName);
+        Assert.AreEqual(BillingStatus.Rejected, model.Status);
+        Assert.IsNull(model.Reason);
+        apiService.Verify(service => service.GetCalculatorRun(runId), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Index_WhenRunNotFound_RedirectsToStandardError()
+    {
+        // Arrange
+        const int runId = 202;
+        apiService
+            .Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync((CalculatorRunDto?)null);
+        var controller = BuildController();
+
+        // Act
+        var result = await controller.Index(runId) as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Index", result.ActionName);
+        Assert.AreEqual("StandardError", result.ControllerName);
+    }
+
+    [TestMethod]
+    public async Task IndexPost_WhenModelStateIsInvalid_RedisplaysReasonForRejectionViewWithPostedReason()
+    {
+        // Arrange
+        const int runId = 303;
+        const string runName = "Run 303";
+        const string postedReason = "   "; // Would be flagged by FluentValidation in the pipeline
+        apiService
+            .Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync(BuildRun(runId, runName));
+        var model = BuildModel(runId, postedReason);
+        var controller = BuildController();
+        controller.ModelState.AddModelError(nameof(model.Reason), ErrorMessages.ReasonForRejectionRequired);
+
+        // Act
+        var result = await controller.IndexPost(runId, model) as ViewResult;
+        var resultModel = result?.Model as AcceptRejectConfirmationViewModel;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ViewNames.ReasonForRejectionIndex, result.ViewName);
+        Assert.IsNotNull(resultModel);
+        Assert.AreEqual(runId, resultModel.RunId);
+        Assert.AreEqual(runName, resultModel.RunName);
+        Assert.AreEqual(BillingStatus.Rejected, resultModel.Status);
+        Assert.AreEqual(postedReason, resultModel.Reason);
+        Assert.IsFalse(controller.ModelState.IsValid);
+    }
+
+    [TestMethod]
+    public async Task IndexPost_WhenModelStateIsValid_ReturnsAcceptRejectConfirmationViewWithPostedReason()
+    {
+        // Arrange
+        const int runId = 404;
+        const string runName = "Run 404";
+        const string rejectionReason = "Threshold validation failed";
+        apiService
+            .Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync(BuildRun(runId, runName));
+        var model = BuildModel(runId, rejectionReason);
+        var controller = BuildController();
+
+        // Act
+        var result = await controller.IndexPost(runId, model) as ViewResult;
+        var resultModel = result?.Model as AcceptRejectConfirmationViewModel;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ViewNames.AcceptRejectConfirmationIndex, result.ViewName);
+        Assert.IsNotNull(resultModel);
+        Assert.AreEqual(runId, resultModel.RunId);
+        Assert.AreEqual(runName, resultModel.RunName);
+        Assert.AreEqual(BillingStatus.Rejected, resultModel.Status);
+        Assert.AreEqual(rejectionReason, resultModel.Reason);
+        Assert.IsTrue(controller.ModelState.IsValid);
+    }
+
+    [TestMethod]
+    public async Task IndexPost_WhenRunNotFound_RedirectsToStandardError()
+    {
+        // Arrange
+        const int runId = 505;
+        apiService
+            .Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync((CalculatorRunDto?)null);
+        var model = BuildModel(runId, "Any reason");
+        var controller = BuildController();
+
+        // Act
+        var result = await controller.IndexPost(runId, model) as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Index", result.ActionName);
+        Assert.AreEqual("StandardError", result.ControllerName);
+    }
+
+    private ReasonForRejectionController BuildController()
+    {
+        return new ReasonForRejectionController(apiService.Object)
         {
-            this.Fixture = new Fixture();
-            this.Configuration = ConfigurationItems.GetConfigurationValues();
-            this.MockHttpContext = new Mock<HttpContext>();
-            this.MockHttpContext.Setup(c => c.User.Identity!.Name).Returns(Fixture.Create<string>);
-            this.MockMessageHandler = TestMockUtils.BuildMockMessageHandler(HttpStatusCode.Created);
-            MockClientFactory = TestMockUtils.BuildMockHttpClientFactory(MockMessageHandler.Object);
-        }
+            ControllerContext = new ControllerContext { HttpContext = httpContext }
+        };
+    }
 
-        private Fixture Fixture { get; init; }
-
-        private IConfiguration Configuration { get; init; }
-
-        private Mock<HttpContext> MockHttpContext { get; init; }
-
-        private Mock<HttpMessageHandler> MockMessageHandler { get; init; }
-
-        private Mock<IHttpClientFactory> MockClientFactory { get; init; }
-
-        [TestMethod]
-        public async Task CanCallIndex()
+    private static ReasonForRejectionFormModel BuildModel(int runId, string? reason)
+    {
+        return new ReasonForRejectionFormModel
         {
-            // Arrange
-            int runId = this.Fixture.Create<int>();
+            RunId = runId,
+            Reason = reason
+        };
+    }
 
-            // Arrange
-            var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
-
-            var controller = new ReasonForRejectionController(
-                this.Configuration,
-                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
-                new Mock<IEprCalculatorApiService>().Object,
-                new Mock<ICalculatorRunDetailsService>().Object);
-
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
-            tempData[nameof(AcceptRejectConfirmationViewModel.Reason)] = "Some rejection reason";
-
-            controller.TempData = tempData;
-
-            // Act
-            var result = await controller.Index(runId) as ViewResult;
-
-            var resultModel = result!.Model as AcceptRejectConfirmationViewModel;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.ReasonForRejectionIndex, result.ViewName);
-            Assert.AreEqual(runId, resultModel!.CalculationRunId);
-            Assert.AreEqual(tempData[nameof(AcceptRejectConfirmationViewModel.Reason)], resultModel.Reason);
-        }
-
-        [TestMethod]
-        public void CanCallIndexPost()
+    private static CalculatorRunDto BuildRun(int runId, string runName)
+    {
+        return new CalculatorRunDto
         {
-            // Arrange
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
-            var runId = fixture.Create<int>();
-            var model = fixture.Create<AcceptRejectConfirmationViewModel>();
-
-            var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
-            var controller = new ReasonForRejectionController(
-                this.Configuration,
-                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
-                new Mock<IEprCalculatorApiService>().Object,
-                new Mock<ICalculatorRunDetailsService>().Object);
-            controller.TempData = tempData;
-
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
-
-            // Act
-            var result = controller.IndexPost(runId, model);
-
-            // Assert
-            Assert.IsNotNull(result);
-        }
-
-        [TestMethod]
-        public void CanCallIndexPost_WithNoReason()
-        {
-            // Arrange
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
-            var runId = fixture.Create<int>();
-            var model = new AcceptRejectConfirmationViewModel()
-            {
-                Reason = string.Empty,
-                CalculationRunId = runId,
-                Status = Enums.BillingStatus.Rejected,
-                BackLinkViewModel = new BackLinkViewModel()
-                {
-                    BackLink = ViewNames.BillingInstructionsIndex,
-                    CurrentUser = "Test user"
-                },
-            };
-
-            var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
-            var controller = new ReasonForRejectionController(
-                this.Configuration,
-                new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration()),
-                new Mock<IEprCalculatorApiService>().Object,
-                new Mock<ICalculatorRunDetailsService>().Object);
-
-            controller.ControllerContext.HttpContext = this.MockHttpContext.Object;
-            controller.TempData = tempData;
-            controller.ModelState.AddModelError("No Reason", "Provide a reason that applies to all the billing instructions you selected for rejection.");
-
-            // Act
-            var result = controller.IndexPost(runId, model) as ViewResult;
-            var resultModel = result!.Model as AcceptRejectConfirmationViewModel;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(ViewNames.ReasonForRejectionIndex, result.ViewName);
-            Assert.AreEqual(runId, resultModel!.CalculationRunId);
-        }
+            RunId = runId,
+            RunName = runName,
+            RunClassification = RunClassification.UNCLASSIFIED,
+            RelativeYear = new RelativeYear(RelativeYearValue),
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = TestUserName,
+            BillingRunStatus = BillingRunStatus.None
+        };
     }
 }

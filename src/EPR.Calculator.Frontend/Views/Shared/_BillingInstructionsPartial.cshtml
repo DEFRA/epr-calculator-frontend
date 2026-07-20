@@ -1,9 +1,9 @@
-﻿@model BackLinkViewModel
+﻿@model string?
 @{
     var linkText = BillingInstructionConstants.GenerateBillingFile;
 
-    var link = Model != null && Model.BackLink != null
-        ? $"<a href='{Url.Content($"~/{Model.BackLink}/{Model.RunId}")}' class='govuk-link'>{linkText}</a>"
+    var link = Model != null
+        ? $"<a href='{Model}' class='govuk-link'>{linkText}</a>"
         : linkText;
 
     var message = string.Format(BillingInstructionConstants.BillingFileOutofDateBanner, link);

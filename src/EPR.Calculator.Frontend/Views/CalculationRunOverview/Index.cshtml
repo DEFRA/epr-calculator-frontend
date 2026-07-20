@@ -1,30 +1,21 @@
-﻿@using EPR.Calculator.Frontend.Constants
 @using EPR.Calculator.Frontend.Enums
 @using EPR.Calculator.Frontend.Extensions
-@using Microsoft.AspNetCore.Http
 
-@inject IHttpContextAccessor HttpContextAccessor
 @model CalculatorRunOverviewViewModel
-@{
-    var calcDetails = Model.CalculatorRunDetails;
 
-}
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
 
-@if (Model.BackLinkViewModel != null)
-{
-    <partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
-}
+<vc:user-nav back-link="@Url.Action("Index", "Dashboard")"/>
 
-@if (calcDetails.IsBillingFileGeneratedLatest.HasValue && !calcDetails.IsBillingFileGeneratedLatest.Value && !calcDetails.IsBillingFileGenerating == true)
+@if (Model.IsOutdatedBillingFile)
 {
-    <partial name="_BillingInstructionsPartial" model="null" />
+    <partial name="_BillingInstructionsPartial" model="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, new { runId = Model.Run.RunId })" />
 }
 
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row CalculationRunOverview">
-        @if (calcDetails.IsBillingFileGenerating == true)
+        @if (Model.Run.BillingRunStatus == BillingRunStatus.Running)
         {
             <div class="govuk-grid-column-full">
                 <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
@@ -41,17 +32,39 @@
                 </div>
             </div>
         }
+        @if (Model.IsBillingFileErrored)
+        {
+            <div class="govuk-grid-column-full">
+                <div class="govuk-error-summary" role="alert" aria-labelledby="billing-file-errored-title" data-module="govuk-error-summary">
+                    <h2 class="govuk-error-summary__title" id="billing-file-errored-title">
+                        There was a problem generating the billing file
+                    </h2>
+                    <div class="govuk-error-summary__body">
+                        <p class="govuk-body">
+                            You may attempt to generate it again. If the problem continues, contact support.
+                        </p>
+                        <a class="govuk-button"
+                           role="button"
+                           draggable="false"
+                           data-module="govuk-button"
+                           href="@Url.Action(ActionNames.GenerateDraftBillingFile, ControllerNames.CalculationRunOverview, new { runId = Model.Run.RunId })">
+                            Retry generating new draft billing file
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
         <div class="govuk-grid-column-two-thirds">
             @using (Html.BeginForm(ActionNames.Submit, ControllerNames.CalculationRunOverview, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
-                @Html.Hidden("RunId", Model.CalculatorRunDetails.RunId)
+                @Html.Hidden("RunId", Model.Run.RunId)
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset">
                         <div class="govuk-form-group">
                             <fieldset class="govuk-fieldset">
                                 <legend class="govuk-caption-l">
-                                    @Model.CalculatorRunDetails.RunName
+                                    @Model.Run.RunName
                                 </legend>
                                 <h1 class="govuk-heading-l">Calculation run details</h1>
 
@@ -64,23 +77,23 @@
                                     <tbody class="govuk-table__body">
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Financial year</th>
-                                            <td class="govuk-table__cell">@calcDetails.RelativeYear.ToFinancialYear()</td>
+                                            <td class="govuk-table__cell">@Model.Run.RelativeYear.ToFinancialYear()</td>
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Classification</th>
-                                            <td class="govuk-table__cell">@calcDetails.RunClassificationId.GetDisplayName()</td>
+                                            <td class="govuk-table__cell">@Model.Run.RunClassification.GetDisplayName()</td>
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                            <td class="govuk-table__cell">@calcDetails.RunId</td>
+                                            <td class="govuk-table__cell">@Model.Run.RunId</td>
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Run date and time</th>
-                                            <td class="govuk-table__cell">@calcDetails.CreatedAt.ToUKDateTimeDisplay()</td>
+                                            <td class="govuk-table__cell">@Model.Run.CreatedAt.ToUKDateTimeDisplay()</td>
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Run by</th>
-                                            <td class="govuk-table__cell">@calcDetails.CreatedBy</td>
+                                            <td class="govuk-table__cell">@Model.Run.CreatedBy</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -92,33 +105,30 @@
                                     <a class="govuk-button govuk-button--secondary"
                                        role="button"
                                        draggable="false"
-                                       href="@Url.Action(ActionNames.DownloadResultFile, ControllerNames.FileDownloadController, new { runId = Model.CalculatorRunDetails.RunId })">
+                                       href="@Url.Action(ActionNames.DownloadResultFile, ControllerNames.FileDownloadController, new { Model.Run.RunId })">
                                         Results file
                                     </a>
 
                                     <a class="govuk-button govuk-button--secondary"
                                        role="button"
                                        draggable="false"
-                                    @(calcDetails.IsBillingFileGenerating.HasValue && !calcDetails.IsBillingFileGenerating.Value && calcDetails.IsBillingFileGeneratedLatest.HasValue && calcDetails.IsBillingFileGeneratedLatest.Value ? null : "disabled")
-                                       onclick="return @(calcDetails.IsBillingFileGenerating.HasValue && !calcDetails.IsBillingFileGenerating.Value && calcDetails.IsBillingFileGeneratedLatest.HasValue && calcDetails.IsBillingFileGeneratedLatest.Value ? "true" : "false");"
-                                       href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController,
-                                        new { runId = Model.CalculatorRunDetails.RunId,
-                                                isBillingFile= @CommonConstants.IsBillingFileTrue,
-                                                isDraftBillingFile=@CommonConstants.IsDraftFileTrue })">
-                                        @(calcDetails.IsBillingFileGenerating == true ? BillingInstructionConstants.DraftBillingFileGenerating : BillingInstructionConstants.DraftBillingFile)
+                                       @(Model.IsLatestBillingFile ? null : "disabled")
+                                       onclick="return @(Model.IsLatestBillingFile ? "true" : "false");"
+                                       href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController, new { Model.Run.RunId })">
+                                        @(Model.IsBillingFileRunning ? BillingInstructionConstants.DraftBillingFileGenerating : BillingInstructionConstants.DraftBillingFile)
                                     </a>
 
                                     <p class="govuk-body">
-                                        @(calcDetails.IsBillingFileGenerating == true ? BillingInstructionConstants.GenerateFileMessage : string.Empty)
+                                        @(Model.IsBillingFileRunning ? BillingInstructionConstants.GenerateFileMessage : string.Empty)
                                     </p>
                                 </div>
 
                                 <a class="govuk-button govuk-button--secondary"
                                    role="button"
                                    draggable="false"
-                                @(calcDetails.IsBillingFileGenerating == true || calcDetails.IsBillingFileGeneratedLatest == true ? "disabled" : null)
-                                   onclick="return @(calcDetails.IsBillingFileGenerating == true || calcDetails.IsBillingFileGeneratedLatest == true ? "false" : "true");"
-                                   href="@Url.Action(ActionNames.GenerateDraftBillingFile,ControllerNames.CalculationRunOverview,  new { id = Model.CalculatorRunDetails.RunId })">
+                                   @(Model.IsNewBillingRunAllowed ? null : "disabled")
+                                   onclick="return @(Model.IsNewBillingRunAllowed ? "true" : "false");"
+                                   href="@Url.Action(ActionNames.GenerateDraftBillingFile, ControllerNames.CalculationRunOverview, new { Model.Run.RunId })">
                                     @(BillingInstructionConstants.GenerateNewDraftBillingFile)
                                 </a>
 
@@ -126,17 +136,17 @@
                                 <h2 class="govuk-heading-m">Remove this run's classification</h2>
                                 <p class="govuk-body">Mark this run as a test or delete it to remove its classification.</p>
                                 <div class="govuk-button-group">
-                                    <a  class="govuk-button govuk-button--secondary"
-                                        role="button"
-                                        draggable="false"
-                                    @(calcDetails.IsBillingFileGenerating == true ? "disabled" : null)
-                                       onclick="return @(calcDetails.IsBillingFileGenerating == true ? "false" : "true");"
-                                       href="@Url.Action(@ActionNames.Index, @ControllerNames.CalculationRunDelete, new { runId = @Model.CalculatorRunDetails.RunId })">
+                                    <a class="govuk-button govuk-button--secondary"
+                                       role="button"
+                                       draggable="false"
+                                       @(Model.IsRemoveClassificationAllowed ?  null : "disabled")
+                                       onclick="return @(Model.IsRemoveClassificationAllowed ? "true" : "false");"
+                                       href="@Url.Action(@ActionNames.Index, @ControllerNames.CalculationRunDelete, new { Model.Run.RunId })">
                                         Remove classification
                                     </a>
                                 </div>
 
-                                <partial name="_AmendBillingInstructionPartial" model="calcDetails" />
+                                <partial name="_AmendBillingInstructionPartial" model="Model.Run" />
 
                                 <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
@@ -154,7 +164,7 @@
 
                                 <div class="govuk-button-group">
                                     <div class="govuk-button-group">
-                                        <button type="Submit" @((calcDetails.IsBillingFileGenerating.HasValue && calcDetails.IsBillingFileGenerating.Value) || (calcDetails.IsBillingFileGeneratedLatest.HasValue && !calcDetails.IsBillingFileGeneratedLatest.Value) ? "disabled" : "") class="govuk-button" data-module="govuk-button">
+                                        <button type="Submit" @(Model.IsSubmitAllowed ? null : "disabled") class="govuk-button" data-module="govuk-button">
                                             Continue
                                         </button>
                                     </div>

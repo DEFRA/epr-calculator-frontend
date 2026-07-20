@@ -1,74 +1,54 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EPR.Calculator.Frontend.Controllers
+namespace EPR.Calculator.Frontend.Controllers;
+
+[Route("[controller]")]
+public class ReasonForRejectionController(IEprCalculatorApiService eprCalculatorApiService)
+    : BaseController
 {
-    /// <summary>
-    /// Controller for reason for rejection
-    /// </summary>
-    [Route("[controller]")]
-    public class ReasonForRejectionController(
-        IConfiguration configuration,
-        TelemetryClient telemetryClient,
-        IEprCalculatorApiService eprCalculatorApiService,
-        ICalculatorRunDetailsService calculatorRunDetailsService)
-        : BaseController(configuration, telemetryClient, eprCalculatorApiService, calculatorRunDetailsService)
+    [HttpGet("{runId:int}")]
+    public async Task<IActionResult> Index(int runId)
     {
-        [Route("{calculationRunId}")]
-        public async Task<IActionResult> Index(int calculationRunId)
+        var viewModel = await CreateViewModel(runId, null);
+
+        if (viewModel == null)
+            return RedirectToError();
+
+        return View(ViewNames.ReasonForRejectionIndex, viewModel);
+    }
+
+    [HttpPost("{runId:int}")]
+    [ActionName("Index")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> IndexPost(int runId, ReasonForRejectionFormModel model)
+    {
+        var viewModel = await CreateViewModel(runId, model.Reason);
+
+        if (viewModel == null)
+            return RedirectToError();
+
+        return ModelState.IsValid
+            ? View(ViewNames.AcceptRejectConfirmationIndex, viewModel)
+            : View(ViewNames.ReasonForRejectionIndex, viewModel);
+    }
+
+    private async Task<AcceptRejectConfirmationViewModel?> CreateViewModel(int runId, string? reason)
+    {
+        var run = await eprCalculatorApiService.GetCalculatorRun(runId);
+
+        if (run == null)
+            return null;
+
+        return new AcceptRejectConfirmationViewModel
         {
-            var runDetails = await this.CalculatorRunDetailsService
-                .GetCalculatorRundetailsAsync(this.HttpContext, calculationRunId);
-            var currentUser = CommonUtil.GetUserName(this.HttpContext);
-            var viewModel = new AcceptRejectConfirmationViewModel()
-            {
-                CurrentUser = currentUser,
-                CalculationRunId = calculationRunId,
-                CalculationRunName = runDetails?.RunName,
-                Reason = this.TempData[nameof(AcceptRejectConfirmationViewModel.Reason)]?.ToString() ?? string.Empty,
-                Status = BillingStatus.Rejected,
-                BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = ControllerNames.BillingInstructionsController,
-                    RunId = calculationRunId,
-                    CurrentUser = currentUser,
-                },
-            };
-
-            return this.View(ViewNames.ReasonForRejectionIndex, viewModel);
-        }
-
-        [HttpPost]
-        [ActionName("Index")]
-        [Route("{calculationRunId}")]
-        public IActionResult IndexPost(int calculationRunId, AcceptRejectConfirmationViewModel model)
-        {
-            if (string.IsNullOrEmpty(model.Reason))
-            {
-                this.ModelState.Remove("Reason");
-                model.BackLinkViewModel = new BackLinkViewModel
-                {
-                    BackLink = ControllerNames.BillingInstructionsController,
-                    RunId = calculationRunId,
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                };
-                return this.View(ViewNames.ReasonForRejectionIndex, model);
-            }
-
-            this.ModelState.Clear();
-            model.BackLinkViewModel = new BackLinkViewModel
-            {
-                BackLink = ControllerNames.ReasonForRejectionController,
-                RunId = calculationRunId,
-                CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-            };
-            this.TempData[nameof(model.Reason)] = model.Reason;
-            return this.View(ViewNames.AcceptRejectConfirmationIndex, model);
-        }
+            RunId = runId,
+            RunName = run.RunName,
+            Status = BillingStatus.Rejected,
+            Reason = reason
+        };
     }
 }

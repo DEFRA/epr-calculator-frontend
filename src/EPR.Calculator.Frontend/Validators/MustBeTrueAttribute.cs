@@ -1,17 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace EPR.Calculator.Frontend.Validators
-{
-    public class MustBeTrueAttribute : ValidationAttribute
-    {
-        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
-        {
-            if (value is bool boolValue && boolValue)
-            {
-                return ValidationResult.Success;
-            }
+namespace EPR.Calculator.Frontend.Validators;
 
-            return new ValidationResult(this.ErrorMessage ?? "The field must be checked.");
-        }
+public class MustBeTrueAttribute : ValidationAttribute
+{
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+    {
+        if (value is true)
+            return ValidationResult.Success;
+
+        return new ValidationResult(ErrorMessage ?? "The field must be checked.");
     }
 }

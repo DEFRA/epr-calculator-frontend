@@ -1,4 +1,4 @@
-﻿@inject IHttpContextAccessor HttpContextAccessor
+@inject IHttpContextAccessor HttpContextAccessor
 @using EPR.Calculator.Frontend.Enums
 @using EPR.Calculator.Frontend.Extensions
 @model ClassifyRunConfirmationViewModel
@@ -6,10 +6,7 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/Download.js"></script>
 
-@if (Model.BackLinkViewModel != null)
-{
-    <partial name="_BackLinkPartial" model="Model.BackLinkViewModel" />
-}
+<vc:user-nav back-link="@Url.Action("Index", "Dashboard")"/>
 
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row">
@@ -37,7 +34,7 @@
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Classification</th>
-                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.RunClassificationId.GetDisplayName()</td>
+                                    <td class="govuk-table__cell">@Model.CalculatorRunDetails.RunClassification.GetDisplayName()</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
@@ -66,7 +63,7 @@
 
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
-                        @if (Model.CalculatorRunDetails.RunClassificationId == RunClassification.TEST_RUN)
+                        @if (Model.CalculatorRunDetails.RunClassification == RunClassification.TEST_RUN)
                         {
                             <h2 class="govuk-heading-m">Delete this run</h2>
                             <p class="govuk-body">Remove this calculation if you no longer need it.</p>
@@ -96,13 +93,16 @@
                     </fieldset>
                 </div>
 
-                @if (Model.CalculatorRunDetails.RunClassificationId != RunClassification.TEST_RUN)
+                @if (Model.CalculatorRunDetails.RunClassification != RunClassification.TEST_RUN)
                 {
                     <div class="govuk-button-group">
                         <div class="govuk-button-group">
-                            <button class="govuk-button" data-module="govuk-button">
+                            <a class="govuk-button"
+                               role="button"
+                               draggable="false"
+                               href="@Url.Action(ActionNames.Index, ControllerNames.BillingInstructionsController, new { runId = Model.CalculatorRunDetails.RunId })">
                                 Continue
-                            </button>
+                            </a>
                         </div>
 
                         <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>

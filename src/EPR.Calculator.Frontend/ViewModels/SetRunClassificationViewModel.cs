@@ -1,42 +1,25 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.ComponentModel.DataAnnotations;
+using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 
-namespace EPR.Calculator.Frontend.ViewModels
+namespace EPR.Calculator.Frontend.ViewModels;
+
+public record SetRunClassificationViewModel : SetRunClassificationFormModel
 {
-    /// <summary>
-    /// classify calculation run scenerio view model.
-    /// </summary>
-    [ExcludeFromCodeCoverage]
-    public record SetRunClassificationViewModel : ViewModelCommonData
-    {
-        /// <summary>
-        /// gets or sets calculator run details.
-        /// </summary>
-        public required CalculatorRunDetailsViewModel CalculatorRunDetails { get; set; }
+    public required RunClassification RunClassification { get; init; }
+    public required string RunName { get; init; }
+    public required RelativeYear RelativeYear { get; init; }
+    public required DateTime CreatedAt { get; init; }
+    public required string CreatedBy { get; init; }
+    public required RelativeYearClassificationResponseDto RelativeYearClassifications { get; init; }
+    public required ImportantSectionViewModel ImportantViewModel { get; init; }
+}
 
-        /// <summary>
-        /// Gets or sets the classify run type.
-        /// </summary>
-        [Required(ErrorMessage = ErrorMessages.ClassifyRunTypeNotSelected)]
-        public int? ClassifyRunType { get; set; }
+public record SetRunClassificationFormModel
+{
+    [Range(1, int.MaxValue)] public required int RunId { get; init; }
 
-        /// <summary>
-        /// Gets or sets the selected calculation run option.
-        /// </summary>
-        public string? SelectedCalcRunOption { get; set; }
-
-        public RelativeYearClassificationResponseDto? RelativeYearClassifications { get; set; }
-
-        /// <summary>
-        /// Gets or sets the classification status information toggles.
-        /// </summary>
-        public ClassificationStatusInformationViewModel? ClassificationStatusInformation { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Importanti information information box.
-        /// </summary>
-        public ImportantSectionViewModel ImportantViewModel { get; set; } = new ImportantSectionViewModel();
-    }
+    [Required(ErrorMessage = ErrorMessages.ClassifyRunTypeNotSelected)]
+    public int? ClassifyRunType { get; init; }
 }

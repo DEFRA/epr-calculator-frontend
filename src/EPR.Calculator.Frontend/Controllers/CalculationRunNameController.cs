@@ -5,247 +5,164 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EPR.Calculator.Frontend.Controllers
+namespace EPR.Calculator.Frontend.Controllers;
+
+public class CalculationRunNameController(
+    IConfiguration configuration,
+    IEprCalculatorApiService eprCalculatorApiService,
+    ILogger<CalculationRunNameController> logger)
+    : BaseController
 {
+    private readonly int relativeYearStartingMonth = CommonUtil.GetRelativeYearStartingMonth(configuration);
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="CalculationRunNameController"/> class.
+    ///     Displays the index view for calculation run names.
     /// </summary>
-    public class CalculationRunNameController : BaseController
+    /// <returns>The index view.</returns>
+    [Route("RunANewCalculation")]
+    public IActionResult Index()
     {
-        private const string CalculationRunNameIndexView = ViewNames.CalculationRunNameIndex;
-        private readonly int relativeYearStartingMonth;
+        return View(ViewNames.CalculationRunNameIndex, CreateViewModel());
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CalculationRunNameController"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration settings.</param>
-        /// <param name="clientFactory">The HTTP client factory.</param>
-        /// <param name="logger">The logger instance.</param>
-        public CalculationRunNameController(
-            IConfiguration configuration,
-            IEprCalculatorApiService eprCalculatorApiService,
-            ILogger<CalculationRunNameController> logger,
-            TelemetryClient telemetryClient,
-            ICalculatorRunDetailsService calculatorRunDetailsService)
-            : base(
-                  configuration,
-                  telemetryClient,
-                  eprCalculatorApiService,
-                  calculatorRunDetailsService)
+    /// <summary>
+    ///     Handles the calculator run initiation.
+    /// </summary>
+    /// <param name="calculationRunModel">The model containing calculation run details.</param>
+    /// <returns>The result of the action.</returns>
+    [HttpPost]
+    public async Task<IActionResult> RunCalculator(InitiateCalculatorRunFormModel calculationRunModel)
+    {
+        if (!ModelState.IsValid)
         {
-            this.Logger = logger;
-            this.relativeYearStartingMonth = CommonUtil.GetRelativeYearStartingMonth(configuration);
+            var errorMessages = ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
+            return View(ViewNames.CalculationRunNameIndex, CreateViewModel(CreateErrorViewModel(errorMessages.First())));
         }
 
-        private ILogger<CalculationRunNameController> Logger { get; init; }
-
-        /// <summary>
-        /// Displays the index view for calculation run names.
-        /// </summary>
-        /// <returns>The index view.</returns>
-        [Route("RunANewCalculation")]
-        public IActionResult Index()
+        if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
         {
-            var currentUser = CommonUtil.GetUserName(this.HttpContext);
-            return this.View(
-                CalculationRunNameIndexView,
-                new InitiateCalculatorRunModel
-                {
-                    CurrentUser = currentUser,
-                    BackLinkViewModel = new BackLinkViewModel()
-                    {
-                        BackLink = string.Empty,
-                        CurrentUser = currentUser,
-                    },
-                });
-        }
+            var calculationName = calculationRunModel.CalculationName.Trim();
+            var runDto = await eprCalculatorApiService.GetCalculatorRun(calculationName);
 
-        /// <summary>
-        /// Handles the calculator run initiation.
-        /// </summary>
-        /// <param name="calculationRunModel">The model containing calculation run details.</param>
-        /// <returns>The result of the action.</returns>
-        [HttpPost]
-        public async Task<IActionResult> RunCalculator(InitiateCalculatorRunModel calculationRunModel)
-        {
-            if (!this.ModelState.IsValid)
-            {
-                var errorMessages = this.ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
-                calculationRunModel.Errors = CreateErrorViewModel(errorMessages.First());
-                calculationRunModel.BackLinkViewModel = new BackLinkViewModel()
-                {
-                    BackLink = string.Empty,
-                    CurrentUser = CommonUtil.GetUserName(this.HttpContext),
-                };
-                return this.View(CalculationRunNameIndexView, calculationRunModel);
-            }
+            if (runDto != null)
+                return View(ViewNames.CalculationRunNameIndex, CreateViewModel(CreateErrorViewModel(ErrorMessages.CalculationRunNameExists)));
 
-            if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
+            var response = await HttpPostToCalculatorRunApi(calculationName);
+
+            if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
             {
-                var currentUser = CommonUtil.GetUserName(this.HttpContext);
-                var calculationName = calculationRunModel.CalculationName.Trim();
-                var calculationNameExistsResponse = await this.CheckIfCalculationNameExistsAsync(calculationName);
-                if (calculationNameExistsResponse.IsSuccessStatusCode)
-                {
-                    return this.View(CalculationRunNameIndexView, new InitiateCalculatorRunModel
+                return View(
+                    ViewNames.CalculationRunErrorIndex,
+                    new CalculationRunErrorViewModel
                     {
-                        CurrentUser = currentUser,
-                        Errors = CreateErrorViewModel(ErrorMessages.CalculationRunNameExists),
-                        BackLinkViewModel = new BackLinkViewModel()
-                        {
-                            BackLink = string.Empty,
-                            CurrentUser = currentUser,
-                        },
+                        ErrorMessage = await ExtractErrorMessageAsync(response)
                     });
-                }
-
-                var response = await this.HttpPostToCalculatorRunApi(calculationName);
-
-                if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
-                {
-                    return this.View(
-                        ViewNames.CalculationRunErrorIndex,
-                        new CalculationRunErrorViewModel
-                        {
-                            CurrentUser = currentUser,
-                            ErrorMessage = await this.ExtractErrorMessageAsync(response),
-                            BackLinkViewModel = new BackLinkViewModel()
-                            {
-                                BackLink = string.Empty,
-                                CurrentUser = currentUser,
-                            },
-                        });
-                }
-
-                if (response.StatusCode == HttpStatusCode.FailedDependency)
-                {
-                    return this.View(
-                        ViewNames.CalculationRunErrorIndex,
-                        new CalculationRunErrorViewModel
-                        {
-                            CurrentUser = currentUser,
-                            ErrorMessage = await response.Content.ReadAsStringAsync(),
-                            BackLinkViewModel = new BackLinkViewModel()
-                            {
-                                BackLink = string.Empty,
-                                CurrentUser = currentUser,
-                            },
-                        });
-                }
-
-                if (!response.IsSuccessStatusCode || response.StatusCode != HttpStatusCode.Accepted)
-                {
-                    return this.RedirectToAction(ActionNames.StandardErrorIndex, CommonUtil.GetControllerName(typeof(StandardErrorController)));
-                }
             }
 
-            return this.RedirectToAction(ActionNames.RunCalculatorConfirmation, new { calculationName = calculationRunModel.CalculationName });
-        }
-
-        /// <summary>
-        /// Displays the confirmation view after running the calculator.
-        /// </summary>
-        /// <param name="calculationName">calculation run name.</param>
-        /// <returns>The result of the action.</returns>
-        [Route("Confirmation")]
-        public IActionResult Confirmation(string calculationName)
-        {
-            var calculationRunConfirmationViewModel = new ConfirmationViewModel
+            if (response.StatusCode == HttpStatusCode.FailedDependency)
             {
-                Title = CalculatorRunNames.Title,
-                Body = calculationName ?? string.Empty,
-                AdditionalParagraphs = CalculatorRunNames.AdditionalParagraphs.ToList(),
-            };
-
-            return this.View(ViewNames.CalculationRunConfirmation, calculationRunConfirmationViewModel);
-        }
-
-        /// <summary>
-        /// Creates an error view model.
-        /// </summary>
-        /// <param name="errorMessage">The error message.</param>
-        /// <returns>The error view model.</returns>
-        private static ErrorViewModel CreateErrorViewModel(string errorMessage)
-        {
-            return new ErrorViewModel
-            {
-                DOMElementId = ViewControlNames.CalculationRunName,
-                ErrorMessage = errorMessage,
-            };
-        }
-
-        /// <summary>
-        ///  Sends an HTTP request to the calculator run API.
-        /// </summary>
-        /// <param name="calculatorRunName">The name of the calculator run.</param>
-        /// <returns>The HTTP response message.</returns>
-        /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown.</exception>
-        private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
-        {
-            return await this.PostCalculatorRunAsync(new CreateCalculatorRunDto
-            {
-                CalculatorRunName = calculatorRunName,
-                RelativeYear = CommonUtil.GetRelativeYear(this.HttpContext.Session, this.relativeYearStartingMonth),
-                CreatedBy = CommonUtil.GetUserName(this.HttpContext),
-            });
-        }
-
-        /// <summary>
-        /// Checks if a calculation name exists asynchronously.
-        /// </summary>
-        /// <param name="calculationName">The name of the calculation to check.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message indicating whether the calculation name exists.</returns>
-        private async Task<HttpResponseMessage> CheckIfCalculationNameExistsAsync(string calculationName)
-        {
-            var safeName = Uri.EscapeDataString(calculationName);
-            var response = await this.CheckCalcNameExistsAsync(safeName);
-            return response;
-        }
-
-        private class ErrorResponse
-        {
-            [JsonInclude]
-            public string? Message { get; set; }
-        }
-
-        private async Task<string> ExtractErrorMessageAsync(HttpResponseMessage response)
-        {
-            try
-            {
-                var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-                return error?.Message ?? "An error occurred. Please try again.";
+                return View(
+                    ViewNames.CalculationRunErrorIndex,
+                    new CalculationRunErrorViewModel
+                    {
+                        ErrorMessage = await response.Content.ReadAsStringAsync()
+                    });
             }
-            catch (Exception ex)
-            {
-                this.Logger.LogError(ex, "Error parsing response");
-                return "Unable to process the error response.";
-            }
+
+            if (!response.IsSuccessStatusCode || response.StatusCode != HttpStatusCode.Accepted)
+                return RedirectToError();
         }
 
+        return RedirectToAction(ActionNames.RunCalculatorConfirmation, new { calculationName = calculationRunModel.CalculationName });
+    }
 
-        /// <summary>
-        /// Calls the "calculatorRun" POST endpoint.
-        /// </summary>
-        /// <param name="dto">The data transfer object to serialise and use as the body of the request.</param>
-        /// <returns>The response message returned by the endpoint.</returns>
-        private async Task<HttpResponseMessage> PostCalculatorRunAsync(CreateCalculatorRunDto dto)
+    /// <summary>
+    ///     Displays the confirmation view after running the calculator.
+    /// </summary>
+    /// <param name="calculationName">calculation run name.</param>
+    /// <returns>The result of the action.</returns>
+    [Route("Confirmation")]
+    public IActionResult Confirmation(string? calculationName)
+    {
+        var calculationRunConfirmationViewModel = new ConfirmationViewModel
         {
-            return await this.EprCalculatorApiService.CallApi(
-                httpContext: this.HttpContext,
-                httpMethod: HttpMethod.Post,
-                relativePath: "v1/calculatorRun",
-                body: dto);
-        }
+            Title = CalculatorRunNames.Title,
+            Body = calculationName ?? string.Empty,
+            AdditionalParagraphs = CalculatorRunNames.AdditionalParagraphs.ToList()
+        };
 
-        private async Task<HttpResponseMessage> CheckCalcNameExistsAsync(string calculationName)
+        return View(ViewNames.CalculationRunConfirmation, calculationRunConfirmationViewModel);
+    }
+
+    /// <summary>
+    ///     Creates an error view model.
+    /// </summary>
+    /// <param name="errorMessage">The error message.</param>
+    /// <returns>The error view model.</returns>
+    private static ErrorViewModel CreateErrorViewModel(string errorMessage)
+    {
+        return new ErrorViewModel
         {
-            return await this.EprCalculatorApiService.CallApi(
-                httpContext: this.HttpContext,
-                httpMethod: HttpMethod.Get,
-                relativePath: $"v1/CheckCalcNameExists/{calculationName}");
+            DOMElementId = ViewControlNames.CalculationRunName,
+            ErrorMessage = errorMessage
+        };
+    }
+
+    private static InitiateCalculatorRunViewModel CreateViewModel(ErrorViewModel? errors = null)
+    {
+        return new InitiateCalculatorRunViewModel
+        {
+            Errors = errors
+        };
+    }
+
+    /// <summary>
+    ///     Sends an HTTP request to the calculator run API.
+    /// </summary>
+    /// <param name="calculatorRunName">The name of the calculator run.</param>
+    /// <returns>The HTTP response message.</returns>
+    /// <exception cref="ArgumentNullException">ArgumentNullException will be thrown.</exception>
+    private async Task<HttpResponseMessage> HttpPostToCalculatorRunApi(string calculatorRunName)
+    {
+        return await PostCalculatorRunAsync(new CreateCalculatorRunDto
+        {
+            CalculatorRunName = calculatorRunName,
+            RelativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth),
+            CreatedBy = CommonUtil.GetUserName(HttpContext)
+        });
+    }
+
+    private async Task<string> ExtractErrorMessageAsync(HttpResponseMessage response)
+    {
+        try
+        {
+            var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+            return error?.Message ?? "An error occurred. Please try again.";
         }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error parsing response");
+            return "Unable to process the error response.";
+        }
+    }
+
+    /// <summary>
+    ///     Calls the "calculatorRun" POST endpoint.
+    /// </summary>
+    /// <param name="dto">The data transfer object to serialise and use as the body of the request.</param>
+    /// <returns>The response message returned by the endpoint.</returns>
+    private async Task<HttpResponseMessage> PostCalculatorRunAsync(CreateCalculatorRunDto dto)
+    {
+        return await eprCalculatorApiService.CallApi(
+            HttpMethod.Post,
+            "v1/calculatorRun",
+            body: dto);
+    }
+
+    private class ErrorResponse
+    {
+        [JsonInclude] public string? Message { get; set; }
     }
 }

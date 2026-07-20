@@ -1,17 +1,14 @@
-.epr-\!-account-info {
+.epr-user-nav {
     display: flex;
-    float: right;
+    align-items: center;
+}
 
-    .your-name {
-        margin-right: 8px;
-        white-space: nowrap;
-    }
-
-    .account-link {
-        color: #1d70b8;
-        text-underline-offset: 0.1578em;
-        white-space: nowrap;
-    }
+.epr-user-nav__account {
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
+    margin-left: auto;
+    flex-shrink: 0;
 }
 
 .dashboard-page {
