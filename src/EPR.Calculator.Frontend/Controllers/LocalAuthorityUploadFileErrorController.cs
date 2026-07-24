@@ -1,54 +1,81 @@
+using System.Text.Json;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
 public class LocalAuthorityUploadFileErrorController : BaseController
 {
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
+
     public IActionResult Index()
     {
-        var lapcapErrors = HttpContext.Session.GetString(UploadFileErrorIds.LocalAuthorityUploadErrors);
+        var errorsInSession = HttpContext.Session.GetString(UploadFileErrorIds.LocalAuthorityUploadErrors);
 
-        if (!string.IsNullOrEmpty(lapcapErrors))
+        if(string.IsNullOrWhiteSpace(errorsInSession))
+            return RedirectToError();
+
+        var viewModel = new LapcapUploadViewModel();
+
+        using var doc = JsonDocument.Parse(errorsInSession);
+        var root = doc.RootElement;
+
+        // API currently returns inconsistent error object types.
+        // It needs refactoring to always return standardized ValidationProblemDetails.
+        if (IsValidationProblemDetails(root))
         {
-            var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(lapcapErrors);
-            var lapcapUploadViewModel = new LapcapUploadViewModel();
-
-            if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
-                lapcapUploadViewModel.ValidationErrors = validationErrors;
-            else
-                lapcapUploadViewModel.LapcapErrors = JsonConvert.DeserializeObject<List<CreateLapcapDataErrorDto>>(lapcapErrors);
-
-            if (lapcapUploadViewModel.ValidationErrors is null && lapcapUploadViewModel.LapcapErrors is not null)
-            {
-                lapcapUploadViewModel.ValidationErrors =
-                [
-                    new ValidationErrorDto
-                    {
-                        ErrorMessage = lapcapUploadViewModel.LapcapErrors.Count > 1
-                            ? $"The file has {lapcapUploadViewModel.LapcapErrors.Count} errors."
-                            : $"The file has {lapcapUploadViewModel.LapcapErrors.Count} error."
-                    }
-                ];
-            }
-
-            return View(
-                ViewNames.LocalAuthorityUploadFileErrorIndex,
-                lapcapUploadViewModel);
+            var apiProblemDetails = root.Deserialize<ValidationProblemDetails>(JsonSerializerOptions)!;
+            viewModel.ValidationErrors = apiProblemDetails.Errors
+                .SelectMany(kv => kv.Value.Select(e => new ValidationErrorDto { ErrorMessage = e }))
+                .ToList();
+        }
+        else if(root.ValueKind == JsonValueKind.Array)
+        {
+            var lapcapErrors = root.Deserialize<List<CreateLapcapDataErrorDto>>()!;
+            viewModel.LapcapErrors = lapcapErrors;
+            viewModel.ValidationErrors =
+            [
+                new ValidationErrorDto
+                {
+                    ErrorMessage = lapcapErrors!.Count > 1
+                        ? $"The file contained {viewModel.LapcapErrors!.Count} errors."
+                        : $"The file contained {viewModel.LapcapErrors!.Count} error."
+                }
+            ];
+        }
+        else
+        {
+            viewModel.ValidationErrors = [ new ValidationErrorDto { ErrorMessage = "The file contained an error." } ];
         }
 
-        return RedirectToError();
+        return View(ViewNames.LocalAuthorityUploadFileErrorIndex, viewModel);
+    }
+
+    private static bool IsValidationProblemDetails(JsonElement root)
+    {
+        if (root.ValueKind == JsonValueKind.Object)
+        {
+            var type = root
+                .EnumerateObject()
+                .Where(kv =>
+                    kv.Name.Equals("type", StringComparison.OrdinalIgnoreCase)
+                    && kv.Value.ValueKind == JsonValueKind.String)
+                .Select(kv => kv.Value.GetString())
+                .FirstOrDefault() ?? "";
+
+            return type.StartsWith("https://tools.ietf.org/html/rfc9110", StringComparison.OrdinalIgnoreCase);
+        }
+
+        return false;
     }
 
     [HttpPost]
     public IActionResult Index([FromBody] string errors)
     {
         HttpContext.Session.SetString(UploadFileErrorIds.LocalAuthorityUploadErrors, errors);
-
         return Ok();
     }
 
