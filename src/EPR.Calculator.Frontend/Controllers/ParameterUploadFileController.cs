@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
-public class ParameterUploadFileController : BaseController
+public class ParameterUploadFileController(IWebHostEnvironment environment) : BaseController
 {
     public IActionResult Index()
     {
@@ -38,21 +38,10 @@ public class ParameterUploadFileController : BaseController
         }
     }
 
-    public async Task<IActionResult> DownloadCsvTemplate()
-    {
-        try
-        {
-            using (var client = new HttpClient())
-            {
-                var fileBytes = await client.GetByteArrayAsync(StaticHelpers.CsvTemplatePath);
-                return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", StaticHelpers.CsvTemplateFileName);
-            }
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "An error occured while processing request" + ex.Message);
-        }
-    }
+    public IActionResult DownloadCsvTemplate() =>
+        PhysicalFile(
+            Path.Combine(environment.WebRootPath, "templates", "DefaultParameterTemplate.xlsx"),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "DefaultParameterTemplate.xlsx");
 
     private async Task<IActionResult> ProcessUploadAsync(IFormFile fileUpload)
     {

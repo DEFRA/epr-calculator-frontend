@@ -33,5 +33,8 @@ namespace EPR.Calculator.Frontend.Constants
 
         [Display(Name = "Red modulation factor")]
         RedModulationFactor,
+
+        [Display(Name = "Cut-off date")]
+        CutOffDate,
     }
 }

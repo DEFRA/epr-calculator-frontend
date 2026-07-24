@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace EPR.Calculator.Frontend.Models
 {
@@ -25,6 +26,16 @@ namespace EPR.Calculator.Frontend.Models
 
         public required string ParameterCategory { get; set; }
 
-        public decimal ParameterValue { get; set; }
+        public required string ParameterValue { get; set; }
+
+        public decimal ParameterDecimalValue()
+        {
+            if (decimal.TryParse(ParameterValue, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
+            {
+                return value;
+            }
+
+            throw new FormatException($"Parameter '{ParameterUniqueRef}' with value '{ParameterValue}' is not a valid decimal.");
+        }
     }
 }

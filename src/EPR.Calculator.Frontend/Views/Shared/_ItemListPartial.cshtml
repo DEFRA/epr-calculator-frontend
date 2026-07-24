@@ -5,7 +5,6 @@
 
     @if (Model != null)
     {
-        var isAmount        = @Model.IsDisplayPrefix;
         var culture = CultureInfo.CreateSpecificCulture("en-GB");
         culture.NumberFormat.CurrencySymbol = "£";
         culture.NumberFormat.CurrencyPositivePattern = 0;
@@ -21,18 +20,18 @@
                     @{
                         if ((@item.ParameterCategory.Contains("Percent") || @item.ParameterType.Contains("percent")))
                         {
-                            string formattedValue = item.ParameterValue == 0
-                                ? string.Format("{0:F0}{1}", item.ParameterValue, "%")
-                                : string.Format("{0:F2}{1}", item.ParameterValue, "%");
+                            string formattedValue = item.ParameterDecimalValue() == 0
+                                ? string.Format("{0:F0}{1}", item.ParameterDecimalValue(), "%")
+                                : string.Format("{0:F2}{1}", item.ParameterDecimalValue(), "%");
 
                             @formattedValue
                         }
-                        else if ((@item.ParameterCategory.Contains("Amount") || isAmount))
+                        else if (@item.ParameterCategory.Contains("Amount") || @item.ParameterType.Contains("costs"))
                         {
-                            var precision          = item.ParameterValue == 0 ? 0 : 2;
-                            var formattedValue = item.ParameterValue < 0
-                                ? "-" + Math.Abs(item.ParameterValue).ToString($"C{precision}", culture)
-                                : item.ParameterValue.ToString($"C{precision}", culture);
+                            var precision  = item.ParameterDecimalValue() == 0 ? 0 : 2;
+                            var formattedValue = item.ParameterDecimalValue() < 0
+                                ? "-" + Math.Abs(item.ParameterDecimalValue()).ToString($"C{precision}", culture)
+                                : item.ParameterDecimalValue().ToString($"C{precision}", culture);
 
                             @formattedValue
                         }

@@ -3,6 +3,7 @@ using System.Text;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -181,9 +182,26 @@ public class ParameterUploadFileControllerTests
         Assert.AreEqual("2210.00", viewModel.ParameterTemplateValues[1].ParameterValue);
     }
 
+    [TestMethod]
+    public void ParameterUploadFileController_DownloadCSVTemplate_Test()
+    {
+        var result = controller.DownloadCsvTemplate() as PhysicalFileResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("DefaultParameterTemplate.xlsx", result.FileDownloadName);
+        Assert.AreEqual(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            result.ContentType);
+    }
+
     private static ParameterUploadFileController CreateController(HttpContext httpContext, ITempDataDictionary tempData)
     {
-        return new ParameterUploadFileController
+        var environment = new Mock<IWebHostEnvironment>();
+        environment
+            .Setup(e => e.WebRootPath)
+            .Returns(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"));
+
+        return new ParameterUploadFileController(environment.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext },
             TempData = tempData

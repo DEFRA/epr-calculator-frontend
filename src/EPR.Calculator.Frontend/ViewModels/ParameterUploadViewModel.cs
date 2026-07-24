@@ -9,6 +9,4 @@ public record ParameterUploadViewModel
     public List<CreateDefaultParameterSettingErrorDto>? ParamterErrors { get; set; }
     public List<ValidationErrorDto>? ValidationErrors { get; set; }
     public List<SchemeParameterTemplateValue>? ParameterDataTemplateValue { get; set; }
-    public string CsvTemplatePath => StaticHelpers.CsvTemplatePath;
-    public string CsvTemplateFileName => StaticHelpers.CsvTemplateFileName;
 }
