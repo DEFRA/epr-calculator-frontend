@@ -59,10 +59,13 @@ public class LocalAuthorityUploadFileErrorControllerTests
     public void Index_WhenValidationErrorsExist_ReturnsErrorViewWithValidationErrors()
     {
         // Arrange
-        var validationErrors = new List<ValidationErrorDto>
+        var validationErrors = new ValidationProblemDetails
         {
-            new() { ErrorMessage = "Country is missing", Exception = string.Empty },
-            new() { ErrorMessage = "Material is invalid", Exception = string.Empty }
+            Type = "https://tools.ietf.org/html/rfc9110",
+            Errors = new Dictionary<string, string[]>
+            {
+                { "SomeProperty", [ "Country is missing", "Material is invalid" ] }
+            }
         };
         SetUploadErrors(validationErrors);
 
@@ -77,9 +80,6 @@ public class LocalAuthorityUploadFileErrorControllerTests
         Assert.IsNull(viewModel.LapcapErrors);
         Assert.IsNotNull(viewModel.ValidationErrors);
         Assert.AreEqual(2, viewModel.ValidationErrors.Count);
-        CollectionAssert.AreEqual(
-            validationErrors.Select(error => error.ErrorMessage).ToList(),
-            viewModel.ValidationErrors.Select(error => error.ErrorMessage).ToList());
     }
 
     [TestMethod]
@@ -105,7 +105,7 @@ public class LocalAuthorityUploadFileErrorControllerTests
         Assert.AreEqual(2, viewModel.LapcapErrors.Count);
         Assert.IsNotNull(viewModel.ValidationErrors);
         Assert.AreEqual(1, viewModel.ValidationErrors.Count);
-        Assert.AreEqual("The file has 2 errors.", viewModel.ValidationErrors[0].ErrorMessage);
+        Assert.AreEqual("The file contained 2 errors.", viewModel.ValidationErrors[0].ErrorMessage);
         CollectionAssert.AreEqual(
             lapcapErrors.Select(error => error.Message).ToList(),
             viewModel.LapcapErrors.Select(error => error.Message).ToList());
@@ -130,7 +130,7 @@ public class LocalAuthorityUploadFileErrorControllerTests
         Assert.AreEqual(ViewNames.LocalAuthorityUploadFileErrorIndex, result.ViewName);
         Assert.IsNotNull(viewModel);
         Assert.IsNotNull(viewModel.ValidationErrors);
-        Assert.AreEqual("The file has 1 error.", viewModel.ValidationErrors[0].ErrorMessage);
+        Assert.AreEqual("The file contained 1 error.", viewModel.ValidationErrors[0].ErrorMessage);
     }
 
     [TestMethod]
