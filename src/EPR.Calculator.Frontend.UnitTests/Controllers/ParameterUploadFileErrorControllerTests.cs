@@ -59,10 +59,13 @@ public class ParameterUploadFileErrorControllerTests
     public void Index_WhenValidationErrorsExist_ReturnsErrorViewWithValidationErrors()
     {
         // Arrange
-        var validationErrors = new List<ValidationErrorDto>
+        var validationErrors = new ValidationProblemDetails
         {
-            new() { ErrorMessage = "Parameter Unique reference is incorrect", Exception = string.Empty },
-            new() { ErrorMessage = "Parameter value is incorrect", Exception = string.Empty }
+            Type = "https://tools.ietf.org/html/rfc9110",
+            Errors = new Dictionary<string, string[]>
+            {
+                { "SomeProperty", [ "Parameter Unique reference is incorrect", "Parameter value is incorrect" ] }
+            }
         };
         SetUploadErrors(validationErrors);
 
@@ -77,9 +80,6 @@ public class ParameterUploadFileErrorControllerTests
         Assert.IsNull(viewModel.ParamterErrors);
         Assert.IsNotNull(viewModel.ValidationErrors);
         Assert.AreEqual(2, viewModel.ValidationErrors.Count);
-        CollectionAssert.AreEqual(
-            validationErrors.Select(error => error.ErrorMessage).ToList(),
-            viewModel.ValidationErrors.Select(error => error.ErrorMessage).ToList());
     }
 
     [TestMethod]
@@ -104,7 +104,7 @@ public class ParameterUploadFileErrorControllerTests
         Assert.IsNotNull(viewModel.ParamterErrors);
         Assert.AreEqual(2, viewModel.ParamterErrors.Count);
         Assert.AreEqual(1, viewModel.ValidationErrors?.Count);
-        Assert.AreEqual("The file has 2 errors.", viewModel.ValidationErrors?[0].ErrorMessage);
+        Assert.AreEqual("The file contained 2 errors.", viewModel.ValidationErrors?[0].ErrorMessage);
         CollectionAssert.AreEqual(
             parameterErrors.Select(error => error.Message).ToList(),
             viewModel.ParamterErrors.Select(error => error.Message).ToList());

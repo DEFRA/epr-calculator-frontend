@@ -3,7 +3,6 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
@@ -11,35 +10,28 @@ public class ParameterUploadFileErrorController : BaseController
 {
     public IActionResult Index()
     {
-        var errors = HttpContext.Session.GetString(UploadFileErrorIds.DefaultParameterUploadErrors);
+        var errorsInSession = HttpContext.Session.GetString(UploadFileErrorIds.DefaultParameterUploadErrors);
 
-        if (string.IsNullOrEmpty(errors))
+        if (string.IsNullOrWhiteSpace(errorsInSession))
             return RedirectToError();
 
-        var validationErrors = JsonConvert.DeserializeObject<List<ValidationErrorDto>>(errors);
-        var parameterUploadViewModel = new ParameterUploadViewModel();
+        var (parameterErrors, validationErrors) = ApiValidationShim.Parse<CreateDefaultParameterSettingErrorDto>(errorsInSession);
 
-        if (validationErrors?.Find(error => !string.IsNullOrEmpty(error.ErrorMessage)) != null)
-            parameterUploadViewModel.ValidationErrors = validationErrors;
-        else
-            parameterUploadViewModel.ParamterErrors = JsonConvert.DeserializeObject<List<CreateDefaultParameterSettingErrorDto>>(errors);
-
-        if (parameterUploadViewModel.ValidationErrors == null && parameterUploadViewModel.ParamterErrors != null)
+        if (parameterErrors.Length > 0 && validationErrors.Length == 0)
         {
-            parameterUploadViewModel.ValidationErrors =
+            validationErrors =
             [
-                new ValidationErrorDto
-                {
-                    ErrorMessage = parameterUploadViewModel.ParamterErrors.Count > 1
-                        ? $"The file has {parameterUploadViewModel.ParamterErrors.Count} errors."
-                        : $"The file has {parameterUploadViewModel.ParamterErrors.Count} error."
-                }
+                new ValidationErrorDto { ErrorMessage = $"The file contained {parameterErrors.Length} error{(parameterErrors.Length > 1 ? "s" : "")}." }
             ];
         }
 
-        return View(
-            ViewNames.ParameterUploadFileErrorIndex,
-            parameterUploadViewModel);
+        var viewModel = new ParameterUploadViewModel
+        {
+            ParamterErrors = parameterErrors.Length > 0 ? parameterErrors : null,
+            ValidationErrors = validationErrors.Length > 0 ? validationErrors : null
+        };
+
+        return View(ViewNames.ParameterUploadFileErrorIndex, viewModel);
     }
 
     [HttpPost]
