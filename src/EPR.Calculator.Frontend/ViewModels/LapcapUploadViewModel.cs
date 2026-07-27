@@ -4,8 +4,8 @@ namespace EPR.Calculator.Frontend.ViewModels;
 
 public record LapcapUploadViewModel
 {
-    public List<CreateLapcapDataErrorDto>? LapcapErrors { get; set; }
-    public List<ValidationErrorDto>? ValidationErrors { get; set; }
-    public List<LapcapDataTemplateValueDto>? LapcapDataTemplateValue { get; set; }
-    public List<ErrorViewModel>? Errors { get; set; }
+    public IReadOnlyList<CreateLapcapDataErrorDto>? LapcapErrors { get; set; }
+    public IReadOnlyList<ValidationErrorDto>? ValidationErrors { get; set; }
+    public IReadOnlyList<LapcapDataTemplateValueDto>? LapcapDataTemplateValue { get; set; }
+    public IReadOnlyList<ErrorViewModel>? Errors { get; set; }
 }
