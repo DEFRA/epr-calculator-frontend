@@ -38,7 +38,7 @@ public static class ApiValidationShim
                 .ToImmutableArray();
         }
         else if (root.ValueKind == JsonValueKind.Array)
-            customErrors = root.Deserialize<ImmutableArray<TError>>()!;
+            customErrors = root.Deserialize<ImmutableArray<TError>>(JsonSerializerOptions)!;
         else
             basicErrors = [ new ValidationErrorDto { ErrorMessage = "An error occurred." } ];
 
