@@ -245,15 +245,11 @@ public class EprCalculatorApiServiceTests
         // Assert
         CollectionAssert.AreEqual(new[] { 1, 2 }, result.Select(run => run.RunId).ToArray());
         Assert.IsNotNull(_messageHandler.LastRequest);
-        Assert.AreEqual(HttpMethod.Post, _messageHandler.LastRequest!.Method);
+        Assert.AreEqual(HttpMethod.Get, _messageHandler.LastRequest!.Method);
         Assert.AreEqual("/v1/calculatorRuns", _messageHandler.LastRequest.RequestUri?.AbsolutePath);
 
-        var requestBodyJson = await _messageHandler.LastRequest.Content!.ReadAsStringAsync();
-        var requestBody = JsonSerializer.Deserialize<FindCalculatorRunsRequestBody>(
-            requestBodyJson,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        Assert.IsNotNull(requestBody);
-        Assert.AreEqual(2026, requestBody.RelativeYear);
+        var query = QueryHelpers.ParseQuery(_messageHandler.LastRequest.RequestUri!.Query);
+        Assert.AreEqual(relativeYear.ToString(), query["relativeYear"].ToString());
     }
 
     [TestMethod]

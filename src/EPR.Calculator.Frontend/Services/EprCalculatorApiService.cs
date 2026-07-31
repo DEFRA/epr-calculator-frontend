@@ -64,9 +64,9 @@ public class EprCalculatorApiService(
     public async Task<List<CalculatorRunDto>> FindCalculatorRuns(RelativeYear relativeYear)
     {
         var response = await CallApi(
-            HttpMethod.Post,
+            HttpMethod.Get,
             "v1/calculatorRuns",
-            body: new { RelativeYear = relativeYear });
+            queryParams: new Dictionary<string, string?> { ["relativeYear"] = relativeYear.ToString() }) ;
 
         if (response.IsSuccessStatusCode)
             return await response.Content.ReadFromJsonAsync<List<CalculatorRunDto>>() ?? [];
