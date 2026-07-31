@@ -162,23 +162,6 @@ public class EprCalculatorApiServiceTests
     }
 
     [TestMethod]
-    public async Task GetCalculatorRun_EncodesRunNameBeforeCallingApi()
-    {
-        // Arrange
-        const string runName = "My Run / 2026";
-        var expectedPath = $"/v1/calculatorRuns/{Uri.EscapeDataString(runName)}";
-        _messageHandler.ResponseFactory = _ => new HttpResponseMessage(HttpStatusCode.BadRequest);
-
-        // Act
-        var result = await _service.GetCalculatorRun(runName);
-
-        // Assert
-        Assert.IsNull(result);
-        Assert.IsNotNull(_messageHandler.LastRequest);
-        Assert.AreEqual(expectedPath, _messageHandler.LastRequest!.RequestUri?.AbsolutePath);
-    }
-
-    [TestMethod]
     public async Task DeleteCalculatorRun_Throws_WhenApiReturnsFailure()
     {
         // Arrange
@@ -263,6 +246,43 @@ public class EprCalculatorApiServiceTests
 
         // Assert
         Assert.AreEqual(0, result.Count);
+    }
+
+    [TestMethod]
+    public async Task CheckIfRunNameExists_True_WhenFound()
+    {
+        // Arrange
+        var expectedRuns = new[]
+        {
+            new CalculatorRunDto { RunId = 1, RunName = "run-1" }
+        };
+        _messageHandler.ResponseFactory = _ => JsonResponse(HttpStatusCode.OK, expectedRuns);
+
+        // Act
+        var runExists = await _service.CheckIfRunNameExists("run-1");
+
+        // Assert
+        Assert.IsTrue(runExists);
+        Assert.IsNotNull(_messageHandler.LastRequest);
+        Assert.AreEqual(HttpMethod.Get, _messageHandler.LastRequest!.Method);
+        Assert.AreEqual("/v1/calculatorRuns", _messageHandler.LastRequest.RequestUri?.AbsolutePath);
+
+        var query = QueryHelpers.ParseQuery(_messageHandler.LastRequest.RequestUri!.Query);
+        Assert.AreEqual("run-1", query["runName"].ToString());
+    }
+
+    [TestMethod]
+    public async Task CheckIfRunNameExists_False_WhenNotFound()
+    {
+        // Arrange
+        var expectedRuns = new List<CalculatorRunDto>();
+        _messageHandler.ResponseFactory = _ => JsonResponse(HttpStatusCode.OK, expectedRuns);
+
+        // Act
+        var runExists = await _service.CheckIfRunNameExists("run-1");
+
+        // Assert
+        Assert.IsFalse(runExists);
     }
 
     [TestMethod]

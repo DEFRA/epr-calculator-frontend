@@ -14,10 +14,10 @@ public partial class CalculatorRunNameValidator : AbstractValidator<InitiateCalc
             .WithMessage(ErrorMessages.CalculationRunNameEmpty)
             .MaximumLength(100)
             .WithMessage(ErrorMessages.CalculationRunNameMaxLengthExceeded)
-            .Matches(AlphaNumericWithAtLeastOneLetter())
+            .Matches(AlphaNumericWithSpaces())
             .WithMessage(ErrorMessages.CalculationRunNameMustBeAlphaNumeric);
     }
 
-    [GeneratedRegex("^[A-Za-z0-9 ]*[A-Za-z][A-Za-z0-9 ]*$")]
-    private static partial Regex AlphaNumericWithAtLeastOneLetter();
+    [GeneratedRegex("^[A-Za-z0-9 ]+$")] // Restricted because run names are used in generated filenames and '%'/'_' are reserved for API partial-search wildcards.
+    private static partial Regex AlphaNumericWithSpaces();
 }

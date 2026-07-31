@@ -12,7 +12,7 @@ public interface IEprCalculatorApiService
 {
     Task<HttpResponseMessage> CallApi(HttpMethod httpMethod, string relativePath, IDictionary<string, string?>? queryParams = null, object? body = null);
     Task<CalculatorRunDto?> GetCalculatorRun(int runId);
-    Task<CalculatorRunDto?> GetCalculatorRun(string runName);
+    Task<Boolean> CheckIfRunNameExists(string runName);
     Task<List<CalculatorRunDto>> FindCalculatorRuns(RelativeYear relativeYear);
     Task<List<RelativeYear>> FindRelativeYears();
     Task DeleteCalculatorRun(int runId);
@@ -55,10 +55,22 @@ public class EprCalculatorApiService(
         return Get<CalculatorRunDto>($"v1/calculatorRuns/{runId}");
     }
 
-    public Task<CalculatorRunDto?> GetCalculatorRun(string runName)
+    public async Task<bool> CheckIfRunNameExists(string runName)
     {
-        var encodedRunName = Uri.EscapeDataString(runName);
-        return Get<CalculatorRunDto>($"v1/calculatorRuns/{encodedRunName}");
+        var response = await CallApi(
+            HttpMethod.Get,
+            "v1/calculatorRuns",
+            queryParams: new Dictionary<string, string?>
+            {
+                ["runName"] = runName
+            });
+
+        response.EnsureSuccessStatusCode();
+
+        var calculatorRuns =
+            await response.Content.ReadFromJsonAsync<List<CalculatorRunDto>>() ?? [];
+
+        return calculatorRuns.Count > 0;
     }
 
     public async Task<List<CalculatorRunDto>> FindCalculatorRuns(RelativeYear relativeYear)
@@ -66,7 +78,7 @@ public class EprCalculatorApiService(
         var response = await CallApi(
             HttpMethod.Get,
             "v1/calculatorRuns",
-            queryParams: new Dictionary<string, string?> { ["relativeYear"] = relativeYear.ToString() }) ;
+            queryParams: new Dictionary<string, string?> { ["relativeYear"] = relativeYear.ToString() });
 
         if (response.IsSuccessStatusCode)
             return await response.Content.ReadFromJsonAsync<List<CalculatorRunDto>>() ?? [];
