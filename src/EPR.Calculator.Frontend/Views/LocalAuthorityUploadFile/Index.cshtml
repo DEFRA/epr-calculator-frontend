@@ -1,46 +1,41 @@
-﻿@model LapcapUploadViewModel;
+@model LapcapUploadViewModel;
 
 @{
-    var errors = Model.Errors;
+    ViewData["Title"] = "Upload new local authority disposal costs";
 }
 
 <vc:user-nav back-link="@Url.Action("Index", "LocalAuthorityDisposalCosts")"/>
-
-@if (errors != null)
-{
-    <partial name="_ErrorBannerPartial" model="errors" />
-}
-@if (errors != null)
-{
-    <h1 class="govuk-heading-l"><label for="file-upload-1">Upload the file again</label></h1>
-}
-else
-{
-    <h1 class="govuk-heading-l">Upload new local authority disposal costs</h1>
-}
-
-@if (errors == null)
-{
-    <h2 class="govuk-heading-m"><label for="file-upload-1">Upload a file</label></h2>
-}
-
-<partial name="_UploadFileInformationPartial" />
+<partial name="_UploadFileErrorSummaryPartial" model="Model.ErrorsViewModel"/>
+<h1 class="govuk-heading-l">@ViewData["Title"]</h1>
 
 @using (Html.BeginForm("Upload", "LocalAuthorityUploadFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
-    <div class="@(errors != null ? "govuk-form-group govuk-form-group--error": "govuk-form-group")">
-        @if (errors != null)
+
+    <div class="govuk-form-group @(Model.HasErrors ? "govuk-form-group--error" : null)">
+        @if (Model.HasErrors)
         {
-            @foreach (var error in errors)
-            {
-                <p id="@error.DOMElementId" class="govuk-error-message">
-                    <span class="govuk-visually-hidden">Error:</span> @error.ErrorMessage
-                </p>
-            }
+            <label class="govuk-label govuk-label--m" for="@Model.InputId">
+                Fix and re-upload the file
+            </label>
+
+            <partial name="_UploadFileErrorDetailsPartial" model="@Model.ErrorsViewModel"/>
+        }
+        else
+        {
+            <label class="govuk-label govuk-label--m" for="@Model.InputId">
+                Upload a file
+            </label>
+
+            <partial name="_UploadFileInformationPartial" model="@Model"/>
         }
 
-        <input class="govuk-file-upload form-control" id="file-upload-1" name="fileUpload" validation-class="govuk-input-error" validation-for="file-upload-1" type="file">
+        <input id="@Model.InputId"
+               class="govuk-file-upload"
+               name="fileUpload"
+               type="file"
+               aria-describedby="@Model.InputDescribedBy"
+               aria-invalid="@(Model.HasErrors ? "true" : null)">
     </div>
 
     <button id="btnUploadFile" type="submit" class="govuk-button" data-module="govuk-button">

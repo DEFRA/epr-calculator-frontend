@@ -1,0 +1,39 @@
+@model FileUploadErrorViewModel?
+
+@if (Model?.HasErrors ?? false)
+{
+    <div
+        class="govuk-error-summary"
+        data-module="govuk-error-summary"
+        role="alert"
+        aria-labelledby="error-summary-title"
+        tabindex="-1">
+
+        <h2 class="govuk-error-summary__title" id="error-summary-title">
+            @if (Model.AllErrors.Count > 1)
+            {
+                <span>There are problems with your upload</span>
+            }
+            else
+            {
+                <span>There is a problem with your upload</span>
+            }
+        </h2>
+
+        <div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+                <li>
+                    @if (Model.AllErrors.Count > 1)
+                    {
+                        <a href="#@Model.InputId">You must fix @Model.AllErrors.Count errors before uploading
+                            the file again</a>
+                    }
+                    else
+                    {
+                        <a href="#@Model.InputId">You must fix the error before uploading the file again</a>
+                    }
+                </li>
+            </ul>
+        </div>
+    </div>
+}

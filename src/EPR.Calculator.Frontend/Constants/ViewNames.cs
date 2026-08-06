@@ -36,21 +36,6 @@
         public const string LocalAuthorityDisposalCostsIndex = "~/Views/LocalAuthorityDisposalCosts/Index.cshtml";
 
         /// <summary>
-        /// Local authority upload file index page view.
-        /// </summary>
-        public const string LocalAuthorityUploadFileIndex = "~/Views/LocalAuthorityUploadFile/Index.cshtml";
-
-        /// <summary>
-        /// Local authority upload file refresh page view.
-        /// </summary>
-        public const string LocalAuthorityUploadFileRefresh = "~/Views/LocalAuthorityUploadFile/Refresh.cshtml";
-
-        /// <summary>
-        /// Local authority upload file error index page view.
-        /// </summary>
-        public const string LocalAuthorityUploadFileErrorIndex = "~/Views/LocalAuthorityUploadFileError/Index.cshtml";
-
-        /// <summary>
         /// Local authority confirmation index page view.
         /// </summary>
         public const string LocalAuthorityConfirmationIndex = "~/Views/LocalAuthorityConfirmation/Index.cshtml";

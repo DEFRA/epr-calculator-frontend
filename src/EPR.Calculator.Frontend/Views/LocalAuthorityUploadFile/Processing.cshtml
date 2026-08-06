@@ -1,0 +1,31 @@
+﻿@model LapcapProcessingViewModel;
+@{
+    var localAuthorityDisposalCosts = Json.Serialize(Model);
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<partial name="_RefreshPartial" />
+
+<script type="text/javascript">
+    $(function () {
+        const payload = JSON.stringify(@localAuthorityDisposalCosts)
+        const url = '@Url.Action("Process", "LocalAuthorityUploadFile")'
+        const successUrl = '@Url.Action("Index", "LocalAuthorityConfirmation")'
+        const errorUrl = '@Url.Action("Errors", "LocalAuthorityUploadFile")'
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: payload,
+            processData: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function () {
+                window.location.href = successUrl;
+            },
+            error: function () {
+                window.location.href = errorUrl;
+            }
+        })
+    })
+</script>
