@@ -10,7 +10,7 @@ namespace EPR.Calculator.Frontend.Services;
 
 public interface IEprCalculatorApiService
 {
-    Task<HttpResponseMessage> CallApi(HttpMethod httpMethod, string relativePath, IDictionary<string, string?>? queryParams = null, object? body = null);
+    Task<HttpResponseMessage> CallApi(HttpMethod httpMethod, string relativePath, IDictionary<string, string?>? queryParams = null, object? body = null, CancellationToken cancellationToken = default);
     Task<CalculatorRunDto?> GetCalculatorRun(int runId);
     Task<Boolean> CheckIfRunNameExists(string runName);
     Task<List<CalculatorRunDto>> FindCalculatorRuns(RelativeYear relativeYear);
@@ -35,7 +35,8 @@ public class EprCalculatorApiService(
         HttpMethod httpMethod,
         string relativePath,
         IDictionary<string, string?>? queryParams = null,
-        object? body = null)
+        object? body = null,
+        CancellationToken cancellationToken = default)
     {
         var uri = queryParams is { Count: > 0 }
             ? new Uri(QueryHelpers.AddQueryString(new Uri(baseUri, relativePath).ToString(), queryParams))
@@ -47,7 +48,7 @@ public class EprCalculatorApiService(
             request.Content = JsonContent.Create(body);
 
         var client = await GetHttpClient();
-        return await client.SendAsync(request);
+        return await client.SendAsync(request, cancellationToken);
     }
 
     public Task<CalculatorRunDto?> GetCalculatorRun(int runId)

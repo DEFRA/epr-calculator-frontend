@@ -120,7 +120,8 @@ public class CalculationRunNameControllerTests
             It.IsAny<HttpMethod>(),
             It.IsAny<string>(),
             It.IsAny<IDictionary<string, string?>?>(),
-            It.IsAny<object?>()), Times.Never);
+            It.IsAny<object?>(),
+            It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]
@@ -140,8 +141,9 @@ public class CalculationRunNameControllerTests
                 HttpMethod.Post,
                 "v1/calculatorRun",
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
-            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?>((_, _, _, body) => { capturedCreateRunDto = body as CreateCalculatorRunDto; })
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?, CancellationToken>((_, _, _, body, _) => { capturedCreateRunDto = body as CreateCalculatorRunDto; })
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Accepted));
 
         var controller = BuildController();
@@ -158,7 +160,8 @@ public class CalculationRunNameControllerTests
             HttpMethod.Post,
             "v1/calculatorRun",
             It.IsAny<IDictionary<string, string?>?>(),
-            It.IsAny<object?>()), Times.Once);
+            It.IsAny<object?>(),
+            It.IsAny<CancellationToken>()), Times.Once);
         Assert.IsNotNull(capturedCreateRunDto);
         Assert.AreEqual(trimmedName, capturedCreateRunDto.CalculatorRunName);
         Assert.AreEqual(TestUser, capturedCreateRunDto.CreatedBy);
@@ -397,7 +400,8 @@ public class CalculationRunNameControllerTests
                 HttpMethod.Post,
                 "v1/calculatorRun",
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(createResponse);
     }
 

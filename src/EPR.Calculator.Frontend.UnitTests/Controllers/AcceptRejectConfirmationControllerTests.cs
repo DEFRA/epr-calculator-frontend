@@ -125,7 +125,8 @@ public class AcceptRejectConfirmationControllerTests
             It.IsAny<HttpMethod>(),
             It.IsAny<string>(),
             It.IsAny<IDictionary<string, string?>>(),
-            It.IsAny<object>()), Times.Never);
+            It.IsAny<object>(),
+            It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]
@@ -181,7 +182,8 @@ public class AcceptRejectConfirmationControllerTests
             It.IsAny<HttpMethod>(),
             It.IsAny<string>(),
             It.IsAny<IDictionary<string, string?>>(),
-            It.IsAny<object>()), Times.Never);
+            It.IsAny<object>(),
+            It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]
@@ -199,8 +201,9 @@ public class AcceptRejectConfirmationControllerTests
                 It.IsAny<HttpMethod>(),
                 It.IsAny<string>(),
                 It.IsAny<IDictionary<string, string?>>(),
-                It.IsAny<object>()))
-            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?>((method, path, _, body) =>
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?, CancellationToken>((method, path, _, body, _) =>
             {
                 actualMethod = method;
                 actualRelativePath = path;
@@ -228,7 +231,8 @@ public class AcceptRejectConfirmationControllerTests
             It.IsAny<HttpMethod>(),
             It.IsAny<string>(),
             It.IsAny<IDictionary<string, string?>>(),
-            It.IsAny<object>()), Times.Once);
+            It.IsAny<object>(),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]
@@ -243,7 +247,8 @@ public class AcceptRejectConfirmationControllerTests
                 It.IsAny<HttpMethod>(),
                 It.IsAny<string>(),
                 It.IsAny<IDictionary<string, string?>>(),
-                It.IsAny<object>()))
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
         var controller = BuildController();
 

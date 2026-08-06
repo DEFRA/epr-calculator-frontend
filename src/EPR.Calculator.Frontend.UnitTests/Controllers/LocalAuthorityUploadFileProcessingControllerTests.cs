@@ -46,7 +46,8 @@ public class LocalAuthorityUploadFileProcessingControllerTests
                 HttpMethod.Post,
                 "v1/lapcapData",
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(apiResponse);
 
         // Act
@@ -69,7 +70,8 @@ public class LocalAuthorityUploadFileProcessingControllerTests
                 HttpMethod.Post,
                 "v1/lapcapData",
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Accepted)
             {
                 Content = new StringContent(apiError)
@@ -98,8 +100,9 @@ public class LocalAuthorityUploadFileProcessingControllerTests
                 HttpMethod.Post,
                 "v1/lapcapData",
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
-            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?>((_, _, _, body) => capturedDto = body as CreateLapcapDataDto)
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?, CancellationToken>((_, _, _, body, _) => capturedDto = body as CreateLapcapDataDto)
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Created));
 
         // Act
@@ -110,7 +113,8 @@ public class LocalAuthorityUploadFileProcessingControllerTests
             HttpMethod.Post,
             "v1/lapcapData",
             It.IsAny<IDictionary<string, string?>?>(),
-            It.IsAny<object?>()), Times.Once);
+            It.IsAny<object?>(),
+            It.IsAny<CancellationToken>()), Times.Once);
         Assert.IsNotNull(capturedDto);
         Assert.AreEqual(new RelativeYear(sessionYear), capturedDto.RelativeYear);
         Assert.AreEqual(request.FileName, capturedDto.LapcapFileName);
@@ -132,8 +136,9 @@ public class LocalAuthorityUploadFileProcessingControllerTests
                 HttpMethod.Post,
                 "v1/lapcapData",
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
-            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?>((_, _, _, body) => capturedDto = body as CreateLapcapDataDto)
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?, CancellationToken>((_, _, _, body, _) => capturedDto = body as CreateLapcapDataDto)
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Created));
 
         // Act
