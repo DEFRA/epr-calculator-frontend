@@ -1,5 +1,6 @@
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Helpers.Csv;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -50,7 +51,7 @@ public class LocalAuthorityUploadFileController : BaseController
             }
             else
             {
-                var localAuthorityDisposalCosts = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
+                var localAuthorityDisposalCosts = await ObsoleteCsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
                 var viewModel = new LapcapRefreshViewModel
                 {
                     LapcapTemplateValue = localAuthorityDisposalCosts,
@@ -67,7 +68,7 @@ public class LocalAuthorityUploadFileController : BaseController
 
     private ErrorViewModel ValidateCsv(IFormFile fileUpload)
     {
-        var validationErrors = CsvFileHelper.ValidateCSV(fileUpload);
+        var validationErrors = ObsoleteCsvFileHelper.ValidateCSV(fileUpload);
 
         if (validationErrors.ErrorMessage != null)
             TempData[UploadFileErrorIds.LocalAuthorityUploadErrors] = JsonConvert.SerializeObject(validationErrors);

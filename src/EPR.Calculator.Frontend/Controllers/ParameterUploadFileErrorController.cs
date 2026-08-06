@@ -1,5 +1,6 @@
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Helpers.Csv;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -45,16 +46,15 @@ public class ParameterUploadFileErrorController : BaseController
     [HttpPost]
     public async Task<IActionResult> Upload(IFormFile fileUpload)
     {
-        var csvErrors = CsvFileHelper.ValidateCSV(fileUpload);
         var uploadViewModel = new ParameterUploadViewModel();
 
-        if (csvErrors.ErrorMessage is not null)
+        if (!CsvFileHelper.TryValidateFile(fileUpload, out var errors))
         {
-            uploadViewModel.Errors = csvErrors;
+            uploadViewModel.Errors = new ErrorViewModel { DOMElementId = ViewControlNames.FileUpload, ErrorMessage = errors.First() };
             return View(ViewNames.ParameterUploadFileErrorIndex, uploadViewModel);
         }
 
-        var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
+        var schemeTemplateParameterValues = await ParametersCsvFileHelper.Parse(fileUpload);
 
         return View(ViewNames.ParameterUploadFileRefresh, new ParameterRefreshViewModel { ParameterTemplateValues = schemeTemplateParameterValues, FileName = fileUpload.FileName });
     }

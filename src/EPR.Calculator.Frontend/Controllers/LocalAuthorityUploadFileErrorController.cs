@@ -44,7 +44,7 @@ public class LocalAuthorityUploadFileErrorController : BaseController
     [HttpPost]
     public async Task<IActionResult> Upload(IFormFile fileUpload)
     {
-        var lapcapFileErrors = CsvFileHelper.ValidateCSV(fileUpload);
+        var lapcapFileErrors = ObsoleteCsvFileHelper.ValidateCSV(fileUpload);
         var lapcapUploadViewModel = new LapcapUploadViewModel();
 
         if (lapcapFileErrors.ErrorMessage is not null)
@@ -55,7 +55,7 @@ public class LocalAuthorityUploadFileErrorController : BaseController
                 lapcapUploadViewModel);
         }
 
-        var localAuthorityDisposalCostsValues = await CsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
+        var localAuthorityDisposalCostsValues = await ObsoleteCsvFileHelper.PrepareLapcapDataForUpload(fileUpload);
 
         return View(ViewNames.LocalAuthorityUploadFileRefresh, new LapcapRefreshViewModel { LapcapTemplateValue = localAuthorityDisposalCostsValues, FileName = fileUpload.FileName });
     }

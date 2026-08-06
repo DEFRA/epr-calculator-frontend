@@ -9,7 +9,7 @@ using EPR.Calculator.Frontend.ViewModels;
 
 namespace EPR.Calculator.Frontend.Helpers
 {
-    public static class CsvFileHelper
+    public static class ObsoleteCsvFileHelper
     {
         public static ErrorViewModel ValidateCSV(IFormFile? fileUpload)
         {
@@ -29,36 +29,6 @@ namespace EPR.Calculator.Frontend.Helpers
             }
 
             return new ErrorViewModel();
-        }
-
-        public static async Task<List<SchemeParameterTemplateValue>> PrepareSchemeParameterDataForUpload(IFormFile fileUpload)
-        {
-            var schemeTemplateParameterValues = new List<SchemeParameterTemplateValue>();
-
-            using var memoryStream = new MemoryStream(new byte[fileUpload.Length]);
-            await fileUpload.CopyToAsync(memoryStream);
-            memoryStream.Position = 0;
-
-            using (var reader = new StreamReader(memoryStream))
-            {
-                var config = GetCsvConfiguration(UploadType.ParameterSettings);
-                using (var csvReader = new CsvReader(reader, config))
-                {
-                    await csvReader.ReadAsync();
-                    while (await csvReader.ReadAsync())
-                    {
-                        var parameterUniqueReferenceId = csvReader.GetField(0);
-                        var parameterValue = csvReader.GetField(5);
-                        if (parameterUniqueReferenceId != null && parameterValue != null)
-                        {
-                            schemeTemplateParameterValues.Add(
-                                    new SchemeParameterTemplateValue() { ParameterUniqueReferenceId = parameterUniqueReferenceId, ParameterValue = parameterValue });
-                        }
-                    }
-                }
-            }
-
-            return schemeTemplateParameterValues;
         }
 
         public static async Task<List<LapcapDataTemplateValueDto>> PrepareLapcapDataForUpload(IFormFile fileUpload)
