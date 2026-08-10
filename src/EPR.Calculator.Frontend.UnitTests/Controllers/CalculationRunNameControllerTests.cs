@@ -91,7 +91,7 @@ public class CalculationRunNameControllerTests
         Assert.IsNotNull(returnedModel.Errors);
         Assert.AreEqual(ViewControlNames.CalculationRunName, returnedModel.Errors.DOMElementId);
         Assert.AreEqual(ErrorMessages.CalculationRunNameEmpty, returnedModel.Errors.ErrorMessage);
-        apiService.Verify(service => service.GetCalculatorRun(It.IsAny<string>()), Times.Never);
+        apiService.Verify(service => service.CheckIfRunNameExists(It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -100,8 +100,8 @@ public class CalculationRunNameControllerTests
         // Arrange
         var calculationName = "Existing Calculation";
         apiService
-            .Setup(service => service.GetCalculatorRun(calculationName))
-            .ReturnsAsync(BuildExistingRun(calculationName));
+            .Setup(service => service.CheckIfRunNameExists(calculationName))
+            .ReturnsAsync(true);
         var controller = BuildController();
         var model = BuildModel(calculationName);
 
@@ -132,8 +132,8 @@ public class CalculationRunNameControllerTests
         CreateCalculatorRunDto? capturedCreateRunDto = null;
 
         apiService
-            .Setup(service => service.GetCalculatorRun(trimmedName))
-            .ReturnsAsync((CalculatorRunDto?)null);
+            .Setup(service => service.CheckIfRunNameExists(trimmedName))
+            .ReturnsAsync(false);
 
         apiService
             .Setup(service => service.CallApi(
@@ -153,7 +153,7 @@ public class CalculationRunNameControllerTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(ActionNames.RunCalculatorConfirmation, result.ActionName);
-        apiService.Verify(service => service.GetCalculatorRun(trimmedName), Times.Once);
+        apiService.Verify(service => service.CheckIfRunNameExists(trimmedName), Times.Once);
         apiService.Verify(service => service.CallApi(
             HttpMethod.Post,
             "v1/calculatorRun",
@@ -389,8 +389,8 @@ public class CalculationRunNameControllerTests
     private void SetupUniqueNameScenario(string calculationName, HttpResponseMessage createResponse)
     {
         apiService
-            .Setup(service => service.GetCalculatorRun(calculationName))
-            .ReturnsAsync((CalculatorRunDto?)null);
+            .Setup(service => service.CheckIfRunNameExists(calculationName))
+            .ReturnsAsync(false);
 
         apiService
             .Setup(service => service.CallApi(

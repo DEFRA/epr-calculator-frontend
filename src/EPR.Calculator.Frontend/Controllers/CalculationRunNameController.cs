@@ -44,9 +44,9 @@ public class CalculationRunNameController(
         if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
         {
             var calculationName = calculationRunModel.CalculationName.Trim();
-            var runDto = await eprCalculatorApiService.GetCalculatorRun(calculationName);
+            var alreadyExists = await eprCalculatorApiService.CheckIfRunNameExists(calculationName);
 
-            if (runDto != null)
+            if (alreadyExists)
                 return View(ViewNames.CalculationRunNameIndex, CreateViewModel(CreateErrorViewModel(ErrorMessages.CalculationRunNameExists)));
 
             var response = await HttpPostToCalculatorRunApi(calculationName);
