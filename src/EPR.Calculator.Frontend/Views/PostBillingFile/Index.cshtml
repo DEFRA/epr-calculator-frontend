@@ -56,14 +56,12 @@
                     <div class="govuk-button-group">
                         <a class="govuk-button govuk-button--secondary"
                            role="button"
-                           draggable="false"
                            href="@Url.Action(ActionNames.DownloadResultFile, ControllerNames.FileDownloadController, new { runId = Model.CalculatorRunStatus.RunId })">
                             Results file
                         </a>
 
                         <a class="govuk-button govuk-button--secondary"
                            role="button"
-                           draggable="false"
                            href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController, new { runId = Model.CalculatorRunStatus.RunId })">
                             Billing file
                         </a>

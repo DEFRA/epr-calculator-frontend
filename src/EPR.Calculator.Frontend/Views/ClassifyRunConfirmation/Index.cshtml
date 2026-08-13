@@ -56,7 +56,6 @@
 
                         <a class="govuk-button govuk-button--secondary"
                            role="button"
-                           draggable="false"
                            href="@Url.Action( ActionNames.DownloadResultFile ,ControllerNames.FileDownloadController, new { runId = Model.CalculatorRunDetails.RunId })">
                             Results file
                         </a>
@@ -99,7 +98,6 @@
                         <div class="govuk-button-group">
                             <a class="govuk-button"
                                role="button"
-                               draggable="false"
                                href="@Url.Action(ActionNames.Index, ControllerNames.BillingInstructionsController, new { runId = Model.CalculatorRunDetails.RunId })">
                                 Continue
                             </a>

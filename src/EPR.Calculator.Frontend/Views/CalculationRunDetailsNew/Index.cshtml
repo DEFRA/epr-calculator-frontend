@@ -60,7 +60,6 @@
 
                         <a class="govuk-button govuk-button--secondary"
                            role="button"
-                           draggable="false"
                            href="@Url.Action(ActionNames.DownloadResultFile,ControllerNames.FileDownloadController, new { runId = Model.RunId })">
                             Results file
                         </a>
@@ -80,14 +79,14 @@
                                         @Html.RadioButtonFor(model => model.SelectedCalcRunOption, CalculationRunOption.OutputClassify, new { @class = "govuk-radios__input", id = "SelectedCalcRunOptionClassify" })
                                         <label class="govuk-label govuk-radios__label" for="SelectedCalcRunOptionClassify">
                                             <strong>Classify</strong><br />
-                                            <p class="govuk-body-s" style="margin-bottom: 0;">Choose a classification to process this calculation run</p>
+                                            <p class="govuk-body-s govuk-!-margin-bottom-0">Choose a classification to process this calculation run</p>
                                         </label>
                                     </div>
                                     <div class="govuk-radios__item">
                                         @Html.RadioButtonFor(model => model.SelectedCalcRunOption, CalculationRunOption.OutputDelete, new { @class = "govuk-radios__input", id = "SelectedCalcRunOptionDelete" })
                                         <label class="govuk-label govuk-radios__label" for="SelectedCalcRunOptionDelete">
                                             <strong>Delete</strong><br />
-                                            <p class="govuk-body-s" style="margin-bottom: 0;">Remove this calculation run if it's no longer needed</p>
+                                            <p class="govuk-body-s govuk-!-margin-bottom-0">Remove this calculation run if it's no longer needed</p>
                                         </label>
                                     </div>
                                 </div>

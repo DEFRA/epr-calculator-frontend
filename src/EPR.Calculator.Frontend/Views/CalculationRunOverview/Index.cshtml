@@ -45,7 +45,6 @@
                         </p>
                         <a class="govuk-button"
                            role="button"
-                           draggable="false"
                            data-module="govuk-button"
                            href="@Url.Action(ActionNames.GenerateDraftBillingFile, ControllerNames.CalculationRunOverview, new { runId = Model.Run.RunId })">
                             Retry generating new draft billing file
@@ -102,49 +101,58 @@
                                 <p class="govuk-body">Download files related to this calculation run.</p>
 
                                 <div class="govuk-button-group width-max-content">
-                                    <a class="govuk-button govuk-button--secondary"
-                                       role="button"
-                                       draggable="false"
-                                       href="@Url.Action(ActionNames.DownloadResultFile, ControllerNames.FileDownloadController, new { Model.Run.RunId })">
+                                    <a class="govuk-button govuk-button--secondary" role="button" href="@Url.Action(ActionNames.DownloadResultFile, ControllerNames.FileDownloadController, new { Model.Run.RunId })">
                                         Results file
                                     </a>
 
-                                    <a class="govuk-button govuk-button--secondary"
-                                       role="button"
-                                       draggable="false"
-                                       @(Model.IsLatestBillingFile ? null : "disabled")
-                                       onclick="return @(Model.IsLatestBillingFile ? "true" : "false");"
-                                       href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController, new { Model.Run.RunId })">
-                                        @(Model.IsBillingFileRunning ? BillingInstructionConstants.DraftBillingFileGenerating : BillingInstructionConstants.DraftBillingFile)
-                                    </a>
+                                    @if (Model.IsLatestBillingFile)
+                                    {
+                                        <a class="govuk-button govuk-button--secondary" role="button" href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController, new { Model.Run.RunId })">
+                                            @(Model.IsBillingFileRunning ? BillingInstructionConstants.DraftBillingFileGenerating : BillingInstructionConstants.DraftBillingFile)
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="govuk-button govuk-button--secondary" disabled>
+                                            @(Model.IsBillingFileRunning ? BillingInstructionConstants.DraftBillingFileGenerating : BillingInstructionConstants.DraftBillingFile)
+                                        </button>
+                                    }
 
                                     <p class="govuk-body">
                                         @(Model.IsBillingFileRunning ? BillingInstructionConstants.GenerateFileMessage : string.Empty)
                                     </p>
                                 </div>
 
-                                <a class="govuk-button govuk-button--secondary"
-                                   role="button"
-                                   draggable="false"
-                                   @(Model.IsNewBillingRunAllowed ? null : "disabled")
-                                   onclick="return @(Model.IsNewBillingRunAllowed ? "true" : "false");"
-                                   href="@Url.Action(ActionNames.GenerateDraftBillingFile, ControllerNames.CalculationRunOverview, new { Model.Run.RunId })">
-                                    @(BillingInstructionConstants.GenerateNewDraftBillingFile)
-                                </a>
+                                @if (Model.IsNewBillingRunAllowed)
+                                {
+                                    <a class="govuk-button govuk-button--secondary" role="button" href="@Url.Action(ActionNames.GenerateDraftBillingFile, ControllerNames.CalculationRunOverview, new { Model.Run.RunId })">
+                                        @(BillingInstructionConstants.GenerateNewDraftBillingFile)
+                                    </a>
+                                }
+                                else
+                                {
+                                    <button type="button" class="govuk-button govuk-button--secondary" disabled>
+                                        @(BillingInstructionConstants.GenerateNewDraftBillingFile)
+                                    </button>
+                                }
 
                                 <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                 <h2 class="govuk-heading-m">Remove this run's classification</h2>
                                 <p class="govuk-body">Mark this run as a test or delete it to remove its classification.</p>
-                                <div class="govuk-button-group">
-                                    <a class="govuk-button govuk-button--secondary"
-                                       role="button"
-                                       draggable="false"
-                                       @(Model.IsRemoveClassificationAllowed ?  null : "disabled")
-                                       onclick="return @(Model.IsRemoveClassificationAllowed ? "true" : "false");"
-                                       href="@Url.Action(@ActionNames.Index, @ControllerNames.CalculationRunDelete, new { Model.Run.RunId })">
+
+
+                                @if (Model.IsRemoveClassificationAllowed)
+                                {
+                                    <a class="govuk-button govuk-button--secondary" role="button" href="@Url.Action(@ActionNames.Index, @ControllerNames.CalculationRunDelete, new { Model.Run.RunId })">
                                         Remove classification
                                     </a>
-                                </div>
+                                }
+                                else
+                                {
+                                    <button type="button" class="govuk-button govuk-button--secondary" disabled>
+                                        Remove classification
+                                    </button>
+                                }
 
                                 <partial name="_AmendBillingInstructionPartial" model="Model.Run" />
 

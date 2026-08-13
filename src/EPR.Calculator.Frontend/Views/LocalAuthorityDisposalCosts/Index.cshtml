@@ -57,7 +57,7 @@
 
 @if (Model != null && Model?.ByCountry?.Count > 0)
 {
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="@Context.Items["CspNonce"]">
         $(document).ready(() => {
             const [dateString, timeString] = ('@EffectiveFromDate').split(' ');
 

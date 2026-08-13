@@ -79,6 +79,10 @@ body {
     gap: 10px;
 }
 
+.search-input-group .govuk-input {
+    flex: 1;
+}
+
 .govuk-link--selected-status {
     outline: 3px solid transparent;
     color: #0b0c0c;
@@ -118,4 +122,31 @@ body {
 
 .govuk-button--secondary[disabled] {
     opacity: 0.65; /*Fix accessibility contrast issue*/
+}
+
+.select-all-label {
+    max-width: 100%;
+    padding-right: 0;
+}
+
+.billing-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.billing-pagination__pages {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-page-size-list {
+    display: inline-flex;
+}
+
+.pagination-page-size {
+    min-width: 20px;
+    padding: 0 5px;
 }

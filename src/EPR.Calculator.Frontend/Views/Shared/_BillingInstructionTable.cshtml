@@ -111,9 +111,9 @@
     }
 }
 
-<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+<div class="billing-pagination">
     <!-- Left side: pagination numbers + next -->
-    <div style="display: flex; align-items: center; gap: 10px;">
+    <div class="billing-pagination__pages">
         <ul class="govuk-pagination__list">
             @* Previous link *@
             @if (Model.TablePaginationModel.Page > 1)
@@ -143,7 +143,7 @@
             @* Pages in the block *@
             @for (int i = blockStart; i <= blockEnd; i++)
             {
-                <li class="govuk-pagination__item @(Model.TablePaginationModel.Page == i ? "govuk-pagination__item--current" : "")" @(Model.TablePaginationModel.Page == i ? "aria-current=\"page\"" : "") style="text-decoration: underline;">
+                <li class="govuk-pagination__item @(Model.TablePaginationModel.Page == i ? "govuk-pagination__item--current" : "")" @(Model.TablePaginationModel.Page == i ? "aria-current=\"page\"" : "")>
                     @if (Model.TablePaginationModel.Page == i)
                     {
                         @i
@@ -189,18 +189,18 @@
     <!-- Right side: items per page -->
     <div>
         <strong class="govuk-body">Items per page:</strong>
-        <ul class="govuk-pagination__list" style="display: inline-flex; list-style: none;">
+        <ul class="govuk-pagination__list pagination-page-size-list">
             @foreach (var size in Model.TablePaginationModel.PageSizeOptions)
             {
                 if (Model.TablePaginationModel.PageSize == size)
                 {
-                    <li class="govuk-pagination__item" style="min-width:20px; padding-left: 5px; padding-right: 5px;">
+                    <li class="govuk-pagination__item pagination-page-size">
                         <strong>@size</strong>
                     </li>
                 }
                 else
                 {
-                    <li class="govuk-pagination__item" style="min-width:20px; padding-left: 5px; padding-right: 5px">
+                    <li class="govuk-pagination__item pagination-page-size">
                         <a class="govuk-link govuk-pagination__link govuk-link--no-visited-state"
                            href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(1, pageSize: size))"
                            aria-label="Show @size items per page">
@@ -227,7 +227,7 @@
     Update billing instructions for <span id="totalCountText">@ARJourneySessionHelper.GetFromSession(Context.Session).Count</span> selected organisations.
 </p>
 
-<script type="text/javascript">
+<script type="text/javascript" nonce="@Context.Items["CspNonce"]">
     document.addEventListener('click', function (event) {
         if (event.target.classList.contains('record-checkbox')) {
             var organisationId = event.target.getAttribute('data-organisation-id');
