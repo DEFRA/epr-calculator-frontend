@@ -1,4 +1,4 @@
-name: OSV-Scanner (PR)
+name: OSV-Scanner (PR) TEST
 on:
   pull_request:
 permissions:
