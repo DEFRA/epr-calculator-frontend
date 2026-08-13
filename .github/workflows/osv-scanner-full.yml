@@ -11,4 +11,4 @@ permissions:
   security-events: write
 jobs:
   osv:
-    uses: DEFRA/epr-webapps-code-deploy-templates/.github/workflows/osv-full.yml@main
+    uses: DEFRA/epr-webapps-code-deploy-templates/.github/workflows/osv-full.yml@ELSP-377
