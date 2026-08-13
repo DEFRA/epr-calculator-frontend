@@ -139,8 +139,9 @@ public class DesignatedRunWithBillingFileControllerTests
                 It.IsAny<HttpMethod>(),
                 It.IsAny<string>(),
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
-            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?>((method, relativePath, _, _) =>
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?, CancellationToken>((method, relativePath, _, _, _) =>
             {
                 capturedMethod = method;
                 capturedPath = relativePath;
@@ -172,8 +173,9 @@ public class DesignatedRunWithBillingFileControllerTests
                 It.IsAny<HttpMethod>(),
                 It.IsAny<string>(),
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
-            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?>((method, relativePath, _, _) =>
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?, CancellationToken>((method, relativePath, _, _, _) =>
             {
                 capturedMethod = method;
                 capturedPath = relativePath;

@@ -1,5 +1,5 @@
 using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Helpers.Csv;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -55,7 +55,7 @@ public class ParameterUploadFileController(IWebHostEnvironment environment) : Ba
             }
             else
             {
-                var schemeTemplateParameterValues = await CsvFileHelper.PrepareSchemeParameterDataForUpload(fileUpload);
+                var schemeTemplateParameterValues = await ParametersCsvFileHelper.Parse(fileUpload);
                 var viewModel = new ParameterRefreshViewModel
                 {
                     ParameterTemplateValues = schemeTemplateParameterValues,
@@ -76,9 +76,6 @@ public class ParameterUploadFileController(IWebHostEnvironment environment) : Ba
             ? JsonConvert.DeserializeObject<ErrorViewModel>(TempData[UploadFileErrorIds.DefaultParameterUploadErrors]?.ToString() ?? string.Empty)
             : null;
 
-        if (errors != null)
-            errors.DOMElementId = ViewControlNames.FileUpload;
-
         ModelState.Clear();
         return new ParameterUploadViewModel
         {
@@ -88,19 +85,21 @@ public class ParameterUploadFileController(IWebHostEnvironment environment) : Ba
 
     private string GetViewName(IFormFile fileUpload)
     {
-        if (ValidateCSV(fileUpload).ErrorMessage is not null)
+        if (ValidateCSV(fileUpload) is not null)
             return ViewNames.ParameterUploadFileIndex;
 
         return ViewNames.ParameterUploadFileRefresh;
     }
 
-    private ErrorViewModel ValidateCSV(IFormFile fileUpload)
+    private ErrorViewModel? ValidateCSV(IFormFile fileUpload)
     {
-        var validationErrors = CsvFileHelper.ValidateCSV(fileUpload);
+        if (!CsvFileHelper.TryValidateFile(fileUpload, out var errors))
+        {
+            var error = new ErrorViewModel { DOMElementId = ViewControlNames.FileUpload, ErrorMessage = errors.First() };
+            TempData[UploadFileErrorIds.DefaultParameterUploadErrors] = JsonConvert.SerializeObject(error);
+            return error;
+        }
 
-        if (validationErrors.ErrorMessage != null)
-            TempData[UploadFileErrorIds.DefaultParameterUploadErrors] = JsonConvert.SerializeObject(validationErrors);
-
-        return validationErrors;
+        return null;
     }
 }

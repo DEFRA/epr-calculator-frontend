@@ -114,7 +114,8 @@ public class SendBillingFileControllerTests
             It.IsAny<HttpMethod>(),
             It.IsAny<string>(),
             It.IsAny<IDictionary<string, string?>?>(),
-            It.IsAny<object?>()), Times.Never);
+            It.IsAny<object?>(),
+            It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]
@@ -132,8 +133,9 @@ public class SendBillingFileControllerTests
                 It.IsAny<HttpMethod>(),
                 It.IsAny<string>(),
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
-            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?>((method, relativePath, _, _) =>
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?, CancellationToken>((method, relativePath, _, _, _) =>
             {
                 capturedMethod = method;
                 capturedRelativePath = relativePath;
@@ -165,7 +167,8 @@ public class SendBillingFileControllerTests
                 It.IsAny<HttpMethod>(),
                 It.IsAny<string>(),
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.UnprocessableEntity));
 
         // Act
@@ -192,7 +195,8 @@ public class SendBillingFileControllerTests
                 It.IsAny<HttpMethod>(),
                 It.IsAny<string>(),
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError)
             {
                 Content = new StringContent("error")

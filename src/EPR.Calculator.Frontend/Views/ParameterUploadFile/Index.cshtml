@@ -30,7 +30,7 @@ else
     <h2 class="govuk-heading-m"><label for="file-upload-1">Upload a file</label></h2>
 }
 
-<partial name="_UploadFileInformationPartial" />
+<partial name="_UploadFileInformationPartial" model="Model" />
 
 
 @using (Html.BeginForm("Upload", "ParameterUploadFile", FormMethod.Post, new { enctype = "multipart/form-data" }))

@@ -2,10 +2,11 @@
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record ParameterUploadViewModel
+public record ParameterUploadViewModel : IFileUploadViewModel
 {
     public ErrorViewModel? Errors { get; set; }
     public IReadOnlyList<CreateDefaultParameterSettingErrorDto>? ParamterErrors { get; set; }
     public IReadOnlyList<ValidationErrorDto>? ValidationErrors { get; set; }
     public IReadOnlyList<SchemeParameterTemplateValue>? ParameterDataTemplateValue { get; set; }
+    public string RequirementsId => "file-upload-requirements";
 }

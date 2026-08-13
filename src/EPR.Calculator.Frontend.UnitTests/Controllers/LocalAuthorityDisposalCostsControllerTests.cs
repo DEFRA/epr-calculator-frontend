@@ -74,7 +74,8 @@ public class LocalAuthorityDisposalCostsControllerTests
             HttpMethod.Get,
             ExpectedLapcapPath,
             It.IsAny<IDictionary<string, string?>>(),
-            It.IsAny<object>()), Times.Once);
+            It.IsAny<object>(),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]
@@ -120,7 +121,8 @@ public class LocalAuthorityDisposalCostsControllerTests
                 It.IsAny<HttpMethod>(),
                 It.IsAny<string>(),
                 It.IsAny<IDictionary<string, string?>>(),
-                It.IsAny<object>()))
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new HttpResponseMessage(statusCode)
             {
                 Content = statusCode == HttpStatusCode.OK

@@ -103,7 +103,8 @@ public class RemoveClassificationControllerTests
                 HttpMethod.Put,
                 UpdateClassificationRelativePath,
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()),
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -125,7 +126,8 @@ public class RemoveClassificationControllerTests
                 HttpMethod.Put,
                 UpdateClassificationRelativePath,
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()),
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -139,7 +141,8 @@ public class RemoveClassificationControllerTests
                 HttpMethod.Put,
                 UpdateClassificationRelativePath,
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Created));
 
         // Act
@@ -154,7 +157,8 @@ public class RemoveClassificationControllerTests
                 HttpMethod.Put,
                 UpdateClassificationRelativePath,
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.Is<object?>(body => IsExpectedTestRunClassification(body))),
+                It.Is<object?>(body => IsExpectedTestRunClassification(body)),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -168,7 +172,8 @@ public class RemoveClassificationControllerTests
                 HttpMethod.Put,
                 UpdateClassificationRelativePath,
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
 
         // Act
@@ -182,7 +187,8 @@ public class RemoveClassificationControllerTests
                 HttpMethod.Put,
                 UpdateClassificationRelativePath,
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.Is<object?>(body => IsExpectedTestRunClassification(body))),
+                It.Is<object?>(body => IsExpectedTestRunClassification(body)),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -203,7 +209,8 @@ public class RemoveClassificationControllerTests
                 HttpMethod.Put,
                 UpdateClassificationRelativePath,
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()),
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

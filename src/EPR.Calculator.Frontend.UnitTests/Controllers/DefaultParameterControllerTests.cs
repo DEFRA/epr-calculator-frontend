@@ -57,7 +57,8 @@ public class DefaultParameterControllerTests
                 HttpMethod.Get,
                 $"v1/defaultParameterSetting/{RelativeYearValue}",
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(CreateJsonResponse(HttpStatusCode.OK, defaultParameters));
         var controller = BuildController();
 
@@ -89,7 +90,8 @@ public class DefaultParameterControllerTests
             HttpMethod.Get,
             $"v1/defaultParameterSetting/{RelativeYearValue}",
             It.IsAny<IDictionary<string, string?>?>(),
-            It.IsAny<object?>()), Times.Once);
+            It.IsAny<object?>(),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]
@@ -101,7 +103,8 @@ public class DefaultParameterControllerTests
                 HttpMethod.Get,
                 $"v1/defaultParameterSetting/{RelativeYearValue}",
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
         var controller = BuildController();
 
@@ -125,7 +128,8 @@ public class DefaultParameterControllerTests
                 HttpMethod.Get,
                 $"v1/defaultParameterSetting/{RelativeYearValue}",
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
         var controller = BuildController();
 

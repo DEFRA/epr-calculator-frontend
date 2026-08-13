@@ -181,7 +181,8 @@ public class ClassifyingCalculationRunControllerTests
                 HttpMethod.Put,
                 "v2/calculatorRuns",
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()),
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -196,8 +197,9 @@ public class ClassifyingCalculationRunControllerTests
                 HttpMethod.Put,
                 "v2/calculatorRuns",
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
-            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?>((_, _, _, body) => { capturedBody = body as ClassificationDto; })
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?, CancellationToken>((_, _, _, body,_) => { capturedBody = body as ClassificationDto; })
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Created));
         var controller = BuildController();
 
@@ -224,7 +226,8 @@ public class ClassifyingCalculationRunControllerTests
                 HttpMethod.Put,
                 "v2/calculatorRuns",
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>()))
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
         var controller = BuildController();
 

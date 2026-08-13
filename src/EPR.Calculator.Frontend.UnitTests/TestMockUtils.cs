@@ -147,7 +147,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                 It.IsAny<HttpMethod>(),
                 It.IsAny<string>(),
                 It.IsAny<IDictionary<string, string?>>(),
-                It.IsAny<object>()).Result);
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()).Result);
 
             // Queue up the response messages.
             foreach (var item in messages)
@@ -163,7 +164,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                 It.IsAny<HttpMethod>(),
                 It.IsAny<string>(),
                 It.IsAny<IDictionary<string, string?>>(),
-                It.IsAny<object>()).Result).Returns(messages.Last());
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()).Result).Returns(messages.Last());
                 return messages.Last();
             });
 
@@ -179,7 +181,8 @@ namespace EPR.Calculator.Frontend.UnitTests
                     It.IsAny<HttpMethod>(),
                     It.IsAny<string>(),
                     It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>()))
+                    It.IsAny<object>(),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync((HttpContext ctx, HttpMethod method, string relativePath, IDictionary<string, string?>? queryParams, object? body) =>
                 {
                     var argument = body is null ? string.Empty : JsonConvert.SerializeObject(body);

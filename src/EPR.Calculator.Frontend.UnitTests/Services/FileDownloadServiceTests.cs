@@ -46,7 +46,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>()))
+                    It.IsAny<object>(),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             // Act
@@ -72,7 +73,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>()))
+                    It.IsAny<object>(),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             var result = await _fileDownloadService.DownloadBillingFile(runId, false);
@@ -94,7 +96,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>()))
+                    It.IsAny<object>(),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             var result = await _fileDownloadService.DownloadBillingFile(runId, true);
@@ -117,7 +120,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>()))
+                    It.IsAny<object>(),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             await Assert.ThrowsExceptionAsync<HttpRequestException>(() =>
@@ -140,7 +144,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>()))
+                    It.IsAny<object>(),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             var result = await _fileDownloadService
@@ -163,7 +168,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>()))
+                    It.IsAny<object>(),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             var result = await _fileDownloadService.DownloadResultFile(runId);
@@ -190,7 +196,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>()))
+                    It.IsAny<object>(),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             var result = await _fileDownloadService.DownloadResultFile(runId);
@@ -215,7 +222,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>()))
+                    It.IsAny<object>(),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             var result = await _fileDownloadService.DownloadBillingFile(runId, false);

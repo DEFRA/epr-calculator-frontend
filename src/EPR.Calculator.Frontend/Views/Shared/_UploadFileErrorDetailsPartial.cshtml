@@ -1,0 +1,27 @@
+@model FileUploadErrorViewModel?
+
+@if (Model?.HasErrors ?? false)
+{
+    <p id="@Model.CallToActionId" class="govuk-error-message">
+        <span class="govuk-visually-hidden">Error:</span>
+        @if (Model.HasFileErrors && Model.HasContentErrors)
+        {
+            @:The file did not meet the upload requirements and contained data errors
+        }
+        else if (Model.HasContentErrors)
+        {
+            @:The uploaded CSV contained data errors
+        }
+        else
+        {
+            @:The file did not meet the upload requirements
+        }
+    </p>
+
+    <ol id="@Model.DetailsId" class="govuk-list govuk-list--number">
+        @foreach (var error in Model.AllErrors)
+        {
+            <li>@error</li>
+        }
+    </ol>
+}

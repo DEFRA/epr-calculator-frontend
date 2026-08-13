@@ -45,6 +45,24 @@ public static class ApiValidationShim
         return (customErrors, basicErrors);
     }
 
+    public static bool TryParseAsProblemDetails(string? jsonString, [NotNullWhen(true)] out ValidationProblemDetails? problemDetails)
+    {
+        problemDetails = null;
+
+        if (jsonString is null)
+            return false;
+
+        try
+        {
+            using var document = JsonDocument.Parse(jsonString);
+            return TryParseAsProblemDetails(document.RootElement, out problemDetails);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
     private static bool TryParseAsProblemDetails(JsonElement root, [NotNullWhen(true)] out ValidationProblemDetails? problemDetails)
     {
         if (root.ValueKind == JsonValueKind.Object)
