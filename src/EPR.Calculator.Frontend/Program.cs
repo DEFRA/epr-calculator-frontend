@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Security.Cryptography;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using EPR.Calculator.Frontend;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Exceptions;
@@ -21,6 +22,13 @@ using Microsoft.Identity.Web.UI;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
+
+if (!string.IsNullOrWhiteSpace(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
+{
+    builder.Services
+        .AddOpenTelemetry()
+        .UseAzureMonitor();
+}
 
 // Suppress the default response header so the hosting server is not advertised.
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
@@ -74,7 +82,6 @@ builder.Services
     .AddControllersWithViews(options =>
     {
         options.Filters.Add<GlobalExceptionFilter>();
-
         options.Filters.Add(new ResponseCacheAttribute
         {
             NoStore  = true,
@@ -89,7 +96,6 @@ builder.Services
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDistributedMemoryCache();
-builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<CalculatorRunNameValidator>();

@@ -1,7 +1,5 @@
 ﻿using System.Configuration;
 using EPR.Calculator.Frontend.Models;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
@@ -23,7 +21,7 @@ public interface IEprCalculatorApiService
 
 public class EprCalculatorApiService(
     IConfiguration configuration,
-    TelemetryClient telemetryClient,
+    ILogger<EprCalculatorApiService> logger,
     IHttpClientFactory clientFactory,
     ITokenAcquisition tokenAcquisition)
     : IEprCalculatorApiService
@@ -84,7 +82,7 @@ public class EprCalculatorApiService(
         if (response.IsSuccessStatusCode)
             return await response.Content.ReadFromJsonAsync<List<CalculatorRunDto>>() ?? [];
 
-        telemetryClient.TrackTrace("Unable to fetch calculator runs from API", SeverityLevel.Error);
+        logger.LogError("Unable to call `get` `v1/calculatorRuns` from API: {StatusCode}", response.StatusCode);
         return [];
     }
 
@@ -95,7 +93,7 @@ public class EprCalculatorApiService(
         if (response.IsSuccessStatusCode)
             return await response.Content.ReadFromJsonAsync<List<RelativeYear>>() ?? [];
 
-        telemetryClient.TrackTrace("Unable to fetch relative years from API", SeverityLevel.Error);
+        logger.LogError("Unable to call `get` `v1/RelativeYears` from API: {StatusCode}", response.StatusCode);
         return [];
     }
 
@@ -118,19 +116,14 @@ public class EprCalculatorApiService(
 
     private async Task<string> AcquireToken()
     {
-        telemetryClient.TrackTrace("AcquireToken");
-
         var scopes = configuration["DownstreamApi:Scopes"]?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? [];
 
         if (scopes.Length == 0)
-            throw new ConfigurationErrorsException("DownstreamApi:Scopes is null or empty. Please check the configuration settings.");
+            throw new InvalidOperationException("DownstreamApi:Scopes is null or empty. Please check the configuration settings.");
 
         try
         {
-            telemetryClient.TrackTrace($"GetAccessTokenForUserAsync with scopes: {string.Join(",", scopes)}");
-
             var token = await tokenAcquisition.GetAccessTokenForUserAsync(scopes);
-
             return $"Bearer {token}";
         }
         catch (MsalUiRequiredException ex)

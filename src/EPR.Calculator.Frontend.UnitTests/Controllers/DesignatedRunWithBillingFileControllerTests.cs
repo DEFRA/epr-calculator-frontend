@@ -6,10 +6,9 @@ using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers;
@@ -21,13 +20,11 @@ public class DesignatedRunWithBillingFileControllerTests
 
     private Mock<IEprCalculatorApiService> apiService = null!;
     private DesignatedRunWithBillingFileController controller = null!;
-    private TelemetryClient telemetryClient = null!;
 
     [TestInitialize]
     public void TestInitialize()
     {
         apiService = new Mock<IEprCalculatorApiService>(MockBehavior.Strict);
-        telemetryClient = new TelemetryClient(new TelemetryConfiguration());
         controller = BuildController(CreateHttpContext(TestUserName));
     }
 
@@ -193,7 +190,7 @@ public class DesignatedRunWithBillingFileControllerTests
 
     private DesignatedRunWithBillingFileController BuildController(HttpContext context)
     {
-        var controller = new DesignatedRunWithBillingFileController(apiService.Object, telemetryClient)
+        var controller = new DesignatedRunWithBillingFileController(apiService.Object, NullLogger<DesignatedRunWithBillingFileController>.Instance)
         {
             ControllerContext = new ControllerContext
             {

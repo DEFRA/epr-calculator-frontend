@@ -1,7 +1,6 @@
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers;
@@ -9,7 +8,7 @@ namespace EPR.Calculator.Frontend.Controllers;
 [Route("[controller]")]
 public class CalculationRunDeleteController(
     IEprCalculatorApiService eprCalculatorApiService,
-    TelemetryClient telemetryClient)
+    ILogger<CalculationRunDeleteController> logger)
     : BaseController
 {
     /// <summary>
@@ -52,7 +51,7 @@ public class CalculationRunDeleteController(
         }
         catch
         {
-            telemetryClient.TrackTrace($"API was not able to delete the run {model.RunId}.");
+            logger.LogError("API was not able to delete the run {RunId}.", model.RunId);
             return RedirectToError();
         }
     }

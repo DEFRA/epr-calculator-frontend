@@ -1,4 +1,4 @@
-FROM defradigital/dotnetcore-development:dotnet8.0 AS build-env
+FROM defradigital/dotnetcore-development:dotnet10.0 AS build-env
 USER root
 
 # Expose the app on a defined port, configurable via a build argument
@@ -31,7 +31,7 @@ USER root
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
-FROM defradigital/dotnetcore-development:dotnet8.0
+FROM defradigital/dotnetcore-development:dotnet10.0
 COPY --from=build-env /home/dotnet/EPR.Calculator.Frontend/out .
 
 # Install tzdata
