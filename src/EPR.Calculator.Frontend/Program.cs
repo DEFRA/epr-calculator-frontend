@@ -97,13 +97,6 @@ builder.Services.AddFeatureManagement();
 builder.Services.AddHttpClient();
 builder.Services.AddHealthChecks();
 
-if (!builder.Environment.IsLocal())
-{
-    builder.Services.AddDataProtection()
-        .PersistKeysToAzureBlobStorage(builder.Configuration.GetSection("BlobStorage:ConnectionString").Value, SessionConstants.Paycal, SessionConstants.PaycalDataProtection)
-        .SetApplicationName(SessionConstants.PaycalAppName);
-}
-
 builder.Services.AddScoped<IBillingInstructionsMapper, BillingInstructionsMapper>();
 builder.Services.AddScoped<IFileDownloadService, FileDownloadService>();
 builder.Services.AddScoped<IEprCalculatorApiService, EprCalculatorApiService>();
