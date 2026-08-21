@@ -5,14 +5,13 @@ using EPR.Calculator.Frontend.Mappers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
 public class BillingInstructionsController(
-    TelemetryClient telemetryClient,
+    ILogger<BillingInstructionsController> logger,
     IBillingInstructionsMapper mapper,
     IEprCalculatorApiService eprCalculatorApiService)
     : BaseController
@@ -254,7 +253,11 @@ public class BillingInstructionsController(
         if (!response.IsSuccessStatusCode)
         {
             var errorContent = await response.Content.ReadAsStringAsync();
-            telemetryClient.TrackTrace($"BillingInstructions API call failed. StatusCode: {response.StatusCode} content: {errorContent}");
+            logger.LogError(
+                "BillingInstructions API call failed. StatusCode: {StatusCode} content: {ErrorContent}",
+                response.StatusCode,
+                errorContent);
+
             throw new HttpRequestException(
                 $"BillingInstructions API call failed for run {runId}. StatusCode: {response.StatusCode}. Content: {errorContent}");
         }
@@ -271,7 +274,11 @@ public class BillingInstructionsController(
 
         if (!responseDto.IsSuccessStatusCode)
         {
-            telemetryClient.TrackTrace($"Billing instructions acceptance failed for RunId {runId}. StatusCode: {responseDto.StatusCode}, Reason: {responseDto.ReasonPhrase}");
+            logger.LogError(
+                "Billing instructions acceptance failed for RunId {RunId}. StatusCode: {StatusCode}, Reason: {ReasonPhrase}",
+                runId,
+                responseDto.StatusCode,
+                responseDto.ReasonPhrase);
             return false;
         }
 

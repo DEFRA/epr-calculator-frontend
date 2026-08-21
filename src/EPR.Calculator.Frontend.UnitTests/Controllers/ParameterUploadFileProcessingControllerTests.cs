@@ -5,11 +5,10 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers;
@@ -163,7 +162,7 @@ public class ParameterUploadFileProcessingControllerTests
         return new ParameterUploadFileProcessingController(
             configuration,
             apiService,
-            new TelemetryClient(new TelemetryConfiguration()))
+            NullLogger<ParameterUploadFileProcessingController>.Instance)
         {
             ControllerContext = new ControllerContext
             {

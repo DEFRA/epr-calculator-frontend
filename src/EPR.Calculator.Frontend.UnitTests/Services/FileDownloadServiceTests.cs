@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using EPR.Calculator.Frontend.Services;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests.Services
@@ -10,18 +10,15 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
     [TestClass]
     public class FileDownloadServiceTests
     {
-        private TelemetryClient _telemetryClient;
         private FileDownloadService _fileDownloadService;
         private Mock<IEprCalculatorApiService> _eprCalculatorApiServiceMock;
 
         public FileDownloadServiceTests()
         {
             _eprCalculatorApiServiceMock = new Mock<IEprCalculatorApiService>();
-            _telemetryClient = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration());
-
             _fileDownloadService = new FileDownloadService(
                 _eprCalculatorApiServiceMock.Object,
-                _telemetryClient);
+                NullLogger<FileDownloadService>.Instance);
         }
 
         [TestMethod]

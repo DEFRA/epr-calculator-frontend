@@ -8,10 +8,9 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 
@@ -22,14 +21,13 @@ public class BillingInstructionsControllerTests
 {
     private const int RunId = 1;
     private BillingInstructionsController controller = null!;
+    private Mock<ILogger<BillingInstructionsController>> mockLogger = null!;
     private Mock<IBillingInstructionsMapper> mockMapper = null!;
-
-    private TelemetryClient telemetryClient = null!;
 
     [TestInitialize]
     public void TestInitialize()
     {
-        telemetryClient = new TelemetryClient(new TelemetryConfiguration());
+        mockLogger = new Mock<ILogger<BillingInstructionsController>>();
         mockMapper = new Mock<IBillingInstructionsMapper>();
         controller = BuildController();
     }
@@ -467,7 +465,7 @@ public class BillingInstructionsControllerTests
 
     private BillingInstructionsController BuildController(IEprCalculatorApiService apiService, ISession? session = null)
     {
-        return new BillingInstructionsController(telemetryClient, mockMapper.Object, apiService)
+        return new BillingInstructionsController(mockLogger.Object, mockMapper.Object, apiService)
         {
             ControllerContext = new ControllerContext
             {

@@ -3,7 +3,6 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers;
@@ -11,7 +10,7 @@ namespace EPR.Calculator.Frontend.Controllers;
 public class ParameterUploadFileProcessingController(
     IConfiguration configuration,
     IEprCalculatorApiService eprCalculatorApiService,
-    TelemetryClient telemetryClient)
+    ILogger<ParameterUploadFileProcessingController> logger)
     : BaseController
 {
     private readonly int relativeYearStartingMonth = CommonUtil.GetRelativeYearStartingMonth(configuration);
@@ -27,8 +26,8 @@ public class ParameterUploadFileProcessingController(
         if (response.IsSuccessStatusCode && response.StatusCode == HttpStatusCode.Created)
             return Ok(response);
 
-        telemetryClient.TrackTrace($"2.File name before BadRequest :{parameterRefreshViewModel.FileName}");
-        telemetryClient.TrackTrace($"3.Reason for BadRequest :{response.Content.ReadAsStringAsync().Result}");
+        logger.LogInformation("2.File name before BadRequest: {FileName}", parameterRefreshViewModel.FileName);
+        logger.LogInformation("3.Reason for BadRequest: {Result}", response.Content.ReadAsStringAsync().Result);
         return BadRequest(response.Content.ReadAsStringAsync().Result);
     }
 
