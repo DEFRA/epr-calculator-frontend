@@ -17,13 +17,13 @@ namespace EPR.Calculator.Frontend.Services
     {
         public Task<FileResult> DownloadResultFile(int runId)
         {
-            var path = $"v1/DownloadResult/{runId}";
+            var path = $"v1/downloadResultCsv/{runId}";
             return DownloadFile(path, runId);
         }
 
         public async Task<FileResult> DownloadBillingFile(int runId, bool hasBeenSentToFss)
         {
-            var path = $"v1/DownloadBillingFile/{runId}";
+            var path = $"v1/downloadBillingCsv/{runId}";
             var result = await DownloadFile(path, runId);
 
             var filename = Path.GetFileNameWithoutExtension(result.FileDownloadName);
