@@ -1,12 +1,24 @@
 ﻿@using EPR.Calculator.Frontend.Enums
 @model CalculatorRunDto
+
 <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
 <h2 class="govuk-heading-m">@BillingInstructionConstants.AmendBillingInstructions</h2>
+
 <p class="govuk-body">@BillingInstructionConstants.AmendBillingInstructionText</p>
+
 <div class="govuk-button-group">
-    <a href="@($"/{ControllerNames.BillingInstructionsController}/{Model.RunId}")"
-       class="govuk-button govuk-button--secondary" @(Model.BillingRunStatus == BillingRunStatus.Running ? "disabled" : null)
-       onclick="return @(Model.BillingRunStatus == BillingRunStatus.Running ? "false" : "true");">
-        @BillingInstructionConstants.AmendBillingInstructions
-    </a>
+    @if (Model.BillingRunStatus != BillingRunStatus.Running)
+    {
+        <a href="@($"/{ControllerNames.BillingInstructionsController}/{Model.RunId}")"
+           class="govuk-button govuk-button--secondary">
+            @BillingInstructionConstants.AmendBillingInstructions
+        </a>
+    }
+    else
+    {
+        <button type="button" class="govuk-button govuk-button--secondary" disabled>
+            @BillingInstructionConstants.AmendBillingInstructions
+        </button>
+    }
 </div>

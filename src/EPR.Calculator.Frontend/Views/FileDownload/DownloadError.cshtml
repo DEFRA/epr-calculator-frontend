@@ -9,8 +9,10 @@
         <div class="govuk-grid-column-two-thirds">
             <div class="govuk-form-group ">
                 <h1 class="govuk-heading-l">There was a problem downloading this file</h1>
-                <h1 class="govuk-body-m">This file has not been downloaded. </h1>
-                <a href="javascript:history.back()" class="govuk-button" type="submit">Try again</a>
+                <p class="govuk-body-m">This file has not been downloaded.</p>
+                <a href="@Url.Action("Index", "Dashboard")" class="govuk-button" data-history-back>
+                    Try again
+                </a>
                 <p class="govuk-body">
                     <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
                 </p>
@@ -18,3 +20,16 @@
         </div>
     </div>
 </main>
+
+<script type="text/javascript" nonce="@Context.Items["CspNonce"]">
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll("[data-history-back]").forEach(element => {
+            element.addEventListener("click", event => {
+                if (window.history.length > 1) {
+                    event.preventDefault();
+                    window.history.back();
+                }
+            });
+        });
+    });
+</script>

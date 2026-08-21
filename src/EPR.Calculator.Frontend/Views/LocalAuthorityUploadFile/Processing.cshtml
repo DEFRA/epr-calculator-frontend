@@ -7,7 +7,7 @@
 
 <partial name="_RefreshPartial" />
 
-<script type="text/javascript">
+<script type="text/javascript" nonce="@Context.Items["CspNonce"]">
     $(function () {
         const payload = JSON.stringify(@localAuthorityDisposalCosts)
         const url = '@Url.Action("Process", "LocalAuthorityUploadFile")'

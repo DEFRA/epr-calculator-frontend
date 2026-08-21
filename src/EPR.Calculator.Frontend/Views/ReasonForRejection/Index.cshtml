@@ -12,17 +12,17 @@
 
             <div class="govuk-grid-row">
                 <div class="@(ViewContext.ModelState.IsValid ?  "govuk-form-group govuk-grid-column-full" : "govuk-form-group govuk-form-group--error" )">
-                        <span class="govuk-caption-xl">@Model.RunName</span>
+                    <span class="govuk-caption-xl">@Model.RunName</span>
                     <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">Give a reason for rejecting billing instructions</h1>
-                    <p class="@(ViewContext.ModelState.IsValid ? "govuk-body govuk-!-margin-bottom-2" : "govuk-body govuk-!-margin-bottom-2 govuk-error-message" )">Provide a reason that applies to all the billing instructions you selected for rejection.</p>
-                        <div class="govuk-grid-column-two-thirds" style="padding:0px;">
-
+                    <p class="@(ViewContext.ModelState.IsValid ? "govuk-body govuk-!-margin-bottom-2" : "govuk-body govuk-!-margin-bottom-2 govuk-error-message" )">
+                        Provide a reason that applies to all the billing instructions you selected for rejection.
+                    </p>
+                    <div class="govuk-grid-column-two-thirds govuk-!-padding-0">
                         <div class="govuk-form-group">
                             @Html.ValidationMessageFor(m => m.Reason, "", new { @class = "govuk-error-message" })
-                            @Html.LabelFor(m => m.Reason, new { style = "display: none;" } )
+                            @Html.LabelFor(m => m.Reason, new { @class = "govuk-visually-hidden" })
                             @Html.TextAreaFor(m => m.Reason, new { @class = "govuk-textarea form-control text-area-margin-bottom", @aria_label = "Free‑text box to record why you rejected the selected instructions.", rows = 5 })
                         </div>
-
                     </div>
                 </div>
                 <div class="govuk-form-group">
