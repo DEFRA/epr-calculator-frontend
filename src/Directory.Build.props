@@ -1,7 +1,7 @@
 <Project>
-
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
+        <ExcludeByFile>**/Program.cs</ExcludeByFile>
         <ImplicitUsings>enable</ImplicitUsings>
         <!-- SonarCloud does not recognise file-scoped namespaces in current version. -->
         <NoWarn>S3903</NoWarn>

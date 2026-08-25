@@ -5,6 +5,7 @@ using EPR.Calculator.Frontend;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Exceptions;
 using EPR.Calculator.Frontend.Extensions;
+using EPR.Calculator.Frontend.Filters;
 using EPR.Calculator.Frontend.HealthCheck;
 using EPR.Calculator.Frontend.Mappers;
 using EPR.Calculator.Frontend.Services;
@@ -19,16 +20,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web.UI;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
 
-if (!string.IsNullOrWhiteSpace(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
-{
-    builder.Services
-        .AddOpenTelemetry()
-        .UseAzureMonitor();
-}
+builder.Services
+    .AddOpenTelemetry()
+    .WithTracing(tracing => tracing.AddProcessor<EndpointProbeActivityFilter>())
+    .UseAzureMonitor();
 
 // Suppress the default response header so the hosting server is not advertised.
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
@@ -170,4 +170,4 @@ app.UseAuthorization();
 app.MapControllerRoute("default", "{controller=Dashboard}/{action=Index}/{id?}");
 app.MapHealthChecks("/admin/health", HealthCheckOptionsBuilder.Build()).AllowAnonymous();
 
-app.Run();
+await app.RunAsync();
