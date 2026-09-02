@@ -3,10 +3,9 @@ using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers;
@@ -29,7 +28,7 @@ public class FileDownloadControllerTests
         controller = new FileDownloadController(
             apiService.Object,
             fileDownloadService.Object,
-            new TelemetryClient(TelemetryConfiguration.CreateDefault()))
+            NullLogger<FileDownloadController>.Instance)
         {
             ControllerContext = new ControllerContext
             {

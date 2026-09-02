@@ -5,10 +5,9 @@ using System.Security.Claims;
 using System.Text.Json;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using Moq;
@@ -117,7 +116,7 @@ public class EprCalculatorApiServiceTests
     }
 
     [TestMethod]
-    public async Task CallApi_ThrowsConfigurationErrorsException_WhenScopesAreMissing()
+    public async Task CallApi_ThrowsException_WhenScopesAreMissing()
     {
         // Arrange
         var serviceWithoutScopes = CreateService(BuildConfiguration(string.Empty));
@@ -126,7 +125,7 @@ public class EprCalculatorApiServiceTests
         var action = async () => await serviceWithoutScopes.CallApi(HttpMethod.Get, "v1/calculatorRuns/45");
 
         // Assert
-        await Assert.ThrowsExceptionAsync<ConfigurationErrorsException>(action);
+        await Assert.ThrowsExceptionAsync<InvalidOperationException>(action);
     }
 
     [TestMethod]
@@ -360,7 +359,7 @@ public class EprCalculatorApiServiceTests
     {
         return new EprCalculatorApiService(
             configuration ?? BuildConfiguration(),
-            new TelemetryClient(new TelemetryConfiguration()),
+            NullLogger<EprCalculatorApiService>.Instance,
             _httpClientFactory.Object,
             _tokenAcquisition.Object);
     }

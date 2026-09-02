@@ -1,7 +1,6 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers;
@@ -9,7 +8,7 @@ namespace EPR.Calculator.Frontend.Controllers;
 [Route("[controller]")]
 public class DesignatedRunWithBillingFileController(
     IEprCalculatorApiService eprCalculatorApiService,
-    TelemetryClient telemetryClient)
+    ILogger<DesignatedRunWithBillingFileController> logger)
     : BaseController
 {
     [Route("{runId:int}")]
@@ -19,7 +18,7 @@ public class DesignatedRunWithBillingFileController(
 
         if (viewModel == null)
         {
-            telemetryClient.TrackTrace($"No run details found for runId: {runId}");
+            logger.LogError("No run details found for runId: {runId}", runId);
             return RedirectToError();
         }
 
@@ -55,7 +54,8 @@ public class DesignatedRunWithBillingFileController(
 
         if (!responseDto.IsSuccessStatusCode)
         {
-            telemetryClient.TrackTrace($"Billing instructions acceptance failed for RunId {runId}. StatusCode: {responseDto.StatusCode}, Reason: {responseDto.ReasonPhrase}");
+            logger.LogError("Billing instructions acceptance failed for RunId {runId}. StatusCode: {StatusCode}, Reason: {ReasonPhrase}", runId,
+             responseDto.StatusCode, responseDto.ReasonPhrase);
             return false;
         }
 

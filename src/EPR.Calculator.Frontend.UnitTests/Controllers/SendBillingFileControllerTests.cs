@@ -6,10 +6,9 @@ using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers;
@@ -21,13 +20,11 @@ public class SendBillingFileControllerTests
 
     private Mock<IEprCalculatorApiService> apiService = null!;
     private DefaultHttpContext httpContext = null!;
-    private TelemetryClient telemetryClient = null!;
 
     [TestInitialize]
     public void TestInitialize()
     {
         apiService = new Mock<IEprCalculatorApiService>();
-        telemetryClient = new TelemetryClient(new TelemetryConfiguration());
         httpContext = CreateHttpContext();
     }
 
@@ -213,7 +210,7 @@ public class SendBillingFileControllerTests
 
     private SendBillingFileController BuildController()
     {
-        return new SendBillingFileController(telemetryClient, apiService.Object)
+        return new SendBillingFileController(NullLogger<SendBillingFileController>.Instance, apiService.Object)
         {
             ControllerContext = new ControllerContext
             {

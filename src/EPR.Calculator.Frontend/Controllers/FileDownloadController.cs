@@ -1,6 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Services;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers;
@@ -8,7 +7,7 @@ namespace EPR.Calculator.Frontend.Controllers;
 public class FileDownloadController(
     IEprCalculatorApiService api,
     IFileDownloadService fileDownloads,
-    TelemetryClient telemetryClient)
+    ILogger<FileDownloadController> logger)
     : BaseController
 {
     [HttpGet]
@@ -26,7 +25,7 @@ public class FileDownloadController(
         }
         catch (Exception ex)
         {
-            telemetryClient.TrackException(ex);
+            logger.LogError(ex, "Error when donwloading result file for {RunId}", runId);
             return RedirectToAction(nameof(DownloadError));
         }
     }
@@ -49,7 +48,7 @@ public class FileDownloadController(
         }
         catch (Exception ex)
         {
-            telemetryClient.TrackException(ex);
+            logger.LogError(ex, "Error when donwloading billing file for {RunId}", runId);
             return RedirectToAction(nameof(DownloadError));
         }
     }
@@ -58,5 +57,6 @@ public class FileDownloadController(
     public IActionResult DownloadError()
     {
         return View();
+
     }
 }

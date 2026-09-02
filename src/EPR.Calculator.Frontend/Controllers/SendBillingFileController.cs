@@ -3,7 +3,6 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -11,7 +10,7 @@ namespace EPR.Calculator.Frontend.Controllers;
 
 [Route("[controller]")]
 public class SendBillingFileController(
-    TelemetryClient telemetryClient,
+    ILogger<SendBillingFileController> logger,
     IEprCalculatorApiService eprCalculatorApiService)
     : BaseController
 {
@@ -53,9 +52,9 @@ public class SendBillingFileController(
             return View(ActionNames.Index, viewModel with { IsBillingFileLatest = false });
         }
 
-        telemetryClient.TrackTrace($"1.Request (send billing file) not accepted response code:{response.StatusCode}");
+        logger.LogInformation("1.Request (send billing file) not accepted response code: {StatusCode}", response.StatusCode);
         var contentString = await response.Content.ReadAsStringAsync();
-        telemetryClient.TrackTrace($"2.Request (send billing file) not accepted response message:{contentString}");
+        logger.LogInformation("2.Request (send billing file) not accepted response message: {ContentString}", contentString);
         return RedirectToError();
     }
 

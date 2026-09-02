@@ -4,10 +4,9 @@ using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers;
@@ -114,7 +113,7 @@ public class CalculationRunDeleteControllerTests
     {
         var controller = new CalculationRunDeleteController(
             apiService.Object,
-            new TelemetryClient(new TelemetryConfiguration()));
+            NullLogger<CalculationRunDeleteController>.Instance);
         controller.ControllerContext.HttpContext = httpContext;
         return controller;
     }

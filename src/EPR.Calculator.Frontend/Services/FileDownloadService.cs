@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Services
@@ -12,7 +11,7 @@ namespace EPR.Calculator.Frontend.Services
 
     public class FileDownloadService(
         IEprCalculatorApiService eprCalculatorApiService,
-        TelemetryClient telemetryClient)
+        ILogger<FileDownloadService> logger)
         : IFileDownloadService
     {
         public Task<FileResult> DownloadResultFile(int runId)
@@ -66,7 +65,7 @@ namespace EPR.Calculator.Frontend.Services
             }
             catch (Exception ex)
             {
-                telemetryClient.TrackException(ex);
+                logger.LogError(ex, "Count not download file {RelativePath} for {RunId}", relativePath, runId);
                 throw;
             }
         }
