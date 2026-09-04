@@ -1,13 +1,15 @@
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
-using EPR.Calculator.Frontend.ViewModels;
+using EPR.Calculator.Frontend.ViewModels.CsvUpload;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -18,7 +20,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers;
 public class LocalAuthorityUploadFileControllerTests
 {
     private const int RelativeYearStartingMonth = 4;
-    private const int SelectedRelativeYear = 2024;
+    private const int SelectedRelativeYear = 2026;
     private const string ApiErrorsKey = "Local_Authority_Upload_Errors";
     private const string LapcapApiPath = "v1/lapcapData";
 
@@ -49,10 +51,10 @@ public class LocalAuthorityUploadFileControllerTests
     public void Index_ReturnsEmptyUploadViewModel()
     {
         var result = controller.Index() as ViewResult;
-        var model = result?.Model as LapcapUploadViewModel;
+        var model = result?.Model as CsvUploadViewModel;
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("Index", result.ViewName);
+        Assert.AreEqual("Views/CsvUpload/Index", result.ViewName);
         Assert.IsNotNull(model);
         Assert.IsFalse(model.HasErrors);
         Assert.IsNull(model.ErrorsViewModel);
@@ -62,10 +64,10 @@ public class LocalAuthorityUploadFileControllerTests
     public async Task HandleUpload_NullFile_ReturnsIndexWithFileError()
     {
         var result = await controller.Upload(null, CancellationToken.None) as ViewResult;
-        var model = result?.Model as LapcapUploadViewModel;
+        var model = result?.Model as CsvUploadViewModel;
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("Index", result.ViewName);
+        Assert.AreEqual("Views/CsvUpload/Index", result.ViewName);
         Assert.IsNotNull(model);
         Assert.IsTrue(model.HasErrors);
         CollectionAssert.AreEqual(new[] { ErrorMessages.FileNotSelected }, model.ErrorsViewModel!.FileErrors.ToArray());
@@ -77,10 +79,10 @@ public class LocalAuthorityUploadFileControllerTests
         var file = CreateFormFile("lapcap.txt", BuildValidLapcapCsv());
 
         var result = await controller.Upload(file, CancellationToken.None) as ViewResult;
-        var model = result?.Model as LapcapUploadViewModel;
+        var model = result?.Model as CsvUploadViewModel;
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("Index", result.ViewName);
+        Assert.AreEqual("Views/CsvUpload/Index", result.ViewName);
         Assert.IsNotNull(model);
         Assert.IsTrue(model.HasErrors);
         CollectionAssert.AreEqual(new[] { ErrorMessages.FileMustBeCSV }, model.ErrorsViewModel!.FileErrors.ToArray());
@@ -97,10 +99,10 @@ public class LocalAuthorityUploadFileControllerTests
         var file = CreateFormFile("lapcap.csv", csv);
 
         var result = await controller.Upload(file, CancellationToken.None) as ViewResult;
-        var model = result?.Model as LapcapUploadViewModel;
-
         Assert.IsNotNull(result);
-        Assert.AreEqual("Index", result.ViewName);
+        Assert.AreEqual("Views/CsvUpload/Index", result.ViewName);
+
+        var model = result.Model as CsvUploadViewModel;
         Assert.IsNotNull(model);
         Assert.IsTrue(model.HasErrors);
         Assert.IsTrue(model.ErrorsViewModel!.ContentErrors.Any(error => error.Contains("Aluminium in England", StringComparison.Ordinal)));
@@ -112,25 +114,30 @@ public class LocalAuthorityUploadFileControllerTests
         var file = CreateFormFile("lapcap.csv", BuildValidLapcapCsv());
 
         var result = await controller.Upload(file, CancellationToken.None) as ViewResult;
-        var model = result?.Model as LapcapProcessingViewModel;
+        var model = result?.Model as CsvUploadProcessingViewModel;
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("Processing", result.ViewName);
+        Assert.AreEqual("Views/CsvUpload/Processing", result.ViewName);
         Assert.IsNotNull(model);
-        Assert.AreEqual("lapcap.csv", model.Filename);
-        Assert.AreEqual(2, model.Values.Count);
-        Assert.AreEqual("England", model.Values[0].Country);
-        Assert.AreEqual("Aluminium", model.Values[0].Material);
-        Assert.AreEqual(2210.45m, model.Values[0].TotalCost);
-        Assert.AreEqual("Wales", model.Values[1].Country);
-        Assert.AreEqual("Glass", model.Values[1].Material);
-        Assert.AreEqual(20m, model.Values[1].TotalCost);
+        Assert.IsNotNull(model.JsonPayload);
+
+        var request = JsonSerializer.Deserialize<SetLapcapDataRequest>(model.JsonPayload);
+
+        Assert.IsNotNull(request);
+        Assert.AreEqual("lapcap.csv", request.Filename);
+        Assert.AreEqual(2, request.Values.Count);
+        Assert.AreEqual("England", request.Values[0].Country);
+        Assert.AreEqual("Aluminium", request.Values[0].Material);
+        Assert.AreEqual(2210.45m, request.Values[0].TotalCost);
+        Assert.AreEqual("Wales", request.Values[1].Country);
+        Assert.AreEqual("Glass", request.Values[1].Material);
+        Assert.AreEqual(20m, request.Values[1].TotalCost);
     }
 
     [TestMethod]
     public async Task SendToApi_WhenApiReturnsCreated_ReturnsNoContentAndPostsExpectedPayload()
     {
-        CreateLapcapDataRequest? capturedRequest = null;
+        SetLapcapDataRequest? capturedRequest = null;
         apiService
             .Setup(service => service.CallApi(
                 HttpMethod.Post,
@@ -139,10 +146,10 @@ public class LocalAuthorityUploadFileControllerTests
                 It.IsAny<object?>(),
                 It.IsAny<CancellationToken>()))
             .Callback<HttpMethod, string, IDictionary<string, string?>?, object?, CancellationToken>(
-                (_, _, _, body, _) => capturedRequest = body as CreateLapcapDataRequest)
+                (_, _, _, body, _) => capturedRequest = body as SetLapcapDataRequest)
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Created));
 
-        var model = BuildProcessingViewModel();
+        var model = BuildSetRequest();
 
         var result = await controller.Process(model, CancellationToken.None) as NoContentResult;
 
@@ -180,7 +187,7 @@ public class LocalAuthorityUploadFileControllerTests
                 Content = new StringContent(apiErrorJson, Encoding.UTF8, "application/json")
             });
 
-        var result = await controller.Process(BuildProcessingViewModel(), CancellationToken.None) as BadRequestResult;
+        var result = await controller.Process(BuildSetRequest(), CancellationToken.None) as BadRequestResult;
 
         Assert.IsNotNull(result);
         Assert.AreEqual(StatusCodes.Status400BadRequest, result.StatusCode);
@@ -204,10 +211,10 @@ public class LocalAuthorityUploadFileControllerTests
         session.SetString(ApiErrorsKey, apiErrorJson);
 
         var result = controller.Errors() as ViewResult;
-        var model = result?.Model as LapcapUploadViewModel;
+        var model = result?.Model as CsvUploadViewModel;
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("Index", result.ViewName);
+        Assert.AreEqual("Views/CsvUpload/Index", result.ViewName);
         Assert.IsNotNull(model);
         Assert.IsTrue(model.HasErrors);
         CollectionAssert.AreEquivalent(
@@ -246,6 +253,11 @@ public class LocalAuthorityUploadFileControllerTests
 
     private LocalAuthorityUploadFileController BuildController(ISession controllerSession)
     {
+        var urlHelper = new Mock<IUrlHelper>();
+        urlHelper
+            .Setup(helper => helper.Action(It.IsAny<UrlActionContext>()))
+            .Returns((UrlActionContext context) => $"/{context.Controller}/{context.Action}");
+
         return new LocalAuthorityUploadFileController(
             configuration,
             apiService.Object,
@@ -258,24 +270,26 @@ public class LocalAuthorityUploadFileControllerTests
                     Session = controllerSession,
                     User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "test.user@paycal")], "TestAuth"))
                 }
-            }
+            },
+            Url = urlHelper.Object
         };
     }
 
-    private static LapcapProcessingViewModel BuildProcessingViewModel()
+    private static SetLapcapDataRequest BuildSetRequest()
     {
-        return new LapcapProcessingViewModel
+        return new SetLapcapDataRequest
         {
             Filename = "lapcap.csv",
+            RelativeYear = (RelativeYear) SelectedRelativeYear,
             Values =
             [
-                new CreateLapcapDataRequest.LapcapValue
+                new SetLapcapDataRequest.LapcapValue
                 {
                     Country = "England",
                     Material = "Aluminium",
                     TotalCost = 2210.45m
                 }
-            ]
+            ],
         };
     }
 

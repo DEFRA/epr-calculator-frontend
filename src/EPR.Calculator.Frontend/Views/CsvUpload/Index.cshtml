@@ -1,12 +1,25 @@
-@model LapcapUploadViewModel;
+@model EPR.Calculator.Frontend.ViewModels.CsvUpload.CsvUploadViewModel;
 
 @{
-    ViewData["Title"] = "Upload new local authority disposal costs";
+    ViewData["Title"] = Model.Title;
 }
 
-<vc:user-nav back-link="@Url.Action("Index", "LocalAuthorityDisposalCosts")"/>
+<vc:user-nav back-link="@Model.BackLinkUrl"/>
 <partial name="_UploadFileErrorSummaryPartial" model="Model.ErrorsViewModel"/>
-<h1 class="govuk-heading-l">@ViewData["Title"]</h1>
+<h1 class="govuk-heading-l">@Model.Title</h1>
+
+@if (Model.HasDownloadableTemplate)
+{
+    <h2 class="govuk-heading-m">Before you upload your file</h2>
+
+    <div class="govuk-form-group">
+        <p class="govuk-body">Make sure you're using the latest version of the
+            <a class="govuk-link" href="@Model.Template!.Url">
+                @Model.Template.LinkText
+            </a>.
+        </p>
+    </div>
+}
 
 @using (Html.BeginForm("Upload", "LocalAuthorityUploadFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {

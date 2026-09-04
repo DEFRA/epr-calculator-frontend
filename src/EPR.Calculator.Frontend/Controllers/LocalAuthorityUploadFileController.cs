@@ -1,9 +1,11 @@
 using System.Net;
+using System.Text.Json;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Helpers.Csv;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
+using EPR.Calculator.Frontend.ViewModels.CsvUpload;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers;
@@ -16,11 +18,17 @@ public class LocalAuthorityUploadFileController(
 {
     private const string ApiErrorsKey = "Local_Authority_Upload_Errors";
 
+    private CsvUploadViewModel UploadTemplate => new()
+    {
+        Title = "Upload new local authority disposal costs",
+        BackLinkUrl = Url.Action("Index", "LocalAuthorityDisposalCosts")!
+    };
+
     private static readonly FileUploadErrorViewModel ErrorTemplate = new()
     {
-        InputId = LapcapUploadViewModel.DomElements.InputId,
-        DetailsId = LapcapUploadViewModel.DomElements.ErrorDetailsId,
-        CallToActionId = LapcapUploadViewModel.DomElements.ErrorCallToActionId,
+        InputId = CsvUploadViewModel.DomElements.InputId,
+        DetailsId = CsvUploadViewModel.DomElements.ErrorDetailsId,
+        CallToActionId = CsvUploadViewModel.DomElements.ErrorCallToActionId,
         FileErrors = [],
         ContentErrors = []
     };
@@ -28,7 +36,7 @@ public class LocalAuthorityUploadFileController(
     [HttpGet]
     public IActionResult Index()
     {
-        return View("Index", new LapcapUploadViewModel());
+        return View("Views/CsvUpload/Index", UploadTemplate);
     }
 
     [HttpPost]
@@ -40,7 +48,7 @@ public class LocalAuthorityUploadFileController(
 
             if (!result.IsSuccess)
             {
-                return View("Index", new LapcapUploadViewModel
+                return View("Views/CsvUpload/Index", UploadTemplate with
                 {
                     ErrorsViewModel = ErrorTemplate with
                     {
@@ -50,10 +58,19 @@ public class LocalAuthorityUploadFileController(
                 });
             }
 
-            return View("Processing", new LapcapProcessingViewModel
+            var processRequest = new SetLapcapDataRequest
             {
                 Filename = fileUpload!.FileName,
+                RelativeYear =  CommonUtil.GetRelativeYear(HttpContext.Session, CommonUtil.GetRelativeYearStartingMonth(configuration)),
                 Values = result.Records
+            };
+
+            return View("Views/CsvUpload/Processing", new CsvUploadProcessingViewModel
+            {
+                ProcessingUrl = Url.Action("Process", "LocalAuthorityUploadFile")!,
+                SuccessUrl = Url.Action("Index", "LocalAuthorityConfirmation")!,
+                ErrorUrl = Url.Action("Errors", "LocalAuthorityUploadFile")!,
+                JsonPayload = JsonSerializer.Serialize(processRequest)
             });
         }
         catch (Exception ex)
@@ -64,15 +81,8 @@ public class LocalAuthorityUploadFileController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> Process([FromBody] LapcapProcessingViewModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Process([FromBody] SetLapcapDataRequest request, CancellationToken cancellationToken)
     {
-        var request = new CreateLapcapDataRequest
-        {
-            Filename = model.Filename,
-            RelativeYear =  CommonUtil.GetRelativeYear(HttpContext.Session, CommonUtil.GetRelativeYearStartingMonth(configuration)),
-            Values = model.Values
-        };
-
         using var response = await eprCalculatorApiService.CallApi(
             HttpMethod.Post,
             "v1/lapcapData",
@@ -98,7 +108,7 @@ public class LocalAuthorityUploadFileController(
             return RedirectToError();
 
         // The API validates the contents of the file, so anything it rejects is a content error.
-        return View("Index", new LapcapUploadViewModel
+        return View("Views/CsvUpload/Index", UploadTemplate with
         {
             ErrorsViewModel = ErrorTemplate with
             {

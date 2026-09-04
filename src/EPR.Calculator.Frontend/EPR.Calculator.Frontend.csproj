@@ -14,14 +14,6 @@
     <UseRazorSourceGenerator>false</UseRazorSourceGenerator>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <CodeAnalysisRuleSet />
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <CodeAnalysisRuleSet />
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.5.4" />
     <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.6.0" />

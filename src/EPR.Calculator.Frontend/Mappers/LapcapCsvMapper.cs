@@ -7,17 +7,11 @@ using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.Mappers;
 
-public sealed class LapcapCsvMapper : ClassMap<CreateLapcapDataRequest.LapcapValue>
+public sealed class LapcapCsvMapper : ClassMap<SetLapcapDataRequest.LapcapValue>
 {
     private const string CountryColumn = "country";
     private const string MaterialColumn = "material";
     private const string TotalCostColumn = "total_cost";
-
-    /// <summary>
-    ///     Used in place of a country or material that is missing from the row,
-    ///     so that an error message can still be produced.
-    /// </summary>
-    private const string UnknownValue = "unknown";
 
     public LapcapCsvMapper()
     {
@@ -28,6 +22,12 @@ public sealed class LapcapCsvMapper : ClassMap<CreateLapcapDataRequest.LapcapVal
 
     private sealed class TotalCostConverter : DefaultTypeConverter
     {
+        /// <summary>
+        ///     Used in place of a country or material that is missing from the row,
+        ///     so that an error message can still be produced.
+        /// </summary>
+        private const string UnknownValue = "unknown";
+
         private const NumberStyles DefaultNumberStyles = NumberStyles.Currency;
 
         public override object ConvertFromString(string? text, IReaderRow row, MemberMapData memberMapData)

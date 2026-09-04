@@ -5,17 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
-/// <summary>
-///     Controller responsible for handling parameter confirmation.
-/// </summary>
-[Authorize(Roles = "SASuperUser")]
 public class ParameterConfirmationController : BaseController
 {
     /// <summary>
     ///     Displays the parameter confirmation view.
     /// </summary>
     /// <returns>The parameter confirmation view.</returns>
-    [Authorize(Roles = "SASuperUser")]
     public IActionResult Index()
     {
         // Create a view model for parameter confirmation

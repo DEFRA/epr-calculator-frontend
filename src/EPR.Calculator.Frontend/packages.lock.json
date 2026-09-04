@@ -216,7 +216,8 @@
         "resolved": "11.11.0",
         "contentHash": "viTKWaMbL3yJYgGI0DiCeavNbE9UPMWFVK2XS9nYXGbm3NDMd0/L5ER4wBzmTtW3BYh3SrlSXm9RACiKZ6stlA==",
         "dependencies": {
-          "FluentValidation": "11.11.0"
+          "FluentValidation": "11.11.0",
+          "Microsoft.Extensions.Dependencyinjection.Abstractions": "2.1.0"
         }
       },
       "Humanizer.Core": {
@@ -667,6 +668,11 @@
         "type": "Transitive",
         "resolved": "8.0.1",
         "contentHash": "C7kWHJnMRY7EvJev2S8+yJHZ1y7A4ZlLbA4NE+O23BDIAN5mHeqND1m+SKv1ChRS5YlCDW7yAMUe7lttRsJaAA=="
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions": {
+        "type": "Transitive",
+        "resolved": "2.1.0",
+        "contentHash": "8/CtASu80UIoyG+r8FstrmZW5GLtXxzoYpjj3jV0FKZCL5CiFgSH3pAmqut/dC68mu7N1bU6v0UtKKL3gCUQGQ=="
       },
       "Microsoft.FeatureManagement": {
         "type": "Transitive",

@@ -3,12 +3,12 @@ using EPR.Calculator.Frontend.Models;
 
 namespace EPR.Calculator.Frontend.Helpers.Csv;
 
-public static class LapcapCsvFileHelper
+public static class DefaultParametersCsvFileHelper
 {
-    public static Task<CsvParseResult<SetLapcapDataRequest.LapcapValue>> Parse(
+    public static Task<CsvParseResult<SetDefaultParametersRequest.ParameterValue>> Parse(
         IFormFile? fileUpload, CancellationToken cancellationToken)
     {
-        return CsvFileHelper.ParseAsync<LapcapCsvMapper, SetLapcapDataRequest.LapcapValue>(
+        return CsvFileHelper.ParseAsync<DefaultParametersCsvMapper, SetDefaultParametersRequest.ParameterValue>(
             fileUpload, cancellationToken: cancellationToken);
     }
 }

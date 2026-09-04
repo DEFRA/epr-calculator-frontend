@@ -1,105 +1,119 @@
-using EPR.Calculator.Frontend.Constants;
+using System.Net;
+using System.Text.Json;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Helpers.Csv;
+using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
+using EPR.Calculator.Frontend.ViewModels.CsvUpload;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
-public class ParameterUploadFileController(IWebHostEnvironment environment) : BaseController
+public class ParameterUploadFileController(
+    IConfiguration configuration,
+    IEprCalculatorApiService eprCalculatorApiService,
+    ILogger<ParameterUploadFileController> logger
+) : BaseController
 {
+    private const string ApiErrorsKey = "Default_Parameters_Upload_Errors";
+
+    private CsvUploadViewModel UploadTemplate => new()
+    {
+        Title = "Upload new default calculator parameters",
+        BackLinkUrl = Url.Action("Index", "DefaultParameters")!
+    };
+
+    private static readonly FileUploadErrorViewModel ErrorTemplate = new()
+    {
+        InputId = CsvUploadViewModel.DomElements.InputId,
+        DetailsId = CsvUploadViewModel.DomElements.ErrorDetailsId,
+        CallToActionId = CsvUploadViewModel.DomElements.ErrorCallToActionId,
+        FileErrors = [],
+        ContentErrors = []
+    };
+
+    [HttpGet]
     public IActionResult Index()
     {
-        return View(ViewNames.ParameterUploadFileIndex, new ParameterUploadViewModel());
+        return View("Views/CsvUpload/Index", UploadTemplate);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Upload(IFormFile fileUpload)
-    {
-        return await ProcessUploadAsync(fileUpload);
-    }
-
-    public async Task<IActionResult> Upload()
+    public async Task<IActionResult> Upload(IFormFile? fileUpload, CancellationToken cancellationToken)
     {
         try
         {
-            var filePath = TempData["FilePath"]?.ToString();
-            if (string.IsNullOrEmpty(filePath))
-                return RedirectToError();
+            var result = await DefaultParametersCsvFileHelper.Parse(fileUpload, cancellationToken);
 
-            using var stream = System.IO.File.OpenRead(filePath);
-            var fileUpload = new FormFile(stream, 0, stream.Length, string.Empty, Path.GetFileName(stream.Name));
-
-            return await ProcessUploadAsync(fileUpload);
-        }
-        catch (Exception)
-        {
-            return RedirectToError();
-        }
-    }
-
-    public IActionResult DownloadCsvTemplate() =>
-        PhysicalFile(
-            Path.Combine(environment.WebRootPath, "templates", "DefaultParameterTemplate.xlsx"),
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "DefaultParameterTemplate.xlsx");
-
-    private async Task<IActionResult> ProcessUploadAsync(IFormFile fileUpload)
-    {
-        try
-        {
-            var viewName = GetViewName(fileUpload);
-            if (viewName == ViewNames.ParameterUploadFileIndex)
+            if (!result.IsSuccess)
             {
-                var viewModel = CreateParameterUploadViewModel();
-                return View(viewName, viewModel);
-            }
-            else
-            {
-                var schemeTemplateParameterValues = await ParametersCsvFileHelper.Parse(fileUpload);
-                var viewModel = new ParameterRefreshViewModel
+                return View("Views/CsvUpload/Index", UploadTemplate with
                 {
-                    ParameterTemplateValues = schemeTemplateParameterValues,
-                    FileName = fileUpload.FileName
-                };
-                return View(viewName, viewModel);
+                    ErrorsViewModel = ErrorTemplate with
+                    {
+                        FileErrors = result.FileErrors,
+                        ContentErrors = result.ContentErrors
+                    }
+                });
             }
+
+            var processRequest = new SetDefaultParametersRequest
+            {
+                Filename = fileUpload!.FileName,
+                RelativeYear =  CommonUtil.GetRelativeYear(HttpContext.Session, CommonUtil.GetRelativeYearStartingMonth(configuration)),
+                Values = result.Records
+            };
+
+            return View("Views/CsvUpload/Processing", new CsvUploadProcessingViewModel
+            {
+                ProcessingUrl = Url.Action("Process", "ParameterUploadFile")!,
+                SuccessUrl = Url.Action("Index", "ParameterConfirmation")!,
+                ErrorUrl = Url.Action("Errors", "ParameterUploadFile")!,
+                JsonPayload = JsonSerializer.Serialize(processRequest)
+            });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            logger.LogError(ex, "Uncaught exception when handling CSV file upload");
             return RedirectToError();
         }
     }
 
-    private ParameterUploadViewModel CreateParameterUploadViewModel()
+    [HttpPost]
+    public async Task<IActionResult> Process([FromBody] SetDefaultParametersRequest request, CancellationToken cancellationToken)
     {
-        var errors = TempData[UploadFileErrorIds.DefaultParameterUploadErrors] != null
-            ? JsonConvert.DeserializeObject<ErrorViewModel>(TempData[UploadFileErrorIds.DefaultParameterUploadErrors]?.ToString() ?? string.Empty)
-            : null;
+        using var response = await eprCalculatorApiService.CallApi(
+            HttpMethod.Post,
+            "v1/defaultParameterSetting",
+            body: request,
+            cancellationToken: cancellationToken);
 
-        ModelState.Clear();
-        return new ParameterUploadViewModel
-        {
-            Errors = errors
-        };
+        if (response is { IsSuccessStatusCode: true, StatusCode: HttpStatusCode.Created })
+            return NoContent();
+
+        var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+        HttpContext.Session.SetString(ApiErrorsKey, errorContent);
+
+        return BadRequest();
     }
 
-    private string GetViewName(IFormFile fileUpload)
+    [HttpGet]
+    public IActionResult Errors()
     {
-        if (ValidateCSV(fileUpload) is not null)
-            return ViewNames.ParameterUploadFileIndex;
+        var apiErrorsJson = HttpContext.Session.GetString(ApiErrorsKey);
+        HttpContext.Session.Remove(ApiErrorsKey);
 
-        return ViewNames.ParameterUploadFileRefresh;
-    }
+        if (!ApiValidationShim.TryParseAsProblemDetails(apiErrorsJson, out var problemDetails))
+            return RedirectToError();
 
-    private ErrorViewModel? ValidateCSV(IFormFile fileUpload)
-    {
-        if (!CsvFileHelper.TryValidateFile(fileUpload, out var errors))
+        // The API validates the contents of the file, so anything it rejects is a content error.
+        return View("Views/CsvUpload/Index", UploadTemplate with
         {
-            var error = new ErrorViewModel { DOMElementId = ViewControlNames.FileUpload, ErrorMessage = errors.First() };
-            TempData[UploadFileErrorIds.DefaultParameterUploadErrors] = JsonConvert.SerializeObject(error);
-            return error;
-        }
-
-        return null;
+            ErrorsViewModel = ErrorTemplate with
+            {
+                ContentErrors = [..problemDetails.Errors.SelectMany(kv => kv.Value)]
+            }
+        });
     }
 }
