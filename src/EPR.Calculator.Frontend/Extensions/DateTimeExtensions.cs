@@ -1,24 +1,41 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Html;
 
-namespace EPR.Calculator.Frontend.Extensions
+namespace EPR.Calculator.Frontend.Extensions;
+
+public static class DateTimeExtensions
 {
-    public static class DateTimeExtensions
+    private static readonly TimeZoneInfo LondonTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/London");
+
+    extension(DateTime dt)
     {
-        /// <summary>
-        /// Converts a UTC DateTime to a UK DateTime string format.
-        /// </summary>
-        /// <param name="dateTime"></param>
-        /// <returns></returns>
-        public static string ToUKDateTimeDisplay(this DateTime dateTime)
+        public DateTimeOffset ToLondonTime()
         {
-            // Get UK time zone, which automatically adjusts for BST
-            var britishZone = TimeZoneInfo.FindSystemTimeZoneById(CommonConstants.TimeZone);
+            var utc = dt.Kind switch
+            {
+                DateTimeKind.Utc => dt,
+                DateTimeKind.Unspecified => DateTime.SpecifyKind(dt, DateTimeKind.Utc),
+                _ => dt.ToUniversalTime()
+            };
 
-            // Ensure the input is treated as UTC and  // Convert to UK local time (BST or GMT depending on the date)
-            var britishTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(dateTime, DateTimeKind.Utc), britishZone);
+            // This ensures the offset remains correct regardless of the host's configured
+            // timezone since TimeZoneInfo.ConvertTime returns an Unspecified DateTime.
+            var londonDateTime = TimeZoneInfo.ConvertTimeFromUtc(utc, LondonTimeZone);
+            var londonOffset = LondonTimeZone.GetUtcOffset(utc);
 
-            // Format the date and time
-            return britishTime.ToString($"{CommonConstants.DateFormat} 'at' {CommonConstants.TimeFormat}");
+            return new DateTimeOffset(londonDateTime, londonOffset);
+        }
+
+        [ExcludeFromCodeCoverage]
+        public HtmlString DisplayAsDateAtTime()
+        {
+            return new(dt.ToLondonTime().ToString("dd MMM yyyy 'at' H:mm"));
+        }
+
+        [ExcludeFromCodeCoverage]
+        public HtmlString DisplayAsTimeOnDate()
+        {
+            return new(dt.ToLondonTime().ToString("<b>HH:mm</b> 'on' d MMM yyyy"));
         }
     }
 }
