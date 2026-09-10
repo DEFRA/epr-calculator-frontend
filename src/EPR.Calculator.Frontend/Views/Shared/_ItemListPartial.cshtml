@@ -24,8 +24,8 @@
                         {
                             var precision  = item.ParameterDecimalValue() == 0 ? 0 : 2;
                             var formattedValue = item.ParameterDecimalValue() < 0
-                                ? "-" + Math.Abs(item.ParameterDecimalValue()).ToString($"C{precision}", culture)
-                                : item.ParameterDecimalValue().ToString($"C{precision}", culture);
+                                ? "-" + Math.Abs(item.ParameterDecimalValue()).ToString($"C{precision}")
+                                : item.ParameterDecimalValue().ToString($"C{precision}");
 
                             @formattedValue
                         }

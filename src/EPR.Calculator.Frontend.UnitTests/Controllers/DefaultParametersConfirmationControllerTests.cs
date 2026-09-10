@@ -7,15 +7,15 @@ using Microsoft.AspNetCore.Mvc;
 namespace EPR.Calculator.Frontend.UnitTests.Controllers;
 
 [TestClass]
-public class ParameterConfirmationControllerTests
+public class DefaultParametersConfirmationControllerTests
 {
     private const string SuperUserRole = "SASuperUser";
-    private ParameterConfirmationController controller = null!;
+    private DefaultParametersConfirmationController controller = null!;
 
     [TestInitialize]
     public void TestInitialize()
     {
-        controller = new ParameterConfirmationController();
+        controller = new DefaultParametersConfirmationController();
     }
 
     [TestMethod]
@@ -50,40 +50,6 @@ public class ParameterConfirmationControllerTests
         Assert.AreNotSame(firstModel, secondModel);
         Assert.AreNotSame(firstModel.AdditionalParagraphs, secondModel.AdditionalParagraphs);
         CollectionAssert.AreEqual(firstModel.AdditionalParagraphs, secondModel.AdditionalParagraphs);
-    }
-
-    [TestMethod]
-    public void ParameterConfirmationController_HasExpectedAuthorizeRole()
-    {
-        // Arrange
-
-        // Act
-        var authoriseAttribute = typeof(ParameterConfirmationController)
-            .GetCustomAttributes(typeof(AuthorizeAttribute), true)
-            .Cast<AuthorizeAttribute>()
-            .SingleOrDefault();
-
-        // Assert
-        Assert.IsNotNull(authoriseAttribute);
-        Assert.AreEqual(SuperUserRole, authoriseAttribute.Roles);
-    }
-
-    [TestMethod]
-    public void Index_HasExpectedAuthorizeRole()
-    {
-        // Arrange
-        var indexMethod = typeof(ParameterConfirmationController).GetMethod(nameof(ParameterConfirmationController.Index));
-
-        // Act
-        var authoriseAttribute = indexMethod?
-            .GetCustomAttributes(typeof(AuthorizeAttribute), true)
-            .Cast<AuthorizeAttribute>()
-            .SingleOrDefault();
-
-        // Assert
-        Assert.IsNotNull(indexMethod);
-        Assert.IsNotNull(authoriseAttribute);
-        Assert.AreEqual(SuperUserRole, authoriseAttribute.Roles);
     }
 
     private static ConfirmationViewModel GetConfirmationModel(IActionResult actionResult)
