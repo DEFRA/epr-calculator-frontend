@@ -1,0 +1,37 @@
+﻿@using EPR.Calculator.Frontend.ViewModels.CsvUpload
+@model EPR.Calculator.Frontend.ViewModels.CsvUpload.CsvUploadViewModel.ErrorsViewModel?;
+
+@if (Model?.HasErrors ?? false)
+{
+    <div class="govuk-form-group govuk-form-group--error">
+        <h2 class="govuk-heading-m">
+            @if (Model.HasMultipleErrors)
+            {
+                @:Fix the errors before uploading the file again
+            }
+            else
+            {
+                @:Fix the error before uploading the file again
+            }
+        </h2>
+
+        <p id="@CsvUploadDomElements.ErrorCallToActionId" class="govuk-error-message">
+            <span class="govuk-visually-hidden">Error:</span>
+            @if (Model.HasMultipleErrors)
+            {
+                @:The file contains @Model.AllErrors.Count errors
+            }
+            else
+            {
+                @:The file contains 1 error
+            }
+        </p>
+
+        <ol id="@CsvUploadDomElements.ErrorDetailsId" class="govuk-list govuk-list--number">
+            @foreach (var error in Model.AllErrors)
+            {
+                <li>@error</li>
+            }
+        </ol>
+    </div>
+}

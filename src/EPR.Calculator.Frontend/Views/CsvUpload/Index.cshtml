@@ -1,0 +1,66 @@
+@using EPR.Calculator.Frontend.ViewModels.CsvUpload
+@model EPR.Calculator.Frontend.ViewModels.CsvUpload.CsvUploadViewModel;
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<vc:user-nav back-link="@Model.BackLinkUrl"/>
+<partial name="_UploadErrorHeader.cshtml" model="@Model.Errors"/>
+<h1 class="govuk-heading-l">@Model.Title</h1>
+
+@if (Model.HasDownloadableTemplate)
+{
+    <h2 class="govuk-heading-m">Before you upload your file</h2>
+
+    <div class="govuk-form-group">
+        <p class="govuk-body">Make sure you're using the latest version of the
+            <a class="govuk-link" href="@Model.DownloadTemplate!.Url">
+                @Model.DownloadTemplate.LinkText
+            </a>.
+        </p>
+    </div>
+}
+
+<form action="@Model.UploadUrl" enctype="multipart/form-data" method="post">
+    @Html.AntiForgeryToken()
+
+    <partial name="_UploadErrorDetails.cshtml" model="@Model.Errors"/>
+
+    <label class="govuk-label govuk-label--m" for="@CsvUploadDomElements.InputId">
+        @if (Model.HasErrors)
+        {
+            @:Upload the file again
+        }
+        else
+        {
+            @:Upload a file
+        }
+    </label>
+
+    <div id="@CsvUploadDomElements.RequirementsId">
+        <p class="govuk-body">The file must be:</p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>smaller than 50KB</li>
+            <li>in CSV format</li>
+        </ul>
+
+        <p class="govuk-body">
+            It may take a few minutes for your file to upload - do not close the window while
+            the file is uploading.
+        </p>
+    </div>
+
+    <div class="govuk-form-group">
+        <input id="@CsvUploadDomElements.InputId"
+               class="govuk-file-upload"
+               name="fileUpload"
+               type="file"
+               aria-describedby="@Model.InputDescribedBy"
+               aria-invalid="@(Model.HasErrors ? "true" : null)">
+    </div>
+
+    <button id="btnUploadFile" type="submit" class="govuk-button" data-module="govuk-button">
+        Upload file
+    </button>
+</form>

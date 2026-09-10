@@ -1,5 +1,4 @@
-﻿using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.Models;
+﻿using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.ViewModels;
 
 namespace EPR.Calculator.Frontend.Helpers

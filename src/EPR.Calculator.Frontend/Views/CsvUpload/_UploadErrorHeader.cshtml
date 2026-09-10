@@ -1,0 +1,34 @@
+﻿@using EPR.Calculator.Frontend.ViewModels.CsvUpload
+@model EPR.Calculator.Frontend.ViewModels.CsvUpload.CsvUploadViewModel.ErrorsViewModel?;
+
+@if (Model?.HasErrors ?? false)
+{
+    <div
+        class="govuk-error-summary"
+        data-module="govuk-error-summary"
+        role="alert"
+        aria-labelledby="error-summary-title"
+        tabindex="-1">
+
+        <h2 class="govuk-error-summary__title" id="error-summary-title">
+            There is a problem with the file you uploaded
+        </h2>
+
+        <div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+                <li>
+                    <a href="#@CsvUploadDomElements.InputId">
+                        @if (Model.HasMultipleErrors)
+                        {
+                            @:The file contains @Model.AllErrors.Count errors
+                        }
+                        else
+                        {
+                            @:The file contains 1 error
+                        }
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+}
