@@ -45,12 +45,6 @@ namespace EPR.Calculator.Frontend.Helpers
                 : new RelativeYear(date.Year - 1);
         }
 
-        public static DateTime GetDateTime(DateTime date)
-        {
-            var britishZone = TimeZoneInfo.FindSystemTimeZoneById(CommonConstants.TimeZone);
-            return TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Utc, britishZone);
-        }
-
         /// <summary>
         /// Returns the relative year from session if feature enabled, else from config.
         /// </summary>
