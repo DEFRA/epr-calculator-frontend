@@ -19,32 +19,6 @@ public static class ApiValidationShim
         PropertyNameCaseInsensitive = true
     };
 
-    /// <summary>
-    ///     Parses 400 Bad Request response JSON to the specified custom error type OR the more general
-    ///     <see cref="ValidationErrorDto" /> type, depending on the JSON data structure.
-    /// </summary>
-    public static (ImmutableArray<TError>, ImmutableArray<ValidationErrorDto>) Parse<TError>(string jsonString)
-    {
-        ImmutableArray<TError> customErrors = [];
-        ImmutableArray<ValidationErrorDto> basicErrors = [];
-
-        using var doc = JsonDocument.Parse(jsonString);
-        var root = doc.RootElement;
-
-        if (TryParseAsProblemDetails(root, out var problemDetails))
-        {
-            basicErrors = problemDetails.Errors
-                .SelectMany(kv => kv.Value.Select(e => new ValidationErrorDto { ErrorMessage = e }))
-                .ToImmutableArray();
-        }
-        else if (root.ValueKind == JsonValueKind.Array)
-            customErrors = root.Deserialize<ImmutableArray<TError>>(JsonSerializerOptions)!;
-        else
-            basicErrors = [ new ValidationErrorDto { ErrorMessage = "An error occurred." } ];
-
-        return (customErrors, basicErrors);
-    }
-
     public static bool TryParseAsProblemDetails(string? jsonString, [NotNullWhen(true)] out ValidationProblemDetails? problemDetails)
     {
         problemDetails = null;

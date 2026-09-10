@@ -11,13 +11,13 @@ namespace EPR.Calculator.Frontend.Helpers.Csv;
 
 public static class CsvFileHelper
 {
-    public static CsvConfiguration DefaultCsvConfig => new (new CultureInfo("en-GB"))
+    private static CsvConfiguration DefaultCsvConfig => new (new CultureInfo("en-GB"))
     {
         // Skips rows where every field is empty.
         ShouldSkipRecord = args => args.Row.Parser.Record?.All(string.IsNullOrWhiteSpace) ?? true,
 
         // Normalizes header casing/spaces.
-        PrepareHeaderForMatch = args => args.Header.Trim().ToLowerInvariant().Replace(" ", "_")
+        PrepareHeaderForMatch = args => args.Header.ToLowerInvariant().Replace(" ", "").Replace("_", "").Replace("-", "")
     };
 
     public static bool TryValidateFile([NotNullWhen(true)] IFormFile? fileUpload, out ImmutableList<string> errors)
