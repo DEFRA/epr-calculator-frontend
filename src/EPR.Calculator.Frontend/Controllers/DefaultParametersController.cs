@@ -1,5 +1,4 @@
-﻿using System.Net;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
@@ -27,9 +26,9 @@ public class DefaultParametersController(
     {
         var relativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth);
 
-        var response = await GetDefaultParametersAsync(relativeYear);
+        var currentParameters = await eprCalculatorApiService.Get<List<DefaultSchemeParameters>>($"v1/defaultParameterSetting/{relativeYear}");
 
-        if (response.IsSuccessStatusCode)
+        if (currentParameters?.Count > 0)
         {
             var viewModel = new DefaultParametersViewModel
             {
@@ -37,38 +36,31 @@ public class DefaultParametersController(
                 SchemeParameters = [],
                 LateReportingTonnageParams = []
             };
-            var data = await response.Content.ReadAsStringAsync();
-            var defaultSchemeParameters = await response.Content.ReadFromJsonAsync<List<DefaultSchemeParameters>>() ?? [];
 
             foreach (var name in (ParameterType[])Enum.GetValues(typeof(ParameterType)))
                 viewModel.SchemeParameters.Add(new()
                     {
-                        DefaultSchemeParameters = defaultSchemeParameters.Where(t => t.ParameterType == name.GetDisplayName()).ToList(),
+                        DefaultSchemeParameters = currentParameters.Where(t => t.ParameterType == name.GetDisplayName()).ToList(),
                         SchemeParameterName     = name.GetDisplayName(),
                     });
 
             var lateTonnage = viewModel.SchemeParameters.First(t => t.SchemeParameterName == ParameterType.LateReportingTonnage.GetDisplayName());
 
             viewModel.LateReportingTonnageParams = GetModulatedLateReportingTonnageParams(lateTonnage.DefaultSchemeParameters);
-            viewModel.EffectiveFrom              = defaultSchemeParameters.First().EffectiveFrom;
+            viewModel.LastUpdatedAt              = currentParameters.First().EffectiveFrom;
             viewModel.IsDataAvailable            = true;
 
             return View(viewModel);
         }
 
-        if (response.StatusCode == HttpStatusCode.NotFound)
+        return View(new DefaultParametersViewModel
         {
-            return View(new DefaultParametersViewModel
-            {
-                LastUpdatedBy = string.Empty,
-                IsDataAvailable = false
-            });
-        }
-
-        return RedirectToError();
+            LastUpdatedBy = string.Empty,
+            IsDataAvailable = false
+        });
     }
 
-    private static IEnumerable<DefaultSchemeParametersLateReportingTonnage> GetModulatedLateReportingTonnageParams(IEnumerable<DefaultSchemeParameters> parameters) =>
+    private static List<DefaultSchemeParametersLateReportingTonnage> GetModulatedLateReportingTonnageParams(IEnumerable<DefaultSchemeParameters> parameters) =>
         parameters
             .GroupBy(x => x.ParameterCategory.Split('-')[0].Trim())
             .Select(group => new DefaultSchemeParametersLateReportingTonnage
@@ -77,10 +69,6 @@ public class DefaultParametersController(
                 Red   = group.First(x => x.ParameterCategory.EndsWith("-R")).ParameterDecimalValue(),
                 Amber = group.First(x => x.ParameterCategory.EndsWith("-A")).ParameterDecimalValue(),
                 Green = group.First(x => x.ParameterCategory.EndsWith("-G")).ParameterDecimalValue()
-            });
-
-    private async Task<HttpResponseMessage> GetDefaultParametersAsync(RelativeYear relativeYear) =>
-        await eprCalculatorApiService.CallApi(
-            HttpMethod.Get,
-            $"v1/defaultParameterSetting/{relativeYear}");
+            })
+            .ToList();
 }

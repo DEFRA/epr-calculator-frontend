@@ -43,24 +43,9 @@
         /// <summary>
         /// Default parameters confirmation index page view.
         /// </summary>
-        public const string ParameterConfirmationIndex = "~/Views/ParameterConfirmation/Index.cshtml";
+        public const string ParameterConfirmationIndex = "~/Views/DefaultParametersConfirmation/Index.cshtml";
 
         /// <summary>
-        /// Default parameters upload file error index page view.
-        /// </summary>
-        public const string ParameterUploadFileErrorIndex = "~/Views/ParameterUploadFileError/Index.cshtml";
-
-        /// <summary>
-        /// Default parameters upload file index page view.
-        /// </summary>
-        public const string ParameterUploadFileIndex = "~/Views/ParameterUploadFile/Index.cshtml";
-
-        /// <summary>
-        /// Default parameters upload file refresh page view.
-        /// </summary>
-        public const string ParameterUploadFileRefresh = "~/Views/ParameterUploadFile/Refresh.cshtml";
-
-       /// <summary>
         /// Calculator run error index page view.
         /// </summary>
         public const string CalculationRunErrorIndex = "~/Views/Shared/_CalculationRunError.cshtml";

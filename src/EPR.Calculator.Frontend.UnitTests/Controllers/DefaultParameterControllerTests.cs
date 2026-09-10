@@ -53,13 +53,11 @@ public class DefaultParameterControllerTests
     {
         // Arrange
         apiService
-            .Setup(service => service.CallApi(
-                HttpMethod.Get,
+            .Setup(service => service.Get<List<DefaultSchemeParameters>>(
                 $"v1/defaultParameterSetting/{RelativeYearValue}",
                 It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(CreateJsonResponse(HttpStatusCode.OK, defaultParameters));
+            .ReturnsAsync(defaultParameters);
         var controller = BuildController();
 
         // Act
@@ -72,7 +70,7 @@ public class DefaultParameterControllerTests
         Assert.IsTrue(model.IsDataAvailable);
         Assert.AreEqual(TestUser, model.LastUpdatedBy);
         Assert.AreEqual(Enum.GetValues<ParameterType>().Length, model.SchemeParameters.Count);
-        Assert.AreEqual(defaultParameters[0].EffectiveFrom, model.EffectiveFrom);
+        Assert.AreEqual(defaultParameters[0].EffectiveFrom, model.LastUpdatedAt);
 
         var redModulation = model.SchemeParameters
             .Single(parameter => parameter.SchemeParameterName == ParameterType.RedModulationFactor.GetDisplayName())
@@ -86,11 +84,9 @@ public class DefaultParameterControllerTests
         Assert.AreEqual(70.55m, aluminium.Amber);
         Assert.AreEqual(270.55m, aluminium.Green);
 
-        apiService.Verify(service => service.CallApi(
-            HttpMethod.Get,
+        apiService.Verify(service => service.Get<List<DefaultSchemeParameters>>(
             $"v1/defaultParameterSetting/{RelativeYearValue}",
             It.IsAny<IDictionary<string, string?>?>(),
-            It.IsAny<object?>(),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -117,29 +113,6 @@ public class DefaultParameterControllerTests
         Assert.IsNotNull(model);
         Assert.IsFalse(model.IsDataAvailable);
         Assert.AreEqual(string.Empty, model.LastUpdatedBy);
-    }
-
-    [TestMethod]
-    public async Task Index_WhenApiReturnsUnexpectedFailure_RedirectsToStandardError()
-    {
-        // Arrange
-        apiService
-            .Setup(service => service.CallApi(
-                HttpMethod.Get,
-                $"v1/defaultParameterSetting/{RelativeYearValue}",
-                It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
-        var controller = BuildController();
-
-        // Act
-        var result = await controller.Index() as RedirectToActionResult;
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual("Index", result.ActionName);
-        Assert.AreEqual("StandardError", result.ControllerName);
     }
 
     private DefaultParametersController BuildController()

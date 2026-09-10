@@ -20,12 +20,6 @@
         public const string FinalRecalculationRunDescription = "An official, optional run using corrected data. It can produce a billing file for invoicing and is expected to be the last recalculation.";
         public const string FinalRunDescription = "An official, mandatory run at the end of the financial year that can produce a billing file for invoicing. Corrections after this must use the interim recalculation classification.";
 
-        public const bool IsDraftFileTrue = true;
-        public const bool IsDraftFileFalse = false;
-
-        public const bool IsBillingFileTrue = true;
-        public const bool IsBillingFileFalse = false;
-
         public const string AcceptViewText = "accept";
         public const string RejectViewText = "reject";
 
