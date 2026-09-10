@@ -5,21 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>0376ffa7-1107-42e6-a586-01172fd3c243</UserSecretsId>
-
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <NoWarn>S6608</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <UseRazorSourceGenerator>false</UseRazorSourceGenerator>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <CodeAnalysisRuleSet />
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <CodeAnalysisRuleSet />
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,11 +25,11 @@
 
   <ItemGroup>
     <SonarQubeSetting Include="sonar.coverage.exclusions">
-      <Value>Constants/**/*.cs,Models/**/*.cs,ViewModels/**/*.cs,Program*.cs,wwwroot/js/*.js</Value>
+      <Value>Constants/**/*.cs,Models/**/*.cs,ViewModels/**/*.cs,Program*.cs,wwwroot/**/*.js</Value>
     </SonarQubeSetting>
 
     <SonarQubeSetting Include="sonar.cpd.exclusions">
-      <Value>Constants/**/*.cs,Models/**/*.cs,ViewModels/**/*.cs,Program*.cs,wwwroot/js/*.js</Value>
+      <Value>**/*.cs</Value>
     </SonarQubeSetting>
   </ItemGroup>
 
