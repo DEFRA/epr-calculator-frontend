@@ -7,6 +7,8 @@ public record LocalAuthorityViewModel
 {
     public required string LastUpdatedBy { get; init; }
     public required List<IGrouping<string, LocalAuthorityData>>? ByCountry { get; init; }
+    public bool IsDataAvailable => ByCountry?.FirstOrDefault()?.FirstOrDefault() != null;
+    public DateTime LastUpdatedAt => ByCountry?.FirstOrDefault()?.FirstOrDefault()?.EffectiveFrom ?? DateTime.MinValue;
 
     public record LocalAuthorityData
     {
@@ -40,12 +42,7 @@ public record LocalAuthorityViewModel
         private static string GetTotalCost(decimal totalCost)
         {
             var precision = totalCost == 0 ? 0 : 2;
-            var culture = CultureInfo.CreateSpecificCulture("en-GB");
-            culture.NumberFormat.CurrencySymbol = "£";
-            culture.NumberFormat.CurrencyPositivePattern = 0;
-            culture.NumberFormat.CurrencyGroupSeparator = ",";
-
-            return totalCost.ToString($"C{precision}", culture);
+            return totalCost.ToString($"C{precision}");
         }
     }
 }
