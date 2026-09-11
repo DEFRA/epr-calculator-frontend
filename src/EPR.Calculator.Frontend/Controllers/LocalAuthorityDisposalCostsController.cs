@@ -1,5 +1,4 @@
-﻿using System.Net;
-using EPR.Calculator.Frontend.Constants;
+﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
@@ -29,42 +28,28 @@ public class LocalAuthorityDisposalCostsController(
     {
         var relativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth);
 
-        var response = await GetLapcapDataAsync(relativeYear);
+        var currentCosts = await eprCalculatorApiService.Get<List<LocalAuthorityDisposalCost>>($"v1/lapcapData/{relativeYear}");
 
-        if (response.IsSuccessStatusCode)
+        if (currentCosts?.Count > 0)
         {
-            var deserializedLapcapData = await response.Content.ReadFromJsonAsync<List<LocalAuthorityDisposalCost>>() ?? new List<LocalAuthorityDisposalCost>();
-
-            // Ensure deserializedRuns is not null
-            var localAuthorityData = LocalAuthorityDataUtil.GetLocalAuthorityData(deserializedLapcapData, MaterialTypes.Other);
-
-            var localAuthorityDataGroupedByCountry = localAuthorityData?.GroupBy(data => data.Country).ToList();
+            var localAuthorityDataGroupedByCountry = LocalAuthorityDataUtil
+                .GetLocalAuthorityData(currentCosts, MaterialTypes.Other)
+                .GroupBy(data => data.Country)
+                .ToList();
 
             return View(
                 ViewNames.LocalAuthorityDisposalCostsIndex,
                 new LocalAuthorityViewModel
                 {
-                    LastUpdatedBy = deserializedLapcapData.FirstOrDefault()?.CreatedBy ?? ErrorMessages.UnknownUser,
+                    LastUpdatedBy = currentCosts.FirstOrDefault()?.CreatedBy ?? ErrorMessages.UnknownUser,
                     ByCountry = localAuthorityDataGroupedByCountry
                 });
         }
 
-        if (response.StatusCode == HttpStatusCode.NotFound)
+        return View(ViewNames.LocalAuthorityDisposalCostsIndex, new LocalAuthorityViewModel
         {
-            return View(ViewNames.LocalAuthorityDisposalCostsIndex, new LocalAuthorityViewModel
-            {
-                LastUpdatedBy = ErrorMessages.UnknownUser,
-                ByCountry = new List<IGrouping<string, LocalAuthorityViewModel.LocalAuthorityData>>()
-            });
-        }
-
-        return RedirectToError();
-    }
-
-    private async Task<HttpResponseMessage> GetLapcapDataAsync(RelativeYear relativeYear)
-    {
-        return await eprCalculatorApiService.CallApi(
-            HttpMethod.Get,
-            $"v1/lapcapData/{relativeYear}");
+            LastUpdatedBy = ErrorMessages.UnknownUser,
+            ByCountry = new List<IGrouping<string, LocalAuthorityViewModel.LocalAuthorityData>>()
+        });
     }
 }

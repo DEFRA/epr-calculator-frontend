@@ -1,21 +1,15 @@
 ﻿using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
-/// <summary>
-///     Controller responsible for handling parameter confirmation.
-/// </summary>
-[Authorize(Roles = "SASuperUser")]
-public class ParameterConfirmationController : BaseController
+public class DefaultParametersConfirmationController : BaseController
 {
     /// <summary>
     ///     Displays the parameter confirmation view.
     /// </summary>
     /// <returns>The parameter confirmation view.</returns>
-    [Authorize(Roles = "SASuperUser")]
     public IActionResult Index()
     {
         // Create a view model for parameter confirmation

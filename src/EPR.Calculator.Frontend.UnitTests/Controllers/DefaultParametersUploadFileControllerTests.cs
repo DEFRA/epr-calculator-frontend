@@ -16,17 +16,17 @@ using Moq;
 namespace EPR.Calculator.Frontend.UnitTests.Controllers;
 
 [TestClass]
-public class LocalAuthorityUploadFileControllerTests
+public class DefaultParametersUploadFileControllerTests
 {
     private const int RelativeYearStartingMonth = 4;
     private const int SelectedRelativeYear = 2026;
-    private const string ApiErrorsKey = "Local_Authority_Upload_Errors";
-    private const string LapcapApiPath = "v1/lapcapData";
+    private const string ApiErrorsKey = "Default_Parameters_Upload_Errors";
+    private const string DefaultParametersApiPath = "v1/defaultParameterSetting";
 
     private Mock<IEprCalculatorApiService> apiService = null!;
     private IConfiguration configuration = null!;
     private InMemorySession session = null!;
-    private LocalAuthorityUploadFileController controller = null!;
+    private DefaultParametersUploadFileController controller = null!;
 
     [TestInitialize]
     public void TestInitialize()
@@ -55,8 +55,24 @@ public class LocalAuthorityUploadFileControllerTests
         Assert.IsNotNull(result);
         Assert.AreEqual("Views/CsvUpload/Index", result.ViewName);
         Assert.IsNotNull(model);
+        Assert.AreEqual("Upload new default calculator parameters", model.Title);
+        Assert.AreEqual("/DefaultParameters/Index", model.BackLinkUrl);
+        Assert.AreEqual("/DefaultParametersUploadFile/Upload", model.UploadUrl);
         Assert.IsFalse(model.HasErrors);
         Assert.IsNull(model.Errors);
+    }
+
+    [TestMethod]
+    public void Index_OffersTheSpreadsheetTemplateForDownload()
+    {
+        var result = controller.Index() as ViewResult;
+        var model = result?.Model as CsvUploadViewModel;
+
+        Assert.IsNotNull(model);
+        Assert.IsTrue(model.HasDownloadableTemplate);
+        Assert.IsNotNull(model.DownloadTemplate);
+        Assert.AreEqual("/DefaultParametersUploadFile/DownloadCsvTemplate", model.DownloadTemplate.Url);
+        Assert.AreEqual("default parameters spreadsheet template", model.DownloadTemplate.LinkText);
     }
 
     [TestMethod]
@@ -75,7 +91,7 @@ public class LocalAuthorityUploadFileControllerTests
     [TestMethod]
     public async Task HandleUpload_NonCsvFile_ReturnsIndexWithFileError()
     {
-        var file = CreateFormFile("lapcap.txt", BuildValidLapcapCsv());
+        var file = CreateFormFile("default-parameters.txt", BuildValidParametersCsv());
 
         var result = await controller.Upload(file, CancellationToken.None) as ViewResult;
         var model = result?.Model as CsvUploadViewModel;
@@ -88,14 +104,13 @@ public class LocalAuthorityUploadFileControllerTests
     }
 
     [TestMethod]
-    public async Task HandleUpload_InvalidTotalCost_ReturnsIndexWithContentErrors()
+    public async Task HandleUpload_MissingValueColumn_ReturnsIndexWithContentErrors()
     {
         var csv = """
-            country,material,total_cost
-            England,Aluminium,not-a-number
-            Wales,Glass,20
+            Parameter Unique Ref,Parameter Category
+            COMC-AL,Aluminium
             """;
-        var file = CreateFormFile("lapcap.csv", csv);
+        var file = CreateFormFile("default-parameters.csv", csv);
 
         var result = await controller.Upload(file, CancellationToken.None) as ViewResult;
         Assert.IsNotNull(result);
@@ -104,13 +119,13 @@ public class LocalAuthorityUploadFileControllerTests
         var model = result.Model as CsvUploadViewModel;
         Assert.IsNotNull(model);
         Assert.IsTrue(model.HasErrors);
-        Assert.IsTrue(model.Errors!.ContentErrors.Any(error => error.Contains("Aluminium in England", StringComparison.Ordinal)));
+        Assert.IsTrue(model.Errors!.ContentErrors.Any(error => error.Contains("Parameter Value", StringComparison.Ordinal)));
     }
 
     [TestMethod]
-    public async Task HandleUpload_ValidCsv_ReturnsProcessingViewWithParsedValues()
+    public async Task HandleUpload_ValidCsv_ReturnsProcessingViewWithParsedParameters()
     {
-        var file = CreateFormFile("lapcap.csv", BuildValidLapcapCsv());
+        var file = CreateFormFile("default-parameters.csv", BuildValidParametersCsv());
 
         var result = await controller.Upload(file, CancellationToken.None) as ViewResult;
         var model = result?.Model as CsvUploadProcessingViewModel;
@@ -118,34 +133,59 @@ public class LocalAuthorityUploadFileControllerTests
         Assert.IsNotNull(result);
         Assert.AreEqual("Views/CsvUpload/Processing", result.ViewName);
         Assert.IsNotNull(model);
+        Assert.AreEqual("/DefaultParametersUploadFile/Process", model.ProcessingUrl);
+        Assert.AreEqual("/DefaultParametersConfirmation/Index", model.SuccessUrl);
+        Assert.AreEqual("/DefaultParametersUploadFile/Errors", model.ErrorUrl);
         Assert.IsNotNull(model.Payload);
 
-        var request = model.Payload as SetLapcapDataRequest;
+        var request = model.Payload as SetDefaultParametersRequest;
 
         Assert.IsNotNull(request);
-        Assert.AreEqual("lapcap.csv", request.Filename);
-        Assert.AreEqual(2, request.Values.Count);
-        Assert.AreEqual("England", request.Values[0].Country);
-        Assert.AreEqual("Aluminium", request.Values[0].Material);
-        Assert.AreEqual(2210.45m, request.Values[0].TotalCost);
-        Assert.AreEqual("Wales", request.Values[1].Country);
-        Assert.AreEqual("Glass", request.Values[1].Material);
-        Assert.AreEqual(20m, request.Values[1].TotalCost);
+        Assert.AreEqual("default-parameters.csv", request.Filename);
+        Assert.AreEqual(new RelativeYear(SelectedRelativeYear), request.RelativeYear);
+        Assert.AreEqual(2, request.Parameters.Count);
+        Assert.AreEqual("COMC-AL", request.Parameters[0].Id);
+        Assert.AreEqual("2210.45", request.Parameters[0].Value);
+        Assert.AreEqual("COMC-GL", request.Parameters[1].Id);
+        Assert.AreEqual("1000.00", request.Parameters[1].Value);
+    }
+
+    [TestMethod]
+    [DataRow("Parameter upload version v1.0")]
+    [DataRow("PARAMETER UPLOAD VERSION V1.0")]
+    [DataRow("upload version")]
+    public async Task HandleUpload_ValidCsv_DiscardsTheUploadVersionRow(string uploadVersionId)
+    {
+        var csv = $"""
+            Parameter Unique Ref,Parameter Value
+            COMC-AL,2210.45
+            {uploadVersionId},
+            """;
+        var file = CreateFormFile("default-parameters.csv", csv);
+
+        var result = await controller.Upload(file, CancellationToken.None) as ViewResult;
+        var request = (result?.Model as CsvUploadProcessingViewModel)?.Payload as SetDefaultParametersRequest;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Views/CsvUpload/Processing", result.ViewName);
+        Assert.IsNotNull(request);
+        Assert.AreEqual(1, request.Parameters.Count);
+        Assert.AreEqual("COMC-AL", request.Parameters[0].Id);
     }
 
     [TestMethod]
     public async Task SendToApi_WhenApiReturnsCreated_ReturnsNoContentAndPostsExpectedPayload()
     {
-        SetLapcapDataRequest? capturedRequest = null;
+        SetDefaultParametersRequest? capturedRequest = null;
         apiService
             .Setup(service => service.CallApi(
                 HttpMethod.Put,
-                LapcapApiPath,
+                DefaultParametersApiPath,
                 It.IsAny<IDictionary<string, string?>?>(),
                 It.IsAny<object?>(),
                 It.IsAny<CancellationToken>()))
             .Callback<HttpMethod, string, IDictionary<string, string?>?, object?, CancellationToken>(
-                (_, _, _, body, _) => capturedRequest = body as SetLapcapDataRequest)
+                (_, _, _, body, _) => capturedRequest = body as SetDefaultParametersRequest)
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Created));
 
         var model = BuildSetRequest();
@@ -157,7 +197,7 @@ public class LocalAuthorityUploadFileControllerTests
 
         apiService.Verify(service => service.CallApi(
             HttpMethod.Put,
-            LapcapApiPath,
+            DefaultParametersApiPath,
             It.IsAny<IDictionary<string, string?>?>(),
             It.IsAny<object?>(),
             It.IsAny<CancellationToken>()), Times.Once);
@@ -165,19 +205,19 @@ public class LocalAuthorityUploadFileControllerTests
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual(model.Filename, capturedRequest.Filename);
         Assert.AreEqual(new RelativeYear(SelectedRelativeYear), capturedRequest.RelativeYear);
-        Assert.AreEqual(model.Values.Count, capturedRequest.Values.Count);
-        Assert.AreEqual(model.Values[0].Country, capturedRequest.Values[0].Country);
-        Assert.AreEqual(model.Values[0].TotalCost, capturedRequest.Values[0].TotalCost);
+        Assert.AreEqual(model.Parameters.Count, capturedRequest.Parameters.Count);
+        Assert.AreEqual(model.Parameters[0].Id, capturedRequest.Parameters[0].Id);
+        Assert.AreEqual(model.Parameters[0].Value, capturedRequest.Parameters[0].Value);
     }
 
     [TestMethod]
     public async Task SendToApi_WhenApiDoesNotReturnCreated_StoresErrorInSessionAndReturnsBadRequest()
     {
-        const string apiErrorJson = """{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","errors":{"Values":["Invalid material"]}}""";
+        const string apiErrorJson = """{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","errors":{"Parameters":["Invalid parameter"]}}""";
         apiService
             .Setup(service => service.CallApi(
                 HttpMethod.Put,
-                LapcapApiPath,
+                DefaultParametersApiPath,
                 It.IsAny<IDictionary<string, string?>?>(),
                 It.IsAny<object?>(),
                 It.IsAny<CancellationToken>()))
@@ -202,7 +242,7 @@ public class LocalAuthorityUploadFileControllerTests
               "title": "One or more validation errors occurred.",
               "status": 400,
               "errors": {
-                "Values[0].TotalCost": [ "Total cost must be greater than zero.", "Total cost is required." ],
+                "Parameters[0].Value": [ "Value must be greater than zero.", "Value is required." ],
                 "Filename": [ "Filename is required." ]
               }
             }
@@ -216,14 +256,15 @@ public class LocalAuthorityUploadFileControllerTests
         Assert.AreEqual("Views/CsvUpload/Index", result.ViewName);
         Assert.IsNotNull(model);
         Assert.IsTrue(model.HasErrors);
+        CollectionAssert.AreEqual(Array.Empty<string>(), model.Errors!.FileErrors.ToArray());
         CollectionAssert.AreEquivalent(
             new[]
             {
-                "Total cost must be greater than zero.",
-                "Total cost is required.",
+                "Value must be greater than zero.",
+                "Value is required.",
                 "Filename is required."
             },
-            model.Errors!.ContentErrors.ToArray());
+            model.Errors.ContentErrors.ToArray());
         Assert.IsNull(session.GetString(ApiErrorsKey));
     }
 
@@ -250,14 +291,27 @@ public class LocalAuthorityUploadFileControllerTests
         Assert.IsNull(session.GetString(ApiErrorsKey));
     }
 
-    private LocalAuthorityUploadFileController BuildController(ISession controllerSession)
+    [TestMethod]
+    public void DownloadCsvTemplate_ReturnsTheSpreadsheetTemplate()
+    {
+        var result = controller.DownloadCsvTemplate() as VirtualFileResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("~/templates/DefaultParameterTemplate.xlsx", result.FileName);
+        Assert.AreEqual("DefaultParameterTemplate.xlsx", result.FileDownloadName);
+        Assert.AreEqual(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            result.ContentType);
+    }
+
+    private DefaultParametersUploadFileController BuildController(ISession controllerSession)
     {
         var urlHelper = new Mock<IUrlHelper>();
         urlHelper
             .Setup(helper => helper.Action(It.IsAny<UrlActionContext>()))
             .Returns((UrlActionContext context) => $"/{context.Controller}/{context.Action}");
 
-        return new LocalAuthorityUploadFileController(configuration, apiService.Object)
+        return new DefaultParametersUploadFileController(configuration, apiService.Object)
         {
             ControllerContext = new ControllerContext
             {
@@ -271,30 +325,29 @@ public class LocalAuthorityUploadFileControllerTests
         };
     }
 
-    private static SetLapcapDataRequest BuildSetRequest()
+    private static SetDefaultParametersRequest BuildSetRequest()
     {
-        return new SetLapcapDataRequest
+        return new SetDefaultParametersRequest
         {
-            Filename = "lapcap.csv",
+            Filename = "default-parameters.csv",
             RelativeYear = (RelativeYear) SelectedRelativeYear,
-            Values =
+            Parameters =
             [
-                new SetLapcapDataRequest.LapcapValue
+                new SetDefaultParametersRequest.ParameterValue
                 {
-                    Country = "England",
-                    Material = "Aluminium",
-                    TotalCost = 2210.45m
+                    Id = "COMC-AL",
+                    Value = "2210.45"
                 }
             ],
         };
     }
 
-    private static string BuildValidLapcapCsv()
+    private static string BuildValidParametersCsv()
     {
         return """
-            country,material,total_cost
-            England,Aluminium,2210.45
-            Wales,Glass,20
+            Parameter Unique Ref,Parameter Type,Parameter Category,Parameter Value
+            COMC-AL,Communication costs by material,Aluminium,2210.45
+            COMC-GL,Communication costs by material,Glass,1000.00
             """;
     }
 
@@ -305,4 +358,3 @@ public class LocalAuthorityUploadFileControllerTests
         return new FormFile(stream, 0, contentBytes.Length, "fileUpload", fileName);
     }
 }
-

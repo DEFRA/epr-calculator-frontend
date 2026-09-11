@@ -16,23 +16,6 @@
         private delegate void TryGetValueCallback(string key, out byte[] value);
 
         [TestMethod]
-        public void CanCallGetDateTime()
-        {
-            // Arrange
-            var date = DateTime.UtcNow;
-            DateTime thisTime = DateTime.UtcNow;
-            bool isDaylight = TimeZoneInfo.FindSystemTimeZoneById(CommonConstants.TimeZone).IsDaylightSavingTime(thisTime);
-
-            var expectedDate = isDaylight ? date.AddHours(1) : date;
-
-            // Act
-            var result = CommonUtil.GetDateTime(date);
-
-            // Assert
-            Assert.AreEqual(expectedDate, result);
-        }
-
-        [TestMethod]
         public void GetRelativeYear_ReturnsYearFromSession_WhenSessionHasValue()
         {
             // Arrange

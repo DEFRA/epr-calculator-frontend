@@ -1,5 +1,5 @@
 using EPR.Calculator.Frontend.Helpers;
-using EPR.Calculator.Frontend.Helpers.Csv.Lapcap;
+using EPR.Calculator.Frontend.Helpers.Csv.DefaultParameters;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels.CsvUpload;
@@ -7,18 +7,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
-public class LocalAuthorityUploadFileController(
+public class DefaultParametersUploadFileController(
     IConfiguration configuration,
     IEprCalculatorApiService eprCalculatorApiService
 ) : BaseController
 {
-    private const string ApiErrorsKey = "Local_Authority_Upload_Errors";
+    private const string ApiErrorsKey = "Default_Parameters_Upload_Errors";
 
     private CsvUploadViewModel UploadTemplate => new()
     {
-        Title = "Upload new local authority disposal costs",
-        BackLinkUrl = Url.Action("Index", "LocalAuthorityDisposalCosts")!,
-        UploadUrl = Url.Action("Upload", "LocalAuthorityUploadFile")!
+        Title = "Upload new default calculator parameters",
+        BackLinkUrl = Url.Action("Index", "DefaultParameters")!,
+        UploadUrl = Url.Action("Upload", "DefaultParametersUploadFile")!,
+        DownloadTemplate = new CsvUploadViewModel.TemplateDownloadViewModel
+        {
+            Url = Url.Action("DownloadCsvTemplate", "DefaultParametersUploadFile")!,
+            LinkText = "default parameters spreadsheet template"
+        }
     };
 
     [HttpGet]
@@ -30,7 +35,7 @@ public class LocalAuthorityUploadFileController(
     [HttpPost]
     public async Task<IActionResult> Upload(IFormFile? fileUpload, CancellationToken cancellationToken)
     {
-        var result = await LapcapCsvFileHelper.Parse(fileUpload, cancellationToken);
+        var result = await DefaultParametersCsvFileHelper.Parse(fileUpload, cancellationToken);
 
         if (!result.IsSuccess)
         {
@@ -44,28 +49,28 @@ public class LocalAuthorityUploadFileController(
             });
         }
 
-        var processRequest = new SetLapcapDataRequest
+        var processRequest = new SetDefaultParametersRequest
         {
             Filename = fileUpload!.FileName,
             RelativeYear =  CommonUtil.GetRelativeYear(HttpContext.Session, CommonUtil.GetRelativeYearStartingMonth(configuration)),
-            Values = result.Records
+            Parameters = [..result.Records.Where(p => !p.Id.Contains("upload version", StringComparison.OrdinalIgnoreCase))]
         };
 
         return View("Views/CsvUpload/Processing", new CsvUploadProcessingViewModel
         {
-            ProcessingUrl = Url.Action("Process", "LocalAuthorityUploadFile")!,
-            SuccessUrl = Url.Action("Index", "LocalAuthorityConfirmation")!,
-            ErrorUrl = Url.Action("Errors", "LocalAuthorityUploadFile")!,
+            ProcessingUrl = Url.Action("Process", "DefaultParametersUploadFile")!,
+            SuccessUrl = Url.Action("Index", "DefaultParametersConfirmation")!,
+            ErrorUrl = Url.Action("Errors", "DefaultParametersUploadFile")!,
             Payload = processRequest
         });
     }
 
     [HttpPost]
-    public async Task<IActionResult> Process([FromBody] SetLapcapDataRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Process([FromBody] SetDefaultParametersRequest request, CancellationToken cancellationToken)
     {
         using var response = await eprCalculatorApiService.CallApi(
             HttpMethod.Put,
-            "v1/lapcapData",
+            "v1/defaultParameterSetting",
             body: request,
             cancellationToken: cancellationToken);
 
@@ -96,5 +101,16 @@ public class LocalAuthorityUploadFileController(
                 ContentErrors = [.. problemDetails.Errors.SelectMany(kv => kv.Value)]
             }
         });
+    }
+
+    [HttpGet]
+    public IActionResult DownloadCsvTemplate()
+    {
+        // File() resolves the path against the web root (wwwroot); PhysicalFile() would need an
+        // absolute path on disk and throws when given a virtual one.
+        return File(
+            "~/templates/DefaultParameterTemplate.xlsx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "DefaultParameterTemplate.xlsx");
     }
 }

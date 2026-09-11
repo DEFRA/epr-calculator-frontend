@@ -2,6 +2,7 @@ using System.Configuration;
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
@@ -210,6 +211,45 @@ public class EprCalculatorApiServiceTests
     }
 
     [TestMethod]
+    [DataRow("2026-09-10T10:57:49", DisplayName = "A missing offset is assumed to be UTC")]
+    [DataRow("2026-09-10T10:57:49Z", DisplayName = "A UTC offset is preserved")]
+    [DataRow("2026-09-10T11:57:49+01:00", DisplayName = "A non-UTC offset is converted to UTC")]
+    public async Task GetCalculatorRun_ReturnsUtcDateTimes(string timestamp)
+    {
+        // Arrange
+        var expected = new DateTime(2026, 9, 10, 10, 57, 49, DateTimeKind.Utc);
+        _messageHandler.ResponseFactory = _ => RawJsonResponse(
+            $"{{\"runId\":42,\"createdAt\":\"{timestamp}\",\"updatedAt\":\"{timestamp}\"}}");
+
+        // Act
+        var result = await _service.GetCalculatorRun(42);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(DateTimeKind.Utc, result.CreatedAt.Kind);
+        Assert.AreEqual(expected, result.CreatedAt);
+        Assert.IsNotNull(result.UpdatedAt);
+        Assert.AreEqual(DateTimeKind.Utc, result.UpdatedAt.Value.Kind);
+        Assert.AreEqual(expected, result.UpdatedAt.Value);
+    }
+
+    [TestMethod]
+    public async Task FindCalculatorRuns_ReturnsUtcDateTimes_WhenApiOmitsTimeZoneInformation()
+    {
+        // Arrange
+        _messageHandler.ResponseFactory = _ => RawJsonResponse(
+            "[{\"runId\":1,\"createdAt\":\"2026-09-10T10:57:49\"}]");
+
+        // Act
+        var result = await _service.FindCalculatorRuns(new RelativeYear(2026));
+
+        // Assert
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual(DateTimeKind.Utc, result[0].CreatedAt.Kind);
+        Assert.AreEqual(new DateTime(2026, 9, 10, 10, 57, 49, DateTimeKind.Utc), result[0].CreatedAt);
+    }
+
+    [TestMethod]
     public async Task FindCalculatorRuns_ReturnsRuns_WhenResponseIsSuccessful()
     {
         // Arrange
@@ -339,6 +379,14 @@ public class EprCalculatorApiServiceTests
         return new HttpResponseMessage(statusCode)
         {
             Content = JsonContent.Create(payload),
+        };
+    }
+
+    private static HttpResponseMessage RawJsonResponse(string json)
+    {
+        return new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(json, Encoding.UTF8, "application/json"),
         };
     }
 
