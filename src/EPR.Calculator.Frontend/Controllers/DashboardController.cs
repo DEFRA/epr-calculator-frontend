@@ -77,9 +77,7 @@ public class DashboardController(
         var runs = await eprCalculatorApiService.FindCalculatorRuns(relativeYear);
 
         return runs
-            .Where(x => x.RunClassification
-                is not RunClassification.DELETED
-                and not RunClassification.QUEUE)
+            .Where(x => x.RunClassification is not RunClassification.Deleted)
             .Select(run => new CalculationRunViewModel
             {
                 RunId = run.RunId,

@@ -43,15 +43,7 @@ public class ClassifyingCalculationRunControllerTests
     public async Task Index_WhenDependenciesSucceed_ReturnsIndexViewWithExpectedModel()
     {
         // Arrange
-        var classificationResponse = BuildClassificationResponse(
-        [
-            new CalculatorRunClassificationDto
-            {
-                Id = (int)RunClassification.INITIAL_RUN,
-                Status = "INITIAL RUN",
-                Description = string.Empty
-            }
-        ]);
+        var classificationResponse = BuildClassificationResponse([RunClassification.Initial]);
         SetupClassificationApiSequence(classificationResponse);
         apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync(BuildRun(RunId));
         var controller = BuildController();
@@ -66,8 +58,7 @@ public class ClassifyingCalculationRunControllerTests
         var model = result.Model as SetRunClassificationViewModel;
         Assert.IsNotNull(model);
         Assert.AreEqual(RunId, model.RunId);
-        Assert.AreEqual(CommonConstants.InitialRunDescription, model.RelativeYearClassifications.Classifications[0].Description);
-        Assert.AreEqual(CommonConstants.InitialRunStatus, model.RelativeYearClassifications.Classifications[0].Status);
+        Assert.AreEqual(RunClassification.Initial, model.RelativeYearClassifications.Classifications[0]);
         apiService.Verify(service => service.Get<RelativeYearClassificationResponseDto>(
                 "v1/ClassificationByRelativeYear",
                 It.Is<IDictionary<string, string?>?>(query =>
@@ -133,16 +124,7 @@ public class ClassifyingCalculationRunControllerTests
     public async Task Index_WhenOnlyTestRunIsAvailable_SetsDisplayTestRun()
     {
         // Arrange
-        var testRunOnlyResponse = BuildClassificationResponse(
-            [
-                new CalculatorRunClassificationDto
-                {
-                    Id = (int)RunClassification.TEST_RUN,
-                    Status = "TEST RUN",
-                    Description = string.Empty
-                }
-            ],
-            []);
+        var testRunOnlyResponse = BuildClassificationResponse([RunClassification.Test]);
         SetupClassificationApiSequence(testRunOnlyResponse);
         apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync(BuildRun(RunId));
         var controller = BuildController();
@@ -154,8 +136,7 @@ public class ClassifyingCalculationRunControllerTests
         Assert.IsNotNull(result);
         var model = result.Model as SetRunClassificationViewModel;
         Assert.IsNotNull(model);
-        Assert.IsTrue(model.ImportantViewModel.IsDisplayTestRun);
-        Assert.IsFalse(model.ImportantViewModel.IsAnyRunInProgress);
+        Assert.AreEqual(ImportantSectionViewModel.NotificationType.TestOnlyOutdated, model.ImportantViewModel.Notification);
     }
 
     [TestMethod]
@@ -213,7 +194,7 @@ public class ClassifyingCalculationRunControllerTests
         Assert.AreEqual(RunId, result.RouteValues!["runId"]);
         Assert.IsNotNull(capturedBody);
         Assert.AreEqual(RunId, capturedBody.RunId);
-        Assert.AreEqual((int)RunClassification.INITIAL_RUN, capturedBody.ClassificationId);
+        Assert.AreEqual(RunClassification.Initial, capturedBody.Classification);
     }
 
     [TestMethod]
@@ -264,11 +245,11 @@ public class ClassifyingCalculationRunControllerTests
         return new SetRunClassificationFormModel
         {
             RunId = RunId,
-            ClassifyRunType = (int)RunClassification.INITIAL_RUN
+            ClassifyRunType = RunClassification.Initial
         };
     }
 
-    private static CalculatorRunDto BuildRun(int runId, RunClassification classification = RunClassification.UNCLASSIFIED)
+    private static CalculatorRunDto BuildRun(int runId, RunClassification classification = RunClassification.Unclassified)
     {
         return new CalculatorRunDto
         {
@@ -283,23 +264,17 @@ public class ClassifyingCalculationRunControllerTests
     }
 
     private static RelativeYearClassificationResponseDto BuildClassificationResponse(
-        IEnumerable<CalculatorRunClassificationDto>? classifications = null,
+        IEnumerable<RunClassification>? classifications = null,
         IEnumerable<CalculatorRunDto>? classifiedRuns = null)
     {
+        classifications ??= [RunClassification.Test];
+        classifiedRuns ??= [];
+
         return new RelativeYearClassificationResponseDto
         {
             RelativeYear = new RelativeYear(RelativeYearValue),
-            Classifications = classifications?.ToList()
-                              ??
-                              [
-                                  new CalculatorRunClassificationDto
-                                  {
-                                      Id = (int)RunClassification.TEST_RUN,
-                                      Status = "TEST RUN",
-                                      Description = string.Empty
-                                  }
-                              ],
-            ClassifiedRuns = classifiedRuns?.ToList() ?? []
+            Classifications = [..classifications],
+            ClassifiedRuns = [..classifiedRuns]
         };
     }
 

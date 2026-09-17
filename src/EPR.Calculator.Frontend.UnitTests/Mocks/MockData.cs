@@ -208,7 +208,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
             {
                 RunId = 1,
                 RunName = "Test Run",
-                RunClassification = RunClassification.UNCLASSIFIED,
+                RunClassification = RunClassification.Unclassified,
                 CreatedAt = DateTime.Parse("21/06/2024 12:09:00", new CultureInfo("en-GB")),
                 RelativeYear = new RelativeYear(2024),
             };
@@ -220,7 +220,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
             {
                 RunId = 1,
                 RunName = "Test Run",
-                RunClassification = RunClassification.INITIAL_RUN,
+                RunClassification = RunClassification.Initial,
                 CreatedAt = DateTime.Parse("21/06/2024 12:09:00", new CultureInfo("en-GB")),
                 RelativeYear = new RelativeYear(2024),
             };
@@ -232,7 +232,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
             {
                 RunId = 1,
                 RunName = "Test Run",
-                RunClassification = RunClassification.INITIAL_RUN,
+                RunClassification = RunClassification.Initial,
                 CreatedAt = DateTime.Parse("21/06/2024 12:09:00", new CultureInfo("en-GB")),
                 RelativeYear = new RelativeYear(2024),
             };
@@ -244,7 +244,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
             {
                 RunId = 1,
                 RunName = "Test Run",
-                RunClassification = RunClassification.RUNNING,
+                RunClassification = RunClassification.Running,
                 CreatedAt = DateTime.Parse("21/06/2024 12:09:00", new CultureInfo("en-GB")),
                 RelativeYear = new RelativeYear(2024),
             };
@@ -254,18 +254,18 @@ namespace EPR.Calculator.Frontend.UnitTests.Mocks
         {
             return
             [
-                new() { RunId = 1, RunClassification = Enums.RunClassification.QUEUE,        RunName = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
-                new() { RunId = 2, RunClassification = Enums.RunClassification.RUNNING,      RunName = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
-                new() { RunId = 3, RunClassification = Enums.RunClassification.UNCLASSIFIED, RunName = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
-                new() { RunId = 4, RunClassification = Enums.RunClassification.TEST_RUN,     RunName = "June check", CreatedAt = DateTime.Parse("11/06/2025 09:14:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
-                new() { RunId = 5, RunClassification = Enums.RunClassification.TEST_RUN,     RunName = "Pre June check", CreatedAt = DateTime.Parse("13/06/2025 11:18:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
-                new() { RunId = 6, RunClassification = Enums.RunClassification.TEST_RUN,     RunName = "Local Authority data check 5", CreatedAt = DateTime.Parse("10/06/2025 08:13:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
-                new() { RunId = 7, RunClassification = Enums.RunClassification.TEST_RUN,     RunName = "Local Authority data check 4", CreatedAt = DateTime.Parse("10/06/2025 10:14:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
-                new() { RunId = 8, RunClassification = Enums.RunClassification.TEST_RUN,     RunName = "Local Authority data check 3", CreatedAt = DateTime.Parse("08/06/2025 10:00:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
-                new() { RunId = 9, RunClassification = Enums.RunClassification.TEST_RUN,     RunName = "Local Authority data check 2", CreatedAt = DateTime.Parse("06/06/2025 11:20:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
-                new() { RunId = 10,RunClassification = Enums.RunClassification.TEST_RUN,     RunName = "Local Authority data check", CreatedAt = DateTime.Parse("02/06/2025 12:02:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
-                new() { RunId = 11,RunClassification = Enums.RunClassification.ERROR,        RunName = "Fee adjustment check", CreatedAt = DateTime.Parse("01/06/2025 09:12:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
-                new() { RunId = 12,RunClassification = Enums.RunClassification.DELETED,      RunName = "Deleted Run", CreatedAt = DateTime.Parse("01/06/2025 09:12:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) }
+                new() { RunId = 1, RunClassification = RunClassification.Running,        RunName = "Default cettings check", CreatedAt = DateTime.Parse("28/06/2025 10:01:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
+                new() { RunId = 2, RunClassification = RunClassification.Running,      RunName = "Alteration check", CreatedAt = DateTime.Parse("28/06/2025 12:19:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
+                new() { RunId = 3, RunClassification = RunClassification.Unclassified, RunName = "Test 10", CreatedAt = DateTime.Parse("21/06/2025 12:09:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
+                new() { RunId = 4, RunClassification = RunClassification.Test,     RunName = "June check", CreatedAt = DateTime.Parse("11/06/2025 09:14:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
+                new() { RunId = 5, RunClassification = RunClassification.Test,     RunName = "Pre June check", CreatedAt = DateTime.Parse("13/06/2025 11:18:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
+                new() { RunId = 6, RunClassification = RunClassification.Test,     RunName = "Local Authority data check 5", CreatedAt = DateTime.Parse("10/06/2025 08:13:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
+                new() { RunId = 7, RunClassification = RunClassification.Test,     RunName = "Local Authority data check 4", CreatedAt = DateTime.Parse("10/06/2025 10:14:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
+                new() { RunId = 8, RunClassification = RunClassification.Test,     RunName = "Local Authority data check 3", CreatedAt = DateTime.Parse("08/06/2025 10:00:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
+                new() { RunId = 9, RunClassification = RunClassification.Test,     RunName = "Local Authority data check 2", CreatedAt = DateTime.Parse("06/06/2025 11:20:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
+                new() { RunId = 10,RunClassification = RunClassification.Test,     RunName = "Local Authority data check", CreatedAt = DateTime.Parse("02/06/2025 12:02:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
+                new() { RunId = 11,RunClassification = RunClassification.Errored,        RunName = "Fee adjustment check", CreatedAt = DateTime.Parse("01/06/2025 09:12:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) },
+                new() { RunId = 12,RunClassification = RunClassification.Deleted,      RunName = "Deleted Run", CreatedAt = DateTime.Parse("01/06/2025 09:12:00", new CultureInfo("en-GB")), CreatedBy = "Jamie Roberts", RelativeYear = new RelativeYear(2024) }
             ];
         }
 

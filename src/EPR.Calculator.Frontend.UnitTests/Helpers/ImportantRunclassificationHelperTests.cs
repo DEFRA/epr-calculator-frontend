@@ -1,114 +1,204 @@
-﻿using EPR.Calculator.Frontend.Enums;
+﻿using System.Collections.Immutable;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
+using EPR.Calculator.Frontend.ViewModels;
 
-namespace EPR.Calculator.Frontend.UnitTests.Helpers
+namespace EPR.Calculator.Frontend.UnitTests.Helpers;
+
+[TestClass]
+public class ImportantRunClassificationHelperTests
 {
-    [TestClass]
-    public class ImportantRunClassificationHelperTests
+    private static readonly ImmutableList<RunClassification> DefaultAvailableClassifications =
+        [RunClassification.Initial, RunClassification.Recalculation, RunClassification.Test];
+
+    [DataTestMethod]
+    [DataRow(RunClassification.Initial)]
+    [DataRow(RunClassification.Recalculation)]
+    public void CreateNotificationViewModel_OnlyTestAvailableWithIncompleteOfficialRun_ReturnsTestOnlyIncompleted(
+        RunClassification incompleteClassification)
     {
-        [DataTestMethod]
-        [DataRow(RunClassification.INITIAL_RUN, 101)]
-        [DataRow(RunClassification.INTERIM_RECALCULATION_RUN, 102)]
-        [DataRow(RunClassification.FINAL_RECALCULATION_RUN, 103)]
-        [DataRow(RunClassification.FINAL_RUN, 104)]
-        public void ShouldSetIsAnyRunInProgressWhenActiveRunExists(RunClassification classification, int runId)
-        {
-            var runs = new List<CalculatorRunDto>
+        // Arrange
+        var incompleteRun = CreateRun(incompleteClassification, runId: 101, updatedAt: new DateTime(2025, 6, 1));
+        ImmutableList<CalculatorRunDto> classifiedRuns = [incompleteRun];
+
+        // Act
+        var result = CreateNotificationViewModel(classifiedRuns, availableClassifications: [RunClassification.Test]);
+
+        // Assert
+        Assert.AreEqual(ImportantSectionViewModel.NotificationType.TestOnlyIncompleted, result.Notification);
+        Assert.AreEqual(incompleteRun.RunId, result.IncompleteOfficialRunId);
+    }
+
+    [TestMethod]
+    public void CreateNotificationViewModel_OnlyTestAvailableWithNoOfficialRuns_ReturnsTestOnlyOutdated()
     {
-        CreateRun(classification, DateTime.UtcNow, runId)
-    };
+        // Arrange
+        var relativeYear = new RelativeYear(2025);
+        ImmutableList<CalculatorRunDto> classifiedRuns =
+        [
+            CreateRun(RunClassification.Test, runId: 1),
+            CreateRun(RunClassification.Unclassified, runId: 2)
+        ];
 
-            var result = ImportantRunClassificationHelper.CreateclassificationViewModel(runs, new RelativeYear(2025));
+        // Act
+        var result = CreateNotificationViewModel(
+            classifiedRuns,
+            availableClassifications: [RunClassification.Test],
+            relativeYear: relativeYear);
 
-            Assert.IsTrue(result.IsAnyRunInProgress);
-            Assert.IsTrue(result.HasAnyDesigRun);
-            Assert.AreEqual(runId, result.RunIdInProgress);
-        }
+        // Assert
+        Assert.AreEqual(ImportantSectionViewModel.NotificationType.TestOnlyOutdated, result.Notification);
+        Assert.IsNull(result.IncompleteOfficialRunId);
+        Assert.AreEqual(relativeYear, result.RelativeYear);
+    }
 
-        [TestMethod]
-        public void Should_Set_InterimRunCompletedMessage_When_InterimRunCompletedExists()
-        {
-            var date = new DateTime(2025, 5, 1);
-            var runs = new List<CalculatorRunDto>
+    [DataTestMethod]
+    [DataRow(RunClassification.InitialCompleted)]
+    [DataRow(RunClassification.RecalculationCompleted)]
+    public void CreateNotificationViewModel_OfficialRunCompleted_ReturnsAlreadyCompletedWithSentDate(
+        RunClassification completedClassification)
     {
-        CreateRun(RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED, date)
-    };
+        // Arrange
+        var sentAt = new DateTime(2025, 5, 1);
+        ImmutableList<CalculatorRunDto> classifiedRuns = [CreateRun(completedClassification, sentAt: sentAt)];
 
-            var result = ImportantRunClassificationHelper.CreateclassificationViewModel(runs, new RelativeYear(2025));
+        // Act
+        var result = CreateNotificationViewModel(classifiedRuns);
 
-            Assert.IsTrue(result.IsDisplayInterimRun);
-            StringAssert.Contains(result.IsDisplayInterimRunMessage, "01 May 2025");
-        }
+        // Assert
+        Assert.AreEqual(ImportantSectionViewModel.NotificationType.AlreadyCompleted, result.Notification);
 
-        [TestMethod]
-        public void Should_Set_FinalRecalculationRunCompletedMessage_When_Exists()
-        {
-            var date = new DateTime(2025, 6, 1);
-            var runs = new List<CalculatorRunDto>
+        var completedAt = completedClassification == RunClassification.InitialCompleted
+            ? result.InitialRunCompletedAt
+            : result.RecalculationCompletedAt;
+
+        Assert.AreEqual(sentAt, completedAt);
+    }
+
+    [TestMethod]
+    public void CreateNotificationViewModel_BothOfficialRunTypesCompleted_SetsBothCompletionDatesIndependently()
     {
-        CreateRun(RunClassification.FINAL_RECALCULATION_RUN_COMPLETED, date)
-    };
+        // Arrange
+        var initialSentAt = new DateTime(2025, 4, 1);
+        var recalculationSentAt = new DateTime(2025, 5, 1);
+        ImmutableList<CalculatorRunDto> classifiedRuns =
+        [
+            CreateRun(RunClassification.InitialCompleted, runId: 1, sentAt: initialSentAt),
+            CreateRun(RunClassification.RecalculationCompleted, runId: 2, sentAt: recalculationSentAt)
+        ];
 
-            var result = ImportantRunClassificationHelper.CreateclassificationViewModel(runs, new RelativeYear(2025));
+        // Act
+        var result = CreateNotificationViewModel(classifiedRuns);
 
-            Assert.IsTrue(result.IsDisplayFinalRecallRun);
-            StringAssert.Contains(result.IsDisplayFinalRecallRunMessage, "01 Jun 2025");
-        }
+        // Assert
+        Assert.AreEqual(ImportantSectionViewModel.NotificationType.AlreadyCompleted, result.Notification);
+        Assert.AreEqual(initialSentAt, result.InitialRunCompletedAt);
+        Assert.AreEqual(recalculationSentAt, result.RecalculationCompletedAt);
+    }
 
-        [TestMethod]
-        public void Should_Set_FinalRunCompletedMessage_And_FallbackFinalRecallMessage_When_FinalRunExistsOnly()
-        {
-            var date = new DateTime(2025, 7, 1);
-            var runs = new List<CalculatorRunDto>
+    [TestMethod]
+    public void CreateNotificationViewModel_MultipleCompletedRunsOfSameType_UsesMostRecentlySentBillingFile()
     {
-        CreateRun(RunClassification.FINAL_RUN_COMPLETED, date)
-    };
+        // Arrange
+        var earlierSentButLaterUpdated = CreateRun(
+            RunClassification.RecalculationCompleted,
+            runId: 1,
+            updatedAt: new DateTime(2025, 6, 1),
+            sentAt: new DateTime(2025, 1, 1));
 
-            var result = ImportantRunClassificationHelper.CreateclassificationViewModel(runs, new RelativeYear(2025));
+        var laterSentButEarlierUpdated = CreateRun(
+            RunClassification.RecalculationCompleted,
+            runId: 2,
+            updatedAt: new DateTime(2025, 1, 1),
+            sentAt: new DateTime(2025, 3, 1));
 
-            Assert.IsTrue(result.IsDisplayFinalRun);
-            Assert.IsTrue(result.IsDisplayFinalRecallRun); // fallback
-            StringAssert.Contains(result.IsDisplayFinalRunMessage, "01 Jul 2025");
-            Assert.AreEqual("Not available after final run.", result.IsDisplayFinalRecallRunMessage);
-        }
+        ImmutableList<CalculatorRunDto> classifiedRuns = [earlierSentButLaterUpdated, laterSentButEarlierUpdated];
 
-        [TestMethod]
-        public void Should_Set_InitialRunCompletedMessage_When_InitialRunCompletedExists()
-        {
-            // Arrange
-            var relativeYear = new RelativeYear(2025);
-            var updatedAt = new DateTime(2025, 4, 1);
-            var runs = new List<CalculatorRunDto>
+        // Act
+        var result = CreateNotificationViewModel(classifiedRuns);
+
+        // Assert
+        Assert.AreEqual(new DateTime(2025, 3, 1), result.RecalculationCompletedAt);
+    }
+
+    [TestMethod]
+    public void CreateNotificationViewModel_IncompleteOfficialRunBlocksNewOfficialClassification_TakesPriorityOverAlreadyCompleted()
     {
-        new CalculatorRunDto
+        // Arrange
+        var initialSentAt = new DateTime(2025, 1, 1);
+        var completedInitialRun = CreateRun(RunClassification.InitialCompleted, runId: 1, updatedAt: initialSentAt, sentAt: initialSentAt);
+        var incompleteRecalculationRun = CreateRun(RunClassification.Recalculation, runId: 2, updatedAt: new DateTime(2025, 6, 1));
+        ImmutableList<CalculatorRunDto> classifiedRuns = [completedInitialRun, incompleteRecalculationRun];
+
+        // Act
+        var result = CreateNotificationViewModel(classifiedRuns, availableClassifications: [RunClassification.Test]);
+
+        // Assert
+        Assert.AreEqual(ImportantSectionViewModel.NotificationType.TestOnlyIncompleted, result.Notification);
+        Assert.AreEqual(incompleteRecalculationRun.RunId, result.IncompleteOfficialRunId);
+        Assert.AreEqual(initialSentAt, result.InitialRunCompletedAt);
+    }
+
+    [TestMethod]
+    public void CreateNotificationViewModel_MostRecentlyUpdatedOfficialRunIrrespectiveOfListOrder_IsUsedAsIncompleteOfficialRunId()
+    {
+        // Arrange
+        var oldest = CreateRun(RunClassification.Initial, runId: 1, updatedAt: new DateTime(2025, 1, 1));
+        var mostRecent = CreateRun(RunClassification.Recalculation, runId: 2, updatedAt: new DateTime(2025, 3, 1));
+        var middle = CreateRun(RunClassification.Initial, runId: 3, updatedAt: new DateTime(2025, 2, 1));
+        ImmutableList<CalculatorRunDto> classifiedRuns = [oldest, mostRecent, middle];
+
+        // Act
+        var result = CreateNotificationViewModel(classifiedRuns);
+
+        // Assert
+        Assert.AreEqual(mostRecent.RunId, result.IncompleteOfficialRunId);
+    }
+
+    [TestMethod]
+    public void CreateNotificationViewModel_NoOfficialRunsAndMultipleClassificationsAvailable_ReturnsNoNotification()
+    {
+        // Arrange
+        var relativeYear = new RelativeYear(2026);
+        ImmutableList<CalculatorRunDto> classifiedRuns = [CreateRun(RunClassification.Test, runId: 1)];
+
+        // Act
+        var result = CreateNotificationViewModel(classifiedRuns, relativeYear: relativeYear);
+
+        // Assert
+        Assert.AreEqual(ImportantSectionViewModel.NotificationType.None, result.Notification);
+        Assert.IsNull(result.IncompleteOfficialRunId);
+        Assert.IsNull(result.InitialRunCompletedAt);
+        Assert.IsNull(result.RecalculationCompletedAt);
+        Assert.AreEqual(relativeYear, result.RelativeYear);
+    }
+
+    private static ImportantSectionViewModel CreateNotificationViewModel(
+        ImmutableList<CalculatorRunDto> classifiedRuns,
+        ImmutableList<RunClassification>? availableClassifications = null,
+        RelativeYear? relativeYear = null) =>
+        ImportantRunClassificationHelper.CreateNotificationViewModel(
+            availableClassifications ?? DefaultAvailableClassifications,
+            classifiedRuns,
+            relativeYear ?? new RelativeYear(2025));
+
+    private static CalculatorRunDto CreateRun(
+        RunClassification classification,
+        int runId = 1,
+        DateTime? updatedAt = null,
+        DateTime? sentAt = null)
+    {
+        var effectiveUpdatedAt = updatedAt ?? sentAt ?? new DateTime(2025, 1, 1);
+
+        return new CalculatorRunDto
         {
-            RunClassification = RunClassification.INITIAL_RUN_COMPLETED,
-            UpdatedAt = updatedAt,
-            RunId = 1,
-            RunName = "Initial Run Completed",
-            CreatedAt = updatedAt.AddDays(-1)
-        }
-    };
-
-            // Act
-            var result = ImportantRunClassificationHelper.CreateclassificationViewModel(runs, relativeYear);
-
-            // Assert
-            Assert.IsTrue(result.IsDisplayInitialRun);
-            StringAssert.Contains(result.IsDisplayInitialRunMessage, "Already completed for financial year 2025 on 01 Apr 2025");
-        }
-
-        private static CalculatorRunDto CreateRun(RunClassification classification, DateTime updatedAt, int runId = 1)
-        {
-            return new CalculatorRunDto
-            {
-                RunClassification = classification,
-                UpdatedAt = updatedAt,
-                RunId = runId,
-                RunName = "Test Run",
-                CreatedAt = updatedAt.AddDays(-1)
-            };
-        }
+            RunId = runId,
+            RunName = $"Run {runId}",
+            RunClassification = classification,
+            CreatedAt = effectiveUpdatedAt.AddDays(-1),
+            UpdatedAt = effectiveUpdatedAt,
+            BillingFile = sentAt is null ? null : new CalculatorRunDto.BillingFileDto { SentAt = sentAt },
+        };
     }
 }

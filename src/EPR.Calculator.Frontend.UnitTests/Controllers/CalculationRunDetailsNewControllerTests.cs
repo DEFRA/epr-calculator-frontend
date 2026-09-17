@@ -32,7 +32,7 @@ public class CalculationRunDetailsNewControllerTests
     {
         // Arrange
         var runId = fixture.Create<int>();
-        SetupGetCalculatorRun(runId, new CalculatorRunDto { RunId = runId, RunClassification = RunClassification.UNCLASSIFIED });
+        SetupGetCalculatorRun(runId, new CalculatorRunDto { RunId = runId, RunClassification = RunClassification.Unclassified });
         var controller = BuildController();
 
         // Act
@@ -69,7 +69,7 @@ public class CalculationRunDetailsNewControllerTests
     {
         // Arrange
         var runId = fixture.Create<int>();
-        SetupGetCalculatorRun(runId, new CalculatorRunDto { RunId = runId, RunClassification = RunClassification.ERROR });
+        SetupGetCalculatorRun(runId, new CalculatorRunDto { RunId = runId, RunClassification = RunClassification.Errored });
         var controller = BuildController();
 
         // Act
@@ -86,7 +86,7 @@ public class CalculationRunDetailsNewControllerTests
     {
         // Arrange
         var runId = fixture.Create<int>();
-        SetupGetCalculatorRun(runId, new CalculatorRunDto { RunId = runId, RunClassification = RunClassification.UNCLASSIFIED });
+        SetupGetCalculatorRun(runId, new CalculatorRunDto { RunId = runId, RunClassification = RunClassification.Unclassified });
         var controller = BuildController();
         controller.ModelState.AddModelError("key", "model error");
 

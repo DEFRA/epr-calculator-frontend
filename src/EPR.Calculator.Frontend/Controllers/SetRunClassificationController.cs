@@ -1,7 +1,5 @@
-using System.Globalization;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Enums;
-using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
@@ -48,7 +46,7 @@ public class SetRunClassificationController(
             body: new ClassificationDto
             {
                 RunId = model.RunId,
-                ClassificationId = (int)model.ClassifyRunType!
+                Classification = model.ClassifyRunType!.Value
             });
 
         if (!result.IsSuccessStatusCode)
@@ -67,24 +65,21 @@ public class SetRunClassificationController(
         if (run == null)
             return null;
 
-        var classificationsForRelativeYear = await eprCalculatorApiService.Get<RelativeYearClassificationResponseDto>("v1/ClassificationByRelativeYear", new Dictionary<string, string?>
-        {
-            ["RunId"] = run.RunId.ToString(),
-            ["RelativeYearValue"] = run.RelativeYear.ToString()
-        });
+        var response = await eprCalculatorApiService.Get<RelativeYearClassificationResponseDto>(
+            "v1/ClassificationByRelativeYear",
+            new Dictionary<string, string?>
+            {
+                ["RunId"] = run.RunId.ToString(),
+                ["RelativeYearValue"] = run.RelativeYear.ToString()
+            });
 
-        if (classificationsForRelativeYear == null)
+        if (response == null)
             return null;
 
-        SetStatusDescriptions(classificationsForRelativeYear.Classifications);
-
-        var importantSection = ImportantRunClassificationHelper.CreateclassificationViewModel(
-            classificationsForRelativeYear.ClassifiedRuns,
+        var importantSection = ImportantRunClassificationHelper.CreateNotificationViewModel(
+            response.Classifications,
+            response.ClassifiedRuns,
             run.RelativeYear);
-
-        if (classificationsForRelativeYear.Classifications.Count == 1 &&
-            classificationsForRelativeYear.Classifications.Exists(x => x.Id == (int)RunClassification.TEST_RUN) && !importantSection.IsAnyRunInProgress)
-            importantSection.IsDisplayTestRun = true;
 
         return new SetRunClassificationViewModel
         {
@@ -94,43 +89,8 @@ public class SetRunClassificationController(
             RelativeYear = run.RelativeYear,
             CreatedAt = run.CreatedAt,
             CreatedBy = run.CreatedBy,
-            RelativeYearClassifications = classificationsForRelativeYear,
+            RelativeYearClassifications = response,
             ImportantViewModel = importantSection
-        };
-    }
-
-    private static void SetStatusDescriptions(List<CalculatorRunClassificationDto> model)
-    {
-        foreach (var classification in model)
-        {
-            classification.Description = GetStatusDescription(classification.Id);
-            classification.Status = GetStatus(classification);
-        }
-
-        static string GetStatusDescription(int classificationId)
-        {
-            return classificationId switch
-            {
-                (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunDescription,
-                (int)RunClassification.TEST_RUN => CommonConstants.TestRunDescription,
-                (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunDescription,
-                (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunDescription,
-                (int)RunClassification.FINAL_RUN => CommonConstants.FinalRecalculationRunDescription,
-                _ => string.Empty
-            };
-        }
-    }
-
-    private static string GetStatus(CalculatorRunClassificationDto classificationDto)
-    {
-        return classificationDto.Id switch
-        {
-            (int)RunClassification.INITIAL_RUN => CommonConstants.InitialRunStatus,
-            (int)RunClassification.TEST_RUN => CommonConstants.TestRunStatus,
-            (int)RunClassification.INTERIM_RECALCULATION_RUN => CommonConstants.InterimRunStatus,
-            (int)RunClassification.FINAL_RECALCULATION_RUN => CommonConstants.FinalRecalculationRunStatus,
-            (int)RunClassification.FINAL_RUN => CommonConstants.FinalRunStatus,
-            _ => new CultureInfo("en-GB", false).TextInfo.ToFirstLetterCap(classificationDto.Status)
         };
     }
 }
