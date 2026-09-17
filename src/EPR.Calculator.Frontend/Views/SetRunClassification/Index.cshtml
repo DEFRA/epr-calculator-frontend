@@ -1,3 +1,4 @@
+@using EPR.Calculator.Frontend.Enums
 @using EPR.Calculator.Frontend.Extensions
 @using EPR.Calculator.Frontend.Helpers
 @model SetRunClassificationViewModel
@@ -19,7 +20,7 @@
                 <partial name="_ValidationSummaryPartial" />
 
                 <div class="govuk-form-group">
-                    <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
+                    <fieldset class="govuk-fieldset govuk-!-margin-bottom-8" aria-describedby="approval-code-hint">
                         <legend></legend>
                         <span id="approval-code-hint" class="govuk-caption-l">@Model.RunName</span>
                         <h1 class="govuk-heading-l">Classify calculation run</h1>
@@ -29,18 +30,18 @@
                                 Details of the calculation run including financial year, calculation ID, run date, and time.
                             </caption>
                             <tbody class="govuk-table__body">
-                                <tr class="govuk-table__row">
-                                    <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@Model.RelativeYear.ToFinancialYear()</td>
-                                </tr>
-                                <tr class="govuk-table__row">
-                                    <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                    <td class="govuk-table__cell">@Model.RunId</td>
-                                </tr>
-                                <tr class="govuk-table__row">
-                                    <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@Model.CreatedAt.DisplayAsDateAtTime()</td>
-                                </tr>
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__header">Financial year</th>
+                                <td class="govuk-table__cell">@Model.RelativeYear.ToFinancialYear()</td>
+                            </tr>
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__header">Calculation ID</th>
+                                <td class="govuk-table__cell">@Model.RunId</td>
+                            </tr>
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__header">Run date and time</th>
+                                <td class="govuk-table__cell">@Model.CreatedAt.DisplayAsDateAtTime()</td>
+                            </tr>
                             </tbody>
                         </table>
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--invisible">
@@ -54,113 +55,85 @@
                                 <div class="govuk-radios" data-module="govuk-radios">
                                     @if(Model.RelativeYearClassifications.Classifications.Any())
                                     {
-                                        @foreach (CalculatorRunClassificationDto classfication in Model.RelativeYearClassifications.Classifications)
+                                        @foreach (var classification in Model.RelativeYearClassifications.Classifications.OrderBy(c => c.ToString()))
                                         {
-                                          <div class="govuk-radios__item">
-                                                @Html.RadioButtonFor(model => model.ClassifyRunType, classfication.Id, new { @class = "govuk-radios__input", id = classfication.Status })
-                                            <label class="govuk-label govuk-radios__label" for="@classfication.Status">
-                                                    <strong>@classfication.Status</strong><br />
-                                                <p class="govuk-body-s govuk-!-margin-bottom-0">
-                                                        @classfication.Description
-                                                </p>
-                                            </label>
-                                          </div>
+                                            <div class="govuk-radios__item">
+                                                @Html.RadioButtonFor(model => model.ClassifyRunType, (int) classification, new { @class = "govuk-radios__input", id = $"Radio_{classification}" })
+                                                <label class="govuk-label govuk-radios__label" for="@($"Radio_{classification}")">
+                                                    <strong>@classification.DisplayLabel</strong><br />
+                                                    <p class="govuk-body-s govuk-!-margin-bottom-0">
+                                                        @classification.Description
+                                                    </p>
+                                                </label>
+                                            </div>
                                         }
                                     }
                                 </div>
                             </fieldset>
                         </div>
                     </fieldset>
-                    <br />
-                    <div id="divNotification" class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title-classify-final" data-module="govuk-notification-banner">
-                        <div id="divNotificationHeader" class="govuk-notification-banner__header">
-                            <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title-classify-final">
-                                Important
-                            </h2>
+
+                    @if (Model.ImportantViewModel.Notification != ImportantSectionViewModel.NotificationType.None)
+                    {
+                        <div id="divNotification" class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title-classify-final" data-module="govuk-notification-banner">
+                            <div id="divNotificationHeader" class="govuk-notification-banner__header">
+                                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title-classify-final">
+                                    Important
+                                </h2>
+                            </div>
+
+                            <div class="govuk-notification-banner__content">
+                                @switch (Model.ImportantViewModel.Notification)
+                                {
+                                    case ImportantSectionViewModel.NotificationType.TestOnlyIncompleted:
+                                        <p class="govuk-body-s">
+                                            Run <b>@Model.ImportantViewModel.IncompleteOfficialRunId</b> is already classified,
+                                            but its billing file has not yet been sent to the FSS.
+                                        </p>
+                                        <p class="govuk-body-s">
+                                            Until that run is completed, you may only classify this as a test run.
+                                        </p>
+                                        <p class="govuk-body-s">
+                                            If you want to make this an official run that can generate a billing file, you will
+                                            need to either send the billing file for the run <b>@Model.ImportantViewModel.IncompleteOfficialRunId</b>
+                                            to the FSS or remove the run's classification.
+                                        </p>
+                                        break;
+                                    case ImportantSectionViewModel.NotificationType.TestOnlyOutdated:
+                                        <p class="govuk-body-s">
+                                            <b>Test run</b>
+                                        </p>
+                                        <p class="govuk-body-s">
+                                            This run is out of date, the invoice position used for this run has been superseded
+                                            through the classification of other runs as designated runs in this financial year.
+                                            The classification as a Test run is the only option available.
+                                        </p>
+                                        break;
+                                    case ImportantSectionViewModel.NotificationType.AlreadyCompleted:
+                                        @if (Model.ImportantViewModel.InitialRunCompletedAt != null)
+                                        {
+                                            <p class="govuk-body-s">
+                                                <strong>Initial run</strong><br/>
+                                                Already completed for financial year @Model.ImportantViewModel.RelativeYear
+                                                on @Model.ImportantViewModel.InitialRunCompletedAt.Value.ToString("dd MMM yyyy")
+                                            </p>
+                                        }
+
+                                        @if (Model.ImportantViewModel.RecalculationCompletedAt != null)
+                                        {
+                                            <p class="govuk-body-s">
+                                                <strong>Re-calculation run</strong><br/>
+                                                Already completed for financial year @Model.ImportantViewModel.RelativeYear
+                                                on @Model.ImportantViewModel.RecalculationCompletedAt.Value.ToString("dd MMM yyyy")
+                                            </p>
+                                        }
+
+                                        break;
+                                }
+                            </div>
                         </div>
-                        @if (Model.ImportantViewModel.HasAnyDesigRun && !Model.ImportantViewModel.IsAnyRunInProgress && !Model.ImportantViewModel.IsDisplayTestRun)
-                        {
-                            <div id="divNotificationContent" class="govuk-notification-banner__content">
+                    }
 
-                                @if (Model.ImportantViewModel.IsDisplayInitialRun)
-                                {
-                                    <p id="pNotificationContent" class="govuk-body-s">
-                                        <strong>Initial run</strong><br />
-                                        @Model.ImportantViewModel.IsDisplayInitialRunMessage
-                                    </p>
-                                }
-
-                                @if (Model.ImportantViewModel.IsDisplayInterimRun)
-                                {
-
-                                    <p id="pNotificationContentInteremRun" class="govuk-body-s">
-                                        <strong>Interim re-calculation run</strong><br />
-                                        @Model.ImportantViewModel.IsDisplayInterimRunMessage
-                                    </p>
-                                }
-
-                                @if (Model.ImportantViewModel.IsDisplayFinalRecallRun)
-                                {
-
-                                    <p id="pNotificationContentFinalRecalRun" class="govuk-body-s">
-                                        <strong>Final re-calculation run</strong><br />
-                                        @Model.ImportantViewModel.IsDisplayFinalRecallRunMessage
-                                    </p>
-                                }
-
-                                @if (Model.ImportantViewModel.IsDisplayFinalRun)
-                                {
-                                    <p id="pNotificationContentFinalRun" class="govuk-body-s">
-                                        <strong>Final run</strong><br />
-                                        @Model.ImportantViewModel.IsDisplayFinalRunMessage
-                                    </p>
-                                }
-                            </div>
-}
-                        else if (Model.ImportantViewModel.IsAnyRunInProgress)
-                        {
-                            <div id="divNotificationContent" class="govuk-notification-banner__content">
-                                <p id="pNotificationContent" class="govuk-body-s">
-                                    Run <b>@Model.ImportantViewModel.RunIdInProgress</b> is already classified, but its billing file has not yet been sent to the FSS.
-                                    </p>
-                                    <p id="pNotificationContent" class="govuk-body-s">
-                                    While that run is still active, you can only create test runs.
-                                    </p>
-                                <p id="pNotificationContent" class="govuk-body-s">
-                                    If you want to make this an official run that can generate a billing file, you will need to either send the  billing file for the run <b>@Model.ImportantViewModel.RunIdInProgress</b> to the FSS or remove the run's classification.
-                                </p>
-                            </div>
-                        }
-                        else if (Model.ImportantViewModel.IsDisplayTestRun)
-                        {
-                           <div id="divNotificationContent" class="govuk-notification-banner__content">
-                                <p id="pNotificationContent" class="govuk-body-s">
-                                     <b>Test run</b>
-                                </p>
-                                <p id="pNotificationContent" class="govuk-body-s">
-                                    This run is out of date, the invoice position used for this run has been superseded through the classification of other runs as designated runs in this financial year . The classification as a Test run is the only option available.
-                                </p>
-                                </div>
-
-                        }
-                        else
-                        {
-                            <div id="divNotificationContent" class="govuk-notification-banner__content">
-                                <p id="pNotificationContent" class="govuk-body-s">
-                                    <strong>Interim recalculation run</strong><br />
-                                    An optional run, only available after the initial run.
-                                </p>
-                                <p id="pNotificationContentReclacRun" class="govuk-body-s">
-                                    <strong>Final recalculation run</strong><br />
-                                    An optional run, only available if no other final recalculation or later run has been classified this year.
-                                </p>
-                                <p id="pNotificationContentFinalRun" class="govuk-body-s">
-                                    <strong>Final run</strong><br />
-                                    A mandatory run, only available if no other final run or later run has been classified this year.
-                                </p>
-                            </div>
-                        }
-                    </div>
                     <div class="govuk-warning-text">
                         <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
                         <strong class="govuk-warning-text__text">

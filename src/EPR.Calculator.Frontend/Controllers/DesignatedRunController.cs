@@ -25,11 +25,9 @@ public class DesignatedRunController(IEprCalculatorApiService eprCalculatorApiSe
     private static bool IsRunEligibleForDisplay(CalculatorRunDto runDto)
     {
         return runDto.RunClassification
-            is RunClassification.INITIAL_RUN
-            or RunClassification.INTERIM_RECALCULATION_RUN
-            or RunClassification.FINAL_RUN
-            or RunClassification.FINAL_RECALCULATION_RUN
-            or RunClassification.TEST_RUN;
+            is RunClassification.Initial
+            or RunClassification.Recalculation
+            or RunClassification.Test;
     }
 
     private async Task<ClassifyRunConfirmationViewModel?> CreateViewModel(int runId)

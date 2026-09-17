@@ -55,10 +55,9 @@ public class DashboardControllerTests
         apiService
             .Setup(service => service.FindCalculatorRuns(It.IsAny<RelativeYear>()))
             .ReturnsAsync([
-                BuildRun(1, RunClassification.RUNNING),
-                BuildRun(2, RunClassification.TEST_RUN),
-                BuildRun(3, RunClassification.DELETED),
-                BuildRun(4, RunClassification.QUEUE)
+                BuildRun(1, RunClassification.Running),
+                BuildRun(2, RunClassification.Test),
+                BuildRun(3, RunClassification.Deleted)
             ]);
 
         var controller = BuildController();
@@ -84,7 +83,7 @@ public class DashboardControllerTests
         apiService
             .Setup(service => service.FindCalculatorRuns(It.IsAny<RelativeYear>()))
             .ReturnsAsync([
-                BuildRun(5, RunClassification.ERROR)
+                BuildRun(5, RunClassification.Errored)
             ]);
 
         var controller = BuildController();
@@ -99,7 +98,7 @@ public class DashboardControllerTests
         Assert.IsNotNull(model.Calculations);
 
         var calculation = model.Calculations.Single();
-        Assert.AreEqual(RunClassification.ERROR, calculation.RunClassification);
+        Assert.AreEqual(RunClassification.Errored, calculation.RunClassification);
         Assert.IsTrue(calculation.ShowErrorLink);
     }
 
@@ -112,7 +111,7 @@ public class DashboardControllerTests
         apiService
             .Setup(service => service.FindCalculatorRuns(It.IsAny<RelativeYear>()))
             .ReturnsAsync([
-                BuildRun(runId, RunClassification.INITIAL_RUN_COMPLETED)
+                BuildRun(runId, RunClassification.InitialCompleted)
             ]);
 
         var controller = BuildController();
@@ -146,7 +145,7 @@ public class DashboardControllerTests
         apiService
             .Setup(service => service.FindCalculatorRuns(It.IsAny<RelativeYear>()))
             .ReturnsAsync([
-                BuildRun(21, RunClassification.TEST_RUN)
+                BuildRun(21, RunClassification.Test)
             ]);
 
         var controller = BuildController();

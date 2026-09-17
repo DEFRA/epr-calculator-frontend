@@ -84,7 +84,7 @@ public class RemoveClassificationControllerTests
     public async Task Submit_WhenModelStateIsInvalid_ReturnsViewWithRehydratedModel()
     {
         // Arrange
-        var submittedModel = BuildSubmitModel((int)RunClassification.TEST_RUN);
+        var submittedModel = BuildSubmitModel(RunClassification.Test);
         controller.ModelState.AddModelError(nameof(RemoveRunClassificationViewModel.ClassifyRunType), "Required");
         apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync(BuildRun());
 
@@ -112,7 +112,7 @@ public class RemoveClassificationControllerTests
     public async Task Submit_WhenDeleteSelected_RedirectsToCalculationRunDelete()
     {
         // Arrange
-        var model = BuildSubmitModel((int)RunClassification.DELETED);
+        var model = BuildSubmitModel(RunClassification.Deleted);
 
         // Act
         var result = await controller.Submit(model) as RedirectToActionResult;
@@ -135,7 +135,7 @@ public class RemoveClassificationControllerTests
     public async Task Submit_WhenTestRunSelectedAndApiReturnsCreated_RedirectsToClassifyRunConfirmation()
     {
         // Arrange
-        var model = BuildSubmitModel((int)RunClassification.TEST_RUN);
+        var model = BuildSubmitModel(RunClassification.Test);
         apiService
             .Setup(service => service.CallApi(
                 HttpMethod.Put,
@@ -166,7 +166,7 @@ public class RemoveClassificationControllerTests
     public async Task Submit_WhenTestRunSelectedAndApiReturnsNonCreated_RedirectsToStandardError()
     {
         // Arrange
-        var model = BuildSubmitModel((int)RunClassification.TEST_RUN);
+        var model = BuildSubmitModel(RunClassification.Test);
         apiService
             .Setup(service => service.CallApi(
                 HttpMethod.Put,
@@ -196,7 +196,7 @@ public class RemoveClassificationControllerTests
     public async Task Submit_WhenClassificationTypeIsUnexpected_RedirectsToStandardError()
     {
         // Arrange
-        var model = BuildSubmitModel(999);
+        var model = BuildSubmitModel((RunClassification)999);
 
         // Act
         var result = await controller.Submit(model) as RedirectToActionResult;
@@ -214,7 +214,7 @@ public class RemoveClassificationControllerTests
             Times.Never);
     }
 
-    private static RemoveRunClassificationFormModel BuildSubmitModel(int? classifyRunType)
+    private static RemoveRunClassificationFormModel BuildSubmitModel(RunClassification classifyRunType)
     {
         return new RemoveRunClassificationFormModel
         {
@@ -228,7 +228,7 @@ public class RemoveClassificationControllerTests
         return new CalculatorRunDto
         {
             RunId = RunId,
-            RunClassification = RunClassification.UNCLASSIFIED,
+            RunClassification = RunClassification.Unclassified,
             RelativeYear = new RelativeYear(2025),
             RunName = $"Run {RunId}",
             CreatedAt = DateTime.UtcNow,
@@ -242,6 +242,6 @@ public class RemoveClassificationControllerTests
         var dto = body as ClassificationDto;
         return dto != null
                && dto.RunId == RunId
-               && dto.ClassificationId == (int)RunClassification.TEST_RUN;
+               && dto.Classification == RunClassification.Test;
     }
 }
