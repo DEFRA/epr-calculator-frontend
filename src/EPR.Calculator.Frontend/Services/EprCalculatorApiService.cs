@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System.Text.Json;
+using EPR.Calculator.Frontend.Converters;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Identity.Client;
@@ -15,7 +16,7 @@ public interface IEprCalculatorApiService
     Task<List<RelativeYear>> FindRelativeYears();
     Task DeleteCalculatorRun(int runId);
 
-    Task<T?> Get<T>(string relativePath, IDictionary<string, string?>? queryParams = null)
+    Task<T?> Get<T>(string relativePath, IDictionary<string, string?>? queryParams = null, CancellationToken cancellationToken = default)
         where T : class;
 }
 
@@ -26,6 +27,19 @@ public class EprCalculatorApiService(
     ITokenAcquisition tokenAcquisition)
     : IEprCalculatorApiService
 {
+    /// <summary>
+    ///     The serialisation settings to use for every request and response body exchanged with the API.
+    /// </summary>
+    /// <remarks>
+    ///     These are the defaults <see cref="System.Net.Http.Json" /> would apply anyway
+    ///     (<see cref="JsonSerializerDefaults.Web" />), plus <see cref="UtcDateTimeJsonConverter" /> so that
+    ///     timestamps returned without an offset aren't left as <see cref="DateTimeKind.Unspecified" />.
+    /// </remarks>
+    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
+    {
+        Converters = { new UtcDateTimeJsonConverter() },
+    };
+
     private readonly Uri baseUri = new(configuration.GetRequiredSection("EprCalculatorApiService").GetValue<string>("BaseUrl")!);
 
     /// <inheritdoc />
@@ -43,7 +57,7 @@ public class EprCalculatorApiService(
         var request = new HttpRequestMessage(httpMethod, uri);
 
         if (body is not null)
-            request.Content = JsonContent.Create(body);
+            request.Content = JsonContent.Create(body, options: SerializerOptions);
 
         var client = await GetHttpClient();
         return await client.SendAsync(request, cancellationToken);
@@ -67,7 +81,7 @@ public class EprCalculatorApiService(
         response.EnsureSuccessStatusCode();
 
         var calculatorRuns =
-            await response.Content.ReadFromJsonAsync<List<CalculatorRunDto>>() ?? [];
+            await response.Content.ReadFromJsonAsync<List<CalculatorRunDto>>(SerializerOptions) ?? [];
 
         return calculatorRuns.Count > 0;
     }
@@ -80,7 +94,7 @@ public class EprCalculatorApiService(
             queryParams: new Dictionary<string, string?> { ["relativeYear"] = relativeYear.ToString() });
 
         if (response.IsSuccessStatusCode)
-            return await response.Content.ReadFromJsonAsync<List<CalculatorRunDto>>() ?? [];
+            return await response.Content.ReadFromJsonAsync<List<CalculatorRunDto>>(SerializerOptions) ?? [];
 
         logger.LogError("Unable to call `get` `v1/calculatorRuns` from API: {StatusCode}", response.StatusCode);
         return [];
@@ -91,7 +105,7 @@ public class EprCalculatorApiService(
         var response = await CallApi(HttpMethod.Get, "v1/RelativeYears");
 
         if (response.IsSuccessStatusCode)
-            return await response.Content.ReadFromJsonAsync<List<RelativeYear>>() ?? [];
+            return await response.Content.ReadFromJsonAsync<List<RelativeYear>>(SerializerOptions) ?? [];
 
         logger.LogError("Unable to call `get` `v1/RelativeYears` from API: {StatusCode}", response.StatusCode);
         return [];
@@ -103,13 +117,16 @@ public class EprCalculatorApiService(
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task<T?> Get<T>(string relativePath, IDictionary<string, string?>? queryParams = null)
+    public async Task<T?> Get<T>(
+        string relativePath,
+        IDictionary<string, string?>? queryParams = null,
+        CancellationToken cancellationToken = default)
         where T : class
     {
-        var response = await CallApi(HttpMethod.Get, relativePath, queryParams);
+        var response = await CallApi(HttpMethod.Get, relativePath, queryParams, cancellationToken: cancellationToken);
 
         if (response.IsSuccessStatusCode)
-            return await response.Content.ReadFromJsonAsync<T>();
+            return await response.Content.ReadFromJsonAsync<T>(SerializerOptions, cancellationToken: cancellationToken);
 
         return null;
     }

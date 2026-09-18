@@ -1,15 +1,9 @@
-﻿@using System.Globalization
-@model SchemeParametersViewModel;
+﻿@model SchemeParametersViewModel;
 
 <dl class="govuk-summary-list govuk-!-margin-bottom-9">
 
     @if (Model != null)
     {
-        var culture = CultureInfo.CreateSpecificCulture("en-GB");
-        culture.NumberFormat.CurrencySymbol = "£";
-        culture.NumberFormat.CurrencyPositivePattern = 0;
-        culture.NumberFormat.CurrencyGroupSeparator = ",";
-
         foreach (var item in Model.DefaultSchemeParameters)
         {
             <div class="govuk-summary-list__row">
@@ -30,8 +24,8 @@
                         {
                             var precision  = item.ParameterDecimalValue() == 0 ? 0 : 2;
                             var formattedValue = item.ParameterDecimalValue() < 0
-                                ? "-" + Math.Abs(item.ParameterDecimalValue()).ToString($"C{precision}", culture)
-                                : item.ParameterDecimalValue().ToString($"C{precision}", culture);
+                                ? "-" + Math.Abs(item.ParameterDecimalValue()).ToString($"C{precision}")
+                                : item.ParameterDecimalValue().ToString($"C{precision}");
 
                             @formattedValue
                         }

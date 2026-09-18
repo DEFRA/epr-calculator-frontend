@@ -1,6 +1,6 @@
 ﻿namespace EPR.Calculator.Frontend.Models;
 
-public record CreateLapcapDataRequest
+public record SetLapcapDataRequest
 {
     public required string Filename { get; init; }
     public required RelativeYear RelativeYear { get; init; }

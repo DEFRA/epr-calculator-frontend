@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using System.Security.Cryptography;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
@@ -21,6 +22,10 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web.UI;
 using OpenTelemetry.Trace;
+
+var enGb = new CultureInfo("en-GB");
+CultureInfo.DefaultThreadCurrentCulture = enGb;
+CultureInfo.DefaultThreadCurrentUICulture = enGb;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);

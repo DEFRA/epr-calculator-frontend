@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http.Json;
 using System.Security.Claims;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
@@ -49,7 +48,12 @@ public class LocalAuthorityDisposalCostsControllerTests
             BuildDisposalCost(2, "England", "Plastic", 100m),
             BuildDisposalCost(3, "Scotland", "Glass", 200m)
         };
-        SetupApiResponse(HttpStatusCode.OK, localAuthorityDisposalCosts);
+        apiService
+            .Setup(service => service.Get<List<LocalAuthorityDisposalCost>>(
+                $"v1/lapcapData/{SelectedRelativeYear}",
+                It.IsAny<IDictionary<string, string?>?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(localAuthorityDisposalCosts);
         var controller = BuildController(TestUser, SelectedRelativeYear);
 
         // Act
@@ -70,11 +74,9 @@ public class LocalAuthorityDisposalCostsControllerTests
             .ToList();
         CollectionAssert.AreEqual(new[] { "Plastic", MaterialTypes.Other }, englandMaterials);
 
-        apiService.Verify(service => service.CallApi(
-            HttpMethod.Get,
-            ExpectedLapcapPath,
-            It.IsAny<IDictionary<string, string?>>(),
-            It.IsAny<object>(),
+        apiService.Verify(service => service.Get<List<LocalAuthorityDisposalCost>>(
+            $"v1/lapcapData/{SelectedRelativeYear}",
+            It.IsAny<IDictionary<string, string?>?>(),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -82,7 +84,12 @@ public class LocalAuthorityDisposalCostsControllerTests
     public async Task Index_WhenApiReturnsNotFound_ReturnsEmptyViewWithUnknownUserState()
     {
         // Arrange
-        SetupApiResponse(HttpStatusCode.NotFound, "No data available.");
+        apiService
+            .Setup(service => service.Get<List<LocalAuthorityDisposalCost>>(
+                $"v1/lapcapData/{SelectedRelativeYear}",
+                It.IsAny<IDictionary<string, string?>?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((List<LocalAuthorityDisposalCost>?) null);
         var controller = BuildController(null, SelectedRelativeYear);
 
         // Act
@@ -96,39 +103,6 @@ public class LocalAuthorityDisposalCostsControllerTests
         Assert.AreEqual(ErrorMessages.UnknownUser, model.LastUpdatedBy);
         Assert.IsNotNull(model.ByCountry);
         Assert.AreEqual(0, model.ByCountry.Count);
-    }
-
-    [TestMethod]
-    public async Task Index_WhenApiReturnsFailure_RedirectsToStandardError()
-    {
-        // Arrange
-        SetupApiResponse(HttpStatusCode.InternalServerError, "Unexpected error");
-        var controller = BuildController(TestUser, SelectedRelativeYear);
-
-        // Act
-        var result = await controller.Index() as RedirectToActionResult;
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual("Index", result.ActionName);
-        Assert.AreEqual("StandardError", result.ControllerName);
-    }
-
-    private void SetupApiResponse(HttpStatusCode statusCode, object responseBody)
-    {
-        apiService
-            .Setup(service => service.CallApi(
-                It.IsAny<HttpMethod>(),
-                It.IsAny<string>(),
-                It.IsAny<IDictionary<string, string?>>(),
-                It.IsAny<object>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => new HttpResponseMessage(statusCode)
-            {
-                Content = statusCode == HttpStatusCode.OK
-                    ? JsonContent.Create(responseBody)
-                    : new StringContent(responseBody.ToString() ?? string.Empty)
-            });
     }
 
     private LocalAuthorityDisposalCostsController BuildController(string? userName, int relativeYear)
