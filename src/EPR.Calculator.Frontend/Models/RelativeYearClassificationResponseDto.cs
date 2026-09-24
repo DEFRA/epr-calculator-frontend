@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using EPR.Calculator.Frontend.Enums;
 
 namespace EPR.Calculator.Frontend.Models
 {
@@ -11,16 +13,16 @@ namespace EPR.Calculator.Frontend.Models
         /// <summary>
         /// Gets or sets the relative year for which the classifications apply.
         /// </summary>
-        public required RelativeYear RelativeYear { get; set; }
+        public RelativeYear RelativeYear { get; init; }
 
         /// <summary>
         /// Gets or sets the list of classifications for calculator runs.
         /// </summary>
-        public required List<CalculatorRunClassificationDto> Classifications { get; set; }
+        public ImmutableList<RunClassification> Classifications { get; init; }  = [];
 
         /// <summary>
         /// Gets or sets the list of classified calculator runs.
         /// </summary>
-        public List<CalculatorRunDto> ClassifiedRuns { get; set; } = [];
+        public ImmutableList<CalculatorRunDto> ClassifiedRuns { get; init; } = [];
     }
 }

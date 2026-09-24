@@ -21,5 +21,5 @@ public record SetRunClassificationFormModel
     [Range(1, int.MaxValue)] public required int RunId { get; init; }
 
     [Required(ErrorMessage = ErrorMessages.ClassifyRunTypeNotSelected)]
-    public int? ClassifyRunType { get; init; }
+    public RunClassification? ClassifyRunType { get; init; }
 }

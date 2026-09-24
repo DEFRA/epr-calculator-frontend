@@ -41,7 +41,7 @@ public class CalculatorRunOverviewViewModelTests
             Run = new CalculatorRunDto
             {
                 RunId = 1,
-                RunClassification = RunClassification.INITIAL_RUN,
+                RunClassification = RunClassification.Initial,
                 RelativeYear = new RelativeYear(2026),
                 RunName = "Test run",
                 CreatedAt = DateTime.UtcNow,

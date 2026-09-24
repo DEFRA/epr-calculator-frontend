@@ -31,15 +31,11 @@ public class CompletedRunController(IEprCalculatorApiService eprCalculatorApiSer
     private static bool IsRunEligibleForDisplay(CalculatorRunDto calculatorRunDetails)
     {
         return calculatorRunDetails.RunClassification
-            is RunClassification.UNCLASSIFIED
-            or RunClassification.INITIAL_RUN
-            or RunClassification.INTERIM_RECALCULATION_RUN
-            or RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED
-            or RunClassification.FINAL_RECALCULATION_RUN
-            or RunClassification.FINAL_RECALCULATION_RUN_COMPLETED
-            or RunClassification.FINAL_RUN
-            or RunClassification.FINAL_RUN_COMPLETED
-            or RunClassification.INITIAL_RUN_COMPLETED;
+            is RunClassification.Unclassified
+            or RunClassification.Initial
+            or RunClassification.Recalculation
+            or RunClassification.RecalculationCompleted
+            or RunClassification.InitialCompleted;
     }
 
     private async Task<PostBillingFileViewModel?> CreateViewModel(int runId)

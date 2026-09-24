@@ -223,7 +223,7 @@ public class DesignatedRunWithBillingFileControllerTests
         return new CalculatorRunDto
         {
             RunId = runId,
-            RunClassification = RunClassification.INITIAL_RUN,
+            RunClassification = RunClassification.Initial,
             RelativeYear = new RelativeYear(2026),
             RunName = $"Run {runId}",
             CreatedAt = DateTime.UtcNow,

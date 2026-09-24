@@ -62,7 +62,7 @@
 
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
-                        @if (Model.CalculatorRunDetails.RunClassification == RunClassification.TEST_RUN)
+                        @if (Model.CalculatorRunDetails.RunClassification == RunClassification.Test)
                         {
                             <h2 class="govuk-heading-m">Delete this run</h2>
                             <p class="govuk-body">Remove this calculation if you no longer need it.</p>
@@ -92,7 +92,7 @@
                     </fieldset>
                 </div>
 
-                @if (Model.CalculatorRunDetails.RunClassification != RunClassification.TEST_RUN)
+                @if (Model.CalculatorRunDetails.RunClassification != RunClassification.Test)
                 {
                     <div class="govuk-button-group">
                         <div class="govuk-button-group">

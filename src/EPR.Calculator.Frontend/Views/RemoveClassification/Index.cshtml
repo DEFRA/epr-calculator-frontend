@@ -59,7 +59,7 @@
 
                             <div class="govuk-radios">
                                 <div class="govuk-radios__item">
-                                    @Html.RadioButtonFor(model => model.ClassifyRunType, (int)RunClassification.TEST_RUN, new { @class = "govuk-radios__input", id = "SelectedCalcRunOptionTestrun" })
+                                    @Html.RadioButtonFor(model => model.ClassifyRunType, RunClassification.Test, new { @class = "govuk-radios__input", id = "SelectedCalcRunOptionTestrun" })
                                     <label class="govuk-label govuk-radios__label" for="SelectedCalcRunOptionTestrun">
                                         <strong>Test Run</strong><br />
                                         <span class="govuk-body-s">View the calculation results without generating a billing file for invoicing.</span>
@@ -67,7 +67,7 @@
                                 </div>
 
                                 <div class="govuk-radios__item">
-                                    @Html.RadioButtonFor(model => model.ClassifyRunType, (int)RunClassification.DELETED, new { @class = "govuk-radios__input", id = "SelectedCalcRunOptionDelete" })
+                                    @Html.RadioButtonFor(model => model.ClassifyRunType, RunClassification.Deleted, new { @class = "govuk-radios__input", id = "SelectedCalcRunOptionDelete" })
                                     <label class="govuk-label govuk-radios__label" for="SelectedCalcRunOptionDelete">
                                         <strong>Delete</strong><br />
                                         <span class="govuk-body-s">Remove this calculation run if it's no longer needed.</span>

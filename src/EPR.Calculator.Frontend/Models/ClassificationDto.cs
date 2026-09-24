@@ -1,4 +1,6 @@
-﻿namespace EPR.Calculator.Frontend.Models
+﻿using EPR.Calculator.Frontend.Enums;
+
+namespace EPR.Calculator.Frontend.Models
 {
     /// <summary>
     /// Data transfer object for calling the /v2/calculatorRuns endpoint.
@@ -13,6 +15,6 @@
         /// <summary>
         /// Gets the classification ID to set the run to.
         /// </summary>
-        public required int ClassificationId { get; init; }
+        public required RunClassification Classification { get; init; }
     }
 }

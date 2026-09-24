@@ -20,7 +20,7 @@ public class CalculationRunDetailsNewController(IEprCalculatorApiService eprCalc
         if (viewModel == null)
             return RedirectToError();
 
-        if (viewModel.RunClassification == RunClassification.ERROR)
+        if (viewModel.RunClassification == RunClassification.Errored)
         {
             ModelState.AddModelError(viewModel.RunName, ErrorMessages.RunDetailError);
             return View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);

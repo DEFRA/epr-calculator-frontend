@@ -63,7 +63,7 @@ public class RemoveClassificationController(
 
     private async Task<IActionResult> HandleClassificationSubmission(RemoveRunClassificationFormModel model)
     {
-        if (model.ClassifyRunType == (int)RunClassification.TEST_RUN)
+        if (model.ClassifyRunType == RunClassification.Test)
         {
             var result = await eprCalculatorApiService.CallApi(
                 HttpMethod.Put,
@@ -71,7 +71,7 @@ public class RemoveClassificationController(
                 body: new ClassificationDto
                 {
                     RunId = model.RunId,
-                    ClassificationId = (int)RunClassification.TEST_RUN
+                    Classification = RunClassification.Test
                 });
 
             if (result.StatusCode == HttpStatusCode.Created)
@@ -86,7 +86,7 @@ public class RemoveClassificationController(
             return RedirectToError();
         }
 
-        if (model.ClassifyRunType == (int)RunClassification.DELETED)
+        if (model.ClassifyRunType == RunClassification.Deleted)
         {
             return RedirectToAction(
                 ActionNames.Index,
