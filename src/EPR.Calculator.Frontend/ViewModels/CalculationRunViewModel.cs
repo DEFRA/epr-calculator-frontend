@@ -15,51 +15,41 @@ public record CalculationRunViewModel
     public string TagStyle =>
         "govuk-tag" + RunClassification switch
         {
-            RunClassification.RUNNING => " govuk-tag--green",
-            RunClassification.UNCLASSIFIED => " govuk-tag--blue",
-            RunClassification.TEST_RUN => " govuk-tag--yellow",
-            RunClassification.ERROR => " govuk-tag--red",
-            RunClassification.INITIAL_RUN => " govuk-tag--purple",
-            RunClassification.INITIAL_RUN_COMPLETED => " govuk-tag--purple",
-            RunClassification.INTERIM_RECALCULATION_RUN => " govuk-tag--purple",
-            RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED => " govuk-tag--purple",
-            RunClassification.FINAL_RECALCULATION_RUN => " govuk-tag--purple",
-            RunClassification.FINAL_RECALCULATION_RUN_COMPLETED => " govuk-tag--purple",
-            RunClassification.FINAL_RUN => " govuk-tag--purple",
-            RunClassification.FINAL_RUN_COMPLETED => " govuk-tag--purple",
+            RunClassification.Running => " govuk-tag--green",
+            RunClassification.Unclassified => " govuk-tag--blue",
+            RunClassification.Test => " govuk-tag--yellow",
+            RunClassification.Errored => " govuk-tag--red",
+            RunClassification.Initial => " govuk-tag--purple",
+            RunClassification.InitialCompleted => " govuk-tag--purple",
+            RunClassification.Recalculation => " govuk-tag--purple",
+            RunClassification.RecalculationCompleted => " govuk-tag--purple",
             _ => ""
         };
 
     public string RunDetailLink =>
         RunClassification switch
         {
-            RunClassification.UNCLASSIFIED =>
+            RunClassification.Unclassified =>
                 string.Format(ActionNames.CalculationRunNewDetails, RunId),
 
-            RunClassification.TEST_RUN =>
+            RunClassification.Test =>
                 string.Format(ActionNames.DesignatedRun, RunId),
 
-            RunClassification.INITIAL_RUN
-                or RunClassification.INTERIM_RECALCULATION_RUN
-                or RunClassification.FINAL_RECALCULATION_RUN
-                or RunClassification.FINAL_RUN
-                when BillingRunStatus is BillingRunStatus.None =>
-                string.Format(ActionNames.DesignatedRun, RunId),
+            RunClassification.Initial
+                or RunClassification.Recalculation
+                when BillingRunStatus is BillingRunStatus.None
+                => string.Format(ActionNames.DesignatedRun, RunId),
 
-            RunClassification.INITIAL_RUN
-                or RunClassification.INTERIM_RECALCULATION_RUN
-                or RunClassification.FINAL_RECALCULATION_RUN
-                or RunClassification.FINAL_RUN
-                when BillingRunStatus is not BillingRunStatus.None =>
-                string.Format(ActionNames.DesignatedRunWithBillingFile, RunId),
+            RunClassification.Initial
+                or RunClassification.Recalculation
+                when BillingRunStatus is not BillingRunStatus.None
+                => string.Format(ActionNames.DesignatedRunWithBillingFile, RunId),
 
-            RunClassification.INITIAL_RUN_COMPLETED
-                or RunClassification.INTERIM_RECALCULATION_RUN_COMPLETED
-                or RunClassification.FINAL_RECALCULATION_RUN_COMPLETED
-                or RunClassification.FINAL_RUN_COMPLETED =>
-                string.Format(ActionNames.CompletedRun, RunId),
+            RunClassification.InitialCompleted
+                or RunClassification.RecalculationCompleted
+                => string.Format(ActionNames.CompletedRun, RunId),
 
-            RunClassification.ERROR =>
+            RunClassification.Errored =>
                 string.Format(ActionNames.CalculationRunNewDetails, RunId),
 
             _ => ControllerNames.Dashboard
@@ -67,16 +57,15 @@ public record CalculationRunViewModel
 
     public bool ShowRunDetailLink =>
         RunClassification
-            is not RunClassification.QUEUE
-            and not RunClassification.RUNNING;
+            is not RunClassification.Running;
 
     public bool ShowErrorLink =>
         RunClassification
-            is RunClassification.ERROR;
+            is RunClassification.Errored;
 
     public bool ShowStatus =>
-        Enum.IsDefined(typeof(RunClassification), (int)RunClassification)
+        Enum.IsDefined(typeof(RunClassification), RunClassification)
         && RunClassification
-            is not RunClassification.UNCLASSIFIED
+            is not RunClassification.Unclassified
             and not RunClassification.None;
 }

@@ -172,7 +172,7 @@ public class FileDownloadControllerTests
         {
             RunId = RunId,
             RunName = $"Run {RunId}",
-            RunClassification = RunClassification.INITIAL_RUN,
+            RunClassification = RunClassification.Initial,
             RelativeYear = new RelativeYear(2025),
             CreatedAt = DateTime.UtcNow,
             CreatedBy = "unit-test",

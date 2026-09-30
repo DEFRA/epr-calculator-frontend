@@ -38,7 +38,7 @@ public class CompletedRunControllerTests
     public async Task Index_WhenRunExistsAndClassificationIsEligible_ReturnsPostBillingFileViewWithExpectedModel()
     {
         // Arrange
-        var run = BuildRun(RunClassification.FINAL_RUN_COMPLETED);
+        var run = BuildRun(RunClassification.InitialCompleted);
         apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync(run);
         var controller = BuildController();
 
@@ -78,7 +78,7 @@ public class CompletedRunControllerTests
     public async Task Index_WhenRunClassificationIsNotEligible_RedirectsToStandardError()
     {
         // Arrange
-        var run = BuildRun(RunClassification.TEST_RUN);
+        var run = BuildRun(RunClassification.Test);
         apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync(run);
         var controller = BuildController();
 

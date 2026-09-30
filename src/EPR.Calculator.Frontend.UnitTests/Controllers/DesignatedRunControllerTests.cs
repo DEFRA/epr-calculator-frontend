@@ -16,11 +16,9 @@ public class DesignatedRunControllerTests
 {
     private static readonly RunClassification[] EligibleRunClassifications =
     [
-        RunClassification.INITIAL_RUN,
-        RunClassification.INTERIM_RECALCULATION_RUN,
-        RunClassification.FINAL_RUN,
-        RunClassification.FINAL_RECALCULATION_RUN,
-        RunClassification.TEST_RUN
+        RunClassification.Initial,
+        RunClassification.Recalculation,
+        RunClassification.Test
     ];
 
     private DesignatedRunController controller = null!;
@@ -40,11 +38,9 @@ public class DesignatedRunControllerTests
     }
 
     [TestMethod]
-    [DataRow(RunClassification.INITIAL_RUN)]
-    [DataRow(RunClassification.INTERIM_RECALCULATION_RUN)]
-    [DataRow(RunClassification.FINAL_RUN)]
-    [DataRow(RunClassification.FINAL_RECALCULATION_RUN)]
-    [DataRow(RunClassification.TEST_RUN)]
+    [DataRow(RunClassification.Initial)]
+    [DataRow(RunClassification.Recalculation)]
+    [DataRow(RunClassification.Test)]
     public async Task Index_WhenRunClassificationIsEligible_ReturnsClassifyRunConfirmationView(RunClassification runClassification)
     {
         // Arrange
@@ -114,7 +110,7 @@ public class DesignatedRunControllerTests
         controller = CreateController(CreateHttpContext("Test User", "https://testhost/"));
         mockApiService
             .Setup(service => service.GetCalculatorRun(runId))
-            .ReturnsAsync(CreateCalculatorRun(runId, RunClassification.INITIAL_RUN));
+            .ReturnsAsync(CreateCalculatorRun(runId, RunClassification.Initial));
 
         // Act
         var result = await controller.Index(runId);
@@ -135,7 +131,7 @@ public class DesignatedRunControllerTests
         controller = CreateController(CreateHttpContext(null, "https://testhost/CalculationRunDetailsNew/1"));
         mockApiService
             .Setup(service => service.GetCalculatorRun(runId))
-            .ReturnsAsync(CreateCalculatorRun(runId, RunClassification.FINAL_RUN));
+            .ReturnsAsync(CreateCalculatorRun(runId, RunClassification.Initial));
 
         // Act
         var result = await controller.Index(runId);
