@@ -32,7 +32,7 @@ public class CalculationRunDetailsNewControllerTests
     {
         // Arrange
         var runId = fixture.Create<int>();
-        SetupGetCalculatorRun(runId, new CalculatorRunDto { RunId = runId, RunClassification = RunClassification.Unclassified });
+        SetupGetCalculatorRun(runId, new CalculatorRunDto { RunId = runId, RunClassification = RunClassification.None });
         var controller = BuildController();
 
         // Act
@@ -48,20 +48,15 @@ public class CalculationRunDetailsNewControllerTests
     }
 
     [TestMethod]
-    public async Task Index_RunNotFound_RedirectsToStandardError()
+    public async Task Index_RunNotFound_Throws_Exception()
     {
         // Arrange
         var runId = fixture.Create<int>();
         SetupGetCalculatorRun(runId, null);
         var controller = BuildController();
 
-        // Act
-        var result = await controller.Index(runId) as RedirectToActionResult;
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual("Index", result.ActionName);
-        Assert.AreEqual("StandardError", result.ControllerName);
+        // Act & Assert
+        await Assert.ThrowsExceptionAsync<BadHttpRequestException>(() => controller.Index(runId));
     }
 
     [TestMethod]
@@ -69,7 +64,13 @@ public class CalculationRunDetailsNewControllerTests
     {
         // Arrange
         var runId = fixture.Create<int>();
-        SetupGetCalculatorRun(runId, new CalculatorRunDto { RunId = runId, RunClassification = RunClassification.Errored });
+        SetupGetCalculatorRun(runId, new CalculatorRunDto
+        {
+            RunId = runId,
+            RunName = "Errored run",
+            RunClassification = RunClassification.None,
+            CalculationRunStatus = CalculationRunStatus.Errored
+        });
         var controller = BuildController();
 
         // Act
@@ -86,7 +87,7 @@ public class CalculationRunDetailsNewControllerTests
     {
         // Arrange
         var runId = fixture.Create<int>();
-        SetupGetCalculatorRun(runId, new CalculatorRunDto { RunId = runId, RunClassification = RunClassification.Unclassified });
+        SetupGetCalculatorRun(runId, new CalculatorRunDto { RunId = runId, RunClassification = RunClassification.None });
         var controller = BuildController();
         controller.ModelState.AddModelError("key", "model error");
 

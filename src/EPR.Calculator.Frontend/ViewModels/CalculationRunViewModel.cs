@@ -10,62 +10,97 @@ public record CalculationRunViewModel
     public required DateTime CreatedAt { get; init; }
     public required string CreatedBy { get; init; }
     public required RunClassification RunClassification { get; init; }
+    public required CalculationRunStatus CalculationRunStatus { get; init; }
     public required BillingRunStatus BillingRunStatus { get; init; }
+    public required bool IsShared { get; init; }
 
-    public string TagStyle =>
-        "govuk-tag" + RunClassification switch
+    public string OverallStatus
+    {
+        get
         {
-            RunClassification.Running => " govuk-tag--green",
-            RunClassification.Unclassified => " govuk-tag--blue",
-            RunClassification.Test => " govuk-tag--yellow",
-            RunClassification.Errored => " govuk-tag--red",
-            RunClassification.Initial => " govuk-tag--purple",
-            RunClassification.InitialCompleted => " govuk-tag--purple",
-            RunClassification.Recalculation => " govuk-tag--purple",
-            RunClassification.RecalculationCompleted => " govuk-tag--purple",
-            _ => ""
-        };
+            if (IsShared)
+                return $"{RunClassification} run completed";
 
-    public string RunDetailLink =>
-        RunClassification switch
+            if (CalculationRunStatus is CalculationRunStatus.Errored)
+                return "Calculation run errored";
+
+            if (BillingRunStatus is BillingRunStatus.Errored)
+                return "Billing run errored";
+
+            if(CalculationRunStatus is CalculationRunStatus.Started)
+                return "Calculation run in progress";
+
+            if(BillingRunStatus is BillingRunStatus.Started)
+                return "Billing run in progress";
+
+            if(RunClassification is not RunClassification.None)
+                return $"{RunClassification} run";
+
+            if(RunClassification is RunClassification.None && CalculationRunStatus is CalculationRunStatus.Completed)
+                return "Ready for classification";
+
+            return "";
+        }
+    }
+
+    public string TagStyle
+    {
+        get
         {
-            RunClassification.Unclassified =>
-                string.Format(ActionNames.CalculationRunNewDetails, RunId),
+            return "govuk-tag" + GetTagColour();
 
-            RunClassification.Test =>
-                string.Format(ActionNames.DesignatedRun, RunId),
+            string GetTagColour()
+            {
+                if(IsShared)
+                    return " govuk-tag--purple";
 
-            RunClassification.Initial
-                or RunClassification.Recalculation
-                when BillingRunStatus is BillingRunStatus.None
-                => string.Format(ActionNames.DesignatedRun, RunId),
+                if(CalculationRunStatus is CalculationRunStatus.Errored || BillingRunStatus is BillingRunStatus.Errored)
+                    return " govuk-tag--red";
 
-            RunClassification.Initial
-                or RunClassification.Recalculation
-                when BillingRunStatus is not BillingRunStatus.None
-                => string.Format(ActionNames.DesignatedRunWithBillingFile, RunId),
+                if(CalculationRunStatus is CalculationRunStatus.Started || BillingRunStatus is BillingRunStatus.Started)
+                    return " govuk-tag--green";
 
-            RunClassification.InitialCompleted
-                or RunClassification.RecalculationCompleted
-                => string.Format(ActionNames.CompletedRun, RunId),
+                return RunClassification switch
+                {
+                    RunClassification.None => " govuk-tag--blue",
+                    RunClassification.Test => " govuk-tag--yellow",
+                    RunClassification.Initial or RunClassification.Recalculation => " govuk-tag--purple",
+                    _ => ""
+                };
+            }
+        }
+    }
 
-            RunClassification.Errored =>
-                string.Format(ActionNames.CalculationRunNewDetails, RunId),
+    public string RunDetailLink
+    {
+        get
+        {
+            var actionName = GetActionName();
+            return string.Format(actionName, RunId);
 
-            _ => ControllerNames.Dashboard
-        };
+            string GetActionName()
+            {
+                if (IsShared)
+                    return ActionNames.CompletedRun;
+
+                if(CalculationRunStatus is CalculationRunStatus.Errored || BillingRunStatus is BillingRunStatus.Errored)
+                    return ActionNames.CalculationRunNewDetails;
+
+                if (RunClassification is not (RunClassification.Unknown or RunClassification.None))
+                {
+                    return BillingRunStatus is not BillingRunStatus.None
+                        ? ActionNames.DesignatedRunWithBillingFile
+                        : ActionNames.DesignatedRun;
+                }
+
+                return ActionNames.CalculationRunNewDetails;
+            }
+        }
+    }
 
     public bool ShowRunDetailLink =>
-        RunClassification
-            is not RunClassification.Running;
+        CalculationRunStatus is not CalculationRunStatus.Started
+        && BillingRunStatus is not BillingRunStatus.Started;
 
-    public bool ShowErrorLink =>
-        RunClassification
-            is RunClassification.Errored;
-
-    public bool ShowStatus =>
-        Enum.IsDefined(typeof(RunClassification), RunClassification)
-        && RunClassification
-            is not RunClassification.Unclassified
-            and not RunClassification.None;
+    public bool ShowStatus => !string.IsNullOrWhiteSpace(OverallStatus);
 }

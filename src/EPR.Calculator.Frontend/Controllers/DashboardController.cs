@@ -85,7 +85,9 @@ public class DashboardController(
                 CreatedAt = run.CreatedAt,
                 CreatedBy = run.CreatedBy,
                 RunClassification = run.RunClassification,
-                BillingRunStatus = run.BillingRunStatus
+                CalculationRunStatus = run.CalculationRunStatus,
+                BillingRunStatus = run.BillingRunStatus,
+                IsShared = run.BillingFile?.IsShared ?? false
             })
             .ToList();
     }

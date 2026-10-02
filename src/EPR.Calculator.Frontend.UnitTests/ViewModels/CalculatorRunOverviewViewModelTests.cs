@@ -23,7 +23,7 @@ public class CalculatorRunOverviewViewModelTests
 
     [DataTestMethod]
     [DataRow(BillingRunStatus.None)]
-    [DataRow(BillingRunStatus.Running)]
+    [DataRow(BillingRunStatus.Started)]
     [DataRow(BillingRunStatus.Completed)]
     public void OtherBillingRunStatuses_DoNotSetErroredFlag(BillingRunStatus status)
     {
@@ -51,7 +51,7 @@ public class CalculatorRunOverviewViewModelTests
                 {
                     Id = 1,
                     IsLatest = true,
-                    HasBeenSentToFss = false,
+                    IsShared = false,
                     CsvFileName = "billing.csv",
                     JsonFileName = "billing.json",
                     CreatedAt = DateTime.UtcNow,

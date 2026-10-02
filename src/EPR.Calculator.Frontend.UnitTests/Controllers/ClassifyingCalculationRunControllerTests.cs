@@ -249,7 +249,7 @@ public class ClassifyingCalculationRunControllerTests
         };
     }
 
-    private static CalculatorRunDto BuildRun(int runId, RunClassification classification = RunClassification.Unclassified)
+    private static CalculatorRunDto BuildRun(int runId, RunClassification classification = RunClassification.None)
     {
         return new CalculatorRunDto
         {

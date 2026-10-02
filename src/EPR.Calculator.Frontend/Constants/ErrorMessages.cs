@@ -81,6 +81,11 @@
         public const string RunDetailError = "The calculation was unsuccessful";
 
         /// <summary>
+        /// Error message for error in run.
+        /// </summary>
+        public const string BillingRunDetailError = "The billing run was unsuccessful";
+
+        /// <summary>
         /// Error message for Calculator Run Id great than zero.
         /// </summary>
         public const string CalculatorRunIdGreaterThanZero = "Calculation Run Id must be greater than zero.";
