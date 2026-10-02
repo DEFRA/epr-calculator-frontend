@@ -233,7 +233,7 @@ public class DesignatedRunWithBillingFileControllerTests
             {
                 Id = 1,
                 IsLatest = true,
-                HasBeenSentToFss = false,
+                IsShared = false,
                 CsvFileName = "billing.csv",
                 JsonFileName = "billing.json",
                 CreatedAt = DateTime.UtcNow,

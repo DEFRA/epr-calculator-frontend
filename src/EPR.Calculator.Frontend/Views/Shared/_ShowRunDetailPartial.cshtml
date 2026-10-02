@@ -5,31 +5,31 @@
     <dl>
         <dt class="govuk-summary-list__key">
             <h3 class="govuk-heading-m govuk-!-margin-bottom-3">
-                @if (Model.ShowRunDetailLink)
+                @if (Model.HasLink)
                 {
                     <a href="@Model.RunDetailLink" class="govuk-link govuk-link--no-visited-state">
-                        @Model.RunName
+                        @Model.Run.RunName
                     </a>
                 }
                 else
                 {
-                    @Model.RunName
+                    @Model.Run.RunName
                 }
             </h3>
 
             <p class="govuk-body">
-                Calculation ID: @Model.RunId<br />
-                Date: @Model.CreatedAt.DisplayAsDateAtTime()<br />
-                Run by: @Model.CreatedBy
+                Calculation ID: @Model.Run.RunId<br />
+                Date: @Model.Run.CreatedAt.DisplayAsDateAtTime()<br />
+                Run by: @Model.Run.CreatedBy
             </p>
         </dt>
     </dl>
 
-    @if (Model.ShowStatus)
+    @if (Model.HasTag)
     {
         <dd class="govuk-summary-list__actions govuk-!-text-align-centre">
             <strong class="@Model.TagStyle">
-                @Model.RunClassification.GetDisplayName()
+                @Model.Run.ClassificationStatusLabel
             </strong>
         </dd>
     }

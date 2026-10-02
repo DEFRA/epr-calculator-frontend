@@ -26,7 +26,7 @@
                             </tr>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Classification</th>
-                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.RunClassification.GetDisplayName()</td>
+                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.ClassificationStatusLabel</td>
                             </tr>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Calculation ID</th>
@@ -38,7 +38,7 @@
                             </tr>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Billing file sent</th>
-                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.BillingFile!.SentAt!.Value.DisplayAsDateAtTime()</td>
+                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.BillingFile!.SharedAt!.Value.DisplayAsDateAtTime()</td>
                             </tr>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Run by</th>
@@ -46,7 +46,7 @@
                             </tr>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Sent by</th>
-                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.BillingFile!.SentBy</td>
+                                <td class="govuk-table__cell">@Model.CalculatorRunStatus.BillingFile!.SharedBy</td>
                             </tr>
                         </tbody>
                     </table>

@@ -15,7 +15,7 @@
 
 <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
     <div class="govuk-grid-row CalculationRunOverview">
-        @if (Model.Run.BillingRunStatus == BillingRunStatus.Running)
+        @if (Model.Run.BillingRunStatus == BillingRunStatus.Started)
         {
             <div class="govuk-grid-column-full">
                 <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
@@ -80,7 +80,7 @@
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Classification</th>
-                                            <td class="govuk-table__cell">@Model.Run.RunClassification.GetDisplayName()</td>
+                                            <td class="govuk-table__cell">@Model.Run.ClassificationStatusLabel</td>
                                         </tr>
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header">Calculation ID</th>

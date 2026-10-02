@@ -38,7 +38,7 @@ public class ImportantRunClassificationHelperTests
         ImmutableList<CalculatorRunDto> classifiedRuns =
         [
             CreateRun(RunClassification.Test, runId: 1),
-            CreateRun(RunClassification.Unclassified, runId: 2)
+            CreateRun(RunClassification.Initial, runId: 2, sharedAt: DateTime.UtcNow.AddDays(-1))
         ];
 
         // Act
@@ -54,14 +54,14 @@ public class ImportantRunClassificationHelperTests
     }
 
     [DataTestMethod]
-    [DataRow(RunClassification.InitialCompleted)]
-    [DataRow(RunClassification.RecalculationCompleted)]
+    [DataRow(RunClassification.Initial)]
+    [DataRow(RunClassification.Recalculation)]
     public void CreateNotificationViewModel_OfficialRunCompleted_ReturnsAlreadyCompletedWithSentDate(
         RunClassification completedClassification)
     {
         // Arrange
         var sentAt = new DateTime(2025, 5, 1);
-        ImmutableList<CalculatorRunDto> classifiedRuns = [CreateRun(completedClassification, sentAt: sentAt)];
+        ImmutableList<CalculatorRunDto> classifiedRuns = [CreateRun(completedClassification, sharedAt: sentAt)];
 
         // Act
         var result = CreateNotificationViewModel(classifiedRuns);
@@ -69,7 +69,7 @@ public class ImportantRunClassificationHelperTests
         // Assert
         Assert.AreEqual(ImportantSectionViewModel.NotificationType.AlreadyCompleted, result.Notification);
 
-        var completedAt = completedClassification == RunClassification.InitialCompleted
+        var completedAt = completedClassification == RunClassification.Initial
             ? result.InitialRunCompletedAt
             : result.RecalculationCompletedAt;
 
@@ -84,8 +84,8 @@ public class ImportantRunClassificationHelperTests
         var recalculationSentAt = new DateTime(2025, 5, 1);
         ImmutableList<CalculatorRunDto> classifiedRuns =
         [
-            CreateRun(RunClassification.InitialCompleted, runId: 1, sentAt: initialSentAt),
-            CreateRun(RunClassification.RecalculationCompleted, runId: 2, sentAt: recalculationSentAt)
+            CreateRun(RunClassification.Initial, CalculationRunStatus.Completed, runId: 1, sharedAt: initialSentAt),
+            CreateRun(RunClassification.Recalculation, CalculationRunStatus.Completed, runId: 2, sharedAt: recalculationSentAt)
         ];
 
         // Act
@@ -102,16 +102,18 @@ public class ImportantRunClassificationHelperTests
     {
         // Arrange
         var earlierSentButLaterUpdated = CreateRun(
-            RunClassification.RecalculationCompleted,
+            RunClassification.Recalculation,
+            CalculationRunStatus.Completed,
             runId: 1,
             updatedAt: new DateTime(2025, 6, 1),
-            sentAt: new DateTime(2025, 1, 1));
+            sharedAt: new DateTime(2025, 1, 1));
 
         var laterSentButEarlierUpdated = CreateRun(
-            RunClassification.RecalculationCompleted,
+            RunClassification.Recalculation,
+            CalculationRunStatus.Completed,
             runId: 2,
             updatedAt: new DateTime(2025, 1, 1),
-            sentAt: new DateTime(2025, 3, 1));
+            sharedAt: new DateTime(2025, 3, 1));
 
         ImmutableList<CalculatorRunDto> classifiedRuns = [earlierSentButLaterUpdated, laterSentButEarlierUpdated];
 
@@ -127,7 +129,7 @@ public class ImportantRunClassificationHelperTests
     {
         // Arrange
         var initialSentAt = new DateTime(2025, 1, 1);
-        var completedInitialRun = CreateRun(RunClassification.InitialCompleted, runId: 1, updatedAt: initialSentAt, sentAt: initialSentAt);
+        var completedInitialRun = CreateRun(RunClassification.Initial, CalculationRunStatus.Completed, runId: 1, updatedAt: initialSentAt, sharedAt: initialSentAt);
         var incompleteRecalculationRun = CreateRun(RunClassification.Recalculation, runId: 2, updatedAt: new DateTime(2025, 6, 1));
         ImmutableList<CalculatorRunDto> classifiedRuns = [completedInitialRun, incompleteRecalculationRun];
 
@@ -185,20 +187,26 @@ public class ImportantRunClassificationHelperTests
 
     private static CalculatorRunDto CreateRun(
         RunClassification classification,
+        CalculationRunStatus calculationRunStatus = CalculationRunStatus.None,
         int runId = 1,
         DateTime? updatedAt = null,
-        DateTime? sentAt = null)
+        DateTime? sharedAt = null)
     {
-        var effectiveUpdatedAt = updatedAt ?? sentAt ?? new DateTime(2025, 1, 1);
+        var effectiveUpdatedAt = updatedAt ?? sharedAt ?? new DateTime(2025, 1, 1);
 
         return new CalculatorRunDto
         {
             RunId = runId,
             RunName = $"Run {runId}",
             RunClassification = classification,
+            CalculationRunStatus = calculationRunStatus,
             CreatedAt = effectiveUpdatedAt.AddDays(-1),
             UpdatedAt = effectiveUpdatedAt,
-            BillingFile = sentAt is null ? null : new CalculatorRunDto.BillingFileDto { SentAt = sentAt },
+            BillingFile = sharedAt is null ? null : new CalculatorRunDto.BillingFileDto
+            {
+                IsShared = true,
+                SharedAt = sharedAt
+            },
         };
     }
 }
