@@ -171,7 +171,8 @@ public class ReasonForRejectionControllerTests
         {
             RunId = runId,
             RunName = runName,
-            RunClassification = RunClassification.Unclassified,
+            RunClassification = RunClassification.None,
+            CalculationRunStatus = CalculationRunStatus.None,
             RelativeYear = new RelativeYear(RelativeYearValue),
             CreatedAt = DateTime.UtcNow,
             CreatedBy = TestUserName,
