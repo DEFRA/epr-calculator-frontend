@@ -44,7 +44,7 @@ public class FileDownloadController(
             if (runDto.BillingFile?.IsLatest != true)
                 return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId });
 
-            return await fileDownloads.DownloadBillingFile(runId, runDto.BillingFile!.HasBeenSentToFss);
+            return await fileDownloads.DownloadBillingFile(runId, runDto.BillingFile!.IsShared);
         }
         catch (Exception ex)
         {

@@ -228,7 +228,8 @@ public class RemoveClassificationControllerTests
         return new CalculatorRunDto
         {
             RunId = RunId,
-            RunClassification = RunClassification.Unclassified,
+            RunClassification = RunClassification.None,
+            CalculationRunStatus = CalculationRunStatus.None,
             RelativeYear = new RelativeYear(2025),
             RunName = $"Run {RunId}",
             CreatedAt = DateTime.UtcNow,

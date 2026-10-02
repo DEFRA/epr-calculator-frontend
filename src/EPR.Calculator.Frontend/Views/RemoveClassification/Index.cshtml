@@ -25,8 +25,8 @@
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="approval-code-hint">
                         <legend></legend>
-                        <span id="approval-code-hint" class="govuk-caption-l">@Model.RunName</span>
-                        <h1 class="govuk-heading-l">Remove @Model.RunClassification.GetDisplayName() classification</h1>
+                        <span id="approval-code-hint" class="govuk-caption-l">@Model.Run.RunName</span>
+                        <h1 class="govuk-heading-l">Remove @Model.Run.ClassificationStatusLabel classification</h1>
 
                         <table class="govuk-table" aria-describedby="table-description-calc">
                             <caption id="table-description-calc" class="govuk-visually-hidden">
@@ -35,11 +35,11 @@
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@Model.RelativeYear.ToFinancialYear()</td>
+                                    <td class="govuk-table__cell">@Model.Run.RelativeYear.ToFinancialYear()</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Classification</th>
-                                    <td class="govuk-table__cell">@Model.RunClassification.GetDisplayName()</td>
+                                    <td class="govuk-table__cell">@Model.Run.ClassificationStatusLabel</td>
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Calculation ID</th>
@@ -47,7 +47,7 @@
                                 </tr>
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@Model.CreatedAt.DisplayAsDateAtTime()</td>
+                                    <td class="govuk-table__cell">@Model.Run.CreatedAt.DisplayAsDateAtTime()</td>
                                 </tr>
                             </tbody>
                         </table>

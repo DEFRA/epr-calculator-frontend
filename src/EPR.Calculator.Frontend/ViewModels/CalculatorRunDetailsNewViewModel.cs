@@ -9,6 +9,8 @@ namespace EPR.Calculator.Frontend.ViewModels;
 public record CalculatorRunDetailsNewViewModel : CalculatorRunDetailsNewFormModel
 {
     public required RunClassification RunClassification { get; init; }
+    public required BillingRunStatus BillingRunStatus { get ; set ; }
+    public required CalculationRunStatus CalculationRunStatus { get ; set ; }
     public required string RunName { get; init; }
     public required RelativeYear RelativeYear { get; init; }
     public required DateTime CreatedAt { get; init; }

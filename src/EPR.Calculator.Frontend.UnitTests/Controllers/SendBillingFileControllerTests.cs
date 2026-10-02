@@ -239,7 +239,7 @@ public class SendBillingFileControllerTests
             {
                 Id = 1,
                 IsLatest = isBillingFileLatest,
-                HasBeenSentToFss = false,
+                IsShared = false,
                 CsvFileName = "billing.csv",
                 JsonFileName = "billing.json",
                 CreatedAt = DateTime.UtcNow,
