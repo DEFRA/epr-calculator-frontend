@@ -80,12 +80,7 @@ public class DashboardController(
             .Where(x => x.RunClassification is not RunClassification.Deleted)
             .Select(run => new CalculationRunViewModel
             {
-                RunId = run.RunId,
-                RunName = run.RunName,
-                CreatedAt = run.CreatedAt,
-                CreatedBy = run.CreatedBy,
-                RunClassification = run.RunClassification,
-                BillingRunStatus = run.BillingRunStatus
+                Run = run
             })
             .ToList();
     }

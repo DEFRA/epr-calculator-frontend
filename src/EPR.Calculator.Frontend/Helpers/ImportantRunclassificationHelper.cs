@@ -7,16 +7,24 @@ namespace EPR.Calculator.Frontend.Helpers
 {
     public static class ImportantRunClassificationHelper
     {
-        public static ImportantSectionViewModel CreateNotificationViewModel( ImmutableList<RunClassification> availableClassifications, ImmutableList<CalculatorRunDto> classifiedRuns, RelativeYear relativeYear)
+        public static ImportantSectionViewModel CreateNotificationViewModel(
+            ImmutableList<RunClassification> availableClassifications,
+            ImmutableList<CalculatorRunDto> classifiedRuns,
+            RelativeYear relativeYear)
         {
-            var officialRuns = classifiedRuns.Where(x => x.RunClassification.IsOfficial).ToList();
+            var officialRuns = classifiedRuns
+                .Where(run => run.RunClassification is RunClassification.Initial or RunClassification.Recalculation)
+                .ToList();
+
+            var completedRuns = officialRuns.Where(run => run.BillingFile?.IsShared == true).ToList();
+            var incompleteRuns = officialRuns.Except(completedRuns).ToList();
 
             var viewModel = new ImportantSectionViewModel
             {
                 RelativeYear = relativeYear,
-                IncompleteOfficialRunId = officialRuns.OrderByDescending(x => x.UpdatedAt).FirstOrDefault()?.RunId,
-                InitialRunCompletedAt = GetLatestSentAt(RunClassification.InitialCompleted),
-                RecalculationCompletedAt = GetLatestSentAt(RunClassification.RecalculationCompleted)
+                IncompleteOfficialRunId = incompleteRuns.OrderByDescending(run => run.UpdatedAt).FirstOrDefault()?.RunId,
+                InitialRunCompletedAt = GetLatestShared(RunClassification.Initial),
+                RecalculationCompletedAt = GetLatestShared(RunClassification.Recalculation)
             };
 
             if (availableClassifications is [RunClassification.Test])
@@ -34,14 +42,14 @@ namespace EPR.Calculator.Frontend.Helpers
 
             return viewModel;
 
-            DateTime? GetLatestSentAt(RunClassification classification)
+            DateTime? GetLatestShared(RunClassification classification)
             {
-                return officialRuns
+                return completedRuns
                     .Where(x => x.RunClassification == classification)
-                    .OrderByDescending(x => x.BillingFile!.SentAt)
+                    .OrderByDescending(x => x.BillingFile!.SharedAt)
                     .FirstOrDefault()
                     ?.BillingFile
-                    ?.SentAt;
+                    ?.SharedAt;
             }
         }
     }

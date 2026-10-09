@@ -9,11 +9,12 @@ public record CalculatorRunDto
     public int RunId { get; init; }
     public RunClassification RunClassification { get; init; }
     public RelativeYear RelativeYear { get; init; }
-    public string RunName { get; init; } = "";
+    public string RunName { get; init; } = null!;
     public DateTime CreatedAt { get; init; }
-    public string CreatedBy { get; init; } = "";
+    public string CreatedBy { get; init; } = null!;
     public DateTime? UpdatedAt { get; init; }
     public string? UpdatedBy { get; init; }
+    public CalculationRunStatus CalculationRunStatus { get; init; }
     public BillingRunStatus BillingRunStatus { get; init; }
     public DateTime? BillingRunStartedAt { get; init; }
     public BillingFileDto? BillingFile { get; init; }
@@ -22,12 +23,38 @@ public record CalculatorRunDto
     {
         public int Id { get ; init; }
         public bool IsLatest { get ; init; }
-        public bool HasBeenSentToFss { get; init; }
+        public bool IsShared { get; init; }
         public string CsvFileName { get; init; } = null!;
         public string JsonFileName { get; init; } = null!;
         public DateTime CreatedAt { get; init; }
         public string CreatedBy { get; init; } = null!;
-        public DateTime? SentAt { get; init; }
-        public string? SentBy { get; init; }
+        public DateTime? SharedAt { get; init; }
+        public string? SharedBy { get; init; }
+    }
+}
+
+public static class CalculatorRunDtoExtensions
+{
+    extension(CalculatorRunDto dto)
+    {
+        public string ClassificationStatusLabel
+        {
+            get
+            {
+                if (dto.CalculationRunStatus is CalculationRunStatus.Errored)
+                    return "Error";
+
+                if (dto.CalculationRunStatus is CalculationRunStatus.Started)
+                    return "Running";
+
+                if (dto.BillingFile?.IsShared ?? false)
+                    return $"{dto.RunClassification.DisplayLabel} completed";
+
+                if (dto.RunClassification is RunClassification.Initial or RunClassification.Recalculation)
+                    return $"{dto.RunClassification.DisplayLabel} classified";
+
+                return dto.RunClassification.DisplayLabel;
+            }
+        }
     }
 }

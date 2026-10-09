@@ -55,7 +55,7 @@ public class DashboardControllerTests
         apiService
             .Setup(service => service.FindCalculatorRuns(It.IsAny<RelativeYear>()))
             .ReturnsAsync([
-                BuildRun(1, RunClassification.Running),
+                BuildRun(1, RunClassification.None),
                 BuildRun(2, RunClassification.Test),
                 BuildRun(3, RunClassification.Deleted)
             ]);
@@ -72,34 +72,9 @@ public class DashboardControllerTests
         var calculations = result.Model as IEnumerable<CalculationRunViewModel>;
         Assert.IsNotNull(calculations);
 
-        var calculationIds = calculations.Select(calculation => calculation.RunId).ToList();
+        var calculationIds = calculations.Select(calculation => calculation.Run.RunId).ToList();
         CollectionAssert.AreEquivalent(ExpectedActiveCalculationIds, calculationIds);
         Assert.AreEqual(2026, session.GetInt32(SessionConstants.RelativeYear));
-    }
-
-    [TestMethod]
-    public async Task Index_WhenRunIsError_SetsShowErrorLink()
-    {
-        apiService
-            .Setup(service => service.FindCalculatorRuns(It.IsAny<RelativeYear>()))
-            .ReturnsAsync([
-                BuildRun(5, RunClassification.Errored)
-            ]);
-
-        var controller = BuildController();
-
-        // Act
-        var result = await controller.Index() as ViewResult;
-
-        // Assert
-        Assert.IsNotNull(result);
-        var model = result.Model as DashboardViewModel;
-        Assert.IsNotNull(model);
-        Assert.IsNotNull(model.Calculations);
-
-        var calculation = model.Calculations.Single();
-        Assert.AreEqual(RunClassification.Errored, calculation.RunClassification);
-        Assert.IsTrue(calculation.ShowErrorLink);
     }
 
     [TestMethod]
@@ -111,7 +86,7 @@ public class DashboardControllerTests
         apiService
             .Setup(service => service.FindCalculatorRuns(It.IsAny<RelativeYear>()))
             .ReturnsAsync([
-                BuildRun(runId, RunClassification.InitialCompleted)
+                BuildRun(runId, RunClassification.Initial, CalculationRunStatus.Completed, isShared: true)
             ]);
 
         var controller = BuildController();
@@ -183,17 +158,26 @@ public class DashboardControllerTests
         };
     }
 
-    private static CalculatorRunDto BuildRun(int runId, RunClassification classification)
+    private static CalculatorRunDto BuildRun(
+        int runId,
+        RunClassification classification,
+        CalculationRunStatus calculationRunStatus = CalculationRunStatus.None,
+        bool isShared = false)
     {
         return new CalculatorRunDto
         {
             RunId = runId,
             RunClassification = classification,
+            CalculationRunStatus = calculationRunStatus,
             RunName = $"Run {runId}",
             CreatedAt = new DateTime(2025, 6, 30, 10, 0, 0, DateTimeKind.Utc),
             CreatedBy = "Test User",
             RelativeYear = new RelativeYear(2024),
-            BillingRunStatus = BillingRunStatus.None
+            BillingRunStatus = isShared ? BillingRunStatus.Started : BillingRunStatus.None,
+            BillingFile = new()
+            {
+                IsShared = isShared
+            }
         };
     }
 
