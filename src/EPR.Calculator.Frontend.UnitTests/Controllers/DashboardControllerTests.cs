@@ -4,6 +4,7 @@ using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
+using EPR.Calculator.Frontend.UnitTests.Mocks;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -35,10 +36,6 @@ public class DashboardControllerTests
         apiService = new Mock<IEprCalculatorApiService>();
 
         apiService
-            .Setup(service => service.FindRelativeYears())
-            .ReturnsAsync([(RelativeYear) 2026]);
-
-        apiService
             .Setup(service => service.FindCalculatorRuns(It.IsAny<RelativeYear>()))
             .ReturnsAsync([]);
 
@@ -49,7 +46,7 @@ public class DashboardControllerTests
     }
 
     [TestMethod]
-    public async Task GetCalculations_WhenRunsContainDeletedAndQueue_FiltersThemOut()
+    public async Task Index_WhenRunsContainDeleted_FiltersThemOut()
     {
         // Arrange
         apiService
@@ -63,22 +60,18 @@ public class DashboardControllerTests
         var controller = BuildController();
 
         // Act
-        var result = await controller.GetCalculations(2026) as PartialViewResult;
+        var result = await controller.Index() as ViewResult;
 
         // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual("_CalculationRunsPartial", result.ViewName);
+        var model = result?.Model as DashboardViewModel;
+        Assert.IsNotNull(model);
 
-        var calculations = result.Model as IEnumerable<CalculationRunViewModel>;
-        Assert.IsNotNull(calculations);
-
-        var calculationIds = calculations.Select(calculation => calculation.Run.RunId).ToList();
+        var calculationIds = model.Calculations.Select(calculation => calculation.Run.RunId).ToList();
         CollectionAssert.AreEquivalent(ExpectedActiveCalculationIds, calculationIds);
-        Assert.AreEqual(2026, session.GetInt32(SessionConstants.RelativeYear));
     }
 
     [TestMethod]
-    public async Task GetCalculations_WhenRunIsCompleted_ReturnsCompletedRunLink()
+    public async Task Index_WhenRunIsCompleted_ReturnsCompletedRunLink()
     {
         // Arrange
         var runId = 10;
@@ -92,54 +85,51 @@ public class DashboardControllerTests
         var controller = BuildController();
 
         // Act
-        var result = await controller.GetCalculations(2026) as PartialViewResult;
+        var result = await controller.Index() as ViewResult;
 
         // Assert
-        Assert.IsNotNull(result);
-        var calculations = result.Model as IEnumerable<CalculationRunViewModel>;
-        Assert.IsNotNull(calculations);
+        var model = result?.Model as DashboardViewModel;
+        Assert.IsNotNull(model);
 
-        var calculation = calculations.Single();
+        var calculation = model.Calculations.Single();
         Assert.AreEqual(
             string.Format(ActionNames.CompletedRun, runId),
             calculation.RunDetailLink);
     }
 
     [TestMethod]
-    public async Task Index_BuildsRelativeYearList_WithCurrentYearFirstAndSelected()
+    public async Task Index_WhenSessionHasNoYear_UsesCurrentYearAndStoresIt()
     {
         // Arrange
-        var currentRelativeYear = CommonUtil.GetDefaultRelativeYear(
-            DateTime.UtcNow,
-            RelativeYearStartingMonth).Value;
-
-        apiService
-            .Setup(service => service.FindRelativeYears())
-            .ReturnsAsync([new RelativeYear(currentRelativeYear - 1), new RelativeYear(currentRelativeYear - 2), new RelativeYear(3000)]);
-
-        apiService
-            .Setup(service => service.FindCalculatorRuns(It.IsAny<RelativeYear>()))
-            .ReturnsAsync([
-                BuildRun(21, RunClassification.Test)
-            ]);
-
+        var currentRelativeYear = CommonUtil.GetDefaultRelativeYear(DateTime.UtcNow, RelativeYearStartingMonth);
         var controller = BuildController();
 
         // Act
         var result = await controller.Index() as ViewResult;
 
         // Assert
-        Assert.IsNotNull(result);
-        var model = result.Model as DashboardViewModel;
+        var model = result?.Model as DashboardViewModel;
         Assert.IsNotNull(model);
-        Assert.IsNotNull(model.RelativeYearSelectList);
+        Assert.AreEqual(currentRelativeYear, model.RelativeYear);
+        Assert.AreEqual(currentRelativeYear.Value, session.GetInt32(SessionConstants.RelativeYear));
+        apiService.Verify(service => service.FindCalculatorRuns(currentRelativeYear));
+    }
 
-        Assert.IsFalse(model.RelativeYearSelectList.Any(item => item.Value == "3000"));
-        Assert.AreEqual(currentRelativeYear.ToString(), model.RelativeYearSelectList[0].Value);
-        Assert.IsTrue(model.RelativeYearSelectList[0].Selected);
+    [TestMethod]
+    public async Task Index_WhenSessionHasYear_UsesSessionYear()
+    {
+        // Arrange
+        session.SetInt32(SessionConstants.RelativeYear, 2024);
+        var controller = BuildController();
 
-        var selectedItem = model.RelativeYearSelectList.Single(item => item.Selected);
-        Assert.AreEqual(model.RelativeYear.Value.ToString(), selectedItem.Value);
+        // Act
+        var result = await controller.Index() as ViewResult;
+
+        // Assert
+        var model = result?.Model as DashboardViewModel;
+        Assert.IsNotNull(model);
+        Assert.AreEqual(new RelativeYear(2024), model.RelativeYear);
+        apiService.Verify(service => service.FindCalculatorRuns(new RelativeYear(2024)));
     }
 
     private DashboardController BuildController()
@@ -179,46 +169,5 @@ public class DashboardControllerTests
                 IsShared = isShared
             }
         };
-    }
-
-    private sealed class InMemorySession : ISession
-    {
-        private readonly Dictionary<string, byte[]> store = new();
-
-        public IEnumerable<string> Keys => store.Keys;
-
-        public string Id { get; } = Guid.NewGuid().ToString();
-
-        public bool IsAvailable => true;
-
-        public void Clear()
-        {
-            store.Clear();
-        }
-
-        public Task CommitAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task LoadAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
-
-        public void Remove(string key)
-        {
-            store.Remove(key);
-        }
-
-        public void Set(string key, byte[] value)
-        {
-            store[key] = value;
-        }
-
-        public bool TryGetValue(string key, out byte[] value)
-        {
-            return store.TryGetValue(key, out value!);
-        }
     }
 }

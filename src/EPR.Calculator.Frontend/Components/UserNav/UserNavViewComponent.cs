@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Components.UserNav;
@@ -22,10 +23,14 @@ public class UserNavViewComponent : ViewComponent
     ///     <para>Default: <see langword="true" /></para>
     ///     Indicates whether any backlink should be displayed.
     /// </param>
+    /// <param name="relativeYear">
+    ///     Financial year to display with a link to change it, in place of the backlink.
+    /// </param>
     public IViewComponentResult Invoke(
         string? backLink = null,
         IEnumerable<string>? allowedBackLinks = null,
-        bool showBackLink = true)
+        bool showBackLink = true,
+        RelativeYear? relativeYear = null)
     {
         var resolvedBackLink = showBackLink ? ResolveBackLinkUrl(backLink, allowedBackLinks) : null;
 
@@ -33,6 +38,7 @@ public class UserNavViewComponent : ViewComponent
         {
             CurrentUser = CommonUtil.GetUserName(HttpContext),
             BackLinkUrl = resolvedBackLink,
+            RelativeYear = relativeYear,
         };
 
         return View("UserNavView", viewModel);
