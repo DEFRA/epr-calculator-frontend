@@ -73,6 +73,26 @@ public class UserNavViewComponentTests
     }
 
     [TestMethod]
+    public void Invoke_WhenBackLinkTextNotProvided_DefaultsToBack()
+    {
+        // Act
+        var model = GetModel(component.Invoke("/dashboard"));
+
+        // Assert
+        Assert.AreEqual("Back", model.BackLinkText);
+    }
+
+    [TestMethod]
+    public void Invoke_WhenBackLinkTextProvided_SetsBackLinkText()
+    {
+        // Act
+        var model = GetModel(component.Invoke("/dashboard", backLinkText: "Return to dashboard"));
+
+        // Assert
+        Assert.AreEqual("Return to dashboard", model.BackLinkText);
+    }
+
+    [TestMethod]
     public void Invoke_WhenRelativeYearProvided_SetsRelativeYear()
     {
         // Act

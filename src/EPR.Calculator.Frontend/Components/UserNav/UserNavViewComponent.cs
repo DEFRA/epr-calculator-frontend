@@ -23,6 +23,10 @@ public class UserNavViewComponent : ViewComponent
     ///     <para>Default: <see langword="true" /></para>
     ///     Indicates whether any backlink should be displayed.
     /// </param>
+    /// <param name="backLinkText">
+    ///     <para>Default: "Back"</para>
+    ///     Text of the backlink.
+    /// </param>
     /// <param name="relativeYear">
     ///     Financial year to display with a link to change it, in place of the backlink.
     /// </param>
@@ -30,6 +34,7 @@ public class UserNavViewComponent : ViewComponent
         string? backLink = null,
         IEnumerable<string>? allowedBackLinks = null,
         bool showBackLink = true,
+        string backLinkText = "Back",
         RelativeYear? relativeYear = null)
     {
         var resolvedBackLink = showBackLink ? ResolveBackLinkUrl(backLink, allowedBackLinks) : null;
@@ -38,6 +43,7 @@ public class UserNavViewComponent : ViewComponent
         {
             CurrentUser = CommonUtil.GetUserName(HttpContext),
             BackLinkUrl = resolvedBackLink,
+            BackLinkText = backLinkText,
             RelativeYear = relativeYear,
         };
 
