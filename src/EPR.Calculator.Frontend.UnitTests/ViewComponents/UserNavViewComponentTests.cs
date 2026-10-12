@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using EPR.Calculator.Frontend.Components.UserNav;
+using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -69,6 +70,17 @@ public class UserNavViewComponentTests
 
         // Assert
         Assert.IsNull(model.BackLinkUrl);
+    }
+
+    [TestMethod]
+    public void Invoke_WhenRelativeYearProvided_SetsRelativeYear()
+    {
+        // Act
+        var result = component.Invoke(showBackLink: false, relativeYear: new RelativeYear(2026));
+        var model = GetModel(result);
+
+        // Assert
+        Assert.AreEqual(new RelativeYear(2026), model.RelativeYear);
     }
 
     [TestMethod]

@@ -76,6 +76,11 @@
         public const string CalcRunOptionNotSelected = "Select an option before continuing.";
 
         /// <summary>
+        /// Error message for financial year option not selected.
+        /// </summary>
+        public const string FinancialYearNotSelected = "Select the financial year you want to manage";
+
+        /// <summary>
         /// Error message for error in run.
         /// </summary>
         public const string RunDetailError = "The calculation was unsuccessful";
