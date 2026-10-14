@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Services
@@ -36,16 +37,17 @@ namespace EPR.Calculator.Frontend.Services
 
         private async Task<FileResult> DownloadFile(string relativePath, int runId)
         {
+            HttpResponseMessage? response = null;
+
             try
             {
                 // Call the ApiService; it handles token acquisition for the current user
-                var response = await eprCalculatorApiService.CallApi(
+                response = await eprCalculatorApiService.CallApiForStream(
                     httpMethod: HttpMethod.Get,
                     relativePath: relativePath);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var fileBytes = await response.Content.ReadAsByteArrayAsync();
                     var contentType = response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream";
 
                     string fileName = $"Result_{runId}.csv";
@@ -55,7 +57,9 @@ namespace EPR.Calculator.Frontend.Services
                         fileName = HandleContentDisposition(response, fileName);
                     }
 
-                    return new FileContentResult(fileBytes, contentType)
+                    var contentStream = await response.Content.ReadAsStreamAsync();
+
+                    return new FileStreamResult(new HttpResponseContentStream(response, contentStream), contentType)
                     {
                         FileDownloadName = fileName
                     };
@@ -65,6 +69,7 @@ namespace EPR.Calculator.Frontend.Services
             }
             catch (Exception ex)
             {
+                response?.Dispose();
                 logger.LogError(ex, "Count not download file {RelativePath} for {RunId}", relativePath, runId);
                 throw;
             }
@@ -84,6 +89,55 @@ namespace EPR.Calculator.Frontend.Services
             }
 
             return fileName;
+        }
+
+        /// <summary>
+        /// Wraps the response content stream so that disposing it also disposes the owning
+        /// <see cref="HttpResponseMessage"/>, releasing the underlying connection once streaming completes.
+        /// </summary>
+        [ExcludeFromCodeCoverage]
+        private sealed class HttpResponseContentStream(HttpResponseMessage response, Stream innerStream) : Stream
+        {
+            public override bool CanRead => innerStream.CanRead;
+
+            public override bool CanSeek => innerStream.CanSeek;
+
+            public override bool CanWrite => innerStream.CanWrite;
+
+            public override long Length => innerStream.Length;
+
+            public override long Position
+            {
+                get => innerStream.Position;
+                set => innerStream.Position = value;
+            }
+
+            public override void Flush() => innerStream.Flush();
+
+            public override int Read(byte[] buffer, int offset, int count) => innerStream.Read(buffer, offset, count);
+
+            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
+                innerStream.ReadAsync(buffer, offset, count, cancellationToken);
+
+            public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default) =>
+                innerStream.ReadAsync(buffer, cancellationToken);
+
+            public override long Seek(long offset, SeekOrigin origin) => innerStream.Seek(offset, origin);
+
+            public override void SetLength(long value) => innerStream.SetLength(value);
+
+            public override void Write(byte[] buffer, int offset, int count) => innerStream.Write(buffer, offset, count);
+
+            protected override void Dispose(bool disposing)
+            {
+                if (disposing)
+                {
+                    innerStream.Dispose();
+                    response.Dispose();
+                }
+
+                base.Dispose(disposing);
+            }
         }
     }
 }
