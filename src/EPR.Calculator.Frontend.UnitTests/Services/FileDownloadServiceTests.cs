@@ -39,11 +39,9 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
             };
 
             _eprCalculatorApiServiceMock
-                .Setup(x => x.CallApi(
+                .Setup(x => x.CallApiForStream(
                     HttpMethod.Get,
                     It.IsAny<string>(),
-                    It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
@@ -51,10 +49,10 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
             var result = await _fileDownloadService.DownloadResultFile(runId);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(FileContentResult));
-            var fileResult = (FileContentResult)result;
+            Assert.IsInstanceOfType(result, typeof(FileStreamResult));
+            var fileResult = (FileStreamResult)result;
             Assert.AreEqual("Result_100.csv", fileResult.FileDownloadName);
-            CollectionAssert.AreEqual(content, fileResult.FileContents);
+            CollectionAssert.AreEqual(content, await ReadAllBytes(fileResult));
         }
 
         [TestMethod]
@@ -66,17 +64,15 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
             var response = CreateCsvResponse(content, "\"BillingRun.csv\"");
 
             _eprCalculatorApiServiceMock
-                .Setup(x => x.CallApi(
+                .Setup(x => x.CallApiForStream(
                     HttpMethod.Get,
                     It.IsAny<string>(),
-                    It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             var result = await _fileDownloadService.DownloadBillingFile(runId, false);
 
-            var fileResult = (FileContentResult)result;
+            var fileResult = (FileStreamResult)result;
             Assert.AreEqual("BillingRun_DRAFT.csv", fileResult.FileDownloadName);
         }
 
@@ -89,17 +85,15 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
             var response = CreateCsvResponse(content, "\"BillingRun.csv\"");
 
             _eprCalculatorApiServiceMock
-                .Setup(x => x.CallApi(
+                .Setup(x => x.CallApiForStream(
                     HttpMethod.Get,
                     It.IsAny<string>(),
-                    It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             var result = await _fileDownloadService.DownloadBillingFile(runId, true);
 
-            var fileResult = (FileContentResult)result;
+            var fileResult = (FileStreamResult)result;
             Assert.AreEqual("BillingRun_AUTHORISED.csv", fileResult.FileDownloadName);
         }
 
@@ -113,16 +107,50 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                 statusCode: HttpStatusCode.BadRequest);
 
             _eprCalculatorApiServiceMock
-                .Setup(x => x.CallApi(
+                .Setup(x => x.CallApiForStream(
                     HttpMethod.Get,
                     It.IsAny<string>(),
-                    It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             await Assert.ThrowsExceptionAsync<HttpRequestException>(() =>
                 _fileDownloadService.DownloadResultFile(runId));
+        }
+
+        [TestMethod]
+        public async Task DownloadFileAsync_DisposesResponse_OnNonOkResponse()
+        {
+            var response = CreateCsvResponse(Array.Empty<byte>(), statusCode: HttpStatusCode.BadRequest);
+
+            _eprCalculatorApiServiceMock
+                .Setup(x => x.CallApiForStream(
+                    HttpMethod.Get,
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+
+            await Assert.ThrowsExceptionAsync<HttpRequestException>(() =>
+                _fileDownloadService.DownloadResultFile(108));
+
+            await Assert.ThrowsExceptionAsync<ObjectDisposedException>(() => response.Content.ReadAsByteArrayAsync());
+        }
+
+        [TestMethod]
+        public async Task DownloadFileAsync_DisposingTheFileStream_DisposesTheResponse()
+        {
+            var response = CreateCsvResponse("streamed content"u8.ToArray(), "\"Result_109.csv\"");
+
+            _eprCalculatorApiServiceMock
+                .Setup(x => x.CallApiForStream(
+                    HttpMethod.Get,
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+
+            var fileResult = (FileStreamResult)await _fileDownloadService.DownloadResultFile(109);
+            await fileResult.FileStream.DisposeAsync();
+
+            await Assert.ThrowsExceptionAsync<ObjectDisposedException>(() => response.Content.ReadAsByteArrayAsync());
         }
 
         [TestMethod]
@@ -137,18 +165,16 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                 fileNameStar: "\"AlternativeFile.csv\"");
 
             _eprCalculatorApiServiceMock
-                .Setup(x => x.CallApi(
+                .Setup(x => x.CallApiForStream(
                     HttpMethod.Get,
                     It.IsAny<string>(),
-                    It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             var result = await _fileDownloadService
                 .DownloadResultFile(runId);
 
-            var fileResult = (FileContentResult)result;
+            var fileResult = (FileStreamResult)result;
             Assert.AreEqual("AlternativeFile.csv", fileResult.FileDownloadName);
         }
 
@@ -161,17 +187,15 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
             var response = CreateCsvResponse(content);
 
             _eprCalculatorApiServiceMock
-                .Setup(x => x.CallApi(
+                .Setup(x => x.CallApiForStream(
                     HttpMethod.Get,
                     It.IsAny<string>(),
-                    It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             var result = await _fileDownloadService.DownloadResultFile(runId);
 
-            var fileResult = (FileContentResult)result;
+            var fileResult = (FileStreamResult)result;
             Assert.AreEqual($"Result_{runId}.csv", fileResult.FileDownloadName);
         }
 
@@ -189,17 +213,15 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                 new MediaTypeHeaderValue("text/csv");
 
             _eprCalculatorApiServiceMock
-                .Setup(x => x.CallApi(
+                .Setup(x => x.CallApiForStream(
                     HttpMethod.Get,
                     It.IsAny<string>(),
-                    It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             var result = await _fileDownloadService.DownloadResultFile(runId);
 
-            var fileResult = (FileContentResult)result;
+            var fileResult = (FileStreamResult)result;
             Assert.AreEqual($"Result_{runId}.csv", fileResult.FileDownloadName);
         }
 
@@ -215,18 +237,23 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                 fileNameStar: "\"BillingFromStar.csv\"");
 
             _eprCalculatorApiServiceMock
-                .Setup(x => x.CallApi(
+                .Setup(x => x.CallApiForStream(
                     HttpMethod.Get,
                     It.IsAny<string>(),
-                    It.IsAny<IDictionary<string, string?>>(),
-                    It.IsAny<object>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             var result = await _fileDownloadService.DownloadBillingFile(runId, false);
 
-            var fileResult = (FileContentResult)result;
+            var fileResult = (FileStreamResult)result;
             Assert.AreEqual("BillingFromStar_DRAFT.csv", fileResult.FileDownloadName);
+        }
+
+        private static async Task<byte[]> ReadAllBytes(FileStreamResult fileResult)
+        {
+            using var buffer = new MemoryStream();
+            await fileResult.FileStream.CopyToAsync(buffer);
+            return buffer.ToArray();
         }
 
         private static HttpResponseMessage CreateCsvResponse(

@@ -10,6 +10,9 @@ namespace EPR.Calculator.Frontend.Services;
 public interface IEprCalculatorApiService
 {
     Task<HttpResponseMessage> CallApi(HttpMethod httpMethod, string relativePath, IDictionary<string, string?>? queryParams = null, object? body = null, CancellationToken cancellationToken = default);
+
+    // Returns as soon as the headers arrive so the body can be streamed; the caller owns and must dispose the response.
+    Task<HttpResponseMessage> CallApiForStream(HttpMethod httpMethod, string relativePath, CancellationToken cancellationToken = default);
     Task<CalculatorRunDto?> GetCalculatorRun(int runId);
     Task<Boolean> CheckIfRunNameExists(string runName);
     Task<List<CalculatorRunDto>> FindCalculatorRuns(RelativeYear relativeYear);
@@ -43,12 +46,25 @@ public class EprCalculatorApiService(
     private readonly Uri baseUri = new(configuration.GetRequiredSection("EprCalculatorApiService").GetValue<string>("BaseUrl")!);
 
     /// <inheritdoc />
-    public async Task<HttpResponseMessage> CallApi(
+    public Task<HttpResponseMessage> CallApi(
         HttpMethod httpMethod,
         string relativePath,
         IDictionary<string, string?>? queryParams = null,
         object? body = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        Send(httpMethod, relativePath, queryParams, body, HttpCompletionOption.ResponseContentRead, cancellationToken);
+
+    /// <inheritdoc />
+    public Task<HttpResponseMessage> CallApiForStream(HttpMethod httpMethod, string relativePath, CancellationToken cancellationToken = default) =>
+        Send(httpMethod, relativePath, queryParams: null, body: null, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+
+    private async Task<HttpResponseMessage> Send(
+        HttpMethod httpMethod,
+        string relativePath,
+        IDictionary<string, string?>? queryParams,
+        object? body,
+        HttpCompletionOption completionOption,
+        CancellationToken cancellationToken)
     {
         var uri = queryParams is { Count: > 0 }
             ? new Uri(QueryHelpers.AddQueryString(new Uri(baseUri, relativePath).ToString(), queryParams))
@@ -60,7 +76,7 @@ public class EprCalculatorApiService(
             request.Content = JsonContent.Create(body, options: SerializerOptions);
 
         var client = await GetHttpClient();
-        return await client.SendAsync(request, cancellationToken);
+        return await client.SendAsync(request, completionOption, cancellationToken);
     }
 
     public Task<CalculatorRunDto?> GetCalculatorRun(int runId)
