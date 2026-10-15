@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.IO.Compression;
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 
 namespace EPR.Calculator.Frontend.Services
 {
@@ -12,9 +15,12 @@ namespace EPR.Calculator.Frontend.Services
 
     public class FileDownloadService(
         IEprCalculatorApiService eprCalculatorApiService,
+        IHttpContextAccessor httpContextAccessor,
         ILogger<FileDownloadService> logger)
         : IFileDownloadService
     {
+        private static readonly string[] SupportedEncodings = ["br", "gzip"];
+
         public Task<FileResult> DownloadResultFile(int runId)
         {
             var path = $"v1/downloadResultCsv/{runId}";
@@ -42,9 +48,13 @@ namespace EPR.Calculator.Frontend.Services
             try
             {
                 // Call the ApiService; it handles token acquisition for the current user
+                // Ask only for encodings the browser accepts, so the compressed bytes can be passed straight through.
+                var browserAcceptEncoding = httpContextAccessor.HttpContext?.Request.Headers.AcceptEncoding ?? StringValues.Empty;
+
                 response = await eprCalculatorApiService.CallApiForStream(
                     httpMethod: HttpMethod.Get,
-                    relativePath: relativePath);
+                    relativePath: relativePath,
+                    acceptEncodings: SupportedEncodings.Where(e => Accepts(browserAcceptEncoding, e)).ToArray());
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -59,7 +69,10 @@ namespace EPR.Calculator.Frontend.Services
 
                     var contentStream = await response.Content.ReadAsStreamAsync();
 
-                    return new FileStreamResult(new HttpResponseContentStream(response, contentStream), contentType)
+                    return new EncodedFileStreamResult(
+                        new HttpResponseContentStream(response, contentStream),
+                        contentType,
+                        response.Content.Headers.ContentEncoding.SingleOrDefault())
                     {
                         FileDownloadName = fileName
                     };
@@ -75,6 +88,10 @@ namespace EPR.Calculator.Frontend.Services
             }
         }
 
+        private static bool Accepts(StringValues acceptEncoding, string encoding) =>
+            StringWithQualityHeaderValue.TryParseList(acceptEncoding, out var accepted) &&
+            accepted.Any(a => a.Value.Equals(encoding, StringComparison.OrdinalIgnoreCase) && a.Quality is not 0);
+
         private static string HandleContentDisposition(HttpResponseMessage response, string fileName)
         {
             var contentDisposition = response.Content.Headers.ContentDisposition;
@@ -89,6 +106,37 @@ namespace EPR.Calculator.Frontend.Services
             }
 
             return fileName;
+        }
+
+        /// <summary>
+        /// Relays a possibly compressed API response: passes the compressed bytes straight through when the
+        /// browser accepts that encoding, and decompresses them on the fly when it doesn't.
+        /// </summary>
+        private sealed class EncodedFileStreamResult(Stream fileStream, string contentType, string? contentEncoding)
+            : FileStreamResult(fileStream, contentType)
+        {
+            public override Task ExecuteResultAsync(ActionContext context)
+            {
+                if (contentEncoding is not null)
+                {
+                    var response = context.HttpContext.Response;
+                    response.Headers.Vary = HeaderNames.AcceptEncoding;
+
+                    if (Accepts(context.HttpContext.Request.Headers.AcceptEncoding, contentEncoding))
+                        response.Headers.ContentEncoding = contentEncoding;
+                    else
+                        FileStream = Decompress(FileStream, contentEncoding);
+                }
+
+                return base.ExecuteResultAsync(context);
+            }
+
+            private static Stream Decompress(Stream stream, string encoding) => encoding.ToLowerInvariant() switch
+            {
+                "br" => new BrotliStream(stream, CompressionMode.Decompress),
+                "gzip" => new GZipStream(stream, CompressionMode.Decompress),
+                _ => throw new NotSupportedException($"Unsupported Content-Encoding '{encoding}'")
+            };
         }
 
         /// <summary>
