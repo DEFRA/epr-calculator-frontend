@@ -53,11 +53,7 @@ public class RemoveClassificationController(
         return new RemoveRunClassificationViewModel
         {
             RunId = run.RunId,
-            RunName = run.RunName,
-            RunClassification = run.RunClassification,
-            RelativeYear = run.RelativeYear,
-            CreatedAt = run.CreatedAt,
-            CreatedBy = run.CreatedBy
+            Run = run
         };
     }
 

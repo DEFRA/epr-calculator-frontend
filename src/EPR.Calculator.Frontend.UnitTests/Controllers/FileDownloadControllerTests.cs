@@ -166,7 +166,7 @@ public class FileDownloadControllerTests
         Assert.AreEqual(nameof(FileDownloadController.DownloadError), redirectResult.ActionName);
     }
 
-    private static CalculatorRunDto BuildRun(bool isBillingFileLatest = false, bool hasBeenSentToFss = false)
+    private static CalculatorRunDto BuildRun(bool isBillingFileLatest = false, bool isBillingFileShared = false)
     {
         return new CalculatorRunDto
         {
@@ -181,7 +181,7 @@ public class FileDownloadControllerTests
             {
                 Id = 1,
                 IsLatest = isBillingFileLatest,
-                HasBeenSentToFss = hasBeenSentToFss,
+                IsShared = isBillingFileShared,
                 CsvFileName = "billing.csv",
                 JsonFileName = "billing.json",
                 CreatedAt = DateTime.UtcNow,

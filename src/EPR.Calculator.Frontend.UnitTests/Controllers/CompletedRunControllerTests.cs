@@ -38,7 +38,7 @@ public class CompletedRunControllerTests
     public async Task Index_WhenRunExistsAndClassificationIsEligible_ReturnsPostBillingFileViewWithExpectedModel()
     {
         // Arrange
-        var run = BuildRun(RunClassification.InitialCompleted);
+        var run = BuildRun(RunClassification.Initial, CalculationRunStatus.Completed);
         apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync(run);
         var controller = BuildController();
 
@@ -106,13 +106,16 @@ public class CompletedRunControllerTests
         return controller;
     }
 
-    private static CalculatorRunDto BuildRun(RunClassification runClassification)
+    private static CalculatorRunDto BuildRun(
+        RunClassification runClassification,
+        CalculationRunStatus calculationRunStatus = CalculationRunStatus.None)
     {
         return new CalculatorRunDto
         {
             RunId = RunId,
             RunName = $"Run {RunId}",
             RunClassification = runClassification,
+            CalculationRunStatus = calculationRunStatus,
             RelativeYear = new RelativeYear(RelativeYearValue),
             CreatedAt = DateTime.UtcNow,
             CreatedBy = UserName,

@@ -17,16 +17,17 @@ public class CalculationRunDetailsNewController(IEprCalculatorApiService eprCalc
     {
         var viewModel = await CreateViewModel(runId);
 
-        if (viewModel == null)
-            return RedirectToError();
-
-        if (viewModel.RunClassification == RunClassification.Errored)
-        {
+        if (viewModel.CalculationRunStatus == CalculationRunStatus.Errored)
             ModelState.AddModelError(viewModel.RunName, ErrorMessages.RunDetailError);
-            return View(ViewNames.CalculationRunDetailsNewErrorPage, viewModel);
-        }
 
-        return View(ViewNames.CalculationRunDetailsNewIndex, viewModel);
+        if(viewModel.BillingRunStatus == BillingRunStatus.Errored)
+            ModelState.AddModelError(viewModel.RunName, ErrorMessages.BillingRunDetailError);
+
+        var viewName = ModelState.IsValid
+            ? ViewNames.CalculationRunDetailsNewIndex
+            : ViewNames.CalculationRunDetailsNewErrorPage;
+
+        return View(viewName, viewModel);
     }
 
     [HttpPost]
@@ -38,7 +39,8 @@ public class CalculationRunDetailsNewController(IEprCalculatorApiService eprCalc
             if (ModelState[nameof(model.RunId)] is { ValidationState: ModelValidationState.Invalid })
                 return RedirectToError();
 
-            return await Index(model.RunId);
+            var viewModel = await CreateViewModel(model.RunId);
+            return View(ViewNames.CalculationRunDetailsNewIndex, viewModel);
         }
 
         return model.SelectedCalcRunOption switch
@@ -49,18 +51,20 @@ public class CalculationRunDetailsNewController(IEprCalculatorApiService eprCalc
         };
     }
 
-    private async Task<CalculatorRunDetailsNewViewModel?> CreateViewModel(int runId)
+    private async Task<CalculatorRunDetailsNewViewModel> CreateViewModel(int runId)
     {
         var run = await eprCalculatorApiService.GetCalculatorRun(runId);
 
         if (run == null)
-            return null;
+            throw new BadHttpRequestException("Run not found");
 
         return new CalculatorRunDetailsNewViewModel
         {
             RunId = run.RunId,
             RunName = run.RunName,
             RunClassification = run.RunClassification,
+            CalculationRunStatus = run.CalculationRunStatus,
+            BillingRunStatus = run.BillingRunStatus,
             RelativeYear = run.RelativeYear,
             CreatedAt = run.CreatedAt,
             CreatedBy = run.CreatedBy

@@ -8,11 +8,11 @@ public record CalculatorRunOverviewViewModel
     public required CalculatorRunDto Run { get; set; }
 
     public bool IsBillingFileRunning =>
-        Run.BillingRunStatus == BillingRunStatus.Running;
+        Run.BillingRunStatus == BillingRunStatus.Started;
 
     public bool IsBillingFileErrored =>
         Run.BillingRunStatus == BillingRunStatus.Errored
-        || (Run.BillingRunStatus == BillingRunStatus.Running && Run.BillingRunStartedAt < DateTime.UtcNow.AddMinutes(-60));
+        || (Run.BillingRunStatus == BillingRunStatus.Started && Run.BillingRunStartedAt < DateTime.UtcNow.AddMinutes(-60));
 
     public bool IsOutdatedBillingFile =>
         Run.BillingRunStatus == BillingRunStatus.Completed
@@ -23,7 +23,7 @@ public record CalculatorRunOverviewViewModel
         && Run.BillingFile!.IsLatest;
 
     public bool IsNewBillingRunAllowed =>
-        Run.BillingRunStatus != BillingRunStatus.Running
+        Run.BillingRunStatus != BillingRunStatus.Started
         && !IsLatestBillingFile;
 
     public bool IsRemoveClassificationAllowed =>
