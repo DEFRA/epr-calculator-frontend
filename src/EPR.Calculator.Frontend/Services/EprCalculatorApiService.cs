@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net.Http.Headers;
+using System.Text.Json;
 using EPR.Calculator.Frontend.Converters;
 using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.WebUtilities;
@@ -11,8 +12,9 @@ public interface IEprCalculatorApiService
 {
     Task<HttpResponseMessage> CallApi(HttpMethod httpMethod, string relativePath, IDictionary<string, string?>? queryParams = null, object? body = null, CancellationToken cancellationToken = default);
 
-    // Returns as soon as the headers arrive so the body can be streamed; the caller owns and must dispose the response.
-    Task<HttpResponseMessage> CallApiForStream(HttpMethod httpMethod, string relativePath, CancellationToken cancellationToken = default);
+    // Returns as soon as the headers arrive so the body can be streamed, asking for the body in one of the given encodings
+    // (check Content-Encoding); the caller owns and must dispose the response.
+    Task<HttpResponseMessage> CallApiForStream(HttpMethod httpMethod, string relativePath, IEnumerable<string> acceptEncodings, CancellationToken cancellationToken = default);
     Task<CalculatorRunDto?> GetCalculatorRun(int runId);
     Task<Boolean> CheckIfRunNameExists(string runName);
     Task<List<CalculatorRunDto>> FindCalculatorRuns(RelativeYear relativeYear);
@@ -52,11 +54,11 @@ public class EprCalculatorApiService(
         IDictionary<string, string?>? queryParams = null,
         object? body = null,
         CancellationToken cancellationToken = default) =>
-        Send(httpMethod, relativePath, queryParams, body, HttpCompletionOption.ResponseContentRead, cancellationToken);
+        Send(httpMethod, relativePath, queryParams, body, HttpCompletionOption.ResponseContentRead, acceptEncodings: [], cancellationToken);
 
     /// <inheritdoc />
-    public Task<HttpResponseMessage> CallApiForStream(HttpMethod httpMethod, string relativePath, CancellationToken cancellationToken = default) =>
-        Send(httpMethod, relativePath, queryParams: null, body: null, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+    public Task<HttpResponseMessage> CallApiForStream(HttpMethod httpMethod, string relativePath, IEnumerable<string> acceptEncodings, CancellationToken cancellationToken = default) =>
+        Send(httpMethod, relativePath, queryParams: null, body: null, HttpCompletionOption.ResponseHeadersRead, acceptEncodings, cancellationToken);
 
     private async Task<HttpResponseMessage> Send(
         HttpMethod httpMethod,
@@ -64,6 +66,7 @@ public class EprCalculatorApiService(
         IDictionary<string, string?>? queryParams,
         object? body,
         HttpCompletionOption completionOption,
+        IEnumerable<string> acceptEncodings,
         CancellationToken cancellationToken)
     {
         var uri = queryParams is { Count: > 0 }
@@ -74,6 +77,9 @@ public class EprCalculatorApiService(
 
         if (body is not null)
             request.Content = JsonContent.Create(body, options: SerializerOptions);
+
+        foreach (var encoding in acceptEncodings)
+            request.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue(encoding));
 
         var client = await GetHttpClient();
         return await client.SendAsync(request, completionOption, cancellationToken);

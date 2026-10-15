@@ -107,7 +107,7 @@ public class EprCalculatorApiServiceTests
         };
 
         // Act
-        var call = _service.CallApiForStream(HttpMethod.Get, "v1/downloadResultCsv/45");
+        var call = _service.CallApiForStream(HttpMethod.Get, "v1/downloadResultCsv/45", ["br", "gzip"]);
         var completed = await Task.WhenAny(call, Task.Delay(TimeSpan.FromSeconds(5)));
 
         // Assert
@@ -117,6 +117,14 @@ public class EprCalculatorApiServiceTests
         Assert.AreEqual(new Uri($"{BaseApiUrl}v1/downloadResultCsv/45"), _messageHandler.LastRequest!.RequestUri);
         Assert.AreEqual("Bearer access-token", _httpClient.DefaultRequestHeaders.GetValues("Authorization").Single());
         await pipe.Writer.CompleteAsync();
+    }
+
+    [TestMethod]
+    public async Task CallApiForStream_AsksForTheGivenEncodings()
+    {
+        using var response = await _service.CallApiForStream(HttpMethod.Get, "v1/downloadResultCsv/45", ["gzip"]);
+
+        CollectionAssert.AreEqual(new[] { "gzip" }, _messageHandler.LastRequest!.Headers.AcceptEncoding.Select(e => e.Value).ToArray());
     }
 
     [TestMethod]
