@@ -5,7 +5,6 @@ using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using SessionExtensions = EPR.Calculator.Frontend.Extensions.SessionExtensions;
 
 namespace EPR.Calculator.Frontend.Controllers;
@@ -33,31 +32,6 @@ public class DashboardController(
         return View(ViewNames.DashboardIndex, model);
     }
 
-    /// <summary>
-    ///     Returns the list of calculation runs for the given relative year.
-    /// </summary>
-    /// <param name="relativeYear">The relative year to filter the calculation runs.</param>
-    /// <returns>The list of calculation runs.</returns>
-    [Route("Dashboard/GetCalculations")]
-    public async Task<IActionResult> GetCalculations(int relativeYear) // matches query param name
-    {
-        var model = await GetDashboardViewModel(new RelativeYear(relativeYear));
-        return PartialView("_CalculationRunsPartial", model.Calculations);
-    }
-
-    private static List<RelativeYear> GetFilteredRelativeYears(List<RelativeYear> allYears, int relativeYearStartingMonth)
-    {
-        var today = DateTime.Today;
-        var currentStartYear = today.Month >= relativeYearStartingMonth ? today.Year : today.Year - 1;
-
-        var filteredYears = allYears
-            .Where(y => y.Value <= currentStartYear)
-            .OrderByDescending(y => y.Value)
-            .ToList();
-
-        return filteredYears;
-    }
-
     private async Task<DashboardViewModel> GetDashboardViewModel(RelativeYear relativeYear)
     {
         HttpContext.Session.SetInt32(SessionConstants.RelativeYear, relativeYear.Value);
@@ -65,7 +39,6 @@ public class DashboardController(
         var dashboardViewModel = new DashboardViewModel
         {
             RelativeYear = relativeYear,
-            RelativeYearSelectList = await GetRelativeYearsAsync(relativeYear),
             Calculations = await FindCalculatorRunsAsync(relativeYear)
         };
 
@@ -83,28 +56,5 @@ public class DashboardController(
                 Run = run
             })
             .ToList();
-    }
-
-    private async Task<List<SelectListItem>> GetRelativeYearsAsync(RelativeYear selectedRelativeYear)
-    {
-        var relativeYears = await eprCalculatorApiService.FindRelativeYears();
-        relativeYears = GetFilteredRelativeYears(relativeYears, relativeYearStartingMonth);
-
-        // Ensure current year is first
-        var currentYear = CommonUtil.GetDefaultRelativeYear(DateTime.UtcNow, relativeYearStartingMonth);
-        relativeYears.Remove(currentYear);
-        relativeYears.Insert(0, currentYear);
-
-        // Build SelectListItem list
-        var selectList = relativeYears
-            .Select(y => new SelectListItem
-            {
-                Value = y.Value.ToString(),
-                Text = y.ToFinancialYear(),
-                Selected = y == selectedRelativeYear
-            })
-            .ToList();
-
-        return selectList;
     }
 }

@@ -31,6 +31,11 @@
         public const string DashboardIndex = "~/Views/Dashboard/Index.cshtml";
 
         /// <summary>
+        /// Change financial year index page view.
+        /// </summary>
+        public const string ChangeFinancialYearIndex = "~/Views/ChangeFinancialYear/Index.cshtml";
+
+        /// <summary>
         /// Local authority disposal costs index page view.
         /// </summary>
         public const string LocalAuthorityDisposalCostsIndex = "~/Views/LocalAuthorityDisposalCosts/Index.cshtml";

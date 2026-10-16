@@ -4,9 +4,7 @@
     ViewData["Title"] = "Index";
 }
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-
-<vc:user-nav show-back-link="false"/>
+<vc:user-nav show-back-link="false" relative-year="@Model.RelativeYear"/>
 
 <div class="govuk-grid-row dashboard-page">
     <div class="govuk-grid-column-full">
@@ -33,48 +31,15 @@
             </div>
         </div>
 
-        <div class="govuk-grid-row header-container">
-            <div class="govuk-grid-column-two-third caption-text">
-                <h2 class="govuk-heading-l govuk-!-margin-top-3 govuk-!-margin-bottom-0">Calculation runs</h2>
-                <p class="govuk-body-s">View and select a calculation run. You can also filter by financial year to find previous runs.</p>
-            </div>
-            <div class="govuk-grid-column-one-third filter-container">
-                <div class="govuk-form-group">
-                    <label class="govuk-label" for="financial-year-list">
-                        Select a financial year
-                    </label>
-                    @Html.DropDownListFor(
-                        m => m.RelativeYear,
-                        Model.RelativeYearSelectList ?? new List<SelectListItem>(),
-                        new { @class = "govuk-select", id = "financial-year-list" }
-                    )
-                </div>
-            </div>
-        </div>
-        <div id="calculation-runs">
+        @if (Model.Calculations.Count > 0)
+        {
+            <h2 class="govuk-heading-l govuk-!-margin-top-3">Calculation runs</h2>
             @await Html.PartialAsync("_CalculationRunsPartial", Model.Calculations)
-        </div>
+        }
+        else
+        {
+            <h2 class="govuk-heading-l govuk-!-margin-top-3">There are no calculations for @Model.RelativeYear.ToFullFinancialYear()</h2>
+            <p class="govuk-body">When you run a waste disposal fee calculation, it will appear here.</p>
+        }
     </div>
 </div>
-
-<script type="text/javascript" nonce="@Context.Items["CspNonce"]">
-    $(document).ready(() => {
-        var relativeYearListDropdown = $('#financial-year-list');
-
-        relativeYearListDropdown.change(function () {
-            var selectedRelativeYear = $(this).val();
-            $.ajax({
-                url: '@Url.Action("GetCalculations", ControllerNames.Dashboard)',
-                type: 'GET',
-                data: { relativeYear: selectedRelativeYear },
-                success: function (data) {
-                    $('#calculation-runs').html(data);
-                },
-                error: function (error) {
-                    console.warn(`Unable to get the calculator runs for the financial year ${selectedRelativeYear}`);
-                    window.location.href = '/StandardError';
-                }
-            });
-        });
-    });
-</script>

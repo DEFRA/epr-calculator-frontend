@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using EPR.Calculator.Frontend.Components.UserNav;
+using EPR.Calculator.Frontend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -69,6 +70,37 @@ public class UserNavViewComponentTests
 
         // Assert
         Assert.IsNull(model.BackLinkUrl);
+    }
+
+    [TestMethod]
+    public void Invoke_WhenBackLinkTextNotProvided_DefaultsToBack()
+    {
+        // Act
+        var model = GetModel(component.Invoke("/dashboard"));
+
+        // Assert
+        Assert.AreEqual("Back", model.BackLinkText);
+    }
+
+    [TestMethod]
+    public void Invoke_WhenBackLinkTextProvided_SetsBackLinkText()
+    {
+        // Act
+        var model = GetModel(component.Invoke("/dashboard", backLinkText: "Return to dashboard"));
+
+        // Assert
+        Assert.AreEqual("Return to dashboard", model.BackLinkText);
+    }
+
+    [TestMethod]
+    public void Invoke_WhenRelativeYearProvided_SetsRelativeYear()
+    {
+        // Act
+        var result = component.Invoke(showBackLink: false, relativeYear: new RelativeYear(2026));
+        var model = GetModel(result);
+
+        // Assert
+        Assert.AreEqual(new RelativeYear(2026), model.RelativeYear);
     }
 
     [TestMethod]
