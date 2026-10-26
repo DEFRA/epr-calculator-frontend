@@ -1,7 +1,7 @@
-@model SendBillingFileViewModel
+@model ShareBillingFileViewModel
 
 @{
-    var hasError = ViewData.ModelState["ConfirmSend"]?.Errors.Any() == true;
+    var hasError = ViewData.ModelState[nameof(ShareBillingFileFormModel.ConfirmShare)]?.Errors.Any() == true;
     var formGroupClass = "govuk-form-group" + (hasError ? " govuk-form-group--error" : "");
 }
 
@@ -9,17 +9,17 @@
 
 @if (!Model.IsBillingFileLatest)
 {
-    <partial name="_BillingInstructionsPartial" model="@Url.Action(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId = Model.RunId })" />
+    <partial name="_BillingInstructionsPartial"
+             model="@Url.Action(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId = Model.RunId })"/>
 }
 
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-
-            @* ✅ GOV.UK Error Summary *@
+        <div class="govuk-grid-column-three-quarters">
             @if (!ViewData.ModelState.IsValid)
             {
-                <div class="govuk-error-summary" data-module="govuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabindex="-1">
+                <div class="govuk-error-summary" data-module="govuk-error-summary" role="alert"
+                     aria-labelledby="error-summary-title" tabindex="-1">
                     <h2 class="govuk-error-summary__title" id="error-summary-title">
                         There is a problem
                     </h2>
@@ -28,7 +28,7 @@
                             @if (hasError)
                             {
                                 <li>
-                                    <a href="#ConfirmSend">Please confirm before continuing.</a>
+                                    <a href="#Confirm">@ViewData.ModelState[nameof(ShareBillingFileFormModel.ConfirmShare)]?.Errors.First().ErrorMessage</a>
                                 </li>
                             }
                         </ul>
@@ -41,53 +41,73 @@
                 @Html.AntiForgeryToken()
                 @Html.HiddenFor(m => m.RunId)
 
-                <span class="govuk-caption-l">@Model.CalcRunName</span>
-                <h1 class="govuk-heading-l">@Model.SendBillFileHeading</h1>
-
+                <h1 class="govuk-heading-l">Share billing file</h1>
                 <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
 
-                <p class="govuk-body">@Model.ConfirmationContent</p>
+                <p class="govuk-body">
+                    You are about to share this billing file with the Financial Services Supplier (FSS).
+                </p>
+
+                <table class="govuk-table">
+                    <caption class="govuk-visually-hidden">
+                        Details of the calculation run.
+                    </caption>
+                    <tbody class="govuk-table__body">
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Run name</th>
+                        <td class="govuk-table__cell" colspan="2">@Model.Run.RunName</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Financial year</th>
+                        <td class="govuk-table__cell" colspan="2">@Model.Run.RelativeYear.ToFinancialYear()</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Billing file</th>
+                        <td class="govuk-table__cell">@Model.Run.BillingFile?.CsvFileName</td>
+                        <td class="govuk-table__cell">
+                            <a class="govuk-link govuk-link--no-visited-state"
+                               href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController, new { Model.RunId })">
+                                Download billing file
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-visually-hidden">Warning</span>
+                        You cannot change the billing decisions for this run in PayCal after you share the file.
+                    </strong>
+                </div>
 
                 <div class="@formGroupClass">
-                    <fieldset class="govuk-fieldset" aria-describedby="@(hasError ? "ConfirmSend-error" : null)">
-                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                            <h2 class="govuk-fieldset__heading">Confirm you’re ready to send</h2>
-                        </legend>
-
+                    <fieldset class="govuk-fieldset" aria-describedby="@(hasError ? "Confirm-error" : null)">
                         @if (hasError)
                         {
-                            <p id="ConfirmSend-error" class="govuk-error-message">
+                            <p id="Confirm-error" class="govuk-error-message">
                                 <span class="govuk-visually-hidden">Error:</span>
-                                @ViewData.ModelState["ConfirmSend"]?.Errors.First().ErrorMessage
+                                @ViewData.ModelState[nameof(ShareBillingFileFormModel.ConfirmShare)]?.Errors.First().ErrorMessage
                             </p>
                         }
 
                         <div class="govuk-checkboxes" data-module="govuk-checkboxes">
                             <div class="govuk-checkboxes__item">
-                                <input type="checkbox" class="govuk-checkboxes__input" id="ConfirmSend" name="ConfirmSend" value="true" @(Model.ConfirmSend == true ? "checked" : "") />
-                                <label class="govuk-label govuk-checkboxes__label" for="ConfirmSend">
-                                    I’ve checked the billing file and I’m ready to send it to the FSS.
+                                <input type="checkbox" class="govuk-checkboxes__input" id="Confirm"
+                                       name="Confirm" value="true" @(Model.ConfirmShare == true ? "checked" : "")/>
+                                <label class="govuk-label govuk-checkboxes__label" for="Confirm">
+                                    I have checked this billing file and am ready to share it.
                                 </label>
                             </div>
                         </div>
                     </fieldset>
                 </div>
 
-                <div class="govuk-warning-text">
-                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                    <strong class="govuk-warning-text__text">
-                        <span class="govuk-visually-hidden">Warning</span>
-                        @Model.WarningContent
-                    </strong>
-                </div>
-
                 <div class="govuk-button-group">
-                    <button type="submit" @(Model.IsBillingFileLatest ? "" : "disabled") class="govuk-button" data-module="govuk-button">
-                        @ActionLinkLabels.SendBillingFile
+                    <button type="submit" @(Model.IsBillingFileLatest ? "" : "disabled") class="govuk-button"
+                            data-module="govuk-button">
+                        Share billing file
                     </button>
-                    <a href="@Url.Action(ActionNames.Index, ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">
-                        @ActionLinkLabels.ReturnToDashBoard
-                    </a>
                 </div>
             }
         </div>
