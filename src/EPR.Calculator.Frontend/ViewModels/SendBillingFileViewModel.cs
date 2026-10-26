@@ -1,23 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Validators;
 
 namespace EPR.Calculator.Frontend.ViewModels;
 
-public record SendBillingFileViewModel : SendBillingFileFormModel
+public record ShareBillingFileViewModel : ShareBillingFileFormModel
 {
-    public required string CalcRunName { get; init; }
-    public string SendBillFileHeading { get; init; } = CommonConstants.SendBillingFile;
-    public string ConfirmationContent { get; init; } = CommonConstants.ConfirmationContent;
-    public string WarningContent { get; init; } = CommonConstants.WarningContent;
-    public bool IsBillingFileLatest { get; init; }
+    public required CalculatorRunDto Run { get; init; }
+    public bool IsBillingFileLatest => Run.BillingFile?.IsLatest == true;
 }
 
-public record SendBillingFileFormModel
+public record ShareBillingFileFormModel
 {
     [Range(1, int.MaxValue)] public required int RunId { get; init; }
 
-    [MustBeTrue(ErrorMessage = "You must confirm that you’ve checked the billing file before sending it.")]
-    [Display(Name = "ConfirmSend")]
-    public bool? ConfirmSend { get; init; }
+    [MustBeTrue(ErrorMessage = "Select the checkbox to confirm that you want to share the billing file")]
+    public bool? ConfirmShare { get; init; }
 }
