@@ -52,6 +52,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
@@ -78,6 +79,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
@@ -100,6 +102,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
@@ -123,6 +126,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
@@ -140,6 +144,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
@@ -159,6 +164,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
@@ -184,6 +190,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
@@ -207,6 +214,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
@@ -234,6 +242,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
@@ -259,6 +268,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
@@ -308,8 +318,8 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                 _browserRequest.Request.Headers.AcceptEncoding = browserAcceptEncoding;
             IEnumerable<string>? requestedEncodings = null;
             _eprCalculatorApiServiceMock
-                .Setup(x => x.CallApiForStream(HttpMethod.Get, It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-                .Callback<HttpMethod, string, IEnumerable<string>, CancellationToken>((_, _, encodings, _) => requestedEncodings = encodings)
+                .Setup(x => x.CallApiForStream(HttpMethod.Get, It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<IDictionary<string, string?>>(), It.IsAny<CancellationToken>()))
+                .Callback<HttpMethod, string, IEnumerable<string>, IDictionary<string, string?>?, CancellationToken>((_, _, encodings, _, _) => requestedEncodings = encodings)
                 .ReturnsAsync(CreateCsvResponse("a,b"u8.ToArray(), "\"Result.csv\""));
 
             await _fileDownloadService.DownloadResultFile(112);
@@ -323,6 +333,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
                     HttpMethod.Get,
                     It.IsAny<string>(),
                     It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IDictionary<string, string?>>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
@@ -397,6 +408,53 @@ namespace EPR.Calculator.Frontend.UnitTests.Services
             }
 
             return response;
+        }
+
+        [DataRow(null, null)]
+        [DataRow(true, "True")]
+        [DataRow(false, "False")]
+        [TestMethod]
+        public async Task DownloadBillingJson_CallsApiWithQueryParams_AndReturnsFile(bool? downloadFromBlobStorage, string? expectedQueryValue)
+        {
+            // Arrange
+            int runId = 100;
+            byte[] content = "{}"u8.ToArray();
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(content)
+            };
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = "\"billing_100.json\""
+            };
+
+            IDictionary<string, string?>? capturedQueryParams = null;
+            _eprCalculatorApiServiceMock
+                .Setup(x => x.CallApiForStream(
+                    HttpMethod.Get,
+                    $"v1/downloadBillingJson/{runId}",
+                    It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IDictionary<string, string?>>(),
+                    It.IsAny<CancellationToken>()))
+                .Callback<HttpMethod, string, IEnumerable<string>, IDictionary<string, string?>?, CancellationToken>(
+                    (_, _, _, queryParams, _) => capturedQueryParams = queryParams)
+                .ReturnsAsync(response);
+
+            // Act
+            var result = await _fileDownloadService.DownloadBillingJson(runId, downloadFromBlobStorage);
+
+            // Assert
+            var fileResult = (FileStreamResult)result;
+            Assert.AreEqual("billing_100.json", fileResult.FileDownloadName);
+            Assert.AreEqual("application/json", fileResult.ContentType);
+            CollectionAssert.AreEqual(content, await ReadAllBytes(fileResult));
+
+            if (expectedQueryValue == null)
+                Assert.IsNull(capturedQueryParams);
+            else
+                Assert.AreEqual(expectedQueryValue, capturedQueryParams!["downloadFromBlobStorage"]);
         }
     }
 }

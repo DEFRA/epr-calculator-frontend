@@ -166,6 +166,49 @@ public class FileDownloadControllerTests
         Assert.AreEqual(nameof(FileDownloadController.DownloadError), redirectResult.ActionName);
     }
 
+    [DataRow(null)]
+    [DataRow(true)]
+    [DataRow(false)]
+    [TestMethod]
+    public async Task DownloadBillingJson_WhenDownloadSucceeds_ReturnsFileResult(bool? downloadFromBlobStorage)
+    {
+        // Arrange
+        var expectedResult = new FileContentResult([ 4, 5, 6 ], "application/json")
+        {
+            FileDownloadName = "billing.json"
+        };
+
+        fileDownloadService
+            .Setup(service => service.DownloadBillingJson(RunId, downloadFromBlobStorage))
+            .ReturnsAsync(expectedResult);
+
+        // Act
+        var result = await controller.DownloadBillingJson(RunId, downloadFromBlobStorage);
+
+        // Assert
+        Assert.AreSame(expectedResult, result);
+        fileDownloadService.Verify(
+            service => service.DownloadBillingJson(RunId, downloadFromBlobStorage),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DownloadBillingJson_WhenDownloadThrows_RedirectsToDownloadFileError()
+    {
+        // Arrange
+        fileDownloadService
+            .Setup(service => service.DownloadBillingJson(It.IsAny<int>(), It.IsAny<bool?>()))
+            .ThrowsAsync(new InvalidOperationException("Billing json download failed"));
+
+        // Act
+        var result = await controller.DownloadBillingJson(RunId);
+
+        // Assert
+        var redirectResult = result as RedirectToActionResult;
+        Assert.IsNotNull(redirectResult);
+        Assert.AreEqual(nameof(FileDownloadController.DownloadError), redirectResult.ActionName);
+    }
+
     private static CalculatorRunDto BuildRun(bool isBillingFileLatest = false, bool isBillingFileShared = false)
     {
         return new CalculatorRunDto

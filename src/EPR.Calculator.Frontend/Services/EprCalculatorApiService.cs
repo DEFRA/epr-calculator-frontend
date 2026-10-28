@@ -14,7 +14,7 @@ public interface IEprCalculatorApiService
 
     // Returns as soon as the headers arrive so the body can be streamed, asking for the body in one of the given encodings
     // (check Content-Encoding); the caller owns and must dispose the response.
-    Task<HttpResponseMessage> CallApiForStream(HttpMethod httpMethod, string relativePath, IEnumerable<string> acceptEncodings, CancellationToken cancellationToken = default);
+    Task<HttpResponseMessage> CallApiForStream(HttpMethod httpMethod, string relativePath, IEnumerable<string> acceptEncodings, IDictionary<string, string?>? queryParams = null, CancellationToken cancellationToken = default);
     Task<CalculatorRunDto?> GetCalculatorRun(int runId);
     Task<Boolean> CheckIfRunNameExists(string runName);
     Task<List<CalculatorRunDto>> FindCalculatorRuns(RelativeYear relativeYear);
@@ -57,8 +57,8 @@ public class EprCalculatorApiService(
         Send(httpMethod, relativePath, queryParams, body, HttpCompletionOption.ResponseContentRead, acceptEncodings: [], cancellationToken);
 
     /// <inheritdoc />
-    public Task<HttpResponseMessage> CallApiForStream(HttpMethod httpMethod, string relativePath, IEnumerable<string> acceptEncodings, CancellationToken cancellationToken = default) =>
-        Send(httpMethod, relativePath, queryParams: null, body: null, HttpCompletionOption.ResponseHeadersRead, acceptEncodings, cancellationToken);
+    public Task<HttpResponseMessage> CallApiForStream(HttpMethod httpMethod, string relativePath, IEnumerable<string> acceptEncodings, IDictionary<string, string?>? queryParams = null, CancellationToken cancellationToken = default) =>
+        Send(httpMethod, relativePath, queryParams, body: null, HttpCompletionOption.ResponseHeadersRead, acceptEncodings, cancellationToken);
 
     private async Task<HttpResponseMessage> Send(
         HttpMethod httpMethod,
