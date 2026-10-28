@@ -53,6 +53,21 @@ public class FileDownloadController(
         }
     }
 
+    [HttpGet]
+    [Route("DownloadBillingJson/{runId:int}")]
+    public async Task<IActionResult> DownloadBillingJson(int runId, [FromQuery] bool? downloadFromBlobStorage = null)
+    {
+        try
+        {
+            return await fileDownloads.DownloadBillingJson(runId, downloadFromBlobStorage);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error when downloading billing json for {RunId}", runId);
+            return RedirectToAction(nameof(DownloadError));
+        }
+    }
+
     [Route("DownloadError")]
     public IActionResult DownloadError()
     {
