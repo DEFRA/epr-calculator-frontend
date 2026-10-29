@@ -1,3 +1,5 @@
+using EPR.Calculator.Frontend.Models;
+
 namespace EPR.Calculator.Frontend.ViewModels.CsvUpload;
 
 public static class CsvUploadDomElements
@@ -10,11 +12,11 @@ public static class CsvUploadDomElements
 
 public record CsvUploadViewModel
 {
+    public required RelativeYear RelativeYear { get; init; }
     public required string Title { get; init; }
     public required string BackLinkUrl { get; init; }
     public required string UploadUrl { get; init; }
-    public TemplateDownloadViewModel? DownloadTemplate { get; init; }
-    public bool HasDownloadableTemplate => DownloadTemplate != null;
+    public required TemplateDownloadViewModel DownloadTemplate { get; init; }
     public bool HasErrors => Errors?.HasErrors ?? false;
     public ErrorsViewModel? Errors { get; init; }
 
@@ -24,6 +26,7 @@ public record CsvUploadViewModel
 
     public record TemplateDownloadViewModel
     {
+        public required string Description { get; init; }
         public required string Url { get; init; }
         public required string LinkText { get; init; }
     }

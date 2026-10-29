@@ -1,63 +1,83 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Security.Claims;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
-using EPR.Calculator.Frontend.ViewModels;
-using Microsoft.AspNetCore.Authorization;
+using EPR.Calculator.Frontend.UnitTests.Mocks;
+using EPR.Calculator.Frontend.ViewModels.CsvUpload;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.Extensions.Configuration;
+using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers;
 
 [TestClass]
 public class DefaultParametersConfirmationControllerTests
 {
-    private const string SuperUserRole = "SASuperUser";
+    private const int RelativeYearStartingMonth = 4;
+    private const int SelectedRelativeYear = 2026;
+    private IConfiguration configuration = null!;
+    private InMemorySession session = null!;
+
     private DefaultParametersConfirmationController controller = null!;
 
     [TestInitialize]
     public void TestInitialize()
     {
-        controller = new DefaultParametersConfirmationController();
+        configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+            [
+                new KeyValuePair<string, string?>(
+                    CommonConstants.RelativeYearStartingMonth,
+                    RelativeYearStartingMonth.ToString())
+            ])
+            .Build();
+
+        session = new InMemorySession();
+        session.SetInt32(SessionConstants.RelativeYear, SelectedRelativeYear);
+        controller = BuildController(session);
     }
 
     [TestMethod]
     public void Index_ReturnsExpectedViewAndConfirmationModel()
     {
-        // Arrange
-
         // Act
         var result = controller.Index();
-        var model = GetConfirmationModel(result);
+        var model = GetViewModel(result);
 
         // Assert
         Assert.IsNotNull(result as ViewResult);
-        Assert.AreEqual(ViewNames.ParameterConfirmationIndex, ((ViewResult)result).ViewName);
-        Assert.AreEqual(ParameterConfirmation.Title, model.Title);
-        Assert.AreEqual(ParameterConfirmation.Body, model.Body);
-        Assert.AreEqual(ParameterConfirmation.RedirectController, model.RedirectController);
-        Assert.AreEqual(ParameterConfirmation.SubmitText, model.SubmitText);
-        CollectionAssert.AreEqual(ParameterConfirmation.AdditionalParagraphs.ToList(), model.AdditionalParagraphs);
+        Assert.AreEqual("Views/CsvUpload/Success", ((ViewResult)result).ViewName);
+        Assert.AreEqual("Calculator parameters saved for 2026 to 2027", model.Title);
     }
 
-    [TestMethod]
-    public void Index_CreatesNewModelAndParagraphCollectionPerCall()
-    {
-        // Arrange
-
-        // Act
-        var firstModel = GetConfirmationModel(controller.Index());
-        var secondModel = GetConfirmationModel(controller.Index());
-
-        // Assert
-        Assert.AreNotSame(firstModel, secondModel);
-        Assert.AreNotSame(firstModel.AdditionalParagraphs, secondModel.AdditionalParagraphs);
-        CollectionAssert.AreEqual(firstModel.AdditionalParagraphs, secondModel.AdditionalParagraphs);
-    }
-
-    private static ConfirmationViewModel GetConfirmationModel(IActionResult actionResult)
+    private static CsvUploadSuccessViewModel GetViewModel(IActionResult actionResult)
     {
         var viewResult = actionResult as ViewResult;
         Assert.IsNotNull(viewResult);
-        Assert.IsInstanceOfType<ConfirmationViewModel>(viewResult.Model);
+        Assert.IsInstanceOfType<CsvUploadSuccessViewModel>(viewResult.Model);
 
-        return (ConfirmationViewModel)viewResult.Model;
+        return (CsvUploadSuccessViewModel)viewResult.Model;
+    }
+
+    private DefaultParametersConfirmationController BuildController(ISession controllerSession)
+    {
+        var urlHelper = new Mock<IUrlHelper>();
+        urlHelper
+            .Setup(helper => helper.Action(It.IsAny<UrlActionContext>()))
+            .Returns((UrlActionContext context) => $"/{context.Controller}/{context.Action}");
+
+        return new DefaultParametersConfirmationController(configuration)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    Session = controllerSession,
+                    User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "test.user@paycal")], "TestAuth"))
+                }
+            },
+            Url = urlHelper.Object
+        };
     }
 }
