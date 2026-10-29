@@ -1,64 +1,83 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Security.Claims;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
-using EPR.Calculator.Frontend.ViewModels;
+using EPR.Calculator.Frontend.UnitTests.Mocks;
+using EPR.Calculator.Frontend.ViewModels.CsvUpload;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.Extensions.Configuration;
+using Moq;
 
 namespace EPR.Calculator.Frontend.UnitTests.Controllers;
 
 [TestClass]
 public class LocalAuthorityConfirmationControllerTests
 {
+    private const int RelativeYearStartingMonth = 4;
+    private const int SelectedRelativeYear = 2026;
+    private IConfiguration configuration = null!;
+    private InMemorySession session = null!;
+
     private LocalAuthorityConfirmationController controller = null!;
 
     [TestInitialize]
     public void TestInitialize()
     {
-        controller = new LocalAuthorityConfirmationController();
+        configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+            [
+                new KeyValuePair<string, string?>(
+                    CommonConstants.RelativeYearStartingMonth,
+                    RelativeYearStartingMonth.ToString())
+            ])
+            .Build();
+
+        session = new InMemorySession();
+        session.SetInt32(SessionConstants.RelativeYear, SelectedRelativeYear);
+        controller = BuildController(session);
     }
 
     [TestMethod]
     public void Index_ReturnsExpectedConfirmationViewModel()
     {
-        // Arrange
-
         // Act
-        var viewResult = controller.Index() as ViewResult;
+        var result = controller.Index();
+        var model = GetViewModel(result);
 
         // Assert
-        Assert.IsNotNull(viewResult);
-        Assert.AreEqual(ViewNames.LocalAuthorityConfirmationIndex, viewResult.ViewName);
-
-        var viewModel = viewResult.Model as ConfirmationViewModel;
-        Assert.IsNotNull(viewModel);
-        Assert.AreEqual(LocalAuthorityConfirmation.Title, viewModel.Title);
-        Assert.AreEqual(LocalAuthorityConfirmation.Body, viewModel.Body);
-        Assert.AreEqual(LocalAuthorityConfirmation.RedirectController, viewModel.RedirectController);
-        Assert.AreEqual(LocalAuthorityConfirmation.SubmitText, viewModel.SubmitText);
-        Assert.AreEqual(LocalAuthorityConfirmation.AdditionalParagraphs.Count, viewModel.AdditionalParagraphs.Count);
-
-        for (var index = 0; index < LocalAuthorityConfirmation.AdditionalParagraphs.Count; index++)
-            Assert.AreEqual(LocalAuthorityConfirmation.AdditionalParagraphs[index], viewModel.AdditionalParagraphs[index]);
+        Assert.IsNotNull(result as ViewResult);
+        Assert.AreEqual("Views/CsvUpload/Success", ((ViewResult)result).ViewName);
+        Assert.AreEqual("Calculator local authority disposal costs saved for 2026 to 2027", model.Title);
     }
 
-    [TestMethod]
-    public void Index_CreatesNewAdditionalParagraphCollection_ForEachCall()
+    private static CsvUploadSuccessViewModel GetViewModel(IActionResult actionResult)
     {
-        // Arrange
+        var viewResult = actionResult as ViewResult;
+        Assert.IsNotNull(viewResult);
+        Assert.IsInstanceOfType<CsvUploadSuccessViewModel>(viewResult.Model);
 
-        // Act
-        var firstResult = controller.Index() as ViewResult;
-        var firstModel = firstResult?.Model as ConfirmationViewModel;
-        var secondResult = controller.Index() as ViewResult;
-        var secondModel = secondResult?.Model as ConfirmationViewModel;
+        return (CsvUploadSuccessViewModel)viewResult.Model;
+    }
 
-        // Assert
-        Assert.IsNotNull(firstResult);
-        Assert.IsNotNull(secondResult);
-        Assert.IsNotNull(firstModel);
-        Assert.IsNotNull(secondModel);
-        Assert.AreNotSame(firstModel, secondModel);
+    private LocalAuthorityConfirmationController BuildController(ISession controllerSession)
+    {
+        var urlHelper = new Mock<IUrlHelper>();
+        urlHelper
+            .Setup(helper => helper.Action(It.IsAny<UrlActionContext>()))
+            .Returns((UrlActionContext context) => $"/{context.Controller}/{context.Action}");
 
-        Assert.AreNotSame(firstModel.AdditionalParagraphs, secondModel.AdditionalParagraphs);
-        CollectionAssert.AreEqual(firstModel.AdditionalParagraphs, secondModel.AdditionalParagraphs);
+        return new LocalAuthorityConfirmationController(configuration)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    Session = controllerSession,
+                    User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "test.user@paycal")], "TestAuth"))
+                }
+            },
+            Url = urlHelper.Object
+        };
     }
 }

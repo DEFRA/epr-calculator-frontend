@@ -5,6 +5,7 @@ namespace EPR.Calculator.Frontend.ViewModels;
 
 public record LocalAuthorityViewModel
 {
+    public required RelativeYear RelativeYear { get; init; }
     public required string LastUpdatedBy { get; init; }
     public required List<IGrouping<string, LocalAuthorityData>>? ByCountry { get; init; }
     public bool IsDataAvailable => ByCountry?.FirstOrDefault()?.FirstOrDefault() != null;

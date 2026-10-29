@@ -16,7 +16,7 @@ public record CsvUploadViewModel
     public required string Title { get; init; }
     public required string BackLinkUrl { get; init; }
     public required string UploadUrl { get; init; }
-    public TemplateDownloadViewModel? DownloadTemplate { get; init; }
+    public required TemplateDownloadViewModel DownloadTemplate { get; init; }
     public bool HasErrors => Errors?.HasErrors ?? false;
     public ErrorsViewModel? Errors { get; init; }
 
