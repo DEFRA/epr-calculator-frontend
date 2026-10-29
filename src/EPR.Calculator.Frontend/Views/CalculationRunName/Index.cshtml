@@ -17,11 +17,9 @@
     @Html.AntiForgeryToken()
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <div class="govuk-form-group">
-                <h1 class="govuk-heading-xl">
-                    <label for="calculation-name-1">Calculation name</label>
-                </h1>
-
+            <div class="govuk-!-margin-bottom-9">
+                <div class="govuk-caption-l govuk-!-margin-bottom-1">Financial year @Model.RelativeYear.ToFinancialYearRange()</div>
+                <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">Run the calculator</h1>
                 <div class="@(Model.Errors != null ? "govuk-form-group govuk-form-group--error" : "govuk-form-group")">
                     <div id="event-name-hint" class="govuk-hint">
                         Give the calculation a name, so you can easily find it.
@@ -34,6 +32,7 @@
                     }
                     @Html.TextBoxFor(m => m.CalculationName, new { @class = Model.Errors != null ? "govuk-input govuk-input--error" : "govuk-input govuk-input--width-20", id = "calculation-name-1", autocomplete = "name" })
                 </div>
+
             </div>
             <div class="govuk-form-group">
                 <button id="btnRunCalculator" type="submit" class="govuk-button" data-module="govuk-button">

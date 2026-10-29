@@ -86,11 +86,10 @@ public class CalculationRunNameController(
     [Route("Confirmation")]
     public IActionResult Confirmation(string? calculationName)
     {
-        var calculationRunConfirmationViewModel = new ConfirmationViewModel
+        var calculationRunConfirmationViewModel = new CalculatorConfirmationViewModel
         {
-            Title = CalculatorRunNames.Title,
-            Body = calculationName ?? string.Empty,
-            AdditionalParagraphs = CalculatorRunNames.AdditionalParagraphs.ToList()
+            CalculationName = calculationName ?? string.Empty,
+            RelativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth)
         };
 
         return View(ViewNames.CalculationRunConfirmation, calculationRunConfirmationViewModel);
@@ -110,10 +109,11 @@ public class CalculationRunNameController(
         };
     }
 
-    private static InitiateCalculatorRunViewModel CreateViewModel(ErrorViewModel? errors = null)
+    private InitiateCalculatorRunViewModel CreateViewModel(ErrorViewModel? errors = null)
     {
         return new InitiateCalculatorRunViewModel
         {
+            RelativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth),
             Errors = errors
         };
     }

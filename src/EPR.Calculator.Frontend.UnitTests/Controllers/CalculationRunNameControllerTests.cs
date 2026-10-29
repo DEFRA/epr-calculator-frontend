@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Security.Claims;
 using System.Text;
 using EPR.Calculator.Frontend.Constants;
@@ -67,6 +67,7 @@ public class CalculationRunNameControllerTests
 
         var model = result.Model as InitiateCalculatorRunViewModel;
         Assert.IsNotNull(model);
+        Assert.AreEqual(new RelativeYear(RelativeYearValue), model.RelativeYear);
     }
 
     [TestMethod]
@@ -88,6 +89,7 @@ public class CalculationRunNameControllerTests
 
         var returnedModel = result.Model as InitiateCalculatorRunViewModel;
         Assert.IsNotNull(returnedModel);
+        Assert.AreEqual(new RelativeYear(RelativeYearValue), returnedModel.RelativeYear);
         Assert.IsNotNull(returnedModel.Errors);
         Assert.AreEqual(ViewControlNames.CalculationRunName, returnedModel.Errors.DOMElementId);
         Assert.AreEqual(ErrorMessages.CalculationRunNameEmpty, returnedModel.Errors.ErrorMessage);
@@ -114,6 +116,7 @@ public class CalculationRunNameControllerTests
 
         var returnedModel = result.Model as InitiateCalculatorRunViewModel;
         Assert.IsNotNull(returnedModel);
+        Assert.AreEqual(new RelativeYear(RelativeYearValue), returnedModel.RelativeYear);
         Assert.IsNotNull(returnedModel.Errors);
         Assert.AreEqual(ErrorMessages.CalculationRunNameExists, returnedModel.Errors.ErrorMessage);
         apiService.Verify(service => service.CallApi(
@@ -295,12 +298,10 @@ public class CalculationRunNameControllerTests
         Assert.IsNotNull(result);
         Assert.AreEqual(ViewNames.CalculationRunConfirmation, result.ViewName);
 
-        var model = result.Model as ConfirmationViewModel;
+        var model = result.Model as CalculatorConfirmationViewModel;
         Assert.IsNotNull(model);
-        Assert.AreEqual(CalculatorRunNames.Title, model.Title);
-        Assert.AreEqual(calculationName, model.Body);
-        Assert.AreEqual(CalculatorRunNames.AdditionalParagraphs.Count, model.AdditionalParagraphs.Count);
-        Assert.AreEqual(CalculatorRunNames.AdditionalParagraphs[0], model.AdditionalParagraphs[0]);
+        Assert.AreEqual(calculationName, model.CalculationName);
+        Assert.AreEqual(new RelativeYear(RelativeYearValue), model.RelativeYear);
     }
 
     [TestMethod]
