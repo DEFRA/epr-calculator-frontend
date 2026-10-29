@@ -16,13 +16,15 @@ public class DefaultParametersUploadFileController(
 
     private CsvUploadViewModel UploadTemplate => new()
     {
+        RelativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, CommonUtil.GetRelativeYearStartingMonth(configuration)),
         Title = "Upload new default calculator parameters",
         BackLinkUrl = Url.Action("Index", "DefaultParameters")!,
         UploadUrl = Url.Action("Upload", "DefaultParametersUploadFile")!,
         DownloadTemplate = new CsvUploadViewModel.TemplateDownloadViewModel
         {
+            Description = "Make sure you're using the latest version of the default parameters spreadsheet template.",
             Url = Url.Action("DownloadCsvTemplate", "DefaultParametersUploadFile")!,
-            LinkText = "default parameters spreadsheet template"
+            LinkText = "Download default parameters spreadsheet template"
         }
     };
 

@@ -4,6 +4,7 @@ namespace EPR.Calculator.Frontend.ViewModels;
 
 public record DefaultParametersViewModel
 {
+    public required RelativeYear RelativeYear { get; init; }
     public required string LastUpdatedBy { get; init; } = null!;
     public List<SchemeParametersViewModel> SchemeParameters { get; set; } = null!;
     public List<DefaultSchemeParametersLateReportingTonnage> LateReportingTonnageParams { get; set; } = null!;
