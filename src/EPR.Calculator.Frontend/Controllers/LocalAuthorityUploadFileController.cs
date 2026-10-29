@@ -16,6 +16,7 @@ public class LocalAuthorityUploadFileController(
 
     private CsvUploadViewModel UploadTemplate => new()
     {
+        RelativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, CommonUtil.GetRelativeYearStartingMonth(configuration)),
         Title = "Upload new local authority disposal costs",
         BackLinkUrl = Url.Action("Index", "LocalAuthorityDisposalCosts")!,
         UploadUrl = Url.Action("Upload", "LocalAuthorityUploadFile")!

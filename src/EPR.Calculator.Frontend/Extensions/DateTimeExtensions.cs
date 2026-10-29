@@ -35,7 +35,7 @@ public static class DateTimeExtensions
         [ExcludeFromCodeCoverage]
         public HtmlString DisplayAsTimeOnDate()
         {
-            return new(dt.ToLondonTime().ToString("<b>HH:mm</b> 'on' d MMM yyyy"));
+            return new(dt.ToLondonTime().ToString("HH:mm 'on' d MMM yyyy"));
         }
     }
 }

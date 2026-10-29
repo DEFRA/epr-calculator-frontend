@@ -1,83 +1,94 @@
-@using EPR.Calculator.Frontend.Extensions;
+@using EPR.Calculator.Frontend.Extensions
 @model DefaultParametersViewModel
 
+<vc:user-nav back-link="@Url.Action("Index", "Dashboard")"/>
+
 <div class="govuk-width-container">
-    <main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-!-margin-bottom-9">
+                <div class="govuk-caption-l govuk-!-margin-bottom-1">Financial year @Model.RelativeYear.ToFinancialYear()</div>
+                <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">Default calculator parameters</h1>
 
-        <vc:user-nav back-link="@Url.Action("Index", "Dashboard")"/>
-
-        @if(Model.IsDataAvailable)
-        {
-            <div class="govuk-caption-l govuk-!-margin-bottom-5">
-                Last updated by @Model.LastUpdatedBy at @Model.LastUpdatedAt.DisplayAsTimeOnDate()
-            </div>
-        }
-        <h1 class="govuk-heading-xl">Default calculator parameters</h1>
-
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                @if(Model.IsDataAvailable)
+                @if (Model.IsDataAvailable)
                 {
-                    @foreach (ParameterType name in (ParameterType[])Enum.GetValues(typeof(ParameterType)))
-                    {
-                        var schemeparameterValue = @Model.SchemeParameters.First(t => t.SchemeParameterName == name.GetDisplayName());
-                        if (name == ParameterType.BadDebtProvision && !schemeparameterValue.DefaultSchemeParameters.Any()) { continue; }
-
-                        if(name == ParameterType.LateReportingTonnage)
-                        {
-                            <h2 class="govuk-heading-l">@name.GetDisplayName()</h2>
-                            <table class="govuk-table govuk-!-margin-bottom-9">
-                                <caption class="govuk-table__caption govuk-visually-hidden">
-                                    Late reporting tonnage default parameters with RAG modulation
-                                </caption>
-                                <thead>
-                                    <tr class="govuk-table__row">
-                                        <th id="material_tonnage_header" class="govuk-table__header"></th>
-                                        <th id="red_tonnage_header" class="govuk-table__header">Red</th>
-                                        <th id="amber_tonnage_header" class="govuk-table__header">Amber</th>
-                                        <th id="green_tonnage_header" class="govuk-table__header">Green</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var row in @Model.LateReportingTonnageParams)
-                                    {
-                                        <tr class="govuk-table__row">
-                                            <th id="material_tonnage_header_row" class="govuk-table__header">@row.Material</th>
-                                            <td class="govuk-table__cell">@row.Red.ToString("N3")</td>
-                                            <td class="govuk-table__cell">@row.Amber.ToString("N3")</td>
-                                            <td class="govuk-table__cell">@row.Green.ToString("N3")</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        }
-                        else
-                        {
-                            <h2 class="govuk-heading-l">@name.GetDisplayName()</h2>
-                            <partial name="_ItemListPartial" model="schemeparameterValue" />
-                        }
-                    }
-                }
-                else
-                {
-                    <span class="govuk-caption-xl">Default parameters have not been set.</span>
-                    <br />
-                    <hr />
-                    <p class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-8">
-                        You will need to upload a CSV file using the <a class="govuk-link" href="@Url.Action("DownloadCsvTemplate", "DefaultParametersUploadFile")">default parameters template</a> to set them before you can run any calculations.
+                    <p class="govuk-body">
+                        Last updated by @Model.LastUpdatedBy at @Model.LastUpdatedAt.DisplayAsTimeOnDate()
                     </p>
                 }
-
-                @using (Html.BeginForm("DeleteCalculation", "CalculationRunDetails", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="answers-checked" value="true">
-                    <div class="govuk-button-group">
-                        <a href="@Url.Action("Index", "DefaultParametersUploadFile")" class="govuk-button" type="submit">Upload new default parameters</a>
-                        <a href="@Url.Action("Index", "Dashboard")" class="govuk-link" href="dash">Return to the dashboard</a>
-                    </div>
-                }
             </div>
+
+            @if (Model.IsDataAvailable)
+            {
+                @foreach (var name in (ParameterType[])Enum.GetValues(typeof(ParameterType)))
+                {
+                    var schemeparameterValue = Model.SchemeParameters.First(t => t.SchemeParameterName == name.GetDisplayName());
+                    if (name == ParameterType.BadDebtProvision && !schemeparameterValue.DefaultSchemeParameters.Any())
+                    {
+                        continue;
+                    }
+
+                    if (name == ParameterType.LateReportingTonnage)
+                    {
+                        <h2 class="govuk-heading-l">@name.GetDisplayName()</h2>
+                        <table class="govuk-table govuk-!-margin-bottom-9">
+                            <caption class="govuk-table__caption govuk-visually-hidden">
+                                Late reporting tonnage default parameters with RAG modulation
+                            </caption>
+                            <thead>
+                            <tr class="govuk-table__row">
+                                <th id="material_tonnage_header" class="govuk-table__header"></th>
+                                <th id="red_tonnage_header" class="govuk-table__header">Red</th>
+                                <th id="amber_tonnage_header" class="govuk-table__header">Amber</th>
+                                <th id="green_tonnage_header" class="govuk-table__header">Green</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var row in Model.LateReportingTonnageParams)
+                            {
+                                <tr class="govuk-table__row">
+                                    <th id="material_tonnage_header_row"
+                                        class="govuk-table__header">@row.Material</th>
+                                    <td class="govuk-table__cell">@row.Red.ToString("N3")</td>
+                                    <td class="govuk-table__cell">@row.Amber.ToString("N3")</td>
+                                    <td class="govuk-table__cell">@row.Green.ToString("N3")</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <h2 class="govuk-heading-l">@name.GetDisplayName()</h2>
+                        <partial name="_ItemListPartial" model="schemeparameterValue"/>
+                    }
+                }
+            }
+            else
+            {
+                <span class="govuk-caption-xl">Default parameters have not been set.</span>
+                <br/>
+                <hr/>
+                <p class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-8">
+                    You will need to upload a CSV file using the <a class="govuk-link"
+                                                                    href="@Url.Action("DownloadCsvTemplate", "DefaultParametersUploadFile")">default
+                        parameters template</a> to set them before you can run any calculations.
+                </p>
+            }
+
+            @using (Html.BeginForm("DeleteCalculation", "CalculationRunDetails", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="answers-checked" value="true">
+                <div class="govuk-button-group">
+                    <a href="@Url.Action("Index", "DefaultParametersUploadFile")" class="govuk-button" type="submit">
+                        Upload new parameters
+                    </a>
+                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">
+                        Back to dashboard
+                    </a>
+                </div>
+            }
         </div>
-    </main>
+    </div>
 </div>
