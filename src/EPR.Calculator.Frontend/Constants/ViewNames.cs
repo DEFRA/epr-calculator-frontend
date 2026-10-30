@@ -16,14 +16,14 @@
         public const string CalculationRunDetailsNewIndex = "~/Views/CalculationRunDetailsNew/Index.cshtml";
 
         /// <summary>
-        /// Calculation run name index page view.
+        /// Calculation run index page view.
         /// </summary>
-        public const string CalculationRunNameIndex = "~/Views/CalculationRunName/Index.cshtml";
+        public const string CalculationRunIndex = "~/Views/CalculationRun/Index.cshtml";
 
         /// <summary>
-        /// Calculation run confirmation confirmation page view.
+        /// Calculation run confirmation page view.
         /// </summary>
-        public const string CalculationRunConfirmation = "~/Views/CalculationRunName/Confirmation.cshtml";
+        public const string CalculationRunConfirmation = "~/Views/CalculationRun/Confirmation.cshtml";
 
         /// <summary>
         /// Dashboard index page view.
