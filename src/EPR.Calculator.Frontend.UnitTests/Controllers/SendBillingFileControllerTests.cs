@@ -80,10 +80,10 @@ public class SendBillingFileControllerTests
         // Assert
         Assert.IsNotNull(result);
 
-        var model = result.Model as SendBillingFileViewModel;
+        var model = result.Model as ShareBillingFileViewModel;
         Assert.IsNotNull(model);
         Assert.AreEqual(runId, model.RunId);
-        Assert.AreEqual(runName, model.CalcRunName);
+        Assert.AreEqual(runName, model.Run.RunName);
     }
 
     [TestMethod]
@@ -95,7 +95,7 @@ public class SendBillingFileControllerTests
             .ReturnsAsync(CreateRunDto(runId, $"Run {runId}", true));
         var controller = BuildController();
         var model = CreateFormModel(runId, true);
-        controller.ModelState.AddModelError(nameof(model.ConfirmSend), "Invalid");
+        controller.ModelState.AddModelError(nameof(model.ConfirmShare), "Invalid");
 
         // Act
         var result = await controller.Submit(model) as ViewResult;
@@ -104,7 +104,7 @@ public class SendBillingFileControllerTests
         Assert.IsNotNull(result);
         Assert.AreEqual(ViewNames.SendBillingFileIndex, result.ViewName);
 
-        var resultModel = result.Model as SendBillingFileViewModel;
+        var resultModel = result.Model as ShareBillingFileViewModel;
         Assert.IsNotNull(resultModel);
         Assert.AreEqual(runId, resultModel.RunId);
         apiService.Verify(service => service.CallApi(
@@ -175,7 +175,7 @@ public class SendBillingFileControllerTests
         Assert.IsNotNull(result);
         Assert.AreEqual(ActionNames.Index, result.ViewName);
 
-        var resultModel = result.Model as SendBillingFileViewModel;
+        var resultModel = result.Model as ShareBillingFileViewModel;
         Assert.IsNotNull(resultModel);
         Assert.IsFalse(resultModel.IsBillingFileLatest);
     }
@@ -219,12 +219,12 @@ public class SendBillingFileControllerTests
         };
     }
 
-    private static SendBillingFileFormModel CreateFormModel(int runId, bool? confirmSend)
+    private static ShareBillingFileFormModel CreateFormModel(int runId, bool? confirmSend)
     {
-        return new SendBillingFileFormModel
+        return new ShareBillingFileFormModel
         {
             RunId = runId,
-            ConfirmSend = confirmSend
+            ConfirmShare = confirmSend
         };
     }
 

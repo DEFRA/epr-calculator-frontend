@@ -9,7 +9,7 @@ namespace EPR.Calculator.Frontend.Models;
 public readonly record struct RelativeYear(int Value)
 {
     public override string ToString() => Value.ToString();
-    public string ToFinancialYear() => $"{Value}-{(Value + 1) % 100:D2}";
+    public string ToFinancialYear() => $"{Value} to {Value + 1}";
 
     public static implicit operator int(RelativeYear relativeYear) => relativeYear.Value;
     public static explicit operator RelativeYear(int value) => new(value);

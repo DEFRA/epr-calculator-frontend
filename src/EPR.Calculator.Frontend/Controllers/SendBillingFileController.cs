@@ -27,7 +27,7 @@ public class SendBillingFileController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Submit(SendBillingFileFormModel model)
+    public async Task<IActionResult> Submit(ShareBillingFileFormModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -49,7 +49,7 @@ public class SendBillingFileController(
             if (viewModel == null)
                 return RedirectToError();
 
-            return View(ActionNames.Index, viewModel with { IsBillingFileLatest = false });
+            return View(ActionNames.Index, viewModel);
         }
 
         logger.LogInformation("1.Request (send billing file) not accepted response code: {StatusCode}", response.StatusCode);
@@ -58,18 +58,17 @@ public class SendBillingFileController(
         return RedirectToError();
     }
 
-    private async Task<SendBillingFileViewModel?> CreateViewModel(int runId)
+    private async Task<ShareBillingFileViewModel?> CreateViewModel(int runId)
     {
         var runDto = await eprCalculatorApiService.GetCalculatorRun(runId);
 
         if (runDto == null)
             return null;
 
-        return new SendBillingFileViewModel
+        return new ShareBillingFileViewModel
         {
             RunId = runId,
-            CalcRunName = runDto.RunName,
-            IsBillingFileLatest = runDto.BillingFile?.IsLatest == true
+            Run = runDto
         };
     }
 }
