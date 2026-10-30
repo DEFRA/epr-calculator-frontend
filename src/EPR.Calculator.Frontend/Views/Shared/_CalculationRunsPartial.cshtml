@@ -1,18 +1,8 @@
 ﻿@model IEnumerable<CalculationRunViewModel>
 
-@if (Model == null)
-{
-    <p class="govuk-body">There are no calculations for this financial year.</p>
-}
-else
-{
-    <dl class="govuk-summary-list">
-        @if (Model != null)
-        {
-            foreach (var run in Model)
-            {
-                @await Html.PartialAsync("_ShowRunDetailPartial", run)
-            }
-        }
-    </dl>
-}
+<dl class="govuk-summary-list">
+    @foreach (var run in Model)
+    {
+        @await Html.PartialAsync("_ShowRunDetailPartial", run)
+    }
+</dl>

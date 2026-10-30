@@ -41,6 +41,11 @@
         public const string Dashboard = "Dashboard";
 
         /// <summary>
+        /// Change financial year controller.
+        /// </summary>
+        public const string ChangeFinancialYear = "ChangeFinancialYear";
+
+        /// <summary>
         /// Run a new calculation controller.
         /// </summary>
         public const string RunANewCalculation = "RunANewCalculation";
