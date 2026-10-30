@@ -17,7 +17,7 @@ using Moq;
 namespace EPR.Calculator.Frontend.UnitTests.Controllers;
 
 [TestClass]
-public class CalculationRunNameControllerTests
+public class CalculationRunControllerTests
 {
     private const string TestUser = "Test User";
     private const int RelativeYearValue = 2025;
@@ -25,7 +25,7 @@ public class CalculationRunNameControllerTests
 
     private IConfiguration configuration = null!;
     private DefaultHttpContext httpContext = null!;
-    private Mock<ILogger<CalculationRunNameController>> logger = null!;
+    private Mock<ILogger<CalculationRunController>> logger = null!;
     private CalculatorRunNameValidator validator = null!;
 
     [TestInitialize]
@@ -39,7 +39,7 @@ public class CalculationRunNameControllerTests
             .Build();
 
         apiService = new Mock<IEprCalculatorApiService>();
-        logger = new Mock<ILogger<CalculationRunNameController>>();
+        logger = new Mock<ILogger<CalculationRunController>>();
         validator = new CalculatorRunNameValidator();
         httpContext = new DefaultHttpContext
         {
@@ -53,7 +53,7 @@ public class CalculationRunNameControllerTests
     }
 
     [TestMethod]
-    public void Index_ReturnsCalculationRunNameView_WithCurrentUser()
+    public void Index_ReturnsCalculationRunView_WithCurrentUser()
     {
         // Arrange
         var controller = BuildController();
@@ -63,7 +63,7 @@ public class CalculationRunNameControllerTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
+        Assert.AreEqual(ViewNames.CalculationRunIndex, result.ViewName);
 
         var model = result.Model as InitiateCalculatorRunViewModel;
         Assert.IsNotNull(model);
@@ -85,7 +85,7 @@ public class CalculationRunNameControllerTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
+        Assert.AreEqual(ViewNames.CalculationRunIndex, result.ViewName);
 
         var returnedModel = result.Model as InitiateCalculatorRunViewModel;
         Assert.IsNotNull(returnedModel);
@@ -112,7 +112,7 @@ public class CalculationRunNameControllerTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(ViewNames.CalculationRunNameIndex, result.ViewName);
+        Assert.AreEqual(ViewNames.CalculationRunIndex, result.ViewName);
 
         var returnedModel = result.Model as InitiateCalculatorRunViewModel;
         Assert.IsNotNull(returnedModel);
@@ -375,9 +375,9 @@ public class CalculationRunNameControllerTests
         result.ShouldNotHaveValidationErrorFor(x => x.CalculationName);
     }
 
-    private CalculationRunNameController BuildController()
+    private CalculationRunController BuildController()
     {
-        var controller = new CalculationRunNameController(
+        var controller = new CalculationRunController(
             configuration,
             apiService.Object,
             logger.Object);
