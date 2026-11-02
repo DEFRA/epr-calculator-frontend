@@ -28,7 +28,7 @@
                             @if (hasError)
                             {
                                 <li>
-                                    <a href="#Confirm">@ViewData.ModelState[nameof(ShareBillingFileFormModel.ConfirmShare)]?.Errors.First().ErrorMessage</a>
+                                    <a href="#ConfirmShare">@ViewData.ModelState[nameof(ShareBillingFileFormModel.ConfirmShare)]?.Errors.First().ErrorMessage</a>
                                 </li>
                             }
                         </ul>
@@ -54,17 +54,17 @@
                     </caption>
                     <tbody class="govuk-table__body">
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Run name</th>
+                        <th scope="row" class="govuk-table__header govuk-!-width-one-third epr-nowrap">Run name</th>
                         <td class="govuk-table__cell" colspan="2">@Model.Run.RunName</td>
                     </tr>
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Financial year</th>
+                        <th scope="row" class="govuk-table__header epr-nowrap">Financial year</th>
                         <td class="govuk-table__cell" colspan="2">@Model.Run.RelativeYear.ToFinancialYear()</td>
                     </tr>
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Billing file</th>
+                        <th scope="row" class="govuk-table__header epr-nowrap">Billing file</th>
                         <td class="govuk-table__cell">@Model.Run.BillingFile?.CsvFileName</td>
-                        <td class="govuk-table__cell">
+                        <td class="govuk-table__cell govuk-!-text-align-right epr-nowrap">
                             <a class="govuk-link govuk-link--no-visited-state"
                                href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController, new { Model.RunId })">
                                 Download billing file
@@ -82,10 +82,11 @@
                 </div>
 
                 <div class="@formGroupClass">
-                    <fieldset class="govuk-fieldset" aria-describedby="@(hasError ? "Confirm-error" : null)">
+                    <fieldset class="govuk-fieldset" aria-describedby="@(hasError ? "ConfirmShare-error" : null)">
+                        <legend class="govuk-fieldset__legend govuk-visually-hidden">Confirm you want to share the billing file</legend>
                         @if (hasError)
                         {
-                            <p id="Confirm-error" class="govuk-error-message">
+                            <p id="ConfirmShare-error" class="govuk-error-message">
                                 <span class="govuk-visually-hidden">Error:</span>
                                 @ViewData.ModelState[nameof(ShareBillingFileFormModel.ConfirmShare)]?.Errors.First().ErrorMessage
                             </p>
@@ -93,9 +94,9 @@
 
                         <div class="govuk-checkboxes" data-module="govuk-checkboxes">
                             <div class="govuk-checkboxes__item">
-                                <input type="checkbox" class="govuk-checkboxes__input" id="Confirm"
-                                       name="Confirm" value="true" @(Model.ConfirmShare == true ? "checked" : "")/>
-                                <label class="govuk-label govuk-checkboxes__label" for="Confirm">
+                                <input type="checkbox" class="govuk-checkboxes__input" id="ConfirmShare"
+                                       name="ConfirmShare" value="true" @(Model.ConfirmShare == true ? "checked" : "")/>
+                                <label class="govuk-label govuk-checkboxes__label" for="ConfirmShare">
                                     I have checked this billing file and am ready to share it.
                                 </label>
                             </div>

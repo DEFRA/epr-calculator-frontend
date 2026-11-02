@@ -146,6 +146,7 @@ public class SendBillingFileControllerTests
         Assert.IsNotNull(result);
         Assert.AreEqual(ActionNames.BillingFileSuccess, result.ActionName);
         Assert.AreEqual(CommonUtil.GetControllerName(typeof(BillingInstructionsController)), result.ControllerName);
+        Assert.AreEqual(runId, result.RouteValues!["runId"]);
         Assert.AreEqual(HttpMethod.Post, capturedMethod);
         Assert.AreEqual($"v2/prepareBillingFileSendToFSS/{runId}", capturedRelativePath);
     }

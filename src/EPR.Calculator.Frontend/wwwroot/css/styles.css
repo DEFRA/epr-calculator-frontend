@@ -89,6 +89,10 @@
     overflow-wrap: break-word;
 }
 
+.epr-nowrap {
+    white-space: nowrap;
+}
+
 .align-checkbox {
     display: flex;
     margin-top: 20px;

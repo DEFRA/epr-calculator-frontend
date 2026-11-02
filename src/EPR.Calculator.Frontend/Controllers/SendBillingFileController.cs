@@ -40,7 +40,7 @@ public class SendBillingFileController(
         var response = await eprCalculatorApiService.CallApi(HttpMethod.Post, $"v2/prepareBillingFileSendToFSS/{model.RunId}");
 
         if (response.StatusCode == HttpStatusCode.Accepted)
-            return RedirectToAction(ActionNames.BillingFileSuccess, CommonUtil.GetControllerName(typeof(BillingInstructionsController)));
+            return RedirectToAction(ActionNames.BillingFileSuccess, CommonUtil.GetControllerName(typeof(BillingInstructionsController)), new { runId = model.RunId });
 
         if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
         {

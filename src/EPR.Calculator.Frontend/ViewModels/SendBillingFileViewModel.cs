@@ -15,6 +15,6 @@ public record ShareBillingFileFormModel
 {
     [Range(1, int.MaxValue)] public required int RunId { get; init; }
 
-    [MustBeTrue(ErrorMessage = "Select the checkbox to confirm that you want to share the billing file")]
+    [MustBeTrue(ErrorMessage = "Select the checkbox to confirm you want to share the billing file")]
     public bool? ConfirmShare { get; init; }
 }
