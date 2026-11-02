@@ -1,6 +1,6 @@
 .epr-user-nav {
     display: flex;
-    align-items: center;
+    align-items: baseline;
 }
 
 .epr-user-nav__account {
