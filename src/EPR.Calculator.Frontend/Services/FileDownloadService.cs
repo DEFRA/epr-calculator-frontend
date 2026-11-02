@@ -9,8 +9,8 @@ namespace EPR.Calculator.Frontend.Services
 {
     public interface IFileDownloadService
     {
-        Task<FileResult> DownloadResultFile(int runId);
-        Task<FileResult> DownloadBillingFile(int runId, bool hasBeenSentToFss);
+        Task<FileResult> DownloadResultFile(int runId, bool? downloadFromBlobStorage);
+        Task<FileResult> DownloadBillingFile(int runId, bool hasBeenSentToFss, bool? downloadFromBlobStorage);
         Task<FileResult> DownloadBillingJson(int runId, bool? downloadFromBlobStorage);
     }
 
@@ -22,16 +22,16 @@ namespace EPR.Calculator.Frontend.Services
     {
         private static readonly string[] SupportedEncodings = ["br", "gzip"];
 
-        public Task<FileResult> DownloadResultFile(int runId)
+        public Task<FileResult> DownloadResultFile(int runId, bool? downloadFromBlobStorage)
         {
             var path = $"v1/downloadResultCsv/{runId}";
-            return DownloadFile(path, runId);
+            return DownloadFile(path, runId, downloadFromBlobStorage);
         }
 
-        public async Task<FileResult> DownloadBillingFile(int runId, bool hasBeenSentToFss)
+        public async Task<FileResult> DownloadBillingFile(int runId, bool hasBeenSentToFss, bool? downloadFromBlobStorage)
         {
             var path = $"v1/downloadBillingCsv/{runId}";
-            var result = await DownloadFile(path, runId);
+            var result = await DownloadFile(path, runId, downloadFromBlobStorage);
 
             var filename = Path.GetFileNameWithoutExtension(result.FileDownloadName);
 
