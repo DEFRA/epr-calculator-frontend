@@ -37,8 +37,11 @@ public class FileDownloadControllerTests
         };
     }
 
+    [DataRow(null)]
+    [DataRow(true)]
+    [DataRow(false)]
     [TestMethod]
-    public async Task DownloadResultFile_WhenDownloadSucceeds_ReturnsFileResult()
+    public async Task DownloadResultFile_WhenDownloadSucceeds_ReturnsFileResult(bool? downloadFromBlobStorage)
     {
         // Arrange
         var expectedResult = new FileContentResult([ 1, 2, 3 ], "application/octet-stream")
@@ -49,15 +52,15 @@ public class FileDownloadControllerTests
         apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync(BuildRun());
 
         fileDownloadService
-            .Setup(service => service.DownloadResultFile(RunId))
+            .Setup(service => service.DownloadResultFile(RunId, downloadFromBlobStorage))
             .ReturnsAsync(expectedResult);
 
         // Act
-        var result = await controller.DownloadResultFile(RunId);
+        var result = await controller.DownloadResultFile(RunId, downloadFromBlobStorage);
 
         // Assert
         fileDownloadService.Verify(
-            service => service.DownloadResultFile(RunId),
+            service => service.DownloadResultFile(RunId, downloadFromBlobStorage),
             Times.Once);
 
         Assert.AreSame(expectedResult, result);
@@ -70,7 +73,7 @@ public class FileDownloadControllerTests
         apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync(BuildRun());
 
         fileDownloadService
-            .Setup(service => service.DownloadResultFile(RunId))
+            .Setup(service => service.DownloadResultFile(RunId, null))
             .ThrowsAsync(new InvalidOperationException("Download failed"));
 
         // Act
@@ -97,7 +100,7 @@ public class FileDownloadControllerTests
         Assert.AreEqual("Index", redirectResult.ActionName);
         Assert.AreEqual("StandardError", redirectResult.ControllerName);
         fileDownloadService.Verify(
-            service => service.DownloadBillingFile(It.IsAny<int>(), It.IsAny<bool>()),
+            service => service.DownloadBillingFile(It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<bool?>()),
             Times.Never);
     }
 
@@ -117,14 +120,16 @@ public class FileDownloadControllerTests
         Assert.AreEqual(ControllerNames.CalculationRunOverview, redirectResult.ControllerName);
         Assert.AreEqual(RunId, redirectResult.RouteValues?["runId"]);
         fileDownloadService.Verify(
-            service => service.DownloadBillingFile(It.IsAny<int>(), It.IsAny<bool>()),
+            service => service.DownloadBillingFile(It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<bool?>()),
             Times.Never);
     }
 
-    [DataRow(true)]
-    [DataRow(false)]
+    [DataRow(true, null)]
+    [DataRow(false, null)]
+    [DataRow(true, true)]
+    [DataRow(false, false)]
     [TestMethod]
-    public async Task DownloadBillingFile_WhenRunAndBillingFileAreValid_ReturnsFileResult(bool hasBeenSentToFss)
+    public async Task DownloadBillingFile_WhenRunAndBillingFileAreValid_ReturnsFileResult(bool hasBeenSentToFss, bool? downloadFromBlobStorage)
     {
         // Arrange
         var expectedResult = new FileContentResult([ 9, 8, 7 ], "text/csv")
@@ -135,16 +140,16 @@ public class FileDownloadControllerTests
         apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync(BuildRun(true, hasBeenSentToFss));
 
         fileDownloadService
-            .Setup(service => service.DownloadBillingFile(RunId, hasBeenSentToFss))
+            .Setup(service => service.DownloadBillingFile(RunId, hasBeenSentToFss, downloadFromBlobStorage))
             .ReturnsAsync(expectedResult);
 
         // Act
-        var result = await controller.DownloadBillingFile(RunId);
+        var result = await controller.DownloadBillingFile(RunId, downloadFromBlobStorage);
 
         // Assert
         Assert.AreSame(expectedResult, result);
         fileDownloadService.Verify(
-            service => service.DownloadBillingFile(RunId, hasBeenSentToFss),
+            service => service.DownloadBillingFile(RunId, hasBeenSentToFss, downloadFromBlobStorage),
             Times.Once);
     }
 
@@ -154,11 +159,54 @@ public class FileDownloadControllerTests
         // Arrange
         apiService.Setup(service => service.GetCalculatorRun(RunId)).ReturnsAsync(BuildRun(true));
         fileDownloadService
-            .Setup(service => service.DownloadBillingFile(It.IsAny<int>(), It.IsAny<bool>()))
+            .Setup(service => service.DownloadBillingFile(It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<bool?>()))
             .ThrowsAsync(new InvalidOperationException("Billing file download failed"));
 
         // Act
         var result = await controller.DownloadBillingFile(RunId);
+
+        // Assert
+        var redirectResult = result as RedirectToActionResult;
+        Assert.IsNotNull(redirectResult);
+        Assert.AreEqual(nameof(FileDownloadController.DownloadError), redirectResult.ActionName);
+    }
+
+    [DataRow(null)]
+    [DataRow(true)]
+    [DataRow(false)]
+    [TestMethod]
+    public async Task DownloadBillingJson_WhenDownloadSucceeds_ReturnsFileResult(bool? downloadFromBlobStorage)
+    {
+        // Arrange
+        var expectedResult = new FileContentResult([ 4, 5, 6 ], "application/json")
+        {
+            FileDownloadName = "billing.json"
+        };
+
+        fileDownloadService
+            .Setup(service => service.DownloadBillingJson(RunId, downloadFromBlobStorage))
+            .ReturnsAsync(expectedResult);
+
+        // Act
+        var result = await controller.DownloadBillingJson(RunId, downloadFromBlobStorage);
+
+        // Assert
+        Assert.AreSame(expectedResult, result);
+        fileDownloadService.Verify(
+            service => service.DownloadBillingJson(RunId, downloadFromBlobStorage),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DownloadBillingJson_WhenDownloadThrows_RedirectsToDownloadFileError()
+    {
+        // Arrange
+        fileDownloadService
+            .Setup(service => service.DownloadBillingJson(It.IsAny<int>(), It.IsAny<bool?>()))
+            .ThrowsAsync(new InvalidOperationException("Billing json download failed"));
+
+        // Act
+        var result = await controller.DownloadBillingJson(RunId);
 
         // Assert
         var redirectResult = result as RedirectToActionResult;

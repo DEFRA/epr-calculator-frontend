@@ -12,7 +12,7 @@ public class FileDownloadController(
 {
     [HttpGet]
     [Route("DownloadResultFile/{runId:int}")]
-    public async Task<IActionResult> DownloadResultFile(int runId)
+    public async Task<IActionResult> DownloadResultFile(int runId, [FromQuery] bool? downloadFromBlobStorage = null)
     {
         try
         {
@@ -21,7 +21,7 @@ public class FileDownloadController(
             if (runDto == null)
                 return RedirectToError();
 
-            return await fileDownloads.DownloadResultFile(runId);
+            return await fileDownloads.DownloadResultFile(runId, downloadFromBlobStorage);
         }
         catch (Exception ex)
         {
@@ -32,7 +32,7 @@ public class FileDownloadController(
 
     [HttpGet]
     [Route("DownloadBillingFile/{runId:int}")]
-    public async Task<IActionResult> DownloadBillingFile(int runId)
+    public async Task<IActionResult> DownloadBillingFile(int runId, [FromQuery] bool? downloadFromBlobStorage = null)
     {
         try
         {
@@ -44,11 +44,26 @@ public class FileDownloadController(
             if (runDto.BillingFile?.IsLatest != true)
                 return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId });
 
-            return await fileDownloads.DownloadBillingFile(runId, runDto.BillingFile!.IsShared);
+            return await fileDownloads.DownloadBillingFile(runId, runDto.BillingFile!.IsShared, downloadFromBlobStorage);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error when donwloading billing file for {RunId}", runId);
+            return RedirectToAction(nameof(DownloadError));
+        }
+    }
+
+    [HttpGet]
+    [Route("DownloadBillingJson/{runId:int}")]
+    public async Task<IActionResult> DownloadBillingJson(int runId, [FromQuery] bool? downloadFromBlobStorage = null)
+    {
+        try
+        {
+            return await fileDownloads.DownloadBillingJson(runId, downloadFromBlobStorage);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error when downloading billing json for {RunId}", runId);
             return RedirectToAction(nameof(DownloadError));
         }
     }

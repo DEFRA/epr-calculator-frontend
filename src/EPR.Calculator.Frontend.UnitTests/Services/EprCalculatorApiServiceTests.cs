@@ -128,6 +128,16 @@ public class EprCalculatorApiServiceTests
     }
 
     [TestMethod]
+    public async Task CallApiForStream_AppendsTheGivenQueryParams()
+    {
+        var queryParams = new Dictionary<string, string?> { ["downloadFromBlobStorage"] = "true" };
+
+        using var response = await _service.CallApiForStream(HttpMethod.Get, "v1/downloadBillingJson/45", ["gzip"], queryParams);
+
+        Assert.AreEqual(new Uri($"{BaseApiUrl}v1/downloadBillingJson/45?downloadFromBlobStorage=true"), _messageHandler.LastRequest!.RequestUri);
+    }
+
+    [TestMethod]
     public async Task CallApi_DoesNotAcquireToken_WhenAuthorizationHeaderAlreadyExists()
     {
         // Arrange

@@ -9,8 +9,9 @@ namespace EPR.Calculator.Frontend.Services
 {
     public interface IFileDownloadService
     {
-        Task<FileResult> DownloadResultFile(int runId);
-        Task<FileResult> DownloadBillingFile(int runId, bool hasBeenSentToFss);
+        Task<FileResult> DownloadResultFile(int runId, bool? downloadFromBlobStorage);
+        Task<FileResult> DownloadBillingFile(int runId, bool hasBeenSentToFss, bool? downloadFromBlobStorage);
+        Task<FileResult> DownloadBillingJson(int runId, bool? downloadFromBlobStorage);
     }
 
     public class FileDownloadService(
@@ -21,16 +22,16 @@ namespace EPR.Calculator.Frontend.Services
     {
         private static readonly string[] SupportedEncodings = ["br", "gzip"];
 
-        public Task<FileResult> DownloadResultFile(int runId)
+        public Task<FileResult> DownloadResultFile(int runId, bool? downloadFromBlobStorage)
         {
             var path = $"v1/downloadResultCsv/{runId}";
-            return DownloadFile(path, runId);
+            return DownloadFile(path, runId, downloadFromBlobStorage);
         }
 
-        public async Task<FileResult> DownloadBillingFile(int runId, bool hasBeenSentToFss)
+        public async Task<FileResult> DownloadBillingFile(int runId, bool hasBeenSentToFss, bool? downloadFromBlobStorage)
         {
             var path = $"v1/downloadBillingCsv/{runId}";
-            var result = await DownloadFile(path, runId);
+            var result = await DownloadFile(path, runId, downloadFromBlobStorage);
 
             var filename = Path.GetFileNameWithoutExtension(result.FileDownloadName);
 
@@ -41,7 +42,14 @@ namespace EPR.Calculator.Frontend.Services
             return result;
         }
 
-        private async Task<FileResult> DownloadFile(string relativePath, int runId)
+        public Task<FileResult> DownloadBillingJson(int runId, bool? downloadFromBlobStorage)
+        {
+            var path = $"v1/downloadBillingJson/{runId}";
+
+            return DownloadFile(path, runId, downloadFromBlobStorage);
+        }
+
+        private async Task<FileResult> DownloadFile(string relativePath, int runId, bool? downloadFromBlobStorage = null)
         {
             HttpResponseMessage? response = null;
 
@@ -50,11 +58,13 @@ namespace EPR.Calculator.Frontend.Services
                 // Call the ApiService; it handles token acquisition for the current user
                 // Ask only for encodings the browser accepts, so the compressed bytes can be passed straight through.
                 var browserAcceptEncoding = httpContextAccessor.HttpContext?.Request.Headers.AcceptEncoding ?? StringValues.Empty;
+                var queryParams = downloadFromBlobStorage.HasValue ? new Dictionary<string, string?> { ["downloadFromBlobStorage"] = downloadFromBlobStorage.Value.ToString() } : null;
 
                 response = await eprCalculatorApiService.CallApiForStream(
                     httpMethod: HttpMethod.Get,
                     relativePath: relativePath,
-                    acceptEncodings: SupportedEncodings.Where(e => Accepts(browserAcceptEncoding, e)).ToArray());
+                    acceptEncodings: SupportedEncodings.Where(e => Accepts(browserAcceptEncoding, e)).ToArray(),
+                    queryParams: queryParams); 
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
