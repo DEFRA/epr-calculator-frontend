@@ -1,4 +1,5 @@
-﻿@model EPR.Calculator.Frontend.Components.UserNav.UserNavViewModel
+﻿@using EPR.Calculator.Frontend.Constants
+@model EPR.Calculator.Frontend.Components.UserNav.UserNavViewModel
 
 <div class="govuk-grid-row govuk-!-margin-top-4 govuk-!-margin-bottom-4">
     <div class="govuk-grid-column-full epr-user-nav">
@@ -6,8 +7,16 @@
         {
             <a href="@Model.BackLinkUrl"
                class="govuk-back-link govuk-!-margin-top-0 govuk-!-margin-bottom-0">
-                Back
+                @Model.BackLinkText
             </a>
+        }
+        else if (Model.RelativeYear is { } relativeYear)
+        {
+            <p class="govuk-body-s govuk-!-margin-bottom-0">
+                <strong>Financial year</strong>
+                <span class="govuk-!-margin-left-1 govuk-!-margin-right-1">@relativeYear.ToFullFinancialYear("-")</span>
+                <a href="@Url.Action(ActionNames.Index, ControllerNames.ChangeFinancialYear)" class="govuk-link govuk-link--no-visited-state">Change financial year</a>
+            </p>
         }
         <nav aria-label="Account" class="epr-user-nav__account govuk-body-s">
             <span>@Model.CurrentUser</span>
