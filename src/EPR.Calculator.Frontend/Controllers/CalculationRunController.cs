@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
-public class CalculationRunNameController(
+public class CalculationRunController(
     IConfiguration configuration,
     IEprCalculatorApiService eprCalculatorApiService,
-    ILogger<CalculationRunNameController> logger)
+    ILogger<CalculationRunController> logger)
     : BaseController
 {
     private readonly int relativeYearStartingMonth = CommonUtil.GetRelativeYearStartingMonth(configuration);
@@ -24,7 +24,7 @@ public class CalculationRunNameController(
     [Route("RunANewCalculation")]
     public IActionResult Index()
     {
-        return View(ViewNames.CalculationRunNameIndex, CreateViewModel());
+        return View(ViewNames.CalculationRunIndex, CreateViewModel());
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public class CalculationRunNameController(
         if (!ModelState.IsValid)
         {
             var errorMessages = ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage);
-            return View(ViewNames.CalculationRunNameIndex, CreateViewModel(CreateErrorViewModel(errorMessages.First())));
+            return View(ViewNames.CalculationRunIndex, CreateViewModel(CreateErrorViewModel(errorMessages.First())));
         }
 
         if (!string.IsNullOrEmpty(calculationRunModel.CalculationName))
@@ -47,7 +47,7 @@ public class CalculationRunNameController(
             var alreadyExists = await eprCalculatorApiService.CheckIfRunNameExists(calculationName);
 
             if (alreadyExists)
-                return View(ViewNames.CalculationRunNameIndex, CreateViewModel(CreateErrorViewModel(ErrorMessages.CalculationRunNameExists)));
+                return View(ViewNames.CalculationRunIndex, CreateViewModel(CreateErrorViewModel(ErrorMessages.CalculationRunNameExists)));
 
             var response = await HttpPostToCalculatorRunApi(calculationName);
 
@@ -86,11 +86,10 @@ public class CalculationRunNameController(
     [Route("Confirmation")]
     public IActionResult Confirmation(string? calculationName)
     {
-        var calculationRunConfirmationViewModel = new ConfirmationViewModel
+        var calculationRunConfirmationViewModel = new CalculatorConfirmationViewModel
         {
-            Title = CalculatorRunNames.Title,
-            Body = calculationName ?? string.Empty,
-            AdditionalParagraphs = CalculatorRunNames.AdditionalParagraphs.ToList()
+            CalculationName = calculationName ?? string.Empty,
+            RelativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth)
         };
 
         return View(ViewNames.CalculationRunConfirmation, calculationRunConfirmationViewModel);
@@ -110,10 +109,11 @@ public class CalculationRunNameController(
         };
     }
 
-    private static InitiateCalculatorRunViewModel CreateViewModel(ErrorViewModel? errors = null)
+    private InitiateCalculatorRunViewModel CreateViewModel(ErrorViewModel? errors = null)
     {
         return new InitiateCalculatorRunViewModel
         {
+            RelativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth),
             Errors = errors
         };
     }

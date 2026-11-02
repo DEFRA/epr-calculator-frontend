@@ -13,7 +13,7 @@
         /// <summary>
         /// Return to DashBoard Label.
         /// </summary>
-        public const string ReturnToDashBoard = "Return to the dashboard";
+        public const string ReturnToDashBoard = "Return to dashboard";
 
         /// <summary>
         /// Return to DashBoard Label.
