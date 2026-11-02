@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
 using EPR.Calculator.Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -19,8 +21,13 @@ public class SendBillingFileController(
     {
         var viewModel = await CreateViewModel(runId);
 
-        if (viewModel is not { IsBillingFileLatest: true })
+        if (viewModel == null)
             return RedirectToError();
+
+        var redirect = RedirectIfNotShareable(viewModel.Run);
+
+        if (redirect != null)
+            return redirect;
 
         return View(ViewNames.SendBillingFileIndex, viewModel);
     }
@@ -49,13 +56,30 @@ public class SendBillingFileController(
             if (viewModel == null)
                 return RedirectToError();
 
-            return View(ActionNames.Index, viewModel);
+            var redirect = RedirectIfNotShareable(viewModel.Run);
+
+            if (redirect != null)
+                return redirect;
         }
 
         logger.LogInformation("1.Request (send billing file) not accepted response code: {StatusCode}", response.StatusCode);
         var contentString = await response.Content.ReadAsStringAsync();
         logger.LogInformation("2.Request (send billing file) not accepted response message: {ContentString}", contentString);
         return RedirectToError();
+    }
+
+    private RedirectToActionResult? RedirectIfNotShareable(CalculatorRunDto run)
+    {
+        if (run.BillingFile?.IsShared == true)
+            return RedirectToAction(ActionNames.Index, CommonUtil.GetControllerName(typeof(CompletedRunController)), new { runId = run.RunId });
+
+        if (run.RunClassification is not (RunClassification.Initial or RunClassification.Recalculation))
+            return RedirectToError();
+
+        if (run.BillingFile?.IsLatest != true)
+            return RedirectToAction(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId = run.RunId });
+
+        return null;
     }
 
     private async Task<ShareBillingFileViewModel?> CreateViewModel(int runId)

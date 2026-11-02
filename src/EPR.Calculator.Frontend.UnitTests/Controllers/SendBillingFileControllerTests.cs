@@ -2,6 +2,7 @@ using System.Net;
 using System.Security.Claims;
 using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
@@ -47,12 +48,52 @@ public class SendBillingFileControllerTests
     }
 
     [TestMethod]
-    public async Task Index_BillingFileNotLatest_RedirectsToStandardError()
+    public async Task Index_BillingFileNotLatest_RedirectsToCalculationRunOverview()
     {
         // Arrange
         const int runId = 123;
         apiService.Setup(service => service.GetCalculatorRun(runId))
             .ReturnsAsync(CreateRunDto(runId, "Run 123", false));
+        var controller = BuildController();
+
+        // Act
+        var result = await controller.Index(runId) as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ActionNames.Index, result.ActionName);
+        Assert.AreEqual(ControllerNames.CalculationRunOverview, result.ControllerName);
+        Assert.AreEqual(runId, result.RouteValues!["runId"]);
+    }
+
+    [TestMethod]
+    public async Task Index_BillingFileShared_RedirectsToCompletedRun()
+    {
+        // Arrange
+        const int runId = 124;
+        apiService.Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync(CreateRunDto(runId, "Run 124", true, isShared: true));
+        var controller = BuildController();
+
+        // Act
+        var result = await controller.Index(runId) as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ActionNames.Index, result.ActionName);
+        Assert.AreEqual(CommonUtil.GetControllerName(typeof(CompletedRunController)), result.ControllerName);
+        Assert.AreEqual(runId, result.RouteValues!["runId"]);
+    }
+
+    [TestMethod]
+    [DataRow(RunClassification.Test)]
+    [DataRow(RunClassification.Deleted)]
+    public async Task Index_RunNotInitialOrRecalculation_RedirectsToStandardError(RunClassification classification)
+    {
+        // Arrange
+        const int runId = 125;
+        apiService.Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync(CreateRunDto(runId, "Run 125", true, classification: classification));
         var controller = BuildController();
 
         // Act
@@ -152,33 +193,62 @@ public class SendBillingFileControllerTests
     }
 
     [TestMethod]
-    public async Task Submit_ApiUnprocessableEntity_ReturnsIndexViewAndFlagsStaleBillingFile()
+    public async Task Submit_ApiUnprocessableEntityAndBillingFileNotLatest_RedirectsToCalculationRunOverview()
     {
         // Arrange
         const int runId = 43;
         apiService.Setup(service => service.GetCalculatorRun(runId))
             .ReturnsAsync(CreateRunDto(runId, $"Run {runId}", false));
+        SetupShareApiResponse(HttpStatusCode.UnprocessableEntity);
         var controller = BuildController();
-        var model = CreateFormModel(runId, true);
-
-        apiService.Setup(service => service.CallApi(
-                It.IsAny<HttpMethod>(),
-                It.IsAny<string>(),
-                It.IsAny<IDictionary<string, string?>?>(),
-                It.IsAny<object?>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.UnprocessableEntity));
 
         // Act
-        var result = await controller.Submit(model) as ViewResult;
+        var result = await controller.Submit(CreateFormModel(runId, true)) as RedirectToActionResult;
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(ActionNames.Index, result.ViewName);
+        Assert.AreEqual(ActionNames.Index, result.ActionName);
+        Assert.AreEqual(ControllerNames.CalculationRunOverview, result.ControllerName);
+        Assert.AreEqual(runId, result.RouteValues!["runId"]);
+    }
 
-        var resultModel = result.Model as ShareBillingFileViewModel;
-        Assert.IsNotNull(resultModel);
-        Assert.IsFalse(resultModel.IsBillingFileLatest);
+    [TestMethod]
+    public async Task Submit_ApiUnprocessableEntityAndBillingFileShared_RedirectsToCompletedRun()
+    {
+        // Arrange
+        const int runId = 45;
+        apiService.Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync(CreateRunDto(runId, $"Run {runId}", true, isShared: true));
+        SetupShareApiResponse(HttpStatusCode.UnprocessableEntity);
+        var controller = BuildController();
+
+        // Act
+        var result = await controller.Submit(CreateFormModel(runId, true)) as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(ActionNames.Index, result.ActionName);
+        Assert.AreEqual(CommonUtil.GetControllerName(typeof(CompletedRunController)), result.ControllerName);
+        Assert.AreEqual(runId, result.RouteValues!["runId"]);
+    }
+
+    [TestMethod]
+    public async Task Submit_ApiUnprocessableEntityAndRunStillShareable_RedirectsToStandardError()
+    {
+        // Arrange
+        const int runId = 46;
+        apiService.Setup(service => service.GetCalculatorRun(runId))
+            .ReturnsAsync(CreateRunDto(runId, $"Run {runId}", true));
+        SetupShareApiResponse(HttpStatusCode.UnprocessableEntity);
+        var controller = BuildController();
+
+        // Act
+        var result = await controller.Submit(CreateFormModel(runId, true)) as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Index", result.ActionName);
+        Assert.AreEqual("StandardError", result.ControllerName);
     }
 
     [TestMethod]
@@ -209,6 +279,17 @@ public class SendBillingFileControllerTests
         Assert.AreEqual("StandardError", result.ControllerName);
     }
 
+    private void SetupShareApiResponse(HttpStatusCode statusCode)
+    {
+        apiService.Setup(service => service.CallApi(
+                It.IsAny<HttpMethod>(),
+                It.IsAny<string>(),
+                It.IsAny<IDictionary<string, string?>?>(),
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new HttpResponseMessage(statusCode) { Content = new StringContent("") });
+    }
+
     private SendBillingFileController BuildController()
     {
         return new SendBillingFileController(NullLogger<SendBillingFileController>.Instance, apiService.Object)
@@ -229,18 +310,24 @@ public class SendBillingFileControllerTests
         };
     }
 
-    private static CalculatorRunDto CreateRunDto(int runId, string runName, bool isBillingFileLatest)
+    private static CalculatorRunDto CreateRunDto(
+        int runId,
+        string runName,
+        bool isBillingFileLatest,
+        bool isShared = false,
+        RunClassification classification = RunClassification.Recalculation)
     {
         return new CalculatorRunDto
         {
             RunId = runId,
             RunName = runName,
+            RunClassification = classification,
             RelativeYear = new RelativeYear(2026),
             BillingFile = new CalculatorRunDto.BillingFileDto
             {
                 Id = 1,
                 IsLatest = isBillingFileLatest,
-                IsShared = false,
+                IsShared = isShared,
                 CsvFileName = "billing.csv",
                 JsonFileName = "billing.json",
                 CreatedAt = DateTime.UtcNow,

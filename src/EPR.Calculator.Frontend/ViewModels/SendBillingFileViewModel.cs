@@ -8,7 +8,6 @@ namespace EPR.Calculator.Frontend.ViewModels;
 public record ShareBillingFileViewModel : ShareBillingFileFormModel
 {
     public required CalculatorRunDto Run { get; init; }
-    public bool IsBillingFileLatest => Run.BillingFile?.IsLatest == true;
 }
 
 public record ShareBillingFileFormModel
