@@ -1,4 +1,6 @@
-﻿namespace EPR.Calculator.Frontend.ViewModels;
+﻿using EPR.Calculator.Frontend.Models;
+
+namespace EPR.Calculator.Frontend.ViewModels;
 
 public record ConfirmationViewModel
 {
