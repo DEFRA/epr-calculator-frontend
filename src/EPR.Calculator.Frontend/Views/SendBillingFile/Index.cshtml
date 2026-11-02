@@ -8,7 +8,7 @@
 <vc:user-nav back-link="@Url.Action("Index", "DesignatedRunWithBillingFile", new { runId = Model.RunId })"/>
 
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-three-quarters">
+    <div class="govuk-grid-column-two-thirds">
         @if (!ViewData.ModelState.IsValid)
         {
             <div class="govuk-error-summary" data-module="govuk-error-summary" role="alert"
@@ -48,16 +48,15 @@
                 <tbody class="govuk-table__body">
                 <tr class="govuk-table__row">
                     <th scope="row" class="govuk-table__header govuk-!-width-one-third epr-nowrap">Run name</th>
-                    <td class="govuk-table__cell" colspan="2">@Model.Run.RunName</td>
+                    <td class="govuk-table__cell">@Model.Run.RunName</td>
                 </tr>
                 <tr class="govuk-table__row">
                     <th scope="row" class="govuk-table__header epr-nowrap">Financial year</th>
-                    <td class="govuk-table__cell" colspan="2">@Model.Run.RelativeYear.ToFinancialYear()</td>
+                    <td class="govuk-table__cell">@Model.Run.RelativeYear.ToFinancialYear()</td>
                 </tr>
                 <tr class="govuk-table__row">
                     <th scope="row" class="govuk-table__header epr-nowrap">Billing file</th>
-                    <td class="govuk-table__cell">@Model.Run.BillingFile?.CsvFileName</td>
-                    <td class="govuk-table__cell govuk-!-text-align-right epr-nowrap">
+                    <td class="govuk-table__cell">
                         <a class="govuk-link govuk-link--no-visited-state"
                            href="@Url.Action(ActionNames.DownloadBillingFile, ControllerNames.FileDownloadController, new { Model.RunId })">
                             Download billing file
