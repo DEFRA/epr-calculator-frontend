@@ -51,6 +51,10 @@
                     <td class="govuk-table__cell">@Model.Run.RunName</td>
                 </tr>
                 <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header epr-nowrap">Run id</th>
+                    <td class="govuk-table__cell">@Model.RunId</td>
+                </tr>
+                <tr class="govuk-table__row">
                     <th scope="row" class="govuk-table__header epr-nowrap">Financial year</th>
                     <td class="govuk-table__cell">@Model.Run.RelativeYear.ToFinancialYear()</td>
                 </tr>
