@@ -60,6 +60,18 @@ public class LocalAuthorityUploadFileControllerTests
     }
 
     [TestMethod]
+    public void Index_OffersTheSpreadsheetTemplateForDownload()
+    {
+        var result = controller.Index() as ViewResult;
+        var model = result?.Model as CsvUploadViewModel;
+
+        Assert.IsNotNull(model);
+        Assert.IsNotNull(model.DownloadTemplate);
+        Assert.AreEqual("/LocalAuthorityUploadFile/DownloadCsvTemplate", model.DownloadTemplate.Url);
+        Assert.AreEqual("Download default local authority costs template", model.DownloadTemplate.LinkText);
+    }
+
+    [TestMethod]
     public async Task HandleUpload_NullFile_ReturnsIndexWithFileError()
     {
         var result = await controller.Upload(null, CancellationToken.None) as ViewResult;
@@ -248,6 +260,19 @@ public class LocalAuthorityUploadFileControllerTests
         Assert.AreEqual("Index", result.ActionName);
         Assert.AreEqual("StandardError", result.ControllerName);
         Assert.IsNull(session.GetString(ApiErrorsKey));
+    }
+
+    [TestMethod]
+    public void DownloadCsvTemplate_ReturnsTheSpreadsheetTemplate()
+    {
+        var result = controller.DownloadCsvTemplate() as VirtualFileResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("~/templates/LapcapParameterTemplate.xlsx", result.FileName);
+        Assert.AreEqual("LapcapParameterTemplate.xlsx", result.FileDownloadName);
+        Assert.AreEqual(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            result.ContentType);
     }
 
     private LocalAuthorityUploadFileController BuildController(ISession controllerSession)

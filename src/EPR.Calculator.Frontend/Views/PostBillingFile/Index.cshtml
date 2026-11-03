@@ -37,7 +37,7 @@
                                 <td class="govuk-table__cell">@Model.CalculatorRunStatus.CreatedAt.DisplayAsDateAtTime()</td>
                             </tr>
                             <tr class="govuk-table__row">
-                                <th scope="row" class="govuk-table__header">Billing file sent</th>
+                                <th scope="row" class="govuk-table__header">Billing file shared</th>
                                 <td class="govuk-table__cell">@Model.CalculatorRunStatus.BillingFile!.SharedAt!.Value.DisplayAsDateAtTime()</td>
                             </tr>
                             <tr class="govuk-table__row">
@@ -45,7 +45,7 @@
                                 <td class="govuk-table__cell">@Model.CalculatorRunStatus.CreatedBy</td>
                             </tr>
                             <tr class="govuk-table__row">
-                                <th scope="row" class="govuk-table__header">Sent by</th>
+                                <th scope="row" class="govuk-table__header">Shared by</th>
                                 <td class="govuk-table__cell">@Model.CalculatorRunStatus.BillingFile!.SharedBy</td>
                             </tr>
                         </tbody>

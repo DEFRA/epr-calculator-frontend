@@ -41,6 +41,7 @@ public class LocalAuthorityDisposalCostsController(
                 ViewNames.LocalAuthorityDisposalCostsIndex,
                 new LocalAuthorityViewModel
                 {
+                    RelativeYear = relativeYear,
                     LastUpdatedBy = currentCosts.FirstOrDefault()?.CreatedBy ?? ErrorMessages.UnknownUser,
                     ByCountry = localAuthorityDataGroupedByCountry
                 });
@@ -48,6 +49,7 @@ public class LocalAuthorityDisposalCostsController(
 
         return View(ViewNames.LocalAuthorityDisposalCostsIndex, new LocalAuthorityViewModel
         {
+            RelativeYear = relativeYear,
             LastUpdatedBy = ErrorMessages.UnknownUser,
             ByCountry = new List<IGrouping<string, LocalAuthorityViewModel.LocalAuthorityData>>()
         });

@@ -2,5 +2,5 @@
 
 public record BillingFileSuccessViewModel
 {
-    public required ConfirmationViewModel ConfirmationViewModel { get; init; }
+    public required int RunId { get; init; }
 }
