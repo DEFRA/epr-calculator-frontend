@@ -8,11 +8,11 @@
         <div class="govuk-!-margin-bottom-9">
             <div class="govuk-caption-l govuk-!-margin-bottom-1">Financial
                 year @Model.RelativeYear.ToFinancialYear()</div>
-            <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">Local authority disposal costs</h1>
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-4 epr-nowrap-from-desktop">Local authority disposal costs</h1>
 
             @if (Model.IsDataAvailable)
             {
-                <p class="govuk-body">
+                <p class="govuk-body epr-nowrap-from-desktop">
                     Last updated by @Model.LastUpdatedBy at @Model.LastUpdatedAt.DisplayAsTimeOnDate()
                 </p>
             }
