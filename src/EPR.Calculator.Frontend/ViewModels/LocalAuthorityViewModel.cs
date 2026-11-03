@@ -42,8 +42,7 @@ public record LocalAuthorityViewModel
 
         private static string GetTotalCost(decimal totalCost)
         {
-            var precision = totalCost == 0 ? 0 : 2;
-            return totalCost.ToString($"C{precision}");
+            return totalCost.ToString("C2");
         }
     }
 }

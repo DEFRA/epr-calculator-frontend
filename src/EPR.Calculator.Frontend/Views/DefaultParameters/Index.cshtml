@@ -37,9 +37,9 @@
                         <thead>
                         <tr class="govuk-table__row">
                             <th id="material_tonnage_header" class="govuk-table__header"></th>
-                            <th id="red_tonnage_header" class="govuk-table__header">Red</th>
-                            <th id="amber_tonnage_header" class="govuk-table__header">Amber</th>
-                            <th id="green_tonnage_header" class="govuk-table__header">Green</th>
+                            <th id="red_tonnage_header" class="govuk-table__header govuk-table__header--numeric">Red</th>
+                            <th id="amber_tonnage_header" class="govuk-table__header govuk-table__header--numeric">Amber</th>
+                            <th id="green_tonnage_header" class="govuk-table__header govuk-table__header--numeric">Green</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -48,9 +48,9 @@
                             <tr class="govuk-table__row">
                                 <th id="material_tonnage_header_row"
                                     class="govuk-table__header">@row.Material</th>
-                                <td class="govuk-table__cell">@row.Red.ToString("N3")</td>
-                                <td class="govuk-table__cell">@row.Amber.ToString("N3")</td>
-                                <td class="govuk-table__cell">@row.Green.ToString("N3")</td>
+                                <td class="govuk-table__cell govuk-table__cell--numeric">@row.Red.ToString("N3")</td>
+                                <td class="govuk-table__cell govuk-table__cell--numeric">@row.Amber.ToString("N3")</td>
+                                <td class="govuk-table__cell govuk-table__cell--numeric">@row.Green.ToString("N3")</td>
                             </tr>
                         }
                         </tbody>

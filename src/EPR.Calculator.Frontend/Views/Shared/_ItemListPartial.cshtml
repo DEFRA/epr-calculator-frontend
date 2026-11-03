@@ -10,22 +10,19 @@
                 <dt class="govuk-summary-list__key">
                     @item.ParameterCategory
                 </dt>
-                <dd class="govuk-summary-list__value">
+                <dd class="govuk-summary-list__actions">
                     @{
                         if ((@item.ParameterCategory.Contains("Percent") || @item.ParameterType.Contains("percent")))
                         {
-                            string formattedValue = item.ParameterDecimalValue() == 0
-                                ? string.Format("{0:F0}{1}", item.ParameterDecimalValue(), "%")
-                                : string.Format("{0:F2}{1}", item.ParameterDecimalValue(), "%");
+                            string formattedValue = string.Format("{0:F2}{1}", item.ParameterDecimalValue(), "%");
 
                             @formattedValue
                         }
                         else if (@item.ParameterCategory.Contains("Amount") || @item.ParameterType.Contains("costs"))
                         {
-                            var precision  = item.ParameterDecimalValue() == 0 ? 0 : 2;
                             var formattedValue = item.ParameterDecimalValue() < 0
-                                ? "-" + Math.Abs(item.ParameterDecimalValue()).ToString($"C{precision}")
-                                : item.ParameterDecimalValue().ToString($"C{precision}");
+                                ? "-" + Math.Abs(item.ParameterDecimalValue()).ToString("C2")
+                                : item.ParameterDecimalValue().ToString("C2");
 
                             @formattedValue
                         }
