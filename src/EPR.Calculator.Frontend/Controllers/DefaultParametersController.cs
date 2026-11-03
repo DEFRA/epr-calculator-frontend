@@ -33,7 +33,7 @@ public class DefaultParametersController(
             var viewModel = new DefaultParametersViewModel
             {
                 RelativeYear = relativeYear,
-                LastUpdatedBy = CommonUtil.GetUserName(HttpContext),
+                LastUpdatedBy = currentParameters.First().CreatedBy,
                 SchemeParameters = [],
                 LateReportingTonnageParams = []
             };
