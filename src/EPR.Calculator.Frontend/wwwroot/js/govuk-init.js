@@ -1,3 +1,3 @@
-import { initAll } from './govuk-frontend-5.4.1.min.js';
+import { initAll } from './govuk-frontend-6.6.0.min.js';
 
 initAll();
