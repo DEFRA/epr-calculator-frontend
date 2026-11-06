@@ -1,0 +1,247 @@
+/*
+  Defra internal theme.
+
+  A plain-CSS port of the header, service navigation and footer styles from
+  waste-regulator-dashboard-fe (src/server/common/components/defra-internal-*),
+  which compiles them from Sass against govuk-frontend's mixins. This project
+  ships govuk-frontend precompiled, so the mixin output is written out by hand
+  here and layered on top of govuk-frontend-x.y.z.min.css.
+
+  Load order: govuk-frontend -> defra-internal.css -> styles.css
+*/
+
+/* -----------------------------------------------------------------------------
+   Tokens
+   govuk-frontend 6 reads its brand colour from a custom property, so setting it
+   here re-themes every component that uses the brand (focus/keylines etc.).
+----------------------------------------------------------------------------- */
+:root {
+    --govuk-brand-colour: #00a33b;
+    --govuk-template-background-colour: #ffffff;
+
+    --defra-internal-brand: #00a33b;
+    --defra-internal-footer-link: #3b3b3b;
+    /* Brand green mixed 8% into white: the lightest tint that still reads as a band. */
+    --defra-internal-nav-background: #ebf8ef;
+    /* Interaction green, one step darker than the brand (5.7:1 on the band). */
+    --defra-internal-link: #00703c;
+    /* Link colour shaded 40% towards black, as govuk-frontend does for hover. */
+    --defra-internal-link-hover: #004324;
+}
+
+/* -----------------------------------------------------------------------------
+   Typeface
+   The dashboard compiles govuk-frontend with $govuk-font-family: "arial".
+   GDS Transport is restricted to services on GOV.UK, so this service uses Arial
+   too. The precompiled CSS hard-codes "GDS Transport, arial, sans-serif" in
+   ~60 rules, so rather than override each one, the GDS Transport family is
+   redefined here to resolve to the local Arial. These later @font-face rules
+   have identical descriptors and so replace the ones in govuk-frontend.
+----------------------------------------------------------------------------- */
+@font-face {
+    font-family: "GDS Transport";
+    font-style: normal;
+    font-weight: 400;
+    src: local("Arial"), local("ArialMT"), local("Liberation Sans");
+}
+
+@font-face {
+    font-family: "GDS Transport";
+    font-style: normal;
+    font-weight: 700;
+    src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold");
+}
+
+/* -----------------------------------------------------------------------------
+   Header
+----------------------------------------------------------------------------- */
+.defra-internal-header {
+    background-color: #ffffff;
+    border-bottom: 8px solid var(--defra-internal-brand);
+}
+
+.defra-internal-header__main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.defra-internal-header__logo {
+    flex-shrink: 0;
+}
+
+/* Organisation lock-up: green keyline, crest, then the department name. */
+.defra-internal-header__logo-link {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding-left: 54px; /* 8px gap + 36px crest + 10px gap */
+    border-left: 2px solid var(--defra-internal-brand);
+    color: var(--govuk-text-colour, #0b0c0c);
+    line-height: 1;
+}
+
+.defra-internal-header__logo-link::before {
+    content: "";
+    position: absolute;
+    top: 1px;
+    left: 8px;
+    width: 36px;
+    height: 34px;
+    background: url(/assets/images/govuk-crest.svg) no-repeat 50% 0 / auto 34px;
+}
+
+@supports ((-webkit-mask-position: initial) or (mask-position: initial)) {
+    .defra-internal-header__logo-link::before {
+        background: currentcolor;
+        -webkit-mask: url(/assets/images/govuk-crest.svg) no-repeat 50% 0 / auto 34px;
+        mask: url(/assets/images/govuk-crest.svg) no-repeat 50% 0 / auto 34px;
+    }
+
+    @media screen and (forced-colors: active) {
+        .defra-internal-header__logo-link::before {
+            background: linktext;
+        }
+    }
+}
+
+@media (min-width: 40.0625em) {
+    .defra-internal-header__main {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   Service navigation (govuk-frontend's component, restyled green)
+----------------------------------------------------------------------------- */
+.defra-internal-service-header .govuk-service-navigation {
+    background-color: var(--defra-internal-nav-background);
+    border: 0;
+    margin-bottom: 0;
+}
+
+.defra-internal-service-header .govuk-service-navigation__link:not(:hover):not(:focus),
+.defra-internal-service-header .govuk-service-navigation__toggle:not(:hover):not(:focus) {
+    color: var(--defra-internal-link);
+}
+
+.defra-internal-service-header .govuk-service-navigation__link:hover,
+.defra-internal-service-header .govuk-service-navigation__toggle:hover {
+    color: var(--defra-internal-link-hover);
+}
+
+.defra-internal-service-header .govuk-service-navigation__item {
+    border-color: var(--defra-internal-link);
+}
+
+/* Service name and the signed-in user share one row; the width container is
+   the flex row they both sit in. */
+.defra-internal-service-header .govuk-service-navigation > .govuk-width-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 20px;
+}
+
+.defra-internal-service-header .govuk-service-navigation__container {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* Signed-in user and sign out, always on the right of the green band. */
+.defra-internal-service-navigation__context {
+    flex: 0 0 auto;
+    margin: 0 0 0 auto;
+    padding: 10px 0 15px;
+    font-family: "GDS Transport", arial, sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.1428571429;
+    color: var(--govuk-text-colour, #0b0c0c);
+}
+
+.defra-internal-account-menu {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.defra-internal-account-menu li {
+    display: flex;
+    align-items: center;
+}
+
+.defra-internal-account-menu li + li::before {
+    content: "|";
+    margin: 0 10px;
+    color: var(--govuk-text-colour, #0b0c0c);
+}
+
+.defra-internal-account-menu .govuk-link:not(:hover):not(:focus) {
+    color: var(--defra-internal-link);
+}
+
+.defra-internal-account-menu .govuk-link:hover {
+    color: var(--defra-internal-link-hover);
+}
+
+@media (min-width: 40.0625em) {
+    .defra-internal-service-navigation__context {
+        padding: 15px 0;
+        font-size: 1rem;
+        line-height: 1.25;
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   Footer
+   Reuses govuk-frontend's govuk-footer__meta / __licence-* / __copyright-logo
+   classes (they are top-level selectors) so spacing matches the GDS footer;
+   only the background, border and link colour are ours.
+----------------------------------------------------------------------------- */
+
+/* Sticky footer: keep it at the bottom of the viewport on short pages. */
+body:has(> .defra-internal-footer) {
+    min-height: 100vh;
+}
+
+body:has(> .defra-internal-footer) > .defra-internal-footer {
+    position: sticky;
+    top: 100vh;
+}
+
+.defra-internal-footer {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-top: 8px solid var(--defra-internal-brand);
+    background-color: #ffffff;
+}
+
+@media (min-width: 40.0625em) {
+    .defra-internal-footer {
+        padding-top: 30px;
+        padding-bottom: 30px;
+    }
+}
+
+/* Paired with the govuk-link class in markup, which supplies underline, hover
+   thickening and the yellow focus state; only the colour is overridden. */
+.defra-internal-footer__link:link,
+.defra-internal-footer__link:visited,
+.defra-internal-footer__link:hover,
+.defra-internal-footer__link:active {
+    color: var(--defra-internal-footer-link);
+}
+
+.defra-internal-footer__link:focus {
+    color: var(--govuk-focus-text-colour, #0b0c0c);
+}
