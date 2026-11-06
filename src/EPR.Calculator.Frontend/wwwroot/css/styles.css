@@ -53,7 +53,7 @@
     }
 
     .govuk-summary-list {
-        border-top: 1px solid #b1b4b6;
+        border-top: 1px solid var(--govuk-border-colour);
 
         .govuk-summary-list__actions {
             vertical-align: middle;
@@ -64,16 +64,6 @@
         font-size: 1rem;
         font-weight: 700;
         letter-spacing: 1px;
-    }
-
-    .govuk-tag--grey {
-        color: #383f43;
-        background: #eeefef;
-    }
-
-    .govuk-tag--blue {
-        color: #144e81;
-        background: #d2e2f1;
     }
 }
 
@@ -113,12 +103,8 @@
 }
 
 .govuk-notification-banner--failure {
-    border-color: #FF0000;
-    background-color: #FF0000;
-}
-
-.govuk-pagination__item--current {
-    color: white;
+    border-color: var(--govuk-error-colour);
+    background-color: var(--govuk-error-colour);
 }
 
 .col-select {
@@ -149,7 +135,7 @@
     width: 34px;
     height: 34px;
     cursor: pointer;
-    border: 1px solid #000;
+    border: 1px solid var(--govuk-input-border-colour);
 }
 
 .vertical-middle {
@@ -157,9 +143,9 @@
 }
 
 .search-panel {
-    background-color: #f3f2f1;
+    background-color: #f3f3f3; /* GOV.UK v6 light grey */
     padding: 20px;
-    border: 1px solid #b1b4b6;
+    border: 1px solid var(--govuk-border-colour);
 }
 
 .search-input-group {

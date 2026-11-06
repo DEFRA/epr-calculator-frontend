@@ -23,7 +23,7 @@
         @foreach (var org in Model.TablePaginationModel.Records.Cast<Organisation>())
         {
             <tr class="govuk-table__row">
-                <td class="govuk-table__cell govuk-!-text-align-center">
+                <td class="govuk-table__cell govuk-!-text-align-centre">
                     <input type="checkbox" name="SelectedIds"
                            value="@org.Id"
                            aria-labelledby="checkbox-label-@org.Id"
@@ -33,14 +33,14 @@
                            @(org.BillingInstruction == BillingInstruction.Noaction ? "disabled" : null) />
                 </td>
 
-                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle" id="checkbox-label-@org.Id">@org.OrganisationName</td>
-                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">@org.OrganisationId</td>
-                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">
-                    <strong class="govuk-tag govuk-tag--blue">
+                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle" id="checkbox-label-@org.Id">@org.OrganisationName</td>
+                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle">@org.OrganisationId</td>
+                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle">
+                    <strong class="govuk-tag">
                         @org.BillingInstruction?.GetDisplayName()
                     </strong>
                 </td>
-                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">
+                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle">
                     @if (org.InvoiceAmount != null)
                     {
                         @org.InvoiceAmount.Value.ToString("C", CultureInfo.CreateSpecificCulture("en-GB"))
@@ -48,7 +48,7 @@
                 </td>
 
 
-                <td class="govuk-table__cell govuk-!-text-align-center vertical-middle">
+                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle">
                     @if (org.BillingInstruction != BillingInstruction.Noaction)
                     {
                         @functions {
@@ -112,78 +112,73 @@
 }
 
 <div class="billing-pagination">
-    <!-- Left side: pagination numbers + next -->
+    <!-- Left side: GOV.UK pagination (previous, page numbers, next) -->
     <div class="billing-pagination__pages">
-        <ul class="govuk-pagination__list">
-            @* Previous link *@
+        <nav class="govuk-pagination" aria-label="Pagination">
             @if (Model.TablePaginationModel.Page > 1)
             {
-                <li class="govuk-pagination__item govuk-pagination__item--prev">
-                    <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: Model.TablePaginationModel.Page - 1))" rel="prev" aria-label="Previous page">
-                        <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" width="15" height="13" viewBox="0 0 15 13" aria-hidden="true" focusable="false">
-                            <path d="M6.893 0 8.307 1.414 4.014 5.707H17v2H4.1l4.185 3.977-1.377 1.449L0.164 6.727 6.893 0z" />
+                <div class="govuk-pagination__prev">
+                    <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: Model.TablePaginationModel.Page - 1))" rel="prev">
+                        <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                            <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
                         </svg>
-                        <strong class="govuk-pagination__link-title">Previous</strong>
+                        <span class="govuk-pagination__link-title">Previous<span class="govuk-visually-hidden"> page</span></span>
                     </a>
-                </li>
+                </div>
             }
 
-            @* Ellipsis before block if needed *@
-            @if (blockStart > 1)
-            {
-                <li class="govuk-pagination__item">
-                    <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(RouteNames.BillingInstructionsIndex, RouteValues(1))">1</a>
-                </li>
-                @if (blockStart > 2)  // show ellipsis only if gap > 1 page
+            <ul class="govuk-pagination__list">
+                @if (blockStart > 1)
                 {
-                    <li class="govuk-pagination__item">…</li>
-                }
-            }
-
-            @* Pages in the block *@
-            @for (int i = blockStart; i <= blockEnd; i++)
-            {
-                <li class="govuk-pagination__item @(Model.TablePaginationModel.Page == i ? "govuk-pagination__item--current" : "")" @(Model.TablePaginationModel.Page == i ? "aria-current=\"page\"" : "")>
-                    @if (Model.TablePaginationModel.Page == i)
+                    <li class="govuk-pagination__item">
+                        <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: 1))" aria-label="Page 1">1</a>
+                    </li>
+                    @if (blockStart > 2)  // show ellipsis only if gap > 1 page
                     {
-                        @i
+                        <li class="govuk-pagination__item govuk-pagination__item--ellipsis">&ctdot;</li>
+                    }
+                }
+
+                @for (int i = blockStart; i <= blockEnd; i++)
+                {
+                    if (Model.TablePaginationModel.Page == i)
+                    {
+                        <li class="govuk-pagination__item govuk-pagination__item--current">
+                            <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: i))" aria-label="Page @i" aria-current="page">@i</a>
+                        </li>
                     }
                     else
                     {
-                        <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: i))">@i</a>
+                        <li class="govuk-pagination__item">
+                            <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: i))" aria-label="Page @i">@i</a>
+                        </li>
                     }
-                </li>
-            }
-
-            @* Ellipsis and last page if needed *@
-            @if (blockEnd < Model.TablePaginationModel.TotalPages)
-            {
-                if (blockEnd < Model.TablePaginationModel.TotalPages - 1)
-                {
-                    <li class="govuk-pagination__item">…</li>
                 }
-                <li class="govuk-pagination__item">
-                    <a class="govuk-link govuk-pagination__link"
-                       href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: Model.TablePaginationModel.TotalPages))"> @Model.TablePaginationModel.TotalPages</a>
-                </li>
-            }
 
-            @* Next link *@
+                @if (blockEnd < Model.TablePaginationModel.TotalPages)
+                {
+                    if (blockEnd < Model.TablePaginationModel.TotalPages - 1)
+                    {
+                        <li class="govuk-pagination__item govuk-pagination__item--ellipsis">&ctdot;</li>
+                    }
+                    <li class="govuk-pagination__item">
+                        <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: Model.TablePaginationModel.TotalPages))" aria-label="Page @Model.TablePaginationModel.TotalPages">@Model.TablePaginationModel.TotalPages</a>
+                    </li>
+                }
+            </ul>
+
             @if (Model.TablePaginationModel.Page < Model.TablePaginationModel.TotalPages)
             {
-                <li class="govuk-pagination__item govuk-pagination__item--next">
-                    <a class="govuk-link govuk-pagination__link"
-                       href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: Model.TablePaginationModel.Page + 1))"
-                       rel="next"
-                       aria-label="Next page">
-                        <strong class="govuk-pagination__link-title">Next</strong>
+                <div class="govuk-pagination__next">
+                    <a class="govuk-link govuk-pagination__link" href="@Url.RouteUrl(Model.TablePaginationModel.RouteName, RouteValues(page: Model.TablePaginationModel.Page + 1))" rel="next">
+                        <span class="govuk-pagination__link-title">Next<span class="govuk-visually-hidden"> page</span></span>
                         <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
                             <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
                         </svg>
                     </a>
-                </li>
+                </div>
             }
-        </ul>
+        </nav>
     </div>
 
     <!-- Right side: items per page -->
