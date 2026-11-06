@@ -11,98 +11,96 @@
 
 <vc:user-nav back-link="@Url.Action("Index", "Dashboard")"/>
 
-<main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
-    <div class="govuk-grid-row calculator-details">
-        <div class="govuk-grid-column-two-thirds">
-            @using (Html.BeginForm(ActionNames.Submit, ControllerNames.CalculationRunDetails, FormMethod.Post))
-            {
-                @Html.AntiForgeryToken()
+<div class="govuk-grid-row calculator-details">
+    <div class="govuk-grid-column-two-thirds">
+        @using (Html.BeginForm(ActionNames.Submit, ControllerNames.CalculationRunDetails, FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
 
-                @Html.HiddenFor(m => m.RunId)
+            @Html.HiddenFor(m => m.RunId)
 
-                <partial name="_ValidationSummaryPartial" />
+            <partial name="_ValidationSummaryPartial" />
 
-                <div class="govuk-form-group">
-                    <fieldset class="govuk-fieldset">
-                        <legend class="govuk-caption-l">
-                            @Model.RunName
-                        </legend>
-                        <h1 class="govuk-heading-l">Calculation run details</h1>
-                        <hr class="govuk-section-break govuk-section-break--s govuk-section-break--invisible">
-                        <h3 class="govuk-body-m">Download the results file to review the calculation run offline. When you are ready, return to classify or delete it.</h3>
+            <div class="govuk-form-group">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-caption-l">
+                        @Model.RunName
+                    </legend>
+                    <h1 class="govuk-heading-l">Calculation run details</h1>
+                    <hr class="govuk-section-break govuk-section-break--m">
+                    <h3 class="govuk-body-m">Download the results file to review the calculation run offline. When you are ready, return to classify or delete it.</h3>
 
-                        <table class="govuk-table" aria-describedby="table-description">
-                            <caption id="table-description" class="govuk-visually-hidden">
-                                Details of the calculation run including financial year, calculation ID, run date, and created by.
-                            </caption>
-                            <tbody class="govuk-table__body">
-                                <tr class="govuk-table__row">
-                                    <th scope="row" class="govuk-table__header">Financial year</th>
-                                    <td class="govuk-table__cell">@Model.RelativeYear.ToFinancialYear()</td>
-                                </tr>
-                                <tr class="govuk-table__row">
-                                    <th scope="row" class="govuk-table__header">Calculation ID</th>
-                                    <td class="govuk-table__cell">@Model.RunId</td>
-                                </tr>
-                                <tr class="govuk-table__row">
-                                    <th scope="row" class="govuk-table__header">Run date and time</th>
-                                    <td class="govuk-table__cell">@Model.CreatedAt.DisplayAsDateAtTime()</td>
-                                </tr>
-                                <tr class="govuk-table__row">
-                                    <th scope="row" class="govuk-table__header">Run by</th>
-                                    <td class="govuk-table__cell">@Model.CreatedBy</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <table class="govuk-table" aria-describedby="table-description">
+                        <caption id="table-description" class="govuk-visually-hidden">
+                            Details of the calculation run including financial year, calculation ID, run date, and created by.
+                        </caption>
+                        <tbody class="govuk-table__body">
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__header">Financial year</th>
+                                <td class="govuk-table__cell">@Model.RelativeYear.ToFinancialYear()</td>
+                            </tr>
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__header">Calculation ID</th>
+                                <td class="govuk-table__cell">@Model.RunId</td>
+                            </tr>
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__header">Run date and time</th>
+                                <td class="govuk-table__cell">@Model.CreatedAt.DisplayAsDateAtTime()</td>
+                            </tr>
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__header">Run by</th>
+                                <td class="govuk-table__cell">@Model.CreatedBy</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-                        <h2 class="govuk-heading-m">Downloads</h2>
-                        <p class="govuk-body">Download files related to this calculation run.</p>
+                    <h2 class="govuk-heading-m">Downloads</h2>
+                    <p class="govuk-body">Download files related to this calculation run.</p>
 
-                        <a class="govuk-button govuk-button--secondary"
-                           role="button"
-                           href="@Url.Action(ActionNames.DownloadResultFile,ControllerNames.FileDownloadController, new { runId = Model.RunId })">
-                            Results file
-                        </a>
+                    <a class="govuk-button govuk-button--secondary"
+                       role="button"
+                       href="@Url.Action(ActionNames.DownloadResultFile,ControllerNames.FileDownloadController, new { runId = Model.RunId })">
+                        Results file
+                    </a>
 
-                        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
-                        <div class="govuk-form-group @(ViewData.HasErrorFor(nameof(Model.SelectedCalcRunOption)) ? "govuk-form-group--error" : "")">
-                            <fieldset class="govuk-fieldset" id="SelectedCalcRunOption">
-                                <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                                    What do you want to do next?
-                                </legend>
+                    <div class="govuk-form-group @(ViewData.HasErrorFor(nameof(Model.SelectedCalcRunOption)) ? "govuk-form-group--error" : "")">
+                        <fieldset class="govuk-fieldset" id="SelectedCalcRunOption">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                What do you want to do next?
+                            </legend>
 
-                                @Html.ValidationMessageFor(model => model.SelectedCalcRunOption, "", new { @class = "govuk-error-message" })
+                            @Html.ValidationMessageFor(model => model.SelectedCalcRunOption, "", new { @class = "govuk-error-message" })
 
-                                <div class="govuk-radios" data-module="govuk-radios">
-                                    <div class="govuk-radios__item">
-                                        @Html.RadioButtonFor(model => model.SelectedCalcRunOption, CalculationRunOption.OutputClassify, new { @class = "govuk-radios__input", id = "SelectedCalcRunOptionClassify" })
-                                        <label class="govuk-label govuk-radios__label" for="SelectedCalcRunOptionClassify">
-                                            <strong>Classify</strong><br />
-                                            <p class="govuk-body-s govuk-!-margin-bottom-0">Choose a classification to process this calculation run</p>
-                                        </label>
-                                    </div>
-                                    <div class="govuk-radios__item">
-                                        @Html.RadioButtonFor(model => model.SelectedCalcRunOption, CalculationRunOption.OutputDelete, new { @class = "govuk-radios__input", id = "SelectedCalcRunOptionDelete" })
-                                        <label class="govuk-label govuk-radios__label" for="SelectedCalcRunOptionDelete">
-                                            <strong>Delete</strong><br />
-                                            <p class="govuk-body-s govuk-!-margin-bottom-0">Remove this calculation run if it's no longer needed</p>
-                                        </label>
-                                    </div>
+                            <div class="govuk-radios" data-module="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    @Html.RadioButtonFor(model => model.SelectedCalcRunOption, CalculationRunOption.OutputClassify, new { @class = "govuk-radios__input", id = "SelectedCalcRunOptionClassify" })
+                                    <label class="govuk-label govuk-radios__label" for="SelectedCalcRunOptionClassify">
+                                        <strong>Classify</strong><br />
+                                        <p class="govuk-body-s govuk-!-margin-bottom-0">Choose a classification to process this calculation run</p>
+                                    </label>
                                 </div>
-                            </fieldset>
-                        </div>
-                    </fieldset>
-                </div>
+                                <div class="govuk-radios__item">
+                                    @Html.RadioButtonFor(model => model.SelectedCalcRunOption, CalculationRunOption.OutputDelete, new { @class = "govuk-radios__input", id = "SelectedCalcRunOptionDelete" })
+                                    <label class="govuk-label govuk-radios__label" for="SelectedCalcRunOptionDelete">
+                                        <strong>Delete</strong><br />
+                                        <p class="govuk-body-s govuk-!-margin-bottom-0">Remove this calculation run if it's no longer needed</p>
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </fieldset>
+            </div>
 
-                <div class="govuk-button-group">
-                    <button type="Submit" class="govuk-button" data-module="govuk-button">
-                        Continue
-                    </button>
+            <div class="govuk-button-group">
+                <button type="Submit" class="govuk-button" data-module="govuk-button">
+                    Continue
+                </button>
 
-                    <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
-                </div>
-            }
-        </div>
+                <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link govuk-!-margin-left-4">@ActionLinkLabels.ReturnToDashBoard</a>
+            </div>
+        }
     </div>
-</main>
+</div>

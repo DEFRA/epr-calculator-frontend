@@ -11,12 +11,13 @@
     <link rel="mask-icon" href="~/assets/images/govuk-icon-mask.svg" color="#00a33b">
     <link rel="apple-touch-icon" href="~/assets/images/apple-touch-icon.png">
     <link rel="manifest" href="~/assets/manifest.json">
-    <link rel="stylesheet" href="~/css/govuk-frontend-6.6.0.min.css" />
-    <link rel="stylesheet" href="~/css/defra-internal.css" />
-    <link rel="stylesheet" href="~/css/styles.css" />
+    <link rel="stylesheet" href="~/css/govuk-frontend-6.6.0.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/defra-internal.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
 </head>
 
-<body class="govuk-template__body defra-internal js-enabled govuk-frontend-supported">
+<body class="govuk-template__body defra-internal">
+    <script nonce="@Context.Items["CspNonce"]">document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
     <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
 
     <header class="defra-internal-header">
@@ -102,7 +103,7 @@
         </div>
     </footer>
 
-    <script type="module" src="~/js/govuk-init.js"></script>
+    <script type="module" src="~/js/govuk-init.js" asp-append-version="true"></script>
 </body>
 
 </html>
