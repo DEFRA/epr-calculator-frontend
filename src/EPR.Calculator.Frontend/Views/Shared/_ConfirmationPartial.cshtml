@@ -1,35 +1,31 @@
 ﻿@model ConfirmationViewModel;
 
-<div class="govuk-width-container">
-    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <div class="govuk-panel govuk-panel--confirmation">
-                    <h1 class="govuk-panel__title">
-                        @Model.Title
-                    </h1>
-                    <div class="govuk-panel__body">
-                       @Model.Body
-                    </div>
-                </div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-panel govuk-panel--confirmation">
+            <h1 class="govuk-panel__title">
+                @Model.Title
+            </h1>
+            <div class="govuk-panel__body">
+               @Model.Body
+            </div>
+        </div>
 
-                <h2 class="govuk-heading-m">What happens next</h2>
-                @foreach (var text in Model.AdditionalParagraphs)
-                {
+        <h2 class="govuk-heading-m">What happens next</h2>
+        @foreach (var text in Model.AdditionalParagraphs)
+        {
 	                <p class="govuk-body">
 		                @text
 	                </p>
-                }
+        }
 
-                &nbsp; &nbsp;
-                <div class="govuk-button-group">
-                    @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
-                    {
-                        <a href="@Url.Action(ActionNames.Index, @Model.RedirectController)" class="govuk-button govuk-!-margin-right-4" type="submit">@Model.SubmitText</a>
-                    }                    
-                    <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
-                </div>
-            </div>
+        &nbsp; &nbsp;
+        <div class="govuk-button-group">
+            @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
+            {
+                <a href="@Url.Action(ActionNames.Index, @Model.RedirectController)" class="govuk-button govuk-!-margin-right-4" type="submit">@Model.SubmitText</a>
+            }                    
+            <a href="@Url.Action(ActionNames.Index,ControllerNames.Dashboard)" class="govuk-link">@ActionLinkLabels.ReturnToDashBoard</a>
         </div>
-    </main>
+    </div>
 </div>
