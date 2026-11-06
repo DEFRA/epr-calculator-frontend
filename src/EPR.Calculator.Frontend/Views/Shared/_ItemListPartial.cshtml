@@ -10,7 +10,7 @@
                 <dt class="govuk-summary-list__key">
                     @item.ParameterCategory
                 </dt>
-                <dd class="govuk-summary-list__value">
+                <dd class="govuk-summary-list__value govuk-!-text-align-right">
                     @{
                         if ((@item.ParameterCategory.Contains("Percent") || @item.ParameterType.Contains("percent")))
                         {
