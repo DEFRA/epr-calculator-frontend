@@ -23,10 +23,10 @@
     --defra-internal-footer-link: #3b3b3b;
     /* Brand green mixed 8% into white: the lightest tint that still reads as a band. */
     --defra-internal-nav-background: #ebf8ef;
-    /* Interaction green, one step darker than the brand (5.7:1 on the band). */
-    --defra-internal-link: #00703c;
+    /* GOV.UK Frontend v6 green, one step darker than the brand (4.9:1 on the band). */
+    --defra-internal-link: #0f7a52;
     /* Link colour shaded 40% towards black, as govuk-frontend does for hover. */
-    --defra-internal-link-hover: #004324;
+    --defra-internal-link-hover: #094931;
 }
 
 /* -----------------------------------------------------------------------------
