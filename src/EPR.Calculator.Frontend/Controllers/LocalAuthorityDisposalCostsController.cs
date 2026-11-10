@@ -42,7 +42,8 @@ public class LocalAuthorityDisposalCostsController(
                 new LocalAuthorityViewModel
                 {
                     RelativeYear = relativeYear,
-                    LastUpdatedBy = currentCosts.FirstOrDefault()?.CreatedBy ?? ErrorMessages.UnknownUser,
+                    LastUpdatedBy = currentCosts.First().CreatedBy,
+                    LastUpdatedAt = currentCosts.First().CreatedAt,
                     ByCountry = localAuthorityDataGroupedByCountry
                 });
         }
