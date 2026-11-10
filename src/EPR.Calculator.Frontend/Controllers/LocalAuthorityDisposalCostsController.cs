@@ -41,7 +41,8 @@ public class LocalAuthorityDisposalCostsController(
                 ViewNames.LocalAuthorityDisposalCostsIndex,
                 new LocalAuthorityViewModel
                 {
-                    LastUpdatedBy = currentCosts.FirstOrDefault()?.CreatedBy ?? ErrorMessages.UnknownUser,
+                    LastUpdatedBy = currentCosts.First().CreatedBy,
+                    LastUpdatedAt = currentCosts.First().CreatedAt,
                     ByCountry = localAuthorityDataGroupedByCountry
                 });
         }

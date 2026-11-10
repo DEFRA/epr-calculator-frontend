@@ -8,7 +8,7 @@ public record LocalAuthorityViewModel
     public required string LastUpdatedBy { get; init; }
     public required List<IGrouping<string, LocalAuthorityData>>? ByCountry { get; init; }
     public bool IsDataAvailable => ByCountry?.FirstOrDefault()?.FirstOrDefault() != null;
-    public DateTime LastUpdatedAt => ByCountry?.FirstOrDefault()?.FirstOrDefault()?.EffectiveFrom ?? DateTime.MinValue;
+    public DateTime LastUpdatedAt { get; init; }
 
     public record LocalAuthorityData
     {

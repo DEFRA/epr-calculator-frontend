@@ -32,7 +32,7 @@ public class DefaultParametersController(
         {
             var viewModel = new DefaultParametersViewModel
             {
-                LastUpdatedBy = CommonUtil.GetUserName(HttpContext),
+                LastUpdatedBy = currentParameters.First().CreatedBy,
                 SchemeParameters = [],
                 LateReportingTonnageParams = []
             };
@@ -47,7 +47,7 @@ public class DefaultParametersController(
             var lateTonnage = viewModel.SchemeParameters.First(t => t.SchemeParameterName == ParameterType.LateReportingTonnage.GetDisplayName());
 
             viewModel.LateReportingTonnageParams = GetModulatedLateReportingTonnageParams(lateTonnage.DefaultSchemeParameters);
-            viewModel.LastUpdatedAt              = currentParameters.First().EffectiveFrom;
+            viewModel.LastUpdatedAt              = currentParameters.First().CreatedAt;
             viewModel.IsDataAvailable            = true;
 
             return View(viewModel);
