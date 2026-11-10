@@ -65,6 +65,7 @@ public class LocalAuthorityDisposalCostsControllerTests
         Assert.AreEqual(ViewNames.LocalAuthorityDisposalCostsIndex, result.ViewName);
         Assert.IsNotNull(model);
         Assert.AreEqual(TestCreatedBy, model.LastUpdatedBy);
+        Assert.AreEqual(new DateTime(2024, 4, 2, 0, 0, 0, DateTimeKind.Utc), model.LastUpdatedAt);
         Assert.IsNotNull(model.ByCountry);
         Assert.AreEqual(2, model.ByCountry.Count);
 

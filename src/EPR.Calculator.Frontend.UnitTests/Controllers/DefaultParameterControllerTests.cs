@@ -19,6 +19,7 @@ namespace EPR.Calculator.Frontend.UnitTests.Controllers;
 public class DefaultParameterControllerTests
 {
     private const string TestUser = "Test User";
+    private const string UploadedByUser = "Uploading User";
     private const int RelativeYearValue = 2024;
 
     private Mock<IEprCalculatorApiService> apiService = null!;
@@ -68,9 +69,9 @@ public class DefaultParameterControllerTests
         Assert.IsNotNull(result);
         Assert.IsNotNull(model);
         Assert.IsTrue(model.IsDataAvailable);
-        Assert.AreEqual(TestUser, model.LastUpdatedBy);
+        Assert.AreEqual(UploadedByUser, model.LastUpdatedBy);
         Assert.AreEqual(Enum.GetValues<ParameterType>().Length, model.SchemeParameters.Count);
-        Assert.AreEqual(defaultParameters[0].EffectiveFrom, model.LastUpdatedAt);
+        Assert.AreEqual(defaultParameters[0].CreatedAt, model.LastUpdatedAt);
 
         var redModulation = model.SchemeParameters
             .Single(parameter => parameter.SchemeParameterName == ParameterType.RedModulationFactor.GetDisplayName())
@@ -175,8 +176,8 @@ public class DefaultParameterControllerTests
         {
             RelativeYear = new RelativeYear(RelativeYearValue),
             EffectiveFrom = effectiveFrom,
-            CreatedBy = TestUser,
-            CreatedAt = effectiveFrom,
+            CreatedBy = UploadedByUser,
+            CreatedAt = effectiveFrom.AddHours(1),
             ParameterUniqueRef = uniqueRef,
             ParameterType = parameterType,
             ParameterCategory = parameterCategory,
