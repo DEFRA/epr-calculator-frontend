@@ -21,6 +21,9 @@
 
     --defra-internal-brand: #00a33b;
     --defra-internal-footer-link: #3b3b3b;
+    --defra-internal-footer-background: #f4f8fb;
+    --defra-internal-footer-border: #4c9456;
+    --defra-internal-footer-crest: #7b8385;
     /* Brand green mixed 8% into white: the lightest tint that still reads as a band. */
     --defra-internal-nav-background: #ebf8ef;
     /* GOV.UK Frontend v6 green, one step darker than the brand (4.9:1 on the band). */
@@ -110,9 +113,10 @@
 }
 
 @media (min-width: 40.0625em) {
+    /* 18 + 38px two-line name + 18 = 74px top band. */
     .defra-internal-header__main {
-        padding-top: 20px;
-        padding-bottom: 20px;
+        padding-top: 18px;
+        padding-bottom: 18px;
     }
 }
 
@@ -195,6 +199,12 @@
 }
 
 @media (min-width: 40.0625em) {
+    /* govuk-frontend pads the service name 15px; 14 + 29px line + 14 = 57px band. */
+    .defra-internal-service-header .govuk-service-navigation__service-name {
+        padding-top: 14px;
+        padding-bottom: 14px;
+    }
+
     .defra-internal-service-navigation__context {
         padding: 15px 0;
         font-size: 1rem;
@@ -222,14 +232,20 @@ body:has(> .defra-internal-footer) > .defra-internal-footer {
 .defra-internal-footer {
     padding-top: 20px;
     padding-bottom: 20px;
-    border-top: 8px solid var(--defra-internal-brand);
-    background-color: #ffffff;
+    border-top: 10px solid var(--defra-internal-footer-border);
+    background-color: var(--defra-internal-footer-background);
 }
 
 @media (min-width: 40.0625em) {
     .defra-internal-footer {
-        padding-top: 30px;
-        padding-bottom: 30px;
+        padding-top: 31px;
+        padding-bottom: 16px;
+    }
+
+    /* govuk-frontend spaces each footer column 25px below for when they stack
+       on mobile; on desktop that would sit on top of the 16px bottom padding. */
+    .defra-internal-footer .govuk-footer__meta-item {
+        margin-bottom: 0;
     }
 }
 
@@ -244,4 +260,24 @@ body:has(> .defra-internal-footer) > .defra-internal-footer {
 
 .defra-internal-footer__link:focus {
     color: var(--govuk-focus-text-colour, #0b0c0c);
+}
+
+/* Footer links row: 16px text on a 20px line, matching the licence line. */
+.defra-internal-footer .govuk-footer__inline-list {
+    font-size: 1rem;
+    line-height: 1.25;
+}
+
+/* Footer crest: govuk-frontend draws it as a currentcolor mask on ::before, so
+   it would follow the link colour. Give it its own colour instead. */
+@supports ((-webkit-mask-position: initial) or (mask-position: initial)) {
+    .defra-internal-footer .govuk-footer__copyright-logo::before {
+        background: var(--defra-internal-footer-crest);
+    }
+
+    @media screen and (forced-colors: active) {
+        .defra-internal-footer .govuk-footer__copyright-logo::before {
+            background: linktext;
+        }
+    }
 }
