@@ -20,10 +20,9 @@
     allowed-back-links="@(new [] { Url.Action(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = Model.RunId }) })"
 />
 
-<div class="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
+<div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <br>
+        <div class="govuk-grid-column-full govuk-!-padding-top-2">
             <span class="govuk-caption-l">@Model.RunName</span>
             <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">Accept or reject billing instructions</h1>
             <p class="govuk-body-m govuk-!-margin-bottom-6">Your billing decisions will be saved and you must give a reason if you reject.</p>
@@ -33,12 +32,12 @@
                 <input type="hidden" name="@nameof(BillingInstructionsIndexModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
 
                 <h2 class="govuk-heading-m govuk-!-margin-bottom-3">Billing decisions for this run</h2>
-                <p class="govuk-body-m">Run-wide totals. Search and filters do not change these totals.</p>
+                <p class="govuk-body-m govuk-!-margin-bottom-3">Run-wide totals. Search and filters do not change these totals.</p>
 
                 <div class="govuk-grid-row">
-                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-8">Accepted (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Accepted).ToString("N0"))</p>
-                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-8">Rejected (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Rejected).ToString("N0"))</p>
-                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-8">Pending (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Pending).ToString("N0"))</p>
+                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold govuk-!-padding-top-2 govuk-!-margin-bottom-8">Accepted (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Accepted).ToString("N0"))</p>
+                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold govuk-!-padding-top-2 govuk-!-margin-bottom-8">Rejected (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Rejected).ToString("N0"))</p>
+                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold govuk-!-padding-top-2 govuk-!-margin-bottom-8">Pending (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Pending).ToString("N0"))</p>
                 </div>
 
                 <h2 class="govuk-heading-l govuk-!-margin-bottom-4">Search for an organisation</h2>
@@ -193,7 +192,7 @@
 
     <div class="govuk-button-group">
         <form asp-action="AcceptSelected" asp-controller="BillingInstructions" method="post" data-check-has-producer-ids>
-            <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" id="accept-selection-btn">
+            <button type="submit" class="govuk-button govuk-button--secondary govuk-!-margin-right-4" data-module="govuk-button" id="accept-selection-btn">
                 Accept selected
             </button>
             <input type="hidden" name="runId" value="@Model.RunId" />
