@@ -48,7 +48,7 @@
                         <ul class="defra-internal-account-menu">
                             <li><span class="govuk-visually-hidden">Signed in as </span>@(User.FindFirst("name")?.Value ?? User.Identity.Name)</li>
                             <li>
-                                <a href="@Url.Action("SignOut", "Account", new { area = "MicrosoftIdentity" })"
+                                <a href="@Url.Action("SignOut", "Account")"
                                    class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Sign out</a>
                             </li>
                         </ul>
