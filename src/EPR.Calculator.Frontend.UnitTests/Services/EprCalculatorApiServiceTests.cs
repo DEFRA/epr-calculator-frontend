@@ -1,3 +1,4 @@
+﻿using System.IO.Pipelines;
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
@@ -93,6 +94,37 @@ public class EprCalculatorApiServiceTests
             It.IsAny<string?>(),
             It.IsAny<ClaimsPrincipal>(),
             It.IsAny<TokenAcquisitionOptions>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CallApiForStream_ReturnsBeforeTheBodyHasBeenRead()
+    {
+        // Arrange
+        var pipe = new Pipe();
+        _messageHandler.ResponseFactory = _ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StreamContent(pipe.Reader.AsStream())
+        };
+
+        // Act
+        var call = _service.CallApiForStream(HttpMethod.Get, "v1/downloadResultCsv/45", ["br", "gzip"]);
+        var completed = await Task.WhenAny(call, Task.Delay(TimeSpan.FromSeconds(5)));
+
+        // Assert
+        Assert.AreSame(call, completed, "CallApiForStream waited for the response body instead of returning once the headers arrived.");
+        using var response = await call;
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        Assert.AreEqual(new Uri($"{BaseApiUrl}v1/downloadResultCsv/45"), _messageHandler.LastRequest!.RequestUri);
+        Assert.AreEqual("Bearer access-token", _httpClient.DefaultRequestHeaders.GetValues("Authorization").Single());
+        await pipe.Writer.CompleteAsync();
+    }
+
+    [TestMethod]
+    public async Task CallApiForStream_AsksForTheGivenEncodings()
+    {
+        using var response = await _service.CallApiForStream(HttpMethod.Get, "v1/downloadResultCsv/45", ["gzip"]);
+
+        CollectionAssert.AreEqual(new[] { "gzip" }, _messageHandler.LastRequest!.Headers.AcceptEncoding.Select(e => e.Value).ToArray());
     }
 
     [TestMethod]
