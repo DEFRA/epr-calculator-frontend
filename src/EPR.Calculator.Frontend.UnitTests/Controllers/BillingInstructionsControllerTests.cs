@@ -264,10 +264,10 @@ public class BillingInstructionsControllerTests
     public void UpdateOrganisationSelection_WhenSelected_AddsToSessionAndReturnsOk()
     {
         // Arrange
-        var orgDto = new BillingSelectionOrgDto { Id = 42, IsSelected = true };
+        var orgDto = new BillingSelectionOrgDto { Id = 42, IsSelected = true, OrganisationName = "Acme Ltd" };
 
         // Act
-        var result = controller.UpdateOrganisationSelectionAsync(orgDto) as OkResult;
+        var result = controller.UpdateOrganisationSelectionAsync(orgDto) as OkObjectResult;
 
         // Assert
         Assert.IsNotNull(result);
@@ -275,6 +275,9 @@ public class BillingInstructionsControllerTests
         var stored = controller.HttpContext.Session.GetObject<IEnumerable<int>>(SessionConstants.ProducerIds);
         Assert.IsNotNull(stored);
         Assert.IsTrue(stored.Contains(42));
+        Assert.AreEqual(
+            "1 organisation selected: Acme Ltd (42)",
+            result.Value!.GetType().GetProperty("summary")!.GetValue(result.Value));
     }
 
     [TestMethod]
@@ -287,7 +290,7 @@ public class BillingInstructionsControllerTests
         var orgDto = new BillingSelectionOrgDto { Id = 99, IsSelected = false };
 
         // Act
-        var result = controller.UpdateOrganisationSelectionAsync(orgDto) as OkResult;
+        var result = controller.UpdateOrganisationSelectionAsync(orgDto) as OkObjectResult;
 
         // Assert
         Assert.IsNotNull(result);
