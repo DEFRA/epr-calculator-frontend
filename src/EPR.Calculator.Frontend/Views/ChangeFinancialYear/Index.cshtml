@@ -36,7 +36,7 @@
 
                             <div class="govuk-radios__item">
                                 <input class="govuk-radios__input" id="@id" name="@nameof(Model.RelativeYear)" type="radio" value="@year" checked="@(Model.RelativeYear == year.Value)">
-                                <label class="govuk-label govuk-radios__label" for="@id">@year.ToFullFinancialYear()</label>
+                                <label class="govuk-label govuk-radios__label" for="@id">@year.ToFinancialYear()</label>
                             </div>
                         }
                     </div>

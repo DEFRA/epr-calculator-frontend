@@ -69,10 +69,9 @@ public class DefaultParametersUploadFileControllerTests
         var model = result?.Model as CsvUploadViewModel;
 
         Assert.IsNotNull(model);
-        Assert.IsTrue(model.HasDownloadableTemplate);
         Assert.IsNotNull(model.DownloadTemplate);
         Assert.AreEqual("/DefaultParametersUploadFile/DownloadCsvTemplate", model.DownloadTemplate.Url);
-        Assert.AreEqual("default parameters spreadsheet template", model.DownloadTemplate.LinkText);
+        Assert.AreEqual("Download default parameters spreadsheet template", model.DownloadTemplate.LinkText);
     }
 
     [TestMethod]

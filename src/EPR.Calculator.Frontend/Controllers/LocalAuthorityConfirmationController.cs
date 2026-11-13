@@ -1,28 +1,26 @@
-﻿using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.ViewModels;
+﻿using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.ViewModels.CsvUpload;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
-public class LocalAuthorityConfirmationController : BaseController
+public class LocalAuthorityConfirmationController(IConfiguration configuration)
+    : BaseController
 {
-    /// <summary>
-    ///     Displays the Local Authority parameter confirmation view.
-    /// </summary>
-    /// <returns>The Local Authority parameter confirmation view.</returns>
+    private readonly int relativeYearStartingMonth = CommonUtil.GetRelativeYearStartingMonth(configuration);
+
     public IActionResult Index()
     {
-        // Create a view model for parameter confirmation
-        var localAuthorityConfirmationViewModel = new ConfirmationViewModel
+        var relativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth);
+
+        var viewModel = new CsvUploadSuccessViewModel
         {
-            Title = LocalAuthorityConfirmation.Title,
-            Body = LocalAuthorityConfirmation.Body,
-            RedirectController = LocalAuthorityConfirmation.RedirectController,
-            SubmitText = LocalAuthorityConfirmation.SubmitText,
-            AdditionalParagraphs = LocalAuthorityConfirmation.AdditionalParagraphs.ToList()
+            Title = $"Calculator local authority disposal costs saved for {relativeYear.ToFinancialYear()}",
+            RelativeYear = relativeYear,
+            ViewLinkUrl = Url.Action("Index", "LocalAuthorityDisposalCosts")!,
+            ViewLinkText = "View Local authority disposal costs"
         };
 
-        // Return the view with the view model
-        return View(ViewNames.LocalAuthorityConfirmationIndex, localAuthorityConfirmationViewModel);
+        return View("Views/CsvUpload/Success", viewModel);
     }
 }

@@ -377,10 +377,10 @@ public class BillingInstructionsControllerTests
     }
 
     [TestMethod]
-    public void BillingFileSuccess_ReturnsViewWithConfirmationModel()
+    public void BillingFileSuccess_ReturnsViewWithRunId()
     {
         // Act
-        var result = controller.BillingFileSuccess() as ViewResult;
+        var result = controller.BillingFileSuccess(RunId) as ViewResult;
 
         // Assert
         Assert.IsNotNull(result);
@@ -389,11 +389,7 @@ public class BillingInstructionsControllerTests
         var model = result.Model as BillingFileSuccessViewModel;
         Assert.IsNotNull(model);
 
-        var confirmation = model.ConfirmationViewModel;
-        Assert.AreEqual(ConfirmationMessages.BillingFileSuccessTitle, confirmation.Title);
-        Assert.AreEqual(ConfirmationMessages.BillingFileSuccessBody, confirmation.Body);
-        CollectionAssert.AreEqual(ConfirmationMessages.BillingFileSuccessAdditionalParagraphs, confirmation.AdditionalParagraphs);
-        Assert.AreEqual(ControllerNames.Dashboard, confirmation.RedirectController);
+        Assert.AreEqual(RunId, model.RunId);
     }
 
     private static ProducerBillingInstructionsResponseDto CreateBillingData(int runId = RunId)

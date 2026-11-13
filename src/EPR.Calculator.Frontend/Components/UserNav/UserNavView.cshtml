@@ -14,7 +14,7 @@
         {
             <p class="govuk-body-s govuk-!-margin-bottom-0">
                 <strong>Financial year</strong>
-                <span class="govuk-!-margin-left-1 govuk-!-margin-right-1">@relativeYear.ToFullFinancialYear("-")</span>
+                <span class="govuk-!-margin-left-1 govuk-!-margin-right-1">@relativeYear.ToFinancialYear()</span>
                 <a href="@Url.Action(ActionNames.Index, ControllerNames.ChangeFinancialYear)" class="govuk-link govuk-link--no-visited-state">Change financial year</a>
             </p>
         }

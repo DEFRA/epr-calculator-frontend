@@ -1,28 +1,26 @@
-﻿using EPR.Calculator.Frontend.Constants;
-using EPR.Calculator.Frontend.ViewModels;
+﻿using EPR.Calculator.Frontend.Helpers;
+using EPR.Calculator.Frontend.ViewModels.CsvUpload;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EPR.Calculator.Frontend.Controllers;
 
-public class DefaultParametersConfirmationController : BaseController
+public class DefaultParametersConfirmationController(IConfiguration configuration)
+    : BaseController
 {
-    /// <summary>
-    ///     Displays the parameter confirmation view.
-    /// </summary>
-    /// <returns>The parameter confirmation view.</returns>
+    private readonly int relativeYearStartingMonth = CommonUtil.GetRelativeYearStartingMonth(configuration);
+
     public IActionResult Index()
     {
-        // Create a view model for parameter confirmation
-        var parameterConfirmationViewModel = new ConfirmationViewModel
+        var relativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, relativeYearStartingMonth);
+
+        var viewModel = new CsvUploadSuccessViewModel
         {
-            Title = ParameterConfirmation.Title,
-            Body = ParameterConfirmation.Body,
-            AdditionalParagraphs = ParameterConfirmation.AdditionalParagraphs.ToList(),
-            RedirectController = ParameterConfirmation.RedirectController,
-            SubmitText = ParameterConfirmation.SubmitText
+            Title = $"Calculator parameters saved for {relativeYear.ToFinancialYear()}",
+            RelativeYear = relativeYear,
+            ViewLinkUrl = Url.Action("Index", "DefaultParameters")!,
+            ViewLinkText = "View default calculator parameters"
         };
 
-        // Return the view with the view model
-        return View(ViewNames.ParameterConfirmationIndex, parameterConfirmationViewModel);
+        return View("Views/CsvUpload/Success", viewModel);
     }
 }

@@ -16,9 +16,16 @@ public class LocalAuthorityUploadFileController(
 
     private CsvUploadViewModel UploadTemplate => new()
     {
-        Title = "Upload new local authority disposal costs",
+        RelativeYear = CommonUtil.GetRelativeYear(HttpContext.Session, CommonUtil.GetRelativeYearStartingMonth(configuration)),
+        Title = "Upload new local authority costs",
         BackLinkUrl = Url.Action("Index", "LocalAuthorityDisposalCosts")!,
-        UploadUrl = Url.Action("Upload", "LocalAuthorityUploadFile")!
+        UploadUrl = Url.Action("Upload", "LocalAuthorityUploadFile")!,
+        DownloadTemplate = new CsvUploadViewModel.TemplateDownloadViewModel
+        {
+            Description = "Make sure you're using the latest version of the local authority costs spreadsheet template.",
+            Url = Url.Action("DownloadCsvTemplate", "LocalAuthorityUploadFile")!,
+            LinkText = "Download default local authority costs template"
+        }
     };
 
     [HttpGet]
@@ -96,5 +103,16 @@ public class LocalAuthorityUploadFileController(
                 ContentErrors = [.. problemDetails.Errors.SelectMany(kv => kv.Value)]
             }
         });
+    }
+
+    [HttpGet]
+    public IActionResult DownloadCsvTemplate()
+    {
+        // File() resolves the path against the web root (wwwroot); PhysicalFile() would need an
+        // absolute path on disk and throws when given a virtual one.
+        return File(
+            "~/templates/LapcapParameterTemplate.xlsx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "LapcapParameterTemplate.xlsx");
     }
 }

@@ -72,6 +72,16 @@
     overflow-wrap: break-word;
 }
 
+.epr-nowrap {
+    white-space: nowrap;
+}
+
+@media (min-width: 48.0625em) {
+    .epr-nowrap-from-desktop {
+        white-space: nowrap;
+    }
+}
+
 .align-checkbox {
     display: flex;
     margin-top: 20px;

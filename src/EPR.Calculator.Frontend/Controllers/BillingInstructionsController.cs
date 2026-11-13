@@ -211,24 +211,12 @@ public class BillingInstructionsController(
     }
 
     /// <summary>
-    ///     Displays a billing file sent confirmation screen.
+    ///     Displays the billing file shared confirmation screen.
     /// </summary>
-    /// <returns>Billing file sent page.</returns>
-    [Route("BillingFileSuccess")]
-    public IActionResult BillingFileSuccess()
+    [Route("BillingFileSuccess/{runId:int}")]
+    public IActionResult BillingFileSuccess(int runId)
     {
-        var model = new BillingFileSuccessViewModel
-        {
-            ConfirmationViewModel = new ConfirmationViewModel
-            {
-                Title = ConfirmationMessages.BillingFileSuccessTitle,
-                Body = ConfirmationMessages.BillingFileSuccessBody,
-                AdditionalParagraphs = ConfirmationMessages.BillingFileSuccessAdditionalParagraphs,
-                RedirectController = ControllerNames.Dashboard
-            }
-        };
-
-        return View(ViewNames.BillingConfirmationSuccess, model);
+        return View(ViewNames.BillingConfirmationSuccess, new BillingFileSuccessViewModel { RunId = runId });
     }
 
     private async Task<ProducerBillingInstructionsResponseDto?> GetBillingData(int runId, BillingInstructionsIndexModel request)
