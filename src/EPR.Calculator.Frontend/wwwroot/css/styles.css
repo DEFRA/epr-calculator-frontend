@@ -113,29 +113,39 @@
     width: 1%;
 }
 
+/* Column widths from the design spec; each cell's 20px right padding is the
+   column gap. Organisation name takes the remaining width. */
 .col-org-id {
-    width: 160px;
+    width: 150px;
 }
 
 .col-billing {
-    width: 180px;
+    width: 170px;
 }
 
 .col-invoice {
-    width: 140px;
+    width: 155px;
 }
 
-/* Fit the status tags; the spare space goes to Organisation name. */
 .col-status {
-    width: 1%;
+    width: 100px;
     white-space: nowrap;
 }
 
-/* Row checkbox cell: no vertical padding (the 44px touch area sets the row
-   height) and no padding on the visually hidden label, so the column is just
-   the checkbox plus the table's 20px gap before the next column. */
+/* Tags padded 5/8/4/8 with no negative margins, so data rows are 54px
+   (10px + 34px tag + 10px) as in the design spec. */
+.billing-table .govuk-tag {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 5px 8px 4px;
+}
+
+/* Row checkbox cell: no padding (the 44px touch area sets the row height) and
+   no padding on the visually hidden label, so the only gap before
+   Organisation name is the touch area's 10px overhang past the 24px box. */
 .billing-select-cell {
     padding-top: 0;
+    padding-right: 0;
     padding-bottom: 0;
 }
 
@@ -151,14 +161,6 @@
 .search-panel {
     background-color: #f3f3f3; /* GOV.UK v6 light grey */
     padding: 30px;
-}
-
-/* The design stops the search row ~90px short of the panel's right edge
-   (30px panel padding + 60px here), versus 30px on the left. */
-@media (min-width: 40.0625em) {
-    .search-input-group {
-        padding-right: 60px;
-    }
 }
 
 .search-input-group {
