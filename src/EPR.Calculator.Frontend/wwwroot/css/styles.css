@@ -239,3 +239,8 @@
 .govuk-button--inverse:hover[disabled] {
     background-color: #fff;
 }
+
+/* Hide the browser's built-in clear "x" on search inputs; use the "Clear search" button instead. */
+.search-input-group input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+}

@@ -2,6 +2,19 @@
 @using EPR.Calculator.Frontend.Extensions
 @model BillingInstructionsViewModel
 
+@{
+    // Same page without the organisation ID search, keeping filters and page size.
+    var clearSearchQuery = new List<KeyValuePair<string, string?>>
+    {
+        new(nameof(BillingInstructionsIndexModel.PageSize), Model.TablePaginationModel.PageSize.ToString()),
+    };
+    clearSearchQuery.AddRange(Model.BillingInstructions.Select(x => new KeyValuePair<string, string?>(nameof(BillingInstructionsIndexModel.BillingInstructions), x.ToString())));
+    clearSearchQuery.AddRange(Model.BillingStatuses.Select(x => new KeyValuePair<string, string?>(nameof(BillingInstructionsIndexModel.BillingStatuses), x.ToString())));
+    var clearSearchUrl = Url.RouteUrl(RouteNames.BillingInstructionsIndex, new { runId = Model.RunId }) + Microsoft.AspNetCore.Http.QueryString.Create(clearSearchQuery);
+
+    var noSearchResults = Model.OrganisationId.HasValue && !Model.TablePaginationModel.Records.Any();
+}
+
 <vc:user-nav
     back-link="@Url.Action(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId = Model.RunId })"
     allowed-back-links="@(new [] { Url.Action(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = Model.RunId }) })"
@@ -42,6 +55,9 @@
                             <button type="submit" class="govuk-button govuk-!-margin-bottom-0" data-module="govuk-button">
                                 Search
                             </button>
+                            <a href="@clearSearchUrl" role="button" draggable="false" class="govuk-button govuk-button--inverse govuk-button--inverse-blue govuk-!-margin-bottom-0 @(Model.OrganisationId.HasValue ? "" : "govuk-!-display-none")"data-module="govuk-button" id="clear-search-btn">
+                                Clear search
+                            </a>
                         </div>
                     </div>
 
@@ -93,72 +109,89 @@
         </div>
     </div>
 
-    <div class="billing-selection-bar">
-        <div class="billing-selection-bar__checkboxes">
-            @using (Html.BeginForm(ActionNames.SelectAll, null, FormMethod.Post))
-            {
-                <div class="govuk-form-group govuk-!-margin-bottom-0">
-                    <div class="govuk-checkboxes govuk-checkboxes--small">
-                        <div class="govuk-checkboxes__item">
-                            @Html.CheckBoxFor(m => m.OrganisationSelections.SelectAll, new { name = "SelectAll", @class = "govuk-checkboxes__input", data_submit_on_change = true })
-                            <label class="govuk-label govuk-checkboxes__label select-all-label" for="OrganisationSelections_SelectAll">
-                                Select all @((Model.ProducerIds?.Count() ?? 0).ToString("N0")) organisations
-                            </label>
-                            @foreach (var status in Model.BillingStatuses)
-                            {
-                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingStatuses)" value="@status" />
-                            }
-                            @foreach (BillingInstruction billingInstruction in Model.BillingInstructions)
-                            {
-                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingInstructions)" value="@billingInstruction" />
-                            }
-                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.OrganisationId)" value="@Model.OrganisationId" />
-                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
-                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.Page)" value="@Model.TablePaginationModel.Page" />
-                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.RunId)" value="@Model.RunId" />
+    @if (!noSearchResults)
+    {
+        <div class="billing-selection-bar">
+            <div class="billing-selection-bar__checkboxes">
+                @using (Html.BeginForm(ActionNames.SelectAll, null, FormMethod.Post))
+                {
+                    <div class="govuk-form-group govuk-!-margin-bottom-0">
+                        <div class="govuk-checkboxes govuk-checkboxes--small">
+                            <div class="govuk-checkboxes__item">
+                                @Html.CheckBoxFor(m => m.OrganisationSelections.SelectAll, new { name = "SelectAll", @class = "govuk-checkboxes__input", data_submit_on_change = true })
+                                <label class="govuk-label govuk-checkboxes__label select-all-label" for="OrganisationSelections_SelectAll">
+                                    Select all @((Model.ProducerIds?.Count() ?? 0).ToString("N0")) organisations
+                                </label>
+                                @foreach (var status in Model.BillingStatuses)
+                                {
+                                    <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingStatuses)" value="@status" />
+                                }
+                                @foreach (BillingInstruction billingInstruction in Model.BillingInstructions)
+                                {
+                                    <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingInstructions)" value="@billingInstruction" />
+                                }
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.OrganisationId)" value="@Model.OrganisationId" />
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.Page)" value="@Model.TablePaginationModel.Page" />
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.RunId)" value="@Model.RunId" />
+                            </div>
                         </div>
                     </div>
-                </div>
-            }
-
-            @using (Html.BeginForm(ActionNames.SelectAllPage, null, FormMethod.Post))
-            {
-                <div class="govuk-form-group govuk-!-margin-bottom-0">
-                    <div class="govuk-checkboxes govuk-checkboxes--small">
-                        <div class="govuk-checkboxes__item">
-                            @Html.CheckBoxFor(m => m.OrganisationSelections.SelectPage, new { name = "SelectPage", @class = "govuk-checkboxes__input", data_submit_on_change = true })
-                            <label class="govuk-label govuk-checkboxes__label" for="OrganisationSelections_SelectPage">
-                                Select all in page
-                            </label>
-                            @foreach (var status in Model.BillingStatuses)
-                            {
-                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingStatuses)" value="@status" />
-                            }
-                            @foreach (BillingInstruction billingInstruction in Model.BillingInstructions)
-                            {
-                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingInstructions)" value="@billingInstruction" />
-                            }
-                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.OrganisationId)" value="@Model.OrganisationId" />
-                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
-                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.Page)" value="@Model.TablePaginationModel.Page" />
-                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.RunId)" value="@Model.RunId" />
+                }
+    
+                @using (Html.BeginForm(ActionNames.SelectAllPage, null, FormMethod.Post))
+                {
+                    <div class="govuk-form-group govuk-!-margin-bottom-0">
+                        <div class="govuk-checkboxes govuk-checkboxes--small">
+                            <div class="govuk-checkboxes__item">
+                                @Html.CheckBoxFor(m => m.OrganisationSelections.SelectPage, new { name = "SelectPage", @class = "govuk-checkboxes__input", data_submit_on_change = true })
+                                <label class="govuk-label govuk-checkboxes__label" for="OrganisationSelections_SelectPage">
+                                    Select all in page
+                                </label>
+                                @foreach (var status in Model.BillingStatuses)
+                                {
+                                    <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingStatuses)" value="@status" />
+                                }
+                                @foreach (BillingInstruction billingInstruction in Model.BillingInstructions)
+                                {
+                                    <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingInstructions)" value="@billingInstruction" />
+                                }
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.OrganisationId)" value="@Model.OrganisationId" />
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.Page)" value="@Model.TablePaginationModel.Page" />
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.RunId)" value="@Model.RunId" />
+                            </div>
                         </div>
                     </div>
-                </div>
-            }
+                }
+            </div>
+    
+            <form asp-action="ClearSelection" asp-controller="BillingInstructions" method="post" data-check-has-producer-ids>
+                <button type="submit" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" data-module="govuk-button" id="clear-selection-btn">
+                    Clear selection
+                </button>
+                <input type="hidden" name="@nameof(BillingInstructionsClearModel.RunId)" value="@Model.RunId" />
+                <input type="hidden" name="@nameof(BillingInstructionsClearModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
+                <input type="hidden" name="@nameof(BillingInstructionsClearModel.Page)" value="@Model.TablePaginationModel.Page" />
+            </form>
         </div>
+    }
 
-        <form asp-action="ClearSelection" asp-controller="BillingInstructions" method="post" data-check-has-producer-ids>
-            <button type="submit" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" data-module="govuk-button" id="clear-selection-btn">
-                Clear selection
-            </button>
-            <input type="hidden" name="@nameof(BillingInstructionsClearModel.RunId)" value="@Model.RunId" />
-            <input type="hidden" name="@nameof(BillingInstructionsClearModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
-            <input type="hidden" name="@nameof(BillingInstructionsClearModel.Page)" value="@Model.TablePaginationModel.Page" />
-        </form>
-    </div>
-
-    <partial name="_BillingInstructionTable" model="Model" />
+    @if (noSearchResults)
+    {
+        <div class="govuk-grid-row govuk-!-margin-top-6" id="no-search-results">
+            <div class="govuk-grid-column-two-thirds">
+                <p class="govuk-body govuk-!-font-weight-bold">No organisations found for ID @Model.OrganisationId</p>
+                <p class="govuk-body">
+                    Check the organisation ID and search again. You can clear the search to view all organisations in this run.
+                </p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <partial name="_BillingInstructionTable" model="Model" />
+    }
 
     <div class="govuk-button-group">
         <form asp-action="AcceptSelected" asp-controller="BillingInstructions" method="post" data-check-has-producer-ids>
@@ -215,7 +248,7 @@
         document.querySelectorAll("[data-check-has-producer-ids]").forEach(form => {
             form.addEventListener("submit", event => {
                 const checkHasProducerIds =
-                    document.getElementById('OrganisationSelections_SelectAll').checked ||
+                    document.getElementById('OrganisationSelections_SelectAll')?.checked ||
                     Array.from(document.querySelectorAll('.record-checkbox')).some(checkbox => checkbox.checked);
 
                 if (!checkHasProducerIds) {
@@ -223,5 +256,13 @@
                 }
             });
         });
+
+        const organisationIdInput = document.getElementById("OrganisationId");
+        const clearSearchButton = document.getElementById("clear-search-btn");
+        if (organisationIdInput && clearSearchButton) {
+            organisationIdInput.addEventListener("input", () => {
+                clearSearchButton.classList.toggle("govuk-!-display-none", organisationIdInput.value.trim() === "");
+            });
+        }
     });
 </script>

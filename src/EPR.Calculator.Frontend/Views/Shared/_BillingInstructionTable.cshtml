@@ -31,6 +31,7 @@
                                    name="SelectedIds"
                                    value="@org.Id"
                                    data-organisation-id="@org.OrganisationId"
+                                   data-organisation-name="@org.OrganisationName"
                                    @(org.IsSelected ? "checked" : null)
                                    @(org.BillingInstruction == BillingInstruction.Noaction ? "disabled" : null) />
                             <label class="govuk-label govuk-checkboxes__label" for="select-@org.Id">
@@ -43,7 +44,25 @@
                 <td class="govuk-table__cell vertical-middle">@org.OrganisationName</td>
                 <td class="govuk-table__cell vertical-middle">@org.OrganisationId</td>
                 <td class="govuk-table__cell vertical-middle">
-                    <strong class="govuk-tag">
+                     @functions {
+                            public string GetInstructionClass(EPR.Calculator.Frontend.Enums.BillingInstruction? instruction)
+                            {
+                                switch (instruction)
+                                {
+                                    case EPR.Calculator.Frontend.Enums.BillingInstruction.Noaction:
+                                        return "govuk-tag--grey";
+                                    case EPR.Calculator.Frontend.Enums.BillingInstruction.Rebill:
+                                        return "govuk-tag--purple";
+                                    case EPR.Calculator.Frontend.Enums.BillingInstruction.Delta:
+                                        return "govuk-tag--green";
+                                    case EPR.Calculator.Frontend.Enums.BillingInstruction.Cancel:
+                                        return "govuk-tag--red";
+                                    default:
+                                        return ""; // Default blue
+                                }
+                            }
+                        }
+                    <strong class="govuk-tag @GetInstructionClass(org.BillingInstruction)">
                         @org.BillingInstruction?.GetDisplayName()
                     </strong>
                 </td>
@@ -222,14 +241,11 @@
     var end         = total == 0 || recordCount == 0 ? 0 : Math.Min(start + recordCount - 1, total);
 }
 <p class="govuk-body govuk-!-margin-top-4">
-    Showing <strong>@start.ToString("N0")</strong> to <strong>@end.ToString("N0")</strong> of @total.ToString("N0") organisations
+    Showing @start.ToString("N0") to @end.ToString("N0") of @total.ToString("N0") organisations
 </p>
 
-@{
-    var selectedCount = ARJourneySessionHelper.GetFromSession(Context.Session).Count;
-}
-<p class="govuk-body govuk-!-margin-top-6">
-    Update billing instructions for <span id="totalCountText" data-count="@selectedCount">@selectedCount.ToString("N0")</span> selected organisations.
+<p class="govuk-body govuk-!-margin-top-6" id="selectedCountText" aria-live="polite">
+    @ARJourneySessionHelper.GetSelectionSummary(Context.Session)
 </p>
 
 <script type="text/javascript" nonce="@Context.Items["CspNonce"]">
@@ -238,12 +254,6 @@
             var organisationId = event.target.getAttribute('data-organisation-id');
             var isChecked = event.target.checked;
 
-            var span = document.getElementById('totalCountText');
-            var current = parseInt(span.dataset.count, 10) || 0;
-            var updated = isChecked ? current + 1 : Math.max(0, current - 1);
-            span.dataset.count = updated;
-            span.textContent = updated.toLocaleString('en-GB');
-
             fetch('/UpdateOrganisationSelection', {
                 method: 'POST',
                 headers: {
@@ -251,9 +261,16 @@
                 },
                 body: JSON.stringify({
                     id: organisationId,
-                    isSelected: isChecked
+                    isSelected: isChecked,
+                    organisationName: event.target.getAttribute('data-organisation-name')
                 })
-            }).then(function () {
+            }).then(function (response) {
+                return response.ok ? response.json() : null;
+            }).then(function (data) {
+                if (data && data.summary) {
+                    document.getElementById('selectedCountText').textContent = data.summary;
+                }
+
                 if (!isChecked) {
                     var selectPage = document.getElementById('OrganisationSelections_SelectPage');
                     var selectAll = document.getElementById('OrganisationSelections_SelectAll');
