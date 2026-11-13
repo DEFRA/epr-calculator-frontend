@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Globalization;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
 
 namespace EPR.Calculator.Frontend.Helpers
@@ -13,6 +14,11 @@ namespace EPR.Calculator.Frontend.Helpers
         /// The session key used to store the producer IDs.
         /// </summary>
         private const string SessionKey = SessionConstants.ProducerIds;
+
+        /// <summary>
+        /// The session key used to store producer names, keyed by producer ID.
+        /// </summary>
+        private const string NamesSessionKey = SessionConstants.ProducerNames;
 
         /// <summary>
         /// Adds the specified producer IDs to the session, ensuring uniqueness.
@@ -40,6 +46,81 @@ namespace EPR.Calculator.Frontend.Helpers
             var updated = new HashSet<int>(existing);
             updated.ExceptWith(producerIds);
             session.SetObject(SessionKey, updated.ToList());
+
+            var names = session.GetObject<Dictionary<int, string>>(NamesSessionKey);
+            if (names != null)
+            {
+                foreach (var id in producerIds)
+                {
+                    names.Remove(id);
+                }
+
+                session.SetObject(NamesSessionKey, names);
+            }
+        }
+
+        /// <summary>
+        /// Records producer names against their IDs so a selected organisation
+        /// can be named even when it is not on the page being viewed.
+        /// Existing names for the same IDs are replaced.
+        /// </summary>
+        /// <param name="session">The current user's session.</param>
+        /// <param name="producerNames">The producer names, keyed by producer ID.</param>
+        public static void AddNamesToSession(ISession session, IEnumerable<KeyValuePair<int, string>> producerNames)
+        {
+            var names = session.GetObject<Dictionary<int, string>>(NamesSessionKey) ?? [];
+            var changed = false;
+            foreach (var (id, name) in producerNames)
+            {
+                if (string.IsNullOrWhiteSpace(name) || (names.TryGetValue(id, out var existing) && existing == name))
+                {
+                    continue;
+                }
+
+                names[id] = name;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                session.SetObject(NamesSessionKey, names);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the stored name for a producer ID.
+        /// </summary>
+        /// <param name="session">The current user's session.</param>
+        /// <param name="producerId">The producer ID.</param>
+        /// <returns>The producer name, or <c>null</c> if none is stored.</returns>
+        public static string? GetNameFromSession(ISession session, int producerId)
+        {
+            var names = session.GetObject<Dictionary<int, string>>(NamesSessionKey);
+            return names != null && names.TryGetValue(producerId, out var name) ? name : null;
+        }
+
+        /// <summary>
+        /// Describes the current selection for display, e.g. "3 organisations selected".
+        /// </summary>
+        /// <param name="session">The current user's session.</param>
+        /// <returns>The selection summary text.</returns>
+        public static string GetSelectionSummary(ISession session)
+        {
+            var ids = GetFromSession(session);
+            switch (ids.Count)
+            {
+                case 0:
+                    return "No organisations selected. Use search to find and select an organisation.";
+                case 1:
+                    // The ID is always known; the name only if it was recorded.
+                    var id = ids.First();
+                    var name = GetNameFromSession(session, id);
+                    return name != null
+                        ? $"1 organisation selected: {name} ({id})"
+                        : $"1 organisation selected: {id}";
+                default:
+                    return $"{ids.Count.ToString("N0", CultureInfo.GetCultureInfo("en-GB"))} organisations selected";
+            }
         }
 
         /// <summary>
@@ -63,6 +144,7 @@ namespace EPR.Calculator.Frontend.Helpers
         public static void ClearAllFromSession(ISession session)
         {
             session.Remove(SessionKey);
+            session.Remove(NamesSessionKey);
         }
     }
 }

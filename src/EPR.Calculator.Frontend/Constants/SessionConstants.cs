@@ -20,6 +20,8 @@
 
         public const string ProducerIds = "ProducerIds";
 
+        public const string ProducerNames = "ProducerNames";
+
         public const string IsRedirected = "IsRedirected";
     }
 }

@@ -2,37 +2,49 @@
 @using EPR.Calculator.Frontend.Extensions
 @model BillingInstructionsViewModel
 
+@{
+    // Same page without the organisation ID search, keeping filters and page size.
+    var clearSearchQuery = new List<KeyValuePair<string, string?>>
+    {
+        new(nameof(BillingInstructionsIndexModel.PageSize), Model.TablePaginationModel.PageSize.ToString()),
+    };
+    clearSearchQuery.AddRange(Model.BillingInstructions.Select(x => new KeyValuePair<string, string?>(nameof(BillingInstructionsIndexModel.BillingInstructions), x.ToString())));
+    clearSearchQuery.AddRange(Model.BillingStatuses.Select(x => new KeyValuePair<string, string?>(nameof(BillingInstructionsIndexModel.BillingStatuses), x.ToString())));
+    var clearSearchUrl = Url.RouteUrl(RouteNames.BillingInstructionsIndex, new { runId = Model.RunId }) + Microsoft.AspNetCore.Http.QueryString.Create(clearSearchQuery);
+
+    var noSearchResults = Model.OrganisationId.HasValue && !Model.TablePaginationModel.Records.Any();
+}
+
 <vc:user-nav
     back-link="@Url.Action(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId = Model.RunId })"
     allowed-back-links="@(new [] { Url.Action(ActionNames.Index, ControllerNames.ClassifyRunConfirmation, new { runId = Model.RunId }) })"
 />
 
-<partial name="_BillingInstructionProgressBanner" model="Model" />
-
-<div class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content">
-    <h1 class="govuk-visually-hidden">Select organisations to process</h1>
-
+<div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <br>
+        <div class="govuk-grid-column-full govuk-!-padding-top-2">
             <span class="govuk-caption-l">@Model.RunName</span>
-            <h1 class="govuk-heading-l">Confirm billing instructions</h1>
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">Accept or reject billing instructions</h1>
+            <p class="govuk-body-m govuk-!-margin-bottom-6">Your billing decisions will be saved and you must give a reason if you reject.</p>
 
             @using (Html.BeginRouteForm(routeName: RouteNames.BillingInstructionsIndex, routeValues: new { runId = Model.RunId, }, method: FormMethod.Get))
             {
                 <input type="hidden" name="@nameof(BillingInstructionsIndexModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
 
-                <p class="govuk-body-m">
-                    These billing instructions match those in the results file. Use this screen to confirm
-                    which instructions you want to accept or reject.
-                </p>
-                <p class="govuk-body-m">Your changes are saved automatically, so you can return to this screen at any time. Once all instructions have been accepted or rejected, you'll be able to generate a draft billing file. If you reject any instructions, you'll need to give a reason on the next screen.</p>
+                <h2 class="govuk-heading-m govuk-!-margin-bottom-3">Billing decisions for this run</h2>
+                <p class="govuk-body-m govuk-!-margin-bottom-3">Run-wide totals. Search and filters do not change these totals.</p>
 
+                <div class="govuk-grid-row">
+                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold govuk-!-padding-top-2 govuk-!-margin-bottom-8">Accepted (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Accepted).ToString("N0"))</p>
+                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold govuk-!-padding-top-2 govuk-!-margin-bottom-8">Rejected (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Rejected).ToString("N0"))</p>
+                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold govuk-!-padding-top-2 govuk-!-margin-bottom-8">Pending (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Pending).ToString("N0"))</p>
+                </div>
+
+                <h2 class="govuk-heading-l govuk-!-margin-bottom-4">Search for an organisation</h2>
                 <div class="search-panel">
                     <div class="govuk-form-group">
-                        <h2 class="govuk-heading-m">Search for an organisation</h2>
                         <label class="govuk-label" for="OrganisationId">
-                            Enter an organisation ID to find a billing instruction.
+                            Search by organisation ID
                         </label>
 
                         <div class="search-input-group">
@@ -40,16 +52,19 @@
                             <button type="submit" class="govuk-button govuk-!-margin-bottom-0" data-module="govuk-button">
                                 Search
                             </button>
+                            <a href="@clearSearchUrl" role="button" draggable="false" class="govuk-button govuk-button--inverse govuk-button--inverse-blue govuk-!-margin-bottom-0 @(Model.OrganisationId.HasValue ? "" : "govuk-!-display-none")" data-module="govuk-button" id="clear-search-btn">
+                                Clear search
+                            </a>
                         </div>
                     </div>
 
                     <div class="govuk-form-group">
                         <fieldset class="govuk-fieldset" id="filter-by-billing-instruction">
-                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                            <legend class="govuk-fieldset__legend govuk-label">
                                 Filter by billing instruction
                             </legend>
 
-                            <div class="filter-grid govuk-checkboxes govuk-checkboxes--small">
+                            <div class="filter-grid govuk-checkboxes govuk-checkboxes">
                                 @foreach (var item in Enum.GetValues<BillingInstruction>())
                                 {
                                     var isChecked = Model.BillingInstructions.Contains(item);
@@ -57,7 +72,7 @@
                                     <div class="govuk-checkboxes__item">
                                         <input class="govuk-checkboxes__input" type="checkbox" id="billingInstructions@(item)" name="@nameof(BillingInstructionsIndexModel.BillingInstructions)" value="@item" @(isChecked ? "checked" : "") data-submit-on-change />
                                         <label class="govuk-label govuk-checkboxes__label" for="billingInstructions@(item)">
-                                            @item.GetDisplayName() (@count)
+                                            @item.GetDisplayName() (@count.ToString("N0"))
                                         </label>
                                     </div>
                                 }
@@ -65,13 +80,13 @@
                         </fieldset>
                     </div>
 
-                    <div class="govuk-form-group">
+                    <div class="govuk-form-group govuk-!-margin-bottom-0">
                         <fieldset class="govuk-fieldset" id="filter-by-billing-status">
-                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                            <legend class="govuk-fieldset__legend govuk-label">
                                 Filter by status
                             </legend>
 
-                            <div class="filter-grid govuk-checkboxes govuk-checkboxes--small">
+                            <div class="filter-grid govuk-checkboxes govuk-checkboxes">
                                 @foreach (var item in Enum.GetValues<BillingStatus>().Where(x => x != BillingStatus.Noaction) )
                                 {
                                     bool isChecked = Model.BillingStatuses.Contains(item);
@@ -79,103 +94,114 @@
                                     <div class="govuk-checkboxes__item">
                                         <input class="govuk-checkboxes__input" type="checkbox" id="billingStatuses@(item)" name="@nameof(BillingInstructionsIndexModel.BillingStatuses)" value="@item" @(isChecked ? "checked" : "") data-submit-on-change />
                                         <label class="govuk-label govuk-checkboxes__label" for="billingStatuses@(item)">
-                                            @item.GetDisplayName() (@count)
+                                            @item.GetDisplayName() (@count.ToString("N0"))
                                         </label>
                                     </div>
                                 }
                             </div>
                         </fieldset>
                     </div>
-
-                    <div class="govuk-form-group">
-                        <a href="@Url.RouteUrl(
-                            RouteNames.BillingInstructionsIndex, new RouteValueDictionary {
-                                ["runId"] = Model.RunId,
-                                [nameof(BillingInstructionsIndexModel.PageSize)] = Model.TablePaginationModel.PageSize })" class="govuk-button govuk-button--inverse govuk-!-margin-bottom-0">
-                            Clear filters
-                        </a>
-                    </div>
                 </div>
             }
         </div>
     </div>
 
-    <div class="align-checkbox">
-        @using (Html.BeginForm(ActionNames.SelectAllPage, null, FormMethod.Post))
-        {
-            <div class="govuk-form-group govuk-!-margin-bottom-4">
-                <div class="govuk-checkboxes govuk-checkboxes--small flex-wrap">
-                    <div class="govuk-checkboxes__item checkbox-item-label">
-                        @Html.CheckBoxFor(m => m.OrganisationSelections.SelectPage, new { name = "SelectPage", @class = "govuk-checkboxes__input", data_submit_on_change = true })
-                        <label class="govuk-label govuk-checkboxes__label" for="OrganisationSelections_SelectPage">
-                            Select all records on this page
-                        </label>
-                        @foreach (var status in Model.BillingStatuses)
-                        {
-                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingStatuses)" value="@status" />
-                        }
-                        @foreach (BillingInstruction billingInstruction in Model.BillingInstructions)
-                        {
-                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingInstructions)" value="@billingInstruction" />
-                        }
-                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.OrganisationId)" value="@Model.OrganisationId" />
-                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
-                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.Page)" value="@Model.TablePaginationModel.Page" />
-                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.RunId)" value="@Model.RunId" />
+    @if (!noSearchResults)
+    {
+        <div class="billing-selection-bar">
+            <div class="billing-selection-bar__checkboxes">
+                @using (Html.BeginForm(ActionNames.SelectAll, null, FormMethod.Post))
+                {
+                    <div class="govuk-form-group govuk-!-margin-bottom-0">
+                        <div class="govuk-checkboxes govuk-checkboxes--small">
+                            <div class="govuk-checkboxes__item">
+                                @Html.CheckBoxFor(m => m.OrganisationSelections.SelectAll, new { name = "SelectAll", @class = "govuk-checkboxes__input", data_submit_on_change = true })
+                                <label class="govuk-label govuk-checkboxes__label select-all-label" for="OrganisationSelections_SelectAll">
+                                    Select all @((Model.ProducerIds?.Count() ?? 0).ToString("N0")) organisations
+                                </label>
+                                @foreach (var status in Model.BillingStatuses)
+                                {
+                                    <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingStatuses)" value="@status" />
+                                }
+                                @foreach (BillingInstruction billingInstruction in Model.BillingInstructions)
+                                {
+                                    <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingInstructions)" value="@billingInstruction" />
+                                }
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.OrganisationId)" value="@Model.OrganisationId" />
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.Page)" value="@Model.TablePaginationModel.Page" />
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.RunId)" value="@Model.RunId" />
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        }
-
-        @using (Html.BeginForm(ActionNames.SelectAll, null, FormMethod.Post))
-        {
-            <div class="govuk-form-group govuk-!-margin-bottom-4">
-                <div class="govuk-checkboxes govuk-checkboxes--small flex-wrap">
-                    <div class="govuk-checkboxes__item">
-                        @Html.CheckBoxFor(m => m.OrganisationSelections.SelectAll, new { name = "SelectAll", @class = "govuk-checkboxes__input", data_submit_on_change = true })
-                        <label class="govuk-label govuk-checkboxes__label select-all-label" for="OrganisationSelections_SelectAll">
-                            Select all @Model.ProducerIds?.Count() records
-                        </label>
-                        @foreach (var status in Model.BillingStatuses)
-                        {
-                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingStatuses)" value="@status" />
-                        }
-                        @foreach (BillingInstruction billingInstruction in Model.BillingInstructions)
-                        {
-                            <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingInstructions)" value="@billingInstruction" />
-                        }
-                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.OrganisationId)" value="@Model.OrganisationId" />
-                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
-                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.Page)" value="@Model.TablePaginationModel.Page" />
-                        <input type="hidden" name="@nameof(BillingInstructionsSelectModel.RunId)" value="@Model.RunId" />
+                }
+    
+                @using (Html.BeginForm(ActionNames.SelectAllPage, null, FormMethod.Post))
+                {
+                    <div class="govuk-form-group govuk-!-margin-bottom-0">
+                        <div class="govuk-checkboxes govuk-checkboxes--small">
+                            <div class="govuk-checkboxes__item">
+                                @Html.CheckBoxFor(m => m.OrganisationSelections.SelectPage, new { name = "SelectPage", @class = "govuk-checkboxes__input", data_submit_on_change = true })
+                                <label class="govuk-label govuk-checkboxes__label" for="OrganisationSelections_SelectPage">
+                                    Select all in page
+                                </label>
+                                @foreach (var status in Model.BillingStatuses)
+                                {
+                                    <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingStatuses)" value="@status" />
+                                }
+                                @foreach (BillingInstruction billingInstruction in Model.BillingInstructions)
+                                {
+                                    <input type="hidden" name="@nameof(BillingInstructionsSelectModel.BillingInstructions)" value="@billingInstruction" />
+                                }
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.OrganisationId)" value="@Model.OrganisationId" />
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.Page)" value="@Model.TablePaginationModel.Page" />
+                                <input type="hidden" name="@nameof(BillingInstructionsSelectModel.RunId)" value="@Model.RunId" />
+                            </div>
+                        </div>
                     </div>
-                </div>
+                }
             </div>
-        }
-    </div>
+    
+            <form asp-action="ClearSelection" asp-controller="BillingInstructions" method="post" data-check-has-producer-ids>
+                <button type="submit" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" data-module="govuk-button" id="clear-selection-btn">
+                    Clear selection
+                </button>
+                <input type="hidden" name="@nameof(BillingInstructionsClearModel.RunId)" value="@Model.RunId" />
+                <input type="hidden" name="@nameof(BillingInstructionsClearModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
+                <input type="hidden" name="@nameof(BillingInstructionsClearModel.Page)" value="@Model.TablePaginationModel.Page" />
+            </form>
+        </div>
+    }
 
-    <partial name="_BillingInstructionTable" model="Model" />
+    @if (noSearchResults)
+    {
+        <div class="govuk-grid-row govuk-!-margin-top-6" id="no-search-results">
+            <div class="govuk-grid-column-two-thirds">
+                <p class="govuk-body govuk-!-font-weight-bold">No organisations found for ID @Model.OrganisationId</p>
+                <p class="govuk-body">
+                    Check the organisation ID and search again. You can clear the search to view all organisations in this run.
+                </p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <partial name="_BillingInstructionTable" model="Model" />
+    }
 
     <div class="govuk-button-group">
         <form asp-action="AcceptSelected" asp-controller="BillingInstructions" method="post" data-check-has-producer-ids>
-            <button type="submit" class="govuk-button" data-module="govuk-button" id="accept-selection-btn">
+            <button type="submit" class="govuk-button govuk-button--secondary govuk-!-margin-right-4" data-module="govuk-button" id="accept-selection-btn">
                 Accept selected
             </button>
             <input type="hidden" name="runId" value="@Model.RunId" />
         </form>
         <form asp-action="RejectSelected" asp-controller="BillingInstructions" method="post" data-check-has-producer-ids>
-            <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button" id="reject-selection-btn">
+            <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" id="reject-selection-btn">
                 Reject selected
             </button>
             <input type="hidden" name="runId" value="@Model.RunId" />
-        </form>
-        <form asp-action="ClearSelection" asp-controller="BillingInstructions" method="post" data-check-has-producer-ids>
-            <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" id="clear-selection-btn">
-                Clear selection
-            </button>
-            <input type="hidden" name="@nameof(BillingInstructionsClearModel.RunId)" value="@Model.RunId" />
-            <input type="hidden" name="@nameof(BillingInstructionsClearModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
-            <input type="hidden" name="@nameof(BillingInstructionsClearModel.Page)" value="@Model.TablePaginationModel.Page" />
         </form>
     </div>
 
@@ -185,7 +211,7 @@
 
     @if (pendingCount == 0 && Model.TotalRecords > 0)
     {
-        <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
+        <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible govuk-!-margin-top-0">
         <h2 class="govuk-heading-m">@BillingInstructionConstants.BillingNextStep</h2>
         <p class="govuk-body-m">@BillingInstructionConstants.BillingNextStepText</p>
         @using (Html.BeginForm(ActionNames.GenerateDraftBillingFile, ControllerNames.BillingInstructionsController, FormMethod.Post))
@@ -213,7 +239,7 @@
         document.querySelectorAll("[data-check-has-producer-ids]").forEach(form => {
             form.addEventListener("submit", event => {
                 const checkHasProducerIds =
-                    document.getElementById('OrganisationSelections_SelectAll').checked ||
+                    document.getElementById('OrganisationSelections_SelectAll')?.checked ||
                     Array.from(document.querySelectorAll('.record-checkbox')).some(checkbox => checkbox.checked);
 
                 if (!checkHasProducerIds) {
@@ -221,5 +247,13 @@
                 }
             });
         });
+
+        const organisationIdInput = document.getElementById("OrganisationId");
+        const clearSearchButton = document.getElementById("clear-search-btn");
+        if (organisationIdInput && clearSearchButton) {
+            organisationIdInput.addEventListener("input", () => {
+                clearSearchButton.classList.toggle("govuk-!-display-none", organisationIdInput.value.trim() === "");
+            });
+        }
     });
 </script>

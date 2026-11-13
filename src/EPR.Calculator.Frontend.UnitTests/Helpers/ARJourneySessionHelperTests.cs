@@ -103,5 +103,71 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
             var result = ARJourneySessionHelper.GetFromSession(_session);
             Assert.AreEqual(0, result.Count);
         }
+
+        [TestMethod]
+        public void GetSelectionSummary_NoneSelected_PromptsToSearch()
+        {
+            Assert.AreEqual(
+                "No organisations selected. Use search to find and select an organisation.",
+                ARJourneySessionHelper.GetSelectionSummary(_session));
+        }
+
+        [TestMethod]
+        public void GetSelectionSummary_OneSelectedWithName_NamesOrganisation()
+        {
+            ARJourneySessionHelper.AddToSession(_session, [100123]);
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(100123, "Acme Ltd")]);
+
+            Assert.AreEqual(
+                "1 organisation selected: Acme Ltd (100123)",
+                ARJourneySessionHelper.GetSelectionSummary(_session));
+        }
+
+        [TestMethod]
+        public void GetSelectionSummary_OneSelectedWithoutName_ShowsId()
+        {
+            ARJourneySessionHelper.AddToSession(_session, [100123]);
+
+            Assert.AreEqual("1 organisation selected: 100123", ARJourneySessionHelper.GetSelectionSummary(_session));
+        }
+
+        [TestMethod]
+        public void GetSelectionSummary_ManySelected_FormatsCount()
+        {
+            ARJourneySessionHelper.AddToSession(_session, Enumerable.Range(1, 3123));
+
+            Assert.AreEqual("3,123 organisations selected", ARJourneySessionHelper.GetSelectionSummary(_session));
+        }
+
+        [TestMethod]
+        public void GetSelectionSummary_AfterDeselectingDownToOne_NamesRemainingOrganisation()
+        {
+            ARJourneySessionHelper.AddToSession(_session, [1, 2]);
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, "First"), KeyValuePair.Create(2, "Second")]);
+
+            ARJourneySessionHelper.RemoveFromSession(_session, [1]);
+
+            Assert.AreEqual("1 organisation selected: Second (2)", ARJourneySessionHelper.GetSelectionSummary(_session));
+            Assert.IsNull(ARJourneySessionHelper.GetNameFromSession(_session, 1));
+        }
+
+        [TestMethod]
+        public void AddNamesToSession_IgnoresBlankNames()
+        {
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, " ")]);
+
+            Assert.IsNull(ARJourneySessionHelper.GetNameFromSession(_session, 1));
+        }
+
+        [TestMethod]
+        public void ClearAllFromSession_RemovesNames()
+        {
+            ARJourneySessionHelper.AddToSession(_session, [1]);
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, "First")]);
+
+            ARJourneySessionHelper.ClearAllFromSession(_session);
+
+            Assert.IsNull(ARJourneySessionHelper.GetNameFromSession(_session, 1));
+        }
     }
 }

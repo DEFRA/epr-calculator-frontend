@@ -5,7 +5,7 @@
 @model BillingInstructionsViewModel
 
 <!-- Main Data Table -->
-<table class="govuk-table" aria-describedby="table-description">
+<table class="govuk-table billing-table govuk-!-margin-bottom-4" aria-describedby="table-description">
     <caption id="table-description" class="govuk-visually-hidden">
         Details of the Organisations and Billing status.
     </caption>
@@ -23,24 +23,50 @@
         @foreach (var org in Model.TablePaginationModel.Records.Cast<Organisation>())
         {
             <tr class="govuk-table__row">
-                <td class="govuk-table__cell govuk-!-text-align-centre">
-                    <input type="checkbox" name="SelectedIds"
-                           value="@org.Id"
-                           aria-labelledby="checkbox-label-@org.Id"
-                           class="record-checkbox"
-                           data-organisation-id="@org.OrganisationId"
-                    @(org.IsSelected ? "checked" : null)
-                           @(org.BillingInstruction == BillingInstruction.Noaction ? "disabled" : null) />
+                <td class="govuk-table__cell vertical-middle billing-select-cell">
+                    <div class="govuk-checkboxes govuk-checkboxes--small">
+                        <div class="govuk-checkboxes__item">
+                            <input class="govuk-checkboxes__input record-checkbox" type="checkbox"
+                                   id="select-@org.Id"
+                                   name="SelectedIds"
+                                   value="@org.Id"
+                                   data-organisation-id="@org.OrganisationId"
+                                   data-organisation-name="@org.OrganisationName"
+                                   @(org.IsSelected ? "checked" : null)
+                                   @(org.BillingInstruction == BillingInstruction.Noaction ? "disabled" : null) />
+                            <label class="govuk-label govuk-checkboxes__label" for="select-@org.Id">
+                                <span class="govuk-visually-hidden">Select @org.OrganisationName</span>
+                            </label>
+                        </div>
+                    </div>
                 </td>
 
-                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle" id="checkbox-label-@org.Id">@org.OrganisationName</td>
-                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle">@org.OrganisationId</td>
-                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle">
-                    <strong class="govuk-tag">
+                <td class="govuk-table__cell vertical-middle">@org.OrganisationName</td>
+                <td class="govuk-table__cell vertical-middle">@org.OrganisationId</td>
+                <td class="govuk-table__cell vertical-middle">
+                     @functions {
+                            public string GetInstructionClass(EPR.Calculator.Frontend.Enums.BillingInstruction? instruction)
+                            {
+                                switch (instruction)
+                                {
+                                    case EPR.Calculator.Frontend.Enums.BillingInstruction.Noaction:
+                                        return "govuk-tag--grey";
+                                    case EPR.Calculator.Frontend.Enums.BillingInstruction.Rebill:
+                                        return "govuk-tag--purple";
+                                    case EPR.Calculator.Frontend.Enums.BillingInstruction.Delta:
+                                        return "govuk-tag--green";
+                                    case EPR.Calculator.Frontend.Enums.BillingInstruction.Cancel:
+                                        return "govuk-tag--red";
+                                    default:
+                                        return ""; // Default blue
+                                }
+                            }
+                        }
+                    <strong class="govuk-tag @GetInstructionClass(org.BillingInstruction)">
                         @org.BillingInstruction?.GetDisplayName()
                     </strong>
                 </td>
-                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle">
+                <td class="govuk-table__cell vertical-middle">
                     @if (org.InvoiceAmount != null)
                     {
                         @org.InvoiceAmount.Value.ToString("C", CultureInfo.CreateSpecificCulture("en-GB"))
@@ -48,7 +74,7 @@
                 </td>
 
 
-                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle">
+                <td class="govuk-table__cell vertical-middle">
                     @if (org.BillingInstruction != BillingInstruction.Noaction)
                     {
                         @functions {
@@ -214,12 +240,12 @@
     var start       = total == 0 || recordCount == 0 ? 0 : Model.TablePaginationModel.StartRecord;
     var end         = total == 0 || recordCount == 0 ? 0 : Math.Min(start + recordCount - 1, total);
 }
-<p class="govuk-body govuk-!-margin-top-4">
-    Showing <strong>@start</strong> to <strong>@end</strong> of @total
+<p class="govuk-body govuk-!-margin-top-3">
+    Showing @start.ToString("N0") to @end.ToString("N0") of @total.ToString("N0") organisations
 </p>
 
-<p class="govuk-body govuk-!-margin-top-6">
-    Update billing instructions for <span id="totalCountText">@ARJourneySessionHelper.GetFromSession(Context.Session).Count</span> selected organisations.
+<p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-top-6" id="selectedCountText" aria-live="polite">
+    @ARJourneySessionHelper.GetSelectionSummary(Context.Session)
 </p>
 
 <script type="text/javascript" nonce="@Context.Items["CspNonce"]">
@@ -228,10 +254,6 @@
             var organisationId = event.target.getAttribute('data-organisation-id');
             var isChecked = event.target.checked;
 
-            var span = document.getElementById('totalCountText');
-            var current = parseInt(span.textContent, 10) || 0;
-            span.textContent = isChecked ? current + 1 : Math.max(0, current - 1);
-
             fetch('/UpdateOrganisationSelection', {
                 method: 'POST',
                 headers: {
@@ -239,9 +261,16 @@
                 },
                 body: JSON.stringify({
                     id: organisationId,
-                    isSelected: isChecked
+                    isSelected: isChecked,
+                    organisationName: event.target.getAttribute('data-organisation-name')
                 })
-            }).then(function () {
+            }).then(function (response) {
+                return response.ok ? response.json() : null;
+            }).then(function (data) {
+                if (data && data.summary) {
+                    document.getElementById('selectedCountText').textContent = data.summary;
+                }
+
                 if (!isChecked) {
                     var selectPage = document.getElementById('OrganisationSelections_SelectPage');
                     var selectAll = document.getElementById('OrganisationSelections_SelectAll');
