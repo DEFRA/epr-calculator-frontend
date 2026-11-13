@@ -219,3 +219,17 @@
     min-width: 20px;
     padding: 0 5px;
 }
+
+/* White button with blue text (e.g. "Clear search"). */
+.govuk-button--inverse-blue,
+.govuk-button--inverse-blue:link,
+.govuk-button--inverse-blue:visited,
+.govuk-button--inverse-blue:hover,
+.govuk-button--inverse-blue:active {
+    color: #1d70b8;
+}
+
+/* Hide the browser's built-in clear "x" on search inputs; use the "Clear search" button instead. */
+.search-input-group input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+}

@@ -62,8 +62,18 @@ public class BillingInstructionsController(
             HttpContext.Session.SetString(SessionConstants.IsSelectAllPage, "true");
         }
 
-        foreach (var item in billingInstructionsViewModel.SelectedRows.Where(t => existingSelectedIds.Contains(t.OrganisationId)))
+        var selectedRowsOnPage = billingInstructionsViewModel.SelectedRows
+            .Where(t => existingSelectedIds.Contains(t.OrganisationId))
+            .ToList();
+
+        foreach (var item in selectedRowsOnPage)
             item.IsSelected = true;
+
+        // Remember the names of selected rows (e.g. after select all) so the
+        // selection summary can name a single organisation from any page.
+        ARJourneySessionHelper.AddNamesToSession(
+            HttpContext.Session,
+            selectedRowsOnPage.Select(t => KeyValuePair.Create(t.OrganisationId, t.OrganisationName)));
 
         return View(billingInstructionsViewModel);
     }
@@ -139,10 +149,10 @@ public class BillingInstructionsController(
         // Makes an api request to get the instructions for the current calculation run.
         var producerBillingInstructionsResponseDto = await GetBillingData(model.RunId, model);
 
-        var producerIdsFromResponse = producerBillingInstructionsResponseDto?.Records
+        var selectableRecords = producerBillingInstructionsResponseDto?.Records
             .Where(t => t.SuggestedBillingInstruction != BillingInstructionConstants.NoSuggestedBillingInstructionPlaceholder)
-            .Select(t => t.ProducerId)
             .ToList();
+        var producerIdsFromResponse = selectableRecords?.Select(t => t.ProducerId).ToList();
 
         if (producerIdsFromResponse != null)
         {
@@ -150,6 +160,9 @@ public class BillingInstructionsController(
             {
                 // If the SelectPage is true, add the producer IDs to the session.
                 ARJourneySessionHelper.AddToSession(HttpContext.Session, producerIdsFromResponse);
+                ARJourneySessionHelper.AddNamesToSession(
+                    HttpContext.Session,
+                    selectableRecords!.Select(t => KeyValuePair.Create(t.ProducerId, t.ProducerName ?? string.Empty)));
             }
             else
             {
@@ -170,14 +183,18 @@ public class BillingInstructionsController(
     ///     The <see cref="BillingSelectionOrgDto" /> containing the organisation ID and selection state.
     /// </param>
     /// <returns>
-    ///     <see cref="IActionResult" /> indicating the result of the operation.
-    ///     Returns 200 OK on success, or 500 Internal Server Error if an exception occurs.
+    ///     200 OK with the updated selection summary text, as <c>{ "summary": "..." }</c>.
     /// </returns>
     [HttpPost("UpdateOrganisationSelection", Name = "BillingInstructions_OrganisationSelection")]
     public IActionResult UpdateOrganisationSelectionAsync([FromBody] BillingSelectionOrgDto orgDto)
     {
         if (orgDto.IsSelected)
+        {
             ARJourneySessionHelper.AddToSession(HttpContext.Session, [orgDto.Id]);
+            ARJourneySessionHelper.AddNamesToSession(
+                HttpContext.Session,
+                [KeyValuePair.Create(orgDto.Id, orgDto.OrganisationName ?? string.Empty)]);
+        }
         else
             ARJourneySessionHelper.RemoveFromSession(HttpContext.Session, [orgDto.Id]);
 
@@ -185,7 +202,7 @@ public class BillingInstructionsController(
         if (!orgDto.IsSelected)
             HttpContext.Session.SetBooleanFlag(SessionConstants.IsSelectAll, false);
 
-        return Ok();
+        return Ok(new { summary = ARJourneySessionHelper.GetSelectionSummary(HttpContext.Session) });
     }
 
     /// <summary>
