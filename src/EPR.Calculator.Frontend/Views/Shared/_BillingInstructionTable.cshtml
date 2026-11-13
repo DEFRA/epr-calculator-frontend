@@ -23,24 +23,31 @@
         @foreach (var org in Model.TablePaginationModel.Records.Cast<Organisation>())
         {
             <tr class="govuk-table__row">
-                <td class="govuk-table__cell govuk-!-text-align-centre">
-                    <input type="checkbox" name="SelectedIds"
-                           value="@org.Id"
-                           aria-labelledby="checkbox-label-@org.Id"
-                           class="record-checkbox"
-                           data-organisation-id="@org.OrganisationId"
-                    @(org.IsSelected ? "checked" : null)
-                           @(org.BillingInstruction == BillingInstruction.Noaction ? "disabled" : null) />
+                <td class="govuk-table__cell vertical-middle billing-select-cell">
+                    <div class="govuk-checkboxes govuk-checkboxes--small">
+                        <div class="govuk-checkboxes__item">
+                            <input class="govuk-checkboxes__input record-checkbox" type="checkbox"
+                                   id="select-@org.Id"
+                                   name="SelectedIds"
+                                   value="@org.Id"
+                                   data-organisation-id="@org.OrganisationId"
+                                   @(org.IsSelected ? "checked" : null)
+                                   @(org.BillingInstruction == BillingInstruction.Noaction ? "disabled" : null) />
+                            <label class="govuk-label govuk-checkboxes__label" for="select-@org.Id">
+                                <span class="govuk-visually-hidden">Select @org.OrganisationName</span>
+                            </label>
+                        </div>
+                    </div>
                 </td>
 
-                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle" id="checkbox-label-@org.Id">@org.OrganisationName</td>
-                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle">@org.OrganisationId</td>
-                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle">
+                <td class="govuk-table__cell vertical-middle">@org.OrganisationName</td>
+                <td class="govuk-table__cell vertical-middle">@org.OrganisationId</td>
+                <td class="govuk-table__cell vertical-middle">
                     <strong class="govuk-tag">
                         @org.BillingInstruction?.GetDisplayName()
                     </strong>
                 </td>
-                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle">
+                <td class="govuk-table__cell vertical-middle">
                     @if (org.InvoiceAmount != null)
                     {
                         @org.InvoiceAmount.Value.ToString("C", CultureInfo.CreateSpecificCulture("en-GB"))
@@ -48,7 +55,7 @@
                 </td>
 
 
-                <td class="govuk-table__cell govuk-!-text-align-centre vertical-middle">
+                <td class="govuk-table__cell vertical-middle">
                     @if (org.BillingInstruction != BillingInstruction.Noaction)
                     {
                         @functions {
@@ -215,11 +222,14 @@
     var end         = total == 0 || recordCount == 0 ? 0 : Math.Min(start + recordCount - 1, total);
 }
 <p class="govuk-body govuk-!-margin-top-4">
-    Showing <strong>@start</strong> to <strong>@end</strong> of @total
+    Showing <strong>@start.ToString("N0")</strong> to <strong>@end.ToString("N0")</strong> of @total.ToString("N0") organisations
 </p>
 
+@{
+    var selectedCount = ARJourneySessionHelper.GetFromSession(Context.Session).Count;
+}
 <p class="govuk-body govuk-!-margin-top-6">
-    Update billing instructions for <span id="totalCountText">@ARJourneySessionHelper.GetFromSession(Context.Session).Count</span> selected organisations.
+    Update billing instructions for <span id="totalCountText" data-count="@selectedCount">@selectedCount.ToString("N0")</span> selected organisations.
 </p>
 
 <script type="text/javascript" nonce="@Context.Items["CspNonce"]">
@@ -229,8 +239,10 @@
             var isChecked = event.target.checked;
 
             var span = document.getElementById('totalCountText');
-            var current = parseInt(span.textContent, 10) || 0;
-            span.textContent = isChecked ? current + 1 : Math.max(0, current - 1);
+            var current = parseInt(span.dataset.count, 10) || 0;
+            var updated = isChecked ? current + 1 : Math.max(0, current - 1);
+            span.dataset.count = updated;
+            span.textContent = updated.toLocaleString('en-GB');
 
             fetch('/UpdateOrganisationSelection', {
                 method: 'POST',
