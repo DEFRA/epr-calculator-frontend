@@ -64,17 +64,29 @@
     }
 }
 
-.align-checkbox {
+.billing-selection-bar {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px 30px;
     margin-top: 20px;
+    margin-bottom: 20px;
 }
 
-.align-checkbox :last-child {
-    margin-left: auto;
+.billing-selection-bar__checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 30px;
 }
 
-.checkbox-item-label{
-    width: 350px !important;
+.billing-selection-bar .govuk-checkboxes__item {
+    margin-bottom: 0;
+}
+
+.billing-selection-bar .govuk-checkboxes__label {
+    white-space: nowrap;
 }
 
 .text-area-margin-bottom
@@ -90,22 +102,15 @@
     align-self: unset !important;
 }
 
-.flex-wrap {
-    display: flex;
-    flex-wrap: wrap;
-}
-
 .govuk-notification-banner--failure {
     border-color: var(--govuk-error-colour);
     background-color: var(--govuk-error-colour);
 }
 
+/* Shrink the checkbox column to its content; Organisation name has no set
+   width so it takes the table's spare space. */
 .col-select {
-    width: 60px;
-}
-
-.col-org-name {
-    width: 170px;
+    width: 1%;
 }
 
 .col-org-id {
@@ -113,22 +118,30 @@
 }
 
 .col-billing {
-    width: 160px;
+    width: 180px;
 }
 
 .col-invoice {
     width: 140px;
 }
 
+/* Fit the status tags; the spare space goes to Organisation name. */
 .col-status {
-    width: 140px;
+    width: 1%;
+    white-space: nowrap;
 }
 
-.record-checkbox {
-    width: 34px;
-    height: 34px;
-    cursor: pointer;
-    border: 1px solid var(--govuk-input-border-colour);
+/* Row checkbox cell: no vertical padding (the 44px touch area sets the row
+   height) and no padding on the visually hidden label, so the column is just
+   the checkbox plus the table's 20px gap before the next column. */
+.billing-select-cell {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.billing-select-cell .govuk-checkboxes__label {
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .vertical-middle {
