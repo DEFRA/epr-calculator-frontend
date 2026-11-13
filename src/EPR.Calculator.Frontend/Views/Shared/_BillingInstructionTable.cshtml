@@ -5,7 +5,7 @@
 @model BillingInstructionsViewModel
 
 <!-- Main Data Table -->
-<table class="govuk-table" aria-describedby="table-description">
+<table class="govuk-table govuk-!-margin-bottom-4" aria-describedby="table-description">
     <caption id="table-description" class="govuk-visually-hidden">
         Details of the Organisations and Billing status.
     </caption>
@@ -240,11 +240,11 @@
     var start       = total == 0 || recordCount == 0 ? 0 : Model.TablePaginationModel.StartRecord;
     var end         = total == 0 || recordCount == 0 ? 0 : Math.Min(start + recordCount - 1, total);
 }
-<p class="govuk-body govuk-!-margin-top-4">
+<p class="govuk-body govuk-!-margin-top-3">
     Showing @start.ToString("N0") to @end.ToString("N0") of @total.ToString("N0") organisations
 </p>
 
-<p class="govuk-body govuk-!-margin-top-6" id="selectedCountText" aria-live="polite">
+<p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-top-6" id="selectedCountText" aria-live="polite">
     @ARJourneySessionHelper.GetSelectionSummary(Context.Session)
 </p>
 

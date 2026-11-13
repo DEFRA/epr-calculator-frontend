@@ -21,29 +21,27 @@
 />
 
 <div class="govuk-main-wrapper govuk-!-padding-top-2" id="main-content">
-    <h1 class="govuk-visually-hidden">Select organisations to process</h1>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <br>
-            <span class="govuk-caption-m">@Model.RunName</span>
-            <h1 class="govuk-heading-xl">Accept or reject billing instructions</h1>
-            <p class="govuk-body-m">Your billing decisions will be saved and you must give a reason if you reject.</p>
+            <span class="govuk-caption-l">@Model.RunName</span>
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">Accept or reject billing instructions</h1>
+            <p class="govuk-body-m govuk-!-margin-bottom-6">Your billing decisions will be saved and you must give a reason if you reject.</p>
 
             @using (Html.BeginRouteForm(routeName: RouteNames.BillingInstructionsIndex, routeValues: new { runId = Model.RunId, }, method: FormMethod.Get))
             {
                 <input type="hidden" name="@nameof(BillingInstructionsIndexModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
 
-                <h3 class="govuk-heading-m">Billing decisions for this run</h3>
+                <h2 class="govuk-heading-m govuk-!-margin-bottom-3">Billing decisions for this run</h2>
                 <p class="govuk-body-m">Run-wide totals. Search and filters do not change these totals.</p>
 
                 <div class="govuk-grid-row">
-                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold">Accepted (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Accepted).ToString("N0"))</p>
-                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold">Rejected (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Rejected).ToString("N0"))</p>
-                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold">Pending (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Pending).ToString("N0"))</p>
+                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-8">Accepted (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Accepted).ToString("N0"))</p>
+                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-8">Rejected (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Rejected).ToString("N0"))</p>
+                    <p class="govuk-grid-column-one-third govuk-body-m govuk-!-font-weight-bold govuk-!-margin-bottom-8">Pending (@Model.StatusCounts.GetValueOrDefault(BillingStatus.Pending).ToString("N0"))</p>
                 </div>
 
-                <h2 class="govuk-heading-l">Search for an organisation</h2>
+                <h2 class="govuk-heading-l govuk-!-margin-bottom-4">Search for an organisation</h2>
                 <div class="search-panel">
                     <div class="govuk-form-group">
                         <label class="govuk-label" for="OrganisationId">
@@ -55,7 +53,7 @@
                             <button type="submit" class="govuk-button govuk-!-margin-bottom-0" data-module="govuk-button">
                                 Search
                             </button>
-                            <a href="@clearSearchUrl" role="button" draggable="false" class="govuk-button govuk-button--inverse govuk-button--inverse-blue govuk-!-margin-bottom-0 @(Model.OrganisationId.HasValue ? "" : "govuk-!-display-none")"data-module="govuk-button" id="clear-search-btn">
+                            <a href="@clearSearchUrl" role="button" draggable="false" class="govuk-button govuk-button--inverse govuk-button--inverse-blue govuk-!-margin-bottom-0 @(Model.OrganisationId.HasValue ? "" : "govuk-!-display-none")" data-module="govuk-button" id="clear-search-btn">
                                 Clear search
                             </a>
                         </div>
@@ -83,7 +81,7 @@
                         </fieldset>
                     </div>
 
-                    <div class="govuk-form-group">
+                    <div class="govuk-form-group govuk-!-margin-bottom-0">
                         <fieldset class="govuk-fieldset" id="filter-by-billing-status">
                             <legend class="govuk-fieldset__legend govuk-label">
                                 Filter by status
@@ -210,15 +208,13 @@
 
     @{
         Model.StatusCounts.TryGetValue(BillingStatus.Pending, out var pendingCount);
-        var canGenerate = pendingCount == 0 && Model.TotalRecords > 0;
     }
 
-    <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
-    <h2 class="govuk-heading-m">@BillingInstructionConstants.GenerateDraftBillingFile</h2>
-
-    @if (canGenerate)
+    @if (pendingCount == 0 && Model.TotalRecords > 0)
     {
-        <p class="govuk-body">@BillingInstructionConstants.BillingNextStepText</p>
+        <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible govuk-!-margin-top-0">
+        <h2 class="govuk-heading-m">@BillingInstructionConstants.BillingNextStep</h2>
+        <p class="govuk-body-m">@BillingInstructionConstants.BillingNextStepText</p>
         @using (Html.BeginForm(ActionNames.GenerateDraftBillingFile, ControllerNames.BillingInstructionsController, FormMethod.Post))
         {
             <button class="govuk-button" type="submit" data-module="govuk-button" id="generate-billing-instruction">
@@ -227,14 +223,10 @@
             <input type="hidden" name="runId" value="@Model.RunId" />
         }
     }
-    else
-    {
-        <p class="govuk-body">@BillingInstructionConstants.GenerateDraftBillingFileUnavailableText</p>
-    }
 
-    <p class="govuk-body">
-        <a href="@Url.Action(ActionNames.Index, ControllerNames.CalculationRunOverview, new { runId = Model.RunId })" class="govuk-link">@BillingInstructionConstants.BackToCalculationDetails</a>
-    </p>
+    <div class="govuk-button-group">
+        <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
+    </div>
 </div>
 
 <script type="text/javascript" nonce="@Context.Items["CspNonce"]">

@@ -18,10 +18,6 @@
 
         public const string GenerateDraftBillingFile = "Generate draft billing file";
 
-        public const string GenerateDraftBillingFileUnavailableText = "You can only generate the draft billing file when you have accepted or rejected all of the billing instructions.";
-
-        public const string BackToCalculationDetails = "Back to calculation details";
-
         public const string DraftBillingFile = "Draft billing file";
 
         public const string DraftBillingFileGenerating = "Draft billing file generating";

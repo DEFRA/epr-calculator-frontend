@@ -69,7 +69,7 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 15px 30px;
+    gap: 15px 20px;
     margin-top: 20px;
     margin-bottom: 20px;
 }
@@ -78,7 +78,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    column-gap: 30px;
+    column-gap: 20px;
 }
 
 .billing-selection-bar .govuk-checkboxes__item {
@@ -150,24 +150,32 @@
 
 .search-panel {
     background-color: #f3f3f3; /* GOV.UK v6 light grey */
-    padding: 20px;
-    border: 1px solid var(--govuk-border-colour);
+    padding: 30px;
+}
+
+/* The design stops the search row ~90px short of the panel's right edge
+   (30px panel padding + 60px here), versus 30px on the left. */
+@media (min-width: 40.0625em) {
+    .search-input-group {
+        padding-right: 60px;
+    }
 }
 
 .search-input-group {
     display: flex;
-    gap: 10px;
+    gap: 15px;
 }
 
 .search-input-group .govuk-input {
     flex: 1;
 }
 
+/* Checkboxes sit inline at their natural width; the label's 15px right
+   padding is the gap before the next checkbox. */
 .filter-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    column-gap: 1rem;
-    row-gap: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 10px;
 }
 
 .filter-grid .govuk-checkboxes__item {
@@ -203,6 +211,11 @@
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
+}
+
+/* Pagination sits 15px above the "Showing x to y" text (set on that paragraph). */
+.billing-pagination .govuk-pagination {
+    margin-bottom: 0;
 }
 
 .billing-pagination__pages {
