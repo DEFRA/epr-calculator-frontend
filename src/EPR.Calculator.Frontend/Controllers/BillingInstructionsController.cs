@@ -73,7 +73,7 @@ public class BillingInstructionsController(
         // selection summary can name a single organisation from any page.
         ARJourneySessionHelper.AddNamesToSession(
             HttpContext.Session,
-            selectedRowsOnPage.Select(t => KeyValuePair.Create(t.OrganisationId, t.OrganisationName)));
+            selectedRowsOnPage.Select(t => KeyValuePair.Create(t.OrganisationId, t.OrganisationName ?? string.Empty)));
 
         return View(billingInstructionsViewModel);
     }

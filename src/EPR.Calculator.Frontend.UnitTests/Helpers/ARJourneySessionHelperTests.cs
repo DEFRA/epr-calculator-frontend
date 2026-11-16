@@ -124,11 +124,11 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
         }
 
         [TestMethod]
-        public void GetSelectionSummary_OneSelectedWithoutName_ShowsId()
+        public void GetSelectionSummary_OneSelectedWithoutName_ShowsEmptyNameAndId()
         {
             ARJourneySessionHelper.AddToSession(_session, [100123]);
 
-            Assert.AreEqual("1 organisation selected: 100123", ARJourneySessionHelper.GetSelectionSummary(_session));
+            Assert.AreEqual("1 organisation selected:  (100123)", ARJourneySessionHelper.GetSelectionSummary(_session));
         }
 
         [TestMethod]
@@ -157,6 +157,45 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
             ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, " ")]);
 
             Assert.IsNull(ARJourneySessionHelper.GetNameFromSession(_session, 1));
+        }
+
+        [TestMethod]
+        public void AddNamesToSession_ReplacesChangedName()
+        {
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, "Old name")]);
+
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, "New name")]);
+
+            Assert.AreEqual("New name", ARJourneySessionHelper.GetNameFromSession(_session, 1));
+        }
+
+        [TestMethod]
+        public void AddNamesToSession_KeepsUnchangedName()
+        {
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, "Same name")]);
+
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, "Same name")]);
+
+            Assert.AreEqual("Same name", ARJourneySessionHelper.GetNameFromSession(_session, 1));
+        }
+
+        [TestMethod]
+        public void RemoveFromSession_WhenNoNamesStored_RemovesIds()
+        {
+            ARJourneySessionHelper.AddToSession(_session, [1, 2]);
+
+            ARJourneySessionHelper.RemoveFromSession(_session, [1]);
+
+            CollectionAssert.AreEquivalent(new List<int> { 2 }, ARJourneySessionHelper.GetFromSession(_session).ToList());
+            Assert.IsNull(ARJourneySessionHelper.GetNameFromSession(_session, 2));
+        }
+
+        [TestMethod]
+        public void RemoveFromSession_WhenNothingStored_LeavesSelectionEmpty()
+        {
+            ARJourneySessionHelper.RemoveFromSession(_session, [1]);
+
+            Assert.AreEqual(0, ARJourneySessionHelper.GetFromSession(_session).Count);
         }
 
         [TestMethod]
