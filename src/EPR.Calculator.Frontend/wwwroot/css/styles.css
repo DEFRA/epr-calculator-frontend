@@ -206,3 +206,23 @@
     min-width: 20px;
     padding: 0 5px;
 }
+
+.govuk-button--inverse,
+.govuk-button--inverse:link,
+.govuk-button--inverse:visited,
+.govuk-button--inverse:hover,
+.govuk-button--inverse:active {
+    color: #1d70b8;
+}
+
+.govuk-button--inverse {
+    box-shadow: 0 2px 0 #144e81;
+}
+
+.govuk-button--inverse:hover {
+    background-color: #e8f1f8;
+}
+
+.govuk-button--inverse:hover[disabled] {
+    background-color: #fff;
+}
