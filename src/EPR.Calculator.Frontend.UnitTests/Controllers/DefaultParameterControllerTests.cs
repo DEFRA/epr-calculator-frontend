@@ -71,7 +71,7 @@ public class DefaultParameterControllerTests
         Assert.IsTrue(model.IsDataAvailable);
         Assert.AreEqual(TestUploader, model.LastUpdatedBy);
         Assert.AreEqual(Enum.GetValues<ParameterType>().Length, model.SchemeParameters.Count);
-        Assert.AreEqual(defaultParameters[0].EffectiveFrom, model.LastUpdatedAt);
+        Assert.AreEqual(defaultParameters[0].CreatedAt, model.LastUpdatedAt);
 
         var redModulation = model.SchemeParameters
             .Single(parameter => parameter.SchemeParameterName == ParameterType.RedModulationFactor.GetDisplayName())
@@ -177,7 +177,7 @@ public class DefaultParameterControllerTests
             RelativeYear = new RelativeYear(RelativeYearValue),
             EffectiveFrom = effectiveFrom,
             CreatedBy = TestUploader,
-            CreatedAt = effectiveFrom,
+            CreatedAt = effectiveFrom.AddHours(1),
             ParameterUniqueRef = uniqueRef,
             ParameterType = parameterType,
             ParameterCategory = parameterCategory,
