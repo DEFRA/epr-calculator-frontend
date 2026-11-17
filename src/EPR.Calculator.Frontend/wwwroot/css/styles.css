@@ -235,23 +235,26 @@
     padding: 0 5px;
 }
 
-.govuk-button--inverse,
-.govuk-button--inverse:link,
-.govuk-button--inverse:visited,
-.govuk-button--inverse:hover,
-.govuk-button--inverse:active {
-    color: #1d70b8;
-}
-
-.govuk-button--inverse {
+/* White button with blue text: GOV.UK's inverse button in its pre-v6 blue,
+   because defra-internal.css makes the brand colour (and so --inverse) green. */
+.govuk-button--inverse-blue {
+    background-color: #fff;
     box-shadow: 0 2px 0 #144e81;
 }
 
-.govuk-button--inverse:hover {
+.govuk-button--inverse-blue,
+.govuk-button--inverse-blue:link,
+.govuk-button--inverse-blue:visited,
+.govuk-button--inverse-blue:hover,
+.govuk-button--inverse-blue:active {
+    color: #1d70b8;
+}
+
+.govuk-button--inverse-blue:hover {
     background-color: #e8f1f8;
 }
 
-.govuk-button--inverse:hover[disabled] {
+.govuk-button--inverse-blue:hover[disabled] {
     background-color: #fff;
 }
 
