@@ -12,6 +12,15 @@
     clearSearchQuery.AddRange(Model.BillingStatuses.Select(x => new KeyValuePair<string, string?>(nameof(BillingInstructionsIndexModel.BillingStatuses), x.ToString())));
     var clearSearchUrl = Url.RouteUrl(RouteNames.BillingInstructionsIndex, new { runId = Model.RunId }) + Microsoft.AspNetCore.Http.QueryString.Create(clearSearchQuery);
 
+    // Same page without the filters, keeping the organisation ID search and page size.
+    var hasFilters = Model.BillingInstructions.Any() || Model.BillingStatuses.Any();
+    var clearFiltersUrl = Url.RouteUrl(RouteNames.BillingInstructionsIndex, new RouteValueDictionary
+    {
+        ["runId"] = Model.RunId,
+        [nameof(BillingInstructionsIndexModel.OrganisationId)] = Model.OrganisationId,
+        [nameof(BillingInstructionsIndexModel.PageSize)] = Model.TablePaginationModel.PageSize,
+    });
+
     var noSearchResults = Model.OrganisationId.HasValue && !Model.TablePaginationModel.Records.Any();
 }
 
@@ -52,7 +61,7 @@
                             <button type="submit" class="govuk-button govuk-!-margin-bottom-0" data-module="govuk-button">
                                 Search
                             </button>
-                            <a href="@clearSearchUrl" role="button" draggable="false" class="govuk-button govuk-button--inverse govuk-button--inverse-blue govuk-!-margin-bottom-0 @(Model.OrganisationId.HasValue ? "" : "govuk-!-display-none")" data-module="govuk-button" id="clear-search-btn">
+                            <a href="@clearSearchUrl" role="button" draggable="false" class="govuk-button govuk-button--inverse-blue govuk-!-margin-bottom-0 @(Model.OrganisationId.HasValue ? "" : "govuk-!-display-none")" data-module="govuk-button" id="clear-search-btn">
                                 Clear search
                             </a>
                         </div>
@@ -101,6 +110,13 @@
                             </div>
                         </fieldset>
                     </div>
+
+                    @if (hasFilters)
+                    {
+                        <a href="@clearFiltersUrl" role="button" draggable="false" class="govuk-button govuk-button--inverse-blue govuk-!-margin-top-6 govuk-!-margin-bottom-0" data-module="govuk-button" id="clear-filters-btn">
+                            Clear filters
+                        </a>
+                    }
                 </div>
             }
         </div>
