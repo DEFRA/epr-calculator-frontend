@@ -1,4 +1,5 @@
-﻿using EPR.Calculator.Frontend.Constants;
+﻿using System.Globalization;
+using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Extensions;
 
 namespace EPR.Calculator.Frontend.Helpers
@@ -12,7 +13,12 @@ namespace EPR.Calculator.Frontend.Helpers
         /// <summary>
         /// The session key used to store the producer IDs.
         /// </summary>
-        private const string SessionKey = SessionConstants.ProducerIds;
+        private const string SessionKeyIds = SessionConstants.ProducerIds;
+
+        /// <summary>
+        /// The session key used to store producer names, keyed by producer ID.
+        /// </summary>
+        private const string SessionKeyNames = SessionConstants.ProducerNames;
 
         /// <summary>
         /// Adds the specified producer IDs to the session, ensuring uniqueness.
@@ -22,10 +28,10 @@ namespace EPR.Calculator.Frontend.Helpers
         /// <param name="producerIds">The producer IDs to add.</param>
         public static void AddToSession(ISession session, IEnumerable<int> producerIds)
         {
-            var existing = session.GetObject<IEnumerable<int>>(SessionKey) ?? [];
+            var existing = session.GetObject<IEnumerable<int>>(SessionKeyIds) ?? [];
             var updated = new HashSet<int>(existing);
             updated.UnionWith(producerIds);
-            session.SetObject(SessionKey, updated.ToList());
+            session.SetObject(SessionKeyIds, updated.ToList());
         }
 
         /// <summary>
@@ -36,10 +42,83 @@ namespace EPR.Calculator.Frontend.Helpers
         /// <param name="producerIds">The producer IDs to remove.</param>
         public static void RemoveFromSession(ISession session, IEnumerable<int> producerIds)
         {
-            var existing = session.GetObject<IEnumerable<int>>(SessionKey) ?? [];
+            var existing = session.GetObject<IEnumerable<int>>(SessionKeyIds) ?? [];
             var updated = new HashSet<int>(existing);
             updated.ExceptWith(producerIds);
-            session.SetObject(SessionKey, updated.ToList());
+            session.SetObject(SessionKeyIds, updated.ToList());
+
+            var names = session.GetObject<Dictionary<int, string>>(SessionKeyNames);
+            if (names != null)
+            {
+                foreach (var id in producerIds)
+                {
+                    names.Remove(id);
+                }
+
+                session.SetObject(SessionKeyNames, names);
+            }
+        }
+
+        /// <summary>
+        /// Records producer names against their IDs so a selected organisation
+        /// can be named even when it is not on the page being viewed.
+        /// Existing names for the same IDs are replaced.
+        /// </summary>
+        /// <param name="session">The current user's session.</param>
+        /// <param name="producerNames">The producer names, keyed by producer ID.</param>
+        public static void AddNamesToSession(ISession session, IEnumerable<KeyValuePair<int, string>> producerNames)
+        {
+            var names = session.GetObject<Dictionary<int, string>>(SessionKeyNames) ?? [];
+            var changed = false;
+            foreach (var (id, name) in producerNames)
+            {
+                if (string.IsNullOrWhiteSpace(name) || (names.TryGetValue(id, out var existing) && existing == name))
+                {
+                    continue;
+                }
+
+                names[id] = name;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                session.SetObject(SessionKeyNames, names);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the stored name for a producer ID.
+        /// </summary>
+        /// <param name="session">The current user's session.</param>
+        /// <param name="producerId">The producer ID.</param>
+        /// <returns>The producer name, or <c>null</c> if none is stored.</returns>
+        public static string? GetNameFromSession(ISession session, int producerId)
+        {
+            var names = session.GetObject<Dictionary<int, string>>(SessionKeyNames);
+            return names != null && names.TryGetValue(producerId, out var name) ? name : null;
+        }
+
+        /// <summary>
+        /// Describes the current selection for display, e.g. "3 organisations selected".
+        /// </summary>
+        /// <param name="session">The current user's session.</param>
+        /// <returns>The selection summary text.</returns>
+        public static string GetSelectionSummary(ISession session)
+        {
+            var ids = GetFromSession(session);
+            switch (ids.Count)
+            {
+                case 0:
+                    return "No organisations selected. Use search to find and select an organisation.";
+                case 1:
+                    // The ID is always known; the name only if it was recorded.
+                    var id = ids.First();
+                    var name = GetNameFromSession(session, id) ?? string.Empty;
+                    return $"1 organisation selected: {name} ({id})";
+                default:
+                    return $"{ids.Count.ToString("N0", CultureInfo.GetCultureInfo("en-GB"))} organisations selected";
+            }
         }
 
         /// <summary>
@@ -52,7 +131,7 @@ namespace EPR.Calculator.Frontend.Helpers
         /// </returns>
         public static HashSet<int> GetFromSession(ISession session)
         {
-            var existing = session.GetObject<IEnumerable<int>>(SessionKey) ?? [];
+            var existing = session.GetObject<IEnumerable<int>>(SessionKeyIds) ?? [];
             return new HashSet<int>(existing);
         }
 
@@ -62,7 +141,8 @@ namespace EPR.Calculator.Frontend.Helpers
         /// <param name="session">The current user's session.</param>
         public static void ClearAllFromSession(ISession session)
         {
-            session.Remove(SessionKey);
+            session.Remove(SessionKeyIds);
+            session.Remove(SessionKeyNames);
         }
     }
 }
