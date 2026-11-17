@@ -10,60 +10,58 @@
     var formGroupClass = "govuk-form-group" + (approveDataHasError ? " govuk-form-group--error" : "");
 }
 
-<main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
-    @using (Html.BeginForm(ActionNames.Submit, CommonUtil.GetControllerName(typeof(AcceptRejectConfirmationController)), FormMethod.Post))
+@using (Html.BeginForm(ActionNames.Submit, CommonUtil.GetControllerName(typeof(AcceptRejectConfirmationController)), FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.RunId)
+    @Html.HiddenFor(m => m.Status)
+    @Html.HiddenFor(m => m.Reason)
+
+    <!-- Error Summary -->
+    @if (ViewData.ModelState[$"Summary_{nameof(Model.ApproveData)}"]?.Errors.Count > 0)
     {
-        @Html.AntiForgeryToken()
-        @Html.HiddenFor(m => m.RunId)
-        @Html.HiddenFor(m => m.Status)
-        @Html.HiddenFor(m => m.Reason)
+        var summaryError = ViewData.ModelState[$"Summary_{nameof(Model.ApproveData)}"]?.Errors.First().ErrorMessage;
 
-        <!-- Error Summary -->
-        @if (ViewData.ModelState[$"Summary_{nameof(Model.ApproveData)}"]?.Errors.Count > 0)
-        {
-            var summaryError = ViewData.ModelState[$"Summary_{nameof(Model.ApproveData)}"]?.Errors.First().ErrorMessage;
-
-            <div class="govuk-error-summary" role="alert">
-                <h2 class="govuk-error-summary__title">There is a problem</h2>
-                <ul class="govuk-list govuk-error-summary__list">
-                    <li><a href="#ApproveData">@summaryError</a></li>
-                </ul>
-            </div>
-        }
-
-        <div class="@formGroupClass">
-            <span class="govuk-caption-xl">@Model.RunName</span>
-            <fieldset class="govuk-fieldset" aria-describedby="ApproveData-error">
-                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                    <h1 class="govuk-fieldset__heading">
-                        Are you sure you want to @Model.AcceptRejectConfirmationText all selected billing instructions?
-                    </h1>
-                </legend>
-                @if (approveDataHasError)
-                {
-                    <span id="ApproveData-error" class="govuk-error-message">
-                        <span class="govuk-visually-hidden">Error:</span>
-                        @ViewData.ModelState[nameof(Model.ApproveData)]?.Errors.First().ErrorMessage
-                    </span>
-                }
-                <div class="govuk-radios" data-module="govuk-radios">
-                    <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" id="ApproveData" name="ApproveData" type="radio" value="true" @(Model.ApproveData == true ? "checked" : "")>
-                        <label class="govuk-label govuk-radios__label" for="ApproveData">
-                            Yes
-                        </label>
-                    </div>
-                    <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" id="radio-no" name="ApproveData" type="radio" value="false" @(Model.ApproveData == false ? "checked" : "")>
-                        <label class="govuk-label govuk-radios__label" for="radio-no">
-                            No
-                        </label>
-                    </div>
-                </div>
-            </fieldset>
+        <div class="govuk-error-summary" role="alert">
+            <h2 class="govuk-error-summary__title">There is a problem</h2>
+            <ul class="govuk-list govuk-error-summary__list">
+                <li><a href="#ApproveData">@summaryError</a></li>
+            </ul>
         </div>
-        <button type="Submit" class="govuk-button" data-module="govuk-button">
-            Continue
-        </button>
     }
-</main>
+
+    <div class="@formGroupClass">
+        <span class="govuk-caption-xl">@Model.RunName</span>
+        <fieldset class="govuk-fieldset" aria-describedby="ApproveData-error">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                <h1 class="govuk-fieldset__heading">
+                    Are you sure you want to @Model.AcceptRejectConfirmationText all selected billing instructions?
+                </h1>
+            </legend>
+            @if (approveDataHasError)
+            {
+                <span id="ApproveData-error" class="govuk-error-message">
+                    <span class="govuk-visually-hidden">Error:</span>
+                    @ViewData.ModelState[nameof(Model.ApproveData)]?.Errors.First().ErrorMessage
+                </span>
+            }
+            <div class="govuk-radios" data-module="govuk-radios">
+                <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="ApproveData" name="ApproveData" type="radio" value="true" @(Model.ApproveData == true ? "checked" : "")>
+                    <label class="govuk-label govuk-radios__label" for="ApproveData">
+                        Yes
+                    </label>
+                </div>
+                <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="radio-no" name="ApproveData" type="radio" value="false" @(Model.ApproveData == false ? "checked" : "")>
+                    <label class="govuk-label govuk-radios__label" for="radio-no">
+                        No
+                    </label>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <button type="Submit" class="govuk-button" data-module="govuk-button">
+        Continue
+    </button>
+}
