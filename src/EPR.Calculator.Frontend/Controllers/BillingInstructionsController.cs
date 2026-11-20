@@ -1,4 +1,5 @@
 ﻿using EPR.Calculator.Frontend.Constants;
+using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Extensions;
 using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Mappers;
@@ -33,6 +34,12 @@ public class BillingInstructionsController(
 
         var isSelectAll = HttpContext.Session.GetBooleanFlag(SessionConstants.IsSelectAll);
         var isSelectAllPage = false;
+        var acceptSuccess = HttpContext.Session.GetObject<AcceptSuccessViewModel>(SessionConstants.AcceptSuccess);
+        HttpContext.Session.RemoveKeyIfExists(SessionConstants.AcceptSuccess);
+
+        var hasNoSelectionError = HttpContext.Session.GetBooleanFlag(SessionConstants.NoSelectionError);
+        HttpContext.Session.RemoveKeyIfExists(SessionConstants.NoSelectionError);
+
         if (HttpContext.Session.Keys.Contains(SessionConstants.IsRedirected))
         {
             isSelectAllPage = HttpContext.Session.GetBooleanFlag(SessionConstants.IsSelectAllPage);
@@ -75,6 +82,9 @@ public class BillingInstructionsController(
             HttpContext.Session,
             selectedRowsOnPage.Select(t => KeyValuePair.Create(t.OrganisationId, t.OrganisationName ?? string.Empty)));
 
+        billingInstructionsViewModel.AcceptSuccess = acceptSuccess;
+        billingInstructionsViewModel.HasNoSelectionError = hasNoSelectionError;
+
         return View(billingInstructionsViewModel);
     }
 
@@ -104,14 +114,59 @@ public class BillingInstructionsController(
     }
 
     /// <summary>
-    ///     Redirects to the Accept/Reject Confirmation index action for the specified calculation run.
+    ///     Accepts the selected billing instructions then redirects back to the Billing Instructions index page.
     /// </summary>
     /// <param name="runId">The ID of the calculation run.</param>
-    /// <returns>A redirect to the Accept/Reject Confirmation controller's index action.</returns>
+    /// <returns>A redirect to the Billing Instructions index page, or to the error page if the save fails.</returns>
     [HttpPost]
-    public IActionResult AcceptSelected(int runId)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AcceptSelected(int runId)
     {
-        return RedirectToAction(ActionNames.Index, ControllerNames.AcceptRejectConfirmationController, new { runId });
+        var organisationIds = ARJourneySessionHelper.GetFromSession(HttpContext.Session);
+        if (organisationIds.Count == 0)
+        {
+            HttpContext.Session.SetBooleanFlag(SessionConstants.NoSelectionError, true);
+            return RedirectToRoute(RouteNames.BillingInstructionsIndex, new { runId });
+        }
+
+        var request = new ProducerBillingInstructionsHttpPutRequestDto
+        {
+            OrganisationIds = organisationIds,
+            Status = nameof(BillingStatus.Accepted),
+            ReasonForRejection = null
+        };
+
+        try
+        {
+            var response = await eprCalculatorApiService.CallApi(
+                HttpMethod.Put,
+                $"v2/producerBillingInstructions/{runId}",
+                body: request
+            );
+
+            response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException ex)
+        {
+            logger.LogError(ex, "Error updating producer billing instructions for run {RunId}", runId);
+            return RedirectToError();
+        }
+
+        int? singleId = organisationIds.Count == 1 ? organisationIds.First() : null;
+        var singleName = singleId.HasValue ? ARJourneySessionHelper.GetNameFromSession(HttpContext.Session, singleId.Value) : null;
+
+        HttpContext.Session.ClearAllSession();
+        HttpContext.Session.SetObject(
+            SessionConstants.AcceptSuccess,
+            new AcceptSuccessViewModel
+            {
+                Count = organisationIds.Count,
+                OrganisationId = singleId,
+                OrganisationName = singleName,
+            }
+        );
+
+        return RedirectToRoute(RouteNames.BillingInstructionsIndex, new { runId });
     }
 
     /// <summary>
@@ -122,6 +177,12 @@ public class BillingInstructionsController(
     [HttpPost]
     public IActionResult RejectSelected(int runId)
     {
+        var organisationIds = ARJourneySessionHelper.GetFromSession(HttpContext.Session);
+        if (organisationIds.Count == 0)
+        {
+            HttpContext.Session.SetBooleanFlag(SessionConstants.NoSelectionError, true);
+            return RedirectToRoute(RouteNames.BillingInstructionsIndex, new { runId });
+        }
         return RedirectToAction(ActionNames.Index, ControllerNames.ReasonForRejectionController, new { runId });
     }
 

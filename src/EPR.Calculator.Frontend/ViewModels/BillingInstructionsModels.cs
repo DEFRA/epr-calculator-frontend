@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using EPR.Calculator.Frontend.Constants;
+using System.Globalization;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Models;
 
@@ -19,6 +19,9 @@ public record BillingInstructionsViewModel
     public required IEnumerable<int>? ProducerIds { get; init; }
     public required Dictionary<BillingStatus, int> StatusCounts { get; init; }
     public required int TotalRecords { get; set; }
+
+    public AcceptSuccessViewModel? AcceptSuccess { get; set; }
+    public bool HasNoSelectionError { get; set; }
 }
 
 public record BillingInstructionsSelectModel : BillingInstructionsIndexModel
@@ -32,10 +35,32 @@ public record BillingInstructionsClearModel : BasePaginationModel
     [Range(1, int.MaxValue)] public required int RunId { get; init; }
 }
 
-
 public record BillingInstructionsIndexModel : BasePaginationModel
 {
     public int? OrganisationId { get; init; }
     public List<BillingStatus> BillingStatuses { get; init; } = [];
     public List<BillingInstruction> BillingInstructions { get; init; } = [];
+}
+
+public record AcceptSuccessViewModel
+{
+    private string FormattedCount => Count.ToString("N0", CultureInfo.GetCultureInfo("en-GB"));
+    private string OrganisationNameFormatted => string.IsNullOrWhiteSpace(OrganisationName) ? string.Empty : OrganisationName + " ";
+
+    public int Count { get; init; }
+    public int? OrganisationId { get; init; }
+    public string? OrganisationName { get; init; }
+
+    public string GetHeading() => Count switch
+    {
+        1 => $"{FormattedCount} billing instruction accepted",
+        _ => $"{FormattedCount} billing instructions accepted"
+    };
+
+    public string GetBody(int pendingCount) => (pendingCount, FormattedCount) switch
+    {
+        (0, _) => "All billing decisions for this run have been saved.",
+        (_, "1") => $"Your decision for {OrganisationNameFormatted}({OrganisationId}) has been saved.",
+        _ => $"Your decisions for the {FormattedCount} selected organisations have been saved."
+    };
 }

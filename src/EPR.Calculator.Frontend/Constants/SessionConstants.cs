@@ -23,5 +23,9 @@
         public const string ProducerNames = "ProducerNames";
 
         public const string IsRedirected = "IsRedirected";
+
+        public const string AcceptSuccess = "AcceptSuccess";
+
+        public const string NoSelectionError = "NoSelectionError";
     }
 }

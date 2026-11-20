@@ -158,6 +158,67 @@ public class BillingInstructionsControllerTests
     }
 
     [TestMethod]
+    public async Task IndexAsync_WhenNothingInSession_DoesNotShowBannerOrError()
+    {
+        // Arrange
+        SetupMapperReturns(CreateViewModel());
+        var controllerUnderTest = BuildController(HttpStatusCode.OK, CreateBillingData());
+        var request = new BillingInstructionsIndexModel { Page = 1, PageSize = 10 };
+
+        // Act
+        var result = await controllerUnderTest.IndexAsync(RunId, request) as ViewResult;
+
+        // Assert
+        var model = result?.Model as BillingInstructionsViewModel;
+        Assert.IsNotNull(model);
+        Assert.IsNull(model.AcceptSuccess);
+        Assert.IsFalse(model.HasNoSelectionError);
+    }
+
+    [TestMethod]
+    public async Task IndexAsync_WhenAcceptSuccessInSession_PassesItToViewAndRemovesIt()
+    {
+        // Arrange
+        ISession session = new MockHttpSession();
+        var acceptSuccess = new AcceptSuccessViewModel { Count = 1, OrganisationId = 123, OrganisationName = "Test Producer" };
+        session.SetObject(SessionConstants.AcceptSuccess, acceptSuccess);
+        SetupMapperReturns(CreateViewModel());
+        var controllerUnderTest = BuildController(HttpStatusCode.OK, CreateBillingData(), session);
+        var request = new BillingInstructionsIndexModel { Page = 1, PageSize = 10 };
+
+        // Act
+        var result = await controllerUnderTest.IndexAsync(RunId, request) as ViewResult;
+
+        // Assert
+        var model = result?.Model as BillingInstructionsViewModel;
+        Assert.IsNotNull(model);
+        Assert.AreEqual(acceptSuccess, model.AcceptSuccess);
+
+        // Removed so the banner is not shown again on refresh or return.
+        Assert.IsFalse(session.Keys.Contains(SessionConstants.AcceptSuccess));
+    }
+
+    [TestMethod]
+    public async Task IndexAsync_WhenNoSelectionErrorInSession_PassesItToViewAndRemovesIt()
+    {
+        // Arrange
+        ISession session = new MockHttpSession();
+        session.SetBooleanFlag(SessionConstants.NoSelectionError, true);
+        SetupMapperReturns(CreateViewModel());
+        var controllerUnderTest = BuildController(HttpStatusCode.OK, CreateBillingData(), session);
+        var request = new BillingInstructionsIndexModel { Page = 1, PageSize = 10 };
+
+        // Act
+        var result = await controllerUnderTest.IndexAsync(RunId, request) as ViewResult;
+
+        // Assert
+        var model = result?.Model as BillingInstructionsViewModel;
+        Assert.IsNotNull(model);
+        Assert.IsTrue(model.HasNoSelectionError);
+        Assert.IsFalse(session.Keys.Contains(SessionConstants.NoSelectionError));
+    }
+
+    [TestMethod]
     public void ProcessSelection_RedirectsToIndexWithRunId()
     {
         // Arrange
@@ -373,26 +434,11 @@ public class BillingInstructionsControllerTests
     }
 
     [TestMethod]
-    public void AcceptSelected_RedirectsToAcceptRejectConfirmation()
-    {
-        // Arrange
-        const int testRunId = 123;
-
-        // Act
-        var result = controller.AcceptSelected(testRunId) as RedirectToActionResult;
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(ActionNames.Index, result.ActionName);
-        Assert.AreEqual(ControllerNames.AcceptRejectConfirmationController, result.ControllerName);
-        Assert.AreEqual(testRunId, result.RouteValues!["runId"]);
-    }
-
-    [TestMethod]
     public void RejectSelected_RedirectsToReasonForRejection()
     {
         // Arrange
         const int testRunId = 46023;
+        ARJourneySessionHelper.AddToSession(controller.HttpContext.Session, [1]);
 
         // Act
         var result = controller.RejectSelected(testRunId) as RedirectToActionResult;
@@ -402,6 +448,127 @@ public class BillingInstructionsControllerTests
         Assert.AreEqual(ActionNames.Index, result.ActionName);
         Assert.AreEqual(ControllerNames.ReasonForRejectionController, result.ControllerName);
         Assert.AreEqual(testRunId, result.RouteValues!["runId"]);
+    }
+
+    [TestMethod]
+    public void RejectSelected_WhenNothingSelected_SetsNoSelectionErrorAndRedirectsToIndex()
+    {
+        // Act
+        var result = controller.RejectSelected(RunId) as RedirectToRouteResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.RouteName);
+        Assert.AreEqual(RunId, result.RouteValues!["runId"]);
+        Assert.IsTrue(controller.HttpContext.Session.GetBooleanFlag(SessionConstants.NoSelectionError));
+    }
+
+    [TestMethod]
+    public async Task AcceptSelected_WhenNothingSelected_SetsNoSelectionErrorAndDoesNotCallApi()
+    {
+        // Arrange
+        ISession session = new MockHttpSession();
+        var apiService = TestMockUtils.BuildMockApiService(HttpStatusCode.OK);
+        var controllerUnderTest = BuildController(apiService.Object, session);
+
+        // Act
+        var result = await controllerUnderTest.AcceptSelected(RunId) as RedirectToRouteResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.RouteName);
+        Assert.AreEqual(RunId, result.RouteValues!["runId"]);
+        Assert.IsTrue(session.GetBooleanFlag(SessionConstants.NoSelectionError));
+        Assert.IsFalse(session.Keys.Contains(SessionConstants.AcceptSuccess));
+        apiService.Verify(service => service.CallApi(
+            It.IsAny<HttpMethod>(),
+            It.IsAny<string>(),
+            It.IsAny<IDictionary<string, string?>>(),
+            It.IsAny<object>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task AcceptSelected_WhenOrganisationsSelected_AcceptsThemAndRedirectsToIndex()
+    {
+        // Arrange
+        ISession session = new MockHttpSession();
+        ARJourneySessionHelper.AddToSession(session, [11, 22, 33]);
+        HttpMethod? actualMethod = null;
+        string? actualRelativePath = null;
+        ProducerBillingInstructionsHttpPutRequestDto? actualBody = null;
+        var apiService = new Mock<IEprCalculatorApiService>();
+        apiService.Setup(service => service.CallApi(
+                It.IsAny<HttpMethod>(),
+                It.IsAny<string>(),
+                It.IsAny<IDictionary<string, string?>>(),
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<HttpMethod, string, IDictionary<string, string?>?, object?, CancellationToken>((method, path, _, body, _) =>
+            {
+                actualMethod = method;
+                actualRelativePath = path;
+                actualBody = body as ProducerBillingInstructionsHttpPutRequestDto;
+            })
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+        var controllerUnderTest = BuildController(apiService.Object, session);
+
+        // Act
+        var result = await controllerUnderTest.AcceptSelected(RunId) as RedirectToRouteResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(RouteNames.BillingInstructionsIndex, result.RouteName);
+        Assert.AreEqual(RunId, result.RouteValues!["runId"]);
+
+        Assert.AreEqual(HttpMethod.Put, actualMethod);
+        Assert.AreEqual($"v2/producerBillingInstructions/{RunId}", actualRelativePath);
+        Assert.IsNotNull(actualBody);
+        CollectionAssert.AreEquivalent(new[] { 11, 22, 33 }, actualBody.OrganisationIds.ToArray());
+        Assert.AreEqual(BillingStatus.Accepted.ToString(), actualBody.Status);
+        Assert.IsNull(actualBody.ReasonForRejection);
+
+        Assert.AreEqual(0, ARJourneySessionHelper.GetFromSession(session).Count);
+        Assert.AreEqual(
+            new AcceptSuccessViewModel { Count = 3 },
+            session.GetObject<AcceptSuccessViewModel>(SessionConstants.AcceptSuccess));
+    }
+
+    [TestMethod]
+    public async Task AcceptSelected_WhenOneOrganisationSelected_RecordsItsIdAndName()
+    {
+        // Arrange
+        ISession session = new MockHttpSession();
+        ARJourneySessionHelper.AddToSession(session, [123456]);
+        ARJourneySessionHelper.AddNamesToSession(session, [KeyValuePair.Create(123456, "Global Solutions Inc.")]);
+        var controllerUnderTest = BuildController(HttpStatusCode.OK, session: session);
+
+        // Act
+        await controllerUnderTest.AcceptSelected(RunId);
+
+        // Assert
+        Assert.AreEqual(
+            new AcceptSuccessViewModel { Count = 1, OrganisationId = 123456, OrganisationName = "Global Solutions Inc." },
+            session.GetObject<AcceptSuccessViewModel>(SessionConstants.AcceptSuccess));
+    }
+
+    [TestMethod]
+    public async Task AcceptSelected_WhenApiFails_RedirectsToErrorAndKeepsSelection()
+    {
+        // Arrange
+        ISession session = new MockHttpSession();
+        ARJourneySessionHelper.AddToSession(session, [11, 22]);
+        var controllerUnderTest = BuildController(HttpStatusCode.InternalServerError, session: session);
+
+        // Act
+        var result = await controllerUnderTest.AcceptSelected(RunId) as RedirectToActionResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Index", result.ActionName);
+        Assert.AreEqual("StandardError", result.ControllerName);
+        CollectionAssert.AreEquivalent(new[] { 11, 22 }, ARJourneySessionHelper.GetFromSession(session).ToArray());
+        Assert.IsFalse(session.Keys.Contains(SessionConstants.AcceptSuccess));
     }
 
     [TestMethod]
