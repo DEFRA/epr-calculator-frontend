@@ -119,5 +119,10 @@
         /// Error message for Reason length on the AcceptRejectConfirmationViewModel.
         /// </summary>
         public const string ReasonMustNotExceed500Characters = "Reason for rejection must not exceed 500 characters.";
+
+        /// <summary>
+        /// Error message for No Organisations selected on the Billing Instructions page.
+        /// </summary>
+        public const string BillingInstructionsNoOrgsSelected = "Select at least one organisation to accept or reject.";
     }
 }

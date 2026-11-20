@@ -3,6 +3,7 @@
 @model BillingInstructionsViewModel
 
 @{
+    ViewData["Title"] = (Model.HasNoSelectionError ? "Error: " : string.Empty) + "Accept or reject billing instructions";
     // Same page without the organisation ID search, keeping filters and page size.
     var clearSearchQuery = new List<KeyValuePair<string, string?>>
     {
@@ -13,6 +14,11 @@
     var clearSearchUrl = Url.RouteUrl(RouteNames.BillingInstructionsIndex, new { runId = Model.RunId }) + Microsoft.AspNetCore.Http.QueryString.Create(clearSearchQuery);
 
     var noSearchResults = Model.OrganisationId.HasValue && !Model.TablePaginationModel.Records.Any();
+
+    // Error summary links to the first selectable row, or the search box if there are none.
+    var firstSelectable = Model.TablePaginationModel.Records.Cast<Organisation>()
+        .FirstOrDefault(o => o.BillingInstruction != BillingInstruction.Noaction);
+    var errorLinkTarget = firstSelectable != null ? $"select-{firstSelectable.Id}" : "OrganisationId";
 }
 
 <vc:user-nav
@@ -23,13 +29,42 @@
 <div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full govuk-!-padding-top-2">
+
+            @if (Model.HasNoSelectionError)
+            {
+                <div class="govuk-error-summary" data-module="govuk-error-summary">
+                    <div role="alert">
+                        <h2 class="govuk-error-summary__title">There is a problem</h2>
+                        <div class="govuk-error-summary__body">
+                            <ul class="govuk-list govuk-error-summary__list">
+                                <li><a href="#@errorLinkTarget">@ErrorMessages.BillingInstructionsNoOrgsSelected</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (Model.AcceptSuccess != null)
+            {
+                <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
+                     aria-labelledby="accept-success-title" data-module="govuk-notification-banner" id="accept-success-banner">
+                    <div class="govuk-notification-banner__header">
+                        <h2 class="govuk-notification-banner__title" id="accept-success-title">Success</h2>
+                    </div>
+                    <div class="govuk-notification-banner__content">
+                        <h3 class="govuk-notification-banner__heading govuk-!-text-break-word">@Model.AcceptSuccess.GetHeading()</h3>
+                        <p class="govuk-body govuk-!-text-break-word">@Model.AcceptSuccess.GetBody(Model.StatusCounts.GetValueOrDefault(BillingStatus.Pending))</p>
+                    </div>
+                </div>
+            }
+
             <span class="govuk-caption-l">@Model.RunName</span>
             <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">Accept or reject billing instructions</h1>
             <p class="govuk-body-m govuk-!-margin-bottom-6">Your billing decisions will be saved and you must give a reason if you reject.</p>
 
             @using (Html.BeginRouteForm(routeName: RouteNames.BillingInstructionsIndex, routeValues: new { runId = Model.RunId, }, method: FormMethod.Get))
             {
-                <input type="hidden" name="@nameof(BillingInstructionsIndexModel.PageSize)" value="@Model.TablePaginationModel.PageSize" />
+                <input type="hidden" name="@nameof(BillingInstructionsIndexModel.PageSize)" value="@Model.TablePaginationModel.PageSize"/>
 
                 <h2 class="govuk-heading-m govuk-!-margin-bottom-3">Billing decisions for this run</h2>
                 <p class="govuk-body-m govuk-!-margin-bottom-3">Run-wide totals. Search and filters do not change these totals.</p>
@@ -48,7 +83,7 @@
                         </label>
 
                         <div class="search-input-group">
-                            <input class="govuk-input" id="OrganisationId" name="@nameof(BillingInstructionsIndexModel.OrganisationId)" type="search" value="@Model.OrganisationId" />
+                            <input class="govuk-input" id="OrganisationId" name="@nameof(BillingInstructionsIndexModel.OrganisationId)" type="search" value="@Model.OrganisationId"/>
                             <button type="submit" class="govuk-button govuk-!-margin-bottom-0" data-module="govuk-button">
                                 Search
                             </button>
@@ -70,7 +105,7 @@
                                     var isChecked = Model.BillingInstructions.Contains(item);
                                     Model.InstructionCounts.TryGetValue(item, out var count);
                                     <div class="govuk-checkboxes__item">
-                                        <input class="govuk-checkboxes__input" type="checkbox" id="billingInstructions@(item)" name="@nameof(BillingInstructionsIndexModel.BillingInstructions)" value="@item" @(isChecked ? "checked" : "") data-submit-on-change />
+                                        <input class="govuk-checkboxes__input" type="checkbox" id="billingInstructions@(item)" name="@nameof(BillingInstructionsIndexModel.BillingInstructions)" value="@item" @(isChecked ? "checked" : "") data-submit-on-change/>
                                         <label class="govuk-label govuk-checkboxes__label" for="billingInstructions@(item)">
                                             @item.GetDisplayName() (@count.ToString("N0"))
                                         </label>
@@ -87,12 +122,12 @@
                             </legend>
 
                             <div class="filter-grid govuk-checkboxes govuk-checkboxes">
-                                @foreach (var item in Enum.GetValues<BillingStatus>().Where(x => x != BillingStatus.Noaction) )
+                                @foreach (var item in Enum.GetValues<BillingStatus>().Where(x => x != BillingStatus.Noaction))
                                 {
                                     bool isChecked = Model.BillingStatuses.Contains(item);
                                     Model.StatusCounts.TryGetValue(item, out var count);
                                     <div class="govuk-checkboxes__item">
-                                        <input class="govuk-checkboxes__input" type="checkbox" id="billingStatuses@(item)" name="@nameof(BillingInstructionsIndexModel.BillingStatuses)" value="@item" @(isChecked ? "checked" : "") data-submit-on-change />
+                                        <input class="govuk-checkboxes__input" type="checkbox" id="billingStatuses@(item)" name="@nameof(BillingInstructionsIndexModel.BillingStatuses)" value="@item" @(isChecked ? "checked" : "") data-submit-on-change/>
                                         <label class="govuk-label govuk-checkboxes__label" for="billingStatuses@(item)">
                                             @item.GetDisplayName() (@count.ToString("N0"))
                                         </label>
@@ -135,7 +170,7 @@
                         </div>
                     </div>
                 }
-    
+
                 @using (Html.BeginForm(ActionNames.SelectAllPage, null, FormMethod.Post))
                 {
                     <div class="govuk-form-group govuk-!-margin-bottom-0">
@@ -162,7 +197,7 @@
                     </div>
                 }
             </div>
-    
+
             <form asp-action="ClearSelection" asp-controller="BillingInstructions" method="post" data-check-has-producer-ids>
                 <button type="submit" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" data-module="govuk-button" id="clear-selection-btn">
                     Clear selection
@@ -191,13 +226,13 @@
     }
 
     <div class="govuk-button-group">
-        <form asp-action="AcceptSelected" asp-controller="BillingInstructions" method="post" data-check-has-producer-ids>
+        <form asp-action="AcceptSelected" asp-controller="BillingInstructions" method="post">
             <button type="submit" class="govuk-button govuk-button--secondary govuk-!-margin-right-4" data-module="govuk-button" id="accept-selection-btn">
                 Accept selected
             </button>
             <input type="hidden" name="runId" value="@Model.RunId" />
         </form>
-        <form asp-action="RejectSelected" asp-controller="BillingInstructions" method="post" data-check-has-producer-ids>
+        <form asp-action="RejectSelected" asp-controller="BillingInstructions" method="post">
             <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" id="reject-selection-btn">
                 Reject selected
             </button>
