@@ -226,13 +226,13 @@
     }
 
     <div class="govuk-button-group">
-        <form asp-action="AcceptSelected" asp-controller="BillingInstructions" method="post">
+        <form asp-action="AcceptSelected" asp-controller="BillingInstructions" method="post" data-prevent-double-click="true" data-submit-selected-form>
             <button type="submit" class="govuk-button govuk-button--secondary govuk-!-margin-right-4" data-module="govuk-button" id="accept-selection-btn">
                 Accept selected
             </button>
             <input type="hidden" name="runId" value="@Model.RunId" />
         </form>
-        <form asp-action="RejectSelected" asp-controller="BillingInstructions" method="post">
+        <form asp-action="RejectSelected" asp-controller="BillingInstructions" method="post" data-prevent-double-click="true" data-submit-selected-form>
             <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" id="reject-selection-btn">
                 Reject selected
             </button>
@@ -265,6 +265,12 @@
 
 <script type="text/javascript" nonce="@Context.Items["CspNonce"]">
     document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll("[data-submit-selected-form]").forEach(form => {
+            form.addEventListener("submit", () => {
+                document.querySelectorAll("[data-submit-selected-form] button").forEach(button => button.disabled = true);
+            });
+        });
+
         document.querySelectorAll("[data-submit-on-change]").forEach(element => {
             element.addEventListener("change", () => {
                 element.form.submit();
