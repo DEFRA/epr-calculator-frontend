@@ -3,6 +3,7 @@ using EPR.Calculator.Frontend.Constants;
 using EPR.Calculator.Frontend.Controllers;
 using EPR.Calculator.Frontend.Enums;
 using EPR.Calculator.Frontend.Extensions;
+using EPR.Calculator.Frontend.Helpers;
 using EPR.Calculator.Frontend.Mappers;
 using EPR.Calculator.Frontend.Models;
 using EPR.Calculator.Frontend.Services;
@@ -126,6 +127,37 @@ public class BillingInstructionsControllerTests
     }
 
     [TestMethod]
+    public async Task IndexAsync_WhenRowsOnPageAreSelected_MarksThemSelectedAndRecordsNames()
+    {
+        // Arrange
+        ISession session = new MockHttpSession();
+        session.SetObject(SessionConstants.ProducerIds, new List<int> { 123, 456 });
+        var named = new Organisation { OrganisationId = 123, OrganisationName = "Test Producer" };
+        var unnamed = new Organisation { OrganisationId = 456, OrganisationName = null };
+        var notSelected = new Organisation { OrganisationId = 789, OrganisationName = "Other Producer" };
+        var viewModel = CreateViewModel(selectedRows: [named, unnamed, notSelected]);
+        SetupMapperReturns(viewModel);
+        var controllerUnderTest = BuildController(HttpStatusCode.OK, CreateBillingData(), session);
+        var request = new BillingInstructionsIndexModel { Page = 1, PageSize = 10 };
+
+        // Act
+        await controllerUnderTest.IndexAsync(RunId, request);
+
+        // Assert
+        Assert.IsTrue(named.IsSelected);
+        Assert.IsTrue(unnamed.IsSelected);
+        Assert.IsFalse(notSelected.IsSelected);
+
+        // Every record returned by the API (producer 123) is selected, so the page counts as selected.
+        Assert.IsTrue(viewModel.OrganisationSelections.SelectPage);
+        Assert.AreEqual("true", session.GetString(SessionConstants.IsSelectAllPage));
+
+        Assert.AreEqual("Test Producer", ARJourneySessionHelper.GetNameFromSession(session, 123));
+        Assert.IsNull(ARJourneySessionHelper.GetNameFromSession(session, 456));
+        Assert.IsNull(ARJourneySessionHelper.GetNameFromSession(session, 789));
+    }
+
+    [TestMethod]
     public void ProcessSelection_RedirectsToIndexWithRunId()
     {
         // Arrange
@@ -236,6 +268,29 @@ public class BillingInstructionsControllerTests
         var stored = session.GetObject<IEnumerable<int>>(SessionConstants.ProducerIds);
         Assert.IsNotNull(stored);
         CollectionAssert.AreEquivalent(new List<int> { 123 }, stored.ToList());
+        Assert.AreEqual("Test Producer", ARJourneySessionHelper.GetNameFromSession(session, 123));
+    }
+
+    [TestMethod]
+    public async Task SelectAllPage_WhenProducerNameIsMissing_SelectsProducerWithoutStoringName()
+    {
+        // Arrange
+        ISession session = new MockHttpSession();
+        var controllerUnderTest = BuildController(HttpStatusCode.OK, CreateBillingData(producerName: null), session);
+        var model = new BillingInstructionsSelectModel
+        {
+            RunId = RunId,
+            OrganisationSelections = new OrganisationSelectionsViewModel { SelectPage = true }
+        };
+
+        // Act
+        await controllerUnderTest.SelectAllPage(model);
+
+        // Assert
+        var stored = session.GetObject<IEnumerable<int>>(SessionConstants.ProducerIds);
+        Assert.IsNotNull(stored);
+        CollectionAssert.AreEquivalent(new List<int> { 123 }, stored.ToList());
+        Assert.IsNull(ARJourneySessionHelper.GetNameFromSession(session, 123));
     }
 
     [TestMethod]
@@ -264,10 +319,10 @@ public class BillingInstructionsControllerTests
     public void UpdateOrganisationSelection_WhenSelected_AddsToSessionAndReturnsOk()
     {
         // Arrange
-        var orgDto = new BillingSelectionOrgDto { Id = 42, IsSelected = true };
+        var orgDto = new BillingSelectionOrgDto { Id = 42, IsSelected = true, OrganisationName = "Acme Ltd" };
 
         // Act
-        var result = controller.UpdateOrganisationSelectionAsync(orgDto) as OkResult;
+        var result = controller.UpdateOrganisationSelectionAsync(orgDto) as OkObjectResult;
 
         // Assert
         Assert.IsNotNull(result);
@@ -275,6 +330,26 @@ public class BillingInstructionsControllerTests
         var stored = controller.HttpContext.Session.GetObject<IEnumerable<int>>(SessionConstants.ProducerIds);
         Assert.IsNotNull(stored);
         Assert.IsTrue(stored.Contains(42));
+        Assert.AreEqual(
+            "1 organisation selected: Acme Ltd (42)",
+            result.Value!.GetType().GetProperty("summary")!.GetValue(result.Value));
+    }
+
+    [TestMethod]
+    public void UpdateOrganisationSelection_WhenSelectedWithoutName_AddsIdOnly()
+    {
+        // Arrange
+        var orgDto = new BillingSelectionOrgDto { Id = 42, IsSelected = true, OrganisationName = null };
+
+        // Act
+        var result = controller.UpdateOrganisationSelectionAsync(orgDto) as OkObjectResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        var stored = controller.HttpContext.Session.GetObject<IEnumerable<int>>(SessionConstants.ProducerIds);
+        Assert.IsNotNull(stored);
+        Assert.IsTrue(stored.Contains(42));
+        Assert.IsNull(ARJourneySessionHelper.GetNameFromSession(controller.HttpContext.Session, 42));
     }
 
     [TestMethod]
@@ -287,7 +362,7 @@ public class BillingInstructionsControllerTests
         var orgDto = new BillingSelectionOrgDto { Id = 99, IsSelected = false };
 
         // Act
-        var result = controller.UpdateOrganisationSelectionAsync(orgDto) as OkResult;
+        var result = controller.UpdateOrganisationSelectionAsync(orgDto) as OkObjectResult;
 
         // Assert
         Assert.IsNotNull(result);
@@ -392,7 +467,9 @@ public class BillingInstructionsControllerTests
         Assert.AreEqual(RunId, model.RunId);
     }
 
-    private static ProducerBillingInstructionsResponseDto CreateBillingData(int runId = RunId)
+    private static ProducerBillingInstructionsResponseDto CreateBillingData(
+        int runId = RunId,
+        string? producerName = "Test Producer")
     {
         return new ProducerBillingInstructionsResponseDto
         {
@@ -400,7 +477,7 @@ public class BillingInstructionsControllerTests
             [
                 new ProducerBillingInstructionsDto
                 {
-                    ProducerName = "Test Producer",
+                    ProducerName = producerName,
                     ProducerId = 123,
                     SuggestedBillingInstruction = "Initial",
                     SuggestedInvoiceAmount = 100.0m,

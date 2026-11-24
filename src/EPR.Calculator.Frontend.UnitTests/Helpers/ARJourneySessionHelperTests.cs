@@ -103,5 +103,110 @@ namespace EPR.Calculator.Frontend.UnitTests.Helpers
             var result = ARJourneySessionHelper.GetFromSession(_session);
             Assert.AreEqual(0, result.Count);
         }
+
+        [TestMethod]
+        public void GetSelectionSummary_NoneSelected_PromptsToSearch()
+        {
+            Assert.AreEqual(
+                "No organisations selected. Use search to find and select an organisation.",
+                ARJourneySessionHelper.GetSelectionSummary(_session));
+        }
+
+        [TestMethod]
+        public void GetSelectionSummary_OneSelectedWithName_NamesOrganisation()
+        {
+            ARJourneySessionHelper.AddToSession(_session, [100123]);
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(100123, "Acme Ltd")]);
+
+            Assert.AreEqual(
+                "1 organisation selected: Acme Ltd (100123)",
+                ARJourneySessionHelper.GetSelectionSummary(_session));
+        }
+
+        [TestMethod]
+        public void GetSelectionSummary_OneSelectedWithoutName_ShowsEmptyNameAndId()
+        {
+            ARJourneySessionHelper.AddToSession(_session, [100123]);
+
+            Assert.AreEqual("1 organisation selected:  (100123)", ARJourneySessionHelper.GetSelectionSummary(_session));
+        }
+
+        [TestMethod]
+        public void GetSelectionSummary_ManySelected_FormatsCount()
+        {
+            ARJourneySessionHelper.AddToSession(_session, Enumerable.Range(1, 3123));
+
+            Assert.AreEqual("3,123 organisations selected", ARJourneySessionHelper.GetSelectionSummary(_session));
+        }
+
+        [TestMethod]
+        public void GetSelectionSummary_AfterDeselectingDownToOne_NamesRemainingOrganisation()
+        {
+            ARJourneySessionHelper.AddToSession(_session, [1, 2]);
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, "First"), KeyValuePair.Create(2, "Second")]);
+
+            ARJourneySessionHelper.RemoveFromSession(_session, [1]);
+
+            Assert.AreEqual("1 organisation selected: Second (2)", ARJourneySessionHelper.GetSelectionSummary(_session));
+            Assert.IsNull(ARJourneySessionHelper.GetNameFromSession(_session, 1));
+        }
+
+        [TestMethod]
+        public void AddNamesToSession_IgnoresBlankNames()
+        {
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, " ")]);
+
+            Assert.IsNull(ARJourneySessionHelper.GetNameFromSession(_session, 1));
+        }
+
+        [TestMethod]
+        public void AddNamesToSession_ReplacesChangedName()
+        {
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, "Old name")]);
+
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, "New name")]);
+
+            Assert.AreEqual("New name", ARJourneySessionHelper.GetNameFromSession(_session, 1));
+        }
+
+        [TestMethod]
+        public void AddNamesToSession_KeepsUnchangedName()
+        {
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, "Same name")]);
+
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, "Same name")]);
+
+            Assert.AreEqual("Same name", ARJourneySessionHelper.GetNameFromSession(_session, 1));
+        }
+
+        [TestMethod]
+        public void RemoveFromSession_WhenNoNamesStored_RemovesIds()
+        {
+            ARJourneySessionHelper.AddToSession(_session, [1, 2]);
+
+            ARJourneySessionHelper.RemoveFromSession(_session, [1]);
+
+            CollectionAssert.AreEquivalent(new List<int> { 2 }, ARJourneySessionHelper.GetFromSession(_session).ToList());
+            Assert.IsNull(ARJourneySessionHelper.GetNameFromSession(_session, 2));
+        }
+
+        [TestMethod]
+        public void RemoveFromSession_WhenNothingStored_LeavesSelectionEmpty()
+        {
+            ARJourneySessionHelper.RemoveFromSession(_session, [1]);
+
+            Assert.AreEqual(0, ARJourneySessionHelper.GetFromSession(_session).Count);
+        }
+
+        [TestMethod]
+        public void ClearAllFromSession_RemovesNames()
+        {
+            ARJourneySessionHelper.AddToSession(_session, [1]);
+            ARJourneySessionHelper.AddNamesToSession(_session, [KeyValuePair.Create(1, "First")]);
+
+            ARJourneySessionHelper.ClearAllFromSession(_session);
+
+            Assert.IsNull(ARJourneySessionHelper.GetNameFromSession(_session, 1));
+        }
     }
 }
