@@ -1,25 +1,23 @@
 @{
     ViewData["Title"] = "Index";
 }
-<main class="govuk-main-wrapper govuk-!-padding-top-4" id="main-content" role="main">
 
-    <vc:user-nav back-link="@Url.Action("Index", "Dashboard")"/>
+<vc:user-nav back-link="@Url.Action("Index", "Dashboard")"/>
 
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <div class="govuk-form-group ">
-                <h1 class="govuk-heading-l">There was a problem downloading this file</h1>
-                <p class="govuk-body-m">This file has not been downloaded.</p>
-                <a href="@Url.Action("Index", "Dashboard")" class="govuk-button" data-history-back>
-                    Try again
-                </a>
-                <p class="govuk-body">
-                    <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
-                </p>
-            </div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-form-group ">
+            <h1 class="govuk-heading-l">There was a problem downloading this file</h1>
+            <p class="govuk-body-m">This file has not been downloaded.</p>
+            <a href="@Url.Action("Index", "Dashboard")" class="govuk-button" data-history-back>
+                Try again
+            </a>
+            <p class="govuk-body">
+                <a href="@Url.Action("Index", "Dashboard")" class="govuk-link">Return to the dashboard</a>
+            </p>
         </div>
     </div>
-</main>
+</div>
 
 <script type="text/javascript" nonce="@Context.Items["CspNonce"]">
     document.addEventListener("DOMContentLoaded", () => {
