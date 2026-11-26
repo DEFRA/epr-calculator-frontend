@@ -132,6 +132,100 @@ public class DashboardControllerTests
         apiService.Verify(service => service.FindCalculatorRuns(new RelativeYear(2024)));
     }
 
+    [TestMethod]
+    public async Task Index_WhenNoTemplatesUploaded_ShowsThemAsNotSet()
+    {
+        // Arrange
+        var controller = BuildController();
+
+        // Act
+        var result = await controller.Index() as ViewResult;
+
+        // Assert
+        var model = result?.Model as DashboardViewModel;
+        Assert.IsNotNull(model);
+        Assert.IsFalse(model.HasDefaultParameters);
+        Assert.IsFalse(model.HasLocalAuthorityDisposalCosts);
+        Assert.IsFalse(model.CanRunCalculation);
+    }
+
+    [TestMethod]
+    public async Task Index_WhenOnlyDefaultParametersUploaded_CannotRunCalculation()
+    {
+        // Arrange
+        SetupDefaultParameters();
+        var controller = BuildController();
+
+        // Act
+        var result = await controller.Index() as ViewResult;
+
+        // Assert
+        var model = result?.Model as DashboardViewModel;
+        Assert.IsNotNull(model);
+        Assert.IsTrue(model.HasDefaultParameters);
+        Assert.IsFalse(model.HasLocalAuthorityDisposalCosts);
+        Assert.IsFalse(model.CanRunCalculation);
+    }
+
+    [TestMethod]
+    public async Task Index_WhenBothTemplatesUploadedForSelectedYear_CanRunCalculation()
+    {
+        // Arrange
+        session.SetInt32(SessionConstants.RelativeYear, 2024);
+        SetupDefaultParameters();
+        SetupDisposalCosts();
+        var controller = BuildController();
+
+        // Act
+        var result = await controller.Index() as ViewResult;
+
+        // Assert
+        var model = result?.Model as DashboardViewModel;
+        Assert.IsNotNull(model);
+        Assert.IsTrue(model.HasDefaultParameters);
+        Assert.IsTrue(model.HasLocalAuthorityDisposalCosts);
+        Assert.IsTrue(model.CanRunCalculation);
+        apiService.Verify(service => service.Get<List<DefaultSchemeParameters>>("v1/defaultParameterSetting/2024", null, default));
+        apiService.Verify(service => service.Get<List<LocalAuthorityDisposalCost>>("v1/lapcapData/2024", null, default));
+    }
+
+    private void SetupDefaultParameters()
+    {
+        apiService
+            .Setup(service => service.Get<List<DefaultSchemeParameters>>(It.IsAny<string>(), null, default))
+            .ReturnsAsync([
+                new DefaultSchemeParameters
+                {
+                    RelativeYear = new RelativeYear(2024),
+                    CreatedBy = "Test User",
+                    ParameterUniqueRef = "BADEBT-P",
+                    ParameterType = "Bad debt provision",
+                    ParameterCategory = "Percentage",
+                    ParameterValue = "6"
+                }
+            ]);
+    }
+
+    private void SetupDisposalCosts()
+    {
+        apiService
+            .Setup(service => service.Get<List<LocalAuthorityDisposalCost>>(It.IsAny<string>(), null, default))
+            .ReturnsAsync([
+                new LocalAuthorityDisposalCost
+                {
+                    RelativeYear = new RelativeYear(2024),
+                    EffectiveFrom = new DateTime(2024, 4, 1, 0, 0, 0, DateTimeKind.Utc),
+                    CreatedBy = "Test User",
+                    CreatedAt = new DateTime(2024, 4, 1, 0, 0, 0, DateTimeKind.Utc),
+                    LapcapDataMasterId = 1,
+                    LapcapTempUniqueRef = "ENG-AL",
+                    Country = "England",
+                    Material = "Aluminium",
+                    TotalCost = 100m
+                }
+            ]);
+    }
+
     private DashboardController BuildController()
     {
         return new DashboardController(
