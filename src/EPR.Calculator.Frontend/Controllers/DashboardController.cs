@@ -36,13 +36,16 @@ public class DashboardController(
     {
         HttpContext.Session.SetInt32(SessionConstants.RelativeYear, relativeYear.Value);
 
-        var dashboardViewModel = new DashboardViewModel
+        var defaultParameters = await eprCalculatorApiService.Get<List<DefaultSchemeParameters>>($"v1/defaultParameterSetting/{relativeYear}");
+        var disposalCosts = await eprCalculatorApiService.Get<List<LocalAuthorityDisposalCost>>($"v1/lapcapData/{relativeYear}");
+
+        return new DashboardViewModel
         {
             RelativeYear = relativeYear,
-            Calculations = await FindCalculatorRunsAsync(relativeYear)
+            Calculations = await FindCalculatorRunsAsync(relativeYear),
+            HasDefaultParameters = defaultParameters?.Count > 0,
+            HasLocalAuthorityDisposalCosts = disposalCosts?.Count > 0
         };
-
-        return dashboardViewModel;
     }
 
     private async Task<List<CalculationRunViewModel>> FindCalculatorRunsAsync(RelativeYear relativeYear)

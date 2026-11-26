@@ -5,32 +5,39 @@
 
 .dashboard-page {
     .tile-group {
-        .tile {
-            color: white;
-            min-height: 82px;
-            position: relative;
-            margin-bottom: 26px;
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
 
-            .more-info {
-                color: white;
-                font-size: 16px;
-            }
+        > [class*="govuk-grid-column-"] {
+            margin-bottom: 20px;
         }
 
-        a {
-            display: block;
-            background-color: #1d70b8;
-            text-decoration: none;
-            padding: 11px;
+        .tile {
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            height: 100%;
+            padding: 30px;
+            background-color: #f3f2f1;
+            border-bottom: 5px solid #b1b4b6;
+        }
 
-            .heading {
-                color: white;
-                margin-bottom: 10px;
-                min-height: 38px;
+        .tile__footer {
+            margin-top: auto;
+
+            .govuk-body:last-child {
+                margin-bottom: 0;
             }
+        }
+    }
 
-            .heading:hover {
-                color: #d9e7f3;
+    @media (min-width: 40.0625em) {
+        .tile-group {
+            margin-bottom: 40px;
+
+            > [class*="govuk-grid-column-"] {
+                margin-bottom: 0;
             }
         }
     }
